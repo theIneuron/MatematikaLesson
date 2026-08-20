@@ -7,10 +7,19 @@ import { parse } from '@babel/parser';
 
 const ROOT = process.cwd();
 const GRADE4_DIR = path.join(ROOT, 'src/components/grade4');
+import { withTheoryShellSource } from './lib/grade4-theory-shell-source.mjs';
 const LANGS = ['uz', 'ru', 'en'];
 const LOCALE_HELPERS = new Set(['B', 'b', 'bi', 'L']);
 const CYRILLIC = /[\u0400-\u052f]/u;
 const TTS_UNSAFE = /\d|[=<>≥≤×÷+−/%$€]|[—–«»“”„‟‘’ʻʼ✓✔✗✘]/u;
+// RU-поле без кириллицы — это узбекский текст, забытый в русской версии:
+// ребёнок на русском уроке читает чужой язык. Чистая математическая запись
+// (2 408 × 3 = 7 224) кириллицы не требует, поэтому ищем именно латинские
+// слова, а коды локали вида ru-RU исключаем.
+const LATIN_WORD = /[A-Za-z]{2,}/u;
+// Рим-токен: слово целиком из знаков римской записи (III, XIV, MCM).
+const ROMAN_NUMERAL = /\b[IVXLCDM]{1,7}\b/gu;
+const LOCALE_CODE = /^[a-z]{2}-[A-Z]{2}$/u;
 const failures = [];
 const stats = { files: 0, theory: 0, practice: 0, localizedNodes: 0, audioNodes: 0, helperCalls: 0 };
 
@@ -118,6 +127,17 @@ function directConditionalLiteralText(node) {
     .filter((branch) => branch?.type === 'StringLiteral' || branch?.type === 'TemplateLiteral')
     .map(literalText)
     .join(' ');
+}
+
+// Массив озвучки надо проверять поэлементно: если склеить сегменты, один
+// узбекский сегмент спрячется за кириллицей соседних.
+function localeTextParts(node) {
+  if (!node) return [];
+  if (node.type === 'StringLiteral' || node.type === 'TemplateLiteral') {
+    return [{ node, text: literalText(node) }];
+  }
+  if (node.type === 'ArrayExpression') return node.elements.flatMap((element) => localeTextParts(element));
+  return [];
 }
 
 function isNonEmpty(node) {
@@ -301,6 +321,19 @@ function inspectAst(file, source, ast, practice) {
           if (!isNonEmpty(property.value)) fail(file, property, `${context.path || 'localized node'}.${lang} bo'sh`);
         }
 
+        const russianProperty = properties.get('ru');
+        if (russianProperty) {
+          for (const part of localeTextParts(russianProperty.value)) {
+            const text = part.text.trim();
+            // Римские цифры от языка не зависят: III и XIV в русском тексте
+            // пишутся так же. Убираем их, и если латинское слово всё ещё
+            // осталось — значит в поле ru действительно текст другого языка.
+            const withoutRoman = text.replace(ROMAN_NUMERAL, ' ');
+            if (!LATIN_WORD.test(withoutRoman) || LOCALE_CODE.test(text) || CYRILLIC.test(text)) continue;
+            fail(file, part.node, `${context.path || 'localized node'}.ru kirillsiz, matn boshqa tilda: ${text.slice(0, 60)}`);
+          }
+        }
+
         const englishProperty = properties.get('en');
         if (englishProperty) {
           const english = literalText(englishProperty.value);
@@ -394,7 +427,7 @@ if (requested.size === 0 && practice.length !== 30) failures.push(`Inventory —
 if (requested.size > 0 && entries.length !== requested.size) failures.push(`Inventory — so'ralgan ${requested.size} fayldan ${entries.length} tasi topildi`);
 
 for (const file of entries) {
-  const source = await readFile(path.join(GRADE4_DIR, file), 'utf8');
+  const source = await withTheoryShellSource(await readFile(path.join(GRADE4_DIR, file), 'utf8'), GRADE4_DIR);
   let ast;
   try {
     ast = parse(source, { sourceType: 'module', plugins: ['jsx'], errorRecovery: false });

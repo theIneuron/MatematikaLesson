@@ -1,8 +1,35 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-// 4-SINF · 25-DARS · To'plamlar va Eyler–Venn diagrammasi
-// Approved frame vector: 3,4,4,4,4,4,4,5,2,2,2,2,2,3,5.
+// 4-SINF · 25-DARS · To'plamlar va Eyler-Venn diagrammasi (sets-4-25-v2)
+// ---------------------------------------------------------------------------
+// SYUJET: Taqsimot markazining ARXIV XONASI. Javonlarda hamma narsa aralashib
+//   ketgan: maktab jihozlari, kitoblar, raqamlangan qutilar. Katalog tuzish
+//   uchun obyektlarni umumiy belgi bo'yicha to'plamlarga ajratish kerak.
+// YADRO: to'plam - umumiy belgi bilan birlashgan obyektlar guruhi; element -
+//   to'plamga kiradigan bitta obyekt. Diagrammada to'plam halqa bilan
+//   ko'rsatiladi: element halqa ichida yoki tashqarisida turadi. Ikki to'plam
+//   ajratilgan bo'lishi mumkin (juft va toq sonlar) yoki kesishishi mumkin.
+// DARSLIK ASOSI (4-sinf darsligi, 162-165-betlar "To'plamlar. Eyler-Venn
+//   diagrammasi"): 162-bet maktab mebeli (uch yuz qirq stul, o'ttiz bir doska,
+//   o'n sakkiz javon) va Zahroning xarid ro'yxati; 163-bet kitoblarni
+//   darsliklar va badiiy kitoblarga ajratish hamda figuralarni turi bo'yicha
+//   ajratish; 164-bet doira ichidagi va tashqarisidagi nuqtalar va uch yuz
+//   qirq oltidan uch yuz ellik oltigacha sonlarni juft va toq to'plamlarga
+//   ajratish; 165-bet to'rt A va to'rt B sinflardagi o'g'il bolalar soni.
+// RITM: s2 tushuntirish, s3 misol, s4 tushuntirish, s5 misol, s6 tushuntirish,
+//   s7 qoida, keyin xato ustida ish, ichkari va tashqari, sanash, moslashtirish
+//   va oxirida ikki belgi bo'yicha kesishma.
+// FRAME: s0 - to'q ko'k kanonik sahna, qolgan hamma ekran och ko'k ramkada.
+// BIT: faqat s0, s8 (o'z xatosi) va s15 da hamda javob izohida.
+// MAVZU CHEGARASI: darslikda kesishma yo'q - u faqat oxirgi bitta ekranda,
+//   kengaytirish sifatida beriladi (metodist qarori 2026-08-20). Belgi bilan
+//   yozilgan to'plam amallari (birlashma, kesishma belgilari) kiritilmaydi.
+// Misconception: M1 to'plamni faqat bir xil narsalar guruhi deb tushunish;
+//   M2 elementni to'plam bilan aralashtirish; M3 halqa tashqarisidagi obyektni
+//   ham to'plamga kiritish; M4 ikki belgi bo'yicha kesishmani unutib, obyektni
+//   faqat bitta halqaga joylashtirish.
+// ---------------------------------------------------------------------------
 
 const T = {
   bg: '#F5F5F0', ink: '#12212C', ink2: '#50616D', ink3: '#87949D', paper: '#FFFFFF',
@@ -11,210 +38,951 @@ const T = {
   warn: '#A96F13', warnSoft: '#FFF5D9', shadowBase: '58, 53, 48',
 };
 
-const TOTAL_SCREENS = 15;
-const FRAME_COUNTS = [3, 4, 4, 4, 4, 4, 4, 5, 2, 2, 2, 2, 2, 3, 5];
+// Uch tilli qiymat. Uch argument ham majburiy: bo'sh qolsa bola boshqa tildagi
+// matnni ko'radi.
+const bi = (uz, ru, en) => ({ uz, ru, en });
+
+const stableChoiceOffset = (lessonId, length) => {
+  let hash = 2166136261;
+  for (const char of `${lessonId}:${length}`) {
+    hash ^= char.charCodeAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  return length > 0 ? (hash >>> 0) % length : 0;
+};
+
+// To'g'ri javob har ekranda boshqa pozitsiyada turadi, lekin tartib barqaror:
+// orqaga qaytganda variantlar joyidan sakramaydi.
+const buildOptionOrder = (length, correctIndex, lessonId, ordinal = 0) => {
+  const natural = Array.from({ length: Math.max(0, length) }, (_, index) => index);
+  if (length < 2 || !Number.isInteger(correctIndex) || correctIndex < 0 || correctIndex >= length) return natural;
+  const target = (stableChoiceOffset(lessonId, length) + ordinal * (length - 1)) % length;
+  const order = natural.filter((index) => index !== correctIndex);
+  order.splice(target, 0, correctIndex);
+  return order;
+};
+
+// Har ekranning kirish ovozidagi segment soni. Baholanadigan ekranlarda
+// kirish segmentlari va on_correct birga hisoblanadi.
+const FRAME_COUNTS = [3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 5];
+// FRAME_COUNTS.length bilan bir xil bo'lishi shart (auditlar shu literalni o'qiydi).
+const TOTAL_SCREENS = 16;
+
 const LESSON_META = {
-  lessonId: 'sets-4-25-v1',
+  lessonId: 'sets-4-25-v2',
   slug: 'dars25-toplamlar-eyler-venn-diagrammasi',
-  lessonTitle: { uz: "25-dars. To'plamlar va Eyler–Venn diagrammasi", ru: 'Урок 25. Множества и диаграмма Эйлера–Венна', en: 'Lesson 25. Sets and Euler–Venn diagrams' },
-  skillTags: ['sets', 'element', 'two_criteria', 'euler_venn', 'classification'],
+  lessonTitle: bi("25-dars. To'plamlar va Eyler-Venn diagrammasi", 'Урок 25. Множества и диаграмма Эйлера-Венна', 'Lesson 25. Sets and the Euler-Venn diagram'),
+  skillTags: ['set_concept', 'set_element', 'common_attribute', 'disjoint_sets', 'inside_outside', 'element_count', 'two_attribute_zones'],
+  finalReflectionRequired: true,
 };
 
 const SCREEN_META = [
-  { id: 's0', type: 'hook', subtype: 'story-prediction', template: 'StoryChoice', mechanic: 'StoryChoice', goal: 'Predict where an object belongs under two criteria', misconceptions: ['one object copied into two sets'], active: true, scored: false, scope: 'hook', resetOnReturn: true },
-  { id: 's1', type: 'model', subtype: 'single-set-model', template: 'StrategyReplay', mechanic: 'StrategyReplay', goal: 'Identify elements of one set', misconceptions: ['set label treated as element'], active: true, scored: false, scope: null },
-  { id: 's2', type: 'exploration', subtype: 'overlap-model', template: 'StrategyReplay', mechanic: 'StrategyReplay', goal: 'Build the overlap of two criteria', misconceptions: ['duplicating shared elements'], active: true, scored: false, scope: null },
-  { id: 's3', type: 'discovery', subtype: 'zone-classification', template: 'StrategyReplay', mechanic: 'StrategyReplay', goal: 'Discover the four classification zones', misconceptions: ['outside zone omitted'], active: true, scored: false, scope: null },
-  { id: 's4', type: 'discovery', subtype: 'yes-no-strategy', template: 'StrategyReplay', mechanic: 'StrategyReplay', goal: 'Connect two criterion answers with a zone', misconceptions: ['criteria order ignored'], active: true, scored: false, scope: null },
-  { id: 's5', type: 'rule', subtype: 'intersection-rule', template: 'StrategyReplay', mechanic: 'StrategyReplay', goal: 'Formulate the rule for the overlap', misconceptions: ['overlap means either set'], active: true, scored: false, scope: null },
-  { id: 's6', type: 'strategy', subtype: 'outside-check-strategy', template: 'StrategyReplay', mechanic: 'StrategyReplay', goal: 'Check objects that satisfy neither criterion', misconceptions: ['all objects forced into a circle'], active: true, scored: false, scope: null },
-  { id: 's7', type: 'consolidation', subtype: 'zone-transfer', template: 'StrategyReplay', mechanic: 'StrategyReplay', goal: 'Transfer the classification strategy to a new object', misconceptions: ['shared element duplicated'], active: true, scored: false, scope: null },
-  { id: 's8', type: 'test', subtype: 'first-zone-practice', template: 'MCScreen', mechanic: 'MCScreen', goal: 'Classify an object in the first set only', misconceptions: ['overlap selected'], active: true, scored: true, scoreUnits: 1, scope: 'module-mikro' },
-  { id: 's9', type: 'test', subtype: 'intersection-practice', template: 'MCScreen', mechanic: 'MCScreen', goal: 'Classify an object in both sets', misconceptions: ['object copied into two zones'], active: true, scored: true, scoreUnits: 1, scope: 'module-mikro' },
-  { id: 's10', type: 'strategy', subtype: 'second-zone-check', template: 'MCScreen', mechanic: 'MCScreen', goal: 'Use both criteria to justify a zone', misconceptions: ['first criterion ignored'], active: true, scored: true, scoreUnits: 1, scope: 'module-mikro' },
-  { id: 's11', type: 'test', subtype: 'outside-practice', template: 'MCScreen', mechanic: 'MCScreen', goal: 'Classify an object outside both sets', misconceptions: ['outside zone omitted'], active: true, scored: true, scoreUnits: 1, scope: 'module-mikro' },
-  { id: 's12', type: 'error', subtype: 'misconception-repair', template: 'ErrorRepairChoice', mechanic: 'ErrorRepairChoice', goal: "Repair Bit's duplicated-element error", misconceptions: ['one object counted twice'], active: true, scored: true, scoreUnits: 1, scope: 'module-mikro' },
-  { id: 's13', type: 'case', subtype: 'life-context-transfer', template: 'CaseChoice', mechanic: 'CaseChoice', goal: 'Classify a device using two real criteria', misconceptions: ['criteria reversed'], active: true, scored: true, scoreUnits: 1, scope: 'final' },
-  { id: 's14', type: 'summary', subtype: 'reflection-and-title', template: 'ReflectionClaim', mechanic: 'ReflectionClaim', goal: 'Reflect on classification and bridge to measurement', misconceptions: ['single-criterion check'], active: true, scored: false, scope: null },
+  { id: 's0', type: 'hook', subtype: 'story-prediction', template: 'HookPredict', mechanic: 'HookPredict', goal: 'Predict whether different objects can form one set', misconceptions: ['a set holds only identical objects'], active: true, scored: false, scope: 'hook', resetOnReturn: true },
+  { id: 's1', type: 'diagnostic', subtype: 'prior-knowledge', template: 'InlineCheckScreen', mechanic: 'InlineCheckScreen', goal: 'Name what holds a set together', misconceptions: ['a set is any pile of objects'], active: true, scored: false, scope: null },
+  { id: 's2', type: 'exploration', subtype: 'common-attribute', template: 'StepReveal', mechanic: 'StepReveal', goal: 'See a set built from a common attribute and count its elements', misconceptions: ['counting only one kind of object'], active: true, scored: false, scope: null },
+  { id: 's3', type: 'test', subtype: 'element-pick', template: 'ElementPicker', mechanic: 'ElementPicker', goal: 'Pick the objects that belong to the named set', misconceptions: ['objects outside the attribute taken in'], active: true, scored: true, scoreUnits: 1, scope: 'module-mikro' },
+  { id: 's4', type: 'exploration', subtype: 'two-subsets', template: 'StepReveal', mechanic: 'StepReveal', goal: 'Split one set into two sets by a new attribute', misconceptions: ['both subsets kept in one ring'], active: true, scored: false, scope: null },
+  { id: 's5', type: 'test', subtype: 'set-sort', template: 'SetSort', mechanic: 'SetSort', goal: 'Place each book into the matching set', misconceptions: ['sorting by size instead of the attribute'], active: true, scored: true, scoreUnits: 1, scope: 'module-mikro' },
+  { id: 's6', type: 'exploration', subtype: 'disjoint-rings', template: 'StepReveal', mechanic: 'StepReveal', goal: 'See two disjoint sets on the diagram and count both', misconceptions: ['a number placed in both rings'], active: true, scored: false, scope: null },
+  { id: 's7', type: 'rule', subtype: 'textbook-method', template: 'RuleScreen', mechanic: 'RuleScreen', goal: 'Name a set, an element and the diagram', misconceptions: ['element confused with the set'], active: true, scored: false, scope: null },
+  { id: 's8', type: 'error', subtype: 'misconception-repair', template: 'ErrorRepair', mechanic: 'ErrorRepair', goal: 'Repair the ring where an odd number was placed among the even ones', misconceptions: ['attribute not checked before placing'], active: true, scored: true, scoreUnits: 1, scope: 'module-mikro' },
+  { id: 's9', type: 'construction', subtype: 'inside-outside', template: 'InsideOutside', mechanic: 'InsideOutside', goal: 'Tell the points inside the ring from the points outside it', misconceptions: ['points on the outside taken in'], active: true, scored: true, scoreUnits: 1, scope: 'module-mikro' },
+  { id: 's10', type: 'case', subtype: 'life-context', template: 'TapNumPadScreen', mechanic: 'TapNumPadScreen', goal: 'Count the elements of two sets together', misconceptions: ['only one set counted'], active: true, scored: true, scoreUnits: 1, scope: 'module-mikro' },
+  { id: 's11', type: 'matching', subtype: 'set-count-link', template: 'MatchingBoard', mechanic: 'MatchingBoard', goal: 'Link each set with the number of its elements', misconceptions: ['matching by the first digit'], active: true, scored: true, scoreUnits: 1, scope: 'module-mikro' },
+  { id: 's12', type: 'test', subtype: 'three-rounds', template: 'RoundsScreen', mechanic: 'RoundsScreen', goal: 'Decide what is a set, what is an element and what is outside', misconceptions: ['element confused with the set', 'attribute ignored'], active: true, scored: true, scoreUnits: 3, scope: 'module-mikro' },
+  { id: 's13', type: 'strategy', subtype: 'two-attribute-zones', template: 'VennIntersect', mechanic: 'VennIntersect', goal: 'Place figures by two attributes into the four zones of the diagram', misconceptions: ['object placed into one ring only'], active: true, scored: true, scoreUnits: 1, scope: 'module-mikro' },
+  { id: 's14', type: 'test', subtype: 'final-diagnostic', template: 'FinalRounds', mechanic: 'FinalRounds', goal: 'Apply the set language to new cases and count elements', misconceptions: ['no check of the attribute'], active: true, scored: true, scoreUnits: 3, scope: 'final' },
+  { id: 's15', type: 'summary', subtype: 'title-claim', template: 'TitleClaim', mechanic: 'TitleClaim', goal: 'Consolidate the set language and bridge to length units', misconceptions: ['partial result check'], active: true, scored: false, scope: null },
 ];
 
+const TOPIC_KICKER = bi("To'plamlar", 'Множества', 'Sets');
+const SET_UNIT_ITEM = bi('dona', 'штук', 'items');
+const SET_UNIT_BOY = bi('bola', 'мальчиков', 'boys');
+
+
+// ---------------------------------------------------------------------------
+// KONTENT. Ekranda ko'rinadigan matnda raqam va belgi bo'lishi mumkin; ovozga
+// ketadigan har bir maydon (audio..., feedbackAudio) faqat so'z bilan yoziladi.
+// ---------------------------------------------------------------------------
 const CONTENT = {
   s0: {
-    eyebrow: { uz: "Saralash markazi", ru: 'Центр сортировки', en: 'Sorting centre' },
-    title: { uz: "Ko'k uchburchak qayerga joylashadi?", ru: 'Куда поместить синий треугольник?', en: 'Where does the blue triangle belong?' },
-    frames: [
-      { uz: "A belgisi: ko'k", ru: 'Признак A: синие', en: 'Property A: blue' },
-      { uz: "B belgisi: uchburchak", ru: 'Признак B: треугольники', en: 'Property B: triangles' },
-      { uz: "Ko'k uchburchak qayerga joylashadi?", ru: 'Куда поместить синий треугольник?', en: 'Where does the blue triangle belong?' },
+    eyebrow: bi('Arxiv xonasi', 'Архивная комната', 'The archive room'),
+    title: bi("Bit arxivni to'plamga ajratmoqchi emas", 'Бит не хочет делить архив на множества', 'Bit does not want to sort the archive into sets'),
+    question: bi("Har xil narsalar bitta to'plamni tashkil qila oladimi?", 'Могут ли разные предметы составить одно множество?', 'Can different objects form one set?'),
+    options: [
+      bi("Ha, umumiy belgisi bo'lsa", 'Да, если есть общий признак', 'Yes, if they share a common attribute'),
+      bi("Yo'q, faqat bir xil narsalar", 'Нет, только одинаковые предметы', 'No, only identical objects'),
+      bi('Hali aniq emas', 'Пока не ясно', 'Not clear yet'),
     ],
-    question: { uz: "Ko'k uchburchak uchun qaysi joyni taxmin qilasiz?", ru: 'Какую область ты выберешь для синего треугольника?', en: 'Which region would you choose for the blue triangle?' },
-    options: [{ uz: "Faqat A", ru: 'Только A', en: 'A only' }, { uz: "Ikkalasi", ru: 'Обе', en: 'Both' }, { uz: "Faqat B", ru: 'Только B', en: 'B only' }],
-    neutral: { uz: "Taxmin saqlandi. Endi har bir joyning ma'nosini tekshiramiz.", ru: 'Гипотеза сохранена. Теперь разберём смысл каждой области.', en: 'Your prediction has been recorded. Now let us explore what each region means.' },
-    audio: { intro: {
-      uz: ["Saralash markazida A belgisi ko'k figuralarni bildiradi.", "B belgisi uchburchaklarni bildiradi.", "Ko'k uchburchak qayerga joylashishini taxmin qiling."],
-      ru: ['В центре сортировки признак A означает синие фигуры.', 'Признак B означает треугольники.', 'Предположи, куда нужно поместить синий треугольник.'],
-      en: ['At the sorting centre, property A means blue shapes.', 'Property B means triangles.', 'Predict where the blue triangle should be placed.'],
-    } },
+    neutral: bi("Taxmin saqlandi. Endi arxivdagi narsalarni umumiy belgi bo'yicha yig'ib ko'ramiz.", 'Гипотеза сохранена. Теперь соберём предметы архива по общему признаку.', 'Your prediction is saved. Now we will gather the archive objects by a common attribute.'),
+    audio: {
+      intro: {
+        uz: [
+          "Arxiv xonasida hamma narsa aralashib ketgan: qalamlar, daftarlar, chizg'ichlar, raqamlangan qutilar.",
+          "Zahro maktabga qalam, daftar, ruchka, chizg'ich, tsirkul va o'chirg'ich olgan.",
+          "Bit aytadi: bular har xil narsa, bitta to'plam bo'lolmaydi. Sizningcha shundaymi? Taxminingizni tanlang.",
+        ],
+        ru: [
+          'В архивной комнате всё перемешалось: карандаши, тетради, линейки, коробки с номерами.',
+          'Захро купила для школы карандаши, тетради, ручки, линейки, циркуль и ластики.',
+          'Бит говорит, что это разные предметы и одним множеством они быть не могут. Как думаешь, так ли это? Выбери свою гипотезу.',
+        ],
+        en: [
+          'Everything is mixed up in the archive room: pencils, notebooks, rulers and numbered boxes.',
+          'Zahro bought pencils, notebooks, pens, rulers, a compass and erasers for school.',
+          'Bit says these are different objects and cannot be one set. Do you think so? Choose your prediction.',
+        ],
+      },
+    },
   },
+
   s1: {
-    eyebrow: { uz: "Asosiy tushuncha", ru: 'Основное понятие', en: 'Key idea' },
-    title: { uz: "To'plam va uning elementlari", ru: 'Множество и его элементы', en: 'A set and its elements' },
-    frames: [
-      { uz: "Figuralar bitta belgi bilan jamlandi", ru: 'Фигуры собраны по одному признаку', en: 'The shapes are grouped by one property' },
-      { uz: "Guruh — to'plam", ru: 'Группа — это множество', en: 'The group is a set' },
-      { uz: "Har bir figura — element", ru: 'Каждая фигура — элемент', en: 'Each shape is an element' },
-      { uz: "Mos element doira ichida turadi", ru: 'Подходящий элемент находится внутри круга', en: 'A matching element belongs inside the circle' },
+    eyebrow: bi('Tayanch bilim', 'Опорное знание', 'Prior knowledge'),
+    title: bi("To'plamni nima birlashtiradi", 'Что объединяет множество', 'What holds a set together'),
+    prompt: bi("Obyektlarni bitta to'plamga nima birlashtiradi?", 'Что объединяет объекты в одно множество?', 'What gathers objects into one set?'),
+    chips: [
+      bi('umumiy belgi', 'общий признак', 'a common attribute'),
+      bi('bir xil rang', 'одинаковый цвет', 'the same colour'),
+      bi('bir xil son', 'одинаковое число', 'the same number'),
     ],
+    correctIndex: 0,
+    note: {
+      right: bi("To'g'ri. Umumiy belgi bo'lsa, obyektlar har xil bo'lsa ham bitta to'plamga kiradi.", 'Верно. Если есть общий признак, объекты входят в одно множество даже будучи разными.', 'Correct. With a common attribute, objects belong to one set even when they differ.'),
+      wrong: bi("Rang yoki son ham belgi bo'lishi mumkin, lekin to'plamni har qanday umumiy belgi birlashtiradi.", 'Цвет или число тоже могут быть признаком, но множество объединяет любой общий признак.', 'Colour or number can be an attribute too, but a set is held together by any common attribute.'),
+    },
     audio: {
-      uz: ["Bir xil belgi bo'yicha jamlangan obyektlar guruhini kuzating.", "Bunday guruhni to'plam deb ataymiz.", "To'plamdagi har bir obyekt uning elementi bo'ladi.", "Element berilgan belgiga mos bo'lsa, uni doira ichida ko'rsatamiz."],
-      ru: ['Рассмотри группу объектов, собранных по одному признаку.', 'Такую группу называют множеством.', 'Каждый объект в множестве является его элементом.', 'Если элемент подходит признаку, его показывают внутри круга.'],
-      en: ['Look at a group of objects collected by the same property.', 'We call such a group a set.', 'Every object in the set is one of its elements.', 'If an element matches the given property, we show it inside the circle.'],
+      intro: {
+        uz: [
+          'Katalog tuzishdan oldin bitta savolga javob beramiz.',
+          "Obyektlarni bitta to'plamga nima birlashtiradi? Javobni tanlang.",
+        ],
+        ru: [
+          'Прежде чем составлять каталог, ответим на один вопрос.',
+          'Что объединяет объекты в одно множество? Выбери ответ.',
+        ],
+        en: [
+          'Before building the catalogue, let us answer one question.',
+          'What gathers objects into one set? Choose the answer.',
+        ],
+      },
     },
   },
+
   s2: {
-    eyebrow: { uz: "Ikki belgi", ru: 'Два признака', en: 'Two properties' },
-    title: { uz: "Ikki xira nusxa bitta elementga qaytadi", ru: 'Две полупрозрачные копии снова становятся одним элементом', en: 'Two faded copies become one element again' },
-    frames: [
-      { uz: "Bitta ko'k uchburchak", ru: 'Один синий треугольник', en: 'One blue triangle' },
-      { uz: "Ko'k belgi uchun A nusxasi", ru: 'Копия для признака A: синий цвет', en: 'Copy A for the blue property' },
-      { uz: "Uchburchak belgisi uchun B nusxasi", ru: 'Копия для признака B: форма треугольника', en: 'Copy B for the triangle property' },
-      { uz: "Nusxalar o'rtada birlashadi", ru: 'Копии объединяются в середине', en: 'The copies join in the middle' },
+    eyebrow: bi('Tushuntirish', 'Объяснение', 'Explanation'),
+    title: bi('Umumiy belgi halqani hosil qiladi', 'Общий признак образует круг', 'The common attribute makes a ring'),
+    lead: bi("Bosib boring: uch guruh narsa bitta halqaga yig'iladi va elementlar sanaladi.", 'Нажимай: три группы предметов собираются в один круг, и элементы считаются.', 'Tap to move on: three groups of objects gather into one ring and the elements get counted.'),
+    steps: [
+      {
+        chip: bi('340 stul, 31 doska, 18 javon', '340 стульев, 31 доска, 18 шкафов', '340 chairs, 31 boards, 18 cabinets'),
+        caption: bi("Maktabga uch xil narsa keltirildi. Ular bir-biriga o'xshamaydi.", 'В школу привезли три разных вида предметов. Они не похожи друг на друга.', 'Three different kinds of objects were brought to the school. They are not alike.'),
+      },
+      {
+        chip: bi('Umumiy belgi: maktab mebeli', 'Общий признак: школьная мебель', 'Common attribute: school furniture'),
+        caption: bi("Uchtasi ham maktab mebeli. Shu belgi ularni bitta halqaga yig'adi.", 'Все три — школьная мебель. Этот признак собирает их в один круг.', 'All three are school furniture. That attribute gathers them into one ring.'),
+      },
+      {
+        chip: bi('389 element', '389 элементов', '389 elements'),
+        caption: bi("340 + 31 + 18 = 389. To'plamda 389 element bor.", '340 + 31 + 18 = 389. В множестве 389 элементов.', '340 + 31 + 18 = 389. The set has 389 elements.'),
+      },
     ],
+    done: bi("To'plam - umumiy belgi bilan birlashgan obyektlar guruhi.", 'Множество — это группа объектов, объединённых общим признаком.', 'A set is a group of objects gathered by a common attribute.'),
     audio: {
-      uz: ["Bitta ko'k uchburchakni ikki belgi bo'yicha kuzatamiz.", "Animatsiyadagi xira nusxa rang belgisi bo'yicha A doirasiga yo'naladi.", "Ikkinchi xira nusxa shakl belgisi bo'yicha B doirasiga yo'naladi.", "O'rtada nusxalar yana bitta elementga birlashadi; figura ikkala belgiga mos."],
-      ru: ['Рассмотрим один синий треугольник по двум признакам.', 'Полупрозрачная копия в анимации направляется в круг A по признаку цвета.', 'Вторая полупрозрачная копия направляется в круг B по признаку формы.', 'В середине копии снова объединяются в один элемент; фигура подходит обоим признакам.'],
-      en: ['Let us examine one blue triangle using two properties.', 'In the animation, a faded copy moves to circle A because of its colour.', 'The second faded copy moves to circle B because of its shape.', 'In the middle, the copies join into one element again because the shape matches both properties.'],
+      intro: {
+        uz: [
+          "Arxivdagi birinchi ro'yxatni ko'ramiz.",
+          'Har qadamni ochish uchun tugmani bosing.',
+          'Maktabga uch xil narsa keltirilgan.',
+        ],
+        ru: [
+          'Посмотрим первый список в архиве.',
+          'Чтобы открыть каждый шаг, нажимай кнопку.',
+          'В школу привезли три разных вида предметов.',
+        ],
+        en: [
+          'Let us look at the first list in the archive.',
+          'Tap the button to open each step.',
+          'Three different kinds of objects were brought to the school.',
+        ],
+      },
+      steps: {
+        uz: [
+          "Uch yuz qirq stul, o'ttiz bir doska va o'n sakkiz javon keltirilgan.",
+          "Uchtasi ham maktab mebeli. Umumiy belgi ularni bitta halqaga yig'adi.",
+          "Elementlarni qo'shsak, uch yuz sakson to'qqiz chiqadi. To'plamda shuncha element bor.",
+        ],
+        ru: [
+          'Привезли триста сорок стульев, тридцать одну доску и восемнадцать шкафов.',
+          'Все три вида это школьная мебель. Общий признак собирает их в один круг.',
+          'Сложим элементы и получим триста восемьдесят девять. Столько элементов в множестве.',
+        ],
+        en: [
+          'Three hundred and forty chairs, thirty-one boards and eighteen cabinets were brought.',
+          'All three kinds are school furniture. The common attribute gathers them into one ring.',
+          'Adding the elements gives three hundred and eighty-nine. The set has that many elements.',
+        ],
+      },
     },
   },
+
   s3: {
-    eyebrow: { uz: "Diagramma", ru: 'Диаграмма', en: 'Diagram' },
-    title: { uz: "To'rtta aniq joy", ru: 'Четыре точные области', en: 'Four precise regions' },
-    frames: [{ uz: "Faqat A", ru: 'Только A', en: 'A only' }, { uz: "Ikkalasi", ru: 'Обе', en: 'Both' }, { uz: "Faqat B", ru: 'Только B', en: 'B only' }, { uz: "Tashqarida", ru: 'Снаружи', en: 'Outside' }],
+    eyebrow: bi('Amaliyot', 'Практика', 'Practice'),
+    title: bi('Halqaga faqat mos narsa tushadi', 'В круг попадает только подходящее', 'Only matching objects go into the ring'),
+    lead: bi('Halqa nomi: maktab jihozlari. Mos narsalarni bosing, keyin Tayyor tugmasini bosing.', 'Название круга: школьные принадлежности. Нажми подходящие предметы, потом кнопку Готово.', 'The ring is named school supplies. Tap the matching objects, then press Done.'),
+    setLabel: bi('Maktab jihozlari', 'Школьные принадлежности', 'School supplies'),
+    items: [
+      { label: bi('qalam', 'карандаш', 'pencil'), inSet: true },
+      { label: bi('choynak', 'чайник', 'teapot'), inSet: false, wrongNote: bi('Choynak maktab jihozi emas, u oshxona buyumi.', 'Чайник — не школьная принадлежность, это кухонная вещь.', 'A teapot is not a school supply, it is a kitchen item.') },
+      { label: bi('daftar', 'тетрадь', 'notebook'), inSet: true },
+      { label: bi("chizg'ich", 'линейка', 'ruler'), inSet: true },
+      { label: bi('koptok', 'мяч', 'ball'), inSet: false, wrongNote: bi("Koptok sport anjomi, maktab jihozlari to'plamiga kirmaydi.", 'Мяч — спортивный инвентарь, он не входит в множество школьных принадлежностей.', 'A ball is sports gear and does not belong to the school supplies set.') },
+      { label: bi('tsirkul', 'циркуль', 'compass'), inSet: true },
+    ],
+    hintShort: bi('Hamma mos narsa tanlanmadi.', 'Выбраны не все подходящие предметы.', 'Not all matching objects are selected.'),
+    proof: bi("Halqada 4 element bor: qalam, daftar, chizg'ich va tsirkul.", 'В круге 4 элемента: карандаш, тетрадь, линейка и циркуль.', 'The ring holds 4 elements: pencil, notebook, ruler and compass.'),
     audio: {
-      uz: ["Chap doiraning alohida qismi faqat A belgisiga mos elementlar uchun.", "Doiralar ustma-ust tushgan o'rta qism ikkala belgiga mos elementlar uchun.", "O'ng doiraning alohida qismi faqat B belgisiga mos elementlar uchun.", "Hech bir belgiga mos kelmagan element ikkala doiradan tashqarida turadi."],
-      ru: ['Отдельная часть левого круга предназначена для элементов только с признаком A.', 'Средняя часть, где круги перекрываются, предназначена для элементов с обоими признаками.', 'Отдельная часть правого круга предназначена для элементов только с признаком B.', 'Элемент, который не подходит ни одному признаку, находится снаружи обоих кругов.'],
-      en: ['The separate part of the left circle is for elements that match only property A.', 'The middle region where the circles overlap is for elements that match both properties.', 'The separate part of the right circle is for elements that match only property B.', 'An element that matches neither property belongs outside both circles.'],
+      intro: {
+        uz: [
+          "Endi halqani o'zingiz to'ldirasiz.",
+          'Halqa nomi maktab jihozlari. Faqat shu belgiga mos narsalar ichkariga tushadi.',
+          'Mos narsalarni bosing va tayyor tugmasini bosing.',
+        ],
+        ru: [
+          'Теперь круг заполнишь сам.',
+          'Круг называется школьные принадлежности. Внутрь попадают только подходящие по признаку предметы.',
+          'Нажми подходящие предметы и нажми кнопку готово.',
+        ],
+        en: [
+          'Now you will fill the ring yourself.',
+          'The ring is named school supplies. Only objects matching that attribute go inside.',
+          'Tap the matching objects and press the done button.',
+        ],
+      },
+      on_correct: bi("To'g'ri. Halqada to'rt element bor, qolgan narsalar tashqarida qoldi.", 'Верно. В круге четыре элемента, остальные предметы остались снаружи.', 'Correct. The ring holds four elements and the other objects stayed outside.'),
+      on_wrong: bi("Har bir narsani belgiga solib ko'ring: u maktab jihozimi yoki yo'q.", 'Проверяй каждый предмет по признаку: школьная это принадлежность или нет.', 'Check every object against the attribute: is it a school supply or not.'),
     },
   },
+
   s4: {
-    eyebrow: { uz: "Javoblar xaritasi", ru: 'Карта ответов', en: 'Answer map' },
-    title: { uz: "To'rtta figura — to'rtta javob jufti", ru: 'Четыре фигуры — четыре пары ответов', en: 'Four shapes — four pairs of answers' },
-    frames: [
-      { uz: "Ko'k kvadrat: ha / yo'q — Faqat A", ru: 'Синий квадрат: да / нет — Только A', en: 'Blue square: yes / no — A only' },
-      { uz: "Ko'k uchburchak: ha / ha — Ikkalasi", ru: 'Синий треугольник: да / да — Обе', en: 'Blue triangle: yes / yes — Both' },
-      { uz: "Sariq uchburchak: yo'q / ha — Faqat B", ru: 'Жёлтый треугольник: нет / да — Только B', en: 'Yellow triangle: no / yes — B only' },
-      { uz: "Sariq doira: yo'q / yo'q — Tashqarida", ru: 'Жёлтый круг: нет / нет — Снаружи', en: 'Yellow circle: no / no — Outside' },
+    eyebrow: bi('Tushuntirish', 'Объяснение', 'Explanation'),
+    title: bi("Bitta to'plam ikkiga ajraladi", 'Одно множество делится на два', 'One set splits into two'),
+    lead: bi("Kitoblar to'plamini yangi belgi bo'yicha ajratamiz.", 'Разделим множество книг по новому признаку.', 'Let us split the set of books by a new attribute.'),
+    steps: [
+      {
+        chip: bi("Kitoblar to'plami", 'Множество книг', 'The set of books'),
+        caption: bi("Javonda hamma kitob bitta to'plamda turadi: umumiy belgi - kitob.", 'На полке все книги в одном множестве: общий признак — книга.', 'On the shelf all books are one set: the common attribute is book.'),
+      },
+      {
+        chip: bi('Yangi belgi: vazifasi', 'Новый признак: назначение', 'New attribute: purpose'),
+        caption: bi("Darslikdan o'qiymiz, badiiy kitobni zavq uchun o'qiymiz. Vazifasi boshqa.", 'По учебнику учимся, художественную книгу читаем для удовольствия. Назначение разное.', 'We study from a textbook and read fiction for pleasure. The purpose differs.'),
+      },
+      {
+        chip: bi('Ikki halqa', 'Два круга', 'Two rings'),
+        caption: bi('Darsliklar bitta halqaga, badiiy kitoblar boshqa halqaga tushadi.', 'Учебники попадают в один круг, художественные книги — в другой.', 'Textbooks go into one ring and fiction books into the other.'),
+      },
+    ],
+    done: bi("Yangi belgi bitta to'plamni ikki to'plamga ajratadi.", 'Новый признак делит одно множество на два.', 'A new attribute splits one set into two.'),
+    audio: {
+      intro: {
+        uz: [
+          "Arxivning ikkinchi javoniga o'tamiz.",
+          'Bu javonda kitoblar turadi.',
+          "Qadamlarni ochib, kitoblarni ikki to'plamga ajratamiz.",
+        ],
+        ru: [
+          'Перейдём ко второй полке архива.',
+          'На этой полке стоят книги.',
+          'Открывая шаги, разделим книги на два множества.',
+        ],
+        en: [
+          'Let us move to the second shelf of the archive.',
+          'This shelf holds books.',
+          'By opening the steps we will split the books into two sets.',
+        ],
+      },
+      steps: {
+        uz: [
+          "Javondagi hamma kitob bitta to'plamda: umumiy belgi kitob.",
+          "Yangi belgi bu kitobning vazifasi. Darslikdan o'qiymiz, badiiy kitobni zavq uchun o'qiymiz.",
+          "Shu belgi bo'yicha darsliklar bitta halqaga, badiiy kitoblar boshqa halqaga tushadi.",
+        ],
+        ru: [
+          'Все книги на полке в одном множестве: общий признак книга.',
+          'Новый признак это назначение книги. По учебнику учимся, художественную книгу читаем для удовольствия.',
+          'По этому признаку учебники попадают в один круг, а художественные книги в другой.',
+        ],
+        en: [
+          'All books on the shelf are one set: the common attribute is book.',
+          'The new attribute is the purpose of the book. We study from textbooks and read fiction for pleasure.',
+          'By that attribute textbooks go into one ring and fiction books into the other.',
+        ],
+      },
+    },
+  },
+
+  s5: {
+    eyebrow: bi('Amaliyot', 'Практика', 'Practice'),
+    title: bi('Kitoblarni ikki halqaga joylang', 'Размести книги по двум кругам', 'Place the books into the two rings'),
+    lead: bi('Kitobni bosing, keyin mos halqani bosing.', 'Нажми книгу, затем нужный круг.', 'Tap a book, then the matching ring.'),
+    rings: [
+      { label: bi('Darsliklar', 'Учебники', 'Textbooks'), caption: bi("o'qish uchun", 'для учёбы', 'for studying') },
+      { label: bi('Badiiy kitoblar', 'Художественные книги', 'Fiction books'), caption: bi('zavq uchun', 'для удовольствия', 'for pleasure') },
+    ],
+    items: [
+      {
+        label: bi('Matematika darsligi', 'Учебник математики', 'Mathematics textbook'),
+        ring: 0,
+        wrongNote: bi("Matematika darsligidan dars o'qiymiz, demak u darsliklar halqasiga tushadi.", 'По учебнику математики учимся, значит он попадает в круг учебников.', 'We study from a mathematics textbook, so it goes into the textbooks ring.'),
+      },
+      {
+        label: bi('Alpomish dostoni', 'Дастан Алпомиш', 'The Alpomish epic'),
+        ring: 1,
+        wrongNote: bi('Doston badiiy asar, u badiiy kitoblar halqasiga tushadi.', 'Дастан — художественное произведение, он попадает в круг художественных книг.', 'An epic is a work of fiction, so it goes into the fiction ring.'),
+      },
+      {
+        label: bi('Ona tili darsligi', 'Учебник родного языка', 'Native language textbook'),
+        ring: 0,
+        wrongNote: bi('Ona tili darsligi ham dars uchun, demak darsliklar halqasida.', 'Учебник родного языка тоже для учёбы, значит он в круге учебников.', 'The native language textbook is also for studying, so it is in the textbooks ring.'),
+      },
+      {
+        label: bi("Ertaklar to'plami", 'Сборник сказок', 'A book of tales'),
+        ring: 1,
+        wrongNote: bi('Ertaklar badiiy kitob, ular dars uchun emas.', 'Сказки — художественная книга, они не для учёбы.', 'Tales are fiction and not for studying.'),
+      },
+    ],
+    doneNote: bi("Ikki halqa to'ldi: har kitob o'z belgisiga ko'ra joylandi.", 'Два круга заполнены: каждая книга размещена по своему признаку.', 'Both rings are full: every book is placed by its attribute.'),
+    audio: {
+      intro: {
+        uz: [
+          "To'rtta kitob va ikkita halqa bor.",
+          'Birinchi halqa darsliklar uchun, ikkinchisi badiiy kitoblar uchun.',
+          'Kitobni bosing, keyin mos halqani bosing.',
+        ],
+        ru: [
+          'Есть четыре книги и два круга.',
+          'Первый круг для учебников, второй для художественных книг.',
+          'Нажми книгу, потом нужный круг.',
+        ],
+        en: [
+          'There are four books and two rings.',
+          'The first ring is for textbooks, the second for fiction books.',
+          'Tap a book, then the matching ring.',
+        ],
+      },
+      on_correct: bi("Hamma kitob joyiga tushdi. Belgi to'plamni ikkiga ajratdi.", 'Все книги на месте. Признак разделил множество на два.', 'Every book is in place. The attribute split the set into two.'),
+      on_wrong: bi("Kitobning vazifasini o'ylang: u dars uchunmi yoki zavq uchunmi.", 'Подумай о назначении книги: она для учёбы или для удовольствия.', 'Think about the purpose of the book: is it for studying or for pleasure.'),
+    },
+  },
+
+  s6: {
+    eyebrow: bi('Kashfiyot', 'Открытие', 'Discovery'),
+    title: bi("Ajratilgan to'plamlar kesishmaydi", 'Разделённые множества не пересекаются', 'Disjoint sets do not overlap'),
+    lead: bi("Bosib boring: 346 dan 356 gacha sonlar juft va toq to'plamlarga ajratiladi.", 'Нажимай: числа от 346 до 356 делятся на множества чётных и нечётных.', 'Tap to move on: the numbers from 346 to 356 split into the even and the odd set.'),
+    steps: [
+      {
+        chip: bi('346 ... 356', '346 ... 356', '346 ... 356'),
+        caption: bi("346 dan 356 gacha 11 ta son bor. Bu bizning butun to'plamimiz.", 'От 346 до 356 всего 11 чисел. Это всё наше множество.', 'From 346 to 356 there are 11 numbers. That is our whole set.'),
+      },
+      {
+        chip: bi('Juft: 6 ta', 'Чётных: 6', 'Even: 6'),
+        caption: bi('346, 348, 350, 352, 354, 356 - juft sonlar halqasi.', '346, 348, 350, 352, 354, 356 — круг чётных чисел.', '346, 348, 350, 352, 354, 356 — the ring of even numbers.'),
+      },
+      {
+        chip: bi('Toq: 5 ta', 'Нечётных: 5', 'Odd: 5'),
+        caption: bi('347, 349, 351, 353, 355 - toq sonlar halqasi. Halqalar kesishmaydi.', '347, 349, 351, 353, 355 — круг нечётных чисел. Круги не пересекаются.', '347, 349, 351, 353, 355 — the ring of odd numbers. The rings do not overlap.'),
+      },
+    ],
+    done: bi('Bitta son bir vaqtda ikki halqada turolmaydi.', 'Одно число не может быть сразу в двух кругах.', 'One number cannot be in both rings at once.'),
+    audio: {
+      intro: {
+        uz: [
+          'Arxivning uchinchi javonida raqamlangan qutilar turadi.',
+          'Har qadamni ochish uchun tugmani bosing.',
+          'Qutilar uch yuz qirq oltidan uch yuz ellik oltigacha raqamlangan.',
+        ],
+        ru: [
+          'На третьей полке архива стоят коробки с номерами.',
+          'Чтобы открыть каждый шаг, нажимай кнопку.',
+          'Коробки пронумерованы от трёхсот сорока шести до трёхсот пятидесяти шести.',
+        ],
+        en: [
+          'The third shelf of the archive holds numbered boxes.',
+          'Tap the button to open each step.',
+          'The boxes are numbered from three hundred and forty-six to three hundred and fifty-six.',
+        ],
+      },
+      steps: {
+        uz: [
+          "Bu oraliqda o'n bitta son bor. Bu butun to'plam.",
+          'Juft sonlar halqasida oltita element bor.',
+          'Toq sonlar halqasida beshta element bor. Ikki halqa kesishmaydi.',
+        ],
+        ru: [
+          'В этом промежутке одиннадцать чисел. Это всё множество.',
+          'В круге чётных чисел шесть элементов.',
+          'В круге нечётных чисел пять элементов. Два круга не пересекаются.',
+        ],
+        en: [
+          'There are eleven numbers in this range. That is the whole set.',
+          'The ring of even numbers holds six elements.',
+          'The ring of odd numbers holds five elements. The two rings do not overlap.',
+        ],
+      },
+    },
+  },
+
+  s7: {
+    eyebrow: bi('Qoida', 'Правило', 'Rule'),
+    title: bi("To'plam, element va diagramma", 'Множество, элемент и диаграмма', 'Set, element and diagram'),
+    rule: bi("To'plam - umumiy belgi bilan birlashgan obyektlar guruhi. To'plamga kiradigan har bir obyekt uning elementi deyiladi.", 'Множество — это группа объектов, объединённых общим признаком. Каждый объект, входящий в множество, называют его элементом.', 'A set is a group of objects gathered by a common attribute. Each object in the set is called its element.'),
+    lines: [
+      bi("Eyler-Venn diagrammasida to'plam halqa bilan ko'rsatiladi.", 'На диаграмме Эйлера-Венна множество показывают кругом.', 'On the Euler-Venn diagram a set is shown as a ring.'),
+      bi('Element halqa ichida, boshqa obyekt halqa tashqarisida turadi.', 'Элемент стоит внутри круга, другой объект — снаружи.', 'An element stands inside the ring, another object stands outside.'),
+    ],
+    formula: bi('belgi mos - ichkarida, mos emas - tashqarida', 'признак подходит — внутри, не подходит — снаружи', 'attribute matches - inside, does not match - outside'),
+    ruleSource: bi('4-sinf darsligi, 164-bet', 'Учебник 4 класса, стр. 164', 'Grade 4 textbook, p. 164'),
+    check: {
+      prompt: bi('Juft va toq sonlar halqalari nima uchun kesishmaydi?', 'Почему круги чётных и нечётных чисел не пересекаются?', 'Why do the rings of even and odd numbers not overlap?'),
+      chips: [
+        bi("bitta son juft ham, toq ham bo'lolmaydi", 'одно число не может быть и чётным и нечётным', 'one number cannot be both even and odd'),
+        bi('halqalar juda kichik', 'круги слишком маленькие', 'the rings are too small'),
+        bi("sonlar juda ko'p", 'чисел слишком много', 'there are too many numbers'),
+      ],
+      correctIndex: 0,
+      note: {
+        right: bi("To'g'ri. Belgi bir-birini rad etadi, shuning uchun umumiy element yo'q.", 'Верно. Признаки исключают друг друга, поэтому общих элементов нет.', 'Correct. The attributes exclude each other, so there is no common element.'),
+        wrong: bi("Sabab halqaning kattaligida emas, belgining o'zida: son yoki juft, yoki toq.", 'Причина не в размере круга, а в самом признаке: число либо чётное, либо нечётное.', 'The reason is not the size of the ring but the attribute itself: a number is either even or odd.'),
+      },
+    },
+    audio: {
+      intro: {
+        uz: [
+          "Darslikdagi qoidani o'qiymiz.",
+          "To'plam halqa bilan, element esa halqa ichidagi nuqta bilan ko'rsatiladi.",
+          "Qoidani o'qib, savolga javob bering.",
+        ],
+        ru: [
+          'Прочитаем правило из учебника.',
+          'Множество показывают кругом, а элемент точкой внутри круга.',
+          'Прочитай правило и ответь на вопрос.',
+        ],
+        en: [
+          'Let us read the rule from the textbook.',
+          'A set is shown as a ring and an element as a point inside the ring.',
+          'Read the rule and answer the question.',
+        ],
+      },
+    },
+  },
+
+
+  s8: {
+    eyebrow: bi('Xato ustida ish', 'Работа над ошибкой', 'Working on a mistake'),
+    title: bi("Bit toq sonni juft halqaga qo'ydi", 'Бит положил нечётное число в круг чётных', 'Bit put an odd number into the even ring'),
+    errorTop: bi('Juft sonlar halqasi', 'Круг чётных чисел', 'The ring of even numbers'),
+    errorBottom: bi('346, 348, 351', '346, 348, 351', '346, 348, 351'),
+    question: bi('Bit qayerda xato qildi?', 'В чём ошибка Бита?', 'Where did Bit go wrong?'),
+    options: [
+      bi('351 toq son, u boshqa halqaga tushadi', '351 — нечётное число, оно попадает в другой круг', '351 is an odd number and goes into the other ring'),
+      bi('351 ni qoldirish mumkin, u katta son', '351 можно оставить, это большое число', '351 can stay, it is a large number'),
+      bi("hamma sonni bitta halqaga yig'ish kerak", 'все числа нужно собрать в один круг', 'all the numbers should go into one ring'),
+    ],
+    correctIndex: 0,
+    feedback: [
+      bi("To'g'ri. 351 ikkiga bo'linmaydi, demak u toq sonlar halqasida turishi kerak.", 'Верно. 351 не делится на два, значит его место в круге нечётных чисел.', 'Correct. 351 is not divisible by two, so its place is in the odd ring.'),
+      bi("Sonning kattaligi belgi emas. Belgi bu ikkiga bo'linishi.", 'Размер числа — не признак. Признак — это делимость на два.', 'The size of the number is not the attribute. The attribute is divisibility by two.'),
+      bi("Bitta halqaga yig'ilsa, belgi yo'qoladi va to'plamlar ajratilmagan bo'ladi.", 'Если собрать в один круг, признак исчезнет и множества не будут разделены.', 'Gathering them into one ring loses the attribute and the sets are no longer separated.'),
+    ],
+    feedbackAudio: [
+      bi("To'g'ri. Uch yuz ellik bir ikkiga bo'linmaydi, demak u toq sonlar halqasida turadi.", 'Верно. Триста пятьдесят один не делится на два, значит он в круге нечётных чисел.', 'Correct. Three hundred and fifty-one is not divisible by two, so it belongs to the odd ring.'),
+      bi("Sonning kattaligi belgi emas. Belgi bu ikkiga bo'linishi.", 'Размер числа это не признак. Признак это делимость на два.', 'The size of the number is not the attribute. The attribute is divisibility by two.'),
+      bi("Hammasi bitta halqada bo'lsa, belgi yo'qoladi.", 'Если всё в одном круге, признак исчезает.', 'If everything is in one ring, the attribute disappears.'),
+    ],
+    proof: bi("Juft halqada 346 va 348 qoladi, 351 esa toq halqaga o'tadi.", 'В круге чётных остаются 346 и 348, а 351 переходит в круг нечётных.', '346 and 348 stay in the even ring and 351 moves to the odd ring.'),
+    audio: {
+      intro: {
+        uz: [
+          'Bit qutilarni javonga terib chiqdi.',
+          "Juft sonlar halqasiga uch yuz qirq olti, uch yuz qirq sakkiz va uch yuz ellik birni qo'ydi.",
+          'Halqani tekshiring va xato qayerda ekanini toping.',
+        ],
+        ru: [
+          'Бит расставил коробки по полке.',
+          'В круг чётных чисел он положил триста сорок шесть, триста сорок восемь и триста пятьдесят один.',
+          'Проверь круг и найди, где ошибка.',
+        ],
+        en: [
+          'Bit arranged the boxes on the shelf.',
+          'Into the even ring he put three hundred and forty-six, three hundred and forty-eight and three hundred and fifty-one.',
+          'Check the ring and find where the mistake is.',
+        ],
+      },
+    },
+  },
+
+  s9: {
+    eyebrow: bi('Diagramma', 'Диаграмма', 'The diagram'),
+    title: bi('Halqa ichida va tashqarisida', 'Внутри круга и снаружи', 'Inside the ring and outside it'),
+    lead: bi('Halqa ichidagi nuqtalarni bosing. Tashqaridagilarga tegmang.', 'Нажми точки внутри круга. Внешние не трогай.', 'Tap the points inside the ring. Leave the outer ones alone.'),
+    setLabel: bi("Katalog to'plami", 'Множество каталога', 'The catalogue set'),
+    points: [
+      { id: 'A', x: 38, y: 40, inside: true },
+      { id: 'B', x: 13, y: 24, inside: false, wrongNote: bi("B nuqtasi halqa tashqarisida: u to'plamga kirmaydi.", 'Точка B снаружи круга: она не входит в множество.', 'Point B is outside the ring: it does not belong to the set.') },
+      { id: 'D', x: 60, y: 36, inside: true },
+      { id: 'F', x: 50, y: 62, inside: true },
+      { id: 'G', x: 87, y: 28, inside: false, wrongNote: bi('G nuqtasi halqadan tashqarida qoldi.', 'Точка G осталась за кругом.', 'Point G stayed outside the ring.') },
+      { id: 'E', x: 82, y: 72, inside: false, wrongNote: bi("E nuqtasi ham tashqarida: halqa chizig'idan o'tib ketgan.", 'Точка E тоже снаружи: она за линией круга.', 'Point E is outside too: it lies beyond the ring line.') },
+    ],
+    hintShort: bi('Ichkaridagi hamma nuqta tanlanmadi.', 'Выбраны не все внутренние точки.', 'Not all inner points are selected.'),
+    proof: bi('Halqa ichida uch nuqta bor: A, D va F. B, G va E tashqarida.', 'Внутри круга три точки: A, D и F. B, G и E снаружи.', 'Three points are inside: A, D and F. B, G and E are outside.'),
+    audio: {
+      intro: {
+        uz: [
+          'Katalog diagrammasida oltita nuqta bor.',
+          "Ba'zilari halqa ichida, ba'zilari tashqarisida.",
+          'Halqa ichidagi nuqtalarni bosing va tayyor tugmasini bosing.',
+        ],
+        ru: [
+          'На диаграмме каталога шесть точек.',
+          'Некоторые внутри круга, некоторые снаружи.',
+          'Нажми точки внутри круга и нажми кнопку готово.',
+        ],
+        en: [
+          'The catalogue diagram has six points.',
+          'Some are inside the ring and some are outside.',
+          'Tap the points inside the ring and press the done button.',
+        ],
+      },
+      on_correct: bi("To'g'ri. Uch nuqta to'plam elementi, qolgan uchtasi tashqarida.", 'Верно. Три точки это элементы множества, остальные три снаружи.', 'Correct. Three points are elements of the set and the other three are outside.'),
+      on_wrong: bi("Nuqtaning halqa chizig'iga nisbatan joyini tekshiring.", 'Проверь, где точка стоит относительно линии круга.', 'Check where the point stands relative to the ring line.'),
+    },
+  },
+
+  s10: {
+    eyebrow: bi('Hayotiy holat', 'Жизненная ситуация', 'A real case'),
+    title: bi("Ikki to'plamning elementlarini sanaymiz", 'Считаем элементы двух множеств', 'We count the elements of two sets'),
+    lead: bi("4-A sinfda 17 o'g'il bola, 4-B sinfda 14 o'g'il bola bor.", 'В 4-А классе 17 мальчиков, в 4-Б классе 14 мальчиков.', 'Class 4-A has 17 boys and class 4-B has 14 boys.'),
+    question: bi("Ikki sinfda birgalikda nechta o'g'il bola bor?", 'Сколько мальчиков в двух классах вместе?', 'How many boys are there in the two classes together?'),
+    answer: 31,
+    hint: bi("Ikki halqa ajratilgan: bitta bola faqat bitta sinfda o'qiydi.", 'Два круга разделены: один мальчик учится только в одном классе.', 'The two rings are separate: one boy studies in only one class.'),
+    proof: bi("17 + 14 = 31. Ikki to'plamda birga 31 element bor.", '17 + 14 = 31. В двух множествах вместе 31 элемент.', '17 + 14 = 31. The two sets hold 31 elements together.'),
+    audio: {
+      intro: {
+        uz: [
+          "Arxivda sinf ro'yxatlari ham bor.",
+          "To'rt A sinfda o'n yetti o'g'il bola, to'rt B sinfda o'n to'rt o'g'il bola.",
+          "Ikki sinfdagi o'g'il bolalar sonini hisoblab, raqamlarni bosib teringiz.",
+        ],
+        ru: [
+          'В архиве есть и списки классов.',
+          'В четвёртом А классе семнадцать мальчиков, в четвёртом Б классе четырнадцать мальчиков.',
+          'Посчитай число мальчиков в двух классах и набери ответ, нажимая цифры.',
+        ],
+        en: [
+          'The archive also holds class lists.',
+          'Class four A has seventeen boys and class four B has fourteen boys.',
+          'Work out the number of boys in the two classes and tap the digits to enter it.',
+        ],
+      },
+      on_correct: bi("To'g'ri. O'n yetti va o'n to'rt o'ttiz bir bo'ladi.", 'Верно. Семнадцать и четырнадцать это тридцать один.', 'Correct. Seventeen and fourteen make thirty-one.'),
+      on_wrong: bi("Ikki halqadagi elementlarni qo'shib ko'ring: hech kim ikki sinfda birga o'qimaydi.", 'Сложи элементы двух кругов: никто не учится в двух классах сразу.', 'Add the elements of the two rings: nobody studies in two classes at once.'),
+    },
+  },
+
+  s11: {
+    eyebrow: bi('Moslashtirish', 'Сопоставление', 'Matching'),
+    title: bi("To'plamni element soni bilan bog'lang", 'Свяжи множество с числом элементов', 'Link each set with its number of elements'),
+    prompt: bi("Chapdan to'plamni, o'ngdan sonini tanlang. Uchta juftlik bor.", 'Выбери множество слева и число справа. Всего три пары.', 'Pick a set on the left and a number on the right. There are three pairs.'),
+    left: [
+      { id: 'l1', label: bi('Juft sonlar 346 ... 356', 'Чётные 346 ... 356', 'Even 346 ... 356') },
+      { id: 'l2', label: bi('Toq sonlar 346 ... 356', 'Нечётные 346 ... 356', 'Odd 346 ... 356') },
+      { id: 'l3', label: bi("Zahroning chizg'ich va tsirkuli", 'Линейки и циркуль Захро', 'Zahro rulers and compass') },
+    ],
+    right: [
+      { id: 'r1', pair: 'l2', value: '5', caption: bi('element', 'элементов', 'elements') },
+      { id: 'r2', pair: 'l3', value: '4', caption: bi('element', 'элементов', 'elements') },
+      { id: 'r3', pair: 'l1', value: '6', caption: bi('element', 'элементов', 'elements') },
+    ],
+    doneNote: bi("Uch juftlik ham to'g'ri. Element soni har to'plamda sanaladi.", 'Все три пары верны. Число элементов считают в каждом множестве.', 'All three pairs are right. The elements are counted in each set.'),
+    wrongNote: bi("Bu juftlik mos emas. To'plam elementlarini qaytadan sanang.", 'Эта пара не подходит. Пересчитай элементы множества.', 'This pair does not match. Count the elements of the set again.'),
+    audio: {
+      intro: {
+        uz: [
+          "Uchta to'plam va uchta son bor.",
+          "Ikkitasi qutilar javonidan, bittasi Zahroning ro'yxatidan.",
+          "Chapdan to'plamni, keyin o'ngdan sonni bosing.",
+        ],
+        ru: [
+          'Есть три множества и три числа.',
+          'Два из полки с коробками, одно из списка Захро.',
+          'Нажми множество слева, потом число справа.',
+        ],
+        en: [
+          'There are three sets and three numbers.',
+          'Two come from the shelf of boxes and one from the list of Zahro.',
+          'Tap a set on the left, then a number on the right.',
+        ],
+      },
+      on_correct: bi("Uch juftlik ham joyida. Element soni to'g'ri sanaldi.", 'Все три пары на месте. Число элементов посчитано верно.', 'All three pairs are in place. The elements are counted correctly.'),
+      on_wrong: bi('Bu juftlik mos emas. Elementlarni qaytadan sanang.', 'Эта пара не подходит. Пересчитай элементы.', 'This pair does not match. Count the elements again.'),
+    },
+  },
+
+  s12: {
+    eyebrow: bi('Uch savol', 'Три вопроса', 'Three questions'),
+    title: bi("To'plam tilida javob bering", 'Ответь на языке множеств', 'Answer in the language of sets'),
+    rounds: [
+      {
+        question: bi("Qaysi guruh to'plam bo'ladi?", 'Какая группа является множеством?', 'Which group is a set?'),
+        options: [
+          bi("4-A sinf o'quvchilari", 'ученики 4-А класса', 'the pupils of class 4-A'),
+          bi('eng yaxshi daftar', 'самая лучшая тетрадь', 'the very best notebook'),
+          bi('chiroyli rang', 'красивый цвет', 'a beautiful colour'),
+        ],
+        correctIndex: 0,
+        feedback: [
+          bi("To'g'ri. Umumiy belgi bor: hammasi bitta sinf o'quvchisi.", 'Верно. Есть общий признак: все они ученики одного класса.', 'Correct. There is a common attribute: they are all pupils of one class.'),
+          bi('Eng yaxshi degan belgi aniq emas: har kim boshqacha tanlaydi.', 'Признак самый лучший неточен: каждый выберет своё.', 'The attribute best is not exact: everyone would choose differently.'),
+          bi('Chiroyli degan belgi ham aniq emas, u obyektlarni ajratmaydi.', 'Признак красивый тоже неточен, он не разделяет объекты.', 'The attribute beautiful is not exact either, it does not separate objects.'),
+        ],
+        feedbackAudio: [
+          bi("To'g'ri. Umumiy belgi bor: hammasi bitta sinf o'quvchisi.", 'Верно. Есть общий признак: все они ученики одного класса.', 'Correct. There is a common attribute: they are all pupils of one class.'),
+          bi('Eng yaxshi degan belgi aniq emas.', 'Признак самый лучший неточен.', 'The attribute best is not exact.'),
+          bi('Chiroyli degan belgi obyektlarni ajratmaydi.', 'Признак красивый не разделяет объекты.', 'The attribute beautiful does not separate objects.'),
+        ],
+        proof: bi("To'plam aniq belgi bilan beriladi.", 'Множество задаётся точным признаком.', 'A set is given by an exact attribute.'),
+      },
+      {
+        question: bi("Darsliklar to'plamining elementi qaysi?", 'Что является элементом множества учебников?', 'Which one is an element of the set of textbooks?'),
+        options: [
+          bi('Matematika darsligi', 'учебник математики', 'the mathematics textbook'),
+          bi("darsliklar to'plami", 'множество учебников', 'the set of textbooks'),
+          bi('kutubxona', 'библиотека', 'the library'),
+        ],
+        correctIndex: 0,
+        feedback: [
+          bi("To'g'ri. Bitta kitob - element, hammasi birga - to'plam.", 'Верно. Одна книга — элемент, все вместе — множество.', 'Correct. One book is an element, all of them together are the set.'),
+          bi("To'plamning o'zi element bo'lolmaydi. Element bu bitta obyekt.", 'Само множество не может быть элементом. Элемент — это один объект.', 'The set itself cannot be an element. An element is one object.'),
+          bi("Kutubxona bu joy, darsliklar to'plamining elementi emas.", 'Библиотека — это место, а не элемент множества учебников.', 'The library is a place, not an element of the set of textbooks.'),
+        ],
+        feedbackAudio: [
+          bi("To'g'ri. Bitta kitob element, hammasi birga to'plam.", 'Верно. Одна книга элемент, все вместе множество.', 'Correct. One book is an element, all together are the set.'),
+          bi("To'plamning o'zi element bo'lolmaydi.", 'Само множество не может быть элементом.', 'The set itself cannot be an element.'),
+          bi('Kutubxona joy, u element emas.', 'Библиотека это место, а не элемент.', 'The library is a place, not an element.'),
+        ],
+        proof: bi("Element - to'plamga kiradigan bitta obyekt.", 'Элемент — один объект, входящий в множество.', 'An element is one object that belongs to the set.'),
+      },
+      {
+        question: bi('346 dan 356 gacha nechta juft son bor?', 'Сколько чётных чисел от 346 до 356?', 'How many even numbers are there from 346 to 356?'),
+        options: [
+          bi('6 ta', '6', '6'),
+          bi('5 ta', '5', '5'),
+          bi('11 ta', '11', '11'),
+        ],
+        correctIndex: 0,
+        feedback: [
+          bi("To'g'ri. 346, 348, 350, 352, 354, 356 - oltita element.", 'Верно. 346, 348, 350, 352, 354, 356 — шесть элементов.', 'Correct. 346, 348, 350, 352, 354, 356 — six elements.'),
+          bi('Beshta - bu toq sonlar halqasidagi element soni.', 'Пять — это число элементов в круге нечётных чисел.', 'Five is the number of elements in the odd ring.'),
+          bi("11 ta - bu butun to'plam, ya'ni juft va toq sonlar birga.", '11 — это всё множество, то есть чётные и нечётные вместе.', '11 is the whole set, that is the even and odd numbers together.'),
+        ],
+        feedbackAudio: [
+          bi("To'g'ri. Juft sonlar halqasida oltita element bor.", 'Верно. В круге чётных чисел шесть элементов.', 'Correct. The even ring holds six elements.'),
+          bi('Beshta toq sonlar halqasining soni.', 'Пять это число круга нечётных чисел.', 'Five belongs to the odd ring.'),
+          bi("O'n bitta butun to'plamning soni.", 'Одиннадцать это число всего множества.', 'Eleven is the size of the whole set.'),
+        ],
+        proof: bi('Juft halqada 6, toq halqada 5, birga 11 element.', 'В чётном круге 6, в нечётном 5, вместе 11 элементов.', 'The even ring holds 6, the odd ring 5, together 11 elements.'),
+      },
     ],
     audio: {
-      uz: ["Ko'k kvadrat A ga mos, B ga mos emas; u faqat A qismida turadi.", "Ko'k uchburchak A ga ham, B ga ham mos; u o'rta qismda turadi.", "Sariq uchburchak A ga mos emas, B ga mos; u faqat B qismida turadi.", "Sariq doira ikkala belgiga ham mos emas; u tashqarida turadi."],
-      ru: ['Синий квадрат подходит A и не подходит B; он находится только в A.', 'Синий треугольник подходит и A, и B; он находится в середине.', 'Жёлтый треугольник не подходит A и подходит B; он находится только в B.', 'Жёлтый круг не подходит ни одному признаку; он находится снаружи.'],
-      en: ['The blue square matches A but not B, so it belongs in A only.', 'The blue triangle matches both A and B, so it belongs in the middle.', 'The yellow triangle does not match A but matches B, so it belongs in B only.', 'The yellow circle matches neither property, so it belongs outside.'],
+      intro: {
+        uz: [
+          "Uchta savolda to'plam tilini sinab ko'ramiz.",
+          "Belgi aniqmi, element yoki to'plamni, sonini tekshiring.",
+          "Har savolda bitta to'g'ri javob bor.",
+        ],
+        ru: [
+          'В трёх вопросах проверим язык множеств.',
+          'Проверяй, точен ли признак, элемент это или множество, и число.',
+          'В каждом вопросе один верный ответ.',
+        ],
+        en: [
+          'In three questions we will test the language of sets.',
+          'Check whether the attribute is exact, whether it is an element or a set, and the count.',
+          'Each question has one correct answer.',
+        ],
+      },
     },
   },
-  s5: {
-    eyebrow: { uz: "Muhim bog'lanish", ru: 'Важная связь', en: 'Important connection' },
-    title: { uz: "O'rtadagi element ikkala tomonda sanaladi", ru: 'Элемент в середине считают с обеих сторон', en: 'An element in the middle is counted in both sets' },
-    frames: [{ uz: "Faqat A: 2", ru: 'Только A: 2', en: 'A only: 2' }, { uz: "O'rtada: 1", ru: 'В середине: 1', en: 'Middle: 1' }, { uz: "A jami: 3", ru: 'Всего в A: 3', en: 'Total in A: 3' }, { uz: "B jami: 2", ru: 'Всего в B: 2', en: 'Total in B: 2' }],
-    audio: {
-      uz: ["Faqat A qismida ikkita element bor.", "O'rta qismdagi bitta element A ga ham, B ga ham mos.", "A bo'yicha ikkita alohida va bitta o'rta element sanaladi; jami uchta.", "Faqat B qismidagi bitta va o'rtadagi bitta element sanaladi; B bo'yicha jami ikkita."],
-      ru: ['В области только A находятся два элемента.', 'Один элемент в середине подходит и A, и B.', 'Для A считаем два отдельных элемента и один средний; всего три.', 'Для B считаем один отдельный элемент и один средний; всего два.'],
-      en: ['There are two elements in the A-only region.', 'The one element in the middle matches both A and B.', 'For A, count the two separate elements and the one in the middle: three altogether.', 'For B, count the one separate element and the one in the middle: two altogether.'],
-    },
-  },
-  s6: {
-    eyebrow: { uz: "Tashqi qism", ru: 'Внешняя область', en: 'Outside region' },
-    title: { uz: "Tashqarida turish ham aniq javob", ru: 'Положение снаружи — тоже точный ответ', en: 'Outside is also a precise answer' },
-    frames: [{ uz: "Sariq doira ko'k emas", ru: 'Жёлтый круг не синий', en: 'The yellow circle is not blue' }, { uz: "U uchburchak ham emas", ru: 'Он также не треугольник', en: 'It is not a triangle either' }, { uz: "A ga mos emas, B ga mos emas", ru: 'Не подходит A и не подходит B', en: 'It matches neither A nor B' }, { uz: "Tashqarida, lekin ma'lumotda qoladi", ru: 'Снаружи, но остаётся в данных', en: 'Outside, but still part of the data' }],
-    audio: {
-      uz: ["Sariq doira A belgisiga mos emas, chunki u ko'k emas.", "U B belgisiga ham mos emas, chunki uchburchak emas.", "Ikki savolga ham yo'q javobi olindi.", "Sariq doira tashqarida turadi, lekin saralash ma'lumotida qoladi."],
-      ru: ['Жёлтый круг не подходит признаку A, потому что он не синий.', 'Он не подходит и признаку B, потому что это не треугольник.', 'На оба вопроса получен ответ нет.', 'Жёлтый круг находится снаружи, но остаётся в данных сортировки.'],
-      en: ['The yellow circle does not match property A because it is not blue.', 'It does not match property B either because it is not a triangle.', 'Both questions have the answer no.', 'The yellow circle belongs outside, but it remains part of the sorting data.'],
-    },
-  },
-  s7: {
-    eyebrow: { uz: "Strategiya", ru: 'Стратегия', en: 'Strategy' },
-    title: { uz: "O'qing, so'rang, zonani tanlang", ru: 'Прочитай, спроси, выбери область', en: 'Read, ask, choose the region' },
-    frames: [{ uz: "A belgisini o'qing", ru: 'Прочитай признак A', en: 'Read property A' }, { uz: "B belgisini o'qing", ru: 'Прочитай признак B', en: 'Read property B' }, { uz: "A ga mosmi, deb so'rang", ru: 'Спроси: подходит ли A?', en: 'Ask: does it match A?' }, { uz: "B ga mosmi, deb so'rang", ru: 'Спроси: подходит ли B?', en: 'Ask: does it match B?' }, { uz: "Javoblar bo'yicha zonani tanlang", ru: 'Выбери область по ответам', en: 'Choose the region from the two answers' }],
-    audio: {
-      uz: ["Avval A belgisini diqqat bilan o'qing.", "Keyin B belgisini ham o'qing.", "Element A ga mos kelishini so'rang.", "So'ng element B ga mos kelishini so'rang.", "Ikki javobga mos zonani tanlang."],
-      ru: ['Сначала внимательно прочитай признак A.', 'Затем прочитай признак B.', 'Спроси, подходит ли элемент признаку A.', 'После этого спроси, подходит ли элемент признаку B.', 'Выбери область, соответствующую двум ответам.'],
-      en: ['First, read property A carefully.', 'Then read property B.', 'Ask whether the element matches property A.', 'Next, ask whether the element matches property B.', 'Choose the region that matches the two answers.'],
-    },
-  },
-  s8: {
-    eyebrow: { uz: "Tekshiruv · 1/6", ru: 'Проверка · 1/6', en: 'Check · 1/6' }, title: { uz: "Ko'k kvadrat", ru: 'Синий квадрат', en: 'Blue square' },
-    frames: [{ uz: "A: ko'k · B: uchburchak", ru: 'A: синие · B: треугольники', en: 'A: blue · B: triangles' }, { uz: "Ko'k kvadrat qayerda?", ru: 'Где находится синий квадрат?', en: 'Where does the blue square belong?' }],
-    question: { uz: "Ko'k kvadrat qaysi joyga tegishli?", ru: 'К какой области относится синий квадрат?', en: 'Which region does the blue square belong to?' },
-    options: [{ uz: "Faqat A", ru: 'Только A', en: 'A only' }, { uz: "Ikkalasi", ru: 'Обе', en: 'Both' }, { uz: "Faqat B", ru: 'Только B', en: 'B only' }, { uz: "Tashqarida", ru: 'Снаружи', en: 'Outside' }], correctIndex: 0,
-    feedback: [{ uz: "To'g'ri. Kvadrat ko'k, lekin uchburchak emas.", ru: 'Верно. Квадрат синий, но не является треугольником.', en: 'Correct. The square is blue, but it is not a triangle.' }, { uz: "Ikkalasi bo'lishi uchun figura uchburchak ham bo'lishi kerak.", ru: 'Чтобы попасть в обе области, фигура должна быть ещё и треугольником.', en: 'To belong to both sets, the shape must also be a triangle.' }, { uz: "Faqat B uchun figura uchburchak bo'lishi kerak.", ru: 'Для области только B фигура должна быть треугольником.', en: 'For B only, the shape must be a triangle.' }, { uz: "Ko'k rang A belgisiga mos, shuning uchun figura tashqarida emas.", ru: 'Синий цвет подходит признаку A, поэтому фигура не снаружи.', en: 'Blue matches property A, so the shape is not outside.' }],
-    feedbackAudio: [{ uz: "To'g'ri. Kvadrat ko'k, lekin uchburchak emas.", ru: 'Верно. Квадрат синий, но не является треугольником.', en: 'Correct. The square is blue, but it is not a triangle.' }, { uz: "Ikkala belgiga mos bo'lishi uchun figura uchburchak ham bo'lishi kerak.", ru: 'Чтобы подойти обоим признакам, фигура должна быть ещё и треугольником.', en: 'To match both properties, the shape must also be a triangle.' }, { uz: "Faqat B uchun figura uchburchak bo'lishi kerak.", ru: 'Для области только B фигура должна быть треугольником.', en: 'For B only, the shape must be a triangle.' }, { uz: "Ko'k rang A belgisiga mos, shuning uchun figura tashqarida emas.", ru: 'Синий цвет подходит признаку A, поэтому фигура не снаружи.', en: 'Blue matches property A, so the shape is not outside.' }],
-    proof: { uz: "A: Ha · B: Yo'q → Faqat A", ru: 'A: Да · B: Нет → Только A', en: 'A: Yes · B: No → A only' },
-    audio: { intro: { uz: ["A belgisi ko'k figuralar, B belgisi uchburchaklar uchun.", "Ko'k kvadratning joyini ikki savol bilan aniqlang."], ru: ['Признак A относится к синим фигурам, а признак B к треугольникам.', 'Определи место синего квадрата с помощью двух вопросов.'], en: ['Property A is for blue shapes, and property B is for triangles.', 'Use two questions to determine where the blue square belongs.'] }, on_correct: { uz: "To'g'ri. Ko'k kvadrat faqat A ga mos.", ru: 'Верно. Синий квадрат подходит только A.', en: 'Correct. The blue square matches only A.' } },
-  },
-  s9: {
-    eyebrow: { uz: "Tekshiruv · 2/6", ru: 'Проверка · 2/6', en: 'Check · 2/6' }, title: { uz: "Ko'k uchburchak", ru: 'Синий треугольник', en: 'Blue triangle' },
-    frames: [{ uz: "A: ko'k · B: uchburchak", ru: 'A: синие · B: треугольники', en: 'A: blue · B: triangles' }, { uz: "Ikki belgi ham tekshiriladi", ru: 'Проверяются оба признака', en: 'Check both properties' }],
-    question: { uz: "Ko'k uchburchak qaysi joyga tegishli?", ru: 'К какой области относится синий треугольник?', en: 'Which region does the blue triangle belong to?' },
-    options: [{ uz: "Faqat A", ru: 'Только A', en: 'A only' }, { uz: "Ikkalasi", ru: 'Обе', en: 'Both' }, { uz: "Faqat B", ru: 'Только B', en: 'B only' }, { uz: "Tashqarida", ru: 'Снаружи', en: 'Outside' }], correctIndex: 1,
-    feedback: [{ uz: "Figura uchburchak ham, shuning uchun faqat A emas.", ru: 'Фигура ещё и треугольник, поэтому это не только A.', en: 'The shape is also a triangle, so it does not belong to A only.' }, { uz: "To'g'ri. Figura ko'k va uchburchak.", ru: 'Верно. Фигура синяя и является треугольником.', en: 'Correct. The shape is blue and it is a triangle.' }, { uz: "Figura ko'k ham, shuning uchun faqat B emas.", ru: 'Фигура ещё и синяя, поэтому это не только B.', en: 'The shape is also blue, so it does not belong to B only.' }, { uz: "Figura ikkala belgiga mos, shuning uchun tashqarida emas.", ru: 'Фигура подходит обоим признакам, поэтому она не снаружи.', en: 'The shape matches both properties, so it is not outside.' }],
-    feedbackAudio: [{ uz: "Figura uchburchak ham, shuning uchun faqat A emas.", ru: 'Фигура ещё и треугольник, поэтому это не только A.', en: 'The shape is also a triangle, so it does not belong to A only.' }, { uz: "To'g'ri. Figura ko'k va uchburchak.", ru: 'Верно. Фигура синяя и является треугольником.', en: 'Correct. The shape is blue and it is a triangle.' }, { uz: "Figura ko'k ham, shuning uchun faqat B emas.", ru: 'Фигура ещё и синяя, поэтому это не только B.', en: 'The shape is also blue, so it does not belong to B only.' }, { uz: "Figura ikkala belgiga mos, shuning uchun tashqarida emas.", ru: 'Фигура подходит обоим признакам, поэтому она не снаружи.', en: 'The shape matches both properties, so it is not outside.' }],
-    proof: { uz: "A: Ha · B: Ha → Ikkalasi", ru: 'A: Да · B: Да → Обе', en: 'A: Yes · B: Yes → Both' },
-    audio: { intro: { uz: ["Ko'k uchburchak A belgisiga mos keladi.", "U B belgisiga ham mos; aniq joyni tanlang."], ru: ['Синий треугольник подходит признаку A.', 'Он подходит и признаку B; выбери точную область.'], en: ['The blue triangle matches property A.', 'It also matches property B. Choose the precise region.'] }, on_correct: { uz: "To'g'ri. Ko'k uchburchak o'rta qismda.", ru: 'Верно. Синий треугольник находится в середине.', en: 'Correct. The blue triangle belongs in the middle.' } },
-  },
-  s10: {
-    eyebrow: { uz: "Tekshiruv · 3/6", ru: 'Проверка · 3/6', en: 'Check · 3/6' }, title: { uz: "Sariq uchburchak", ru: 'Жёлтый треугольник', en: 'Yellow triangle' },
-    frames: [{ uz: "A: ko'k · B: uchburchak", ru: 'A: синие · B: треугольники', en: 'A: blue · B: triangles' }, { uz: "Rang va shaklni ajrating", ru: 'Раздели цвет и форму', en: 'Consider colour and shape separately' }],
-    question: { uz: "Sariq uchburchak qaysi joyga tegishli?", ru: 'К какой области относится жёлтый треугольник?', en: 'Which region does the yellow triangle belong to?' },
-    options: [{ uz: "Faqat A", ru: 'Только A', en: 'A only' }, { uz: "Ikkalasi", ru: 'Обе', en: 'Both' }, { uz: "Faqat B", ru: 'Только B', en: 'B only' }, { uz: "Tashqarida", ru: 'Снаружи', en: 'Outside' }], correctIndex: 2,
-    feedback: [{ uz: "Figura ko'k emas, shuning uchun A ga mos emas.", ru: 'Фигура не синяя, поэтому не подходит A.', en: 'The shape is not blue, so it does not match A.' }, { uz: "Ikkalasi uchun figura ko'k ham bo'lishi kerak.", ru: 'Для обеих областей фигура должна быть ещё и синей.', en: 'To belong to both sets, the shape must also be blue.' }, { uz: "To'g'ri. U uchburchak, lekin ko'k emas.", ru: 'Верно. Это треугольник, но он не синий.', en: 'Correct. It is a triangle, but it is not blue.' }, { uz: "Uchburchak shakli B belgisiga mos, shuning uchun tashqarida emas.", ru: 'Форма треугольника подходит B, поэтому фигура не снаружи.', en: 'Its triangular shape matches B, so it is not outside.' }],
-    feedbackAudio: [{ uz: "Figura ko'k emas, shuning uchun A ga mos emas.", ru: 'Фигура не синяя, поэтому не подходит A.', en: 'The shape is not blue, so it does not match A.' }, { uz: "Ikkala belgi uchun figura ko'k ham bo'lishi kerak.", ru: 'Для обоих признаков фигура должна быть ещё и синей.', en: 'To match both properties, the shape must also be blue.' }, { uz: "To'g'ri. U uchburchak, lekin ko'k emas.", ru: 'Верно. Это треугольник, но он не синий.', en: 'Correct. It is a triangle, but it is not blue.' }, { uz: "Uchburchak shakli B belgisiga mos, shuning uchun tashqarida emas.", ru: 'Форма треугольника подходит B, поэтому фигура не снаружи.', en: 'Its triangular shape matches B, so it is not outside.' }],
-    proof: { uz: "A: Yo'q · B: Ha → Faqat B", ru: 'A: Нет · B: Да → Только B', en: 'A: No · B: Yes → B only' },
-    audio: { intro: { uz: ["Sariq uchburchak ko'k rang belgisiga mos emas.", "Uning shakli B belgisiga mos; joyini tanlang."], ru: ['Жёлтый треугольник не подходит признаку синего цвета.', 'Его форма подходит признаку B; выбери область.'], en: ['The yellow triangle does not match the blue property.', 'Its shape matches property B. Choose its region.'] }, on_correct: { uz: "To'g'ri. Sariq uchburchak faqat B ga mos.", ru: 'Верно. Жёлтый треугольник подходит только B.', en: 'Correct. The yellow triangle matches only B.' } },
-  },
-  s11: {
-    eyebrow: { uz: "Tekshiruv · 4/6", ru: 'Проверка · 4/6', en: 'Check · 4/6' }, title: { uz: "Sariq doira", ru: 'Жёлтый круг', en: 'Yellow circle' },
-    frames: [{ uz: "A: ko'k · B: uchburchak", ru: 'A: синие · B: треугольники', en: 'A: blue · B: triangles' }, { uz: "Hech bir belgi mos kelmasligi mumkin", ru: 'Может не подойти ни один признак', en: 'An element may match neither property' }],
-    question: { uz: "Sariq doira qaysi joyga tegishli?", ru: 'К какой области относится жёлтый круг?', en: 'Which region does the yellow circle belong to?' },
-    options: [{ uz: "Faqat A", ru: 'Только A', en: 'A only' }, { uz: "Ikkalasi", ru: 'Обе', en: 'Both' }, { uz: "Faqat B", ru: 'Только B', en: 'B only' }, { uz: "Tashqarida", ru: 'Снаружи', en: 'Outside' }], correctIndex: 3,
-    feedback: [{ uz: "Sariq doira ko'k emas, shuning uchun A ga mos emas.", ru: 'Жёлтый круг не синий, поэтому не подходит A.', en: 'The yellow circle is not blue, so it does not match A.' }, { uz: "Figura ko'k ham, uchburchak ham emas.", ru: 'Фигура не синяя и не является треугольником.', en: 'The shape is neither blue nor a triangle.' }, { uz: "Doira uchburchak emas, shuning uchun B ga mos emas.", ru: 'Круг не является треугольником, поэтому не подходит B.', en: 'A circle is not a triangle, so it does not match B.' }, { uz: "To'g'ri. Ikki belgiga ham mos emas, demak tashqarida.", ru: 'Верно. Не подходит ни одному признаку, значит находится снаружи.', en: 'Correct. It matches neither property, so it belongs outside.' }],
-    feedbackAudio: [{ uz: "Sariq doira ko'k emas, shuning uchun A ga mos emas.", ru: 'Жёлтый круг не синий, поэтому не подходит A.', en: 'The yellow circle is not blue, so it does not match A.' }, { uz: "Figura ko'k ham, uchburchak ham emas.", ru: 'Фигура не синяя и не является треугольником.', en: 'The shape is neither blue nor a triangle.' }, { uz: "Doira uchburchak emas, shuning uchun B ga mos emas.", ru: 'Круг не является треугольником, поэтому не подходит B.', en: 'A circle is not a triangle, so it does not match B.' }, { uz: "To'g'ri. Ikki belgiga ham mos emas, demak tashqarida.", ru: 'Верно. Не подходит ни одному признаку, значит находится снаружи.', en: 'Correct. It matches neither property, so it belongs outside.' }],
-    proof: { uz: "A: Yo'q · B: Yo'q → Tashqarida", ru: 'A: Нет · B: Нет → Снаружи', en: 'A: No · B: No → Outside' },
-    audio: { intro: { uz: ["Sariq doira A belgisiga mos emas.", "U B belgisiga ham mos emas; diagrammadagi joyini toping."], ru: ['Жёлтый круг не подходит признаку A.', 'Он также не подходит признаку B; найди его место на диаграмме.'], en: ['The yellow circle does not match property A.', 'It does not match property B either. Find its place on the diagram.'] }, on_correct: { uz: "To'g'ri. Sariq doira tashqi qismda.", ru: 'Верно. Жёлтый круг находится снаружи.', en: 'Correct. The yellow circle belongs outside.' } },
-  },
-  s12: {
-    eyebrow: { uz: "Tekshiruv · 5/6", ru: 'Проверка · 5/6', en: 'Check · 5/6' }, title: { uz: "A bo'yicha sanang", ru: 'Посчитай по признаку A', en: 'Count the elements in A' },
-    frames: [{ uz: "Faqat A da 2 ta", ru: 'Только в A: 2', en: 'A only: 2' }, { uz: "O'rtada 2 ta", ru: 'В середине: 2', en: 'Middle: 2' }],
-    question: { uz: "A belgisiga jami nechta element mos?", ru: 'Сколько всего элементов подходит признаку A?', en: 'How many elements match property A altogether?' }, options: ['2', '3', '4', '6'], correctIndex: 2,
-    feedback: [{ uz: "O'rtadagi 2 ta element ham A ga mos. Ularni ham sanang.", ru: 'Два элемента в середине тоже подходят A. Посчитай и их.', en: 'The two elements in the middle also match A. Count them as well.' }, { uz: "Uchta emas. A ning ikki qismini birga sanang.", ru: 'Не три. Посчитай обе части области A вместе.', en: 'Not three. Count both parts of set A together.' }, { uz: "To'g'ri. Faqat A dagi 2 ta va o'rtadagi 2 ta: jami 4 ta.", ru: 'Верно. Два только в A и два в середине: всего четыре.', en: 'Correct. Two in A only and two in the middle make four altogether.' }, { uz: "A doirasining alohida va o'rta qismini sanang.", ru: 'Посчитай отдельную и среднюю части круга A.', en: 'Count the separate and middle parts of circle A.' }],
-    feedbackAudio: [{ uz: "O'rtadagi ikkita element ham A ga mos. Ularni ham sanang.", ru: 'Два элемента в середине тоже подходят A. Посчитай и их.', en: 'The two elements in the middle also match A. Count them as well.' }, { uz: "Uchta emas. A ning ikki qismini birga sanang.", ru: 'Не три. Посчитай обе части области A вместе.', en: 'Not three. Count both parts of set A together.' }, { uz: "To'g'ri. Faqat A dagi ikkita va o'rtadagi ikkita, jami to'rtta.", ru: 'Верно. Два только в A и два в середине, всего четыре.', en: 'Correct. Two in A only and two in the middle make four altogether.' }, { uz: "A doirasining alohida va o'rta qismini sanang.", ru: 'Посчитай отдельную и среднюю части круга A.', en: 'Count the separate and middle parts of circle A.' }],
-    proof: { uz: "2 + 2 = 4", ru: '2 + 2 = 4', en: '2 + 2 = 4' },
-    audio: { intro: { uz: ["A ning alohida qismida ikkita element bor.", "O'rta qismdagi ikkita element ham A ga mos; jami sonni toping."], ru: ['В отдельной части A находятся два элемента.', 'Два элемента в середине тоже подходят A; найди общее число.'], en: ['There are two elements in the separate part of A.', 'The two elements in the middle also match A. Find the total.'] }, on_correct: { uz: "To'g'ri. A belgisiga to'rtta element mos.", ru: 'Верно. Признаку A подходят четыре элемента.', en: 'Correct. Four elements match property A.' } },
-  },
+
   s13: {
-    eyebrow: { uz: "Tekshiruv · 6/6", ru: 'Проверка · 6/6', en: 'Check · 6/6' }, title: { uz: "M7 qurilmasini saralang", ru: 'Распредели устройство M7', en: 'Sort device M7' },
-    frames: [{ uz: "A: quyosh energiyasida ishlaydi", ru: 'A: работает от солнечной энергии', en: 'A: powered by solar energy' }, { uz: "B: simsiz ulanadi", ru: 'B: подключается без проводов', en: 'B: connects wirelessly' }, { uz: "M7: quyoshli va simsiz", ru: 'M7: солнечное и беспроводное', en: 'M7: solar-powered and wireless' }],
-    question: { uz: "M7 qaysi joyga tegishli?", ru: 'К какой области относится M7?', en: 'Which region does M7 belong to?' },
-    options: [{ uz: "Faqat A", ru: 'Только A', en: 'A only' }, { uz: "Ikkalasi", ru: 'Обе', en: 'Both' }, { uz: "Faqat B", ru: 'Только B', en: 'B only' }, { uz: "Tashqarida", ru: 'Снаружи', en: 'Outside' }], correctIndex: 1,
-    feedback: [{ uz: "M7 simsiz ham ulanadi, shuning uchun faqat A emas.", ru: 'M7 также подключается без проводов, поэтому это не только A.', en: 'M7 also connects wirelessly, so it does not belong to A only.' }, { uz: "To'g'ri. M7 quyosh energiyasida ishlaydi va simsiz ulanadi.", ru: 'Верно. M7 работает от солнечной энергии и подключается без проводов.', en: 'Correct. M7 is powered by solar energy and connects wirelessly.' }, { uz: "M7 quyosh energiyasida ham ishlaydi, shuning uchun faqat B emas.", ru: 'M7 также работает от солнечной энергии, поэтому это не только B.', en: 'M7 is also powered by solar energy, so it does not belong to B only.' }, { uz: "M7 ikkala belgiga mos, shuning uchun tashqarida emas.", ru: 'M7 подходит обоим признакам, поэтому устройство не снаружи.', en: 'M7 matches both properties, so it does not belong outside.' }],
-    feedbackAudio: [{ uz: "M yetti simsiz ham ulanadi, shuning uchun faqat A emas.", ru: 'Эм семь также подключается без проводов, поэтому это не только A.', en: 'M seven also connects wirelessly, so it does not belong to A only.' }, { uz: "To'g'ri. M yetti quyosh energiyasida ishlaydi va simsiz ulanadi.", ru: 'Верно. Эм семь работает от солнечной энергии и подключается без проводов.', en: 'Correct. M seven is powered by solar energy and connects wirelessly.' }, { uz: "M yetti quyosh energiyasida ham ishlaydi, shuning uchun faqat B emas.", ru: 'Эм семь также работает от солнечной энергии, поэтому это не только B.', en: 'M seven is also powered by solar energy, so it does not belong to B only.' }, { uz: "M yetti ikkala belgiga mos, shuning uchun tashqarida emas.", ru: 'Эм семь подходит обоим признакам, поэтому устройство не снаружи.', en: 'M seven matches both properties, so it does not belong outside.' }],
-    proof: { uz: "A: Ha · B: Ha → Ikkalasi", ru: 'A: Да · B: Да → Обе', en: 'A: Yes · B: Yes → Both' },
-    audio: { intro: { uz: ["A belgisi quyosh energiyasida ishlaydigan qurilmalar uchun.", "B belgisi simsiz ulanadigan qurilmalar uchun.", "M yetti ikkala xususiyatga ega; uning joyini tanlang."], ru: ['Признак A относится к устройствам на солнечной энергии.', 'Признак B относится к устройствам с беспроводным подключением.', 'Эм семь имеет оба свойства; выбери его область.'], en: ['Property A is for devices powered by solar energy.', 'Property B is for devices that connect wirelessly.', 'M seven has both properties. Choose its region.'] }, on_correct: { uz: "To'g'ri. M yetti o'rta qismga joylashadi.", ru: 'Верно. Эм семь помещается в среднюю область.', en: 'Correct. M seven belongs in the middle region.' } },
-  },
-  s14: {
-    eyebrow: { uz: "Yakun", ru: 'Итог', en: 'Summary' }, title: { uz: "Ikki belgi bo'yicha aniq saralash", ru: 'Точная сортировка по двум признакам', en: 'Sort precisely by two properties' },
-    frames: [{ uz: "To'plam — umumiy belgili elementlar", ru: 'Множество — элементы с общим признаком', en: 'A set contains elements with a shared property' }, { uz: "Faqat A: ha / yo'q", ru: 'Только A: да / нет', en: 'A only: yes / no' }, { uz: "Ikkalasi: ha / ha", ru: 'Обе: да / да', en: 'Both: yes / yes' }, { uz: "Faqat B: yo'q / ha", ru: 'Только B: нет / да', en: 'B only: no / yes' }, { uz: "Tashqarida: yo'q / yo'q; ko'k uchburchak → ikkalasi", ru: 'Снаружи: нет / нет; синий треугольник → обе', en: 'Outside: no / no; blue triangle → both' }],
+    eyebrow: bi('Kengaytirish', 'Расширение', 'Extension'),
+    title: bi("Ikki belgi va to'rt zona", 'Два признака и четыре зоны', 'Two attributes and four zones'),
+    lead: bi("Figurani bosing, keyin zonani bosing. Ikkala belgi mos bo'lsa - kesishma.", 'Нажми фигуру, затем зону. Если подходят оба признака — пересечение.', 'Tap a figure, then a zone. When both attributes match, that is the overlap.'),
+    rings: [
+      { label: bi("Ko'k", 'Синие', 'Blue') },
+      { label: bi('Uchburchak', 'Треугольники', 'Triangles') },
+    ],
+    zones: [
+      { id: 'left', label: bi("faqat ko'k", 'только синие', 'blue only') },
+      { id: 'both', label: bi('ikkalasi ham', 'и то и другое', 'both') },
+      { id: 'right', label: bi('faqat uchburchak', 'только треугольники', 'triangles only') },
+      { id: 'out', label: bi('tashqarida', 'снаружи', 'outside') },
+    ],
+    items: [
+      {
+        label: bi("ko'k uchburchak", 'синий треугольник', 'blue triangle'),
+        shape: 'triangle',
+        color: 'blue',
+        zone: 'both',
+        wrongNote: bi("Bu figura ko'k ham, uchburchak ham. Demak u kesishmada turadi.", 'Эта фигура и синяя, и треугольник. Значит она в пересечении.', 'This figure is both blue and a triangle. So it stands in the overlap.'),
+      },
+      {
+        label: bi("ko'k kvadrat", 'синий квадрат', 'blue square'),
+        shape: 'square',
+        color: 'blue',
+        zone: 'left',
+        wrongNote: bi("Figura ko'k, lekin uchburchak emas: faqat ko'k zonasida.", 'Фигура синяя, но не треугольник: только в зоне синих.', 'The figure is blue but not a triangle: it goes to the blue-only zone.'),
+      },
+      {
+        label: bi('qizil uchburchak', 'красный треугольник', 'red triangle'),
+        shape: 'triangle',
+        color: 'red',
+        zone: 'right',
+        wrongNote: bi("Figura uchburchak, lekin ko'k emas: faqat uchburchak zonasida.", 'Фигура треугольник, но не синяя: только в зоне треугольников.', 'The figure is a triangle but not blue: it goes to the triangles-only zone.'),
+      },
+      {
+        label: bi('qizil doira', 'красный круг', 'red circle'),
+        shape: 'circle',
+        color: 'red',
+        zone: 'out',
+        wrongNote: bi("Figura na ko'k, na uchburchak: u halqalar tashqarisida qoladi.", 'Фигура ни синяя, ни треугольник: она остаётся снаружи кругов.', 'The figure is neither blue nor a triangle: it stays outside the rings.'),
+      },
+    ],
+    doneNote: bi("To'rt zona to'ldi. Kesishmada ikkala belgi mos keladigan figura turadi.", 'Четыре зоны заполнены. В пересечении стоит фигура, у которой подходят оба признака.', 'The four zones are filled. The overlap holds the figure that matches both attributes.'),
     audio: {
-      uz: ["To'plam umumiy belgiga ega elementlarni bir guruhga jamlaydi.", "Faqat A qismida A uchun ha, B uchun yo'q javobi olinadi.", "O'rta qismda ikkala belgi uchun ham ha javobi olinadi.", "Faqat B qismida A uchun yo'q, B uchun ha javobi olinadi.", "Tashqi qismda ikkala javob ham yo'q bo'ladi, ko'k uchburchak esa ikkala belgiga mos. Keyingi darsda uzunlik birliklarini o'rganamiz."],
-      ru: ['Множество объединяет в одну группу элементы с общим признаком.', 'В области только A ответ для A положительный, а для B отрицательный.', 'В средней области ответы для обоих признаков положительные.', 'В области только B ответ для A отрицательный, а для B положительный.', 'Снаружи оба ответа отрицательные, а синий треугольник подходит обоим признакам. На следующем уроке изучим единицы длины.'],
-      en: ['A set groups together elements that share a property.', 'In the A-only region, the answer for A is yes and the answer for B is no.', 'In the middle region, the answer is yes for both properties.', 'In the B-only region, the answer for A is no and the answer for B is yes.', 'Outside, both answers are no, while the blue triangle matches both properties. In the next lesson, we will study units of length.'],
+      intro: {
+        uz: [
+          'Oxirgi topshiriq darslikdan bir qadam yuqori.',
+          "Ikki halqa kesishadi: birinchisi ko'k rang uchun, ikkinchisi uchburchaklar uchun.",
+          'Figurani bosing, keyin mos zonani bosing.',
+        ],
+        ru: [
+          'Последнее задание на шаг выше учебника.',
+          'Два круга пересекаются: первый для синего цвета, второй для треугольников.',
+          'Нажми фигуру, потом нужную зону.',
+        ],
+        en: [
+          'The last task goes one step beyond the textbook.',
+          'The two rings overlap: the first is for the blue colour and the second for triangles.',
+          'Tap a figure, then the matching zone.',
+        ],
+      },
+      on_correct: bi("To'rt figura ham joyida. Kesishma ikkala belgini birga saqlaydi.", 'Все четыре фигуры на месте. Пересечение хранит оба признака вместе.', 'All four figures are in place. The overlap keeps both attributes together.'),
+      on_wrong: bi('Ikki belgini alohida tekshiring: rang mosmi, shakl mosmi.', 'Проверь два признака по отдельности: подходит ли цвет и подходит ли форма.', 'Check the two attributes separately: does the colour match and does the shape match.'),
+    },
+  },
+
+  s14: {
+    eyebrow: bi('Yakuniy topshiriq', 'Итоговое задание', 'Final task'),
+    title: bi('Katalogni yakunlaymiz', 'Завершаем каталог', 'We finish the catalogue'),
+    fact: bi("Arxiv katalogi tayyor: har javon o'z to'plamiga ega.", 'Каталог архива готов: у каждой полки своё множество.', 'The archive catalogue is ready: every shelf has its own set.'),
+    items: [
+      {
+        kind: 'num',
+        question: bi("Zahro 24 qalam, 20 daftar, 5 ruchka, 3 chizg'ich, 1 tsirkul va 2 o'chirg'ich oldi. To'plamda nechta element bor?", 'Захро купила 24 карандаша, 20 тетрадей, 5 ручек, 3 линейки, 1 циркуль и 2 ластика. Сколько элементов в множестве?', 'Zahro bought 24 pencils, 20 notebooks, 5 pens, 3 rulers, 1 compass and 2 erasers. How many elements does the set have?'),
+        answer: 55,
+        hint: bi("Hamma jihozni qo'shing: hammasi bitta belgiga mos.", 'Сложи все принадлежности: все они подходят под один признак.', 'Add all the supplies: they all match one attribute.'),
+        proof: bi('24 + 20 + 5 + 3 + 1 + 2 = 55 element', '24 + 20 + 5 + 3 + 1 + 2 = 55 элементов', '24 + 20 + 5 + 3 + 1 + 2 = 55 elements'),
+        audio: {
+          on_correct: bi("To'g'ri. Jihozlar to'plamida ellik besh element bor.", 'Верно. В множестве принадлежностей пятьдесят пять элементов.', 'Correct. The set of supplies holds fifty-five elements.'),
+          on_wrong: bi("Hamma turdagi jihozni qo'shing, hech birini tashlab ketmang.", 'Сложи все виды принадлежностей, не пропускай ни один.', 'Add every kind of supply and do not skip any.'),
+        },
+      },
+      {
+        kind: 'mc',
+        question: bi("Unli tovushlar to'plamining elementi qaysi?", 'Что является элементом множества гласных звуков?', 'Which one is an element of the set of vowel sounds?'),
+        options: [
+          bi('a tovushi', 'звук а', 'the sound a'),
+          bi('alifbo', 'алфавит', 'the alphabet'),
+          bi("unli tovushlar to'plami", 'множество гласных звуков', 'the set of vowel sounds'),
+        ],
+        correctIndex: 0,
+        feedback: [
+          bi("To'g'ri. Bitta tovush - element, hammasi birga - to'plam.", 'Верно. Один звук — элемент, все вместе — множество.', 'Correct. One sound is an element, all of them together are the set.'),
+          bi("Alifbo hamma harfni o'z ichiga oladi, u element emas.", 'Алфавит включает все буквы, он не элемент.', 'The alphabet includes all letters, it is not an element.'),
+          bi("To'plamning o'zi o'ziga element bo'lolmaydi.", 'Само множество не может быть своим элементом.', 'The set itself cannot be its own element.'),
+        ],
+        feedbackAudio: [
+          bi("To'g'ri. Bitta tovush element bo'ladi.", 'Верно. Один звук это элемент.', 'Correct. One sound is an element.'),
+          bi('Alifbo hamma harfni oladi, u element emas.', 'Алфавит включает все буквы, он не элемент.', 'The alphabet includes all letters, it is not an element.'),
+          bi("To'plam o'ziga element bo'lolmaydi.", 'Множество не может быть своим элементом.', 'A set cannot be its own element.'),
+        ],
+        proof: bi("Element - to'plamga kiradigan bitta obyekt.", 'Элемент — один объект, входящий в множество.', 'An element is one object that belongs to the set.'),
+        audio: {
+          on_correct: bi("To'g'ri javob tanlandi.", 'Выбран верный ответ.', 'The right answer is chosen.'),
+          on_wrong: bi("Element va to'plamni ajratib ko'ring.", 'Раздели элемент и множество.', 'Separate the element from the set.'),
+        },
+      },
+      {
+        kind: 'mc',
+        question: bi("Ko'k uchburchak diagrammada qaysi zonada turadi?", 'В какой зоне диаграммы стоит синий треугольник?', 'Which zone of the diagram holds the blue triangle?'),
+        options: [
+          bi('ikki halqaning kesishmasida', 'в пересечении двух кругов', 'in the overlap of the two rings'),
+          bi("faqat ko'k halqada", 'только в круге синих', 'in the blue ring only'),
+          bi('halqalar tashqarisida', 'снаружи кругов', 'outside the rings'),
+        ],
+        correctIndex: 0,
+        feedback: [
+          bi("To'g'ri. Ikkala belgi ham mos, shuning uchun kesishmada turadi.", 'Верно. Подходят оба признака, поэтому она в пересечении.', 'Correct. Both attributes match, so it stands in the overlap.'),
+          bi("Faqat ko'k zonasi rangi mos, lekin shakli mos kelmagan figura uchun.", 'Зона только синих — для фигуры, у которой подходит цвет, но не форма.', 'The blue-only zone is for a figure whose colour matches but whose shape does not.'),
+          bi('Tashqarida na rangi, na shakli mos kelmagan figura turadi.', 'Снаружи стоит фигура, у которой не подходят ни цвет, ни форма.', 'Outside stands a figure whose colour and shape both fail to match.'),
+        ],
+        feedbackAudio: [
+          bi("To'g'ri. Ikkala belgi mos, demak kesishmada.", 'Верно. Подходят оба признака, значит в пересечении.', 'Correct. Both attributes match, so it is in the overlap.'),
+          bi("Faqat ko'k zonasi shakli mos kelmagan figura uchun.", 'Зона только синих для фигуры, у которой форма не подходит.', 'The blue-only zone is for a figure whose shape does not match.'),
+          bi('Tashqarida ikkala belgi mos kelmagan figura turadi.', 'Снаружи стоит фигура, у которой не подходят оба признака.', 'Outside stands a figure that matches neither attribute.'),
+        ],
+        proof: bi('Kesishma ikkala belgi mos keladigan zona.', 'Пересечение — зона, где подходят оба признака.', 'The overlap is the zone where both attributes match.'),
+        audio: {
+          on_correct: bi("To'g'ri zona tanlandi.", 'Выбрана верная зона.', 'The right zone is chosen.'),
+          on_wrong: bi('Ikki belgini alohida tekshiring.', 'Проверь два признака по отдельности.', 'Check the two attributes separately.'),
+        },
+      },
+    ],
+    audio: {
+      intro: {
+        uz: [
+          'Yakuniy topshiriqda uch holat bor.',
+          'Birinchisida elementlarni sanaysiz, keyingilarida javobni tanlaysiz.',
+          'Har javobdan keyin tekshirish yozuvi chiqadi.',
+        ],
+        ru: [
+          'В итоговом задании три случая.',
+          'В первом посчитаешь элементы, в остальных выберешь ответ.',
+          'После каждого ответа появится проверка.',
+        ],
+        en: [
+          'The final task has three cases.',
+          'In the first you count the elements, in the others you choose the answer.',
+          'A check appears after every answer.',
+        ],
+      },
+    },
+  },
+
+  s15: {
+    eyebrow: bi('Missiya mukofoti', 'Награда миссии', 'Mission reward'),
+    title: bi('Unvongacha bitta savol', 'Один вопрос до звания', 'One question before your title'),
+    lead: bi("To'plamning asosini ko'rsating.", 'Покажи, на чём держится множество.', 'Show what a set rests on.'),
+    question: bi("Obyektlarni bitta to'plamga nima birlashtiradi?", 'Что объединяет объекты в одно множество?', 'What gathers objects into one set?'),
+    stem: bi("To'plamni birlashtiradigan narsa...", 'Множество объединяет...', 'A set is held together by...'),
+    options: [
+      bi('umumiy belgi', 'общий признак', 'a common attribute'),
+      bi('obyektlar soni', 'число объектов', 'the number of objects'),
+      bi('halqaning kattaligi', 'размер круга', 'the size of the ring'),
+    ],
+    correctIndex: 0,
+    feedback: [
+      bi("To'g'ri. Belgi mos bo'lsa obyekt halqa ichida, mos bo'lmasa tashqarisida.", 'Верно. Если признак подходит, объект внутри круга, если нет — снаружи.', 'Correct. When the attribute matches the object is inside the ring, otherwise outside.'),
+      bi("Element soni to'plamni tavsiflaydi, lekin uni birlashtirmaydi.", 'Число элементов описывает множество, но не объединяет его.', 'The number of elements describes a set but does not hold it together.'),
+      bi("Halqa faqat rasm. Muhimi belgining o'zi.", 'Круг — это только рисунок. Важен сам признак.', 'The ring is only a drawing. The attribute itself is what matters.'),
+    ],
+    feedbackAudio: [
+      bi("To'g'ri. Belgi mos bo'lsa obyekt halqa ichida turadi.", 'Верно. Если признак подходит, объект стоит внутри круга.', 'Correct. When the attribute matches, the object stands inside the ring.'),
+      bi("Element soni to'plamni birlashtirmaydi.", 'Число элементов не объединяет множество.', 'The number of elements does not hold a set together.'),
+      bi('Halqa faqat rasm, muhimi belgi.', 'Круг это только рисунок, важен признак.', 'The ring is only a drawing, the attribute matters.'),
+    ],
+    resolution: bi("To'plamni umumiy belgi birlashtiradi, element esa shu belgiga mos bitta obyekt.", 'Множество объединяет общий признак, а элемент — это один объект, подходящий под этот признак.', 'A set is held together by a common attribute, and an element is one object that matches it.'),
+    proof: bi('belgi mos - ichkarida, mos emas - tashqarida', 'признак подходит — внутри, не подходит — снаружи', 'attribute matches - inside, does not match - outside'),
+    rulesLabel: bi('Qoida', 'Правило', 'Rule'),
+    rules: [
+      bi("To'plam - umumiy belgi bilan birlashgan obyektlar guruhi.", 'Множество — группа объектов, объединённых общим признаком.', 'A set is a group of objects gathered by a common attribute.'),
+      bi("To'plamga kiradigan har bir obyekt uning elementi.", 'Каждый объект, входящий в множество, — его элемент.', 'Every object in the set is its element.'),
+      bi("Diagrammada to'plam halqa bilan ko'rsatiladi: element ichkarida, boshqasi tashqarida.", 'На диаграмме множество показывают кругом: элемент внутри, остальное снаружи.', 'On the diagram a set is shown as a ring: the element inside, the rest outside.'),
+    ],
+    award: bi('Katalog ustasi', 'Мастер каталога', 'Catalogue master'),
+    audio: {
+      intro: {
+        uz: [
+          'Arxiv katalogi tuzildi. Missiya bajarildi.',
+          "To'plam umumiy belgi bilan birlashgan obyektlar guruhi, element esa shu to'plamga kiradigan bitta obyekt.",
+          "Diagrammada to'plam halqa bilan ko'rsatiladi: belgi mos bo'lsa element ichkarida, mos bo'lmasa tashqarida.",
+          'Keyingi darsda uzunlik birliklari bilan ishlaymiz.',
+          'Unvongacha bitta savol qoldi. Javobni tanlang.',
+        ],
+        ru: [
+          'Каталог архива составлен. Миссия выполнена.',
+          'Множество это группа объектов с общим признаком, а элемент это один объект, входящий в множество.',
+          'На диаграмме множество показывают кругом: если признак подходит, элемент внутри, если не подходит, то снаружи.',
+          'На следующем уроке будем работать с единицами длины.',
+          'До звания остался один вопрос. Выбери ответ.',
+        ],
+        en: [
+          'The archive catalogue is built. The mission is complete.',
+          'A set is a group of objects with a common attribute and an element is one object that belongs to the set.',
+          'On the diagram a set is shown as a ring: when the attribute matches the element is inside, otherwise outside.',
+          'In the next lesson we will work with units of length.',
+          'One question is left before your title. Choose the answer.',
+        ],
+      },
     },
   },
 };
+
+// ---------------------------------------------------------------------------
+// Navigatsiya gate. Qiymat src/components/grade4/theoryNavigation.js dagi
+// GRADE4_THEORY_CONTINUE_UNLOCKED bilan bir xil ushlanadi: dars LMS uchun
+// bitta fayl bo'lishi kerak, shuning uchun helper ichkarida turadi.
+// true - ko'rib chiqish rejimi: "Davom etish" har ekranda ochiq.
+// false - o'quv rejimi: tugma faqat mazmunli harakatdan keyin ochiladi.
+// ---------------------------------------------------------------------------
+const GRADE4_THEORY_CONTINUE_UNLOCKED = true;
+function canUseGrade4TheoryContinue(gatePassed, finish = false) {
+  return (!finish && GRADE4_THEORY_CONTINUE_UNLOCKED) || Boolean(gatePassed);
+}
+
+// ---------------------------------------------------------------------------
+// Mobil masshtab qatlami (ETALON_4SINF §10). <640px da layout 390px etalon
+// kenglikda qoladi va real ekranga eng kichik masshtab bilan sig'adi, shuning
+// uchun barcha telefonlarda bir xil ko'rinish chiqadi. Hook dars ichida turadi:
+// LMS uchun dars bitta fayl bo'lishi kerak.
+// ---------------------------------------------------------------------------
+const GRADE4_MOBILE_DESIGN_W = 390;
+const GRADE4_MOBILE_DESIGN_H = 760;
+const GRADE4_MOBILE_BREAKPOINT = 640;
+function useGrade4MobileZoom({
+  designWidth = GRADE4_MOBILE_DESIGN_W,
+  designHeight = GRADE4_MOBILE_DESIGN_H,
+  breakpoint = GRADE4_MOBILE_BREAKPOINT,
+  fitHeight = true,
+} = {}) {
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const root = document.documentElement;
+    const update = () => {
+      const widthScale = window.innerWidth / designWidth;
+      const heightScale = window.innerHeight / designHeight;
+      const zoom = window.innerWidth < breakpoint
+        ? (fitHeight ? Math.min(widthScale, heightScale, 1) : widthScale)
+        : 1;
+      root.style.setProperty('--g4z', String(zoom));
+    };
+    update();
+    window.addEventListener('resize', update);
+    window.addEventListener('orientationchange', update);
+    return () => {
+      window.removeEventListener('resize', update);
+      window.removeEventListener('orientationchange', update);
+      root.style.removeProperty('--g4z');
+    };
+  }, [breakpoint, designHeight, designWidth, fitHeight]);
+}
 
 let runtimeConfig = { ttsApiBase: '', voiceGender: 'f', correctSoundUrl: '', wrongSoundUrl: '', previewMode: false };
 const configureLesson = (next) => { runtimeConfig = { ...runtimeConfig, ...next }; };
 const SUPPORTED_LANGS = ['uz', 'ru', 'en'];
 const SPEECH_LOCALES = { uz: 'uz-UZ', ru: 'ru-RU', en: 'en-GB' };
+const LANGUAGE_LABELS = { uz: 'Til', ru: 'Язык', en: 'Language' };
 const normalizeLang = (value) => SUPPORTED_LANGS.includes(value) ? value : 'uz';
 const LangContext = createContext('uz');
 const useLang = () => useContext(LangContext);
@@ -253,6 +1021,11 @@ function usePrefersReducedMotion() {
 
 const buildTtsUrl = (base, text, gender) => base + '/api/tts?text=' + encodeURIComponent(String(text).slice(0, 1000)) + '&g=' + (gender === 'm' ? 'm' : 'f');
 
+const visualBeatMs = (text) => {
+  const words = String(text ?? '').trim().split(/\s+/).filter(Boolean).length;
+  return Math.min(9000, Math.max(2600, 900 + words * 320));
+};
+
 class AudioEngine {
   constructor() { this.queue = []; this.index = 0; this.audio = null; this.previewUtterance = null; this.timer = null; this.lang = 'uz'; this.muted = false; this.listener = null; }
   emit(extra = {}) { this.listener?.({ muted: this.muted, ...extra }); }
@@ -270,7 +1043,7 @@ class AudioEngine {
     if (this.timer) window.clearTimeout(this.timer);
     if (this.audio) { this.audio.onended = null; this.audio.onerror = null; }
     this.emit({ isPlaying: false, completed: false, currentSegment: item.id, visualOnly: true });
-    this.timer = window.setTimeout(() => { this.index += 1; this.play(); }, duration ?? 900);
+    this.timer = window.setTimeout(() => { this.index += 1; this.play(); }, duration ?? visualBeatMs(item.text));
   }
   play() {
     const item = this.queue[this.index];
@@ -284,9 +1057,9 @@ class AudioEngine {
           utterance.rate = 0.94;
           utterance.onstart = () => this.emit({ isPlaying: true, completed: false, currentSegment: item.id, visualOnly: false });
           utterance.onend = () => { this.emit({ isPlaying: false, currentSegment: null }); this.index += 1; this.play(); };
-          utterance.onerror = () => this.timed(item, 900);
+          utterance.onerror = () => this.timed(item);
           this.previewUtterance = utterance;
-          this.timer = window.setTimeout(() => { try { window.speechSynthesis.speak(utterance); } catch { this.timed(item, 900); } }, 50);
+          this.timer = window.setTimeout(() => { try { window.speechSynthesis.speak(utterance); } catch { this.timed(item); } }, 50);
           return;
         } catch { /* deterministic timer fallback */ }
       }
@@ -295,9 +1068,9 @@ class AudioEngine {
     }
     if (!this.audio) { this.audio = new Audio(); this.audio.crossOrigin = 'anonymous'; }
     this.audio.onended = () => { this.index += 1; this.play(); };
-    this.audio.onerror = () => this.timed(item, 900);
+    this.audio.onerror = () => this.timed(item);
     this.audio.src = buildTtsUrl(runtimeConfig.ttsApiBase, item.text, runtimeConfig.voiceGender);
-    this.audio.play().then(() => this.emit({ isPlaying: true, completed: false, currentSegment: item.id, visualOnly: false })).catch(() => this.timed(item, 900));
+    this.audio.play().then(() => this.emit({ isPlaying: true, completed: false, currentSegment: item.id, visualOnly: false })).catch(() => this.timed(item));
   }
   toggleMute() { this.muted = !this.muted; this.stop(); this.index = 0; this.emit({ muted: this.muted }); this.start(); }
   pushOneOff(text) { this.load([{ id: 'feedback-' + Date.now(), text }]); this.start(); }
@@ -349,7 +1122,10 @@ function useNarration(value, screen) {
   const active = segments.findIndex((segment) => segment.id === audio.currentSegment);
   const finalFrame = Math.max(0, FRAME_COUNTS[screen] - 1);
   const feedbackPlaying = audio.currentSegment?.startsWith('feedback-') === true;
-  const frame = reduced || feedbackPlaying || audio.completed ? finalFrame : active >= 0 ? active : 0;
+  // Ovoz o'chirilgan bo'lsa kadr darhol oxirgi holatga o'tadi. Aks holda bola
+  // ovozsiz rejimda ekrandagi matnni ko'rmay qolardi: kadr jimjit taymer bilan
+  // sekin surilardi (2026-08-19 da topilgan nuqson).
+  const frame = reduced || audio.muted || feedbackPlaying || audio.completed ? finalFrame : active >= 0 ? active : 0;
   return { ...audio, frame, caption: active >= 0 ? segments[active].text : '' };
 }
 
@@ -358,7 +1134,6 @@ const playSfx = (kind) => {
   if (!url || typeof window === 'undefined') return;
   try { new Audio(url).play().catch(() => {}); } catch { /* optional */ }
 };
-
 const BitSVG = ({ state = 'present', className = '' }) => {
   const isWave = state === 'wave';
   const isHappy = state === 'happy' || isWave || state === 'idea' || state === 'nod';
@@ -368,11 +1143,11 @@ const BitSVG = ({ state = 'present', className = '' }) => {
   return (
   <svg className={`g1-char g1-char-bit g1-char-state-${state} ${className}`} viewBox="0 0 120 150" aria-hidden="true">
     <defs>
-      <linearGradient id="g420bbody" x1="0" y1="0" x2="0" y2="1">
+      <linearGradient id="g421bbody" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="#E2ECF2" />
         <stop offset="100%" stopColor="#B6C7D2" />
       </linearGradient>
-      <linearGradient id="g420bhead" x1="0" y1="0" x2="0" y2="1">
+      <linearGradient id="g421bhead" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="#EBF2F6" />
         <stop offset="100%" stopColor="#C4D3DC" />
       </linearGradient>
@@ -385,7 +1160,7 @@ const BitSVG = ({ state = 'present', className = '' }) => {
     </g>
     <rect x="44" y="118" width="12" height="16" rx="5" fill="#9FB3BF" />
     <rect x="64" y="118" width="12" height="16" rx="5" fill="#9FB3BF" />
-    <rect x="34" y="60" width="52" height="62" rx="18" fill="url(#g420bbody)" stroke="#A9BCC8" strokeWidth="2" />
+    <rect x="34" y="60" width="52" height="62" rx="18" fill="url(#g421bbody)" stroke="#A9BCC8" strokeWidth="2" />
     <rect x="44" y="104" width="32" height="10" rx="5" fill="#A9BCC8" opacity="0.5" />
     {(state === 'happy' || isWave) && (
       <g className={isWave ? 'bit-double-wave' : ''}>
@@ -463,7 +1238,7 @@ const BitSVG = ({ state = 'present', className = '' }) => {
         </g>
       </g>
     )}
-    <rect x="28" y="28" width="64" height="46" rx="16" fill="url(#g420bhead)" stroke="#A9BCC8" strokeWidth="2" />
+    <rect x="28" y="28" width="64" height="46" rx="16" fill="url(#g421bhead)" stroke="#A9BCC8" strokeWidth="2" />
     <rect x="36" y="36" width="48" height="30" rx="10" fill="#16242C" />
     <path d="M40 40 h18 a4 4 0 0 1 -4 8 h-14 Z" fill="rgba(255,255,255,0.08)" />
     <g className="g1-eyes" fill="#5BD6F2">
@@ -516,7 +1291,6 @@ const BitSVG = ({ state = 'present', className = '' }) => {
   </svg>
   );
 };
-
 const AudioIndicator = ({ audio }) => {
   const lang = useLang();
   const labels = {
@@ -545,9 +1319,9 @@ const AudioIndicator = ({ audio }) => {
 const ScreenTypeLabel = ({ type }) => {
   const lang = useLang();
   const labels = {
-    uz: { hook: 'Missiya', diagnostic: 'Diagnostika', exploration: 'Kashfiyot', rule: 'Qoida', practice: 'Mashq', test: 'Tekshiruv', case: 'Vazifa', summary: 'Yakun' },
-    ru: { hook: 'Миссия', diagnostic: 'Диагностика', exploration: 'Исследование', rule: 'Правило', practice: 'Практика', test: 'Проверка', case: 'Задача', summary: 'Итог' },
-    en: { hook: 'Mission', diagnostic: 'Diagnostic', exploration: 'Discovery', rule: 'Rule', practice: 'Practice', test: 'Check', case: 'Problem', summary: 'Summary' },
+    uz: { hook: 'Missiya', diagnostic: 'Diagnostika', model: 'Model', exploration: 'Tadqiqot', discovery: 'Kashfiyot', rule: 'Qoida', strategy: 'Strategiya', consolidation: 'Mustahkamlash', practice: 'Mashq', test: 'Tekshiruv', error: 'Xato tahlili', matching: 'Moslashtirish', construction: 'Diagramma', case: 'Vazifa', summary: 'Yakun' },
+    ru: { hook: 'Миссия', diagnostic: 'Диагностика', model: 'Модель', exploration: 'Исследование', discovery: 'Открытие', rule: 'Правило', strategy: 'Стратегия', consolidation: 'Закрепление', practice: 'Практика', test: 'Проверка', error: 'Разбор ошибки', matching: 'Сопоставление', construction: 'Диаграмма', case: 'Задача', summary: 'Итог' },
+    en: { hook: 'Mission', diagnostic: 'Diagnostic', model: 'Model', exploration: 'Exploration', discovery: 'Discovery', rule: 'Rule', strategy: 'Strategy', consolidation: 'Consolidation', practice: 'Practice', test: 'Check', error: 'Error analysis', matching: 'Matching', construction: 'Diagram', case: 'Problem', summary: 'Summary' },
   }[lang];
   return <span className="screen-type">{labels[type] ?? type}</span>;
 };
@@ -564,163 +1338,1229 @@ const FeedbackBlock = ({ show, correct, children, proof = null }) => {
   return <div data-g4-role={show ? (correct ? 'feedback-frame bit-answer-comment' : 'feedback-frame') : undefined} data-g4-feedback={show ? (correct ? 'solution' : 'wrong') : undefined} role={show ? 'status' : undefined} aria-hidden={!show} className={`feedback feedback-slot ${correct ? 'correct' : 'wrong'} ${open ? 'open' : ''}`}><span className="feedback-bit" data-g4-role="feedback-bit"><BitSVG state={correct ? 'nod' : 'awkward'}/></span><p data-g4-role={show && correct ? 'bit-answer-comment' : undefined}>{show && correct && <b className="proof-label">{t({ uz: 'YECHIM', ru: 'РЕШЕНИЕ', en: 'SOLUTION' })}</b>}<span>{show ? children : ''}</span>{show && proof && <strong className="feedback-proof">{proof}</strong>}</p></div>;
 };
 
-const Stage = ({ screen, audio, onPrev, onNext, nextDisabled = false, finish = false, children }) => {
+const Stage = ({ screen, audio, onPrev, onNext, nextDisabled: originalNextDisabled = false, finish = false, children }) => {
+  const originalGatePassed = !originalNextDisabled && Boolean(onNext);
+  const nextDisabled = !canUseGrade4TheoryContinue(originalGatePassed, finish);
   const t = useT(); const mobile = useIsMobile(); const pad = mobile ? 14 : 48; const c = CONTENT[`s${screen}`]; const meta = SCREEN_META[screen];
-  return <main className={`stage stage-${meta.type}`}><header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}><div className="progress-track" aria-label={`${screen + 1} / ${TOTAL_SCREENS}`}><div className="progress-fill progress-bar" style={{ width: `${(screen + 1) / TOTAL_SCREENS * 100}%` }}/></div><div className="stage-chrome"><div className="chrome-title"><span className="status-dot"/><span>{t(c.eyebrow)}</span></div><div className="chrome-actions"><ScreenTypeLabel type={meta.type}/>{audio && <AudioIndicator audio={audio}/>}<span className="screen-count">{String(screen + 1).padStart(2, '0')} / {TOTAL_SCREENS}</span></div></div></header><section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>{children}<div className={`caption-slot ${audio?.caption && (audio.muted || audio.visualOnly) ? 'is-visible' : ''}`} aria-live="polite"><span>{audio?.caption && (audio.muted || audio.visualOnly) ? audio.caption : ''}</span></div></section><footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{screen === 0 ? <span/> : <button type="button" className="btn-ghost" onClick={onPrev}>← {t({ uz: "Orqaga", ru: 'Назад', en: 'Back' })}</button>}<button type="button" className="btn-white-accent" disabled={nextDisabled || !onNext} onClick={onNext}>{finish ? t({ uz: "Darsni yakunlash", ru: 'Завершить урок', en: 'Finish lesson' }) : t({ uz: "Davom etish", ru: 'Продолжить', en: 'Continue' })} →</button></footer></main>;
+  return <main className={`stage stage-${meta.type}`}><header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}><div className="progress-track" role="progressbar" aria-valuemin={1} aria-valuemax={TOTAL_SCREENS} aria-valuenow={screen + 1} aria-label={`${screen + 1} / ${TOTAL_SCREENS}`}><div className="progress-fill progress-bar" style={{ width: `${(screen + 1) / TOTAL_SCREENS * 100}%` }}/></div><div className="stage-chrome"><div className="chrome-title"><span className="status-dot"/><span>{t(c.eyebrow)}</span></div><div className="chrome-actions"><ScreenTypeLabel type={meta.type}/>{audio && <AudioIndicator audio={audio}/>}<span className="screen-count">{String(screen + 1).padStart(2, '0')} / {TOTAL_SCREENS}</span></div></div></header><section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>{children}<div className={`caption-slot ${audio?.caption && (audio.muted || audio.visualOnly) ? 'is-visible' : ''}`} aria-live="polite"><span>{audio?.caption && (audio.muted || audio.visualOnly) ? audio.caption : ''}</span></div></section><footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{screen === 0 ? <span/> : <button type="button" className="btn-ghost" onClick={onPrev}>← {t({ uz: "Orqaga", ru: 'Назад', en: 'Back' })}</button>}<button type="button" className="btn-white-accent" disabled={nextDisabled || !onNext} onClick={onNext}>{finish ? t({ uz: "Darsni yakunlash", ru: 'Завершить урок', en: 'Finish lesson' }) : t({ uz: "Davom etish", ru: 'Продолжить', en: 'Continue' })} →</button></footer></main>;
 };
 
-const Heading = ({ c, bit, hook = false }) => { const t = useT(); return <div className="heading"><div><span data-g4-role={hook ? 'hook-topic' : undefined}>{t(c.eyebrow)}</span><h1 data-g4-role={hook ? 'hook-title' : undefined}>{t(c.title)}</h1></div>{bit && !hook && <BitSVG state={bit}/>}</div>; };
-const Options = ({ values, picked, onPick, correctIndex, solved, neutral = false, disabled = false }) => {
+const InlineCheck = ({ prompt, options, correctIndex, picked, onPick, disabled, note }) => {
   const t = useT();
-  return <div className="options">{values.map((value, index) => <button type="button" data-g4-role="answer-card" key={index + '-' + t(value)} className={'option ' + (picked === index ? 'picked ' : '') + (!neutral && solved && index === correctIndex ? 'right ' : '') + (!neutral && picked === index && picked !== correctIndex ? 'bad ' : '')} disabled={disabled || (!neutral && solved)} onClick={() => onPick(index)}><b>{String.fromCharCode(65 + index)}</b><span>{t(value)}</span></button>)}</div>;
-};
-const BeatList = ({ frames = [], frame, solved = false, onReplay = null }) => {
-  const t = useT();
-  return <div className="beat-list">{frames.map((item, index) => {
-    const shown = index <= frame || solved;
-    const content = <><b>{index + 1}</b><span>{t(item)}</span></>;
-    return onReplay
-      ? <button type="button" key={index} className={'beat ' + (shown ? 'show' : '')} onClick={() => onReplay(index)}>{content}</button>
-      : <div key={index} className={'beat ' + (shown ? 'show' : '')}>{content}</div>;
-  })}</div>;
+  const done = picked === correctIndex;
+  return <div className="inline-check" data-g4-role="inline-check">
+    <span className="inline-check-prompt">{t(prompt)}</span>
+    <div className="inline-check-row">{options.map((option, index) => <button type="button" key={index} className={'inline-chip' + (picked === index ? (index === correctIndex ? ' is-right' : ' is-bad') : '')} disabled={disabled || done} onClick={() => onPick(index)}>{t(option)}</button>)}</div>
+    <span className="inline-check-note" role="status">{picked === null ? '' : t(done ? note.right : note.wrong)}</span>
+  </div>;
 };
 
-const ShapeIcon = ({ color = 'blue', shape = 'triangle', label = '' }) => {
+const FactCard = ({ show, text }) => {
   const t = useT();
-  const colourName = color === 'yellow'
-    ? { uz: 'sariq', ru: 'жёлтый', en: 'yellow' }
-    : { uz: "ko'k", ru: 'синий', en: 'blue' };
-  const shapeName = shape === 'square'
-    ? { uz: 'kvadrat', ru: 'квадрат', en: 'square' }
-    : shape === 'circle'
-      ? { uz: 'doira', ru: 'круг', en: 'circle' }
-      : { uz: 'uchburchak', ru: 'треугольник', en: 'triangle' };
-  const accessibleLabel = label ? t(label) : `${t(colourName)} ${t(shapeName)}`;
+  return <div className={'fact-card ' + (show ? 'show' : '')} data-g4-role="fact-card"><b>{t({ uz: 'FAKT', ru: 'ФАКТ', en: 'FACT' })}</b><p>{t(text)}</p></div>;
+};
+
+// Kicker doim dars mavzusini ko'rsatadi: ilgari u Stage yuqorisidagi yorliqni
+// so'zma-so'z takrorlar edi va ekranda bir xil matn ikki marta turardi.
+const Heading = ({ c, bit, hook = false, kicker = null }) => { const t = useT(); return <div className="heading"><div><span data-g4-role={hook ? 'hook-topic' : undefined}>{t(kicker ?? TOPIC_KICKER)}</span><h1 data-g4-role={hook ? 'hook-title' : undefined}>{t(c.title)}</h1></div>{bit && !hook && <BitSVG state={bit}/>}</div>; };
+
+// wrongSet - allaqachon tanlangan noto'g'ri variantlar. Ular joyida qoladi
+// (keep-visible), lekin xiralashadi va qayta bosilmaydi: bola bir xil xatoni
+// takrorlab urinmaydi, to'g'ri javobga yo'naltiriladi.
+const Options = ({ values, picked, onPick, correctIndex, solved, neutral = false, disabled = false, order = null, wrongSet = null }) => {
+  const t = useT();
+  const sourceOrder = order ?? values.map((_, index) => index);
+  return <div className="options">{sourceOrder.map((sourceIndex, displayIndex) => { const value = values[sourceIndex]; const isWrong = !neutral && (wrongSet ? wrongSet.has(sourceIndex) : picked === sourceIndex && picked !== correctIndex); return <button type="button" data-g4-role="answer-card" data-g4-source-index={order ? sourceIndex : undefined} data-g4-correct={order ? (sourceIndex === correctIndex ? 'true' : 'false') : undefined} key={sourceIndex + '-' + t(value)} className={'option ' + (picked === sourceIndex ? 'picked ' : '') + (!neutral && solved && sourceIndex === correctIndex ? 'right ' : '') + (isWrong ? 'bad' : '')} disabled={disabled || (!neutral && solved) || isWrong} onClick={() => onPick(sourceIndex)}><b>{String.fromCharCode(65 + displayIndex)}</b><span>{t(value)}</span></button>; })}</div>;
+};
+
+
+const readPoint = (element, board, side) => {
+  const box = element.getBoundingClientRect();
+  const host = board.getBoundingClientRect();
+  return {
+    x: side === 'left' ? box.right - host.left : box.left - host.left,
+    y: box.top + box.height / 2 - host.top,
+  };
+};
+
+function MatchingLines({ boardRef, pairs = [], wrongPair = null, localeKey = 'uz' }) {
+  const [geometry, setGeometry] = useState({ width: 0, height: 0, lines: [] });
+
+  useLayoutEffect(() => {
+    const board = boardRef.current;
+    if (!board) return undefined;
+
+    let frame = 0;
+    const measure = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const host = board.getBoundingClientRect();
+        const allPairs = wrongPair ? [...pairs, { ...wrongPair, wrong: true }] : pairs;
+        const lines = allPairs.map((pair) => {
+          const left = board.querySelector(`[data-match-left="${pair.left}"]`);
+          const right = board.querySelector(`[data-match-right="${pair.right}"]`);
+          if (!left || !right) return null;
+          return { from: readPoint(left, board, 'left'), to: readPoint(right, board, 'right'), wrong: pair.wrong };
+        }).filter(Boolean);
+        setGeometry({ width: host.width, height: host.height, lines });
+      });
+    };
+
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(board);
+    board.querySelectorAll('[data-match-left],[data-match-right]').forEach((node) => observer.observe(node));
+    window.addEventListener('resize', measure);
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+      window.removeEventListener('resize', measure);
+    };
+  }, [boardRef, pairs, wrongPair, localeKey]);
+
   return (
-    <span className={'shape-token ' + color + ' ' + shape} aria-label={accessibleLabel}>
-      {shape === 'triangle' ? '▲' : shape === 'square' ? '■' : '●'}
-    </span>
+    <svg
+      className="matching-connectors"
+      width={geometry.width}
+      height={geometry.height}
+      viewBox={`0 0 ${geometry.width || 1} ${geometry.height || 1}`}
+      aria-hidden="true"
+      style={{ position: 'absolute', inset: 0, zIndex: 1, overflow: 'visible', pointerEvents: 'none' }}
+    >
+      {geometry.lines.map((line, index) => {
+        const bend = Math.max(24, (line.to.x - line.from.x) * 0.42);
+        const path = `M ${line.from.x} ${line.from.y} C ${line.from.x + bend} ${line.from.y}, ${line.to.x - bend} ${line.to.y}, ${line.to.x} ${line.to.y}`;
+        return (
+          <path
+            key={`${path}-${index}`}
+            className={line.wrong ? 'matching-connector-wrong' : 'matching-connector-correct'}
+            d={path}
+            fill="none"
+            stroke={line.wrong ? '#B85C32' : '#227A53'}
+            strokeWidth="4"
+            strokeLinecap="round"
+            style={{ filter: `drop-shadow(0 2px 3px ${line.wrong ? 'rgba(184,92,50,.28)' : 'rgba(34,122,83,.28)'})`, transition: 'd .55s ease, stroke .55s ease' }}
+          />
+        );
+      })}
+    </svg>
+  );
+}
+
+
+// ---------------------------------------------------------------------------
+// QADAMLI OCHILISH. Tushuntirish ovoz bilan o'zi surilmaydi: bola tugmani
+// bosadi, qadam ochiladi va aynan shu qadam ovozlanadi. Ovoz o'chirilganda
+// ham butun tushuntirish ko'rinadi - kadr yo'qolib qolmaydi.
+// ---------------------------------------------------------------------------
+function useStepReveal(content, screen, total) {
+  const lang = useLang();
+  const audio = useNarration(content.audio, screen);
+  const [step, setStep] = useState(0);
+  const ready = audio.muted || audio.completed;
+  const advance = () => {
+    if (!ready || step >= total) return;
+    const next = step + 1;
+    setStep(next);
+    const spoken = content.audio.steps?.[lang]?.[next - 1];
+    if (spoken) audio.pushOneOff(spoken);
+  };
+  return { audio, step, advance, ready, done: step >= total };
+}
+
+// Ochilgan qadamlar tepada ixcham chip bo'lib yig'iladi, faol qadamning izohi
+// to'liq ko'rinadi. Shu tufayli ekranda ko'p tushuntirish sig'adi va skroll
+// paydo bo'lmaydi.
+const StepPanel = ({ steps, step, children, done, doneText, onAdvance, ready }) => {
+  const t = useT();
+  const active = step > 0 ? steps[step - 1] : null;
+  return (
+    <section className="step-panel" data-g4-role="visual-frame">
+      <div className="step-model">{children}</div>
+      <div className="step-chips">
+        {steps.map((item, index) => (
+          <span key={index} className={'step-chip' + (index < step ? ' is-done' : '') + (index === step - 1 ? ' is-active' : '')}>
+            <b aria-hidden="true">{index < step ? '✓' : index + 1}</b>
+            <span>{t(item.chip)}</span>
+          </span>
+        ))}
+      </div>
+      <p className="step-caption" role="status" aria-live="polite">{active ? t(active.caption) : ''}</p>
+      <div className="step-actions">
+        {!done && (
+          <button type="button" className="btn-step" disabled={!ready} onClick={onAdvance}>
+            {t(step === 0
+              ? { uz: 'Boshlash', ru: 'Начать', en: 'Start' }
+              : { uz: 'Keyingi qadam', ru: 'Следующий шаг', en: 'Next step' })}
+          </button>
+        )}
+        {done && <span className="step-done">{t(doneText)}</span>}
+      </div>
+    </section>
   );
 };
 
-function OverlappingCriteriaDiagram({ frame = 3, focusZone = null, interactive = false, counts = null, device = false, devicePending = false, ghostMerge = false, showAllZones = false }) {
+
+// Klaviatura yo'q: son raqam plitalarini bosib teriladi, keyin tekshiriladi.
+const TapNumPad = ({ value, onDigit, onBack, onCheck, disabled, state, unit = '' }) => {
   const t = useT();
-  const [selected, setSelected] = useState(null);
-  const active = selected ?? focusZone;
-  const zones = [
-    { key: 'a', label: { uz: 'Faqat A', ru: 'Только A', en: 'A only' }, x: '21%', y: '50%' },
-    { key: 'both', label: { uz: 'Ikkalasi', ru: 'Обе', en: 'Both' }, x: '50%', y: '50%' },
-    { key: 'b', label: { uz: 'Faqat B', ru: 'Только B', en: 'B only' }, x: '79%', y: '50%' },
-    { key: 'outside', label: { uz: 'Tashqarida', ru: 'Снаружи', en: 'Outside' }, x: '50%', y: '88%' },
-  ];
   return (
-    <div className={'overlap-diagram ' + (active ? 'focus-' + active : '')}>
-      <svg viewBox="0 0 640 300" role="img" aria-label={t({ uz: "Ikki belgi diagrammasi", ru: 'Диаграмма двух признаков', en: 'Two-property diagram' })}>
-        <rect x="8" y="8" width="624" height="284" rx="24" className="diagram-field"/>
-        <circle cx="255" cy="140" r="112" className={'criteria-circle circle-a ' + (frame >= 0 ? 'on' : '')}/>
-        <circle cx="385" cy="140" r="112" className={'criteria-circle circle-b ' + (frame >= 1 ? 'on' : '')}/>
-        <text x="190" y="50" className="criteria-letter">A</text>
-        <text x="450" y="50" className="criteria-letter">B</text>
-        {frame >= 2 && <text x="320" y="138" textAnchor="middle" className="middle-label">{t({ uz: 'IKKALASI', ru: 'ОБЕ', en: 'BOTH' })}</text>}
-        {ghostMerge && <>
-          {frame <= 1 && <text x="320" y="276" textAnchor="middle" className="ghost-shape source">▲</text>}
-          {frame >= 1 && frame <= 2 && <text x="238" y="184" textAnchor="middle" className="ghost-shape copy">▲</text>}
-          {frame === 2 && <text x="402" y="184" textAnchor="middle" className="ghost-shape copy">▲</text>}
-          {frame >= 3 && <text x="320" y="184" textAnchor="middle" className="ghost-shape merged">▲</text>}
-        </>}
-        {counts && <>
-          <text x="205" y="155" textAnchor="middle" className="count-label">{counts.a}</text>
-          <text x="320" y="175" textAnchor="middle" className="count-label">{counts.both}</text>
-          <text x="435" y="155" textAnchor="middle" className="count-label">{counts.b}</text>
-        </>}
-        {devicePending && <>
-          <circle cx="566" cy="250" r="29" className="device-node pending"/>
-          <text x="566" y="256" textAnchor="middle" className="device-label">M7</text>
-        </>}
-        {device && <>
-          <circle cx="320" cy="170" r="29" className="device-node"/>
-          <text x="320" y="176" textAnchor="middle" className="device-label">M7</text>
-          <path d="M304 153 q16-18 32 0 M310 159 q10-10 20 0" className="device-signal"/>
-        </>}
-      </svg>
-      {zones.map((zone, index) => (showAllZones || frame >= Math.min(index, 3)) && <button
-        type="button"
-        key={zone.key}
-        className={'zone-tap zone-' + zone.key + (active === zone.key ? ' active' : '')}
-        style={{ left: zone.x, top: zone.y }}
-        onClick={() => interactive && setSelected(zone.key)}
-        tabIndex={interactive ? 0 : -1}
-        aria-pressed={active === zone.key}
-      >{t(zone.label)}</button>)}
-      {interactive && selected && <div className="zone-note">{t(zones.find((zone) => zone.key === selected)?.label)}</div>}
+    <div className="tap-pad">
+      <div className={'tap-display mono' + (state ? ' is-' + state : '')} role="status" aria-live="polite">
+        <span>{value === '' ? '?' : value}</span>
+        {unit && <small>{t(unit)}</small>}
+      </div>
+      <div className="tap-keys" role="group" aria-label={t({ uz: 'Raqamlar', ru: 'Цифры', en: 'Digits' })}>
+        {Array.from({ length: 10 }, (_, digit) => (
+          <button type="button" key={digit} className="tap-key" disabled={disabled} onClick={() => onDigit(String(digit))}>{digit}</button>
+        ))}
+        <button type="button" className="tap-key tap-back" disabled={disabled} onClick={onBack} aria-label={t({ uz: 'Oxirgi raqamni olib tashlash', ru: 'Удалить последнюю цифру', en: 'Delete the last digit' })}>&larr;</button>
+        <button type="button" className="tap-key tap-check" disabled={disabled || value === ''} onClick={onCheck}>
+          {t({ uz: 'Tekshirish', ru: 'Проверить', en: 'Check' })}
+        </button>
+      </div>
     </div>
   );
-}
-
-const ObjectAnswerMap = ({ frame }) => {
-  const t = useT();
-  const rows = [
-    { color: 'blue', shape: 'square', answers: { uz: "ha / yo'q", ru: 'да / нет', en: 'yes / no' }, zone: { uz: 'Faqat A', ru: 'Только A', en: 'A only' } },
-    { color: 'blue', shape: 'triangle', answers: { uz: 'ha / ha', ru: 'да / да', en: 'yes / yes' }, zone: { uz: 'Ikkalasi', ru: 'Обе', en: 'Both' } },
-    { color: 'yellow', shape: 'triangle', answers: { uz: "yo'q / ha", ru: 'нет / да', en: 'no / yes' }, zone: { uz: 'Faqat B', ru: 'Только B', en: 'B only' } },
-    { color: 'yellow', shape: 'circle', answers: { uz: "yo'q / yo'q", ru: 'нет / нет', en: 'no / no' }, zone: { uz: 'Tashqarida', ru: 'Снаружи', en: 'Outside' } },
-  ];
-  return <div className="object-answer-map">{rows.map((row, index) => <div key={row.color + row.shape} className={frame >= index ? 'show' : ''}><ShapeIcon color={row.color} shape={row.shape}/><span>{t(row.answers)}</span><strong>{t(row.zone)}</strong></div>)}</div>;
 };
 
-function SetVisual({ screen, frame, solved = false }) {
-  if (screen === 0) return <div data-g4-role="visual-frame" className="visual-card"><ShapeIcon color="blue" shape="triangle"/><OverlappingCriteriaDiagram frame={frame} interactive/></div>;
-  if (screen === 1) return <div data-g4-role="visual-frame" className="visual-card set-elements"><div className="single-set"><span>A</span><ShapeIcon color="blue" shape="square"/><ShapeIcon color="blue" shape="triangle"/><ShapeIcon color="blue" shape="circle"/></div></div>;
-  if (screen === 2) return <div data-g4-role="visual-frame" className="visual-card"><OverlappingCriteriaDiagram frame={frame} ghostMerge/></div>;
-  if (screen === 3) return <div data-g4-role="visual-frame" className="visual-card"><OverlappingCriteriaDiagram frame={frame} interactive/></div>;
-  if (screen === 4) return <div data-g4-role="visual-frame" className="visual-card"><ObjectAnswerMap frame={frame}/></div>;
-  if (screen === 5) return <div data-g4-role="visual-frame" className="visual-card"><OverlappingCriteriaDiagram frame={frame} counts={{ a: 2, both: 1, b: 1 }}/></div>;
-  if (screen === 12) return <div data-g4-role="visual-frame" className="visual-card"><OverlappingCriteriaDiagram frame={frame} focusZone={solved ? 'a' : null} counts={{ a: 2, both: 2, b: 1 }} showAllZones/></div>;
-  if (screen === 6) return <div data-g4-role="visual-frame" className="visual-card outside-demo"><ShapeIcon color="yellow" shape="circle"/><OverlappingCriteriaDiagram frame={frame} focusZone={frame >= 3 ? 'outside' : null}/></div>;
-  if (screen === 7) return <div data-g4-role="visual-frame" className="visual-card"><OverlappingCriteriaDiagram frame={Math.min(frame, 3)} interactive/></div>;
-  if (screen === 8) return <div data-g4-role="visual-frame" className="visual-card test-figure"><ShapeIcon color="blue" shape="square"/><OverlappingCriteriaDiagram frame={frame} focusZone={solved ? 'a' : null} showAllZones/></div>;
-  if (screen === 9) return <div data-g4-role="visual-frame" className="visual-card test-figure"><ShapeIcon color="blue" shape="triangle"/><OverlappingCriteriaDiagram frame={frame} focusZone={solved ? 'both' : null} showAllZones/></div>;
-  if (screen === 10) return <div data-g4-role="visual-frame" className="visual-card test-figure"><ShapeIcon color="yellow" shape="triangle"/><OverlappingCriteriaDiagram frame={frame} focusZone={solved ? 'b' : null} showAllZones/></div>;
-  if (screen === 11) return <div data-g4-role="visual-frame" className="visual-card test-figure"><ShapeIcon color="yellow" shape="circle"/><OverlappingCriteriaDiagram frame={frame} focusZone={solved ? 'outside' : null} showAllZones/></div>;
-  if (screen === 13) return <div data-g4-role="visual-frame" className="visual-card"><OverlappingCriteriaDiagram frame={frame} focusZone={solved ? 'both' : null} device={solved} devicePending={!solved} showAllZones/></div>;
-  return null;
-}
-
-function ChoiceExercise({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
+// Raqam terish ekranlari uchun umumiy tana (s3, s5, s12 va yakuniy topshiriqlar).
+function useTapAnswer({ screen, answer, onAnswer, question, ready, audio, correctAudio, wrongAudio, storedAnswer }) {
   const t = useT();
-  const c = CONTENT['s' + screen];
-  const audio = useNarration(c.audio, screen);
-  const narrationReady = audio.muted || audio.completed;
-  const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null);
+  const [value, setValue] = useState('');
+  const [state, setState] = useState(null);
   const [solved, setSolved] = useState(storedAnswer?.correct === true);
   const attempts = useRef(storedAnswer?.attempts ?? 0);
   const clean = useRef(storedAnswer?.firstTry ?? true);
+  const push = (digit) => { if (!ready || solved || value.length >= 4) return; setState(null); setValue((previous) => previous + digit); };
+  const back = () => { if (!ready || solved) return; setState(null); setValue((previous) => previous.slice(0, -1)); };
+  const check = () => {
+    if (!ready || solved || value === '') return;
+    attempts.current += 1;
+    const ok = Number(value) === answer;
+    if (!ok) clean.current = false;
+    setState(ok ? 'ok' : 'bad');
+    setSolved(ok);
+    playSfx(ok ? 'correct' : 'wrong');
+    audio.pushOneOff(t(ok ? correctAudio : wrongAudio));
+    if (!ok) setTimeout(() => { setValue(''); setState(null); }, 1400);
+    onAnswer({
+      screenIdx: screen, stage: SCREEN_META[screen].scope, question: t(question),
+      options: [], correctIndex: answer, correctAnswer: String(answer),
+      studentAnswerIndex: null, studentAnswer: value,
+      correct: ok, firstTry: ok && clean.current && attempts.current === 1,
+      attempts: attempts.current, solved: ok,
+    });
+  };
+  return { value: solved ? String(answer) : value, state, solved, push, back, check };
+}
+
+
+// ---------------------------------------------------------------------------
+// DARSNING IMZO MODELI. To'plam halqa bilan ko'rsatiladi: element halqa ichida
+// chip bo'lib turadi, mos kelmagan obyekt tashqarida qoladi. Halqalar ajratilgan
+// (juft va toq) yoki kesishgan (oxirgi ekran) holatda bo'ladi.
+// ---------------------------------------------------------------------------
+const SetRing = ({ label, caption = null, chips = [], count = null, tone = 'cyan', compact = false, empty = null }) => {
+  const t = useT();
+  return (
+    <div className={'ring ring-' + tone + (compact ? ' compact' : '')}>
+      <div className="ring-head">
+        <b>{t(label)}</b>
+        {caption && <small>{t(caption)}</small>}
+      </div>
+      <div className="ring-body">
+        {chips.length === 0 && empty && <span className="ring-empty">{t(empty)}</span>}
+        {chips.map((chip, index) => (
+          <span key={index} className="ring-chip">{typeof chip === 'string' ? chip : t(chip)}</span>
+        ))}
+      </div>
+      {count !== null && <span className="ring-count mono">{count}</span>}
+    </div>
+  );
+};
+
+// Ikki ajratilgan halqa: umumiy element yo'q, shuning uchun yonma-yon turadi.
+const DisjointRings = ({ left, right, showRight = true }) => (
+  <div className="ring-pair">
+    <SetRing {...left} compact />
+    {showRight && <SetRing {...right} tone="warn" compact />}
+  </div>
+);
+
+// Kesishgan ikki halqa va to'rt zona. Zona tugma bo'lib, ustiga tushgan figura
+// chip bo'lib qoladi - bola qaysi zonada nima borligini ko'radi.
+const VennBoard = ({ rings, zones, placed, items, activeItem, wrongZone, onPlace, disabled }) => {
+  const t = useT();
+  const chipsFor = (zoneId) => Object.entries(placed)
+    .filter(([, zone]) => zone === zoneId)
+    .map(([index]) => items[Number(index)]);
+  return (
+    <div className="venn">
+      <div className="venn-labels">
+        <span className="venn-label venn-label-left">{t(rings[0].label)}</span>
+        <span className="venn-label venn-label-right">{t(rings[1].label)}</span>
+      </div>
+      <div className="venn-stage">
+        <i className="venn-circle venn-circle-left" aria-hidden="true" />
+        <i className="venn-circle venn-circle-right" aria-hidden="true" />
+        {zones.map((zone) => (
+          <button
+            type="button"
+            key={zone.id}
+            className={'venn-zone venn-zone-' + zone.id + (wrongZone === zone.id ? ' is-wrong' : '') + (activeItem !== null ? ' is-open' : '')}
+            disabled={disabled || activeItem === null}
+            onClick={() => onPlace(zone.id)}
+          >
+            <small>{t(zone.label)}</small>
+            <span className="venn-chips">
+              {chipsFor(zone.id).map((item, index) => (
+                <i key={index} className={'venn-chip is-' + item.color + ' is-' + item.shape} aria-hidden="true" />
+              ))}
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// Figura chipi: rang va shakl ko'rinadigan qilib chiziladi, matn bilan birga.
+const FigureChip = ({ item, active, done, onClick, disabled }) => {
+  const t = useT();
+  return (
+    <button
+      type="button"
+      className={'figure-chip' + (active ? ' is-active' : '') + (done ? ' is-done' : '')}
+      disabled={disabled || done}
+      onClick={onClick}
+    >
+      <i className={'figure-mark is-' + item.color + ' is-' + item.shape} aria-hidden="true" />
+      <span>{t(item.label)}</span>
+    </button>
+  );
+};
+
+const ErrorCard = ({ top, bottom }) => (
+  <div className="error-card" data-g4-role="visual-frame">
+    <div className="error-record">
+      <span className="mono">{top}</span>
+      <b className="mono">{bottom}</b>
+    </div>
+    <span className="error-mark" aria-hidden="true">✗</span>
+  </div>
+);
+
+// ---------------------------------------------------------------------------
+// EKRANLAR
+// ---------------------------------------------------------------------------
+
+function Screen0({ screen, storedAnswer, onAnswer, onNext }) {
+  const t = useT();
+  const c = CONTENT.s0;
+  const audio = useNarration(c.audio, screen);
+  const ready = audio.muted || audio.completed;
+  const frame = audio.frame;
+  const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null);
   const pick = (index) => {
-    if (solved || !narrationReady) return;
+    if (!ready || picked !== null) return;
+    setPicked(index);
+    audio.pushOneOff(t(c.neutral));
+    onAnswer({
+      screenIdx: screen, stage: SCREEN_META[screen].scope, question: t(c.question),
+      options: c.options.map(t), correctIndex: null, correctAnswer: null,
+      studentAnswerIndex: index, studentAnswer: t(c.options[index]),
+      correct: true, firstTry: true, attempts: 1, solved: true,
+    });
+  };
+  const chips = [
+    bi('24 qalam', '24 карандаша', '24 pencils'),
+    bi('20 daftar', '20 тетрадей', '20 notebooks'),
+    bi('5 ruchka', '5 ручек', '5 pens'),
+    bi("3 chizg'ich", '3 линейки', '3 rulers'),
+    bi('1 tsirkul', '1 циркуль', '1 compass'),
+    bi("2 o'chirg'ich", '2 ластика', '2 erasers'),
+  ];
+  return (
+    <Stage screen={screen} audio={audio} onNext={onNext} nextDisabled={picked === null || !ready}>
+      <div className="stack hook-stack" data-g4-screen="hook">
+        <Heading c={c} hook />
+        <h2 className="hook-question-prompt" data-g4-role="hook-question">{t(c.question)}</h2>
+        <section className="hook-scene-adapter" data-g4-role="hook-scene">
+          <div className="hook-scene-visual" data-g4-role="visual-frame">
+            <section className="hook-model">
+              <div className="tray">
+                {chips.slice(0, frame >= 1 ? chips.length : 3).map((chip, index) => (
+                  <span key={index} className="tray-chip">{t(chip)}</span>
+                ))}
+              </div>
+              <div className={'hook-record mono' + (frame >= 2 ? ' show' : '')}>
+                {t(bi("har xil narsa = to'plam emas?", 'разные предметы = не множество?', 'different objects = not a set?'))}
+              </div>
+            </section>
+            <div className="hook-frame-bit" data-g4-role="hook-bit"><BitSVG state="think" /></div>
+          </div>
+        </section>
+        <section className="question" data-g4-role="answer-card">
+          <Options values={c.options} picked={picked} onPick={pick} neutral disabled={!ready || picked !== null} />
+          <FeedbackBlock show={picked !== null} correct>{t(c.neutral)}</FeedbackBlock>
+        </section>
+      </div>
+    </Stage>
+  );
+}
+
+function Screen1({ screen, onNext, onPrev }) {
+  const c = CONTENT.s1;
+  const audio = useNarration(c.audio, screen);
+  const ready = audio.muted || audio.completed;
+  const [picked, setPicked] = useState(null);
+  const solved = picked === c.correctIndex;
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!solved || !ready}>
+      <div className="stack">
+        <Heading c={c} />
+        <section className="model-card" data-g4-role="visual-frame">
+          <SetRing
+            label={bi('Maktab jihozlari', 'Школьные принадлежности', 'School supplies')}
+            chips={[
+              bi('qalam', 'карандаш', 'pencil'),
+              bi('daftar', 'тетрадь', 'notebook'),
+              bi('ruchka', 'ручка', 'pen'),
+              bi("chizg'ich", 'линейка', 'ruler'),
+            ]}
+          />
+        </section>
+        <InlineCheck
+          prompt={c.prompt}
+          options={c.chips}
+          correctIndex={c.correctIndex}
+          picked={picked}
+          onPick={(index) => { if (ready) setPicked(index); }}
+          disabled={!ready}
+          note={c.note}
+        />
+      </div>
+    </Stage>
+  );
+}
+
+function Screen2({ screen, onNext, onPrev }) {
+  const t = useT();
+  const c = CONTENT.s2;
+  const { audio, step, advance, ready, done } = useStepReveal(c, screen, 3);
+  const chips = [
+    bi('340 stul', '340 стульев', '340 chairs'),
+    bi('31 doska', '31 доска', '31 boards'),
+    bi('18 javon', '18 шкафов', '18 cabinets'),
+  ];
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!done}>
+      <div className="stack">
+        <Heading c={c} />
+        <p className="lead-line">{t(c.lead)}</p>
+        <StepPanel steps={c.steps} step={step} done={done} doneText={c.done} onAdvance={advance} ready={ready}>
+          {step >= 2
+            ? (
+              <SetRing
+                label={bi('Maktab mebeli', 'Школьная мебель', 'School furniture')}
+                chips={chips}
+                count={step >= 3 ? '389' : null}
+              />
+            )
+            : (
+              <div className="tray">
+                {chips.map((chip, index) => (
+                  <span key={index} className={'tray-chip' + (step >= 1 ? ' show' : '')}>{t(chip)}</span>
+                ))}
+              </div>
+            )}
+        </StepPanel>
+      </div>
+    </Stage>
+  );
+}
+
+function Screen3({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
+  const t = useT();
+  const c = CONTENT.s3;
+  const audio = useNarration(c.audio, screen);
+  const ready = audio.muted || audio.completed;
+  const [inRing, setInRing] = useState(storedAnswer?.inRing ?? []);
+  const [state, setState] = useState(storedAnswer?.correct === true ? 'ok' : null);
+  const [solved, setSolved] = useState(storedAnswer?.correct === true);
+  const [note, setNote] = useState(null);
+  const attempts = useRef(storedAnswer?.attempts ?? 0);
+  const clean = useRef(storedAnswer?.firstTry ?? true);
+  const target = c.items.filter((item) => item.inSet).length;
+  const toggle = (index) => {
+    if (!ready || solved) return;
+    setState(null);
+    setNote(null);
+    setInRing((previous) => (previous.includes(index)
+      ? previous.filter((value) => value !== index)
+      : [...previous, index]));
+  };
+  const finish = () => {
+    if (!ready || solved || inRing.length === 0) return;
+    attempts.current += 1;
+    const wrongItem = inRing.map((index) => c.items[index]).find((item) => !item.inSet);
+    const ok = !wrongItem && inRing.length === target;
+    if (!ok) clean.current = false;
+    setState(ok ? 'ok' : 'bad');
+    setSolved(ok);
+    setNote(ok ? null : (wrongItem ? wrongItem.wrongNote : c.hintShort));
+    playSfx(ok ? 'correct' : 'wrong');
+    audio.pushOneOff(t(ok ? c.audio.on_correct : c.audio.on_wrong));
+    if (!ok) setTimeout(() => { setInRing([]); setState(null); }, 1700);
+    onAnswer({
+      screenIdx: screen, stage: SCREEN_META[screen].scope, question: t(c.setLabel),
+      options: c.items.map((item) => t(item.label)), correctIndex: null, correctAnswer: t(c.proof),
+      studentAnswerIndex: null, studentAnswer: inRing.map((index) => t(c.items[index].label)).join(', '),
+      correct: ok, firstTry: ok && clean.current && attempts.current === 1,
+      attempts: attempts.current, solved: ok, inRing,
+    });
+  };
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!solved || !ready}>
+      <div className="stack">
+        <Heading c={c} />
+        <p className="lead-line">{t(c.lead)}</p>
+        <section className="model-card" data-g4-role="visual-frame">
+          <SetRing
+            label={c.setLabel}
+            chips={inRing.map((index) => c.items[index].label)}
+            empty={bi("halqa bo'sh", 'круг пуст', 'the ring is empty')}
+          />
+          <div className="tray">
+            {c.items.map((item, index) => (
+              <button
+                type="button"
+                key={index}
+                className={'tray-chip is-button' + (inRing.includes(index) ? ' is-in' : '')}
+                disabled={!ready || solved}
+                onClick={() => toggle(index)}
+              >
+                {t(item.label)}
+              </button>
+            ))}
+          </div>
+          <button type="button" className="btn-step btn-step-done" disabled={!ready || solved || inRing.length === 0} onClick={finish}>
+            {t({ uz: 'Tayyor', ru: 'Готово', en: 'Done' })}
+          </button>
+        </section>
+        <FeedbackBlock show={state !== null} correct={solved} proof={solved ? t(c.proof) : null}>
+          {solved || state === null ? '' : t(note ?? c.hintShort)}
+        </FeedbackBlock>
+      </div>
+    </Stage>
+  );
+}
+
+function Screen4({ screen, onNext, onPrev }) {
+  const t = useT();
+  const c = CONTENT.s4;
+  const { audio, step, advance, ready, done } = useStepReveal(c, screen, 3);
+  const books = [
+    bi('Matematika', 'Математика', 'Mathematics'),
+    bi('Ona tili', 'Родной язык', 'Native language'),
+    bi('Alpomish', 'Алпомиш', 'Alpomish'),
+    bi('Ertaklar', 'Сказки', 'Tales'),
+  ];
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!done}>
+      <div className="stack">
+        <Heading c={c} />
+        <p className="lead-line">{t(c.lead)}</p>
+        <StepPanel steps={c.steps} step={step} done={done} doneText={c.done} onAdvance={advance} ready={ready}>
+          {step >= 3
+            ? (
+              <DisjointRings
+                left={{ label: bi('Darsliklar', 'Учебники', 'Textbooks'), chips: books.slice(0, 2), count: '2' }}
+                right={{ label: bi('Badiiy kitoblar', 'Художественные книги', 'Fiction books'), chips: books.slice(2), count: '2' }}
+              />
+            )
+            : (
+              <SetRing
+                label={bi('Kitoblar', 'Книги', 'Books')}
+                caption={step >= 2 ? bi('belgi: vazifasi', 'признак: назначение', 'attribute: purpose') : null}
+                chips={books}
+                count="4"
+              />
+            )}
+        </StepPanel>
+      </div>
+    </Stage>
+  );
+}
+
+function Screen5({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
+  const t = useT();
+  const c = CONTENT.s5;
+  const audio = useNarration(c.audio, screen);
+  const ready = audio.muted || audio.completed;
+  const [placed, setPlaced] = useState(storedAnswer?.placed ?? {});
+  const [active, setActive] = useState(null);
+  const [wrongItem, setWrongItem] = useState(null);
+  const attempts = useRef(storedAnswer?.attempts ?? 0);
+  const clean = useRef(storedAnswer?.firstTry ?? true);
+  const reported = useRef(storedAnswer?.solved === true);
+  const solved = Object.keys(placed).length === c.items.length;
+  const place = (ring) => {
+    if (!ready || solved || active === null) return;
+    attempts.current += 1;
+    const item = c.items[active];
+    if (item.ring === ring) {
+      setPlaced((previous) => ({ ...previous, [active]: ring }));
+      setActive(null);
+      setWrongItem(null);
+      playSfx('correct');
+    } else {
+      clean.current = false;
+      setWrongItem(active);
+      playSfx('wrong');
+      audio.pushOneOff(t(item.wrongNote));
+    }
+  };
+  useEffect(() => {
+    if (!solved || reported.current) return;
+    reported.current = true;
+    setWrongItem(null);
+    audio.pushOneOff(t(c.audio.on_correct));
+    onAnswer({
+      screenIdx: screen, stage: SCREEN_META[screen].scope, question: t(c.title),
+      options: c.items.map((item) => t(item.label)), correctIndex: null,
+      correctAnswer: t(c.doneNote), studentAnswerIndex: null, studentAnswer: t(c.doneNote),
+      correct: true, firstTry: clean.current, attempts: attempts.current, solved: true, placed,
+    });
+  }, [solved, placed, audio, c, onAnswer, screen, t]);
+  const chipsFor = (ring) => Object.entries(placed)
+    .filter(([, value]) => value === ring)
+    .map(([index]) => c.items[Number(index)].label);
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!solved || !ready}>
+      <div className="stack">
+        <Heading c={c} />
+        <p className="lead-line">{t(c.lead)}</p>
+        <section className="sortset" data-g4-role="visual-frame">
+          <div className="tray">
+            {c.items.map((item, index) => (
+              <button
+                type="button"
+                key={index}
+                className={'tray-chip is-button' + (active === index ? ' is-active' : '') + (placed[index] !== undefined ? ' is-done' : '') + (wrongItem === index ? ' is-wrong' : '')}
+                disabled={!ready || placed[index] !== undefined || solved}
+                onClick={() => setActive(index)}
+              >
+                {t(item.label)}
+              </button>
+            ))}
+          </div>
+          <div className="ring-pair">
+            {c.rings.map((ring, index) => (
+              <button
+                type="button"
+                key={index}
+                className={'ring-drop' + (active !== null ? ' is-open' : '')}
+                disabled={!ready || active === null || solved}
+                onClick={() => place(index)}
+              >
+                <SetRing label={ring.label} caption={ring.caption} chips={chipsFor(index)} tone={index === 0 ? 'cyan' : 'warn'} compact empty={bi("bo'sh", 'пусто', 'empty')} />
+              </button>
+            ))}
+          </div>
+        </section>
+        <FeedbackBlock show={solved || wrongItem !== null} correct={solved}>
+          {solved ? t(c.doneNote) : (wrongItem === null ? '' : t(c.items[wrongItem].wrongNote))}
+        </FeedbackBlock>
+      </div>
+    </Stage>
+  );
+}
+
+function Screen6({ screen, onNext, onPrev }) {
+  const t = useT();
+  const c = CONTENT.s6;
+  const { audio, step, advance, ready, done } = useStepReveal(c, screen, 3);
+  const all = ['346', '347', '348', '349', '350', '351', '352', '353', '354', '355', '356'];
+  const even = ['346', '348', '350', '352', '354', '356'];
+  const odd = ['347', '349', '351', '353', '355'];
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!done}>
+      <div className="stack">
+        <Heading c={c} />
+        <p className="lead-line">{t(c.lead)}</p>
+        <StepPanel steps={c.steps} step={step} done={done} doneText={c.done} onAdvance={advance} ready={ready}>
+          {step >= 2
+            ? (
+              <DisjointRings
+                left={{ label: bi('Juft sonlar', 'Чётные числа', 'Even numbers'), chips: even, count: '6' }}
+                right={{ label: bi('Toq sonlar', 'Нечётные числа', 'Odd numbers'), chips: odd, count: '5' }}
+                showRight={step >= 3}
+              />
+            )
+            : (
+              <div className="tray">
+                {all.map((value) => (
+                  <span key={value} className={'tray-chip mono' + (step >= 1 ? ' show' : '')}>{value}</span>
+                ))}
+              </div>
+            )}
+        </StepPanel>
+      </div>
+    </Stage>
+  );
+}
+
+function Screen7({ screen, onNext, onPrev }) {
+  const t = useT();
+  const c = CONTENT.s7;
+  const audio = useNarration(c.audio, screen);
+  const ready = audio.muted || audio.completed;
+  const frame = audio.frame;
+  const [picked, setPicked] = useState(null);
+  const solved = picked === c.check.correctIndex;
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!solved || !ready}>
+      <div className="stack">
+        <Heading c={c} />
+        <section className="rule-frame">
+          <span className="rule-badge">{t({ uz: 'QOIDA', ru: 'ПРАВИЛО', en: 'RULE' })}</span>
+          <p className="rule-text show">{t(c.rule)}</p>
+          <div className="rule-lines">
+            {c.lines.map((line, index) => (
+              <span key={index} className={'rule-line' + (frame >= 1 ? ' show' : '')}>{t(line)}</span>
+            ))}
+          </div>
+          <strong className={'rule-formula' + (frame >= 2 ? ' show' : '')}>{t(c.formula)}</strong>
+          <small className="rule-source">{t(c.ruleSource)}</small>
+        </section>
+        <InlineCheck
+          prompt={c.check.prompt}
+          options={c.check.chips}
+          correctIndex={c.check.correctIndex}
+          picked={picked}
+          onPick={(index) => { if (ready) setPicked(index); }}
+          disabled={!ready}
+          note={c.check.note}
+        />
+      </div>
+    </Stage>
+  );
+}
+
+function Screen8(props) {
+  const c = CONTENT.s8;
+  const t = useT();
+  return <ChoiceBody {...props} c={c} ordinal={0} bit="hint" compact model={<ErrorCard top={t(c.errorTop)} bottom={t(c.errorBottom)} />} />;
+}
+
+function Screen9({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
+  const t = useT();
+  const c = CONTENT.s9;
+  const audio = useNarration(c.audio, screen);
+  const ready = audio.muted || audio.completed;
+  const [taken, setTaken] = useState(storedAnswer?.taken ?? []);
+  const [state, setState] = useState(storedAnswer?.correct === true ? 'ok' : null);
+  const [solved, setSolved] = useState(storedAnswer?.correct === true);
+  const [note, setNote] = useState(null);
+  const attempts = useRef(storedAnswer?.attempts ?? 0);
+  const clean = useRef(storedAnswer?.firstTry ?? true);
+  const target = c.points.filter((point) => point.inside).length;
+  const toggle = (id) => {
+    if (!ready || solved) return;
+    setState(null);
+    setNote(null);
+    setTaken((previous) => (previous.includes(id) ? previous.filter((value) => value !== id) : [...previous, id]));
+  };
+  const finish = () => {
+    if (!ready || solved || taken.length === 0) return;
+    attempts.current += 1;
+    const wrongPoint = taken.map((id) => c.points.find((point) => point.id === id)).find((point) => point && !point.inside);
+    const ok = !wrongPoint && taken.length === target;
+    if (!ok) clean.current = false;
+    setState(ok ? 'ok' : 'bad');
+    setSolved(ok);
+    setNote(ok ? null : (wrongPoint ? wrongPoint.wrongNote : c.hintShort));
+    playSfx(ok ? 'correct' : 'wrong');
+    audio.pushOneOff(t(ok ? c.audio.on_correct : c.audio.on_wrong));
+    if (!ok) setTimeout(() => { setTaken([]); setState(null); }, 1700);
+    onAnswer({
+      screenIdx: screen, stage: SCREEN_META[screen].scope, question: t(c.setLabel),
+      options: c.points.map((point) => point.id), correctIndex: null, correctAnswer: t(c.proof),
+      studentAnswerIndex: null, studentAnswer: taken.join(', '),
+      correct: ok, firstTry: ok && clean.current && attempts.current === 1,
+      attempts: attempts.current, solved: ok, taken,
+    });
+  };
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!solved || !ready}>
+      <div className="stack">
+        <Heading c={c} />
+        <p className="lead-line">{t(c.lead)}</p>
+        <section className="points-board" data-g4-role="visual-frame">
+          <span className="points-label">{t(c.setLabel)}</span>
+          <div className="points-stage">
+            <i className="points-circle" aria-hidden="true" />
+            {c.points.map((point) => (
+              <button
+                type="button"
+                key={point.id}
+                className={'point' + (taken.includes(point.id) ? ' is-taken' : '')}
+                style={{ left: point.x + '%', top: point.y + '%' }}
+                disabled={!ready || solved}
+                onClick={() => toggle(point.id)}
+              >
+                {point.id}
+              </button>
+            ))}
+          </div>
+          <button type="button" className="btn-step btn-step-done" disabled={!ready || solved || taken.length === 0} onClick={finish}>
+            {t({ uz: 'Tayyor', ru: 'Готово', en: 'Done' })}
+          </button>
+        </section>
+        <FeedbackBlock show={state !== null} correct={solved} proof={solved ? t(c.proof) : null}>
+          {solved || state === null ? '' : t(note ?? c.hintShort)}
+        </FeedbackBlock>
+      </div>
+    </Stage>
+  );
+}
+
+function Screen10({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
+  const t = useT();
+  const c = CONTENT.s10;
+  const audio = useNarration(c.audio, screen);
+  const ready = audio.muted || audio.completed;
+  const pad = useTapAnswer({
+    screen, answer: c.answer, onAnswer, question: c.question, ready, audio,
+    correctAudio: c.audio.on_correct, wrongAudio: c.audio.on_wrong, storedAnswer,
+  });
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!pad.solved || !ready}>
+      <div className="stack">
+        <Heading c={c} />
+        <p className="lead-line">{t(c.lead)}</p>
+        <section className="model-card" data-g4-role="visual-frame">
+          <DisjointRings
+            left={{ label: bi('4-A sinf', '4-А класс', 'Class 4-A'), chips: [], count: '17', empty: bi("o'g'il bolalar", 'мальчики', 'boys') }}
+            right={{ label: bi('4-B sinf', '4-Б класс', 'Class 4-B'), chips: [], count: '14', empty: bi("o'g'il bolalar", 'мальчики', 'boys') }}
+          />
+          <h2 className="case-question">{t(c.question)}</h2>
+        </section>
+        <TapNumPad value={pad.value} onDigit={pad.push} onBack={pad.back} onCheck={pad.check} disabled={!ready || pad.solved} state={pad.state} unit={SET_UNIT_BOY} />
+        <FeedbackBlock show={pad.state !== null} correct={pad.solved} proof={pad.solved ? t(c.proof) : null}>
+          {pad.solved || pad.state === null ? '' : t(c.hint)}
+        </FeedbackBlock>
+      </div>
+    </Stage>
+  );
+}
+
+function Screen11({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
+  const t = useT();
+  const lang = useLang();
+  const c = CONTENT.s11;
+  const audio = useNarration(c.audio, screen);
+  const ready = audio.muted || audio.completed;
+  const boardRef = useRef(null);
+  const [activeLeft, setActiveLeft] = useState(null);
+  const [pairs, setPairs] = useState(storedAnswer?.pairs ?? []);
+  const [wrongPair, setWrongPair] = useState(null);
+  const clean = useRef(storedAnswer?.firstTry ?? true);
+  const attempts = useRef(storedAnswer?.attempts ?? 0);
+  const solved = pairs.length === c.left.length;
+  const reported = useRef(storedAnswer?.solved === true);
+  const takenLeft = new Set(pairs.map((pair) => pair.left));
+  const takenRight = new Set(pairs.map((pair) => pair.right));
+  const pickRight = (rightId) => {
+    if (!ready || solved || activeLeft === null || takenRight.has(rightId)) return;
+    attempts.current += 1;
+    const target = c.right.find((item) => item.id === rightId);
+    if (target && target.pair === activeLeft) {
+      setPairs((previous) => [...previous, { left: activeLeft, right: rightId }]);
+      setActiveLeft(null);
+      setWrongPair(null);
+      playSfx('correct');
+    } else {
+      clean.current = false;
+      setWrongPair({ left: activeLeft, right: rightId });
+      playSfx('wrong');
+      audio.pushOneOff(t(c.audio.on_wrong));
+    }
+  };
+  useEffect(() => {
+    if (!solved || reported.current) return;
+    reported.current = true;
+    setWrongPair(null);
+    audio.pushOneOff(t(c.audio.on_correct));
+    onAnswer({
+      screenIdx: screen, stage: SCREEN_META[screen].scope, question: t(c.title),
+      options: c.left.map((item) => t(item.label)), correctIndex: null,
+      correctAnswer: t(c.doneNote), studentAnswerIndex: null, studentAnswer: t(c.doneNote),
+      correct: true, firstTry: clean.current, attempts: attempts.current, solved: true, pairs,
+    });
+  }, [solved, pairs, audio, c, onAnswer, screen, t]);
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!solved || !ready}>
+      <div className="stack">
+        <Heading c={c} />
+        <p className="lead-line">{t(c.prompt)}</p>
+        <section className="matching-board" ref={boardRef}>
+          <MatchingLines boardRef={boardRef} pairs={pairs} wrongPair={wrongPair} localeKey={lang} />
+          <div className="matching-column">
+            {c.left.map((item) => (
+              <button
+                type="button"
+                key={item.id}
+                data-match-left={item.id}
+                className={'match-card' + (activeLeft === item.id ? ' is-active' : '') + (takenLeft.has(item.id) ? ' is-done' : '')}
+                disabled={!ready || takenLeft.has(item.id) || solved}
+                onClick={() => setActiveLeft(item.id)}
+              >
+                <span className="mono">{t(item.label)}</span>
+              </button>
+            ))}
+          </div>
+          <div className="matching-column">
+            {c.right.map((item) => (
+              <button
+                type="button"
+                key={item.id}
+                data-match-right={item.id}
+                className={'match-card' + (takenRight.has(item.id) ? ' is-done' : '')}
+                disabled={!ready || takenRight.has(item.id) || solved}
+                onClick={() => pickRight(item.id)}
+              >
+                <span className="mono match-value">{item.value}</span>
+                <span className="match-caption">{t(item.caption)}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+        <FeedbackBlock show={solved || wrongPair !== null} correct={solved}>
+          {solved ? t(c.doneNote) : t(c.wrongNote)}
+        </FeedbackBlock>
+      </div>
+    </Stage>
+  );
+}
+
+function Screen12({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
+  const t = useT();
+  const c = CONTENT.s12;
+  const audio = useNarration(c.audio, screen);
+  const ready = audio.muted || audio.completed;
+  const total = c.rounds.length;
+  const [index, setIndex] = useState(storedAnswer?.roundIndex ?? 0);
+  const [picked, setPicked] = useState(null);
+  const [solvedRound, setSolvedRound] = useState(false);
+  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const [correctCount, setCorrectCount] = useState(storedAnswer?.correctCount ?? 0);
+  const [firstTryCount, setFirstTryCount] = useState(storedAnswer?.firstTryCount ?? 0);
+  const attempts = useRef(0);
+  const done = index >= total - 1 && solvedRound;
+  const round = c.rounds[Math.min(index, total - 1)];
+  /* eslint-disable react-hooks/exhaustive-deps -- CONTENT modul konstantasi: tartib bir marta hisoblanadi */
+  const roundOrder0 = useMemo(() => buildOptionOrder(c.rounds[0].options.length, c.rounds[0].correctIndex, LESSON_META.lessonId, 1), []);
+  const roundOrder1 = useMemo(() => buildOptionOrder(c.rounds[1].options.length, c.rounds[1].correctIndex, LESSON_META.lessonId, 2), []);
+  const roundOrder2 = useMemo(() => buildOptionOrder(c.rounds[2].options.length, c.rounds[2].correctIndex, LESSON_META.lessonId, 3), []);
+  /* eslint-enable react-hooks/exhaustive-deps */
+  const roundOrders = [roundOrder0, roundOrder1, roundOrder2];
+  const order = roundOrders[Math.min(index, total - 1)];
+  const pick = (option) => {
+    if (!ready || solvedRound || wrongSet.has(option)) return;
+    attempts.current += 1;
+    const ok = option === round.correctIndex;
+    if (!ok) setWrongSet((previous) => new Set([...previous, option]));
+    setPicked(option);
+    playSfx(ok ? 'correct' : 'wrong');
+    audio.pushOneOff(t(round.feedbackAudio[option]));
+    if (!ok) return;
+    setSolvedRound(true);
+    const nextCorrect = correctCount + 1;
+    const nextFirstTry = firstTryCount + (attempts.current === 1 ? 1 : 0);
+    setCorrectCount(nextCorrect);
+    setFirstTryCount(nextFirstTry);
+    onAnswer({
+      screenIdx: screen, stage: SCREEN_META[screen].scope, question: t(round.question),
+      options: round.options.map(t), correctIndex: round.correctIndex, correctAnswer: t(round.options[round.correctIndex]),
+      studentAnswerIndex: option, studentAnswer: t(round.options[option]),
+      correct: nextCorrect === total, firstTry: nextFirstTry === total,
+      attempts: attempts.current, solved: nextCorrect === total,
+      roundIndex: index, correctCount: nextCorrect, firstTryCount: nextFirstTry,
+    });
+  };
+  const nextRound = () => {
+    if (index >= total - 1) return;
+    setIndex((value) => value + 1);
+    setPicked(null);
+    setSolvedRound(false);
+    setWrongSet(new Set());
+    attempts.current = 0;
+  };
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!done || !ready}>
+      <div className="stack">
+        <Heading c={c} />
+        <span className="round-meter">{t({ uz: 'Savol', ru: 'Вопрос', en: 'Question' })} {Math.min(index + 1, total)} / {total}</span>
+        <section className="question round-question">
+          <h2>{t(round.question)}</h2>
+          <Options values={round.options} picked={picked} onPick={pick} correctIndex={round.correctIndex} solved={solvedRound} disabled={!ready} order={order} wrongSet={wrongSet} />
+          <FeedbackBlock show={picked !== null} correct={solvedRound} proof={solvedRound ? t(round.proof) : null}>
+            {picked === null ? '' : t(round.feedback[picked])}
+          </FeedbackBlock>
+          {solvedRound && index < total - 1 && (
+            <button type="button" className="btn-step" onClick={nextRound}>
+              {t({ uz: 'Keyingi savol', ru: 'Следующий вопрос', en: 'Next question' })}
+            </button>
+          )}
+        </section>
+      </div>
+    </Stage>
+  );
+}
+
+function Screen13({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
+  const t = useT();
+  const c = CONTENT.s13;
+  const audio = useNarration(c.audio, screen);
+  const ready = audio.muted || audio.completed;
+  const [placed, setPlaced] = useState(storedAnswer?.placed ?? {});
+  const [active, setActive] = useState(null);
+  const [wrongZone, setWrongZone] = useState(null);
+  const [wrongItem, setWrongItem] = useState(null);
+  const attempts = useRef(storedAnswer?.attempts ?? 0);
+  const clean = useRef(storedAnswer?.firstTry ?? true);
+  const reported = useRef(storedAnswer?.solved === true);
+  const solved = Object.keys(placed).length === c.items.length;
+  const place = (zoneId) => {
+    if (!ready || solved || active === null) return;
+    attempts.current += 1;
+    const item = c.items[active];
+    if (item.zone === zoneId) {
+      setPlaced((previous) => ({ ...previous, [active]: zoneId }));
+      setActive(null);
+      setWrongZone(null);
+      setWrongItem(null);
+      playSfx('correct');
+    } else {
+      clean.current = false;
+      setWrongZone(zoneId);
+      setWrongItem(active);
+      playSfx('wrong');
+      audio.pushOneOff(t(item.wrongNote));
+    }
+  };
+  useEffect(() => {
+    if (!solved || reported.current) return;
+    reported.current = true;
+    setWrongZone(null);
+    setWrongItem(null);
+    audio.pushOneOff(t(c.audio.on_correct));
+    onAnswer({
+      screenIdx: screen, stage: SCREEN_META[screen].scope, question: t(c.title),
+      options: c.items.map((item) => t(item.label)), correctIndex: null,
+      correctAnswer: t(c.doneNote), studentAnswerIndex: null, studentAnswer: t(c.doneNote),
+      correct: true, firstTry: clean.current, attempts: attempts.current, solved: true, placed,
+    });
+  }, [solved, placed, audio, c, onAnswer, screen, t]);
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!solved || !ready}>
+      <div className="stack">
+        <Heading c={c} />
+        <p className="lead-line">{t(c.lead)}</p>
+        <section className="venn-board" data-g4-role="visual-frame">
+          <div className="figure-tray">
+            {c.items.map((item, index) => (
+              <FigureChip
+                key={index}
+                item={item}
+                active={active === index}
+                done={placed[index] !== undefined}
+                disabled={!ready || solved}
+                onClick={() => setActive(index)}
+              />
+            ))}
+          </div>
+          <VennBoard
+            rings={c.rings}
+            zones={c.zones}
+            placed={placed}
+            items={c.items}
+            activeItem={active}
+            wrongZone={wrongZone}
+            onPlace={place}
+            disabled={!ready || solved}
+          />
+        </section>
+        <FeedbackBlock show={solved || wrongItem !== null} correct={solved}>
+          {solved ? t(c.doneNote) : (wrongItem === null ? '' : t(c.items[wrongItem].wrongNote))}
+        </FeedbackBlock>
+      </div>
+    </Stage>
+  );
+}
+
+function Screen14({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
+  const t = useT();
+  const c = CONTENT.s14;
+  const audio = useNarration(c.audio, screen);
+  const ready = audio.muted || audio.completed;
+  const total = c.items.length;
+  const [index, setIndex] = useState(storedAnswer?.itemIndex ?? 0);
+  const [picked, setPicked] = useState(null);
+  const [solvedItem, setSolvedItem] = useState(false);
+  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const [value, setValue] = useState('');
+  const [padState, setPadState] = useState(null);
+  const [correctCount, setCorrectCount] = useState(storedAnswer?.correctCount ?? 0);
+  const [firstTryCount, setFirstTryCount] = useState(storedAnswer?.firstTryCount ?? 0);
+  const attempts = useRef(0);
+  const item = c.items[Math.min(index, total - 1)];
+  const done = index >= total - 1 && solvedItem;
+  /* eslint-disable react-hooks/exhaustive-deps -- CONTENT modul konstantasi: tartib bir marta hisoblanadi */
+  const mcOrder1 = useMemo(() => buildOptionOrder(c.items[1].options.length, c.items[1].correctIndex, LESSON_META.lessonId, 4), []);
+  const mcOrder2 = useMemo(() => buildOptionOrder(c.items[2].options.length, c.items[2].correctIndex, LESSON_META.lessonId, 5), []);
+  /* eslint-enable react-hooks/exhaustive-deps */
+  const order = index === 1 ? mcOrder1 : mcOrder2;
+  const register = (ok, studentAnswer, correctAnswer) => {
+    const nextCorrect = correctCount + (ok ? 1 : 0);
+    const nextFirstTry = firstTryCount + (ok && attempts.current === 1 ? 1 : 0);
+    if (ok) { setCorrectCount(nextCorrect); setFirstTryCount(nextFirstTry); setSolvedItem(true); }
+    onAnswer({
+      screenIdx: screen, stage: SCREEN_META[screen].scope, question: t(item.question),
+      options: item.options ? item.options.map(t) : [], correctIndex: item.options ? item.correctIndex : item.answer,
+      correctAnswer, studentAnswerIndex: null, studentAnswer,
+      correct: nextCorrect === total, firstTry: nextFirstTry === total,
+      attempts: attempts.current, solved: nextCorrect === total,
+      itemIndex: index, correctCount: nextCorrect, firstTryCount: nextFirstTry,
+    });
+  };
+  const checkNumber = () => {
+    if (!ready || solvedItem || value === '') return;
+    attempts.current += 1;
+    const ok = Number(value) === item.answer;
+    setPadState(ok ? 'ok' : 'bad');
+    playSfx(ok ? 'correct' : 'wrong');
+    audio.pushOneOff(t(ok ? item.audio.on_correct : item.audio.on_wrong));
+    if (!ok) setTimeout(() => { setValue(''); setPadState(null); }, 1400);
+    register(ok, value, String(item.answer));
+  };
+  const pickOption = (option) => {
+    if (!ready || solvedItem || wrongSet.has(option)) return;
+    attempts.current += 1;
+    const ok = option === item.correctIndex;
+    if (!ok) setWrongSet((previous) => new Set([...previous, option]));
+    setPicked(option);
+    playSfx(ok ? 'correct' : 'wrong');
+    // Har bir variantning o'z izohi aytiladi; umumiy on_wrong faqat zaxira.
+    audio.pushOneOff(t(item.feedbackAudio?.[option] ?? (ok ? item.audio.on_correct : item.audio.on_wrong)));
+    register(ok, t(item.options[option]), t(item.options[item.correctIndex]));
+  };
+  const nextItem = () => {
+    if (index >= total - 1) return;
+    setIndex((current) => current + 1);
+    setPicked(null);
+    setSolvedItem(false);
+    setWrongSet(new Set());
+    setValue('');
+    setPadState(null);
+    attempts.current = 0;
+  };
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!done || !ready}>
+      <div className="stack">
+        <Heading c={c} />
+        <span className="round-meter">{t({ uz: 'Topshiriq', ru: 'Задание', en: 'Task' })} {Math.min(index + 1, total)} / {total}</span>
+        <section className="question round-question">
+          <h2>{t(item.question)}</h2>
+          {item.kind === 'num'
+            ? (
+              <TapNumPad
+                value={solvedItem ? String(item.answer) : value}
+                onDigit={(digit) => { if (ready && !solvedItem && value.length < 4) { setPadState(null); setValue((previous) => previous + digit); } }}
+                onBack={() => { if (ready && !solvedItem) { setPadState(null); setValue((previous) => previous.slice(0, -1)); } }}
+                onCheck={checkNumber}
+                disabled={!ready || solvedItem}
+                state={padState}
+                unit={SET_UNIT_ITEM}
+              />
+            )
+            : <Options values={item.options} picked={picked} onPick={pickOption} correctIndex={item.correctIndex} solved={solvedItem} disabled={!ready} order={order} wrongSet={wrongSet} />}
+          <FeedbackBlock show={item.kind === 'num' ? padState !== null : picked !== null} correct={solvedItem} proof={solvedItem ? t(item.proof) : null}>
+            {item.kind === 'num'
+              ? (solvedItem || padState === null ? '' : t(item.hint))
+              : (picked === null ? '' : t(item.feedback[picked]))}
+          </FeedbackBlock>
+          {solvedItem && index < total - 1 && (
+            <button type="button" className="btn-step" onClick={nextItem}>
+              {t({ uz: 'Keyingi topshiriq', ru: 'Следующее задание', en: 'Next task' })}
+            </button>
+          )}
+        </section>
+        <FactCard show={done} text={c.fact} />
+      </div>
+    </Stage>
+  );
+}
+
+// Variantli ekranlar uchun umumiy tana. Model har ekranda boshqa.
+function ChoiceBody({ screen, c, ordinal, storedAnswer, onAnswer, onNext, onPrev, model = null, bit = null, compact = false }) {
+  const t = useT();
+  const audio = useNarration(c.audio, screen);
+  const ready = audio.muted || audio.completed;
+  const order = useMemo(
+    () => buildOptionOrder(c.options.length, c.correctIndex, LESSON_META.lessonId, ordinal),
+    [c.correctIndex, c.options.length, ordinal],
+  );
+  const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null);
+  const [solved, setSolved] = useState(storedAnswer?.correct === true);
+  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const attempts = useRef(storedAnswer?.attempts ?? 0);
+  const clean = useRef(storedAnswer?.firstTry ?? true);
+  const pick = (index) => {
+    if (!ready || solved || wrongSet.has(index)) return;
     attempts.current += 1;
     const ok = index === c.correctIndex;
-    if (!ok) clean.current = false;
+    if (!ok) { clean.current = false; setWrongSet((previous) => new Set([...previous, index])); }
     setPicked(index);
     setSolved(ok);
     playSfx(ok ? 'correct' : 'wrong');
-    const spoken = c.feedbackAudio?.[index] ?? (ok ? c.audio.on_correct : null);
-    if (spoken) audio.pushOneOff(t(spoken));
-    onAnswer({ screenIdx: screen, stage: SCREEN_META[screen].scope, question: t(c.question), options: c.options.map(t), correctIndex: c.correctIndex, correctAnswer: t(c.options[c.correctIndex]), studentAnswerIndex: index, studentAnswer: t(c.options[index]), correct: ok, firstTry: ok && clean.current && attempts.current === 1, attempts: attempts.current, solved: ok });
+    audio.pushOneOff(t(c.feedbackAudio[index]));
+    onAnswer({
+      screenIdx: screen, stage: SCREEN_META[screen].scope, question: t(c.question),
+      options: c.options.map(t), correctIndex: c.correctIndex, correctAnswer: t(c.options[c.correctIndex]),
+      studentAnswerIndex: index, studentAnswer: t(c.options[index]),
+      correct: ok, firstTry: ok && clean.current && attempts.current === 1,
+      attempts: attempts.current, solved: ok,
+    });
   };
-  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!solved || !narrationReady}><div className="stack"><Heading c={c}/><SetVisual screen={screen} frame={audio.frame} solved={solved} disabled={!narrationReady}/><BeatList frames={c.frames} frame={audio.frame} solved={solved}/><section className="question"><h2>{t(c.question)}</h2><Options values={c.options} picked={picked} onPick={pick} correctIndex={c.correctIndex} solved={solved}/><FeedbackBlock show={picked !== null} correct={solved} proof={solved && c.proof ? t(c.proof) : null}>{picked !== null ? t(c.feedback[picked]) : ''}</FeedbackBlock></section></div></Stage>;
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!solved || !ready}>
+      <div className="stack">
+        <Heading c={c} bit={bit} />
+        {model && <section className={'model-card' + (compact ? ' compact' : '')} data-g4-role="visual-frame">{model}</section>}
+        <section className="question">
+          <h2>{t(c.question)}</h2>
+          <Options values={c.options} picked={picked} onPick={pick} correctIndex={c.correctIndex} solved={solved} disabled={!ready} order={order} wrongSet={wrongSet} />
+          <FeedbackBlock show={picked !== null} correct={solved} proof={solved && c.proof ? t(c.proof) : null}>
+            {picked === null ? '' : t(c.feedback[picked])}
+          </FeedbackBlock>
+        </section>
+      </div>
+    </Stage>
+  );
 }
 
-function Screen0({ screen, storedAnswer, onAnswer, onNext }) {
-  const t = useT(); const c = CONTENT.s0; const audio = useNarration(c.audio, screen); const narrationReady = audio.muted || audio.completed; const [picked, setPicked] = useState(storedAnswer?.neutralChoice ?? null);
-  const pick = (index) => { if (!narrationReady) return; setPicked(index); audio.pushOneOff(t(c.neutral)); onAnswer({ screenIdx: screen, stage: SCREEN_META[screen].scope, question: t(c.question), options: c.options.map(t), correctIndex: null, correctAnswer: null, studentAnswerIndex: index, studentAnswer: t(c.options[index]), correct: true, firstTry: true, attempts: 1, solved: true, neutralChoice: index }); };
-  return <Stage screen={screen} audio={audio} onNext={onNext} nextDisabled={picked === null || !narrationReady}><div className="stack hook-stack" data-g4-screen="hook"><Heading c={c} bit="think" hook/><h2 className="hook-question-prompt" data-g4-role="hook-question">{t(c.question)}</h2><section className="hook-scene-adapter" data-g4-role="hook-scene"><div className="hook-scene-visual" data-g4-role="visual-frame"><SetVisual screen={screen} frame={audio.frame}/><BeatList frames={c.frames} frame={audio.frame}/><div className="hook-frame-bit" data-g4-role="hook-bit"><BitSVG state="think"/></div></div></section><section className="question" data-g4-role="answer-card"><h2>{t(c.question)}</h2><Options values={c.options} picked={picked} onPick={pick} neutral disabled={!narrationReady}/><FeedbackBlock show={picked !== null} correct>{t(c.neutral)}</FeedbackBlock></section></div></Stage>;
-}
 
-function TheoryScreen({ screen, onNext, onPrev }) {
-  const t = useT(); const c = CONTENT['s' + screen]; const audio = useNarration(c.audio, screen); const narrationReady = audio.muted || audio.completed; const [strategyUsed, setStrategyUsed] = useState(false); const replayStep = (index) => { setStrategyUsed(true); audio.pushOneOff(t(c.frames[index])); };
-  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!strategyUsed || !narrationReady}><div className="stack"><Heading c={c}/><SetVisual screen={screen} frame={audio.frame}/><BeatList frames={c.frames} frame={audio.frame} onReplay={replayStep}/></div></Stage>;
-}
-
+// ---------------------------------------------------------------------------
+// YAKUNIY EKRAN — etalon Dars01 tuzilishi (metodist talabi 2026-08-19).
+// Tarkibi: yakuniy bosqich sarlavhasi -> yakuniy savol kartasi (uch variant) ->
+// yopilib turadigan qoida ro'yxati -> mukofot paneli (yopiq holatdan ochiladi).
+// Unvon faqat yakuniy savolga to'g'ri javob berilgandan keyin ochiladi, dars ham
+// shundan keyin yakunlanadi. Javob storedAnswer orqali saqlanadi: orqaga qaytib
+// qaytganda tanlov joyida qoladi.
+// ---------------------------------------------------------------------------
 function G4TitleReveal({ active, title, onComplete }) {
   const t = useT();
   const [visible, setVisible] = useState(false);
@@ -740,50 +2580,190 @@ function G4TitleReveal({ active, title, onComplete }) {
     };
   }, [active]);
   if (!visible || typeof document === 'undefined') return null;
-  return createPortal(<div className="rank-boost-overlay g4-title-reveal-overlay" data-g4-role="rank-overlay" role="status" aria-live="assertive" aria-atomic="true"><div className="rank-boost-card g4-title-reveal-card"><div className="rank-boost-rays g4-title-reveal-rays" aria-hidden="true"/><div className="rank-boost-confetti g4-title-reveal-confetti" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <i key={index}/>)}</div><div className="rank-boost-medal g4-title-reveal-medal" aria-hidden="true">★</div><h2 className="g4-title-reveal-title">{t(title)}</h2></div></div>, document.body);
+  return createPortal(
+    <div className="rank-boost-overlay g4-title-reveal-overlay" data-g4-role="rank-overlay" role="status" aria-live="assertive" aria-atomic="true">
+      <div className="rank-boost-card g4-title-reveal-card">
+        <div className="rank-boost-rays g4-title-reveal-rays" aria-hidden="true" />
+        <div className="rank-boost-confetti g4-title-reveal-confetti" aria-hidden="true">
+          {Array.from({ length: 18 }, (_, index) => <i key={index} />)}
+        </div>
+        <div className="rank-boost-medal g4-title-reveal-medal" aria-hidden="true">★</div>
+        <h2 className="g4-title-reveal-title">{t(title)}</h2>
+      </div>
+    </div>,
+    document.body,
+  );
 }
 
-function G4TitleCard({ title, answers = [] }) {
+// Mukofot paneli: yakuniy savolga to'g'ri javob berilgunicha yopiq turadi.
+const G4TitleCard = ({ title, solved, firstTry, total }) => {
   const t = useT();
-  const scored = SCREEN_META.map((item, index) => item.scored ? index : null).filter((index) => index !== null);
-  const firstTry = scored.filter((index) => answers[index]?.firstTry === true).length;
-  return <aside className="g4-title-card" data-g4-role="title-card" role="status" aria-live="polite"><div className="g4-title-card-confetti" data-g4-role="reward-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index}/>)}</div><div className="g4-title-card-bit" data-g4-role="reward-bit"><BitSVG state="happy"/></div><div className="g4-title-card-medal" data-g4-role="reward-medal" aria-hidden="true">★</div><span className="g4-title-card-kicker">{t({ uz: 'UNVON OLINDI', ru: 'ЗВАНИЕ ПОЛУЧЕНО', en: 'TITLE EARNED' })}</span><h2 className="g4-title-card-title">{t(title)}</h2><div className="g4-title-card-score"><strong>{firstTry}/{scored.length}</strong><span>{t({ uz: 'birinchi urinishda', ru: 'с первой попытки', en: 'on the first try' })}</span></div></aside>;
-}
-
-function G4FinalTitleReward({ ready, titleClaimed, reflectionChoice, onClaim, title, answers }) {
-  const t = useT();
-  const [revealRequested, setRevealRequested] = useState(false);
-  const completeReveal = () => { setRevealRequested(false); onClaim(); };
-  return <><G4TitleReveal active={revealRequested} title={title} onComplete={completeReveal}/>{titleClaimed && <G4TitleCard title={title} answers={answers}/>} {!titleClaimed && <button type="button" className="g4-title-claim" data-g4-role="title-claim" disabled={!ready || reflectionChoice === null || revealRequested} onClick={() => setRevealRequested(true)}><span aria-hidden="true">★</span><strong>{t({ uz: 'Unvonni olish', ru: 'Получить звание', en: 'Claim title' })}</strong><small>{t(title)}</small></button>}</>;
-}
-
-const ReflectionPanel = ({ choices, choice, onChoose, disabled }) => {
-  const t = useT();
-  return <section className="final-reflection" data-g4-role="reflection"><strong>{t({ uz: "Qaysi tekshiruv usulidan foydalanasiz?", ru: 'Какой способ проверки вы выберете?', en: 'Which checking strategy will you use?' })}</strong><div>{choices.map((item, index) => <button type="button" key={index} className={choice === index ? 'is-selected' : ''} aria-pressed={choice === index} disabled={disabled} onClick={() => onChoose(index)}><span>{index + 1}</span>{t(item)}</button>)}</div></section>;
+  return (
+    <div className={`reward-stage reward-stage-compact ${solved ? 'reward-unlocked' : 'reward-locked'}`} data-g4-role="title-card">
+      {solved && (
+        <div className="reward-confetti" data-g4-role="reward-confetti" aria-hidden="true">
+          {Array.from({ length: 12 }, (_, index) => <i key={index} />)}
+        </div>
+      )}
+      <div className="reward-bit" data-g4-role="reward-bit"><BitSVG state={solved ? 'happy' : 'present'} /></div>
+      <div className="reward-medal" data-g4-role="reward-medal" aria-hidden="true">{solved ? '★' : '○'}</div>
+      <span className="reward-kicker">
+        {t(solved
+          ? { uz: 'UNVON OLINDI', ru: 'ЗВАНИЕ ПОЛУЧЕНО', en: 'TITLE EARNED' }
+          : { uz: 'MUKOFOT KUTILMOQDA', ru: 'НАГРАДА ЖДЁТ', en: 'THE REWARD AWAITS' })}
+      </span>
+      <h2>{t(solved ? title : { uz: 'Unvonni oching', ru: 'Открой звание', en: 'Unlock your title' })}</h2>
+      <div className="reward-score">
+        <strong>{firstTry}/{total}</strong>
+        <span>{t({ uz: 'birinchi urinishda', ru: 'с первой попытки', en: 'on the first attempt' })}</span>
+      </div>
+    </div>
+  );
 };
 
-function Screen14({ screen, storedAnswer, answers, onAnswer, onPrev, finishLesson }) {
-  const t = useT(); const c = CONTENT.s14; const audio = useNarration(c.audio, screen); const narrationReady = audio.muted || audio.completed; const [reflectionChoice, setReflectionChoice] = useState(storedAnswer?.reflectionChoice ?? null); const [titleClaimed, setTitleClaimed] = useState(storedAnswer?.titleClaimed === true); const title = { uz: "Saralash tadqiqotchisi", ru: 'Исследователь сортировки', en: 'Sorting Explorer' }; const reflectionOptions = [{ uz: 'Model bilan tekshiraman', ru: 'Проверю по модели', en: 'I will check with a model' }, { uz: 'Qoida va birlikni tekshiraman', ru: 'Проверю правило и единицу', en: 'I will check the rule and unit' }, { uz: 'Teskari amal bilan tekshiraman', ru: 'Проверю обратным действием', en: 'I will use the inverse operation' }]; const chooseReflection = (index) => { if (!narrationReady || titleClaimed) return; setReflectionChoice(index); onAnswer({ ...(storedAnswer ?? {}), screenIdx: screen, stage: null, reflectionChoice: index, titleClaimed: false }); audio.pushOneOff(t(reflectionOptions[index])); }; const claimTitle = () => { if (!narrationReady || reflectionChoice === null || titleClaimed) return; setTitleClaimed(true); onAnswer({ screenIdx: screen, stage: null, question: t({ uz: 'Tanlangan tekshiruv', ru: 'Выбранная проверка', en: 'Chosen check' }), options: reflectionOptions.map(t), correctIndex: null, correctAnswer: null, studentAnswerIndex: reflectionChoice, studentAnswer: t(reflectionOptions[reflectionChoice]), correct: true, firstTry: true, attempts: 1, solved: true, reflectionChoice, titleClaimed: true }); };
-  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={titleClaimed ? finishLesson : undefined} nextDisabled={!titleClaimed} finish><div className="stack"><Heading c={c} bit="happy"/><div className="summary-venn-frame" data-g4-role="visual-frame"><OverlappingCriteriaDiagram frame={Math.min(audio.frame, 3)} focusZone={audio.frame >= 4 ? 'both' : null}/></div><BeatList frames={c.frames} frame={audio.frame}/><div className={'finale-bridge ' + (audio.frame >= 4 ? 'show' : '')}><small>{t({ uz: 'KEYINGI DARS', ru: 'СЛЕДУЮЩИЙ УРОК', en: 'NEXT LESSON' })}</small><strong>{t({ uz: "Uzunlik birliklari", ru: 'Единицы длины', en: 'Units of length' })}</strong></div><ReflectionPanel choices={reflectionOptions} choice={reflectionChoice} onChoose={chooseReflection} disabled={!narrationReady || titleClaimed}/><G4FinalTitleReward ready={narrationReady} titleClaimed={titleClaimed} reflectionChoice={reflectionChoice} onClaim={claimTitle} title={title} answers={answers}/></div></Stage>;
-}
+const EtalonFinalScreen = ({ screen, c, answers, storedAnswer, onAnswer, onPrev, finishLesson }) => {
+  const t = useT();
+  const audio = useNarration(c.audio, screen);
+  /* eslint-disable react-hooks/exhaustive-deps -- CONTENT modul konstantasi: tartib bir marta hisoblanadi */
+  const order = useMemo(
+    () => buildOptionOrder(c.options.length, c.correctIndex, LESSON_META.lessonId, 9),
+    [],
+  );
+  /* eslint-enable react-hooks/exhaustive-deps */
+  const [reflection, setReflection] = useState(storedAnswer?.reflection ?? null);
+  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const attempts = useRef(storedAnswer?.attempts ?? 0);
+  const [rulesOpen, setRulesOpen] = useState(false);
+  const [revealRequested, setRevealRequested] = useState(false);
+  const [finished, setFinished] = useState(false);
+  const solved = reflection === c.correctIndex;
+  const scored = SCREEN_META
+    .map((meta, index) => (meta.scored ? { index, units: meta.scoreUnits ?? 1 } : null))
+    .filter(Boolean);
+  const totalUnits = scored.reduce((sum, item) => sum + item.units, 0);
+  const firstTryUnits = scored.reduce((sum, item) => {
+    const answer = answers?.[item.index];
+    if (!answer) return sum;
+    if (typeof answer.firstTryCount === 'number') return sum + Math.min(answer.firstTryCount, item.units);
+    return sum + (answer.firstTry === true ? item.units : 0);
+  }, 0);
 
-const Screen1 = TheoryScreen;
-const Screen2 = TheoryScreen;
-const Screen3 = TheoryScreen;
-const Screen4 = TheoryScreen;
-const Screen5 = TheoryScreen;
-const Screen6 = TheoryScreen;
-const Screen7 = TheoryScreen;
-function Screen8(props) { return <ChoiceExercise {...props}/>; }
-function Screen9(props) { return <ChoiceExercise {...props}/>; }
-function Screen10(props) { return <ChoiceExercise {...props}/>; }
-function Screen11(props) { return <ChoiceExercise {...props}/>; }
-function Screen12(props) { return <ChoiceExercise {...props}/>; }
-function Screen13(props) { return <ChoiceExercise {...props}/>; }
+  const chooseReflection = (sourceIndex) => {
+    if (solved || wrongSet.has(sourceIndex) || !(audio.muted || audio.completed)) return;
+    setReflection(sourceIndex);
+    const ok = sourceIndex === c.correctIndex;
+    if (!ok) setWrongSet((previous) => new Set([...previous, sourceIndex]));
+    attempts.current += 1;
+    playSfx(ok ? 'correct' : 'wrong');
+    audio.pushOneOff(t(c.feedbackAudio[sourceIndex]));
+    if (ok) setRevealRequested(true);
+    onAnswer({
+      screenIdx: screen,
+      stage: SCREEN_META[screen].scope,
+      question: t(c.question),
+      options: order.map((index) => t(c.options[index])),
+      correctIndex: order.indexOf(c.correctIndex),
+      correctAnswer: t(c.options[c.correctIndex]),
+      studentAnswerIndex: order.indexOf(sourceIndex),
+      studentAnswer: t(c.options[sourceIndex]),
+      correct: ok,
+      firstTry: ok && attempts.current === 1,
+      attempts: attempts.current,
+      solved: ok,
+      reflection: sourceIndex,
+    });
+  };
 
-const SCREENS = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14];
+  const finish = () => {
+    if (!solved || finished || revealRequested) return;
+    setFinished(true);
+    finishLesson();
+  };
+
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={finish} nextDisabled={!solved || finished || revealRequested} canFinish={solved} finish>
+      <div className="screen-stack summary-stack">
+        <G4TitleReveal active={revealRequested} title={c.award} onComplete={() => setRevealRequested(false)} />
+        <div className="final-mission-heading">
+          <span><i aria-hidden="true">◆</i> {t({ uz: 'YAKUNIY BOSQICH', ru: 'ФИНАЛЬНЫЙ ЭТАП', en: 'FINAL STAGE' })}</span>
+          <h1>{t(c.title)}</h1>
+          <p>{t(c.lead)}</p>
+        </div>
+        <div className="summary-action-layout summary-final-layout">
+          <div className="summary-card reflection-card final-question-card">
+            <span className="summary-question-kicker">
+              <i aria-hidden="true">◇</i>
+              {t({ uz: 'YAKUNIY SAVOL', ru: 'ФИНАЛЬНЫЙ ВОПРОС', en: 'FINAL QUESTION' })}
+              <b>{t({ uz: '1 QADAM', ru: '1 ШАГ', en: '1 STEP' })}</b>
+            </span>
+            <h2 className="summary-question">{t(c.question)}</h2>
+            <p className="summary-question-stem">{t(c.stem)}</p>
+            <div className={`reflection-options ${solved ? 'reflection-options-solved' : ''}`} data-g4-role="reflection-options">
+              {order.map((sourceIndex, displayIndex) => (
+                <button
+                  type="button"
+                  key={t(c.options[sourceIndex])}
+                  data-g4-role="answer-card"
+                  data-g4-source-index={sourceIndex}
+                  data-g4-correct={sourceIndex === c.correctIndex ? 'true' : 'false'}
+                  className={`reflection-option ${wrongSet.has(sourceIndex) ? 'reflection-wrong' : ''} ${solved && sourceIndex === c.correctIndex ? 'option-answer-confirm' : ''} ${solved && sourceIndex !== c.correctIndex ? 'option-answer-dismiss' : ''}`}
+                  disabled={solved || wrongSet.has(sourceIndex)}
+                  onClick={() => chooseReflection(sourceIndex)}
+                >
+                  <span>{String.fromCharCode(65 + displayIndex)}</span>
+                  {t(c.options[sourceIndex])}
+                </button>
+              ))}
+            </div>
+            {solved && (
+              <div className="reflection-resolution">
+                <FeedbackBlock show correct proof={t(c.proof)}>{t(c.resolution)}</FeedbackBlock>
+              </div>
+            )}
+            <FeedbackBlock show={reflection !== null && !solved} correct={false}>
+              {reflection === null || solved ? '' : t(c.feedback[reflection])}
+            </FeedbackBlock>
+          </div>
+          <div className="summary-support-column">
+            <div className={`summary-rules-disclosure ${rulesOpen ? 'summary-rules-open' : ''}`}>
+              <button type="button" className="summary-rules-toggle" aria-expanded={rulesOpen} onClick={() => setRulesOpen((open) => !open)}>
+                <span aria-hidden="true">3 &rarr; |</span>
+                <div>
+                  <strong>{t(c.rulesLabel)}</strong>
+                  <small>
+                    {t(rulesOpen
+                      ? { uz: 'Qoidalarni yopish', ru: 'Скрыть правила', en: 'Hide the rules' }
+                      : { uz: 'Eslab olish uchun bosing', ru: 'Нажми, чтобы вспомнить', en: 'Press to remember' })}
+                  </small>
+                </div>
+                <i aria-hidden="true">&#8964;</i>
+              </button>
+              <div className="summary-rules-panel" aria-hidden={!rulesOpen}>
+                <div className="summary-rule-items">
+                  {c.rules.map((item, index) => (
+                    <span key={t(item)}>
+                      <i>{index + 1}</i>
+                      <p>{t(item)}</p>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <G4TitleCard title={c.award} solved={solved} firstTry={firstTryUnits} total={totalUnits} />
+          </div>
+        </div>
+      </div>
+    </Stage>
+  );
+};
+
+const Screen15 = (props) => <EtalonFinalScreen {...props} c={CONTENT.s15} />;
+
+
+const SCREENS = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14, Screen15];
 
 export default function Grade4Dars25({ studentName, lang: langProp, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished, previewMode }) {
+  useGrade4MobileZoom();
   const showPreviewControls = langProp === undefined || langProp === null;
   const preview = previewMode ?? showPreviewControls;
   const initialLang = normalizeLang(langProp);
@@ -804,109 +2784,66 @@ export default function Grade4Dars25({ studentName, lang: langProp, ttsApiBase, 
   const finishLesson = useCallback(() => {
     if (finished.current) return;
     finished.current = true;
-    const scored = SCREEN_META.map((meta, index) => meta.scored ? index : null).filter((index) => index !== null);
-    const firstTryCorrect = scored.filter((index) => answers[index]?.firstTry === true).length;
+    const scoredScreens = SCREEN_META
+      .map((meta, index) => (meta.scored ? { index, units: meta.scoreUnits ?? 1 } : null))
+      .filter(Boolean);
+    const totalUnits = scoredScreens.reduce((sum, item) => sum + item.units, 0);
+    const solvedUnits = scoredScreens.reduce((sum, item) => {
+      const answer = answers[item.index];
+      if (!answer) return sum;
+      if (typeof answer.correctCount === 'number') return sum + Math.min(answer.correctCount, item.units);
+      return sum + (answer.correct === true || answer.solved === true ? item.units : 0);
+    }, 0);
+    const firstTryUnits = scoredScreens.reduce((sum, item) => {
+      const answer = answers[item.index];
+      if (!answer) return sum;
+      if (typeof answer.firstTryCount === 'number') return sum + Math.min(answer.firstTryCount, item.units);
+      return sum + (answer.firstTry === true ? item.units : 0);
+    }, 0);
     const payload = {
-      lessonId: LESSON_META.lessonId, lessonTitle: LESSON_META.lessonTitle[lang], studentName: studentName || null,
-      durationSec: Math.floor((Date.now() - started.current) / 1000), totalQuestions: scored.length,
-      correctAnswers: firstTryCorrect, scorePercent: Math.round(firstTryCorrect / scored.length * 100),
-      finalScore: firstTryCorrect, finalTotal: scored.length, passed: firstTryCorrect / scored.length >= 0.6,
-      firstTryStats: { total: scored.length, firstTryCorrect },
-      attemptsTotal: scored.reduce((sum, index) => sum + (answers[index]?.attempts ?? 0), 0),
-      skillTags: LESSON_META.skillTags, answers: answers.filter(Boolean),
+      lessonId: LESSON_META.lessonId,
+      lessonTitle: LESSON_META.lessonTitle[lang],
+      studentName: studentName || null,
+      durationSec: Math.floor((Date.now() - started.current) / 1000),
+      totalQuestions: totalUnits,
+      correctAnswers: solvedUnits,
+      scorePercent: totalUnits ? Math.round(solvedUnits / totalUnits * 100) : 0,
+      finalScore: solvedUnits,
+      finalTotal: totalUnits,
+      passed: totalUnits ? solvedUnits / totalUnits >= 0.6 : false,
+      firstTryStats: { total: totalUnits, firstTryCorrect: firstTryUnits },
+      attemptsTotal: scoredScreens.reduce((sum, item) => sum + (answers[item.index]?.attempts ?? 0), 0),
+      skillTags: LESSON_META.skillTags,
+      answers: answers.filter(Boolean),
     };
-    if (onFinished) onFinished(payload); else console.log('[Grade4 Dars25 preview]', payload);
+    if (onFinished) onFinished(payload); else console.log('[Grade4 Dars23 preview]', payload);
   }, [answers, lang, onFinished, studentName]);
   const Current = SCREENS[current];
-  return <LangContext.Provider value={lang}><style>{STYLES + G4_ETALON_OVERRIDES}</style><div className={'lesson-root ' + (preview ? 'lesson-root-preview' : '')}>{showPreviewControls && <div className="preview-language" aria-label={{ uz: "Ko'rib chiqish tili", ru: 'Язык предпросмотра', en: 'Preview language' }[lang]}>{SUPPORTED_LANGS.map((code) => <button type="button" key={code} className={previewLang === code ? 'preview-active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}<Current key={current} screen={current} storedAnswer={answers[current]} answers={answers} onAnswer={recordAnswer} onPrev={() => setCurrent((value) => Math.max(0, value - 1))} onNext={() => setCurrent((value) => Math.min(TOTAL_SCREENS - 1, value + 1))} finishLesson={finishLesson}/></div></LangContext.Provider>;
+  return (
+    <LangContext.Provider value={lang}>
+      <style>{STYLES + G4_ETALON_OVERRIDES + LESSON_STYLES}</style>
+      <div className={'lesson-root ' + (preview ? 'lesson-root-preview' : '')}>
+        {showPreviewControls && (
+          <div className="preview-language" aria-label={LANGUAGE_LABELS[lang]}>
+            {SUPPORTED_LANGS.map((code) => (
+              <button type="button" key={code} className={previewLang === code ? 'preview-active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>
+            ))}
+          </div>
+        )}
+        <Current
+          key={current}
+          screen={current}
+          storedAnswer={answers[current]}
+          answers={answers}
+          onAnswer={recordAnswer}
+          onPrev={() => setCurrent((value) => Math.max(0, value - 1))}
+          onNext={() => setCurrent((value) => Math.min(TOTAL_SCREENS - 1, value + 1))}
+          finishLesson={finishLesson}
+        />
+      </div>
+    </LangContext.Provider>
+  );
 }
-
-const G4_TITLE_STYLES = `
-.g4-title-reveal-overlay{
-  position:fixed;inset:0;z-index:120;padding:0;display:grid;place-items:center;overflow:hidden;overscroll-behavior:contain;pointer-events:none;
-  background:rgba(8,13,24,.64);backdrop-filter:blur(2px) saturate(.78);animation:g4-title-reveal-overlay-life 3.9s ease both
-}
-.g4-title-reveal-card{
-  position:relative;isolation:isolate;width:100%;min-height:100dvh;padding:36px 24px;border:0;border-radius:0;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;overflow:hidden;color:#FFF;text-align:center;
-  background:radial-gradient(circle at 50% 50%,rgba(255,214,80,.17),transparent 31%)
-}
-.g4-title-reveal-card::after{
-  content:"";position:absolute;z-index:0;top:50%;left:50%;width:min(440px,82vw);height:min(440px,82vw);border-radius:50%;
-  background:radial-gradient(circle,rgba(255,222,105,.17),transparent 68%);transform:translate(-50%,-50%);pointer-events:none
-}
-.g4-title-reveal-rays{
-  position:absolute;z-index:0;top:50%;left:50%;width:160vmax;height:160vmax;border-radius:50%;opacity:.28;
-  background:repeating-conic-gradient(from -4deg,rgba(255,218,91,.88) 0 8deg,transparent 8deg 20deg);
-  transform:translate(-50%,-50%);
-  animation:g4-title-reveal-rays-in .8s cubic-bezier(.16,1,.3,1) both,g4-title-reveal-rays-spin 26s linear .8s 1 both
-}
-.g4-title-reveal-medal{
-  position:absolute;top:50%;left:50%;z-index:2;width:112px;height:112px;margin:0;border:6px solid rgba(255,255,255,.72);border-radius:50%;
-  display:grid;place-items:center;color:#653C00;background:linear-gradient(145deg,#FFF2A0,#FFC13B);
-  box-shadow:0 0 0 13px rgba(255,255,255,.09),0 0 54px 10px rgba(255,204,63,.38),0 22px 38px -18px rgba(0,0,0,.7);
-  font-size:52px;transform:translate(-50%,-50%);animation:g4-title-reveal-medal-in 1s cubic-bezier(.16,1,.3,1) .15s both
-}
-.g4-title-reveal-card h2{
-  position:absolute;top:calc(50% + 82px);left:50%;z-index:2;width:min(680px,calc(100vw - 48px));margin:0;
-  font-family:'Source Serif 4',Georgia,serif;font-size:clamp(34px,5vw,58px);line-height:1.02;text-shadow:0 4px 24px rgba(0,0,0,.72);
-  transform:translateX(-50%);animation:g4-title-reveal-title-in .7s ease .52s both
-}
-.g4-title-reveal-confetti{position:absolute;inset:0;pointer-events:none}
-.g4-title-reveal-confetti i{
-  position:absolute;top:-20px;left:calc(3% + var(--g4-title-i) * 5.35%);width:8px;height:14px;border-radius:2px;background:#FFE284;
-  animation:g4-title-reveal-confetti-fall 2.4s linear var(--g4-title-delay) 2 both
-}
-.g4-title-reveal-confetti i:nth-child(3n+2){background:#FF7050}.g4-title-reveal-confetti i:nth-child(3n){background:#77E1EA}
-.g4-title-card-stage{
-  position:relative;width:100%;min-height:116px;margin:0;padding:12px 82px 11px 67px;border-radius:17px;
-  display:flex;flex-direction:column;justify-content:center;gap:4px;overflow:hidden;color:#FFF;
-  background:radial-gradient(circle at 82% 20%,rgba(255,194,60,.26),transparent 30%),linear-gradient(135deg,#173B52,#0E6978);
-  box-shadow:0 28px 58px -27px rgba(22,143,163,.8);transform:translateY(-2px)
-}
-.g4-title-card-bit{position:absolute;right:3px;bottom:2px;width:72px;height:90px;animation:g4-title-card-bit-float 2.8s ease-in-out 1 both}
-.g4-title-card-bit .g1-char{width:100%;height:100%}
-.g4-title-card-medal{
-  position:absolute;left:11px;top:50%;width:44px;height:44px;border:3px solid rgba(255,255,255,.58);border-radius:50%;
-  display:grid;place-items:center;transform:translateY(-50%);color:#5A3A00;background:linear-gradient(145deg,#FFE284,#FFC23C);
-  box-shadow:0 0 0 8px rgba(255,255,255,.08),0 15px 30px -15px rgba(0,0,0,.6);font-size:19px
-}
-.g4-title-card-kicker{color:#A8EAF0;font:900 10px 'JetBrains Mono',monospace;letter-spacing:.13em}
-.g4-title-card-stage h2{max-width:590px;margin:0;font:750 clamp(16px,2.2vw,21px)/1.05 'Source Serif 4',Georgia,serif}
-.g4-title-card-score{
-  align-self:flex-start;margin-top:5px;padding:5px 9px;border-radius:10px;display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.10)
-}
-.g4-title-card-score strong{color:#FFE284;font-family:'JetBrains Mono',monospace}.g4-title-card-score span{color:rgba(255,255,255,.72);font-size:9px}
-.g4-title-card-confetti{position:absolute;inset:0;pointer-events:none}
-.g4-title-card-confetti i{position:absolute;top:-16px;width:7px;height:12px;border-radius:2px;animation:g4-title-card-confetti-fall 2.4s linear 2 both}
-.g4-title-card-confetti i:nth-child(4n+1){background:#FFC23C}.g4-title-card-confetti i:nth-child(4n+2){background:#FF5B35}.g4-title-card-confetti i:nth-child(4n+3){background:#77E1EA}.g4-title-card-confetti i:nth-child(4n){background:#95C93D}
-.g4-title-card-confetti i:nth-child(1){left:8%;animation-delay:-.3s}.g4-title-card-confetti i:nth-child(2){left:17%;animation-delay:-1.1s}.g4-title-card-confetti i:nth-child(3){left:29%;animation-delay:-.7s}.g4-title-card-confetti i:nth-child(4){left:41%;animation-delay:-1.7s}.g4-title-card-confetti i:nth-child(5){left:52%;animation-delay:-.2s}.g4-title-card-confetti i:nth-child(6){left:63%;animation-delay:-1.3s}.g4-title-card-confetti i:nth-child(7){left:73%;animation-delay:-.8s}.g4-title-card-confetti i:nth-child(8){left:84%;animation-delay:-1.9s}.g4-title-card-confetti i:nth-child(9){left:12%;animation-delay:-2s}.g4-title-card-confetti i:nth-child(10){left:36%;animation-delay:-1.4s}.g4-title-card-confetti i:nth-child(11){left:68%;animation-delay:-.5s}.g4-title-card-confetti i:nth-child(12){left:91%;animation-delay:-1.6s}
-@keyframes g4-title-reveal-overlay-life{0%{opacity:0}12%,84%{opacity:1}100%{opacity:0}}
-@keyframes g4-title-reveal-medal-in{from{opacity:0;transform:translate(-50%,-50%) scale(.25) rotate(-25deg)}to{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0)}}
-@keyframes g4-title-reveal-title-in{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}
-@keyframes g4-title-reveal-rays-in{from{opacity:0;transform:translate(-50%,-50%) scale(.5)}to{opacity:.28;transform:translate(-50%,-50%) scale(1)}}
-@keyframes g4-title-reveal-rays-spin{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}
-@keyframes g4-title-reveal-confetti-fall{to{transform:translateY(470px) rotate(560deg)}}
-@keyframes g4-title-card-confetti-fall{to{transform:translateY(230px) rotate(460deg)}}
-@keyframes g4-title-card-bit-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-@media(max-width:639.98px){
-  .g4-title-reveal-card{min-height:100dvh;padding:24px 18px}
-  .g4-title-reveal-medal{width:88px;height:88px;border-width:5px;font-size:40px}
-  .g4-title-reveal-card h2{top:calc(50% + 62px);font-size:29px}
-  .g4-title-card-stage{min-height:88px;padding:9px 59px 8px 51px;border-radius:14px}
-  .g4-title-card-medal{left:8px;width:34px;height:34px;font-size:14px}
-  .g4-title-card-bit{width:57px;height:71px}
-  .g4-title-card-stage h2{font-size:14px}
-}
-@media(prefers-reduced-motion:reduce){
-  .g4-title-reveal-overlay,.g4-title-reveal-overlay *,.g4-title-card-stage,.g4-title-card-stage *{animation:none!important;transition:none!important}
-  .g4-title-reveal-confetti,.g4-title-card-confetti{display:none!important}
-  .g4-title-reveal-rays{opacity:.28!important;transform:translate(-50%,-50%)!important}
-  .g4-title-reveal-medal{opacity:1!important;transform:translate(-50%,-50%)!important}
-  .g4-title-reveal-card h2{opacity:1!important;transform:translateX(-50%)!important}
-  .g4-title-card-stage{transform:none!important}
-}
-`;
 
 const G4_ETALON_OVERRIDES = `
 /* Local Dars01 visual contract. Content, narration and scoring stay lesson-owned. */
@@ -961,39 +2898,15 @@ html:has(.lesson-root),body:has(.lesson-root),.lesson-root,.lesson-root button,.
   .lesson-root .feedback[data-g4-feedback="solution"][data-g4-role~="bit-answer-comment"] [data-g4-role="feedback-bit"],.lesson-root .feedback[data-g4-feedback="solution"][data-g4-role~="bit-answer-comment"]>.feedback-bit{width:47px!important;height:59px!important}
   .lesson-root .feedback[data-g4-role~="feedback-frame"] p{font-size:14px!important}.rank-boost-overlay .g4-title-reveal-title{font-size:29px!important}
 }
-.hook-scene-visual{display:grid!important;grid-template-columns:minmax(0,1.35fr) minmax(92px,.65fr)!important;grid-template-rows:minmax(0,1fr)!important;gap:5px!important}
-.hook-scene-visual>.visual-card{width:100%!important;height:100%!important;min-height:0!important;padding:4px!important;grid-template-rows:auto minmax(0,1fr)!important;gap:3px!important}
-.hook-scene-visual>.visual-card>.shape-token{width:36px!important;height:36px!important;font-size:32px!important;line-height:1!important}
-.hook-scene-visual>.visual-card>.overlap-diagram{width:100%!important;height:100%!important;min-height:0!important;margin:0!important}
-.summary-venn-frame{width:100%;min-width:0;min-height:0;display:grid;place-items:center;overflow:hidden}.summary-venn-frame>.overlap-diagram{max-width:100%;max-height:100%}
-.stack:has(>.visual-card.test-figure)>.heading{min-height:60px!important}
-.stack:has(>.visual-card.test-figure)>.beat-list{padding:5px!important}
-.stack:has(>.visual-card.test-figure)>.beat-list .beat{min-height:40px!important;padding:4px!important}
-.stack:has(>.visual-card.test-figure)>.question{padding:12px!important;gap:8px!important}
-.stack:has(>.visual-card.test-figure)>.question .options{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:6px!important}
-.stack:has(>.visual-card.test-figure)>.question .option{min-height:52px!important;padding:6px!important}
-.lesson-root .visual-card.test-figure{height:112px!important;min-height:112px!important;padding:6px!important;grid-template-columns:52px minmax(0,1fr)!important;align-items:center!important;overflow:hidden!important}
-.lesson-root .visual-card.test-figure>.shape-token{width:48px!important;height:48px!important;position:relative!important;inset:auto!important;transform:none!important;font-size:42px!important}
-.lesson-root .visual-card.test-figure>.overlap-diagram{width:100%!important;height:100px!important;min-height:0!important}
-@media(max-width:639.98px){
-  .stack:has(>.visual-card.test-figure)>.heading{min-height:38px!important}
-  .stack:has(>.visual-card.test-figure)>.beat-list{padding:3px!important}
-  .stack:has(>.visual-card.test-figure)>.beat-list .beat{min-height:32px!important;padding:3px!important}
-  .stack:has(>.visual-card.test-figure)>.question{padding:5px!important;gap:4px!important}
-  .stack:has(>.visual-card.test-figure)>.question .options{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:3px!important}
-  .stack:has(>.visual-card.test-figure)>.question .option{min-height:44px!important;padding:4px!important}
-  .lesson-root .visual-card.test-figure{height:96px!important;min-height:96px!important;padding:4px!important;grid-template-columns:40px minmax(0,1fr)!important;gap:3px!important}
-  .lesson-root .visual-card.test-figure>.shape-token{width:38px!important;height:38px!important;font-size:33px!important}
-  .lesson-root .visual-card.test-figure>.overlap-diagram{width:100%!important;height:88px!important;min-height:0!important}
-  .hook-scene-visual>.visual-card .zone-tap{min-height:28px!important;padding:3px 5px!important;font-size:8px!important}
-}
-.hook-scene-visual>.beat-list{height:100%!important;min-height:0!important;padding:0!important;display:grid!important;grid-template-columns:1fr!important;grid-template-rows:repeat(3,minmax(0,1fr))!important;gap:3px!important}
-.hook-scene-visual>.beat-list .beat{height:100%!important;min-height:0!important;padding:2px!important;grid-template-columns:18px minmax(0,1fr)!important;gap:2px!important}.hook-scene-visual>.beat-list .beat>b{width:18px!important;height:18px!important}.hook-scene-visual>.beat-list .beat>span{font-size:7px!important;line-height:1.05!important}
+.hook-scene-visual>.hook-model{height:100%!important;padding:5px!important;gap:3px!important;transform:scale(.9);transform-origin:center}
+.hook-scene-visual>.hook-model .tank-model{gap:3px!important}
+.hook-scene-visual>.hook-model .tank-shell{width:190px!important;height:92px!important;padding:7px!important;border-width:3px!important;border-radius:0 0 18px 18px!important}
+.hook-scene-visual>.hook-model .tank-spout{width:32px!important;height:10px!important;left:-27px!important;border-width:3px!important}
+.hook-scene-visual>.hook-model .tank-handle{width:34px!important;height:45px!important;right:-24px!important;top:18px!important;border-width:7px!important}
+.hook-scene-visual>.hook-model .model-label{padding:4px 8px!important;font-size:12px!important}
 @media(prefers-reduced-motion:reduce){.rank-boost-overlay,.rank-boost-overlay * ,[data-g4-role="title-card"],[data-g4-role="title-card"] *{animation:none!important;transition:none!important}.rank-boost-overlay{opacity:1}.g4-title-reveal-confetti,.g4-title-card-confetti{display:none!important}}
 .lesson-root [class*="formula"],.lesson-root [class*="equation"]{font-family:'JetBrains Mono',monospace!important}
 .hook-stack>.question[data-g4-role="answer-card"]{display:contents!important}
-.hook-stack>.question[data-g4-role="answer-card"]:has(.feedback.open)>.options{display:none!important}
-.lesson-root .question:has(.feedback[data-g4-feedback="solution"].open)>.options{display:none!important}
 .lesson-root [data-g4-role="title-card"]{width:100%!important;min-height:116px!important;height:auto!important;margin:0!important;padding:12px 82px 11px 67px!important;border-radius:17px!important;display:flex!important;flex-direction:column!important;justify-content:center!important;gap:4px!important;color:#FFF!important;background:radial-gradient(circle at 82% 20%,rgba(255,194,60,.26),transparent 30%),linear-gradient(135deg,#173B52,#0E6978)!important;box-shadow:0 28px 58px -27px rgba(22,143,163,.8)!important}
 .lesson-root [data-g4-role="title-card"] [data-g4-role="reward-bit"]{width:72px!important;height:90px!important}
 .lesson-root [data-g4-role="title-card"] [data-g4-role="reward-medal"]{width:44px!important;height:44px!important}
@@ -1002,27 +2915,1600 @@ html:has(.lesson-root),body:has(.lesson-root),.lesson-root,.lesson-root button,.
   .lesson-root [data-g4-role="title-card"] [data-g4-role="reward-bit"]{width:57px!important;height:71px!important}
   .lesson-root [data-g4-role="title-card"] [data-g4-role="reward-medal"]{width:34px!important;height:34px!important}
 }
+
+/* MOBIL O'QIY OLISH (etalon shkalasi) :: boshi */
+/* --- Platforma chrome'i uchun xavfsiz zona.
+   Ilgari 52px edi: "Darslar ro'yxati" pilli 52px, til pilli 60px da tugaydi,
+   shuning uchun progress bar ularning ostiga tushib qolardi.
+   Etalon Dars01 da 70px. --- */
+@media(max-width:1100px){
+  .lesson-root-preview .stage-header,.lesson-frame .lesson-root-preview .stage-header{padding-top:74px!important}
+}
+
+/* Mobil yagona masshtab (useMobileZoom, MOBIL_DESKTOP_MOSLASH.md):
+   layout doim 390px etalon kenglikda, zoom real ekranga moslaydi.
+   Etalon Dars01 bilan bir xil. */
+@media(max-width:639.98px){
+  .lesson-root{width:390px!important}
+}
+
+@media(max-width:639.98px){
+  /* Sarlavha: min-height 40px h1 ni kesardi. Balandlik kontentga qarab. */
+  .lesson-root .heading,.lesson-root .stage-hook .heading{min-height:0!important;height:auto!important;align-items:flex-start!important}
+  .lesson-root .heading h1,.lesson-root .stage-hook .heading h1{font-size:20px!important;line-height:1.2!important}
+  .lesson-root .heading>div>span,.lesson-root [data-g4-role="hook-topic"]{font-size:12px!important;line-height:1.2!important}
+  .lesson-root .chrome-title>span:last-child{font-size:12px!important}
+  .lesson-root .screen-count{font-size:12px!important}
+
+  /* Javoblar: etalon Dars01 - ustunma-ustun, 15-16px. 3 ustun 9px o'rniga. */
+  .lesson-root .options,.lesson-root .hook-stack>.question .options,.lesson-root .stage-hook .hook-question .options,.lesson-root .stage-hook .options{grid-template-columns:1fr!important;gap:6px!important}
+  .lesson-root .option,.lesson-root .hook-stack>.question .option,.lesson-root .stage-hook .hook-question .option,.lesson-root .stage-hook .option{min-height:48px!important;padding:8px 10px!important;border-radius:13px!important;font-size:15px!important;line-height:1.24!important;grid-template-columns:26px minmax(0,1fr)!important;justify-items:start!important;text-align:left!important}
+  .lesson-root .option>b{width:24px!important;height:24px!important;font-size:12px!important}
+
+  /* Izoh va subtitr: bular bolaning o'qiydigan matni. */
+  .lesson-root .feedback p,.lesson-root .feedback[data-g4-role~="feedback-frame"] p{font-size:14px!important;line-height:1.32!important}
+  .lesson-root .feedback.feedback-slot{height:auto!important;min-height:60px!important;padding:6px 8px!important;grid-template-columns:36px minmax(0,1fr)!important;gap:7px!important}
+  .lesson-root .feedback-bit{width:34px!important;height:43px!important}
+  .lesson-root .caption-slot{min-height:32px!important;padding:5px 9px!important;font-size:12px!important;line-height:1.26!important}
+
+  /* Navigatsiya. */
+  .lesson-root .btn-white-accent,.lesson-root .btn-ghost{min-height:46px!important;font-size:14px!important}
+  .lesson-root .stage-nav{min-height:58px!important}
+
+  /* Model yorliqlari va holat chiplari. */
+  .lesson-root .model-label{padding:5px 9px!important;font-size:13px!important}
+  .lesson-root .boundary-grid .model-label{padding:4px 7px!important;font-size:12px!important}
+  .lesson-root .state-note{font-size:12px!important;line-height:1.24!important}
+  .lesson-root .formula-card{font-size:15px!important}
+  .lesson-root .result-chip{font-size:17px!important}
+
+  .lesson-root .stage-content{padding-top:5px!important;padding-bottom:5px!important}
+  .lesson-root .stack{gap:6px!important}
+
+  /* Ochilmagan chiplar (formula-card, result-chip, state-note) boshlang'ich
+     holatda translateY(7px) bilan pastga suriladi va model-card ning
+     overflow:hidden chegarasidan chiqib qirqilardi. Pastdan bo'shliq beramiz. */
+  .lesson-root .model-card{padding:7px 7px 12px!important;gap:5px!important;align-content:center!important}
+  .lesson-root .attempt-model{padding-bottom:10px!important}
+  .lesson-root .hook-frame-bit{bottom:0!important}
+
+  /* Yakun ekrani umumiy Grade4Finale modulida yashaydi va u 8-10px qatlamga
+     tushadi. Modul 40 ta darsda ishlaganligi uchun uni global o'zgartirmaymiz -
+     shkalani faqat shu dars ichida ko'taramiz. */
+  .lesson-root .g4-shared-finale .finale-takeaway p{font-size:13px!important;line-height:1.28!important}
+  .lesson-root .g4-shared-finale .finale-takeaway{min-height:44px!important;padding:6px 8px!important;grid-template-columns:24px minmax(0,1fr)!important;gap:7px!important}
+  .lesson-root .g4-shared-finale .finale-takeaway>span{width:26px!important;height:26px!important;font-size:12px!important}
+  .lesson-root .g4-shared-finale .finale-heading>span,.lesson-root .g4-shared-finale .finale-proof>span,.lesson-root .g4-shared-finale .finale-bridge>div>strong{font-size:12px!important;line-height:1.2!important}
+  .lesson-root .g4-shared-finale .finale-proof>strong{font-size:14px!important}
+  .lesson-root .g4-shared-finale .finale-layout,.lesson-root .g4-shared-finale .finale-main,.lesson-root .g4-shared-finale .finale-mastery{gap:5px!important}
+  /* Ochilmagan finale-proof/bridge translateY(7-8px) bilan pastga suriladi va
+     finale-layout ning overflow:hidden chegarasidan chiqib qirqilardi. */
+  .lesson-root .g4-shared-finale .finale-layout{padding-bottom:9px!important}
+  .lesson-root .g4-shared-finale .finale-proof,.lesson-root .g4-shared-finale .finale-bridge{padding:6px 8px!important}
+  .lesson-root .g4-shared-finale .finale-proof p,.lesson-root .g4-shared-finale .finale-bridge p{font-size:12px!important;line-height:1.28!important}
+  .lesson-root .g4-shared-finale .finale-heading h1{font-size:19px!important}
+  .lesson-root [data-g4-role="title-claim"]{font-size:14px!important}
+}
+
+/* Past telefon (masalan 360x640): joy vizual balandliklardan olinadi,
+   shrift kamaymaydi. */
+@media(max-width:639.98px) and (max-height:700px){
+  .lesson-root .stack{gap:4px!important}
+  .lesson-root .heading h1,.lesson-root .stage-hook .heading h1{font-size:18px!important}
+  .lesson-root .option,.lesson-root .stage-hook .option{min-height:44px!important;padding:6px 9px!important;font-size:14px!important}
+  .lesson-root .caption-slot{min-height:28px!important;padding:4px 8px!important}
+  .lesson-root .stage-nav{min-height:52px!important}
+  .lesson-root .btn-white-accent,.lesson-root .btn-ghost{min-height:44px!important}
+  .lesson-root [data-g4-role="hook-scene"]{height:132px!important;min-height:132px!important;flex:0 0 132px!important}
+  .lesson-root [data-g4-screen="hook"] [data-g4-role~="visual-frame"],.lesson-root .stage-hook [data-g4-role="hook-scene"]>[data-g4-role~="visual-frame"]{min-height:132px!important}
+  .lesson-root .hook-scene-visual{min-height:96px!important;padding:6px 66px 6px 9px!important}
+  .lesson-root .hook-frame-bit{width:56px!important;height:70px!important}
+}
+
+@media(max-width:639.98px){
+  /* Bak modeli: jo'mrak va tutqich qobiqdan tashqariga chiqadi, ota-element
+     esa overflow:hidden - mobil ekranda ular qirqilardi (300>254).
+     Konteynerga ichki bo'shliq beramiz. DIQQAT: faqat hook'dan tashqaridagi
+     modellarga, chunki hook bakining o'z (kichik) o'lchamlari bor. */
+  .lesson-root .model-card .tank-model,.lesson-root .attempt-model .tank-model{width:100%!important;padding-inline:46px!important;box-sizing:border-box!important}
+  .lesson-root .model-card .tank-shell,.lesson-root .attempt-model .tank-shell{width:100%!important;max-width:172px!important;height:132px!important;padding:8px!important;border-width:4px!important}
+  .lesson-root .model-card .tank-spout,.lesson-root .attempt-model .tank-spout{width:40px!important;height:12px!important;left:-34px!important;border-width:4px!important}
+  .lesson-root .model-card .tank-handle,.lesson-root .attempt-model .tank-handle{width:38px!important;height:50px!important;right:-27px!important;top:26px!important;border-width:7px!important}
+
+  /* Hook baki: mavjud kichik o'lchamlar saqlanadi, faqat sig'adigan qilinadi. */
+  .lesson-root .hook-scene-visual>.hook-model .tank-model{width:100%!important;padding-inline:30px!important;box-sizing:border-box!important;gap:4px!important}
+  .lesson-root .hook-scene-visual>.hook-model .tank-shell{width:100%!important;max-width:158px!important;height:86px!important}
+  .lesson-root .hook-scene-visual>.hook-model .model-label{font-size:12px!important;padding:3px 7px!important}
+  .lesson-root .hook-frame-bit{bottom:0!important}
+
+  /* Holat chiplari 4 ustunda 11px edi; 2 ustun 12px o'qishga qulay. */
+  .lesson-root .state-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:5px!important}
+  .lesson-root .state-grid span{min-height:40px!important;padding:6px!important;font-size:12px!important;line-height:1.18!important}
+
+  .lesson-root .fraction-bar{height:58px!important}
+  .lesson-root .boundary-grid{grid-template-columns:1fr!important;gap:5px!important;padding:6px!important}
+  .lesson-root .boundary-grid>.state-note{grid-column:1!important}
+  .lesson-root .boundary-grid .fraction-bar{height:42px!important}
+  .lesson-root .model-choices{grid-template-columns:1fr!important;gap:6px!important}
+  /* DIQQAT: bu ekranda variantlar <button class="model-choice">, shuning uchun
+     bazadagi ".model-choices>div" qoidalari umuman ishlamaydi (o'lik CSS).
+     To'g'ri klassga murojaat: nishon va matn birinchi qatorda, model ikkinchi. */
+  .lesson-root .model-choice{min-height:0!important;padding:8px 10px!important;grid-template-columns:26px minmax(0,1fr)!important;grid-template-areas:"badge text" "model model"!important;gap:6px 8px!important;align-items:center!important}
+  .lesson-root .model-choice>b{grid-area:badge!important;width:24px!important;height:24px!important;font-size:12px!important}
+  .lesson-root .model-choice>span{grid-area:text!important;font-size:14px!important;line-height:1.22!important}
+  .lesson-root .model-choice .fraction-model{grid-area:model!important;width:100%!important}
+  .lesson-root .rule-line{padding:9px!important;font-size:16px!important}
+  .lesson-root .wrong-formula{padding:8px!important;font-size:16px!important}
+  .lesson-root .marker-control{font-size:12px!important;padding:8px 10px!important}
+  .lesson-root .strategy-replay,.lesson-root .tiny-action{min-height:44px!important;font-size:13px!important}
+  .lesson-root .bit-error{padding:9px!important;font-size:16px!important}
+  .lesson-root .hospital-model{padding:9px!important}
+  .lesson-root .hospital-model>span{width:32px!important;height:32px!important;font-size:20px!important}
+  .lesson-root .number-line{height:126px!important;padding-inline:11%!important}
+  .lesson-root .nl-dot{width:40px!important;height:32px!important;font-size:12px!important}
+
+  /* Chegara modelidagi amal belgisi: mobilda grid 1 ustunga tushadi va
+     rotate(90deg) butun qatorni aylantirib, uni ~300px balandlikka
+     cho'zib yuborardi. Belgini kichik kvadratga qamab qo'yamiz. */
+  .lesson-root .rule-boundary-models{grid-template-columns:1fr!important;gap:6px!important;padding:9px!important}
+  .lesson-root .rule-boundary-models>div{padding:7px!important;grid-template-columns:38px minmax(0,1fr)!important;gap:7px!important}
+  .lesson-root .rule-boundary-models>strong{width:30px!important;height:30px!important;justify-self:center!important;display:grid!important;place-items:center!important;transform:none!important;font-size:20px!important}
+}
+
+@media(max-width:639.98px) and (max-height:700px){
+  .lesson-root .model-card .tank-shell,.lesson-root .attempt-model .tank-shell{height:112px!important}
+  .lesson-root .hook-scene-visual>.hook-model .tank-shell{max-width:134px!important;height:72px!important}
+  .lesson-root .fraction-bar{height:48px!important}
+  .lesson-root .state-grid span{min-height:36px!important}
+  .lesson-root .number-line{height:112px!important}
+  .lesson-root .rule-boundary-models{padding:5px!important;gap:3px!important}
+  .lesson-root .rule-boundary-models>div{padding:4px!important;grid-template-columns:30px minmax(0,1fr)!important;gap:5px!important}
+  .lesson-root .rule-boundary-models>strong{width:22px!important;height:22px!important;font-size:15px!important}
+  .lesson-root .rule-boundary-models .frac{font-size:13px!important}
+  .lesson-root .rule-boundary-models .fraction-bar{height:22px!important}
+  .lesson-root .model-choice .fraction-bar{height:28px!important}
+  .lesson-root .model-choice{padding:6px 8px!important;gap:4px 6px!important}
+  .lesson-root .hospital-model{padding:6px!important;gap:8px!important}
+  .lesson-root .hospital-model>span{width:26px!important;height:26px!important;font-size:16px!important}
+  .lesson-root .hospital-model .tank-model.compact .tank-shell{width:120px!important;height:64px!important}
+}
+/* MOBIL O'QIY OLISH (etalon shkalasi) :: oxiri */
+
+/* ICHKI TEKSHIRUV VA FACTCARD :: boshi */
+/* Ichki tekshiruv (haqiqiy matematik harakat) va FactCard. Ranglar etalon
+   palitrasidan: cyan #168FA3, cyanSoft #E5F5F6, navy #173B52, lime #95C93D,
+   success #227A53, warn #A96F13 / #FFF5D9, accent #FF5B35. */
+.lesson-root .inline-check{display:grid;gap:6px;justify-items:center;padding:9px 11px;border-radius:15px;background:#E5F5F6;box-shadow:inset 3px 0 #168FA3}
+.lesson-root .inline-check-prompt{color:#173B52;font-size:13px;font-weight:850;text-align:center}
+.lesson-root .inline-check-row{display:flex;flex-wrap:wrap;gap:7px;justify-content:center}
+.lesson-root .inline-chip{min-height:44px;min-width:66px;padding:6px 14px;border:0;border-radius:12px;color:#173B52;background:#FFF;cursor:pointer;box-shadow:0 10px 20px -18px rgba(58,53,48,.6);font:900 15px 'JetBrains Mono',monospace}
+.lesson-root .inline-chip:focus-visible{outline:3px solid #FF5B35;outline-offset:2px}
+.lesson-root .inline-chip.is-right{color:#FFF;background:#227A53}
+.lesson-root .inline-chip.is-bad{color:#A96F13;background:#FFF5D9}
+.lesson-root .inline-chip:disabled{cursor:default}
+.lesson-root .inline-check-note{min-height:15px;color:#227A53;font-size:12px;font-weight:800;text-align:center}
+
+.lesson-root .fact-card{padding:9px 12px;border-radius:14px;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:10px;opacity:.12;transform:translateY(6px);background:linear-gradient(135deg,#FFFFFF,#E5F5F6);box-shadow:inset 3px 0 #95C93D;transition:.4s ease}
+.lesson-root .fact-card.show{opacity:1;transform:none}
+.lesson-root .fact-card>b{color:#168FA3;font:900 10px 'JetBrains Mono',monospace;letter-spacing:.1em}
+.lesson-root .fact-card p{color:#173B52;font-size:13px;line-height:1.34}
+
+/* Sonlar nuridagi erkin belgi: ilgari o'qdan uzilib, hech narsaga
+   ulanmagan holda suzib turardi. Endi o'qqa ulagich chiziq bilan bog'lanadi. */
+.lesson-root .marker-note{min-height:15px;color:#227A53;font-size:12px;font-weight:800}
+.lesson-root .nl-dot.free{top:76px}
+.lesson-root .nl-dot.free::before{content:"";position:absolute;left:50%;top:-20px;width:2px;height:20px;background:#173B52;transform:translateX(-50%)}
+
+@media(max-width:639.98px){
+  .lesson-root .inline-check{padding:7px 9px!important;gap:5px!important}
+  .lesson-root .inline-check-prompt{font-size:13px!important}
+  .lesson-root .inline-chip{min-height:44px!important;min-width:58px!important;padding:5px 11px!important;font-size:15px!important}
+  .lesson-root .inline-check-note{font-size:12px!important}
+  .lesson-root .fact-card{padding:7px 9px!important;gap:8px!important}
+  .lesson-root .fact-card p{font-size:12px!important;line-height:1.28!important}
+}
+/* ICHKI TEKSHIRUV VA FACTCARD :: oxiri */
+
+/* OCHILMAGAN CHIPLAR SIG'IMI :: boshi */
+@media(max-width:639.98px){
+  .lesson-root .frame-note:not(.show),.lesson-root .formula-card:not(.show),.lesson-root .result-chip:not(.show),.lesson-root .state-note:not(.show),.lesson-root .rule-line:not(.show),.lesson-root .wrong-formula:not(.show),.lesson-root .fact-card:not(.show),.lesson-root .state-grid span:not(.show),.lesson-root .boundary-grid>div:not(.show){transform:none!important}
+  .lesson-root .g4-shared-finale .finale-takeaway:not(.is-visible),.lesson-root .g4-shared-finale .finale-proof:not(.is-visible),.lesson-root .g4-shared-finale .finale-bridge:not(.is-visible){transform:none!important}
+
+  /* strategy-slot ichidagi feedback position:absolute + inset:0 bo'lib,
+     translateY(7px) bilan slot chegarasidan chiqadi. Fade qoladi. */
+  .lesson-root .strategy-slot .feedback{transform:none!important}
+
+  /* FactCard yorlig'i 10px edi. */
+  .lesson-root .fact-card>b{font-size:12px!important}
+}
+
+@media(max-width:639.98px) and (max-height:700px){
+  .lesson-root .stage-hook .group-cell{min-height:26px!important}
+  .lesson-root .stage-hook .frame-note{padding:4px 5px!important}
+}
+/* OCHILMAGAN CHIPLAR SIG'IMI :: oxiri */
+
+/* PLANSHET MASSHTAB QATLAMI :: boshi */
+/* Desktop va planshetda ham ochilmagan bloklar translateY bilan pastga
+   surilib, yakun ekrani va hook sahnasi chegarasidan chiqadi (yakun 7px,
+   Bit oyoqlari 2-3px). Mobilda bu allaqachon tuzatilgan. */
+.lesson-root .hook-frame-bit{bottom:0}
+.lesson-root .g4-shared-finale .finale-layout{padding-bottom:9px}
+.lesson-root .g4-shared-finale .finale-takeaway:not(.is-visible),.lesson-root .g4-shared-finale .finale-proof:not(.is-visible),.lesson-root .g4-shared-finale .finale-bridge:not(.is-visible){transform:none}
+.lesson-root .hook-scene-visual{padding-top:10px;padding-bottom:10px}
+
+@media(min-width:640px) and (max-height:870px){ .lesson-root{zoom:.96} }
+@media(min-width:640px) and (max-height:830px){ .lesson-root{zoom:.92} }
+@media(min-width:640px) and (max-height:790px){ .lesson-root{zoom:.87} }
+@media(min-width:640px) and (max-height:750px){ .lesson-root{zoom:.83} }
+@media(min-width:640px) and (max-height:700px){ .lesson-root{zoom:.77} }
+@media(min-width:640px) and (max-height:650px){ .lesson-root{zoom:.72} }
+
+/* Masshtab kichrayganda mikro yorliqlar vizual jihatdan yana kichrayadi,
+   shuning uchun ularning shrifti ko'tariladi: .96-.83 masshtabda 12-13px
+   asl 10-11px bilan bir xil ko'rinishni beradi. */
+@media(min-width:640px) and (max-height:870px){
+  .lesson-root .screen-type{font-size:12px}
+  .lesson-root .heading>div>span,.lesson-root [data-g4-role="hook-topic"]{font-size:13px}
+  .lesson-root .chrome-title>span:last-child{font-size:12px}
+  .lesson-root .state-grid span{font-size:13px}
+  .lesson-root .nl-dot{font-size:13px}
+  .lesson-root .fact-card>b{font-size:12px}
+  .lesson-root .option>b{font-size:12px}
+  .lesson-root .model-choice>b{font-size:12px}
+  .lesson-root .frame-note{font-size:13px}
+  .lesson-root .frame-note>b{font-size:12px}
+  .lesson-root .group-cell small,.lesson-root .group-cell b{font-size:13px}
+  .lesson-root .g4-shared-finale .finale-heading>span,.lesson-root .g4-shared-finale .finale-proof>span,.lesson-root .g4-shared-finale .finale-bridge>div>strong{font-size:12px}
+  .lesson-root .g4-shared-finale .finale-takeaway>span{font-size:12px}
+}
+/* PLANSHET MASSHTAB QATLAMI :: oxiri */
+
+/* MASSHTABLANGAN BANDDA XAVFSIZ ZONA :: boshi */
+@media(min-width:640px) and (max-width:1100px) and (max-height:870px){
+  .lesson-root-preview .stage-header,.lesson-frame .lesson-root-preview .stage-header{padding-top:74px!important}
+}
+@media(min-width:640px) and (max-width:1100px) and (max-height:830px){
+  .lesson-root-preview .stage-header,.lesson-frame .lesson-root-preview .stage-header{padding-top:78px!important}
+}
+@media(min-width:640px) and (max-width:1100px) and (max-height:790px){
+  .lesson-root-preview .stage-header,.lesson-frame .lesson-root-preview .stage-header{padding-top:82px!important}
+}
+@media(min-width:640px) and (max-width:1100px) and (max-height:750px){
+  .lesson-root-preview .stage-header,.lesson-frame .lesson-root-preview .stage-header{padding-top:86px!important}
+}
+@media(min-width:640px) and (max-width:1100px) and (max-height:700px){
+  .lesson-root-preview .stage-header,.lesson-frame .lesson-root-preview .stage-header{padding-top:92px!important}
+}
+@media(min-width:640px) and (max-width:1100px) and (max-height:650px){
+  .lesson-root-preview .stage-header,.lesson-frame .lesson-root-preview .stage-header{padding-top:98px!important}
+}
+/* MASSHTABLANGAN BANDDA XAVFSIZ ZONA :: oxiri */
+
+/* OXIRGI SIG'IM TUZATISHLARI :: boshi */
+/* Unvon tugmasi bosilganda translateY(-2px) bilan ko'tariladi va
+   finale-layout ning yuqori chegarasidan chiqib qirqilardi. */
+.lesson-root .g4-shared-finale .finale-layout{padding-top:3px}
+
+/* Planshetda model ekrani ichki tekshiruv qo'shilgach 6-7px
+   sig'masdi: bo'shliqlar hisobidan yechamiz, shrift tegilmaydi. */
+@media(min-width:640px) and (max-width:1100px) and (max-height:870px){
+  .lesson-root .inline-check{padding:7px 10px;gap:5px}
+  .lesson-root .model-card{padding-bottom:12px}
+  .lesson-root .stack{row-gap:8px}
+}
+
+/* Kichik telefonda ruscha matn uzunroq: model kartasiga zapas. */
+@media(max-width:639.98px) and (max-height:700px){
+  .lesson-root .model-card{padding-bottom:14px!important}
+  .lesson-root .fraction-bar{height:44px!important}
+  .lesson-root .inline-check{gap:4px!important}
+}
+/* OXIRGI SIG'IM TUZATISHLARI :: oxiri */
 `;
 
-const STYLES = `${G4_TITLE_STYLES}
-.stage-hook .visual-card{position:relative;isolation:isolate;overflow:hidden;border:1px solid rgba(144,228,235,.12);border-radius:24px;background:radial-gradient(circle at 87% 24%,rgba(121,211,218,.16),transparent 24%),radial-gradient(circle at 9% 88%,rgba(149,201,61,.11),transparent 25%),linear-gradient(145deg,rgba(22,143,163,.25),transparent 48%),linear-gradient(135deg,#153B50,#0B2232 72%);box-shadow:0 22px 50px -30px rgba(14,33,44,.75)}
-@media(max-width:639.98px){.stage-hook .visual-card{border-radius:18px}}
+const STYLES = `
+.stage-hook .hook-model{position:relative;isolation:isolate;overflow:hidden;border:1px solid rgba(144,228,235,.12);border-radius:24px;background:radial-gradient(circle at 87% 24%,rgba(121,211,218,.16),transparent 24%),radial-gradient(circle at 9% 88%,rgba(149,201,61,.11),transparent 25%),linear-gradient(145deg,rgba(22,143,163,.25),transparent 48%),linear-gradient(135deg,#153B50,#0B2232 72%);box-shadow:0 22px 50px -30px rgba(14,33,44,.75)}
+@media(max-width:639.98px){.stage-hook .hook-model{border-radius:18px}}
+.g4-title-card-placeholder{width:100%;min-height:116px}
+.g4-title-card{position:relative;isolation:isolate;width:100%;min-height:116px;margin:0;padding:12px 82px 11px 67px;border-radius:17px;display:flex;flex-direction:column;justify-content:center;gap:4px;overflow:hidden;color:#FFF;background:radial-gradient(circle at 82% 20%,rgba(255,194,60,.26),transparent 30%),linear-gradient(135deg,#173B52,#0E6978);box-shadow:0 28px 58px -27px rgba(22,143,163,.8);transform:translateY(-2px)}
+.g4-title-card-medal{position:absolute;left:11px;top:50%;width:44px;height:44px;border:3px solid rgba(255,255,255,.58);border-radius:50%;display:grid;place-items:center;transform:translateY(-50%);color:#5A3A00;background:linear-gradient(145deg,#FFE284,#FFC23C);box-shadow:0 0 0 8px rgba(255,255,255,.08),0 15px 30px -15px rgba(0,0,0,.6);font-size:19px;z-index:2}
+.g4-title-card-bit{position:absolute;right:3px;bottom:2px;width:72px;height:90px;z-index:2;animation:g4-title-card-bit-float 2.8s ease-in-out 1 both}.g4-title-card-bit>svg,.g4-title-card-bit .bit,.g4-title-card-bit .g1-char{width:100%;height:100%}
+.g4-title-card-kicker{position:relative;color:#A8EAF0;font:900 10px/1.2 'JetBrains Mono',monospace;letter-spacing:.13em;z-index:2}.g4-title-card-title{position:relative;margin:0!important;font:750 clamp(16px,2.2vw,21px)/1.05 'Source Serif 4',Georgia,serif;z-index:2}.g4-title-card-score{position:relative;align-self:flex-start;margin-top:5px;padding:5px 9px;border-radius:10px;display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.10);z-index:2}.g4-title-card-score strong{color:#FFE284;font-family:'JetBrains Mono',monospace}.g4-title-card-score span{color:rgba(255,255,255,.72);font-size:9px}
+.g4-title-card-confetti{position:absolute;inset:0;pointer-events:none}.g4-title-card-confetti i{position:absolute;top:-16px;width:7px;height:12px;border-radius:2px;animation:g4-title-card-fall 2.4s linear 2 both}.g4-title-card-confetti i:nth-child(4n+1){background:#FFC23C}.g4-title-card-confetti i:nth-child(4n+2){background:#FF5B35}.g4-title-card-confetti i:nth-child(4n+3){background:#77E1EA}.g4-title-card-confetti i:nth-child(4n){background:#95C93D}.g4-title-card-confetti i:nth-child(1){left:8%;animation-delay:-.3s}.g4-title-card-confetti i:nth-child(2){left:17%;animation-delay:-1.1s}.g4-title-card-confetti i:nth-child(3){left:29%;animation-delay:-.7s}.g4-title-card-confetti i:nth-child(4){left:41%;animation-delay:-1.7s}.g4-title-card-confetti i:nth-child(5){left:52%;animation-delay:-.2s}.g4-title-card-confetti i:nth-child(6){left:63%;animation-delay:-1.3s}.g4-title-card-confetti i:nth-child(7){left:73%;animation-delay:-.8s}.g4-title-card-confetti i:nth-child(8){left:84%;animation-delay:-1.9s}.g4-title-card-confetti i:nth-child(9){left:12%;animation-delay:-2s}.g4-title-card-confetti i:nth-child(10){left:36%;animation-delay:-1.4s}.g4-title-card-confetti i:nth-child(11){left:68%;animation-delay:-.5s}.g4-title-card-confetti i:nth-child(12){left:91%;animation-delay:-1.6s}
+.g4-title-reveal-overlay{position:fixed;inset:0;z-index:120;padding:0;display:grid;place-items:center;overflow:hidden;overscroll-behavior:contain;pointer-events:none;background:rgba(8,13,24,.64);backdrop-filter:blur(2px) saturate(.78);animation:g4-title-reveal-life 3.9s ease both}.g4-title-reveal-card{position:relative;isolation:isolate;width:100%;min-height:100dvh;padding:36px 24px;border:0;border-radius:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;overflow:hidden;color:#FFF;text-align:center;background:radial-gradient(circle at 50% 50%,rgba(255,214,80,.17),transparent 31%)}.g4-title-reveal-card::after{content:'';position:absolute;z-index:0;top:50%;left:50%;width:min(440px,82vw);height:min(440px,82vw);border-radius:50%;background:radial-gradient(circle,rgba(255,222,105,.17),transparent 68%);transform:translate(-50%,-50%)}
+.g4-title-reveal-rays{position:absolute;z-index:0;top:50%;left:50%;width:160vmax;height:160vmax;border-radius:50%;opacity:.28;background:repeating-conic-gradient(from -4deg,rgba(255,218,91,.88) 0 8deg,transparent 8deg 20deg);transform:translate(-50%,-50%);animation:g4-title-reveal-rays-in .8s cubic-bezier(.16,1,.3,1) both,g4-title-reveal-rays-turn 26s linear .8s 1 both}.g4-title-reveal-medal{position:absolute;top:50%;left:50%;z-index:2;width:112px;height:112px;border:6px solid rgba(255,255,255,.72);border-radius:50%;display:grid;place-items:center;color:#653C00;background:linear-gradient(145deg,#FFF2A0,#FFC13B);box-shadow:0 0 0 13px rgba(255,255,255,.09),0 0 54px 10px rgba(255,204,63,.38),0 22px 38px -18px rgba(0,0,0,.7);font-size:52px;animation:g4-title-reveal-medal-in 1s cubic-bezier(.16,1,.3,1) .15s both}.g4-title-reveal-title{position:absolute;top:calc(50% + 82px);left:50%;z-index:2;width:min(680px,calc(100vw - 48px));margin:0!important;font:750 clamp(34px,5vw,58px)/1.02 'Source Serif 4',Georgia,serif;text-shadow:0 4px 24px rgba(0,0,0,.72);transform:translateX(-50%);animation:g4-title-reveal-title-in .7s ease .52s both}
+.g4-title-reveal-confetti{position:absolute;inset:0;pointer-events:none}.g4-title-reveal-confetti i{position:absolute;top:-20px;width:8px;height:14px;border-radius:2px;background:#FFE284;animation:g4-title-reveal-fall 2.4s linear 2 both}.g4-title-reveal-confetti i:nth-child(3n+2){background:#FF7050}.g4-title-reveal-confetti i:nth-child(3n){background:#77E1EA}
+@keyframes g4-title-card-bit-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}@keyframes g4-title-card-fall{to{transform:translateY(230px) rotate(460deg)}}@keyframes g4-title-reveal-life{0%{opacity:0}12%,84%{opacity:1}100%{opacity:0}}@keyframes g4-title-reveal-medal-in{from{opacity:0;transform:translate(-50%,-50%) scale(.25) rotate(-25deg)}to{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0)}}@keyframes g4-title-reveal-title-in{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}@keyframes g4-title-reveal-rays-in{from{opacity:0;transform:translate(-50%,-50%) scale(.5)}to{opacity:.28;transform:translate(-50%,-50%) scale(1)}}@keyframes g4-title-reveal-rays-turn{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}@keyframes g4-title-reveal-fall{to{transform:translateY(470px) rotate(560deg)}}
+@media(max-width:639.98px){.g4-title-card-placeholder{min-height:88px}.g4-title-card{min-height:88px;padding:9px 59px 8px 51px;border-radius:14px}.g4-title-card-medal{left:8px;width:34px;height:34px;font-size:14px}.g4-title-card-bit{width:57px;height:71px}.g4-title-card-title{font-size:14px}.g4-title-reveal-card{min-height:100dvh;padding:24px 18px}.g4-title-reveal-medal{width:88px;height:88px;border-width:5px;font-size:40px}.g4-title-reveal-title{top:calc(50% + 62px);font-size:29px}}
+@media(prefers-reduced-motion:reduce){.g4-title-card,.g4-title-card-bit,.g4-title-reveal-overlay,.g4-title-reveal-rays,.g4-title-reveal-medal,.g4-title-reveal-title{animation:none!important}.g4-title-card{opacity:1;transform:none!important}.g4-title-card-confetti,.g4-title-reveal-confetti{display:none}.g4-title-reveal-overlay{opacity:1}.g4-title-reveal-rays{opacity:.28;transform:translate(-50%,-50%)}.g4-title-reveal-medal{opacity:1;transform:translate(-50%,-50%)}.g4-title-reveal-title{opacity:1;transform:translateX(-50%)}}
 html:has(.lesson-root),body:has(.lesson-root),#root:has(.lesson-root),.lesson-page:has(.lesson-root),.lesson-frame:has(.lesson-root){width:100%;height:100%;min-height:0!important;margin:0;overflow:hidden!important;overscroll-behavior:none}
 .lesson-root,.lesson-root *{box-sizing:border-box}.lesson-root h1,.lesson-root h2,.lesson-root h3,.lesson-root h4,.lesson-root h5,.lesson-root h6,.lesson-root p,.lesson-root ul,.lesson-root ol{margin:0}.lesson-root button,.lesson-root input{font:inherit}
-.lesson-root{position:fixed;inset:0;width:100%;height:100dvh;min-height:0;overflow:hidden;color:${T.ink};background:radial-gradient(circle at 88% 9%,rgba(22,143,163,.11),transparent 25%),linear-gradient(145deg,#F7F8F4,#EEF3F1);font-family:'Manrope',system-ui,sans-serif}
-.stage{width:min(936px,100%);height:100dvh;margin:0 auto;display:flex;flex-direction:column;overflow:hidden}.stage-header{flex-shrink:0;padding-top:10px;padding-bottom:8px;background:rgba(247,248,244,.88);backdrop-filter:blur(14px);z-index:5}.progress-track{width:100%;height:6px;margin-bottom:10px;border-radius:999px;background:rgba(80,97,109,.16);overflow:hidden}.progress-fill{height:100%;border-radius:inherit;background:linear-gradient(90deg,${T.cyan},${T.accent});box-shadow:0 0 12px rgba(255,91,53,.42);transition:width .45s ease}.stage-chrome{min-width:0;display:flex;justify-content:space-between;align-items:center;gap:12px}.chrome-title,.chrome-actions,.audio-controls{display:flex;align-items:center;gap:9px}.chrome-title{min-width:0;overflow:hidden;color:${T.ink2};font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.chrome-title>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.chrome-actions{flex:none}.status-dot{width:8px;height:8px;flex:none;border-radius:50%;background:${T.accent};box-shadow:0 0 10px rgba(255,91,53,.65)}.screen-type{padding:4px 8px;border-radius:999px;color:${T.cyan};background:${T.cyanSoft};font-size:10px;font-weight:800}.screen-count{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700}.icon-btn{width:44px;height:44px;padding:0;border:0;border-radius:10px;color:${T.ink2};background:rgba(255,255,255,.75);cursor:pointer;box-shadow:0 4px 12px -7px rgba(${T.shadowBase},.3)}
-.stage-content{flex:1 1 auto;min-height:0;padding-top:10px;padding-bottom:16px;overflow:hidden}.stage-nav{flex:0 0 auto;min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(245,245,240,.95)}.btn-white-accent,.btn-ghost{min-width:128px;min-height:50px;padding:0 18px;border:0;border-radius:15px;cursor:pointer;font-weight:900}.btn-white-accent{color:${T.accent};background:#fff;box-shadow:0 12px 24px -17px rgba(255,91,53,.8)}.btn-white-accent:hover:not(:disabled){color:#fff;background:${T.accent}}.btn-white-accent:disabled{opacity:.42;cursor:not-allowed}.btn-ghost{color:${T.ink2};background:transparent}.btn-ghost:hover{background:#fff;box-shadow:0 10px 20px -16px rgba(${T.shadowBase},.5)}.compact{min-width:118px}.stack{height:100%;min-height:0;overflow:hidden;display:grid;align-content:center;gap:14px;animation:page-in .45s cubic-bezier(.16,1,.3,1) both}.heading{min-height:78px;display:flex;align-items:center;justify-content:space-between;gap:16px}.heading>div>span{color:${T.cyan};font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.heading h1{margin-top:4px!important;font:750 clamp(25px,4vw,38px)/1.06 'Source Serif 4',Georgia,serif}.heading .g1-char{width:78px;height:98px;flex:0 0 auto;overflow:visible;filter:drop-shadow(0 9px 11px rgba(23,59,82,.2))}.question,.model-card,.duel,.why-grid,.compare-card,.rule-card,.boundary,.summary-grid{padding:18px;border-radius:22px;background:rgba(255,255,255,.9);box-shadow:0 18px 34px -28px rgba(${T.shadowBase},.48)}.question{display:grid;gap:13px}.question h2{font:720 clamp(17px,2.5vw,22px)/1.25 'Source Serif 4',Georgia,serif}.options{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.option{min-height:62px;padding:10px;border:0;border-radius:16px;display:grid;grid-template-columns:28px 1fr;align-items:center;gap:8px;color:${T.ink};background:#F8F8F4;text-align:left;cursor:pointer;box-shadow:0 10px 22px -20px rgba(${T.shadowBase},.46)}.option>b{width:27px;height:27px;border-radius:9px;display:grid;place-items:center;color:${T.cyan};background:${T.cyanSoft};font:900 11px 'JetBrains Mono',monospace}.option.picked{transform:translateY(-2px);background:${T.accentSoft};box-shadow:inset 0 0 0 2px rgba(255,91,53,.27)}.option.right{background:${T.successSoft};box-shadow:inset 0 0 0 2px rgba(34,122,83,.25)}.option.bad{background:${T.warnSoft};box-shadow:inset 0 0 0 2px rgba(169,111,19,.25)}.feedback{padding:12px 14px;border-radius:15px;display:grid;grid-template-columns:28px 1fr;gap:9px;align-items:start;opacity:0;transform:translateY(7px)}.feedback.open{opacity:1;transform:none;transition:.3s ease}.feedback.correct{background:${T.successSoft};box-shadow:inset 4px 0 ${T.success}}.feedback.wrong{background:${T.warnSoft};box-shadow:inset 4px 0 ${T.warn}}.feedback>b{font-size:18px}.feedback p{font-size:13px;line-height:1.45}.caption{position:static;bottom:4px;margin-top:12px;padding:9px 13px;border-radius:13px;color:#fff;background:rgba(23,59,82,.94);font-size:12px;line-height:1.4;z-index:3}
-.proof{padding:12px;border-radius:14px;color:${T.success};background:${T.successSoft};text-align:center;font:900 15px 'JetBrains Mono',monospace;animation:proof-in .35s ease both}.frac{display:inline-flex;min-width:25px;flex-direction:column;align-items:center;vertical-align:middle;color:inherit;font:800 1em/1 'Source Serif 4',Georgia,serif}.frac i{width:100%;height:2px;margin:2px 0;border-radius:2px;background:currentColor}.frac-lg{font-size:1.35em}.hook-model,.whole-card,.rule-card,.finale-payoff{padding:18px;border-radius:22px;background:rgba(255,255,255,.9);box-shadow:0 18px 34px -28px rgba(${T.shadowBase},.48)}
+.lesson-root{position:fixed;inset:0;width:100%;height:100%;min-height:0;overflow:hidden;zoom:var(--g4z,1);color:${T.ink};background:radial-gradient(circle at 88% 9%,rgba(22,143,163,.11),transparent 25%),linear-gradient(145deg,#F7F8F4,#EEF3F1);font-family:'Manrope',system-ui,sans-serif}
+.stage{width:min(936px,100%);height:100%;margin:0 auto;display:flex;flex-direction:column;overflow:hidden}.stage-header{flex-shrink:0;padding-top:10px;padding-bottom:8px;background:rgba(247,248,244,.88);backdrop-filter:blur(14px);z-index:5}.progress-track{width:100%;height:6px;margin-bottom:10px;border-radius:999px;background:rgba(80,97,109,.16);overflow:hidden}.progress-fill{height:100%;border-radius:inherit;background:linear-gradient(90deg,${T.cyan},${T.accent});box-shadow:0 0 12px rgba(255,91,53,.42);transition:width .45s ease}.stage-chrome{min-width:0;display:flex;justify-content:space-between;align-items:center;gap:12px}.chrome-title,.chrome-actions,.audio-controls{display:flex;align-items:center;gap:9px}.chrome-title{min-width:0;overflow:hidden;color:${T.ink2};font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.chrome-title>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.chrome-actions{flex:none}.status-dot{width:8px;height:8px;flex:none;border-radius:50%;background:${T.accent};box-shadow:0 0 10px rgba(255,91,53,.65)}.screen-type{padding:4px 8px;border-radius:999px;color:${T.cyan};background:${T.cyanSoft};font-size:10px;font-weight:800}.screen-count{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700}.icon-btn{width:44px;height:44px;padding:0;border:0;border-radius:10px;color:${T.ink2};background:rgba(255,255,255,.75);cursor:pointer;box-shadow:0 4px 12px -7px rgba(${T.shadowBase},.3)}
+.stage-content{flex:1 1 auto;min-height:0;padding-top:10px;padding-bottom:16px;overflow:hidden}.stage-nav{flex:0 0 auto;min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(245,245,240,.95)}.btn-white-accent,.btn-ghost{min-width:128px;min-height:50px;padding:0 18px;border:0;border-radius:15px;cursor:pointer;font-weight:900}.btn-white-accent{color:${T.accent};background:#fff;box-shadow:0 12px 24px -17px rgba(255,91,53,.8)}.btn-white-accent:hover:not(:disabled){color:#fff;background:${T.accent}}.btn-white-accent:disabled{opacity:.42;cursor:not-allowed}.btn-ghost{color:${T.ink2};background:transparent}.btn-ghost:hover{background:#fff;box-shadow:0 10px 20px -16px rgba(${T.shadowBase},.5)}.compact{min-width:118px}.stack{height:100%;min-height:0;overflow:hidden;display:grid;align-content:start;gap:14px;animation:page-in .45s cubic-bezier(.16,1,.3,1) both}.heading{min-height:78px;display:flex;align-items:center;justify-content:space-between;gap:16px}.heading>div>span{color:${T.cyan};font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.heading h1{margin-top:4px!important;font:750 clamp(25px,4vw,38px)/1.06 'Source Serif 4',Georgia,serif}.heading .g1-char{width:78px;height:98px;flex:0 0 auto;overflow:visible;filter:drop-shadow(0 9px 11px rgba(23,59,82,.2))}.question,.model-card,.duel,.why-grid,.compare-card,.rule-card,.boundary,.summary-grid{padding:18px;border-radius:22px;background:rgba(255,255,255,.9);box-shadow:0 18px 34px -28px rgba(${T.shadowBase},.48)}.question{display:grid;gap:13px}.question h2{font:720 clamp(17px,2.5vw,22px)/1.25 'Source Serif 4',Georgia,serif}.options{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.option{min-height:62px;padding:10px;border:0;border-radius:16px;display:grid;grid-template-columns:28px 1fr;align-items:center;gap:8px;color:${T.ink};background:#F8F8F4;text-align:left;cursor:pointer;box-shadow:0 10px 22px -20px rgba(${T.shadowBase},.46)}.option>b{width:27px;height:27px;border-radius:9px;display:grid;place-items:center;color:${T.cyan};background:${T.cyanSoft};font:900 11px 'JetBrains Mono',monospace}.option.picked{transform:translateY(-2px);background:${T.accentSoft};box-shadow:inset 0 0 0 2px rgba(255,91,53,.27)}.option.right{background:${T.successSoft};box-shadow:inset 0 0 0 2px rgba(34,122,83,.25)}.option.bad{background:${T.warnSoft};box-shadow:inset 0 0 0 2px rgba(169,111,19,.25)}.feedback{padding:12px 14px;border-radius:15px;display:grid;grid-template-columns:28px 1fr;gap:9px;align-items:start;opacity:0;transform:translateY(7px)}.feedback.open{opacity:1;transform:none;transition:.3s ease}.feedback.correct{background:${T.successSoft};box-shadow:inset 4px 0 ${T.success}}.feedback.wrong{background:${T.warnSoft};box-shadow:inset 4px 0 ${T.warn}}.feedback>b{font-size:18px}.feedback p{font-size:13px;line-height:1.45}.caption{position:static;bottom:4px;margin-top:12px;padding:9px 13px;border-radius:13px;color:#fff;background:rgba(23,59,82,.94);font-size:12px;line-height:1.4;z-index:3}
+.proof{padding:12px;border-radius:14px;color:${T.success};background:${T.successSoft};text-align:center;font:900 15px 'JetBrains Mono',monospace;animation:proof-in .35s ease both}.frac{display:inline-flex;min-width:25px;flex-direction:column;align-items:center;vertical-align:middle;color:inherit;font:800 1em/1 'JetBrains Mono',monospace}.frac i{width:100%;height:2px;margin:2px 0;border-radius:2px;background:currentColor}.frac-lg{font-size:1.35em}.hook-model,.whole-card,.rule-card,.finale-payoff{padding:18px;border-radius:22px;background:rgba(255,255,255,.9);box-shadow:0 18px 34px -28px rgba(${T.shadowBase},.48)}
 .lesson-root button:focus-visible,.lesson-root input:focus-visible,.lesson-root input[type='range']:focus-visible{outline:3px solid ${T.cyan};outline-offset:3px}
-.hook-model{display:grid;place-items:center;gap:12px;background:linear-gradient(135deg,#E5F5F6,#FFF)}.fraction-model{width:min(620px,94%);margin:0 auto;display:grid;gap:10px}.fraction-bar{height:112px;display:grid;overflow:hidden;border-radius:18px;background:#F4F5F1;box-shadow:inset 0 0 0 3px rgba(23,59,82,.16)}.fraction-bar i{min-width:0;border-right:2px solid rgba(23,59,82,.18);background:#F4F5F1;transition:background .45s ease,transform .45s ease}.fraction-bar i:last-child{border-right:0}.fraction-bar i.cyan{background:#46B8C5}.fraction-bar i.lime{background:#95C93D}.fraction-bar i.merged{background:linear-gradient(135deg,#168FA3,#95C93D)}.fraction-bar.whole i{border-right:0}.fraction-model.compact .fraction-bar{height:48px;border-radius:11px}.model-label{justify-self:center;padding:8px 13px;border-radius:12px;color:#173B52;background:#E5F5F6;font:900 16px "JetBrains Mono",monospace}.state-note,.formula-card,.result-chip{padding:12px 15px;border-radius:14px;opacity:.12;transform:translateY(7px);transition:.4s ease;text-align:center}.state-note{color:#227A53;background:#E7F3EC;font-size:13px;font-weight:850}.formula-card{color:#FFF;background:#173B52;font:900 17px "JetBrains Mono",monospace}.result-chip{justify-self:center;color:#FFF;background:#FF5B35;font:900 20px "JetBrains Mono",monospace}.show{opacity:1!important;transform:none!important}.tokens{display:flex;align-items:center;justify-content:center;gap:8px;color:#50616D;font-size:12px;font-weight:800}.tokens i{width:28px;height:28px;border-radius:9px;background:#95C93D;animation:token-pop .4s ease both}.tokens i:nth-child(2){animation-delay:.1s}.tokens i:nth-child(3){animation-delay:.2s}.rule-card,.whole-card{display:grid;gap:12px}.rule-line{padding:13px;border-radius:14px;opacity:.12;transform:translateY(6px);color:#173B52;background:#E5F5F6;text-align:center;font:900 18px "JetBrains Mono",monospace;transition:.4s ease}.rule-line.accent{color:#FFF;background:#173B52}.wrong-formula{padding:12px;position:relative;opacity:.12;color:#A96F13;background:#FFF5D9;text-align:center;font:900 18px "JetBrains Mono",monospace;transition:.4s ease}.wrong-formula::after{content:"";position:absolute;left:28%;right:28%;top:50%;height:3px;transform:rotate(-8deg);background:#FF5B35}.number-line{height:150px;position:relative;padding:54px 7% 0}.nl-track{height:4px;position:relative;border-radius:4px;background:#173B52}.nl-tick{width:2px;height:18px;position:absolute;top:-7px;background:#87949D}.nl-tick span{position:absolute;top:20px;left:50%;transform:translateX(-50%);font:800 12px "JetBrains Mono",monospace}.nl-dot{width:44px;height:38px;position:absolute;top:27px;transform:translateX(-50%);border-radius:12px;display:grid;place-items:center;color:#FFF;font:900 11px "JetBrains Mono",monospace;z-index:2;animation:dot-pop .35s ease both}.nl-dot.cyan{background:#168FA3}.nl-dot.lime{background:#95C93D}.nl-arrow{height:22px;position:absolute;top:84px;border-top:3px solid #FF5B35;border-right:3px solid #FF5B35;border-radius:0 14px 0 0;animation:arrow-grow .45s ease both}.nl-arrow::after{content:"";position:absolute;right:-5px;top:-7px;border-left:8px solid #FF5B35;border-top:5px solid transparent;border-bottom:5px solid transparent}.model-choices{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.model-choices>div{padding:10px;border-radius:15px;display:grid;grid-template-columns:26px 1fr;align-items:center;gap:6px;background:#FFF;box-shadow:0 12px 24px -20px rgba(58,53,48,.6)}.model-choices>div>b{width:25px;height:25px;border-radius:8px;display:grid;place-items:center;color:#FFF;background:#168FA3;font:900 10px "JetBrains Mono",monospace}.bit-error{padding:14px;border-radius:18px;display:flex;align-items:center;justify-content:center;gap:12px;color:#A96F13;background:#FFF5D9;font:900 19px "JetBrains Mono",monospace}.bit-error b{position:relative}.bit-error b::after{content:"";position:absolute;left:-5px;right:-5px;top:50%;height:3px;transform:rotate(-8deg);background:#FF5B35}.context-step{opacity:.12;transform:translateY(6px);transition:opacity .38s ease,transform .38s ease}.energy-model{display:grid;grid-template-columns:1fr 32px 1fr;align-items:center;gap:8px}.energy-model>div{padding:10px;border-radius:15px;display:grid;grid-template-columns:30px 1fr;align-items:center;gap:8px;background:#FFF}.energy-model>div>span{font-size:23px}.energy-model>strong{text-align:center;color:#FF5B35;font-size:23px}.finale-heading{padding:11px 15px;border-radius:17px;background:linear-gradient(100deg,rgba(255,91,53,.09),transparent 52%),rgba(255,255,255,.92);box-shadow:0 13px 28px -24px rgba(255,91,53,.72)}.finale-heading>span{color:#FF5B35;font:900 9px "JetBrains Mono",monospace;letter-spacing:.12em}.finale-heading h1{margin-top:4px!important;color:#173B52;font:750 clamp(21px,3vw,28px)/1.08 "Source Serif 4",Georgia,serif}.finale-heading p{margin-top:4px!important;color:#50616D;font-size:11px}.finale-main{display:grid;grid-template-columns:minmax(270px,.9fr) minmax(310px,1.1fr);gap:10px}.finale-payoff{display:grid;align-content:center;gap:8px}.finale-payoff>small{color:#168FA3;font-size:9px;font-weight:900;letter-spacing:.09em}.finale-answer{padding:8px 10px;border-radius:11px;opacity:.14;transform:translateY(5px);color:#227A53;background:#E7F3EC;text-align:center;font:900 13px "JetBrains Mono",monospace;transition:.42s ease}.finale-takeaways{display:grid;gap:6px}.finale-takeaway{min-height:42px;padding:7px 10px;border-radius:12px;display:grid;grid-template-columns:27px 1fr;align-items:center;gap:8px;opacity:.14;transform:translateY(6px);background:#F8F8F4;transition:.42s ease}.finale-takeaway.show{background:#E5F5F6}.finale-takeaway>b{width:26px;height:26px;border-radius:9px;display:grid;place-items:center;color:#FFF;background:#168FA3;font:900 9px "JetBrains Mono",monospace}.finale-takeaway span{display:grid;gap:2px;font-size:11px;font-weight:800}.finale-takeaway small{color:#168FA3;font-size:8px;text-transform:uppercase}.finale-takeaway strong{color:#173B52;font-family:"JetBrains Mono",monospace}.finale-bottom{display:grid;grid-template-columns:1.2fr .8fr;gap:10px}.finale-bridge{padding:12px 15px;border-radius:16px;display:grid;align-content:center;gap:4px;opacity:.14;transform:translateY(6px);color:#FFF;background:#173B52;transition:.42s ease}.finale-bridge small{color:#98E1E5;font-size:9px;font-weight:900;letter-spacing:.1em}.finale-bridge strong{font:750 15px "Source Serif 4",Georgia,serif}.finale-reward{min-height:100px;position:relative;overflow:hidden;padding:12px 70px 11px 52px;border-radius:17px;display:grid;align-content:center;color:#FFF;background:linear-gradient(135deg,#234B62,#173B52)}.finale-reward>div:nth-child(2){display:grid;gap:3px}.finale-reward small{color:#98E1E5;font-size:8px;font-weight:900}.finale-reward strong{font:750 14px "Source Serif 4",Georgia,serif}.finale-reward b{color:#FFE284;font:900 11px "JetBrains Mono",monospace}.finale-reward>.g1-char{position:absolute;right:2px;bottom:-5px;width:67px;height:84px}.finale-medal{position:absolute;left:10px;top:50%;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;transform:translateY(-50%);color:#173B52;background:#95C93D}.preview-language{position:fixed;top:9px;right:9px;z-index:30;display:flex;gap:3px;padding:3px;border-radius:999px;background:rgba(255,255,255,.94)}.preview-language button{padding:4px 9px;border:0;border-radius:999px;background:transparent;cursor:pointer;font-size:10px;font-weight:900}.preview-language .preview-active{color:#FFF;background:#FF5B35}.tiny-action{min-height:46px;padding:8px 12px;border:0;border-radius:13px;justify-self:end;color:${T.accent};background:${T.accentSoft};cursor:pointer;box-shadow:0 8px 18px -16px rgba(${T.shadowBase},.5);font-size:12px;font-weight:800}.marker-control{width:min(620px,94%);padding:10px 13px;border-radius:14px;display:grid;gap:7px;color:${T.navy};background:${T.cyanSoft};font:850 12px 'Manrope',sans-serif}.free-marker{width:100%;min-height:44px;margin:0;accent-color:${T.accent};cursor:pointer}.nl-dot.free{top:102px;background:${T.navy};animation-duration:.4s}.attempt-model{border-radius:20px;transition:box-shadow .32s ease,background .32s ease}.attempt-highlight{box-shadow:0 0 0 3px rgba(22,143,163,.38),0 14px 26px -20px rgba(22,143,163,.8)!important;background:rgba(229,245,246,.72)!important}.attempt-cue{padding:9px 12px;border-radius:12px;color:${T.cyan};background:${T.cyanSoft};font-size:12px;font-weight:850;animation:attempt-cue-in .3s ease both}.stack{animation-duration:.5s}.caption{animation:caption-in .32s ease both}.formula-card{transition-duration:.32s!important}.result-chip{transition-duration:.22s!important}
-.beat-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px}.beat{min-height:52px;padding:9px 10px;border-radius:14px;display:grid;grid-template-columns:25px 1fr;align-items:center;gap:8px;opacity:.12;transform:translateY(6px);background:rgba(255,255,255,.88);transition:.36s ease}.beat.show{opacity:1;transform:none}.beat>b{width:25px;height:25px;border-radius:8px;display:grid;place-items:center;color:#fff;background:#168FA3;font:900 10px 'JetBrains Mono',monospace}.beat>span{font-size:11px;font-weight:800;line-height:1.3}.visual-card{min-height:210px;padding:14px;border-radius:22px;display:grid;place-items:center;gap:10px;background:rgba(255,255,255,.9);box-shadow:0 18px 34px -28px rgba(58,53,48,.48)}.shape-token{width:64px;height:64px;display:grid;place-items:center;font-size:54px;line-height:1;filter:drop-shadow(0 8px 10px rgba(23,59,82,.2));animation:token-pop .4s ease both}.shape-token.blue{color:#249DB5}.shape-token.yellow{color:#F2B934}.overlap-diagram{width:min(650px,100%);height:250px;position:relative;margin:auto}.overlap-diagram svg{width:100%;height:100%;overflow:visible}.diagram-field{fill:#F8F8F4;stroke:rgba(23,59,82,.12);stroke-width:2}.criteria-circle{opacity:.12;transform-origin:center;transform:scale(.9);transition:.42s ease;stroke-width:5}.criteria-circle.on{opacity:1;transform:scale(1)}.circle-a{fill:rgba(22,143,163,.20);stroke:#168FA3}.circle-b{fill:rgba(149,201,61,.20);stroke:#78A72E}.criteria-letter{fill:#173B52;font:900 20px 'JetBrains Mono',monospace}.middle-label,.count-label,.device-label{fill:#173B52;font:900 14px 'JetBrains Mono',monospace}.count-label{font-size:28px}.device-node{fill:#fff;stroke:#FF5B35;stroke-width:4}.device-signal{fill:none;stroke:#168FA3;stroke-width:3;stroke-linecap:round}.zone-tap{position:absolute;z-index:2;min-height:34px;padding:6px 9px;border:0;border-radius:11px;transform:translate(-50%,-50%);color:#173B52;background:rgba(255,255,255,.9);box-shadow:0 8px 18px -14px rgba(58,53,48,.7);font-size:10px;font-weight:900;cursor:pointer;transition:.28s ease}.zone-tap.active,.focus-a .zone-a,.focus-b .zone-b,.focus-both .zone-both,.focus-outside .zone-outside{color:#fff;background:#FF5B35;transform:translate(-50%,-50%) scale(1.08)}.zone-note{position:absolute;right:8px;bottom:6px;padding:7px 10px;border-radius:10px;color:#fff;background:#173B52;font-size:10px;font-weight:900}.set-elements .single-set{width:290px;height:180px;border:5px solid #168FA3;border-radius:50%;display:flex;align-items:center;justify-content:center;gap:16px;position:relative;background:#E5F5F6}.single-set>span{position:absolute;left:22px;top:15px;font:900 20px 'JetBrains Mono',monospace}.single-set .shape-token{width:50px;height:50px;font-size:42px}.split-check{grid-template-columns:80px 100px 1fr}.split-check>div:nth-child(2){display:grid;gap:9px}.split-check>div:nth-child(2)>span{padding:8px;border-radius:10px;opacity:.12;background:#E7F3EC;color:#227A53;font-weight:900;transition:.35s ease}.split-check .overlap-diagram{height:190px}.two-question-card{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:min(520px,100%)}.two-question-card>div{padding:10px;border-radius:14px;display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:8px;opacity:.12;background:#E5F5F6;transition:.35s ease}.two-question-card b{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;color:#fff;background:#168FA3}.two-question-card strong{color:#227A53}.two-question-card p{grid-column:1/-1;padding:9px;border-radius:12px;opacity:.12;text-align:center;color:#fff;background:#173B52;font-weight:900;transition:.35s ease}.outside-demo,.test-figure{grid-template-columns:80px 1fr}.outside-demo .overlap-diagram,.test-figure .overlap-diagram{height:190px}
-.ghost-shape{fill:#249DB5;font:900 43px 'Manrope',sans-serif;filter:drop-shadow(0 7px 7px rgba(23,59,82,.18));animation:ghost-arrive .4s ease both}.ghost-shape.copy{opacity:.34}.ghost-shape.merged{fill:#168FA3;opacity:1}.device-node.pending{fill:#FFF5D9;stroke:#A96F13}.object-answer-map{width:min(700px,100%);display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.object-answer-map>div{min-height:88px;padding:9px 12px;border-radius:16px;display:grid;grid-template-columns:54px 1fr;align-items:center;gap:4px 10px;opacity:.12;transform:translateY(6px);background:#F8F8F4;transition:.36s ease}.object-answer-map .shape-token{grid-row:1/3;width:48px;height:48px;font-size:40px}.object-answer-map span{color:#50616D;font:850 12px 'JetBrains Mono',monospace}.object-answer-map strong{color:#168FA3;font-size:13px}
-@keyframes caption-in{from{opacity:0;transform:translateY(5px)}}@keyframes attempt-cue-in{from{opacity:0;transform:translateY(5px)}}@keyframes page-in{from{opacity:0;transform:translateY(10px)}}@keyframes proof-in{from{opacity:0;transform:translateY(5px)}}@keyframes token-pop{from{opacity:0;transform:scale(.45)}}@keyframes ghost-arrive{from{opacity:0;transform:translateY(14px) scale(.72)}}@keyframes dot-pop{from{opacity:0;transform:translateX(-50%) scale(.55)}}@keyframes arrow-grow{from{transform:scaleX(0);transform-origin:left}}@keyframes bit-move{to{transform:translateY(-2px) rotate(2deg)}}@keyframes pulse{to{transform:scale(1.07)}}
-@media(max-width:639.98px){.stage-header{padding-top:58px}.screen-type{display:none}.stage{width:min(390px,100%)}.heading{min-height:72px}.heading h1{font-size:26px}.heading .g1-char{width:65px;height:80px}.model-card,.hook-model,.whole-card,.rule-card,.question{padding:13px;border-radius:18px}.options{grid-template-columns:1fr}.option{min-height:52px}.fraction-bar{height:82px}.model-choices{grid-template-columns:1fr}.energy-model{grid-template-columns:1fr}.energy-model>strong{transform:rotate(90deg)}.stage-nav{min-height:68px}.btn-white-accent,.btn-ghost{min-width:112px;padding:0 12px}.finale-main,.finale-bottom{grid-template-columns:1fr}.finale-main,.finale-bottom{gap:8px}.finale-takeaway{min-height:36px}.number-line{height:135px;padding-inline:9%}}
+.hook-model{display:grid;place-items:center;gap:12px;background:linear-gradient(135deg,#E5F5F6,#FFF)}.fraction-model{width:min(620px,94%);margin:0 auto;display:grid;gap:10px}.fraction-bar{height:112px;display:grid;overflow:hidden;border-radius:18px;background:#F4F5F1;box-shadow:inset 0 0 0 3px rgba(23,59,82,.16)}.fraction-bar i{min-width:0;border-right:2px solid rgba(23,59,82,.18);background:#F4F5F1;transition:background .45s ease,transform .45s ease}.fraction-bar i:last-child{border-right:0}.fraction-bar i.cyan{background:#46B8C5}.fraction-bar i.lime{background:#95C93D}.fraction-bar i.removed{background:repeating-linear-gradient(135deg,rgba(255,91,53,.12),rgba(255,91,53,.12) 7px,rgba(255,91,53,.42) 7px,rgba(255,91,53,.42) 14px)}.fraction-bar i.merged{background:linear-gradient(135deg,#168FA3,#95C93D)}.fraction-bar.whole i{border-right:0}.fraction-model.compact .fraction-bar{height:48px;border-radius:11px}.model-label{justify-self:center;padding:8px 13px;border-radius:12px;color:#173B52;background:#E5F5F6;font:900 16px "JetBrains Mono",monospace}.state-note,.formula-card,.result-chip{padding:12px 15px;border-radius:14px;opacity:.12;transform:translateY(7px);transition:.4s ease;text-align:center}.state-note{color:#227A53;background:#E7F3EC;font-size:13px;font-weight:850}.formula-card{color:#FFF;background:#173B52;font:900 17px "JetBrains Mono",monospace}.result-chip{justify-self:center;color:#FFF;background:#FF5B35;font:900 20px "JetBrains Mono",monospace}.show{opacity:1!important;transform:none!important}.tokens{display:flex;align-items:center;justify-content:center;gap:8px;color:#50616D;font-size:12px;font-weight:800}.tokens i{width:28px;height:28px;border-radius:9px;background:#95C93D;animation:token-pop .4s ease both}.tokens i:nth-child(2){animation-delay:.1s}.tokens i:nth-child(3){animation-delay:.2s}.rule-card,.whole-card{display:grid;gap:12px}.rule-line{padding:13px;border-radius:14px;opacity:.12;transform:translateY(6px);color:#173B52;background:#E5F5F6;text-align:center;font:900 18px "JetBrains Mono",monospace;transition:.4s ease}.rule-line.accent{color:#FFF;background:#173B52}.wrong-formula{padding:12px;position:relative;opacity:.12;color:#A96F13;background:#FFF5D9;text-align:center;font:900 18px "JetBrains Mono",monospace;transition:.4s ease}.wrong-formula::after{content:"";position:absolute;left:28%;right:28%;top:50%;height:3px;transform:rotate(-8deg);background:#FF5B35}.tank-model{width:min(560px,96%);margin:0 auto;display:grid;place-items:center;gap:10px}.tank-shell{width:min(360px,82%);height:210px;position:relative;padding:16px 16px 14px;border:5px solid ${T.navy};border-top:0;border-radius:0 0 34px 34px;background:rgba(255,255,255,.72);filter:drop-shadow(0 14px 16px rgba(${T.shadowBase},.13))}.tank-body{height:100%;overflow:hidden;border-radius:6px 6px 22px 22px;display:flex;flex-direction:column-reverse;background:#F4F5F1}.tank-body i{min-height:0;flex:1;border-top:2px solid rgba(23,59,82,.18);transition:background .38s ease,opacity .38s ease,transform .38s ease}.tank-body i:first-child{border-top:0}.tank-body i.tank-fill{background:linear-gradient(90deg,#46B8C5,${T.cyan})}.tank-body i.tank-outline{box-shadow:inset 0 0 0 3px ${T.lime}}.tank-body i.tank-removed{background:repeating-linear-gradient(135deg,rgba(255,91,53,.16),rgba(255,91,53,.16) 8px,rgba(255,91,53,.48) 8px,rgba(255,91,53,.48) 16px);animation:tank-out .42s ease both}.tank-shell.undivided .tank-body i{border-top-color:transparent}.tank-spout{width:76px;height:19px;position:absolute;left:-63px;top:-4px;border:5px solid ${T.navy};border-right:0;border-radius:13px 0 0 13px;background:#fff}.tank-handle{width:70px;height:90px;position:absolute;right:-46px;top:44px;border:12px solid ${T.navy};border-left:0;border-radius:0 38px 38px 0}.tank-model.compact .tank-shell{width:190px;height:92px;padding:7px;border-width:3px;border-radius:0 0 18px 18px}.tank-model.compact .tank-spout{width:32px;height:10px;left:-27px;border-width:3px}.tank-model.compact .tank-handle{width:34px;height:45px;right:-24px;top:18px;border-width:7px}.state-grid{margin-top:12px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.state-grid span{min-height:52px;padding:9px;border-radius:13px;display:grid;place-items:center;opacity:.12;transform:translateY(6px);color:${T.navy};background:${T.cyanSoft};text-align:center;font-size:11px;font-weight:850;transition:.38s ease}.boundary-grid{padding:18px;border-radius:22px;display:grid;grid-template-columns:1fr 1fr;gap:12px;background:rgba(255,255,255,.9);box-shadow:0 18px 34px -28px rgba(${T.shadowBase},.48)}.boundary-grid>div{padding:10px;border-radius:16px;opacity:.12;transform:translateY(6px);background:#F8F8F4;transition:.4s ease}.boundary-grid>.state-note{grid-column:1/-1}.hospital-model{padding:14px;border-radius:18px;display:flex;align-items:center;justify-content:center;gap:14px;background:${T.cyanSoft}}.hospital-model>span{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;color:#fff;background:${T.accent};font:900 27px 'JetBrains Mono',monospace}.nl-arrow.back{border-right:0;border-left:3px solid ${T.accent};border-radius:14px 0 0 0}.nl-arrow.back::after{right:auto;left:-5px;border-left:0;border-right:8px solid ${T.accent}}.number-line{height:150px;position:relative;padding:54px 7% 0}.nl-track{height:4px;position:relative;border-radius:4px;background:#173B52}.nl-tick{width:2px;height:18px;position:absolute;top:-7px;background:#87949D}.nl-tick span{position:absolute;top:20px;left:50%;transform:translateX(-50%);font:800 12px "JetBrains Mono",monospace}.nl-dot{width:44px;height:38px;position:absolute;top:27px;transform:translateX(-50%);border-radius:12px;display:grid;place-items:center;color:#FFF;font:900 11px "JetBrains Mono",monospace;z-index:2;animation:dot-pop .35s ease both}.nl-dot.cyan{background:#168FA3}.nl-dot.lime{background:#95C93D}.nl-arrow{height:22px;position:absolute;top:84px;border-top:3px solid #FF5B35;border-right:3px solid #FF5B35;border-radius:0 14px 0 0;animation:arrow-grow .45s ease both}.nl-arrow::after{content:"";position:absolute;right:-5px;top:-7px;border-left:8px solid #FF5B35;border-top:5px solid transparent;border-bottom:5px solid transparent}.model-choices{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.model-choices>div{padding:10px;border-radius:15px;display:grid;grid-template-columns:26px 1fr;align-items:center;gap:6px;background:#FFF;box-shadow:0 12px 24px -20px rgba(58,53,48,.6)}.model-choices>div>b{width:25px;height:25px;border-radius:8px;display:grid;place-items:center;color:#FFF;background:#168FA3;font:900 10px "JetBrains Mono",monospace}.bit-error{padding:14px;border-radius:18px;display:flex;align-items:center;justify-content:center;gap:12px;color:#A96F13;background:#FFF5D9;font:900 19px "JetBrains Mono",monospace}.bit-error b{position:relative}.bit-error b::after{content:"";position:absolute;left:-5px;right:-5px;top:50%;height:3px;transform:rotate(-8deg);background:#FF5B35}.energy-model{display:grid;grid-template-columns:1fr 32px 1fr;align-items:center;gap:8px}.energy-model>div{padding:10px;border-radius:15px;display:grid;grid-template-columns:30px 1fr;align-items:center;gap:8px;background:#FFF}.energy-model>div>span{font-size:23px}.energy-model>strong{text-align:center;color:#FF5B35;font-size:23px}.finale-heading{padding:11px 15px;border-radius:17px;background:linear-gradient(100deg,rgba(255,91,53,.09),transparent 52%),rgba(255,255,255,.92);box-shadow:0 13px 28px -24px rgba(255,91,53,.72)}.finale-heading>span{color:#FF5B35;font:900 9px "JetBrains Mono",monospace;letter-spacing:.12em}.finale-heading h1{margin-top:4px!important;color:#173B52;font:750 clamp(21px,3vw,28px)/1.08 "Source Serif 4",Georgia,serif}.finale-heading p{margin-top:4px!important;color:#50616D;font-size:11px}.finale-main{display:grid;grid-template-columns:minmax(270px,.9fr) minmax(310px,1.1fr);gap:10px}.finale-payoff{display:grid;align-content:center;gap:8px}.finale-payoff>small{color:#168FA3;font-size:9px;font-weight:900;letter-spacing:.09em}.finale-answer{padding:8px 10px;border-radius:11px;opacity:.14;transform:translateY(5px);color:#227A53;background:#E7F3EC;text-align:center;font:900 13px "JetBrains Mono",monospace;transition:.42s ease}.finale-takeaways{display:grid;gap:6px}.finale-takeaway{min-height:42px;padding:7px 10px;border-radius:12px;display:grid;grid-template-columns:27px 1fr;align-items:center;gap:8px;opacity:.14;transform:translateY(6px);background:#F8F8F4;transition:.42s ease}.finale-takeaway.show{background:#E5F5F6}.finale-takeaway>b{width:26px;height:26px;border-radius:9px;display:grid;place-items:center;color:#FFF;background:#168FA3;font:900 9px "JetBrains Mono",monospace}.finale-takeaway span{display:grid;gap:2px;font-size:11px;font-weight:800}.finale-takeaway small{color:#168FA3;font-size:8px;text-transform:uppercase}.finale-takeaway strong{color:#173B52;font-family:"JetBrains Mono",monospace}.finale-bottom{display:grid;grid-template-columns:1.2fr .8fr;gap:10px}.finale-bridge{padding:12px 15px;border-radius:16px;display:grid;align-content:center;gap:4px;opacity:.14;transform:translateY(6px);color:#FFF;background:#173B52;transition:.42s ease}.finale-bridge small{color:#98E1E5;font-size:9px;font-weight:900;letter-spacing:.1em}.finale-bridge strong{font:750 15px "Source Serif 4",Georgia,serif}.finale-reward{min-height:100px;position:relative;overflow:hidden;padding:12px 70px 11px 52px;border-radius:17px;display:grid;align-content:center;color:#FFF;background:linear-gradient(135deg,#234B62,#173B52)}.finale-reward>div:nth-child(2){display:grid;gap:3px}.finale-reward small{color:#98E1E5;font-size:8px;font-weight:900}.finale-reward strong{font:750 14px "Source Serif 4",Georgia,serif}.finale-reward b{color:#FFE284;font:900 11px "JetBrains Mono",monospace}.finale-reward>.g1-char{position:absolute;right:2px;bottom:-5px;width:67px;height:84px}.finale-medal{position:absolute;left:10px;top:50%;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;transform:translateY(-50%);color:#173B52;background:#95C93D}.preview-language{position:fixed;top:9px;right:9px;z-index:30;display:flex;gap:3px;padding:3px;border-radius:999px;background:rgba(255,255,255,.94)}.preview-language button{padding:4px 9px;border:0;border-radius:999px;background:transparent;cursor:pointer;font-size:10px;font-weight:900}.preview-language .preview-active{color:#FFF;background:#FF5B35}.tiny-action{min-height:46px;padding:8px 12px;border:0;border-radius:13px;justify-self:end;color:${T.accent};background:${T.accentSoft};cursor:pointer;box-shadow:0 8px 18px -16px rgba(${T.shadowBase},.5);font-size:12px;font-weight:800}.marker-control{width:min(620px,94%);padding:10px 13px;border-radius:14px;display:grid;gap:7px;color:${T.navy};background:${T.cyanSoft};font:850 12px 'Manrope',sans-serif}.free-marker{width:100%;min-height:44px;margin:0;accent-color:${T.accent};cursor:pointer}.nl-dot.free{top:102px;background:${T.navy};animation-duration:.4s}.attempt-model{border-radius:20px;transition:box-shadow .32s ease,background .32s ease}.attempt-highlight{box-shadow:0 0 0 3px rgba(22,143,163,.38),0 14px 26px -20px rgba(22,143,163,.8)!important;background:rgba(229,245,246,.72)!important}.attempt-cue{padding:9px 12px;border-radius:12px;color:${T.cyan};background:${T.cyanSoft};font-size:12px;font-weight:850;animation:attempt-cue-in .3s ease both}.stack{animation-duration:.5s}.caption{animation:caption-in .32s ease both}.formula-card{transition-duration:.32s!important}.result-chip{transition-duration:.22s!important}
+@keyframes tank-out{from{opacity:0;transform:translateY(-10px)}}@keyframes caption-in{from{opacity:0;transform:translateY(5px)}}@keyframes attempt-cue-in{from{opacity:0;transform:translateY(5px)}}@keyframes page-in{from{opacity:0;transform:translateY(10px)}}@keyframes proof-in{from{opacity:0;transform:translateY(5px)}}@keyframes token-pop{from{opacity:0;transform:scale(.45)}}@keyframes dot-pop{from{opacity:0;transform:translateX(-50%) scale(.55)}}@keyframes arrow-grow{from{transform:scaleX(0);transform-origin:left}}@keyframes pulse{to{transform:scale(1.07)}}
+@media(max-width:639.98px){.stage-header{padding-top:58px}.screen-type{display:none}.stage{width:min(390px,100%)}.heading{min-height:72px}.heading h1{font-size:26px}.heading .g1-char{width:65px;height:80px}.model-card,.hook-model,.whole-card,.rule-card,.question{padding:13px;border-radius:18px}.options{grid-template-columns:1fr}.option{min-height:52px}.fraction-bar{height:82px}.tank-shell{width:min(292px,78%);height:168px}.state-grid{grid-template-columns:1fr 1fr}.boundary-grid{grid-template-columns:1fr}.boundary-grid>.state-note{grid-column:1}.hospital-model{padding-inline:7px}.model-choices{grid-template-columns:1fr}.energy-model{grid-template-columns:1fr}.energy-model>strong{transform:rotate(90deg)}.stage-nav{min-height:68px}.btn-white-accent,.btn-ghost{min-width:112px;padding:0 12px}.finale-main,.finale-bottom{grid-template-columns:1fr}.finale-main,.finale-bottom{gap:8px}.finale-takeaway{min-height:36px}.number-line{height:135px;padding-inline:9%}}
+.g4-title-claim{width:100%;min-height:100px;padding:13px 18px;border:0;border-radius:17px;display:grid;grid-template-columns:42px 1fr;grid-template-rows:auto auto;align-items:center;column-gap:12px;color:#fff;background:linear-gradient(135deg,#0E6978,#173B52);cursor:pointer;text-align:left;box-shadow:0 22px 42px -25px rgba(14,105,120,.9)}.g4-title-claim>span{grid-row:1/3;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#5A3A00;background:linear-gradient(145deg,#FFE284,#FFC23C);font-size:19px}.g4-title-claim>strong{font:750 16px 'Source Serif 4',Georgia,serif}.g4-title-claim>small{color:#A8EAF0;font-size:11px;font-weight:800}
+.feedback{min-height:76px!important;padding:11px 15px 11px 10px!important;grid-template-columns:52px 1fr!important;align-items:center!important;gap:11px!important}.feedback.correct{background:linear-gradient(135deg,#DDF2E6,#F7FFF9)!important;box-shadow:inset 5px 0 ${T.success},0 13px 26px -23px rgba(34,122,83,.75)!important}.feedback.wrong{background:linear-gradient(135deg,#FFF0BE,#FFF9E8)!important;box-shadow:inset 5px 0 ${T.warn},0 13px 26px -23px rgba(169,111,19,.72)!important}.feedback-bit{width:50px;height:62px;display:block;overflow:visible}.feedback-bit .g1-char,.feedback-bit .bit,.feedback-bit>svg{width:100%;height:100%}.feedback p{display:grid;gap:7px;font-size:15px!important;line-height:1.48!important}.feedback-proof{padding-top:7px;border-top:1px solid rgba(34,122,83,.2);color:${T.success};font:900 15px/1.35 'JetBrains Mono',monospace}
+.model-choices{grid-template-columns:1fr!important;gap:11px!important}.model-choice{width:100%;min-height:100px;padding:11px 13px;border:0;border-radius:16px;display:grid;grid-template-columns:32px minmax(140px,.8fr) minmax(250px,1.2fr);align-items:center;gap:11px;color:${T.ink};background:#fff;cursor:pointer;text-align:left;box-shadow:0 12px 24px -20px rgba(58,53,48,.6)}.model-choice>b{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;color:#fff;background:${T.cyan};font:900 11px 'JetBrains Mono',monospace}.model-choice>span{font-size:14px;font-weight:850}.model-choice .fraction-model{width:100%}.model-choice.picked{background:${T.accentSoft};box-shadow:inset 0 0 0 3px rgba(255,91,53,.25)}.model-choice.right{background:${T.successSoft};box-shadow:inset 0 0 0 3px rgba(34,122,83,.3)}.model-choice.bad{background:${T.warnSoft};box-shadow:inset 0 0 0 3px rgba(169,111,19,.26)}.model-choice:disabled{cursor:default}
+.rule-boundary-models{padding:13px;border-radius:19px;display:grid;grid-template-columns:1fr 34px 1fr;align-items:center;gap:10px;background:${T.cyanSoft}}.rule-boundary-models>div{padding:10px;border-radius:14px;display:grid;grid-template-columns:44px 1fr;align-items:center;gap:9px;background:#fff}.rule-boundary-models>strong{text-align:center;color:${T.accent};font:900 24px 'JetBrains Mono',monospace}.rule-boundary-models .frac{font-size:18px}.tank-body i.tank-removed{opacity:.58}
+@media(max-width:639.98px){.g4-title-claim{min-height:88px}.feedback{grid-template-columns:44px 1fr!important}.feedback-bit{width:43px;height:54px}.feedback p{font-size:14px!important}.model-choice{min-height:126px;grid-template-columns:30px 1fr}.model-choice>.fraction-model{grid-column:1/-1}.rule-boundary-models{grid-template-columns:1fr}.rule-boundary-models>strong{transform:rotate(90deg)}}
 @media(prefers-reduced-motion:reduce){.lesson-root *,.lesson-root *::before,.lesson-root *::after{scroll-behavior:auto!important;animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}.state-note,.formula-card,.result-chip,.rule-line,.wrong-formula,.finale-answer,.finale-takeaway,.finale-bridge{opacity:1!important;transform:none!important}}
-.caption-slot{flex:none;min-height:38px;padding:6px 10px;border-radius:11px;display:flex;align-items:center;visibility:hidden;color:#fff;background:rgba(23,59,82,.94);font-size:10px;line-height:1.22}.caption-slot.is-visible{visibility:visible}.feedback.feedback-slot{height:76px;min-height:76px;overflow:hidden;visibility:hidden;opacity:0;animation:none}.feedback.feedback-slot.open{visibility:visible;opacity:1}.feedback-bit{width:48px;height:58px;display:block}.feedback-bit .g1-char,.feedback-bit>svg{width:100%;height:100%}.feedback-proof{display:block;margin-top:4px;padding-top:4px;border-top:1px solid rgba(34,122,83,.2);color:${T.success};font:900 12px/1.2 'JetBrains Mono',monospace}.feedback-proof small{display:block;font-size:8px;letter-spacing:.1em}.lesson-root{height:100dvh!important;min-height:0!important;overflow:hidden!important}.stage-content{display:flex;flex-direction:column;gap:4px;overflow:hidden!important}.stage-content>.stack{flex:1;min-height:0}.btn-white-accent:disabled{cursor:not-allowed;opacity:.46}
-@media(max-width:639.98px){.stage-header{padding-top:7px!important;padding-bottom:4px!important}.lesson-root-preview .stage-header{padding-top:48px!important}.progress-track{height:4px!important;margin-bottom:5px!important}.stage-content{padding-top:3px!important;padding-bottom:3px!important}.stage-nav{min-height:52px!important}.stack{gap:4px!important}.heading{min-height:40px!important}.heading h1{font-size:17px!important}.heading .g1-char{width:38px!important;height:48px!important}.question,.model-card,.visual-card,.hook-model,.whole-card,.rule-card,.beat-list{padding:5px!important;border-radius:11px!important}.options{gap:3px!important}.option{min-height:44px!important;padding:4px!important;border-radius:9px!important;font-size:9px!important}.feedback.feedback-slot{height:54px;min-height:54px!important;padding:4px 6px!important;grid-template-columns:32px 1fr!important;gap:4px!important}.feedback-bit{width:31px;height:39px}.feedback p{font-size:9px!important;line-height:1.16!important}.caption-slot{min-height:28px;padding:3px 7px;font-size:8px}.beat-list{gap:3px!important}.beat{min-height:29px!important;padding:3px!important;font-size:8px!important}.btn-white-accent,.btn-ghost{min-height:44px!important;min-width:104px!important;padding:0 8px!important;font-size:11px!important}.finale-main,.finale-bottom{grid-template-columns:1fr 1fr!important;gap:4px!important}}
+.caption-slot{flex:none;min-height:38px;padding:6px 10px;border-radius:11px;display:flex;align-items:center;visibility:hidden;color:#fff;background:rgba(23,59,82,.94);font-size:10px;line-height:1.22}.caption-slot.is-visible{visibility:visible}.feedback.feedback-slot{height:76px;min-height:76px;overflow:hidden;visibility:hidden;opacity:0;animation:none}.feedback.feedback-slot.open{visibility:visible;opacity:1}.feedback-bit{width:48px;height:58px;display:block}.feedback-bit .g1-char,.feedback-bit>svg{width:100%;height:100%}.feedback-proof{display:block;margin-top:4px;padding-top:4px;border-top:1px solid rgba(34,122,83,.2);color:${T.success};font:900 12px/1.2 'JetBrains Mono',monospace}.feedback-proof small{display:block;font-size:8px;letter-spacing:.1em}.lesson-root{height:100%!important;min-height:0!important;overflow:hidden!important}.stage-content{display:flex;flex-direction:column;gap:4px;overflow:hidden!important}.stage-content>.stack{flex:1;min-height:0}.btn-white-accent:disabled{cursor:not-allowed;opacity:.46}
+@media(max-width:639.98px){.stage-header{padding-top:11px!important;padding-bottom:4px!important}.lesson-root-preview .stage-header{padding-top:52px!important}.progress-track{height:4px!important;margin-bottom:5px!important}.stage-content{padding-top:3px!important;padding-bottom:3px!important}.stage-nav{min-height:52px!important}.stack{gap:4px!important}.heading{min-height:40px!important}.heading h1{font-size:17px!important}.heading .g1-char{width:38px!important;height:48px!important}.question,.model-card,.visual-card,.hook-model,.whole-card,.rule-card,.beat-list{padding:5px!important;border-radius:11px!important}.boundary-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:4px!important;padding:5px!important;border-radius:11px!important}.boundary-grid>div{padding:4px!important;border-radius:9px!important}.boundary-grid>.state-note{grid-column:1/-1!important}.boundary-grid .fraction-model{gap:3px!important}.boundary-grid .fraction-bar{height:44px!important;border-radius:9px!important}.boundary-grid .model-label{padding:4px 6px!important;border-radius:8px!important;font-size:9px!important}.options{gap:3px!important}.option{min-height:44px!important;padding:4px!important;border-radius:9px!important;font-size:9px!important}.feedback.feedback-slot{height:54px;min-height:54px!important;padding:4px 6px!important;grid-template-columns:32px 1fr!important;gap:4px!important}.feedback-bit{width:31px;height:39px}.feedback p{font-size:9px!important;line-height:1.16!important}.caption-slot{min-height:28px;padding:3px 7px;font-size:8px}.beat-list{gap:3px!important}.beat{min-height:29px!important;padding:3px!important;font-size:8px!important}.btn-white-accent,.btn-ghost{min-height:44px!important;min-width:104px!important;padding:0 8px!important;font-size:11px!important}.finale-main,.finale-bottom{grid-template-columns:1fr 1fr!important;gap:4px!important}}
+.strategy-replay{min-height:44px;padding:7px 12px;border:0;border-radius:11px;justify-self:center;color:${T.cyan};background:${T.cyanSoft};cursor:pointer;font-size:11px;font-weight:850}.strategy-replay:disabled{cursor:not-allowed;opacity:.46}
+@media(min-width:640px) and (max-width:1100px) and (max-height:800px){.stage-discovery .stack{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto;align-content:stretch;column-gap:12px;row-gap:8px}.stage-discovery .heading{grid-column:1/-1;min-height:64px}.stage-discovery .heading h1{font-size:29px}.stage-discovery .heading .g1-char{width:60px;height:75px}.stage-discovery .model-card{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center;gap:10px;padding:12px}.stage-discovery .tank-model{width:100%}.stage-discovery .tank-shell{width:min(300px,80%);height:174px}.stage-discovery .formula-card,.stage-discovery .state-note,.stage-discovery .result-chip{min-height:44px;display:grid;place-items:center}.stage-discovery .strategy-replay{grid-column:1/-1}}
 .final-reflection{padding:6px 8px;border-radius:12px;display:grid;gap:5px;background:rgba(255,255,255,.9)}.final-reflection>strong{font:750 12px/1.2 'Source Serif 4',Georgia,serif}.final-reflection>div{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}.final-reflection button{min-height:44px;padding:4px;border:0;border-radius:9px;display:grid;grid-template-columns:20px 1fr;align-items:center;gap:3px;color:${T.navy};background:${T.cyanSoft};cursor:pointer;text-align:left;font-size:8px;font-weight:850}.final-reflection button>span{width:19px;height:19px;border-radius:6px;display:grid;place-items:center;color:#fff;background:${T.cyan}}.final-reflection button.is-selected{color:#fff;background:${T.cyan}}.final-reflection button:disabled{cursor:default}.g4-title-claim:disabled{cursor:not-allowed;opacity:.46}
-@media(max-width:639.98px){.stage-header{padding-top:11px!important}.lesson-root-preview .stage-header{padding-top:52px!important}}
-@media(max-width:639.98px) and (max-height:700px){.stage-test .options,.stage-error .options{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+`;
+
+// ---------------------------------------------------------------------------
+// 21-DARS USLUBLARI. s0 dan boshqa hamma ekranda ramka och ko'k (T.cyanSoft).
+// Balandlik dvh bilan chegaralangan: joy kamayganda model kichrayadi, matn
+// esa qirqilmaydi - shuning uchun skroll ham, yo'qolgan element ham yo'q.
+// Takrorlanuvchi (cheksiz) animatsiya yo'q; reduced-motion hammasini o'chiradi.
+
+const LESSON_STYLES = `
+.lesson-root .mono { font-family: 'JetBrains Mono', monospace; font-weight: 800; }
+/* Asosiy model ramkasi ekran balandligining bir qismini egallaydi: shunda
+   pastda katta bo'sh joy qolmaydi, lekin dvh chegarasi tufayli sig'maslik ham
+   yuz bermaydi. */
+.lesson-root .stack > .model-card { min-height: clamp(128px, 24dvh, 236px); }
+/* Kontent yuqoridan boshlanadi (metodist talabi 2026-08-19): sarlavha va
+   ramkalar ekranning yuqori qismidan yoziladi, markazga surilmaydi. */
+.lesson-root .stage-content > .stack { align-content: start; }
+.lesson-root .stack > .model-card.compact { min-height: 0; }
+/* Model kartasi ichidagi yorliq va natija qatori ham markazda turadi. */
+.lesson-root .stack > .model-card { justify-items: center; }
+/* Tanlangan noto'g'ri variant joyida qoladi, lekin xiralashadi va bosilmaydi. */
+.lesson-root .option.bad { opacity: .6; cursor: default; }
+.lesson-root .option:disabled { cursor: default; }
+/* To'rt variant 2x2 setkada (uch variant bir qatorda qoladi). */
+.lesson-root .options:has(> :nth-child(4)) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.lesson-root .lead-line {
+  margin: 0;
+  color: ${T.ink2};
+  font-size: clamp(13px, 1.7vw, 15px);
+  line-height: 1.36;
+  font-weight: 650;
+}
+
+/* --- Qadamli tushuntirish paneli ------------------------------------------ */
+.step-panel {
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+  min-height: clamp(228px, 44dvh, 392px);
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto auto auto;
+  gap: clamp(6px, 1.1dvh, 12px);
+  padding: clamp(9px, 1.4dvh, 14px);
+  border: 1px solid rgba(22,143,163,.22);
+  border-radius: 18px;
+  background: ${T.cyanSoft};
+  box-shadow: 0 14px 30px -26px rgba(${T.shadowBase},.5);
+}
+.step-model {
+  min-height: 0;
+  max-height: clamp(118px, 32dvh, 286px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.step-model > * { width: 100%; }
+.step-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.step-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 26px;
+  padding: 4px 10px 4px 5px;
+  border-radius: 999px;
+  color: ${T.ink3};
+  background: rgba(255,255,255,.66);
+  font-size: 11px;
+  font-weight: 800;
+  transition: color .3s ease, background .3s ease;
+}
+.step-chip b {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  color: #FFFFFF;
+  background: ${T.ink3};
+  font-size: 10px;
+}
+.step-chip.is-done { color: ${T.ink}; background: #FFFFFF; }
+.step-chip.is-done b { background: ${T.success}; }
+.step-chip.is-active { box-shadow: 0 0 0 2px rgba(22,143,163,.35); }
+.step-caption {
+  margin: 0;
+  min-height: 40px;
+  color: ${T.ink};
+  font-size: clamp(13px, 1.8vw, 15px);
+  line-height: 1.36;
+  font-weight: 700;
+}
+.step-actions { display: flex; align-items: center; gap: 10px; }
+.btn-step {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 13px;
+  color: #FFFFFF;
+  background: ${T.cyan};
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background .25s ease, transform .25s ease;
+}
+.btn-step:hover:not(:disabled) { background: ${T.navy}; transform: translateY(-1px); }
+.btn-step:disabled { opacity: .45; cursor: default; }
+.btn-step:focus-visible { outline: 3px solid ${T.accent}; outline-offset: 2px; }
+.step-done {
+  color: ${T.success};
+  font-size: clamp(12px, 1.6vw, 14px);
+  font-weight: 800;
+  line-height: 1.32;
+}
+
+/* --- Quvvat zaxirasi modeli ----------------------------------------------- */
+.model-note { color: ${T.cyan}; font-size: clamp(16px, 2.4vw, 21px); }
+.stack-model { display: grid; gap: 8px; justify-items: center; width: 100%; }
+
+/* --- Yozuvning qadamlab yig'ilishi ---------------------------------------- */
+.record-steps { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+
+/* --- Komil yozuvlari (bir amal / ikki amal) ------------------------------- */
+
+/* --- Raqam terish paneli (klaviatura yo'q) -------------------------------- */
+.tap-pad { display: grid; gap: 8px; justify-items: center; width: 100%; }
+.tap-display {
+  min-width: 132px;
+  min-height: 44px;
+  padding: 4px 16px;
+  border-radius: 13px;
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  color: ${T.ink};
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 2px rgba(22,143,163,.28);
+  font-size: clamp(19px, 3vw, 25px);
+}
+.tap-display small { color: ${T.ink2}; font-size: 12px; font-weight: 800; }
+.tap-display.is-ok { color: ${T.success}; box-shadow: inset 0 0 0 2px ${T.success}; }
+.tap-display.is-bad { color: #B85C32; box-shadow: inset 0 0 0 2px #B85C32; }
+.tap-keys {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 5px;
+  width: min(430px, 100%);
+}
+.tap-key {
+  min-height: 44px;
+  padding: 0;
+  border: 1px solid rgba(22,143,163,.3);
+  border-radius: 11px;
+  color: ${T.ink};
+  background: #FFFFFF;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background .22s ease;
+}
+.tap-key:hover:not(:disabled) { background: ${T.cyanSoft}; }
+.tap-key:focus-visible { outline: 3px solid ${T.accent}; outline-offset: 2px; }
+.tap-key:disabled { opacity: .5; cursor: default; }
+.tap-back { color: ${T.ink2}; }
+.tap-check {
+  grid-column: span 2;
+  color: #FFFFFF;
+  background: ${T.cyan};
+  border-color: ${T.cyan};
+  font-family: inherit;
+  font-size: 13px;
+}
+.tap-check:hover:not(:disabled) { background: ${T.navy}; }
+.match-value { color: ${T.cyan}; font-size: clamp(16px, 2.4vw, 21px); }
+
+
+/* --- Bit xatosi ----------------------------------------------------------- */
+.error-card {
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: clamp(10px, 1.6dvh, 16px);
+  border: 1px solid rgba(169,111,19,.28);
+  border-radius: 18px;
+  background: ${T.warnSoft};
+}
+.error-record { display: grid; gap: 3px; justify-items: center; }
+.error-record span { color: ${T.ink2}; font-size: clamp(15px, 2.2vw, 19px); }
+.error-record b { color: #B85C32; font-size: clamp(19px, 3vw, 26px); }
+.error-mark { color: #B85C32; font-size: 22px; font-weight: 900; }
+
+/* --- Jadval --------------------------------------------------------------- */
+.task-table { width: min(430px, 100%); display: grid; gap: 3px; }
+.task-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 3px; }
+.task-row span {
+  padding: 6px 5px;
+  border-radius: 9px;
+  background: #FFFFFF;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 800;
+}
+.task-head span { color: ${T.ink2}; background: rgba(255,255,255,.6); font-size: 10px; font-weight: 800; }
+.task-chip {
+  padding: 3px 11px;
+  border-radius: 999px;
+  color: ${T.cyan};
+  background: #FFFFFF;
+  font-size: 14px;
+}
+.remaining-line { color: ${T.ink2}; font-size: 13px; font-weight: 700; }
+.remaining-line b { color: ${T.cyan}; font-size: 15px; }
+
+/* --- Ikki yo'l: ramkalar bir xil o'lchamda, markazda --------------------- */
+
+/* --- Moslashtirish: ikki ustun bir xil o'lchamda, markazda ---------------- */
+/* Ikkala ustun bir xil kenglikda, kartalar bir xil balandlikda (grid qatorlari
+   teng) va butun taxta markazda - metodist sharti 5. */
+.matching-board {
+  position: relative;
+  isolation: isolate;
+  width: min(620px, 100%);
+  margin-inline: auto;
+  min-height: clamp(206px, 40dvh, 340px);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(28px, 6vw, 56px);
+}
+.matching-column {
+  display: grid;
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+  align-content: stretch;
+}
+.match-card {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  min-height: 62px;
+  padding: 9px;
+  border: 1px solid rgba(22,143,163,.26);
+  border-radius: 14px;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 5px;
+  color: ${T.ink};
+  background: ${T.cyanSoft};
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background .25s ease, border-color .25s ease;
+}
+.match-card:hover:not(:disabled) { background: #FFFFFF; }
+.match-card:focus-visible { outline: 3px solid ${T.accent}; outline-offset: 2px; }
+.match-card.is-active { border-color: ${T.accent}; background: #FFFFFF; box-shadow: 0 0 0 2px rgba(255,91,53,.28); }
+.match-card.is-done { border-color: ${T.success}; background: ${T.successSoft}; cursor: default; }
+.match-caption { color: ${T.cyan}; font-size: 13px; }
+.match-card .fraction-model { width: 100%; }
+
+/* --- Qoida ramkasi -------------------------------------------------------- */
+.rule-frame {
+  position: relative;
+  min-width: 0;
+  min-height: clamp(168px, 30dvh, 264px);
+  align-content: center;
+  overflow: hidden;
+  display: grid;
+  gap: 7px;
+  padding: clamp(10px, 1.5dvh, 15px);
+  border: 1px solid rgba(22,143,163,.24);
+  border-left: 4px solid ${T.accent};
+  border-radius: 16px;
+  background: ${T.cyanSoft};
+}
+.rule-badge {
+  justify-self: start;
+  padding: 2px 10px;
+  border-radius: 999px;
+  color: #FFFFFF;
+  background: ${T.accent};
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+.rule-text {
+  margin: 0;
+  color: ${T.ink};
+  font-size: clamp(13px, 1.9vw, 16px);
+  line-height: 1.38;
+  font-weight: 750;
+  opacity: .25;
+  transition: opacity .5s ease;
+}
+.rule-text.show { opacity: 1; }
+.rule-lines { display: flex; flex-wrap: wrap; gap: 6px; }
+.rule-lines .rule-line { padding: 5px 11px; border-radius: 999px; background: #FFFFFF; font: 800 12px 'Manrope', system-ui, sans-serif; color: ${T.ink2}; }
+.rule-formula {
+  justify-self: center;
+  color: ${T.cyan};
+  font-size: clamp(17px, 2.6vw, 22px);
+  opacity: .25;
+  transition: opacity .5s ease;
+}
+.rule-formula.show { opacity: 1; }
+.rule-source { color: ${T.ink3}; font-size: 10px; font-weight: 700; }
+
+/* --- Xuk yozuvi va mayda joylar ------------------------------------------ */
+.hook-record {
+  margin-top: 7px;
+  color: #EAF9FB;
+  font-size: clamp(14px, 2.1vw, 18px);
+  opacity: 0;
+  transition: opacity .6s ease;
+}
+.hook-record.show { opacity: 1; }
+.hook-record b { color: #FF9F80; }
+.round-meter {
+  justify-self: start;
+  padding: 3px 10px;
+  border-radius: 999px;
+  color: ${T.cyan};
+  background: ${T.cyanSoft};
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 800;
+}
+.round-question { display: grid; gap: 9px; }
+.round-question > h2 { color: ${T.ink}; font-size: clamp(18px, 2.8vw, 24px); }
+.strategy-question, .case-question {
+  margin: 0;
+  color: ${T.ink};
+  font-size: clamp(15px, 2.2vw, 18px);
+  line-height: 1.3;
+  font-weight: 800;
+}
+
+@media (max-width: 639.98px) {
+  .step-panel { padding: 8px; gap: 6px; }
+  .step-caption { min-height: 34px; font-size: 12.5px; }
+  .step-chip { font-size: 10px; }
+  .tap-keys { gap: 4px; }
+  .tap-key { font-size: 14px; }
+  .route-cards { grid-template-columns: 1fr; gap: 7px; }
+  .route-card { min-height: 74px; }
+  .matching-board { gap: 22px; }
+  .match-card { min-height: 54px; font-size: 12.5px; }
+  .komil-grid { grid-template-columns: 1fr; gap: 7px; }
+  .energy-blocks { padding: 5px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step-chip, .btn-step, .route-card, .match-card, .tap-key,
+  .rule-text, .rule-formula, .hook-record, .energy-block, .komil-case { transition: none !important; }
+}
+
+/* --- Yakuniy slayd (etalon Dars01 tuzilishi) ---------------------------- */
+.option-answer-dismiss {
+  animation: answer-option-dismiss .46s cubic-bezier(.4,0,.7,1) var(--answer-exit-delay, 0ms) both;
+}
+.option-answer-confirm {
+  animation: answer-option-confirm .62s cubic-bezier(.16,1,.3,1) .08s both;
+}
+@keyframes answer-option-dismiss {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(-8px) scale(.96); }
+}
+@keyframes answer-option-confirm {
+  0% { transform: translateY(0) scale(1); box-shadow: 0 10px 24px -17px rgba(${T.shadowBase},.44); }
+  45% { transform: translateY(-7px) scale(1.025); box-shadow: 0 0 0 6px rgba(34,122,83,.10); }
+  100% { transform: translateY(-3px) scale(1); box-shadow: 0 12px 26px -17px rgba(34,122,83,.45); }
+}
+
+.summary-stack { gap: 12px; }
+.reward-stage {
+  position: relative;
+  width: min(840px, 100%);
+  min-height: 154px;
+  margin: 0 auto;
+  padding: 16px 145px 15px 108px;
+  border-radius: 25px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  overflow: hidden;
+  color: #FFFFFF;
+  background:
+    radial-gradient(circle at 82% 20%, rgba(255,194,60,.26), transparent 30%),
+    linear-gradient(135deg, #173B52, #0E6978);
+  box-shadow: 0 24px 50px -30px rgba(14,33,44,.8);
+  transition: transform .5s ease, box-shadow .5s ease;
+}
+.reward-locked { filter: saturate(.72); }
+.reward-unlocked {
+  transform: translateY(-2px);
+  box-shadow: 0 28px 58px -27px rgba(22,143,163,.8);
+}
+.reward-bit {
+  position: absolute;
+  right: 24px;
+  bottom: 7px;
+  width: 92px;
+  height: 115px;
+}
+.reward-bit .g1-char { width: 100%; height: 100%; }
+.reward-unlocked .reward-bit { animation: g4bitfloat 2.8s ease-in-out 4; }
+.reward-medal {
+  position: absolute;
+  left: 24px;
+  top: 50%;
+  width: 66px;
+  height: 66px;
+  border: 4px solid rgba(255,255,255,.58);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #5A3A00;
+  background: linear-gradient(145deg, #FFE284, #FFC23C);
+  box-shadow: 0 0 0 8px rgba(255,255,255,.08), 0 15px 30px -15px rgba(0,0,0,.6);
+  font-size: 30px;
+}
+.reward-kicker {
+  color: #A8EAF0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .13em;
+}
+.reward-stage h1 {
+  max-width: 590px;
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: clamp(21px, 3vw, 30px);
+  line-height: 1.05;
+}
+.reward-stage > p {
+  max-width: 580px;
+  color: rgba(255,255,255,.78);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.reward-score {
+  align-self: flex-start;
+  margin-top: 5px;
+  padding: 5px 9px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(255,255,255,.10);
+}
+.reward-score strong { color: #FFE284; font-family: 'JetBrains Mono', monospace; }
+.reward-score span { color: rgba(255,255,255,.72); font-size: 9px; }
+.reward-confetti { position: absolute; inset: 0; pointer-events: none; }
+.reward-confetti i {
+  position: absolute;
+  top: -16px;
+  width: 7px;
+  height: 12px;
+  border-radius: 2px;
+  animation: reward-confetti 2.4s linear 3;
+}
+.reward-confetti i:nth-child(4n+1) { background: #FFC23C; }
+.reward-confetti i:nth-child(4n+2) { background: #FF5B35; }
+.reward-confetti i:nth-child(4n+3) { background: #77E1EA; }
+.reward-confetti i:nth-child(4n) { background: #95C93D; }
+.reward-confetti i:nth-child(1) { left: 8%; animation-delay: -.3s; }
+.reward-confetti i:nth-child(2) { left: 17%; animation-delay: -1.1s; }
+.reward-confetti i:nth-child(3) { left: 29%; animation-delay: -.7s; }
+.reward-confetti i:nth-child(4) { left: 41%; animation-delay: -1.7s; }
+.reward-confetti i:nth-child(5) { left: 52%; animation-delay: -.2s; }
+.reward-confetti i:nth-child(6) { left: 63%; animation-delay: -1.3s; }
+.reward-confetti i:nth-child(7) { left: 73%; animation-delay: -.8s; }
+.reward-confetti i:nth-child(8) { left: 84%; animation-delay: -1.9s; }
+.reward-confetti i:nth-child(9) { left: 12%; animation-delay: -2s; }
+.reward-confetti i:nth-child(10) { left: 36%; animation-delay: -1.4s; }
+.reward-confetti i:nth-child(11) { left: 68%; animation-delay: -.5s; }
+.reward-confetti i:nth-child(12) { left: 91%; animation-delay: -1.6s; }
+@keyframes reward-confetti {
+  to { transform: translateY(230px) rotate(460deg); }
+}
+
+.summary-action-layout {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  align-items: stretch;
+}
+
+.summary-rule-items {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-auto-rows: 1fr;
+  gap: 6px;
+}
+.summary-rule-items > span {
+  min-width: 0;
+  padding: 7px;
+  border: 1px solid rgba(22,143,163,.11);
+  border-radius: 11px;
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  align-items: center;
+  gap: 6px;
+  color: ${T.ink2};
+  background: rgba(255,255,255,.82);
+}
+.reflection-card > .summary-question-kicker,
+.reflection-card > .summary-question,
+.reflection-card > .summary-question-stem,
+.reflection-card > .reflection-options,
+.reflection-card > .reflection-resolution,
+.reflection-card > .feedback {
+  flex-shrink: 0;
+}
+.reflection-resolution {
+  display: grid;
+  gap: 7px;
+}
+.summary-card h2 { margin-bottom: 8px; font-size: 14px; }
+.summary-card ul { padding-left: 17px; display: grid; gap: 5px; color: ${T.ink2}; font-size: 12px; line-height: 1.35; }
+.summary-question-kicker {
+  margin-bottom: 4px;
+  color: ${T.accent};
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: .1em;
+}
+.summary-card .summary-question {
+  margin-bottom: 4px;
+  color: ${T.navy};
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 15px;
+  line-height: 1.18;
+}
+.summary-question-stem {
+  margin-bottom: 7px !important;
+  color: ${T.ink2};
+  font-size: 10px;
+  line-height: 1.3;
+}
+.reflection-options {
+  max-height: 180px;
+  display: grid;
+  gap: 6px;
+  overflow: hidden;
+  opacity: 1;
+  transition:
+    max-height .75s cubic-bezier(.22,.8,.3,1) .48s,
+    opacity .28s ease .52s,
+    margin .75s cubic-bezier(.22,.8,.3,1) .48s;
+}
+.reflection-options-solved {
+  max-height: 0;
+  margin-block: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.reflection-option {
+  min-height: 34px;
+  padding: 7px 9px;
+  border: 0;
+  border-radius: 10px;
+  color: ${T.ink};
+  background: #F4F7F5;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+}
+.reflection-option > span {
+  width: 21px;
+  height: 21px;
+  flex: 0 0 21px;
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+  color: ${T.cyan};
+  background: ${T.cyanSoft};
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 900;
+}
+.reflection-correct { color: ${T.success}; background: ${T.successSoft}; }
+.reflection-wrong { color: ${T.warn}; background: ${T.warnSoft}; }
+.reflection-solved {
+  min-height: 42px;
+  padding: 9px 11px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  color: ${T.success};
+  background: ${T.successSoft};
+  font-size: 11px;
+  font-weight: 800;
+}
+.reflection-card .feedback-card {
+  min-height: 62px;
+  padding: 5px 10px 5px 6px;
+}
+.reflection-card .g4-bit-reaction-figure {
+  width: 44px;
+  height: 54px;
+  flex-basis: 44px;
+}
+.reflection-card .g4-bit-reaction-copy { font-size: 14px; }
+.final-mission-heading {
+  width: min(840px, 100%);
+  margin: 0 auto;
+  padding: 12px 16px;
+  border: 1px solid rgba(255,91,53,.17);
+  border-radius: 17px;
+  background:
+    linear-gradient(100deg, rgba(255,91,53,.09), transparent 48%),
+    rgba(255,255,255,.9);
+  box-shadow: 0 13px 28px -24px rgba(255,91,53,.72);
+}
+.final-mission-heading > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: ${T.accent};
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+.final-mission-heading > span i {
+  font-size: 8px;
+  animation: final-marker-pulse 1.5s ease-in-out 3;
+}
+.final-mission-heading h1 {
+  margin-top: 3px;
+  color: ${T.navy};
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: clamp(21px, 3vw, 28px);
+  line-height: 1.08;
+}
+.final-mission-heading p {
+  margin-top: 3px;
+  color: ${T.ink2};
+  font-size: 11px;
+  line-height: 1.32;
+}
+@keyframes final-marker-pulse {
+  50% { opacity: .45; transform: scale(.8); }
+}
+.summary-final-layout {
+  width: min(840px, 100%);
+  margin: 0 auto;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+.summary-card {
+  min-width: 0;
+  height: 100%;
+  padding: 13px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255,255,255,.92);
+  box-shadow: 0 12px 26px -21px rgba(${T.shadowBase},.5);
+}
+.reflection-card > .summary-question-kicker,
+.reflection-card > .summary-question,
+.reflection-card > .summary-question-stem,
+.reflection-card > .reflection-options,
+.reflection-card > .reflection-resolution,
+.reflection-card > .feedback {
+  flex-shrink: 0;
+}
+.final-question-card {
+  height: auto;
+  border: 2px solid rgba(255,91,53,.22);
+  box-shadow:
+    inset 0 4px 0 rgba(255,91,53,.88),
+    0 18px 38px -28px rgba(255,91,53,.7);
+}
+.final-question-card .summary-question-kicker {
+  min-height: 25px;
+  margin-bottom: 8px;
+  padding: 4px 6px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #FFFFFF;
+  background: linear-gradient(90deg, ${T.accent}, #FF7658);
+}
+.final-question-card .summary-question-kicker > b {
+  margin-left: auto;
+  padding: 3px 6px;
+  border-radius: 999px;
+  color: #7D250F;
+  background: rgba(255,255,255,.76);
+  font-size: 7px;
+  letter-spacing: .08em;
+}
+.final-question-card .summary-question {
+  font-size: clamp(17px, 2.4vw, 22px);
+  line-height: 1.18;
+}
+.summary-support-column {
+  min-width: 0;
+  display: grid;
+  gap: 9px;
+}
+.summary-rules-disclosure {
+  min-width: 0;
+  border: 1px solid rgba(22,143,163,.2);
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(255,255,255,.94);
+  box-shadow: 0 14px 30px -24px rgba(22,143,163,.72);
+}
+.summary-rules-toggle {
+  width: 100%;
+  min-height: 64px;
+  padding: 8px 10px;
+  border: 0;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 9px;
+  color: ${T.ink};
+  background:
+    linear-gradient(135deg, rgba(230,247,250,.8), transparent 62%),
+    #FFFFFF;
+  cursor: pointer;
+  text-align: left;
+}
+.summary-rules-toggle > span {
+  min-width: 55px;
+  padding: 7px 8px;
+  border-radius: 10px;
+  color: #FFFFFF;
+  background: ${T.cyan};
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 900;
+  text-align: center;
+}
+.summary-rules-toggle > div { min-width: 0; display: grid; gap: 2px; }
+.summary-rules-toggle strong { font-size: 13px; line-height: 1.2; }
+.summary-rules-toggle small { color: ${T.cyan}; font-size: 9px; font-weight: 800; }
+.summary-rules-toggle > i {
+  color: ${T.cyan};
+  font-size: 24px;
+  font-style: normal;
+  transform: rotate(0);
+  transition: transform .55s cubic-bezier(.16,1,.3,1);
+}
+.summary-rules-open .summary-rules-toggle > i { transform: rotate(180deg); }
+.summary-rules-panel {
+  max-height: 0;
+  padding: 0 9px;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-7px);
+  transition:
+    max-height .65s cubic-bezier(.22,.8,.3,1),
+    padding .65s cubic-bezier(.22,.8,.3,1),
+    opacity .4s ease,
+    transform .55s ease;
+}
+.summary-rules-open .summary-rules-panel {
+  max-height: 260px;
+  padding: 0 9px 9px;
+  opacity: 1;
+  transform: translateY(0);
+}
+.summary-rules-panel .summary-rule-items > span {
+  padding: 6px;
+  grid-template-columns: 20px 1fr;
+  gap: 5px;
+}
+.summary-rules-panel .summary-rule-items > span > i {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: ${T.cyan};
+  background: ${T.cyanSoft};
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  font-style: normal;
+}
+.summary-rules-panel .summary-rule-items p { font-size: 9px; line-height: 1.22; }
+.reward-stage-compact {
+  width: 100%;
+  min-height: 116px;
+  margin: 0;
+  padding: 12px 82px 11px 67px;
+  border-radius: 17px;
+  gap: 4px;
+}
+.reward-stage-compact .reward-medal {
+  left: 11px;
+  width: 44px;
+  height: 44px;
+  border-width: 3px;
+  font-size: 19px;
+}
+.reward-stage-compact .reward-bit {
+  right: 3px;
+  bottom: 2px;
+  width: 72px;
+  height: 90px;
+}
+.reward-stage-compact h2 {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: clamp(16px, 2.2vw, 21px);
+  line-height: 1.05;
+}
+
+/* Yakuniy slaydning mobil o'lchamlari (etalon Dars01 bilan bir xil) */
+@media (max-width: 639.98px) {
+  .summary-action-layout {
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto;
+    align-items: start;
+    gap: 6px;
+  }
+  .summary-card { height: auto; }
+  .summary-rule-items { gap: 4px; }
+  .summary-rule-items > span { padding: 4px; grid-template-columns: 18px 1fr; gap: 4px; }
+  .summary-card { padding: 8px; }
+  .summary-card h2 { margin-bottom: 5px; font-size: 12px; }
+  .summary-question-kicker { font-size: 7px; }
+  .summary-card .summary-question { margin-bottom: 3px; font-size: 12px; }
+  .summary-question-stem { margin-bottom: 4px !important; font-size: 8px; }
+  .reflection-options { grid-template-columns: 1fr; gap: 4px; }
+  .reflection-option { min-height: 30px; padding: 4px 6px; font-size: 9px; }
+  .reflection-option > span { width: 18px; height: 18px; flex-basis: 18px; font-size: 7px; }
+  .final-mission-heading { padding: 8px 10px; border-radius: 13px; }
+  .final-mission-heading > span { font-size: 7px; }
+  .final-mission-heading h1 { margin-top: 2px; font-size: 18px; }
+  .final-mission-heading p { font-size: 8px; line-height: 1.25; }
+  .summary-final-layout { grid-template-columns: 1fr; gap: 6px; }
+  .final-question-card { padding: 9px; }
+  .final-question-card .summary-question-kicker { min-height: 23px; margin-bottom: 6px; font-size: 7px; }
+  .final-question-card .summary-question { margin-bottom: 4px; font-size: 17px; line-height: 1.16; }
+  .final-question-card .summary-question-stem { font-size: 9px; }
+  .summary-support-column { gap: 6px; }
+  .summary-rules-toggle { min-height: 52px; padding: 6px 8px; gap: 7px; }
+  .summary-rules-toggle > span { min-width: 48px; padding: 6px; font-size: 9px; }
+  .summary-rules-toggle strong { font-size: 11px; }
+  .summary-rules-toggle small { font-size: 7px; }
+  .summary-rules-toggle > i { font-size: 20px; }
+  .summary-rules-open .summary-rules-panel { max-height: 210px; padding: 0 7px 7px; }
+  .summary-rules-panel .summary-rule-items > span { padding: 4px; grid-template-columns: 18px 1fr; }
+  .summary-rules-panel .summary-rule-items > span > i { width: 18px; height: 18px; font-size: 7px; }
+  .summary-rules-panel .summary-rule-items p { font-size: 7px; }
+  .reward-stage-compact {
+    min-height: 88px;
+    padding: 9px 59px 8px 51px;
+    border-radius: 14px;
+  }
+  .reward-stage-compact .reward-medal { left: 8px; width: 34px; height: 34px; font-size: 14px; }
+  .reward-stage-compact .reward-bit { width: 57px; height: 71px; }
+  .reward-stage-compact h2 { margin: 0; font-size: 14px; }
+}
+
+/* Yakuniy slayd 360x640 da ham to'liq sig'adi: savol va variantlar bir pog'ona
+   kichrayadi, mukofot paneli ixchamlashadi. */
+@media (max-width: 639.98px) {
+  .summary-stack { gap: 5px; }
+  .final-mission-heading { padding: 6px 9px; }
+  .final-mission-heading h1 { font-size: 15px; }
+  .final-mission-heading p { font-size: 8px; }
+  .final-question-card { padding: 8px; }
+  .final-question-card .summary-question { margin-bottom: 3px; font-size: 13px; line-height: 1.18; }
+  .final-question-card .summary-question-kicker { min-height: 19px; margin-bottom: 4px; }
+  .reflection-options { gap: 3px; }
+  .reflection-option { min-height: 26px; padding: 3px 6px; font-size: 8.5px; }
+  .summary-support-column { gap: 5px; }
+  .summary-rules-toggle { min-height: 40px; padding: 5px 7px; }
+  .reward-stage-compact { min-height: 74px; padding: 7px 52px 6px 46px; }
+  .reward-stage-compact h2 { font-size: 12px; }
+  .reward-stage-compact .reward-bit { width: 48px; height: 60px; }
+  .reward-stage-compact .reward-medal { width: 28px; height: 28px; font-size: 12px; }
+}
+
+/* Eng kichik ekran (360x640) uchun yakuniy pog'ona: 13 px yetishmasligi
+   yopiladi, matn o'lchamlari o'zgarmaydi. */
+@media (max-width: 400px) {
+  .summary-stack { gap: 4px; }
+  .final-mission-heading { padding: 5px 8px; }
+  .reflection-option { min-height: 24px; }
+  .summary-rules-toggle { min-height: 36px; }
+  .reward-stage-compact { min-height: 66px; padding: 6px 50px 5px 44px; }
+}
+
+/* Javobdan keyingi yechim ramkasi mobilda ixchamlashadi: aks holda yakuniy
+   slayd 360 px da 11 px ga sig'may qolardi. */
+@media (max-width: 639.98px) {
+  .reflection-resolution .feedback { min-height: 58px !important; padding: 6px 10px 6px 7px !important; }
+  .reflection-resolution .feedback-bit { width: 42px !important; height: 52px !important; }
+  .reflection-resolution .feedback p { font-size: 9px !important; line-height: 1.28 !important; }
+  .reflection-resolution .proof-label { font-size: 7px !important; }
+  .reflection-resolution .feedback-proof { font-size: 9px !important; }
+}
+
+/* Yakuniy savoldagi izoh ramkasi mobilda ixcham: xato javobdan keyin ham slayd
+   sig'adi. Kanonik 88 px o'lchami boshqa ekranlarda o'zgarmaydi. */
+@media (max-width: 639.98px) {
+  .lesson-root .reflection-card .feedback[data-g4-role~="feedback-frame"] {
+    min-height: 56px !important;
+    padding: 5px 9px 5px 6px !important;
+    grid-template-columns: 40px minmax(0, 1fr) !important;
+  }
+  .lesson-root .reflection-card .feedback[data-g4-role~="feedback-frame"] .feedback-bit { width: 40px !important; height: 50px !important; }
+  .lesson-root .reflection-card .feedback[data-g4-role~="feedback-frame"] p { font-size: 8.5px !important; line-height: 1.26 !important; }
+  .lesson-root .reflection-card .feedback[data-g4-role~="feedback-frame"] .proof-label { font-size: 7px !important; }
+  .lesson-root .reflection-card .feedback[data-g4-role~="feedback-frame"] .feedback-proof { font-size: 8.5px !important; }
+}
+
+/* 360 px da yakuniy slaydning yordamchi qatori yashiriladi: variantlar to'liq
+   gap bo'lgani uchun yakuniy savolning kirish qatori ma'no yo'qotmaydi. */
+@media (max-width: 400px) {
+  .final-question-card .summary-question-stem { display: none; }
+  .final-mission-heading p { font-size: 7.5px; line-height: 1.2; }
+  .summary-question-kicker > b { font-size: 6.5px; }
+}
+
+/* --- Yakuniy savol ramkasi: etalon o'lchamlari (override qatlamidan ustun) --- */
+.lesson-root .final-question-card .summary-question { font-size: clamp(17px, 2.4vw, 22px); line-height: 1.18; }
+.lesson-root .reflection-card .reflection-option { font-size: 11px; font-weight: 700; }
+.lesson-root .reflection-card .reflection-option > span { font-size: 9px; }
+/* Javob berilmaganda izoh sloti joy egallamaydi: etalonda ham balandligi nol. */
+.lesson-root .reflection-card > .feedback:not(.open) { min-height: 0 !important; height: 0; padding: 0 !important; overflow: hidden; }
+@media (max-width: 639.98px) {
+  .lesson-root .final-question-card .summary-question { font-size: 13px; line-height: 1.18; }
+  .lesson-root .reflection-card .reflection-option { font-size: 8.5px; }
+  .lesson-root .reflection-card .reflection-option > span { font-size: 7px; }
+}
+
+/* --- "Davom etish" tugmasi: yumshoq hover ------------------------------- */
+.lesson-root .stage-nav .btn-white-accent:hover:not(:disabled) {
+  color: ${T.accent};
+  background: ${T.accentSoft};
+  box-shadow: 0 12px 26px -18px rgba(255,91,53,.55), inset 0 0 0 1px rgba(255,91,53,.28);
+  transform: translateY(-1px);
+}
+.lesson-root .stage-nav .btn-white-accent:active:not(:disabled) {
+  background: ${T.accentSoft};
+  transform: translateY(0);
+}
+
+/* -------------------------------------------------------------------------
+   25-DARSNING O'Z QATLAMI. Imzo modeli - halqa: to'plam nomi tepada, elementlar
+   halqa ichida chip bo'lib turadi. Oxirgi ekranda ikki halqa kesishadi.
+   ------------------------------------------------------------------------- */
+.ring {
+  position: relative;
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  width: min(430px, 100%);
+  padding: 10px 18px 14px;
+  border-radius: 90px;
+  background: ${T.cyanSoft};
+  box-shadow: inset 0 0 0 2.5px rgba(22, 143, 163, .42);
+}
+.ring.compact { width: 100%; padding: 8px 12px 12px; border-radius: 60px; }
+.ring-warn {
+  background: ${T.warnSoft};
+  box-shadow: inset 0 0 0 2.5px rgba(169, 111, 19, .38);
+}
+.ring-head {
+  display: grid;
+  gap: 1px;
+  justify-items: center;
+}
+.ring-head b { font-size: 14px; font-weight: 800; color: ${T.ink}; }
+.ring-head small { font-size: 11px; color: ${T.ink2}; }
+.ring-body {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  justify-content: center;
+  min-height: 30px;
+  align-items: center;
+}
+.ring-chip {
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: ${T.paper};
+  font: 700 11.5px/1.2 'Manrope', system-ui, sans-serif;
+  color: ${T.ink};
+  box-shadow: 0 6px 14px -12px rgba(${T.shadowBase}, .6);
+}
+.ring-empty { font-size: 11px; color: ${T.ink3}; }
+.ring-count {
+  position: absolute;
+  top: 8px;
+  right: 14px;
+  font-size: 15px;
+  font-weight: 800;
+  color: ${T.cyan};
+}
+.ring-warn .ring-count { color: ${T.warn}; }
+.ring-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  width: min(520px, 100%);
+  margin: 0 auto;
+}
+.ring-drop {
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 62px;
+  transition: box-shadow .2s ease, transform .2s ease;
+}
+.ring-drop.is-open { box-shadow: 0 0 0 3px rgba(22, 143, 163, .35); transform: translateY(-1px); }
+.ring-drop:disabled { cursor: default; }
+
+/* Aralash narsalar tokchasi. */
+.tray {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: min(520px, 100%);
+}
+.tray-chip {
+  padding: 6px 11px;
+  border-radius: 12px;
+  background: ${T.paper};
+  font: 700 12px/1.2 'Manrope', system-ui, sans-serif;
+  color: ${T.ink};
+  box-shadow: inset 0 0 0 1px rgba(${T.shadowBase}, .16);
+  opacity: 1;
+  transition: opacity .24s ease, box-shadow .2s ease, transform .2s ease;
+}
+.tray-chip.is-button { min-height: 44px; display: grid; place-items: center; border: none; cursor: pointer; }
+.tray-chip.is-button:hover:not(:disabled) { transform: translateY(-1px); }
+.tray-chip.is-active { background: ${T.cyanSoft}; box-shadow: inset 0 0 0 2px ${T.cyan}; }
+.tray-chip.is-in { opacity: .35; }
+.tray-chip.is-done { opacity: .4; cursor: default; }
+.tray-chip.is-wrong { background: ${T.accentSoft}; box-shadow: inset 0 0 0 2px rgba(255, 91, 53, .45); }
+
+/* Kitoblarni ikki halqaga joylash maydoni. */
+.sortset {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  width: min(560px, 100%);
+  margin: 0 auto;
+  padding: 14px;
+  border-radius: 20px;
+  background: ${T.paper};
+  box-shadow: inset 0 0 0 1px rgba(${T.shadowBase}, .14), 0 12px 26px -22px rgba(${T.shadowBase}, .5);
+}
+
+/* Nuqtalar diagrammasi: doira ichida va tashqarisida. */
+.points-board {
+  display: grid;
+  gap: 10px;
+  justify-items: center;
+  width: min(520px, 100%);
+  margin: 0 auto;
+  padding: 12px;
+  border-radius: 20px;
+  background: ${T.paper};
+  box-shadow: inset 0 0 0 1px rgba(${T.shadowBase}, .14), 0 12px 26px -22px rgba(${T.shadowBase}, .5);
+}
+.points-label {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  color: ${T.cyan};
+}
+.points-stage {
+  position: relative;
+  width: 100%;
+  height: 168px;
+}
+.points-circle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 168px;
+  height: 128px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: ${T.cyanSoft};
+  box-shadow: inset 0 0 0 2.5px rgba(22, 143, 163, .42);
+}
+.point {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: ${T.paper};
+  color: ${T.ink};
+  font: 800 14px/1 'JetBrains Mono', monospace;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1.5px rgba(${T.shadowBase}, .2), 0 8px 16px -12px rgba(${T.shadowBase}, .6);
+  transition: background .2s ease, box-shadow .2s ease;
+}
+.point.is-taken {
+  background: ${T.cyan};
+  color: ${T.paper};
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, .35), 0 10px 18px -12px rgba(22, 143, 163, .9);
+}
+.point:disabled { cursor: default; }
+
+/* Kesishgan halqalar va to'rt zona. */
+.venn-board {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+  width: min(560px, 100%);
+  margin: 0 auto;
+  padding: 12px;
+  border-radius: 20px;
+  background: ${T.paper};
+  box-shadow: inset 0 0 0 1px rgba(${T.shadowBase}, .14), 0 12px 26px -22px rgba(${T.shadowBase}, .5);
+}
+.figure-tray {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.figure-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 12px;
+  background: ${T.bg};
+  color: ${T.ink};
+  font: 700 11.5px/1.2 'Manrope', system-ui, sans-serif;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(${T.shadowBase}, .16);
+  transition: box-shadow .2s ease, opacity .2s ease;
+}
+.figure-chip.is-active { background: ${T.cyanSoft}; box-shadow: inset 0 0 0 2px ${T.cyan}; }
+.figure-chip.is-done { opacity: .4; cursor: default; }
+.figure-mark { width: 16px; height: 16px; flex: 0 0 auto; }
+.figure-mark.is-blue, .venn-chip.is-blue { background: #2E86C8; }
+.figure-mark.is-red, .venn-chip.is-red { background: #D8543C; }
+.figure-mark.is-circle, .venn-chip.is-circle { border-radius: 50%; }
+.figure-mark.is-square, .venn-chip.is-square { border-radius: 3px; }
+.figure-mark.is-triangle, .venn-chip.is-triangle {
+  background: transparent;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 14px solid #2E86C8;
+  height: 0;
+  width: 0;
+}
+.figure-mark.is-triangle.is-red, .venn-chip.is-triangle.is-red { border-bottom-color: #D8543C; }
+.venn {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+}
+.venn-labels {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 10px;
+}
+.venn-label {
+  font-size: 12px;
+  font-weight: 800;
+  color: ${T.ink2};
+}
+.venn-stage {
+  position: relative;
+  height: 172px;
+}
+.venn-circle {
+  position: absolute;
+  top: 4px;
+  width: 62%;
+  height: 118px;
+  border-radius: 50%;
+}
+.venn-circle-left {
+  left: 0;
+  background: rgba(46, 134, 200, .12);
+  box-shadow: inset 0 0 0 2.5px rgba(46, 134, 200, .45);
+}
+.venn-circle-right {
+  right: 0;
+  background: rgba(169, 111, 19, .1);
+  box-shadow: inset 0 0 0 2.5px rgba(169, 111, 19, .4);
+}
+.venn-zone {
+  position: absolute;
+  display: grid;
+  gap: 3px;
+  justify-items: center;
+  align-content: center;
+  min-height: 46px;
+  padding: 4px 5px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  cursor: pointer;
+  transition: box-shadow .2s ease, background .2s ease;
+}
+.venn-zone small {
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+  color: ${T.ink2};
+}
+.venn-zone.is-open { box-shadow: inset 0 0 0 2px rgba(22, 143, 163, .45); background: rgba(255, 255, 255, .7); }
+.venn-zone.is-wrong { box-shadow: inset 0 0 0 2px rgba(255, 91, 53, .55); background: ${T.accentSoft}; }
+.venn-zone:disabled { cursor: default; }
+.venn-zone-left { left: 4%; top: 22px; width: 24%; }
+.venn-zone-both { left: 50%; top: 22px; width: 20%; transform: translateX(-50%); }
+.venn-zone-right { right: 4%; top: 22px; width: 24%; }
+.venn-zone-out { left: 50%; bottom: 0; width: 34%; transform: translateX(-50%); }
+.venn-chips {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: center;
+  min-height: 16px;
+}
+.venn-chip { width: 15px; height: 15px; }
+
+@media (max-width: 640px) {
+  .ring { padding: 8px 12px 12px; border-radius: 64px; }
+  .ring-head b { font-size: 12.5px; }
+  .ring-chip { font-size: 10.5px; padding: 3px 7px; }
+  .ring-count { font-size: 13px; top: 6px; right: 10px; }
+  .tray-chip { font-size: 10.5px; padding: 5px 8px; }
+  .points-stage { height: 148px; }
+  .points-circle { width: 148px; height: 112px; }
+  .point { width: 40px; height: 40px; font-size: 12px; }
+  .figure-chip { font-size: 10px; padding: 5px 7px; }
+  .venn-stage { height: 158px; }
+  .venn-circle { height: 104px; }
+  .venn-zone small { font-size: 8.5px; }
+  .venn-chip { width: 13px; height: 13px; }
+}
 `;

@@ -137,15 +137,23 @@ export const grade7Nazariy = [
     desc: "Sonlar ko'paytiriladi, harflar sanaladi, koeffitsiyent oldinda. −b ning koeffitsiyenti minus bir. 15 slayd, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade7/Dars15.jsx')),
   },
-  {
-    // BIRINCHI DARS OBVYAZKASIZ. `Frame` va ildiz komponent `core.jsx` ga
-    // chiqarildi (`LessonFrame`, `createLesson`): ular 15 faylda bir xil
-    // yozilgan edi. Bu darsda faqat MA'LUMOT bor.
-    slug: 'dars16-bir-hadlarni-kopaytirish',
-    title: "Dars 16. Bir hadlarni ko'paytirish",
-    desc: "Koeffitsiyentlar ko'paytiriladi, bir xil harflarning ko'rsatkichlari qo'shiladi. 15 slayd, UZ/RU/EN.",
-    Component: lazy(() => import('../components/grade7/Dars16.jsx')),
-  },
+  // 16-DARS VAQTINCHA O'CHIRILGAN (2026-08-20).
+  //
+  // Ro'yxatda `../components/grade7/Dars16.jsx` chaqirilgan, lekin bu fayl
+  // repozitoriyda yo'q: u kommit qilinmagan. Natijada `vite build` butun
+  // loyiha uchun yiqilardi ("Could not resolve") va main shoxi deploy
+  // bo'lmasdi, ya'ni HAMMA sinf darslari ochilmasdi.
+  //
+  // Shuning uchun yozuv komponent kommit qilinmaguncha izohga olindi. Dars16
+  // fayli qo'shilganda pastdagi blok qaytariladi, boshqa hech narsa
+  // o'zgartirilmaydi:
+  //   {
+  //     slug: 'dars16-bir-hadlarni-kopaytirish',
+  //     title: "Dars 16. Bir hadlarni ko'paytirish",
+  //     desc: "Koeffitsiyentlar ko'paytiriladi, bir xil harflarning
+  //            ko'rsatkichlari qo'shiladi. 15 slayd, UZ/RU/EN.",
+  //     Component: lazy(() => import('../components/grade7/Dars16.jsx')),
+  //   },
 ]
 
 // 7-sinf AMALIY mashg'ulotlari. Har nazariy darsga 10 tekshiriladigan

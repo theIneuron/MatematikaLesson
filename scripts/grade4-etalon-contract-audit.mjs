@@ -6,6 +6,7 @@ import process from 'node:process';
 import { parse } from '@babel/parser';
 
 const root = process.cwd();
+import { withTheoryShellSource } from './lib/grade4-theory-shell-source.mjs';
 const requested = process.argv.slice(2);
 const lessons = requested.length
   ? [...new Set(requested
@@ -30,7 +31,7 @@ const FULL_WIDTH_HOOK_LESSONS = new Set([4]);
 // Metodist qarori 2026-08-19: 21-30 darslarning yakuniy slaydi etalon Dars01
 // tuzilishida quriladi - yakuniy savol, qoida royxati va mukofot paneli.
 // Bu darslar uchun uch-xulosa qolipi emas, etalon tuzilishi tekshiriladi.
-const REBUILT_ETALON_FINAL = new Set([21, 22, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40]);
+const REBUILT_ETALON_FINAL = new Set([21, 22, 23, 24, 25, 26, 27, 28, 29, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40]);
 const has = (source, pattern) => pattern.test(source);
 const count = (source, pattern) => (source.match(pattern) || []).length;
 const award = (checks) => checks.reduce((score, check) => score + (check.pass ? check.points : 0), 0);
@@ -222,7 +223,7 @@ function hasPreClaimReflectionPersistence(source) {
 for (const lesson of lessons) {
   const label = `Dars${String(lesson).padStart(2, '0')}`;
   const filename = path.join(root, 'src', 'components', 'grade4', `${label}.jsx`);
-  const source = await readFile(filename, 'utf8');
+  const source = await withTheoryShellSource(await readFile(filename, 'utf8'), path.join(root, 'src', 'components', 'grade4'));
   const usesSharedFinale = /from\s+['"]\.\/Grade4Finale\.jsx['"]/.test(source)
     && /<Grade4Finale\b/.test(source);
   const finaleSource = usesSharedFinale ? `${source}\n${sharedFinaleSource}` : source;
@@ -799,6 +800,10 @@ for (const lesson of lessons) {
     ['Dars51 medal tiers', /(?:gold|oltin)/i.test(source)
       && /(?:silver|kumush)/i.test(source)
       && /(?:bronze|bronza)/i.test(source)],
+    ['Dars51 terminal course bridge', /terminal\s*:\s*true/.test(source)
+      && /KURS YAKUNI/.test(source)
+      && /ИТОГ КУРСА/u.test(source)
+      && /COURSE COMPLETE/.test(source)],
   ];
 
   const categories = {
@@ -833,7 +838,7 @@ for (const lesson of lessons) {
       ? (etalonReflectionGate && gatedReveal && rankOverlay && /data-g4-role=["']title-card["']/.test(source))
       : motionFinalChecks.slice(0, 3).every((item) => item.pass)],
     [etalonFinal ? 'etalon final composition' : 'standard three-takeaway/proof/bridge final',
-      etalonFinal ? etalonFinalComposition : (lesson > 10 || standardFinalComposition)],
+      etalonFinal ? etalonFinalComposition : standardFinalComposition],
     [etalonFinal ? 'etalon reflection unlock gate' : (finalReflectionRemoved ? 'explicit no-reflection final gate' : 'reflection-before-title dual gate'),
       etalonFinal ? etalonReflectionGate : (finalReflectionRemoved ? !reflectionUi && finalStateClaimGate : reflectionBeforeClaim)],
     [etalonFinal ? 'etalon reflection Back persistence' : (finalReflectionRemoved ? 'no-reflection final policy marker' : 'pre-claim reflection Back persistence'),

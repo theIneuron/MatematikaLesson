@@ -148,8 +148,8 @@ export const grade4Nazariy = [
   },
   {
     slug: 'dars25-toplamlar-eyler-venn-diagrammasi',
-    title: "Dars 25. To'plamlar va Eyler-Venn diagrammasi",
-    desc: "Obyektlarni ikki mustaqil belgi bo'yicha faqat A, ikkalasi, faqat B yoki tashqari zonaga joylashtirish va diagrammadagi elementlarni sanash.",
+    title: "Dars 25. To'plamlar va Eyler–Venn diagrammasi",
+    desc: "To'plamni umumiy belgi bilan hosil qilish, elementlarni sanash, halqa ichi va tashqarisini ajratish, juft va toq sonlarni ajratilgan halqalarda ko'rsatish hamda ikki belgi bo'yicha to'rt zonaga joylashtirish.",
     Component: lazy(() => import('../components/grade4/Dars25.jsx')),
   },
   {
@@ -161,7 +161,7 @@ export const grade4Nazariy = [
   {
     slug: 'dars27-massa-birliklari',
     title: 'Dars 27. Massa birliklari',
-    desc: "g, kg, sentner va t orasidagi munosabatlarni guruhlash modeli bilan bog'lash, mos birlikni tanlash va tarkibli massani aylantirish.",
+    desc: "g, kg, sentner va t orasidagi munosabatlarni tarozi modelida bog'lash, mos birlikni tanlash va tarkibli massani bitta birlikda yozish.",
     Component: lazy(() => import('../components/grade4/Dars27.jsx')),
   },
   {

@@ -58,21 +58,25 @@ const RESULT_SCREEN = '.p4-done, .g4p-result';
 const TITLE_OVERLAY_SELECTOR = '.rank-boost-overlay[data-g4-role="rank-overlay"]';
 const REVIEW_LESSONS = new Set([
   'Dars02.jsx', 'Dars04.jsx', 'Dars07.jsx', 'Dars08.jsx',
-  'Dars12.jsx', 'Dars18.jsx', 'Dars22.jsx', 'Dars28.jsx',
-  'Dars42.jsx', 'Dars51.jsx',
+  'Dars12.jsx', 'Dars18.jsx', 'Dars19.jsx', 'Dars22.jsx',
+  'Dars28.jsx', 'Dars42.jsx', 'Dars51.jsx',
 ]);
 const NO_FINAL_REFLECTION_LESSONS = new Set(
-  Array.from({ length: 9 }, (_, index) => `Dars${String(index + 2).padStart(2, '0')}.jsx`),
+  Array.from({ length: 50 }, (_, index) => `Dars${String(index + 2).padStart(2, '0')}.jsx`),
 );
 // Dars04 slide 1 deliberately stretches the main scene to the answer-frame width.
 const FULL_WIDTH_HOOK_LESSONS = new Set(['Dars04.jsx']);
 const EXPECTED_ANSWER_ORDER_GROUPS = new Map([
   ['Dars02.jsx', 7], ['Dars03.jsx', 6], ['Dars04.jsx', 7], ['Dars05.jsx', 6], ['Dars06.jsx', 7],
-  ['Dars07.jsx', 6], ['Dars08.jsx', 10], ['Dars09.jsx', 3], ['Dars10.jsx', 7], ['Dars11.jsx', 3],
-  ['Dars12.jsx', 4], ['Dars13.jsx', 6], ['Dars14.jsx', 3], ['Dars15.jsx', 3], ['Dars16.jsx', 2],
-  ['Dars17.jsx', 8], ['Dars18.jsx', 4], ['Dars19.jsx', 5], ['Dars20.jsx', 5], ['Dars21.jsx', 8],
-  ['Dars22.jsx', 7], ['Dars23.jsx', 5], ['Dars24.jsx', 5], ['Dars25.jsx', 5], ['Dars26.jsx', 4],
-  ['Dars27.jsx', 4], ['Dars28.jsx', 6], ['Dars29.jsx', 5], ['Dars30.jsx', 5],
+  ['Dars07.jsx', 6], ['Dars08.jsx', 10], ['Dars09.jsx', 3], ['Dars10.jsx', 7], ['Dars11.jsx', 4],
+  ['Dars12.jsx', 5], ['Dars13.jsx', 6], ['Dars14.jsx', 3], ['Dars15.jsx', 4], ['Dars16.jsx', 4],
+  ['Dars17.jsx', 10], ['Dars18.jsx', 6], ['Dars19.jsx', 5], ['Dars20.jsx', 5], ['Dars21.jsx', 8],
+  ['Dars22.jsx', 7], ['Dars23.jsx', 7], ['Dars24.jsx', 9], ['Dars25.jsx', 7], ['Dars26.jsx', 7],
+  ['Dars27.jsx', 7], ['Dars28.jsx', 7], ['Dars29.jsx', 7],
+  // Dars30 kit ustida qaytadan qurildi: 16 ekran, aralashtiriladigan yettita
+  // javob guruhi (s0, s2, s8, s10, s13, s14 va yakuniy refleksiya; s12 da
+  // tartib tabiiy chiqadi).
+  ['Dars30.jsx', 7],
   ...Array.from({ length: 4 }, (_, index) => [`Dars${String(index + 31).padStart(2, '0')}.jsx`, 6]),
   ['Dars35.jsx', 7],
   ...Array.from({ length: 5 }, (_, index) => [`Dars${String(index + 36).padStart(2, '0')}.jsx`, 6]),
@@ -604,6 +608,20 @@ async function lessonSnapshot(page) {
       documentHeight: Math.max(document.documentElement.scrollHeight, document.body?.scrollHeight ?? 0),
       viewportHeight: window.innerHeight,
       overflowTargets,
+      // overflow:hidden keeps scrollHeight equal to clientHeight, so an element
+      // rendered past the padding box is invisible AND unreported by scroll math.
+      clippedChildren: (() => {
+        if (!stageContent) return [];
+        const box = stageContent.getBoundingClientRect();
+        const out = [];
+        for (const element of stageContent.querySelectorAll('*')) {
+          const rect = element.getBoundingClientRect();
+          if (rect.height < 1 || rect.width < 1) continue;
+          const over = Math.max(rect.bottom - box.bottom, rect.right - box.right, box.left - rect.left, box.top - rect.top);
+          if (over > 1.5) out.push(describe(element) + ' +' + Math.round(over) + 'px');
+        }
+        return [...new Set(out)].slice(0, 6);
+      })(),
       emptyAriaLabels,
       clippedText,
       panelIssues: [...new Set(panelIssues)].slice(0, 10),
@@ -631,6 +649,9 @@ function snapshotIssues(snapshot, lang) {
   }
   if (snapshot.contentScrollWidth > snapshot.contentClientWidth + 1) {
     issues.push('stage-content gorizontal scroll ' + snapshot.contentScrollWidth + '/' + snapshot.contentClientWidth);
+  }
+  if (snapshot.clippedChildren?.length) {
+    issues.push('stage-content kesilgan bola elementlar: ' + snapshot.clippedChildren.join(', '));
   }
   if (snapshot.contentScrollHeight > snapshot.contentClientHeight + 1) {
     issues.push('stage-content vertikal scroll ' + snapshot.contentScrollHeight + '/' + snapshot.contentClientHeight);
@@ -4694,6 +4715,11 @@ async function assertStandardFinalLayout(page, lesson, issuePrefix) {
   }
   if (!contract.titleBeforeSteps) throw new Error(issuePrefix + ': unvon qismi takeaway qismidan oldin/chapda emas');
   if (!contract.spanningRows) throw new Error(issuePrefix + ': proof yoki bridge to\'liq kenglikni egallamadi');
+  if (lesson.file === 'Dars51.jsx') {
+    if (!contract.terminal || !/(KURS YAKUNI|ИТОГ КУРСА|COURSE COMPLETE)/u.test(contract.bridgeText)) {
+      throw new Error(issuePrefix + ': Dars51 terminal kurs-yakuni ko\'prigi saqlanmadi');
+    }
+  }
 }
 
 async function naturallyRevealStrictFinalReward(page, lesson, issuePrefix) {
