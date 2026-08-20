@@ -15,6 +15,24 @@ import path from 'node:path'
 const DIR = 'src/components/grade7'
 const problems = []
 
+// UZBEKCHA SATR BITTA QAVSDA BO'LMAYDI (loyiha qoidasi, CLAUDE.md §7).
+// Sabab amaliy: L('ko'paytirish', ...) dagi apostrof satrni UZIB qo'yadi va
+// sahifa ochilmaydi. Bu 2026-08-20 da IKKI MARTA sodir bo'ldi (14 va
+// 15-darslar). Build uni tutadi, lekin build sekin ishlaydi -- bu tekshiruv
+// esa bir zumda.
+const singleQuotedApostrophe = (src, file) => {
+  src.split(String.fromCharCode(10)).forEach((line, i) => {
+    // FAQAT `L(` chaqiruvi. Umumiy qoida bo'lsa, tekshiruv izohlardagi
+    // apostroflarni ham ushlab, 4883 ta yolg'on xabar berardi -- shunday
+    // tekshiruvni hech kim o'qimaydi. Bu yerda naqsh aniq: birinchi
+    // argument uzilgan bo'lsa, yopilish qavsidan keyin DARROV harf keladi.
+    if (line.trim().startsWith('//')) return
+    // Ekranlangan apostrof (\') to'g'ri yozuv -- u satrni uzmaydi.
+    const m = line.match(/L\('(?:[^'\\]|\\.)*'[A-Za-z]/)
+    if (m) problems.push(`${file}:${i + 1} bitta qavsdagi satrda apostrof: ${m[0].slice(0, 32)} -- qo'sh qavs kerak`)
+  })
+}
+
 // 2026-08-13: `Dars01.jsx` endi ro'yxatdan chiqarilmaydi. Ilgari bu yerda
 // metodist 2026-08-05 da rad etgan prototip turardi; u NOLDAN qayta yozildi
 // (DARS01_SKELET.md, DARS01_KONTENT.md) va `src/lessons/grade7.js` ga ulandi,
@@ -89,6 +107,8 @@ for (const file of files) {
       if (line.includes(ch)) problems.push(`${file}:${i + 1} ${label}`)
     })
   }
+
+  singleQuotedApostrophe(text, file)
 
   // 2-3. Ovoz satrlari: A('<qadam>', "uz", 'ru', 'en')
   // DIQQAT: qo'shtirnoq JS chegarasi bo'lishi mumkin (UZ satrlarida ASCII

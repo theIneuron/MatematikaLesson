@@ -127,6 +127,16 @@ export const grade7Nazariy = [
     desc: "Ko'paytirishda qo'shiladi, bo'lishda ayiriladi, darajaning darajasida ko'paytiriladi. 15 slayd, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade7/Dars14.jsx')),
   },
+  {
+    // STANDART SHAKL = TARTIBLANGAN LENTA. Lenta endi ARALASH: sonlar va
+    // harflar birga. Asbob lentada nima borligini sanaydi, yozuvni esa
+    // o'quvchi yig'adi. Darsning o'zagi -- koeffitsiyent ishorasi:
+    // darslik aniq aytadi, −b ning koeffitsiyenti (−1).
+    slug: 'dars15-bir-had',
+    title: 'Dars 15. Bir had va uning standart shakli',
+    desc: "Sonlar ko'paytiriladi, harflar sanaladi, koeffitsiyent oldinda. −b ning koeffitsiyenti minus bir. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade7/Dars15.jsx')),
+  },
 ]
 
 // 7-sinf AMALIY mashg'ulotlari. Har nazariy darsga 10 tekshiriladigan

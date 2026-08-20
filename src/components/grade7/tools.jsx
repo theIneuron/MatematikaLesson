@@ -69,6 +69,7 @@ export const UI = {
   ruleHere: L("Qoida shu yerda yig'iladi", 'Здесь собирается правило', 'The rule is built here'),
   step: L('qadam', 'шаг', 'step'),
   ftMul: L('Muljitellar:', 'Множителей:', 'Factors:'),
+  ftNums: L('Sonlar:', 'Числа:', 'Numbers:'),
   ftSum: L("Qo'shiluvchilar:", 'Слагаемых:', 'Terms:'),
   dlMiss: L(
     "Bu nuqtagacha masofa",
@@ -2417,9 +2418,16 @@ export function EquationBalance({ start, actions, done, onSolved, onStep, disabl
 //            qo'shiladi va nega ko'paytiriladi -- shu bo'linishda ko'rinadi.
 //   cross  -- oxiridan nechta element O'CHIRILADI: bo'lish shunday ishlaydi,
 //            umumiy muljitellar qisqaradi.
+// KENGAYTIRISH (15-dars): `mixed`.
+//   mixed -- lenta HAR XIL elementlardan iborat: 2 · a · 3 · b · a.
+//   Bir had standart shaklga aynan shu tarzda keltiriladi: sonlar birga
+//   ko'paytiriladi, bir xil harflar sanaladi.
+//   ASBOB JAVOBNI YIG'MAYDI: u faqat lentada NIMA borligini sanab beradi
+//   (sonlar ro'yxati va har harfning soni). Ko'paytirishni va yozuvni
+//   o'quvchi o'zi qiladi -- aks holda tanlash bo'sh ishga aylanadi.
 export function FactorTape({
   expr, item, count, join = '·', outside, options, answer, wrongs, note,
-  groups, cross = 0,
+  groups, cross = 0, mixed,
   onSolved, onStep, disabled, audio,
 }) {
   const t = useT()
@@ -2454,8 +2462,24 @@ export function FactorTape({
     fx.wrong(w ? w.hint : null)
   }
 
+  const list = mixed && mixed.length ? mixed : null
+  const total = list ? list.length : count
   const cells = []
-  for (let i = 0; i < count; i += 1) cells.push(i)
+  for (let i = 0; i < total; i += 1) cells.push(i)
+
+  // LENTADA NIMA BOR. Sonlar alohida, harflar alohida sanaladi. Bu hisob
+  // ma'lumotdan olinmaydi, u lentaning o'zidan chiqadi.
+  let tally = null
+  if (list) {
+    const nums = []
+    const letters = {}
+    list.forEach((e) => {
+      const v = String(e).trim()
+      if (/^[−-]?\d+(?:[.,]\d+)?$/.test(v)) nums.push(v)
+      else letters[v] = (letters[v] || 0) + 1
+    })
+    tally = { nums, letters: Object.keys(letters).sort().map((k) => ({ k, n: letters[k] })) }
+  }
 
   return (
     <>
@@ -2505,15 +2529,22 @@ export function FactorTape({
                         unga tushadi. Aks holda chiziq ajratgichni ham
                         kesib o'tadi va ko'paytirish nuqtasi MINUSGA
                         o'xshab qoladi (surat 2026-08-20). */}
-                    <span className="g7-ft-val"><Fx>{item}</Fx></span>
+                    <span className="g7-ft-val"><Fx>{list ? String(list[i]) : item}</Fx></span>
                   </span>
                 )
               })}
             </span>
-            <span className={'g7-ft-cnt' + (isSum ? ' is-sum' : '')}>
-              {t(isSum ? UI.ftSum : UI.ftMul)} {count}
-              {cross > 0 ? ' − ' + cross + ' = ' + (count - cross) : ''}
-            </span>
+            {tally ? (
+              <span className="g7-ft-cnt">
+                {t(UI.ftNums)} {tally.nums.join(' · ')}
+                {tally.letters.map((x) => '   ' + x.k + ': ' + x.n).join('')}
+              </span>
+            ) : (
+              <span className={'g7-ft-cnt' + (isSum ? ' is-sum' : '')}>
+                {t(isSum ? UI.ftSum : UI.ftMul)} {count}
+                {cross > 0 ? ' − ' + cross + ' = ' + (count - cross) : ''}
+              </span>
+            )}
           </div>
         ) : null}
       </Slot>
