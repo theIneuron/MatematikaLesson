@@ -150,6 +150,15 @@ export const grade7Nazariy = [
     desc: "Koeffitsiyentlar ko'paytiriladi, bir xil harflarning ko'rsatkichlari qo'shiladi. 15 slayd, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade7/Dars16.jsx')),
   },
+  {
+    // B3 BLOKINING OXIRGI DARSI. Bir hadni darajaga ko'tarish -- butun
+    // lentani n marta takrorlash. Chegaraviy holat darslikdan (37-bet):
+    // bo'linuvchining ko'rsatkichi kattaroq bo'lsa, natija BIR HAD EMAS.
+    slug: 'dars17-bir-had-darajasi',
+    title: 'Dars 17. Bir hadning darajasi',
+    desc: "Koeffitsiyent darajaga ko'tariladi, harf ko'rsatkichlari ko'paytiriladi. Bo'linish har doim bir had bermaydi. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade7/Dars17.jsx')),
+  },
 ]
 
 // 7-sinf AMALIY mashg'ulotlari. Har nazariy darsga 10 tekshiriladigan
@@ -190,5 +199,11 @@ export const grade7Amaliy = [
     title: "Dars 2. Amaliyot: o'zgaruvchili ifodalar",
     desc: "10 topshiriq: yashiringan ko'paytirish, manfiy son qo'yish, ikki o'zgaruvchi, bir harf ikki joyda, vaziyatdan yozuvga va nolga bo'lish chegarasi. Yetti xil mexanika, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade7/practice/dars02/Dars02Practice.jsx')),
+  },
+  {
+    slug: 'dars03-amaliyot-amallar-xossalari',
+    title: 'Dars 3. Amaliyot: amallarning xossalari',
+    desc: "10 topshiriq: qulay tartib, yumaloq juftlik, bo'lib ko'paytirish, yarim yo'lda qolgan taqsimot va o'rin almashtirish qayerda ishlaydi. Yetti xil mexanika, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade7/practice/dars03/Dars03Practice.jsx')),
   },
 ]
