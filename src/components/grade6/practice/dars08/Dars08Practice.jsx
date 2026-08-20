@@ -14,7 +14,8 @@ import D08_10 from './D08_10.jsx';
 const ITEMS = [D08_01, D08_02, D08_03, D08_04, D08_05, D08_06, D08_07, D08_08, D08_09, D08_10];
 const TITLE = {
   "uz": "Dars 8 amaliyoti. Kasrlarni qisqartirish",
-  "ru": "Практика к уроку 8. Сокращение дробей"
+  "ru": "Практика к уроку 8. Сокращение дробей",
+  "en": "Lesson 8 practice. Reducing fractions"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars08Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

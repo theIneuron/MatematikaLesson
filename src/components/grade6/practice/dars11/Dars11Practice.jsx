@@ -14,7 +14,8 @@ import D11_10 from './D11_10.jsx';
 const ITEMS = [D11_01, D11_02, D11_03, D11_04, D11_05, D11_06, D11_07, D11_08, D11_09, D11_10];
 const TITLE = {
   "uz": "Dars 11 amaliyoti. Oddiy kasrlarni ko'paytirish",
-  "ru": "Практика к уроку 11. Умножение обыкновенных дробей"
+  "ru": "Практика к уроку 11. Умножение обыкновенных дробей",
+  "en": "Lesson 11 practice. Multiplying common fractions"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars11Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

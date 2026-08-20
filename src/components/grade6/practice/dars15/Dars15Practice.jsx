@@ -14,7 +14,8 @@ import D15_10 from './D15_10.jsx';
 const ITEMS = [D15_01, D15_02, D15_03, D15_04, D15_05, D15_06, D15_07, D15_08, D15_09, D15_10];
 const TITLE = {
   "uz": "Dars 15 amaliyoti. Davriy o'nli kasrlar va yaxlitlash",
-  "ru": "Практика к уроку 15. Периодические дроби и округление"
+  "ru": "Практика к уроку 15. Периодические дроби и округление",
+  "en": "Lesson 15 practice. Repeating decimals and rounding"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars15Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

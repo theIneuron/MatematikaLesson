@@ -14,7 +14,8 @@ import D19_10 from './D19_10.jsx';
 const ITEMS = [D19_01, D19_02, D19_03, D19_04, D19_05, D19_06, D19_07, D19_08, D19_09, D19_10];
 const TITLE = {
   "uz": "Dars 19 amaliyoti. To'g'ri va teskari proporsional miqdorlar",
-  "ru": "Практика к уроку 19. Прямая и обратная пропорциональность"
+  "ru": "Практика к уроку 19. Прямая и обратная пропорциональность",
+  "en": "Lesson 19 practice. Direct and inverse proportion"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars19Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

@@ -14,7 +14,8 @@ import D30_10 from './D30_10.jsx';
 const ITEMS = [D30_01, D30_02, D30_03, D30_04, D30_05, D30_06, D30_07, D30_08, D30_09, D30_10];
 const TITLE = {
   "uz": "Dars 30 amaliyoti. Koordinata tekisligi",
-  "ru": "Практика к уроку 30. Координатная плоскость"
+  "ru": "Практика к уроку 30. Координатная плоскость",
+  "en": "Lesson 30 practice. The coordinate plane"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars30Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

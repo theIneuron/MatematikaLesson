@@ -14,7 +14,8 @@ import D34_10 from './D34_10.jsx';
 const ITEMS = [D34_01, D34_02, D34_03, D34_04, D34_05, D34_06, D34_07, D34_08, D34_09, D34_10];
 const TITLE = {
   "uz": "Dars 34 amaliyoti. Chiziqli tenglamalar",
-  "ru": "Практика к уроку 34. Линейные уравнения"
+  "ru": "Практика к уроку 34. Линейные уравнения",
+  "en": "Lesson 34 practice. Linear equations"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars34Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

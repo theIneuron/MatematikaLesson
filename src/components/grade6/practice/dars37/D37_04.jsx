@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Aylana va doira",
-    "ru": "Окружность и круг"
+    "ru": "Окружность и круг",
+    "en": "The circle and the disc"
   },
   "prompt": {
     "uz": "Aylana va uning ichki qismi birgalikda nima deyiladi?",
-    "ru": "Как называется окружность вместе с внутренней областью?"
+    "ru": "Как называется окружность вместе с внутренней областью?",
+    "en": "What is a circle together with the part inside it called?"
   },
   "options": [
     "yoy",
@@ -23,9 +25,16 @@ const ITEM = {
     "vatar": "хорда",
     "radius": "радиус"
   },
+  "translationsEn": {
+    "yoy": "arc",
+    "doira": "disc",
+    "vatar": "chord",
+    "radius": "radius"
+  },
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, doira hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается doira."
+    "ru": "После последовательного применения правила темы к данным условия получается круг.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get the disc."
   }
 };
 

@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Kasrni to'liq qisqartirish",
-    "ru": "Практика к уроку 7. Основное свойство дроби"
+    "ru": "Практика к уроку 7. Основное свойство дроби",
+    "en": "Reducing a fraction completely"
   },
   "prompt": {
     "uz": "35/49 kasrini eng sodda ko'rinishgacha qisqartiring.",
-    "ru": "Сократите дробь 35/49 до несократимого вида."
+    "ru": "Сократите дробь 35/49 до несократимого вида.",
+    "en": "Reduce the fraction 35/49 to its simplest form."
   },
   "options": [
     "5/7",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "5/7",
   "explanation": {
     "uz": "35 va 49 ni 7 ga bo'lamiz: 35/49 = 5/7.",
-    "ru": "Правильный ответ: 5/7. При умножении или делении числителя и знаменателя на одно число значение дроби не меняется."
+    "ru": "Правильный ответ: 5/7. При умножении или делении числителя и знаменателя на одно число значение дроби не меняется.",
+    "en": "Divide 35 and 49 by 7: 35/49 = 5/7."
   }
 };
 

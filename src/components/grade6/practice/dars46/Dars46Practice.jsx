@@ -14,7 +14,8 @@ import D46_10 from './D46_10.jsx';
 const ITEMS = [D46_01, D46_02, D46_03, D46_04, D46_05, D46_06, D46_07, D46_08, D46_09, D46_10];
 const TITLE = {
   "uz": "Dars 46 amaliyoti. Geometriya va ma'lumotlar bo'limi yakuni",
-  "ru": "Практика к уроку 46. Итог раздела геометрии и данных"
+  "ru": "Практика к уроку 46. Итог раздела геометрии и данных",
+  "en": "Lesson 46 practice. Wrap-up of the geometry and data block"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars46Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

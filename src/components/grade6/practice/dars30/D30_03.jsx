@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Koordinata tekisligi",
-    "ru": "Координатная плоскость"
+    "ru": "Координатная плоскость",
+    "en": "The coordinate plane"
   },
   "prompt": {
     "uz": "Nuqtalarni ular joylashgan chorak bilan moslashtiring.",
-    "ru": "Соедините точки с четвертями, в которых они находятся."
+    "ru": "Соедините точки с четвертями, в которых они находятся.",
+    "en": "Match the points with the quadrants they are in."
   },
   "left": [
     "P(2; 6)",
@@ -27,7 +29,8 @@ const ITEM = {
   ],
   "explanation": {
     "uz": "I: (+;+), III: (−;−), IV: (+;−).",
-    "ru": "I: (+;+), III: (−;−), IV: (+;−)."
+    "ru": "I: (+;+), III: (−;−), IV: (+;−).",
+    "en": "I: (+;+), III: (−;−), IV: (+;−)."
   }
 };
 

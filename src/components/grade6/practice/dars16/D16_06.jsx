@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Amalni tanlash",
-    "ru": "Практика к уроку 16. Задачи с дробями и десятичными дробями"
+    "ru": "Практика к уроку 16. Задачи с дробями и десятичными дробями",
+    "en": "Choosing the operation"
   },
   "prompt": {
     "uz": "Masala mazmuniga qarab bajariladigan birinchi amalni moslashtiring. Har bir vaziyatda nima topilayotganiga e'tibor bering.",
-    "ru": "Соедините каждую ситуацию с первым действием, необходимым для решения."
+    "ru": "Соедините каждую ситуацию с первым действием, необходимым для решения.",
+    "en": "Match each situation with the first operation its solution needs. Look at what is being found in each case."
   },
   "left": [
     "Ikki idishdagi yog'ni birlashtirish",
@@ -33,9 +35,18 @@ const ITEM = {
     "Ko'paytirish": "Умножение",
     "Qo'shish": "Сложение"
   },
+  "translationsEn": {
+    "Ikki idishdagi yog'ni birlashtirish": "Putting together the oil from two cans",
+    "Jami yo'ldan yurilganini topish": "Finding how much of the whole route has been walked",
+    "Sonning 4/7 qismini aniqlash": "Finding 4/7 of a number",
+    "Ayirish": "Subtraction",
+    "Ko'paytirish": "Multiplication",
+    "Qo'shish": "Addition"
+  },
   "explanation": {
     "uz": "Birlashtirishda qo'shamiz, qoldiqda ayiramiz, sonning qismini topishda ko'paytiramiz.",
-    "ru": "Все пары найдены правильно. Сначала величины приводят к одному виду, затем выполняют нужное действие."
+    "ru": "Все пары найдены правильно. Сначала величины приводят к одному виду, затем выполняют нужное действие.",
+    "en": "Putting things together means adding, what is left means subtracting, and a part of a number means multiplying."
   }
 };
 

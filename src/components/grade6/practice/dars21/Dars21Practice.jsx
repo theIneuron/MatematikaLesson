@@ -14,7 +14,8 @@ import D21_10 from './D21_10.jsx';
 const ITEMS = [D21_01, D21_02, D21_03, D21_04, D21_05, D21_06, D21_07, D21_08, D21_09, D21_10];
 const TITLE = {
   "uz": "Dars 21 amaliyoti. Foizlar",
-  "ru": "Практика к уроку 21. Проценты"
+  "ru": "Практика к уроку 21. Проценты",
+  "en": "Lesson 21 practice. Percentages"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars21Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

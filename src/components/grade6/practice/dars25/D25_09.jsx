@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Ikki son orasidagi masofa",
-    "ru": "Практика к уроку 25. Модуль числа"
+    "ru": "Практика к уроку 25. Модуль числа",
+    "en": "The distance between two numbers"
   },
   "prompt": {
     "uz": "Har bir sonlar juftini ularning orasidagi masofa bilan moslashtiring.",
-    "ru": "Соедините пары чисел с расстоянием между ними."
+    "ru": "Соедините пары чисел с расстоянием между ними.",
+    "en": "Match each pair of numbers with the distance between them."
   },
   "left": [
     "−4 va 9",
@@ -30,9 +32,15 @@ const ITEM = {
     "−7 va −2": "−7 и −2",
     "3 va 11": "3 и 11"
   },
+  "translationsEn": {
+    "−4 va 9": "−4 and 9",
+    "−7 va −2": "−7 and −2",
+    "3 va 11": "3 and 11"
+  },
   "explanation": {
     "uz": "|9 − (−4)| = 13; |−2 − (−7)| = 5; |11 − 3| = 8.",
-    "ru": "Все пары найдены правильно. Модуль числа — его расстояние от нуля, поэтому модуль не бывает отрицательным."
+    "ru": "Все пары найдены правильно. Модуль числа — его расстояние от нуля, поэтому модуль не бывает отрицательным.",
+    "en": "|9 − (−4)| = 13; |−2 − (−7)| = 5; |11 − 3| = 8."
   }
 };
 

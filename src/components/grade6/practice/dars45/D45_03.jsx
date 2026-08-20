@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Ma'lumotlar bilan ishlash",
-    "ru": "Работа с данными"
+    "ru": "Работа с данными",
+    "en": "Working with data"
   },
   "prompt": {
     "uz": "Har bir yozuvni unga mos javob yoki tavsif bilan bog‘lang.",
-    "ru": "Соедините каждую запись с подходящим ответом или описанием."
+    "ru": "Соедините каждую запись с подходящим ответом или описанием.",
+    "en": "Connect each record with the answer or the description that fits it."
   },
   "left": [
     "2,2,3,5",
@@ -30,9 +32,15 @@ const ITEM = {
     "mediana=4": "медиана=4",
     "o‘rtacha=9": "среднее=9"
   },
+  "translationsEn": {
+    "moda=2": "mode=2",
+    "mediana=4": "median=4",
+    "o‘rtacha=9": "mean=9"
+  },
   "explanation": {
     "uz": "Har bir chap kartani alohida tekshirish orqali mosliklar topiladi: 2,2,3,5 ↔ moda=2; 1,4,7 ↔ mediana=4; 6,8,10,12 ↔ o‘rtacha=9.",
-    "ru": "Каждая пара найдена по определению или вычислению, указанному в условии темы."
+    "ru": "Каждая пара найдена по определению или вычислению, указанному в условии темы.",
+    "en": "The matches are found by checking every card on the left on its own: 2,2,3,5 ↔ mode=2; 1,4,7 ↔ median=4; 6,8,10,12 ↔ mean=9."
   }
 };
 

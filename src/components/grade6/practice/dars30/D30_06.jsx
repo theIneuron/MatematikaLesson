@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Koordinata tekisligi",
-    "ru": "Координатная плоскость"
+    "ru": "Координатная плоскость",
+    "en": "The coordinate plane"
   },
   "prompt": {
     "uz": "Nuqtalarni koordinata ishoralari bilan bog‘lang.",
-    "ru": "Соедините точки со знаками их координат."
+    "ru": "Соедините точки со знаками их координат.",
+    "en": "Connect the points with the signs of their coordinates."
   },
   "left": [
     "M(−2; 9)",
@@ -27,7 +29,8 @@ const ITEM = {
   ],
   "explanation": {
     "uz": "Koordinatalarning ishoralari nuqtaning choragini aniqlaydi.",
-    "ru": "Знаки координат определяют четверть точки."
+    "ru": "Знаки координат определяют четверть точки.",
+    "en": "The signs of the coordinates tell you the quadrant of the point."
   }
 };
 

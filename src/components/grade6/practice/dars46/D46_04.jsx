@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Geometriya va ma'lumotlar bo'limi yakuni",
-    "ru": "Итог раздела геометрии и данных"
+    "ru": "Итог раздела геометрии и данных",
+    "en": "Wrap-up of the geometry and data block"
   },
   "prompt": {
     "uz": "A(5; −2) nuqtaning markaziy simmetrigini toping.",
-    "ru": "Найдите точку, центрально-симметричную A(5; −2)."
+    "ru": "Найдите точку, центрально-симметричную A(5; −2).",
+    "en": "Find the point symmetrical to A(5; −2) about the centre."
   },
   "options": [
     "(−5;2)",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "(−5;2)",
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, (−5;2) hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается (−5;2)."
+    "ru": "После последовательного применения правила темы к данным условия получается (−5;2).",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get (−5;2)."
   }
 };
 

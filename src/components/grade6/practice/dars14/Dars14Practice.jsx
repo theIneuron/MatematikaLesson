@@ -14,7 +14,8 @@ import D14_10 from './D14_10.jsx';
 const ITEMS = [D14_01, D14_02, D14_03, D14_04, D14_05, D14_06, D14_07, D14_08, D14_09, D14_10];
 const TITLE = {
   "uz": "Dars 14 amaliyoti. O'nli kasrlarni ko'paytirish va bo'lish",
-  "ru": "Практика к уроку 14. Умножение и деление десятичных дробей"
+  "ru": "Практика к уроку 14. Умножение и деление десятичных дробей",
+  "en": "Lesson 14 practice. Multiplying and dividing decimals"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars14Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

@@ -4,11 +4,13 @@ const ITEM = {
   "type": "bool",
   "topic": {
     "uz": "Umumiy maxrajni tekshirish",
-    "ru": "Практика к уроку 9. Приведение дробей к общему знаменателю"
+    "ru": "Практика к уроку 9. Приведение дробей к общему знаменателю",
+    "en": "Checking a common denominator"
   },
   "prompt": {
     "uz": "2/3 va 5/6 kasrlarini 4/6 va 5/6 ko'rinishida umumiy maxrajga keltirish mumkin.",
-    "ru": "Верно ли, что 2/3 и 5/6 можно привести к виду 4/6 и 5/6?"
+    "ru": "Верно ли, что 2/3 и 5/6 можно привести к виду 4/6 и 5/6?",
+    "en": "The fractions 2/3 and 5/6 can be brought to the common denominator as 4/6 and 5/6."
   },
   "options": [
     "Ha",
@@ -19,9 +21,14 @@ const ITEM = {
     "Ha": "Да",
     "Yo'q": "Нет"
   },
+  "translationsEn": {
+    "Ha": "Yes",
+    "Yo'q": "No"
+  },
   "explanation": {
     "uz": "2/3 ni 2 ga kengaytirsak 4/6; ikkinchi kasr 5/6 bo'lib qoladi.",
-    "ru": "Правильный ответ: Да. Наименьший общий знаменатель равен НОК знаменателей."
+    "ru": "Правильный ответ: Да. Наименьший общий знаменатель равен НОК знаменателей.",
+    "en": "Expand 2/3 by 2 and you get 4/6; the second fraction stays 5/6."
   }
 };
 

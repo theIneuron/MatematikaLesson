@@ -4,16 +4,19 @@ const ITEM = {
   "type": "input",
   "topic": {
     "uz": "Ratsional sonlarni ko'paytirish va bo'lish",
-    "ru": "Умножение и деление рациональных чисел"
+    "ru": "Умножение и деление рациональных чисел",
+    "en": "Multiplying and dividing rational numbers"
   },
   "prompt": {
     "uz": "−72 : (−9) bo‘linmaning qiymatini yozing.",
-    "ru": "Запишите значение частного −72 : (−9)."
+    "ru": "Запишите значение частного −72 : (−9).",
+    "en": "Write the value of the quotient −72 : (−9)."
   },
   "answer": "8",
   "explanation": {
     "uz": "Bir xil ishorali sonlar bo‘linmasi musbat: 72 : 9 = 8.",
-    "ru": "Частное чисел с одинаковыми знаками положительно: 72 : 9 = 8."
+    "ru": "Частное чисел с одинаковыми знаками положительно: 72 : 9 = 8.",
+    "en": "The quotient of numbers with the same sign is positive: 72 : 9 = 8."
   }
 };
 

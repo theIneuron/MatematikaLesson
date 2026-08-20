@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Tenglamalarni moslashtirish",
-    "ru": "Практика к уроку 13. Взаимно обратные числа и нахождение целого"
+    "ru": "Практика к уроку 13. Взаимно обратные числа и нахождение целого",
+    "en": "Matching equations"
   },
   "prompt": {
     "uz": "Har bir tenglamada noma'lum butun sonni toping va o'ng ustundagi javob bilan moslashtiring.",
-    "ru": "Решите каждое уравнение и соедините с ответом."
+    "ru": "Решите каждое уравнение и соедините с ответом.",
+    "en": "Find the unknown whole number in each equation and match it with the answer on the right."
   },
   "left": [
     "x × 4/7 = 20",
@@ -27,7 +29,8 @@ const ITEM = {
   ],
   "explanation": {
     "uz": "20 : 4 × 7 = 35, 25 : 5 × 12 = 60, 49 : 7 × 10 = 70.",
-    "ru": "Все пары найдены правильно. Произведение взаимно обратных чисел равно единице."
+    "ru": "Все пары найдены правильно. Произведение взаимно обратных чисел равно единице.",
+    "en": "20 : 4 × 7 = 35, 25 : 5 × 12 = 60, 49 : 7 × 10 = 70."
   }
 };
 

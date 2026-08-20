@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Geometriya va ma'lumotlar bo'limi yakuni",
-    "ru": "Итог раздела геометрии и данных"
+    "ru": "Итог раздела геометрии и данных",
+    "en": "Wrap-up of the geometry and data block"
   },
   "prompt": {
     "uz": "Tomonlari 7, 10 va 12 cm uchburchak perimetrini toping.",
-    "ru": "Найдите периметр треугольника со сторонами 7, 10 и 12 см."
+    "ru": "Найдите периметр треугольника со сторонами 7, 10 и 12 см.",
+    "en": "Find the perimeter of a triangle with the sides 7, 10 and 12 cm."
   },
   "options": [
     "27 cm",
@@ -25,7 +27,8 @@ const ITEM = {
   },
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 29 cm hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 29 cm."
+    "ru": "После последовательного применения правила темы к данным условия получается 29 см.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 29 cm."
   }
 };
 

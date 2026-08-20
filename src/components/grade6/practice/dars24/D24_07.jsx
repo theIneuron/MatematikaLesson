@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Ikki bosqichli siljish",
-    "ru": "Практика к уроку 24. Координатная прямая"
+    "ru": "Практика к уроку 24. Координатная прямая",
+    "en": "A move in two steps"
   },
   "prompt": {
     "uz": "P nuqta 4 koordinatada turibdi. U avval 7 birlik chapga, keyin 3 birlik o'ngga siljidi. Yakuniy koordinatani toping.",
-    "ru": "Точка P(4) переместилась на 7 единиц влево, затем на 3 единицы вправо. Найдите итоговую координату."
+    "ru": "Точка P(4) переместилась на 7 единиц влево, затем на 3 единицы вправо. Найдите итоговую координату.",
+    "en": "Point P stands at the coordinate 4. It moved 7 units to the left first and then 3 units to the right. Find the coordinate it ends at."
   },
   "options": [
     "−6",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "0",
   "explanation": {
     "uz": "4 − 7 + 3 = 0.",
-    "ru": "Правильный ответ: 0. Чем правее расположено число на координатной прямой, тем оно больше."
+    "ru": "Правильный ответ: 0. Чем правее расположено число на координатной прямой, тем оно больше.",
+    "en": "4 − 7 + 3 = 0."
   }
 };
 

@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Qismning foizi",
-    "ru": "Практика к уроку 21. Проценты"
+    "ru": "Практика к уроку 21. Проценты",
+    "en": "The percentage a part makes"
   },
   "prompt": {
     "uz": "18 soni 72 sonining necha foizini tashkil etishini qismni butunga bo'lish orqali toping.",
-    "ru": "Сколько процентов от 72 составляет число 18?"
+    "ru": "Сколько процентов от 72 составляет число 18?",
+    "en": "Divide the part by the whole to find what percentage of 72 the number 18 makes."
   },
   "options": [
     "20%",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "25%",
   "explanation": {
     "uz": "18 : 72 × 100% = 25%.",
-    "ru": "Правильный ответ: 25%. Один процент равен одной сотой части целого."
+    "ru": "Правильный ответ: 25%. Один процент равен одной сотой части целого.",
+    "en": "18 : 72 × 100% = 25%."
   }
 };
 

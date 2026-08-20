@@ -14,7 +14,8 @@ import D03_10 from './D03_10.jsx';
 const ITEMS = [D03_01, D03_02, D03_03, D03_04, D03_05, D03_06, D03_07, D03_08, D03_09, D03_10];
 const TITLE = {
   "uz": "Dars 3 amaliyoti. 3 va 9 ga bo'linish alomatlari",
-  "ru": "Практика к уроку 3. Признаки делимости на 3 и 9"
+  "ru": "Практика к уроку 3. Признаки делимости на 3 и 9",
+  "en": "Lesson 3 practice. Divisibility by 3 and 9"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars03Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

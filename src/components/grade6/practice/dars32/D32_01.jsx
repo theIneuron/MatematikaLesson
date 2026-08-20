@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Qavslarni ochish",
-    "ru": "Раскрытие скобок"
+    "ru": "Раскрытие скобок",
+    "en": "Opening brackets"
   },
   "prompt": {
     "uz": "4(x + 3) ifodani qavslarni ochib yozing.",
-    "ru": "Раскройте скобки в выражении 4(x + 3)."
+    "ru": "Раскройте скобки в выражении 4(x + 3).",
+    "en": "Open the brackets in the expression 4(x + 3) and write it down."
   },
   "options": [
     "4x+3",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "4x+12",
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 4x+12 hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 4x+12."
+    "ru": "После последовательного применения правила темы к данным условия получается 4x+12.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 4x+12."
   }
 };
 

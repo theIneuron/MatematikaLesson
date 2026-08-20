@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Fazoviy shakllar hajmi va o'lchov birliklari",
-    "ru": "Объём пространственных фигур и единицы"
+    "ru": "Объём пространственных фигур и единицы",
+    "en": "The volume of solids and units of measure"
   },
   "prompt": {
     "uz": "O‘lchamlari 3 cm, 4 cm va 5 cm bo‘lgan parallelepiped hajmini toping.",
-    "ru": "Найдите объём параллелепипеда размером 3, 4 и 5 см."
+    "ru": "Найдите объём параллелепипеда размером 3, 4 и 5 см.",
+    "en": "Find the volume of a cuboid with the sides 3 cm, 4 cm and 5 cm."
   },
   "options": [
     "12 cm³",
@@ -25,7 +27,8 @@ const ITEM = {
   },
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 60 cm³ hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 60 cm³."
+    "ru": "После последовательного применения правила темы к данным условия получается 60 см³.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 60 cm³."
   }
 };
 

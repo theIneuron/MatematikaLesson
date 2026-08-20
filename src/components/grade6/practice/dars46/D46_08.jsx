@@ -4,16 +4,19 @@ const ITEM = {
   "type": "input",
   "topic": {
     "uz": "Geometriya va ma'lumotlar bo'limi yakuni",
-    "ru": "Итог раздела геометрии и данных"
+    "ru": "Итог раздела геометрии и данных",
+    "en": "Wrap-up of the geometry and data block"
   },
   "prompt": {
     "uz": "1, 4, 6, 8, 11 qatorining o‘rtacha qiymatini yozing.",
-    "ru": "Запишите среднее ряда 1, 4, 6, 8, 11."
+    "ru": "Запишите среднее ряда 1, 4, 6, 8, 11.",
+    "en": "Write the mean value of the list 1, 4, 6, 8, 11."
   },
   "answer": "6",
   "explanation": {
     "uz": "Hisoblashdagi amallarni to‘g‘ri tartibda bajarsak, javob 6 bo‘ladi.",
-    "ru": "Если выполнить действия в правильном порядке, получится ответ 6."
+    "ru": "Если выполнить действия в правильном порядке, получится ответ 6.",
+    "en": "Do the operations of the calculation in the right order and the answer is 6."
   }
 };
 

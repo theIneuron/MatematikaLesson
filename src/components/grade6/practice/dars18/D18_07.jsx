@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Noma'lum chetki had",
-    "ru": "Практика к уроку 18. Пропорция"
+    "ru": "Практика к уроку 18. Пропорция",
+    "en": "The unknown outer term"
   },
   "prompt": {
     "uz": "x : 18 = 7 : 9 proporsiyada noma'lum x ni toping. Javobni dastlabki nisbatga qo'yib tekshiring.",
-    "ru": "Найдите x в пропорции x : 18 = 7 : 9."
+    "ru": "Найдите x в пропорции x : 18 = 7 : 9.",
+    "en": "Find the unknown x in the proportion x : 18 = 7 : 9. Put the answer back into the first ratio to check it."
   },
   "options": [
     "12",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "14",
   "explanation": {
     "uz": "9x = 18 × 7 = 126; x = 14.",
-    "ru": "Правильный ответ: 14. В пропорции произведение крайних членов равно произведению средних."
+    "ru": "Правильный ответ: 14. В пропорции произведение крайних членов равно произведению средних.",
+    "en": "9x = 18 × 7 = 126; x = 14."
   }
 };
 

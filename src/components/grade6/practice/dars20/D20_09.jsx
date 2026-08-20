@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Xarita va haqiqat",
-    "ru": "Практика к уроку 20. Масштаб"
+    "ru": "Практика к уроку 20. Масштаб",
+    "en": "The map and the ground"
   },
   "prompt": {
     "uz": "Har bir haqiqiy masofani berilgan masshtabdagi xarita uzunligi bilan moslashtiring.",
-    "ru": "Соедините реальные расстояния с длиной на карте при указанном масштабе."
+    "ru": "Соедините реальные расстояния с длиной на карте при указанном масштабе.",
+    "en": "Match each real distance with the length on the map at the given scale."
   },
   "left": [
     "30 km, 1 : 500 000",
@@ -35,7 +37,8 @@ const ITEM = {
   },
   "explanation": {
     "uz": "30 km ga 6 cm, 8 km ga 4 cm, 900 m ga 3 cm mos keladi.",
-    "ru": "Все пары найдены правильно. В масштабе 1 : n одному сантиметру на карте соответствуют n сантиметров на местности."
+    "ru": "Все пары найдены правильно. В масштабе 1 : n одному сантиметру на карте соответствуют n сантиметров на местности.",
+    "en": "30 km go with 6 cm, 8 km with 4 cm, and 900 m with 3 cm."
   }
 };
 

@@ -14,7 +14,8 @@ import D02_10 from './D02_10.jsx';
 const ITEMS = [D02_01, D02_02, D02_03, D02_04, D02_05, D02_06, D02_07, D02_08, D02_09, D02_10];
 const TITLE = {
   "uz": "Dars 2 amaliyoti. 2, 5 va 10 ga bo'linish alomatlari",
-  "ru": "Практика к уроку 2. Признаки делимости на 2, 5 и 10"
+  "ru": "Практика к уроку 2. Признаки делимости на 2, 5 и 10",
+  "en": "Lesson 2 practice. Divisibility by 2, 5 and 10"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars02Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

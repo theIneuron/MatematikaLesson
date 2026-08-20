@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Doira yuzi",
-    "ru": "Площадь круга"
+    "ru": "Площадь круга",
+    "en": "The area of a disc"
   },
   "prompt": {
     "uz": "Radiusi 4 cm bo‘lgan doira yuzini π=3,14 da toping.",
-    "ru": "Найдите площадь круга радиуса 4 см при π=3,14."
+    "ru": "Найдите площадь круга радиуса 4 см при π=3,14.",
+    "en": "Find the area of a disc with the radius 4 cm, taking π=3,14."
   },
   "options": [
     "12,56 cm²",
@@ -25,7 +27,8 @@ const ITEM = {
   },
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 50,24 cm² hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 50,24 cm²."
+    "ru": "После последовательного применения правила темы к данным условия получается 50,24 см².",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 50,24 cm²."
   }
 };
 

@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Rejadagi uzunlik",
-    "ru": "Практика к уроку 20. Масштаб"
+    "ru": "Практика к уроку 20. Масштаб",
+    "en": "A length on a plan"
   },
   "prompt": {
     "uz": "Bog' rejasida 1 : 500 masshtab ishlatilgan. Rejadagi 8 santimetr haqiqiy uzunlikda necha metr bo'ladi?",
-    "ru": "План сада выполнен в масштабе 1 : 500. Сколько метров изображают 8 сантиметров?"
+    "ru": "План сада выполнен в масштабе 1 : 500. Сколько метров изображают 8 сантиметров?",
+    "en": "The plan of a garden is drawn to the scale 1 : 500. How many real metres do 8 centimetres on the plan stand for?"
   },
   "options": [
     "20 m",
@@ -25,7 +27,8 @@ const ITEM = {
   },
   "explanation": {
     "uz": "8 × 500 = 4 000 cm = 40 metr.",
-    "ru": "Правильный ответ: 40 м. В масштабе 1 : n одному сантиметру на карте соответствуют n сантиметров на местности."
+    "ru": "Правильный ответ: 40 м. В масштабе 1 : n одному сантиметру на карте соответствуют n сантиметров на местности.",
+    "en": "8 × 500 = 4 000 cm = 40 metres."
   }
 };
 

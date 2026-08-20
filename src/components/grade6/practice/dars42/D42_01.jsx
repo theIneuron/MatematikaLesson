@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Uchburchak elementlari, turlari va perimetri",
-    "ru": "Элементы, виды и периметр треугольника"
+    "ru": "Элементы, виды и периметр треугольника",
+    "en": "Elements, kinds and perimeter of a triangle"
   },
   "prompt": {
     "uz": "Tomonlari 5 cm, 7 cm va 8 cm bo‘lgan uchburchak perimetrini toping.",
-    "ru": "Найдите периметр треугольника со сторонами 5, 7 и 8 см."
+    "ru": "Найдите периметр треугольника со сторонами 5, 7 и 8 см.",
+    "en": "Find the perimeter of a triangle with the sides 5 cm, 7 cm and 8 cm."
   },
   "options": [
     "18 cm",
@@ -25,7 +27,8 @@ const ITEM = {
   },
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 20 cm hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 20 cm."
+    "ru": "После последовательного применения правила темы к данным условия получается 20 см.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 20 cm."
   }
 };
 

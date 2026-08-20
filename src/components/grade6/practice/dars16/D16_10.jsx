@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Ikki bosqichli masala",
-    "ru": "Практика к уроку 16. Задачи с дробями и десятичными дробями"
+    "ru": "Практика к уроку 16. Задачи с дробями и десятичными дробями",
+    "en": "A problem in two steps"
   },
   "prompt": {
     "uz": "24 metrlik matoning 5/12 qismi ishlatildi, keyin yana 3,5 metr sarflandi. Qancha mato qolganini toping.",
-    "ru": "Из 24 метров ткани использовали 5/12 всей ткани, а затем ещё 3,5 метра. Сколько ткани осталось?"
+    "ru": "Из 24 метров ткани использовали 5/12 всей ткани, а затем ещё 3,5 метра. Сколько ткани осталось?",
+    "en": "5/12 of 24 metres of cloth was used, and then another 3,5 metres. Find how much cloth is left."
   },
   "options": [
     "9,5 m",
@@ -25,7 +27,8 @@ const ITEM = {
   },
   "explanation": {
     "uz": "24 × 5/12 = 10 metr, jami 13,5 metr ishlatildi; 24 − 13,5 = 10,5 metr.",
-    "ru": "Правильный ответ: 10,5 м. Сначала величины приводят к одному виду, затем выполняют нужное действие."
+    "ru": "Правильный ответ: 10,5 м. Сначала величины приводят к одному виду, затем выполняют нужное действие.",
+    "en": "24 × 5/12 = 10 metres, so 13,5 metres were used altogether; 24 − 13,5 = 10,5 metres."
   }
 };
 

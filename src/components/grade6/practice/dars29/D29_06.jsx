@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Ratsional sonlarni ko'paytirish va bo'lish",
-    "ru": "Умножение и деление рациональных чисел"
+    "ru": "Умножение и деление рациональных чисел",
+    "en": "Multiplying and dividing rational numbers"
   },
   "prompt": {
     "uz": "Kasrli amallarni javoblari bilan bog‘lang.",
-    "ru": "Соедините действия с дробями с ответами."
+    "ru": "Соедините действия с дробями с ответами.",
+    "en": "Connect the operations with fractions with their answers."
   },
   "left": [
     "−2/3 · 9/4",
@@ -27,7 +29,8 @@ const ITEM = {
   ],
   "explanation": {
     "uz": "Qisqartirib hisoblanganda natijalar −3/2, −2/3 va −1/4 chiqadi.",
-    "ru": "После сокращения получаем −3/2, −2/3 и −1/4."
+    "ru": "После сокращения получаем −3/2, −2/3 и −1/4.",
+    "en": "After cancelling the results are −3/2, −2/3 and −1/4."
   }
 };
 

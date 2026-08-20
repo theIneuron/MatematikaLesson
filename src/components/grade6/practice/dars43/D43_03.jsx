@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Uchburchak va murakkab shakllar yuzi",
-    "ru": "Площадь треугольника и сложных фигур"
+    "ru": "Площадь треугольника и сложных фигур",
+    "en": "The area of a triangle and of compound shapes"
   },
   "prompt": {
     "uz": "Har bir yozuvni unga mos javob yoki tavsif bilan bog‘lang.",
-    "ru": "Соедините каждую запись с подходящим ответом или описанием."
+    "ru": "Соедините каждую запись с подходящим ответом или описанием.",
+    "en": "Connect each record with the answer or the description that fits it."
   },
   "left": [
     "a=8,h=4",
@@ -27,7 +29,8 @@ const ITEM = {
   ],
   "explanation": {
     "uz": "Har bir chap kartani alohida tekshirish orqali mosliklar topiladi: a=8,h=4 ↔ 16; a=9,h=6 ↔ 27; a=12,h=5 ↔ 30.",
-    "ru": "Каждая пара найдена по определению или вычислению, указанному в условии темы."
+    "ru": "Каждая пара найдена по определению или вычислению, указанному в условии темы.",
+    "en": "The matches are found by checking every card on the left on its own: a=8, h=4 ↔ 16; a=9, h=6 ↔ 27; a=12, h=5 ↔ 30."
   }
 };
 

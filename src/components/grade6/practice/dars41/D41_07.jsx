@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Markaziy simmetriya",
-    "ru": "Центральная симметрия"
+    "ru": "Центральная симметрия",
+    "en": "Point symmetry"
   },
   "prompt": {
     "uz": "A(1; 5) va A′(−1; −5) kesmasining o‘rta nuqtasini toping.",
-    "ru": "Найдите середину отрезка AA′ для A(1; 5), A′(−1; −5)."
+    "ru": "Найдите середину отрезка AA′ для A(1; 5), A′(−1; −5).",
+    "en": "Find the midpoint of the segment AA′ for A(1; 5) and A′(−1; −5)."
   },
   "options": [
     "(0;0)",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "(0;0)",
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, (0;0) hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается (0;0)."
+    "ru": "После последовательного применения правила темы к данным условия получается (0;0).",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get (0;0)."
   }
 };
 

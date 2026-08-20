@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Teskari kasr usuli",
-    "ru": "Практика к уроку 12. Деление обыкновенных дробей"
+    "ru": "Практика к уроку 12. Деление обыкновенных дробей",
+    "en": "The reciprocal method"
   },
   "prompt": {
     "uz": "Chapdagi bo'lish amallarini avval ko'paytirish ko'rinishiga keltiring, so'ng mos qisqarmas javobni tanlang.",
-    "ru": "Замените деление умножением на обратную дробь и соедините с ответом."
+    "ru": "Замените деление умножением на обратную дробь и соедините с ответом.",
+    "en": "First turn the divisions on the left into multiplications, then choose the matching answer in its simplest form."
   },
   "left": [
     "2/11 : 4/33",
@@ -27,7 +29,8 @@ const ITEM = {
   ],
   "explanation": {
     "uz": "2/11 : 4/33 = 3/2, 7/12 : 14/9 = 3/8, 15/16 : 9/8 = 5/6.",
-    "ru": "Все пары найдены правильно. Деление на дробь заменяют умножением на обратную дробь."
+    "ru": "Все пары найдены правильно. Деление на дробь заменяют умножением на обратную дробь.",
+    "en": "2/11 : 4/33 = 3/2, 7/12 : 14/9 = 3/8, 15/16 : 9/8 = 5/6."
   }
 };
 

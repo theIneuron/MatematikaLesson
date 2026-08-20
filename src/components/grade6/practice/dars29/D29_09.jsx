@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Ratsional sonlarni ko'paytirish va bo'lish",
-    "ru": "Умножение и деление рациональных чисел"
+    "ru": "Умножение и деление рациональных чисел",
+    "en": "Multiplying and dividing rational numbers"
   },
   "prompt": {
     "uz": "Ifodalarni to‘g‘ri qiymatlar bilan juftlang.",
-    "ru": "Соедините выражения с правильными значениями."
+    "ru": "Соедините выражения с правильными значениями.",
+    "en": "Pair the expressions with the right values."
   },
   "left": [
     "(−2)⁴",
@@ -27,7 +29,8 @@ const ITEM = {
   ],
   "explanation": {
     "uz": "Juft daraja musbat, toq daraja manfiy; −5² yozuvida minus darajaga kirmaydi.",
-    "ru": "Чётная степень положительна, нечётная отрицательна; в −5² минус не входит в степень."
+    "ru": "Чётная степень положительна, нечётная отрицательна; в −5² минус не входит в степень.",
+    "en": "An even power is positive and an odd power is negative; in the record −5² the minus sign is not part of the power."
   }
 };
 

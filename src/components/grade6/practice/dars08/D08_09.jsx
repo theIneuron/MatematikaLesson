@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Kasrlar EKUBi",
-    "ru": "Практика к уроку 8. Сокращение дробей"
+    "ru": "Практика к уроку 8. Сокращение дробей",
+    "en": "The GCD inside a fraction"
   },
   "prompt": {
     "uz": "Har bir kasrni surat va maxrajining EKUBi bilan moslashtiring.",
-    "ru": "Соедините дробь с НОД её числителя и знаменателя."
+    "ru": "Соедините дробь с НОД её числителя и знаменателя.",
+    "en": "Match each fraction with the GCD of its numerator and denominator."
   },
   "left": [
     "28/42",
@@ -27,7 +29,8 @@ const ITEM = {
   ],
   "explanation": {
     "uz": "EKUB(28,42)=14, EKUB(36,60)=12, EKUB(44,77)=11.",
-    "ru": "Все пары найдены правильно. Для полного сокращения числитель и знаменатель делят на их НОД."
+    "ru": "Все пары найдены правильно. Для полного сокращения числитель и знаменатель делят на их НОД.",
+    "en": "GCD(28, 42) = 14, GCD(36, 60) = 12, GCD(44, 77) = 11."
   }
 };
 

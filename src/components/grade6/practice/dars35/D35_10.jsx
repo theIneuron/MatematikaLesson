@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Tenglama yordamida masalalar yechish",
-    "ru": "Решение задач с помощью уравнений"
+    "ru": "Решение задач с помощью уравнений",
+    "en": "Solving problems with equations"
   },
   "prompt": {
     "uz": "To‘g‘ri to‘rtburchak eni x, bo‘yi x+5, perimetri 46. Enini toping.",
-    "ru": "Ширина прямоугольника x, длина x+5, периметр 46. Найдите ширину."
+    "ru": "Ширина прямоугольника x, длина x+5, периметр 46. Найдите ширину.",
+    "en": "The width of a rectangle is x, its length is x+5 and its perimeter is 46. Find the width."
   },
   "options": [
     "8",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "9",
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 9 hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 9."
+    "ru": "После последовательного применения правила темы к данным условия получается 9.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 9."
   }
 };
 

@@ -4,16 +4,19 @@ const ITEM = {
   "type": "input",
   "topic": {
     "uz": "O'ngga siljish",
-    "ru": "Практика к уроку 24. Координатная прямая"
+    "ru": "Практика к уроку 24. Координатная прямая",
+    "en": "A move to the right"
   },
   "prompt": {
     "uz": "Nuqta −7 koordinatadan o'ngga 11 birlik siljidi. Uning yangi koordinatasini yozing.",
-    "ru": "Точка переместилась от −7 на 11 единиц вправо. Запишите новую координату."
+    "ru": "Точка переместилась от −7 на 11 единиц вправо. Запишите новую координату.",
+    "en": "A point moved 11 units to the right from the coordinate −7. Write its new coordinate."
   },
   "answer": "4",
   "explanation": {
     "uz": "−7 + 11 = 4.",
-    "ru": "Правильный ответ: 4. Чем правее расположено число на координатной прямой, тем оно больше."
+    "ru": "Правильный ответ: 4. Чем правее расположено число на координатной прямой, тем оно больше.",
+    "en": "−7 + 11 = 4."
   }
 };
 

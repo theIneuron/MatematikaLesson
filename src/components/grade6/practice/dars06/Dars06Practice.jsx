@@ -14,7 +14,8 @@ import D06_10 from './D06_10.jsx';
 const ITEMS = [D06_01, D06_02, D06_03, D06_04, D06_05, D06_06, D06_07, D06_08, D06_09, D06_10];
 const TITLE = {
   "uz": "Dars 6 amaliyoti. Eng kichik umumiy karrali",
-  "ru": "Практика к уроку 6. Наименьшее общее кратное"
+  "ru": "Практика к уроку 6. Наименьшее общее кратное",
+  "en": "Lesson 6 practice. The least common multiple"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars06Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

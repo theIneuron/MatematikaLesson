@@ -52,9 +52,15 @@ function beep(ok) {
 const UI = {
   uz: { check: 'Tekshirish', retry: 'Qayta urinish', correct: "To'g'ri", wrong: 'Maslahat' },
   ru: { check: 'Проверить', retry: 'Заново', correct: 'Верно', wrong: 'Подсказка' },
+  en: { check: 'Check', retry: 'Try again', correct: 'Correct', wrong: 'Hint' },
 };
 
-export default function PracticeHost({ Question, lang: langProp = 'uz', onLangChange, onReset, title, showLanguageSwitch = true }) {
+// `langs` — almashtirgichdagi tillar ro'yxati. Sukut bo'yicha UZ va RU: uchinchi tilni
+// faqat kontenti inglizcha bo'lgan sinf so'raydi (6-sinf amaliyoti).
+export default function PracticeHost({
+  Question, lang: langProp = 'uz', onLangChange, onReset, title,
+  showLanguageSwitch = true, langs = ['uz', 'ru'],
+}) {
   const [lang, setLang] = useState(langProp);
   const [ready, setReady] = useState(false);
   const [result, setResult] = useState(null);
@@ -109,14 +115,13 @@ export default function PracticeHost({ Question, lang: langProp = 'uz', onLangCh
         borderBottom: '1px solid #eef0f4', fontFamily: "'Manrope', system-ui, sans-serif",
       }}>
         <strong style={{ fontSize: 13, color: '#6b7280', flex: 1 }}>
-          {(title && typeof title === 'object' ? title[lang] : title) || ''}
+          {(title && typeof title === 'object' ? title[lang] ?? title.uz : title) || ''}
         </strong>
-        {showLanguageSwitch && (
-          <>
-            <button type="button" style={chip(lang === 'uz')} onClick={() => selectLanguage('uz')}>UZ</button>
-            <button type="button" style={chip(lang === 'ru')} onClick={() => selectLanguage('ru')}>RU</button>
-          </>
-        )}
+        {showLanguageSwitch && langs.map((code) => (
+          <button type="button" key={code} style={chip(lang === code)} onClick={() => selectLanguage(code)}>
+            {code.toUpperCase()}
+          </button>
+        ))}
       </div>
 
       <div style={{ flex: 1, padding: '12px 12px 90px' }}>

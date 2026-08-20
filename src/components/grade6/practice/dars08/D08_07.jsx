@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "To'liq qisqartirish",
-    "ru": "Практика к уроку 8. Сокращение дробей"
+    "ru": "Практика к уроку 8. Сокращение дробей",
+    "en": "Reducing completely"
   },
   "prompt": {
     "uz": "63/81 kasrini to'liq qisqartirganda qaysi kasr hosil bo'ladi?",
-    "ru": "Полностью сократите дробь 63/81."
+    "ru": "Полностью сократите дробь 63/81.",
+    "en": "Which fraction comes out when 63/81 is reduced completely?"
   },
   "options": [
     "6/8",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "7/9",
   "explanation": {
     "uz": "63 va 81 ni 9 ga bo'lamiz: 63/81 = 7/9.",
-    "ru": "Правильный ответ: 7/9. Для полного сокращения числитель и знаменатель делят на их НОД."
+    "ru": "Правильный ответ: 7/9. Для полного сокращения числитель и знаменатель делят на их НОД.",
+    "en": "Divide 63 and 81 by 9: 63/81 = 7/9."
   }
 };
 

@@ -14,7 +14,8 @@ import D40_10 from './D40_10.jsx';
 const ITEMS = [D40_01, D40_02, D40_03, D40_04, D40_05, D40_06, D40_07, D40_08, D40_09, D40_10];
 const TITLE = {
   "uz": "Dars 40 amaliyoti. O'q simmetriyasi",
-  "ru": "Практика к уроку 40. Осевая симметрия"
+  "ru": "Практика к уроку 40. Осевая симметрия",
+  "en": "Lesson 40 practice. Reflection symmetry"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars40Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

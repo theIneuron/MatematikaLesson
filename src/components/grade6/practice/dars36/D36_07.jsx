@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Iqtisodiy va ishga oid masalalar",
-    "ru": "Экономические задачи и задачи на работу"
+    "ru": "Экономические задачи и задачи на работу",
+    "en": "Money problems and work problems"
   },
   "prompt": {
     "uz": "Mahsulot 250 mingga olinib, 290 mingga sotildi. Foydani toping.",
-    "ru": "Товар купили за 250 тысяч и продали за 290 тысяч. Найдите прибыль."
+    "ru": "Товар купили за 250 тысяч и продали за 290 тысяч. Найдите прибыль.",
+    "en": "Goods were bought for 250 thousand and sold for 290 thousand. Find the profit."
   },
   "options": [
     "30 ming",
@@ -23,9 +25,16 @@ const ITEM = {
     "50 ming": "50 тыс.",
     "540 ming": "540 тыс."
   },
+  "translationsEn": {
+    "30 ming": "30 thousand",
+    "40 ming": "40 thousand",
+    "50 ming": "50 thousand",
+    "540 ming": "540 thousand"
+  },
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 40 ming hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 40 ming."
+    "ru": "После последовательного применения правила темы к данным условия получается 40 тысяч.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 40 thousand."
   }
 };
 

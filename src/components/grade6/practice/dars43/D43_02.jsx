@@ -4,16 +4,19 @@ const ITEM = {
   "type": "input",
   "topic": {
     "uz": "Uchburchak va murakkab shakllar yuzi",
-    "ru": "Площадь треугольника и сложных фигур"
+    "ru": "Площадь треугольника и сложных фигур",
+    "en": "The area of a triangle and of compound shapes"
   },
   "prompt": {
     "uz": "Asosi 14 cm, balandligi 5 cm bo‘lgan uchburchak yuzini yozing.",
-    "ru": "Запишите площадь треугольника с основанием 14 см и высотой 5 см."
+    "ru": "Запишите площадь треугольника с основанием 14 см и высотой 5 см.",
+    "en": "Write the area of a triangle with the base 14 cm and the height 5 cm."
   },
   "answer": "35",
   "explanation": {
     "uz": "Hisoblashdagi amallarni to‘g‘ri tartibda bajarsak, javob 35 bo‘ladi.",
-    "ru": "Если выполнить действия в правильном порядке, получится ответ 35."
+    "ru": "Если выполнить действия в правильном порядке, получится ответ 35.",
+    "en": "Do the operations of the calculation in the right order and the answer is 35."
   }
 };
 

@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "O'xshash hadlarni ixchamlash",
-    "ru": "Приведение подобных слагаемых"
+    "ru": "Приведение подобных слагаемых",
+    "en": "Collecting like terms"
   },
   "prompt": {
     "uz": "2x + 5 + 7x − 3 ifodani ixchamlang.",
-    "ru": "Упростите выражение 2x + 5 + 7x − 3."
+    "ru": "Упростите выражение 2x + 5 + 7x − 3.",
+    "en": "Collect the like terms in the expression 2x + 5 + 7x − 3."
   },
   "options": [
     "9x+2",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "9x+2",
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 9x+2 hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 9x+2."
+    "ru": "После последовательного применения правила темы к данным условия получается 9x+2.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 9x+2."
   }
 };
 

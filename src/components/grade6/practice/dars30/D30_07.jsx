@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Koordinata tekisligi",
-    "ru": "Координатная плоскость"
+    "ru": "Координатная плоскость",
+    "en": "The coordinate plane"
   },
   "prompt": {
     "uz": "D(−2; 5) nuqtadan 4 birlik o‘ngga siljiganda hosil bo‘ladigan nuqtani toping.",
-    "ru": "Найдите точку, полученную сдвигом D(−2; 5) на 4 единицы вправо."
+    "ru": "Найдите точку, полученную сдвигом D(−2; 5) на 4 единицы вправо.",
+    "en": "Find the point you get by moving 4 units to the right from D(−2; 5)."
   },
   "options": [
     "(−6; 5)",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "(2; 5)",
   "explanation": {
     "uz": "O‘ngga siljishda x ga 4 qo‘shiladi, y o‘zgarmaydi: (2; 5).",
-    "ru": "При сдвиге вправо к x прибавляют 4, y не меняется: (2; 5)."
+    "ru": "При сдвиге вправо к x прибавляют 4, y не меняется: (2; 5).",
+    "en": "In a move to the right 4 is added to x and y stays the same: (2; 5)."
   }
 };
 

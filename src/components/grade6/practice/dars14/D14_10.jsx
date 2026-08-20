@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Umumiy massani topish",
-    "ru": "Практика к уроку 14. Умножение и деление десятичных дробей"
+    "ru": "Практика к уроку 14. Умножение и деление десятичных дробей",
+    "en": "Finding the total mass"
   },
   "prompt": {
     "uz": "Har biri 1,25 kilogramm bo'lgan 6 ta qopchadagi mahsulotning umumiy massasini hisoblang.",
-    "ru": "Каждый из шести пакетов весит 1,25 кг. Найдите общую массу."
+    "ru": "Каждый из шести пакетов весит 1,25 кг. Найдите общую массу.",
+    "en": "Work out the total mass of the goods in 6 sacks that weigh 1,25 kilograms each."
   },
   "options": [
     "6,25 kg",
@@ -25,7 +27,8 @@ const ITEM = {
   },
   "explanation": {
     "uz": "Umumiy massa 1,25 × 6 = 7,50, ya'ni 7,5 kilogramm.",
-    "ru": "Правильный ответ: 7,5 кг. При действиях с десятичными дробями важно правильно определить место запятой."
+    "ru": "Правильный ответ: 7,5 кг. При действиях с десятичными дробями важно правильно определить место запятой.",
+    "en": "The total mass is 1,25 × 6 = 7,50, that is 7,5 kilograms."
   }
 };
 

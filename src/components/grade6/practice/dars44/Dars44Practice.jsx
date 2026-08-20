@@ -14,7 +14,8 @@ import D44_10 from './D44_10.jsx';
 const ITEMS = [D44_01, D44_02, D44_03, D44_04, D44_05, D44_06, D44_07, D44_08, D44_09, D44_10];
 const TITLE = {
   "uz": "Dars 44 amaliyoti. Fazoviy shakllar hajmi va o'lchov birliklari",
-  "ru": "Практика к уроку 44. Объём пространственных фигур и единицы"
+  "ru": "Практика к уроку 44. Объём пространственных фигур и единицы",
+  "en": "Lesson 44 practice. The volume of solids and units of measure"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars44Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

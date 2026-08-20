@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Qism necha foiz",
-    "ru": "Практика к уроку 21. Проценты"
+    "ru": "Практика к уроку 21. Проценты",
+    "en": "What percentage is the part"
   },
   "prompt": {
     "uz": "Har bir qism va butun juftligi uchun qism butunning necha foizi ekanini moslashtiring.",
-    "ru": "Для каждой пары найдите, сколько процентов составляет часть от целого."
+    "ru": "Для каждой пары найдите, сколько процентов составляет часть от целого.",
+    "en": "For each pair of a part and a whole, match what percentage of the whole the part makes."
   },
   "left": [
     "12 dan 3",
@@ -30,9 +32,15 @@ const ITEM = {
     "40 dan 14": "14 из 40",
     "80 dan 52": "52 из 80"
   },
+  "translationsEn": {
+    "12 dan 3": "3 out of 12",
+    "40 dan 14": "14 out of 40",
+    "80 dan 52": "52 out of 80"
+  },
   "explanation": {
     "uz": "3/12 = 25%; 14/40 = 35%; 52/80 = 65%.",
-    "ru": "Все пары найдены правильно. Один процент равен одной сотой части целого."
+    "ru": "Все пары найдены правильно. Один процент равен одной сотой части целого.",
+    "en": "3/12 = 25%; 14/40 = 35%; 52/80 = 65%."
   }
 };
 

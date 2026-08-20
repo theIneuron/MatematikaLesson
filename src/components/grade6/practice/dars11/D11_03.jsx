@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Ko'paytmalarni moslashtirish",
-    "ru": "Практика к уроку 11. Умножение обыкновенных дробей"
+    "ru": "Практика к уроку 11. Умножение обыкновенных дробей",
+    "en": "Matching products"
   },
   "prompt": {
     "uz": "Chap ustundagi har bir ko'paytmani hisoblang va uni o'ng ustundagi qisqarmas javobi bilan moslashtiring.",
-    "ru": "Соедините каждое произведение с его сокращённым результатом."
+    "ru": "Соедините каждое произведение с его сокращённым результатом.",
+    "en": "Work out each product in the left column and match it with its answer in the simplest form on the right."
   },
   "left": [
     "3/5 × 10/21",
@@ -27,7 +29,8 @@ const ITEM = {
   ],
   "explanation": {
     "uz": "3/5 × 10/21 = 2/7, 4/9 × 3/8 = 1/6, 7/12 × 6/35 = 1/10.",
-    "ru": "Все пары найдены правильно. При умножении дробей перемножают числители и знаменатели, а результат сокращают."
+    "ru": "Все пары найдены правильно. При умножении дробей перемножают числители и знаменатели, а результат сокращают.",
+    "en": "3/5 × 10/21 = 2/7, 4/9 × 3/8 = 1/6, 7/12 × 6/35 = 1/10."
   }
 };
 

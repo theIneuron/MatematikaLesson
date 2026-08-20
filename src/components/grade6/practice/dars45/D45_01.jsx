@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Ma'lumotlar bilan ishlash",
-    "ru": "Работа с данными"
+    "ru": "Работа с данными",
+    "en": "Working with data"
   },
   "prompt": {
     "uz": "2, 4, 4, 5, 7 qatorining modasini toping.",
-    "ru": "Найдите моду ряда 2, 4, 4, 5, 7."
+    "ru": "Найдите моду ряда 2, 4, 4, 5, 7.",
+    "en": "Find the mode of the list 2, 4, 4, 5, 7."
   },
   "options": [
     "2",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "4",
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 4 hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 4."
+    "ru": "После последовательного применения правила темы к данным условия получается 4.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 4."
   }
 };
 

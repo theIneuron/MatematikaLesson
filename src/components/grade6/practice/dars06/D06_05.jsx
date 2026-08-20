@@ -4,11 +4,13 @@ const ITEM = {
   "type": "bool",
   "topic": {
     "uz": "EKUK tengligini tekshirish",
-    "ru": "Практика к уроку 6. Наименьшее общее кратное"
+    "ru": "Практика к уроку 6. Наименьшее общее кратное",
+    "en": "Checking an LCM equality"
   },
   "prompt": {
     "uz": "EKUK(10, 15) = 30.",
-    "ru": "Верно ли равенство НОК(10, 15) = 30?"
+    "ru": "Верно ли равенство НОК(10, 15) = 30?",
+    "en": "LCM(10, 15) = 30."
   },
   "options": [
     "Ha",
@@ -19,9 +21,14 @@ const ITEM = {
     "Ha": "Да",
     "Yo'q": "Нет"
   },
+  "translationsEn": {
+    "Ha": "Yes",
+    "Yo'q": "No"
+  },
   "explanation": {
     "uz": "10 va 15 ning eng kichik umumiy karralisi 30; fikr to'g'ri.",
-    "ru": "Правильный ответ: Да. НОК — наименьшее положительное общее кратное."
+    "ru": "Правильный ответ: Да. НОК — наименьшее положительное общее кратное.",
+    "en": "The least common multiple of 10 and 15 is 30, so the statement is true."
   }
 };
 

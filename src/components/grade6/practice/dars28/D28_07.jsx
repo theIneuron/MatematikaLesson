@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Ratsional sonlarni ayirish",
-    "ru": "Вычитание рациональных чисел"
+    "ru": "Вычитание рациональных чисел",
+    "en": "Subtracting rational numbers"
   },
   "prompt": {
     "uz": "5/6 − (−1/3) ayirmani hisoblang.",
-    "ru": "Вычислите разность 5/6 − (−1/3)."
+    "ru": "Вычислите разность 5/6 − (−1/3).",
+    "en": "Work out the difference 5/6 − (−1/3)."
   },
   "options": [
     "1/2",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "7/6",
   "explanation": {
     "uz": "5/6 − (−1/3) = 5/6 + 2/6 = 7/6.",
-    "ru": "5/6 − (−1/3) = 5/6 + 2/6 = 7/6."
+    "ru": "5/6 − (−1/3) = 5/6 + 2/6 = 7/6.",
+    "en": "5/6 − (−1/3) = 5/6 + 2/6 = 7/6."
   }
 };
 

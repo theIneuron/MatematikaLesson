@@ -14,7 +14,8 @@ import D36_10 from './D36_10.jsx';
 const ITEMS = [D36_01, D36_02, D36_03, D36_04, D36_05, D36_06, D36_07, D36_08, D36_09, D36_10];
 const TITLE = {
   "uz": "Dars 36 amaliyoti. Iqtisodiy va ishga oid masalalar",
-  "ru": "Практика к уроку 36. Экономические задачи и задачи на работу"
+  "ru": "Практика к уроку 36. Экономические задачи и задачи на работу",
+  "en": "Lesson 36 practice. Money problems and work problems"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars36Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

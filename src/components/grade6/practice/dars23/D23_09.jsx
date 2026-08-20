@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Proporsiyada x",
-    "ru": "Практика к уроку 23. Задачи на пропорции"
+    "ru": "Практика к уроку 23. Задачи на пропорции",
+    "en": "The x in a proportion"
   },
   "prompt": {
     "uz": "Proporsiya tuzishda noma'lum x ni toping va mos javob bilan bog'lang.",
-    "ru": "Найдите x в каждой пропорции и соедините с ответом."
+    "ru": "Найдите x в каждой пропорции и соедините с ответом.",
+    "en": "Set up the proportion, find the unknown x and connect it with the right answer."
   },
   "left": [
     "3 : 8 = x : 40",
@@ -27,7 +29,8 @@ const ITEM = {
   ],
   "explanation": {
     "uz": "x = 15; x = 30; x = 27.",
-    "ru": "Все пары найдены правильно. Сначала определяют вид зависимости, затем составляют и решают пропорцию."
+    "ru": "Все пары найдены правильно. Сначала определяют вид зависимости, затем составляют и решают пропорцию.",
+    "en": "x = 15; x = 30; x = 27."
   }
 };
 

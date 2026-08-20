@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Uchburchak elementlari, turlari va perimetri",
-    "ru": "Элементы, виды и периметр треугольника"
+    "ru": "Элементы, виды и периметр треугольника",
+    "en": "Elements, kinds and perimeter of a triangle"
   },
   "prompt": {
     "uz": "Bitta burchagi 90° bo‘lgan uchburchak turini tanlang.",
-    "ru": "Выберите вид треугольника с одним углом 90°."
+    "ru": "Выберите вид треугольника с одним углом 90°.",
+    "en": "Choose the kind of triangle that has one angle of 90°."
   },
   "options": [
     "o‘tkir",
@@ -23,9 +25,16 @@ const ITEM = {
     "o‘tmas": "тупоугольный",
     "teng tomonli": "равносторонний"
   },
+  "translationsEn": {
+    "o‘tkir": "acute-angled",
+    "to‘g‘ri burchakli": "right-angled",
+    "o‘tmas": "obtuse-angled",
+    "teng tomonli": "equilateral"
+  },
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, to‘g‘ri burchakli hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается to‘g‘ri burchakli."
+    "ru": "После последовательного применения правила темы к данным условия получается: прямоугольный треугольник.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get: right-angled."
   }
 };
 

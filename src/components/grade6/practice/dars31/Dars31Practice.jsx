@@ -14,7 +14,8 @@ import D31_10 from './D31_10.jsx';
 const ITEMS = [D31_01, D31_02, D31_03, D31_04, D31_05, D31_06, D31_07, D31_08, D31_09, D31_10];
 const TITLE = {
   "uz": "Dars 31 amaliyoti. Harfli ifodalar",
-  "ru": "Практика к уроку 31. Буквенные выражения"
+  "ru": "Практика к уроку 31. Буквенные выражения",
+  "en": "Lesson 31 practice. Expressions with letters"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars31Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

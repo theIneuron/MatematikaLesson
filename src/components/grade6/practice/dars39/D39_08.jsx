@@ -4,16 +4,19 @@ const ITEM = {
   "type": "input",
   "topic": {
     "uz": "Doira yuzi",
-    "ru": "Площадь круга"
+    "ru": "Площадь круга",
+    "en": "The area of a disc"
   },
   "prompt": {
     "uz": "Diametri 10 cm bo‘lgan doira yuzini π=3,14 da yozing.",
-    "ru": "Запишите площадь круга диаметром 10 см при π=3,14."
+    "ru": "Запишите площадь круга диаметром 10 см при π=3,14.",
+    "en": "Write the area of a disc with the diameter 10 cm, taking π=3,14."
   },
   "answer": "78,5",
   "explanation": {
     "uz": "Hisoblashdagi amallarni to‘g‘ri tartibda bajarsak, javob 78,5 bo‘ladi.",
-    "ru": "Если выполнить действия в правильном порядке, получится ответ 78,5."
+    "ru": "Если выполнить действия в правильном порядке, получится ответ 78,5.",
+    "en": "Do the operations of the calculation in the right order and the answer is 78,5."
   }
 };
 

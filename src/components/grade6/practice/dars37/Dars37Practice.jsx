@@ -14,7 +14,8 @@ import D37_10 from './D37_10.jsx';
 const ITEMS = [D37_01, D37_02, D37_03, D37_04, D37_05, D37_06, D37_07, D37_08, D37_09, D37_10];
 const TITLE = {
   "uz": "Dars 37 amaliyoti. Aylana va doira",
-  "ru": "Практика к уроку 37. Окружность и круг"
+  "ru": "Практика к уроку 37. Окружность и круг",
+  "en": "Lesson 37 practice. The circle and the disc"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars37Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

@@ -14,7 +14,8 @@ import D45_10 from './D45_10.jsx';
 const ITEMS = [D45_01, D45_02, D45_03, D45_04, D45_05, D45_06, D45_07, D45_08, D45_09, D45_10];
 const TITLE = {
   "uz": "Dars 45 amaliyoti. Ma'lumotlar bilan ishlash",
-  "ru": "Практика к уроку 45. Работа с данными"
+  "ru": "Практика к уроку 45. Работа с данными",
+  "en": "Lesson 45 practice. Working with data"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars45Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

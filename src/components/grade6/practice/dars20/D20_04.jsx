@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Xarita uzunligi",
-    "ru": "Практика к уроку 20. Масштаб"
+    "ru": "Практика к уроку 20. Масштаб",
+    "en": "The length on the map"
   },
   "prompt": {
     "uz": "Haqiqiy masofa 18 kilometr, xarita masshtabi 1 : 300 000. Xaritadagi kesma uzunligini toping.",
-    "ru": "Реальное расстояние равно 18 км, масштаб — 1 : 300 000. Найдите длину отрезка на карте."
+    "ru": "Реальное расстояние равно 18 км, масштаб — 1 : 300 000. Найдите длину отрезка на карте.",
+    "en": "The real distance is 18 kilometres and the scale of the map is 1 : 300 000. Find the length of the line segment on the map."
   },
   "options": [
     "3 cm",
@@ -25,7 +27,8 @@ const ITEM = {
   },
   "explanation": {
     "uz": "1 cm = 3 km. 18 : 3 = 6 cm.",
-    "ru": "Правильный ответ: 6 см. В масштабе 1 : n одному сантиметру на карте соответствуют n сантиметров на местности."
+    "ru": "Правильный ответ: 6 см. В масштабе 1 : n одному сантиметру на карте соответствуют n сантиметров на местности.",
+    "en": "1 cm stands for 3 km. And 18 : 3 = 6 cm."
   }
 };
 

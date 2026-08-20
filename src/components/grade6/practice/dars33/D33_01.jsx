@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "O'xshash hadlarni ixchamlash",
-    "ru": "Приведение подобных слагаемых"
+    "ru": "Приведение подобных слагаемых",
+    "en": "Collecting like terms"
   },
   "prompt": {
     "uz": "3x + 5x ifodani ixchamlang.",
-    "ru": "Приведите подобные слагаемые в выражении 3x + 5x."
+    "ru": "Приведите подобные слагаемые в выражении 3x + 5x.",
+    "en": "Collect the like terms in the expression 3x + 5x."
   },
   "options": [
     "8",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "8x",
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 8x hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 8x."
+    "ru": "После последовательного применения правила темы к данным условия получается 8x.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 8x."
   }
 };
 

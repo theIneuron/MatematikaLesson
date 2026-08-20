@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Yaxlitlangan qiymatlar",
-    "ru": "Практика к уроку 15. Периодические дроби и округление"
+    "ru": "Практика к уроку 15. Периодические дроби и округление",
+    "en": "Rounded values"
   },
   "prompt": {
     "uz": "Har bir sonni o'ndan birlargacha yaxlitlang va o'ng ustundagi mos qiymati bilan bog'lang.",
-    "ru": "Округлите каждое число до десятых и соедините с ответом."
+    "ru": "Округлите каждое число до десятых и соедините с ответом.",
+    "en": "Round each number to tenths and connect it with the matching value on the right."
   },
   "left": [
     "3,24",
@@ -27,7 +29,8 @@ const ITEM = {
   ],
   "explanation": {
     "uz": "3,24 ≈ 3,2; 5,68 ≈ 5,7; 9,95 ≈ 10,0. Har safar yuzdan birlar raqamiga qaraladi.",
-    "ru": "Все пары найдены правильно. При округлении смотрят на первую цифру после сохраняемого разряда."
+    "ru": "Все пары найдены правильно. При округлении смотрят на первую цифру после сохраняемого разряда.",
+    "en": "3,24 ≈ 3,2; 5,68 ≈ 5,7; 9,95 ≈ 10,0. Every time you look at the digit in the hundredths place."
   }
 };
 

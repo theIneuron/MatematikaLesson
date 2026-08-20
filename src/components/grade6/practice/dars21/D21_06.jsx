@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Foiz va kasr",
-    "ru": "Практика к уроку 21. Проценты"
+    "ru": "Практика к уроку 21. Проценты",
+    "en": "A percentage and a fraction"
   },
   "prompt": {
     "uz": "Foiz, oddiy kasr va o'nli kasrning teng qiymatlarini juftlang.",
-    "ru": "Соедините равные проценты, обыкновенные и десятичные дроби."
+    "ru": "Соедините равные проценты, обыкновенные и десятичные дроби.",
+    "en": "Pair up the percentages, the common fractions and the decimals of equal value."
   },
   "left": [
     "1/5",
@@ -27,7 +29,8 @@ const ITEM = {
   ],
   "explanation": {
     "uz": "1/5 = 20%; 3/8 = 37,5%; 7/10 = 70%.",
-    "ru": "Все пары найдены правильно. Один процент равен одной сотой части целого."
+    "ru": "Все пары найдены правильно. Один процент равен одной сотой части целого.",
+    "en": "1/5 = 20%; 3/8 = 37,5%; 7/10 = 70%."
   }
 };
 

@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Iqtisodiy va ishga oid masalalar",
-    "ru": "Экономические задачи и задачи на работу"
+    "ru": "Экономические задачи и задачи на работу",
+    "en": "Money problems and work problems"
   },
   "prompt": {
     "uz": "Ikki usta soatiga 12 va 15 tadan detal tayyorlaydi. 8 soatda jami nechta detal tayyorlanadi?",
-    "ru": "Два мастера делают 12 и 15 деталей в час. Сколько деталей они сделают за 8 часов?"
+    "ru": "Два мастера делают 12 и 15 деталей в час. Сколько деталей они сделают за 8 часов?",
+    "en": "Two craftsmen make 12 and 15 parts an hour. How many parts do they make altogether in 8 hours?"
   },
   "options": [
     "196",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "216",
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 216 hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 216."
+    "ru": "После последовательного применения правила темы к данным условия получается 216.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 216."
   }
 };
 

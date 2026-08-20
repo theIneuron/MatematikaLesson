@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Geometriya va ma'lumotlar bo'limi yakuni",
-    "ru": "Итог раздела геометрии и данных"
+    "ru": "Итог раздела геометрии и данных",
+    "en": "Wrap-up of the geometry and data block"
   },
   "prompt": {
     "uz": "Radiusi 7 cm aylana uzunligini π=22/7 da toping.",
-    "ru": "Найдите длину окружности радиуса 7 см при π=22/7."
+    "ru": "Найдите длину окружности радиуса 7 см при π=22/7.",
+    "en": "Find the circumference of a circle with the radius 7 cm, taking π=22/7."
   },
   "options": [
     "22 cm",
@@ -25,7 +27,8 @@ const ITEM = {
   },
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 44 cm hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 44 cm."
+    "ru": "После последовательного применения правила темы к данным условия получается 44 см.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 44 cm."
   }
 };
 

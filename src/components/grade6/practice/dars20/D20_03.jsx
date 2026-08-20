@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Masshtab ma'nosi",
-    "ru": "Практика к уроку 20. Масштаб"
+    "ru": "Практика к уроку 20. Масштаб",
+    "en": "What a scale means"
   },
   "prompt": {
     "uz": "Har bir masshtabda xaritadagi 1 santimetrga mos haqiqiy masofani topib, juftlang.",
-    "ru": "Соедините каждый масштаб с реальным расстоянием, соответствующим 1 сантиметру."
+    "ru": "Соедините каждый масштаб с реальным расстоянием, соответствующим 1 сантиметру.",
+    "en": "For each scale find the real distance that 1 centimetre on the map stands for, and pair them up."
   },
   "left": [
     "1 : 50 000",
@@ -32,7 +34,8 @@ const ITEM = {
   },
   "explanation": {
     "uz": "1 : 50 000 da 0,5 km; 1 : 200 000 da 2 km; 1 : 1 000 000 da 10 km.",
-    "ru": "Все пары найдены правильно. В масштабе 1 : n одному сантиметру на карте соответствуют n сантиметров на местности."
+    "ru": "Все пары найдены правильно. В масштабе 1 : n одному сантиметру на карте соответствуют n сантиметров на местности.",
+    "en": "At 1 : 50 000 it is 0,5 km; at 1 : 200 000 it is 2 km; at 1 : 1 000 000 it is 10 km."
   }
 };
 

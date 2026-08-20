@@ -14,7 +14,8 @@ import D05_10 from './D05_10.jsx';
 const ITEMS = [D05_01, D05_02, D05_03, D05_04, D05_05, D05_06, D05_07, D05_08, D05_09, D05_10];
 const TITLE = {
   "uz": "Dars 5 amaliyoti. Eng katta umumiy bo'luvchi",
-  "ru": "Практика к уроку 5. Наибольший общий делитель"
+  "ru": "Практика к уроку 5. Наибольший общий делитель",
+  "en": "Lesson 5 practice. The greatest common divisor"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars05Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

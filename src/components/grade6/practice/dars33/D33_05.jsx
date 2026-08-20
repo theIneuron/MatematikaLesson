@@ -4,11 +4,13 @@ const ITEM = {
   "type": "bool",
   "topic": {
     "uz": "O'xshash hadlarni ixchamlash",
-    "ru": "Приведение подобных слагаемых"
+    "ru": "Приведение подобных слагаемых",
+    "en": "Collecting like terms"
   },
   "prompt": {
     "uz": "5a va −2a o‘xshash hadlar hisoblanadi.",
-    "ru": "Слагаемые 5a и −2a являются подобными."
+    "ru": "Слагаемые 5a и −2a являются подобными.",
+    "en": "5a and −2a are like terms."
   },
   "options": [
     "Ha",
@@ -19,9 +21,14 @@ const ITEM = {
     "Ha": "Да",
     "Yo'q": "Нет"
   },
+  "translationsEn": {
+    "Ha": "Yes",
+    "Yo'q": "No"
+  },
   "explanation": {
     "uz": "Berilgan fikr mavzuning asosiy qoidasiga to‘liq mos keladi.",
-    "ru": "Утверждение полностью соответствует основному правилу темы."
+    "ru": "Утверждение полностью соответствует основному правилу темы.",
+    "en": "The statement fits the main rule of the topic exactly."
   }
 };
 

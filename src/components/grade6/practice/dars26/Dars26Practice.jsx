@@ -14,7 +14,8 @@ import D26_10 from './D26_10.jsx';
 const ITEMS = [D26_01, D26_02, D26_03, D26_04, D26_05, D26_06, D26_07, D26_08, D26_09, D26_10];
 const TITLE = {
   "uz": "Dars 26 amaliyoti. Ratsional sonlarni taqqoslash",
-  "ru": "Практика к уроку 26. Сравнение рациональных чисел"
+  "ru": "Практика к уроку 26. Сравнение рациональных чисел",
+  "en": "Lesson 26 practice. Comparing rational numbers"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars26Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

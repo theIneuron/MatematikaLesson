@@ -14,7 +14,8 @@ import D18_10 from './D18_10.jsx';
 const ITEMS = [D18_01, D18_02, D18_03, D18_04, D18_05, D18_06, D18_07, D18_08, D18_09, D18_10];
 const TITLE = {
   "uz": "Dars 18 amaliyoti. Proporsiya",
-  "ru": "Практика к уроку 18. Пропорция"
+  "ru": "Практика к уроку 18. Пропорция",
+  "en": "Lesson 18 practice. Proportion"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars18Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

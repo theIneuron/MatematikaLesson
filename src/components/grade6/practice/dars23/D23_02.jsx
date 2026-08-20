@@ -4,16 +4,19 @@ const ITEM = {
   "type": "input",
   "topic": {
     "uz": "Ishchilar va kunlar",
-    "ru": "Практика к уроку 23. Задачи на пропорции"
+    "ru": "Практика к уроку 23. Задачи на пропорции",
+    "en": "Workers and days"
   },
   "prompt": {
     "uz": "12 ishchi ishni 18 kunda tugatadi. Bir xil unumda 27 ishchi shu ishni necha kunda tugatishini yozing.",
-    "ru": "Двенадцать рабочих выполняют работу за 18 дней. За сколько дней её выполнят 27 рабочих?"
+    "ru": "Двенадцать рабочих выполняют работу за 18 дней. За сколько дней её выполнят 27 рабочих?",
+    "en": "12 workers finish a job in 18 days. Write how many days 27 workers at the same rate need for that job."
   },
   "answer": "8",
   "explanation": {
     "uz": "Ishchi-kunlar soni o'zgarmaydi: 12 × 18 = 27 × 8.",
-    "ru": "Правильный ответ: 8. Сначала определяют вид зависимости, затем составляют и решают пропорцию."
+    "ru": "Правильный ответ: 8. Сначала определяют вид зависимости, затем составляют и решают пропорцию.",
+    "en": "The number of worker-days stays the same: 12 × 18 = 27 × 8."
   }
 };
 

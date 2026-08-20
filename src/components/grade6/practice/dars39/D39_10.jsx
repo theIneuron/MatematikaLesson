@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Doira yuzi",
-    "ru": "Площадь круга"
+    "ru": "Площадь круга",
+    "en": "The area of a disc"
   },
   "prompt": {
     "uz": "Halqaning tashqi radiusi 5 cm, ichki radiusi 3 cm. π=3 da yuzini toping.",
-    "ru": "Внешний радиус кольца 5 см, внутренний 3 см. Найдите площадь при π=3."
+    "ru": "Внешний радиус кольца 5 см, внутренний 3 см. Найдите площадь при π=3.",
+    "en": "The outer radius of a ring is 5 cm and its inner radius is 3 cm. Find its area, taking π=3."
   },
   "options": [
     "24 cm²",
@@ -25,7 +27,8 @@ const ITEM = {
   },
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 48 cm² hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 48 cm²."
+    "ru": "После последовательного применения правила темы к данным условия получается 48 см².",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 48 cm²."
   }
 };
 

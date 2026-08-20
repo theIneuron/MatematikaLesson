@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Iqtisodiy va ishga oid masalalar",
-    "ru": "Экономические задачи и задачи на работу"
+    "ru": "Экономические задачи и задачи на работу",
+    "en": "Money problems and work problems"
   },
   "prompt": {
     "uz": "Har bir yozuvni unga mos javob yoki tavsif bilan bog‘lang.",
-    "ru": "Соедините каждую запись с подходящим ответом или описанием."
+    "ru": "Соедините каждую запись с подходящим ответом или описанием.",
+    "en": "Connect each record with the answer or the description that fits it."
   },
   "left": [
     "6·7000",
@@ -27,7 +29,8 @@ const ITEM = {
   ],
   "explanation": {
     "uz": "Har bir chap kartani alohida tekshirish orqali mosliklar topiladi: 6·7000 ↔ 42 000; 48000:8 ↔ 6 000; 90000−65000 ↔ 25 000.",
-    "ru": "Каждая пара найдена по определению или вычислению, указанному в условии темы."
+    "ru": "Каждая пара найдена по определению или вычислению, указанному в условии темы.",
+    "en": "The matches are found by checking every card on the left on its own: 6·7000 ↔ 42 000; 48000:8 ↔ 6 000; 90000−65000 ↔ 25 000."
   }
 };
 

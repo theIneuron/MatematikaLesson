@@ -14,7 +14,8 @@ import D29_10 from './D29_10.jsx';
 const ITEMS = [D29_01, D29_02, D29_03, D29_04, D29_05, D29_06, D29_07, D29_08, D29_09, D29_10];
 const TITLE = {
   "uz": "Dars 29 amaliyoti. Ratsional sonlarni ko'paytirish va bo'lish",
-  "ru": "Практика к уроку 29. Умножение и деление рациональных чисел"
+  "ru": "Практика к уроку 29. Умножение и деление рациональных чисел",
+  "en": "Lesson 29 practice. Multiplying and dividing rational numbers"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars29Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

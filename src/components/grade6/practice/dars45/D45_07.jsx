@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Ma'lumotlar bilan ishlash",
-    "ru": "Работа с данными"
+    "ru": "Работа с данными",
+    "en": "Working with data"
   },
   "prompt": {
     "uz": "6, 8, 8, 10, 13 qatorining o‘rtacha qiymatini toping.",
-    "ru": "Найдите среднее ряда 6, 8, 8, 10, 13."
+    "ru": "Найдите среднее ряда 6, 8, 8, 10, 13.",
+    "en": "Find the mean value of the list 6, 8, 8, 10, 13."
   },
   "options": [
     "8",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "9",
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 9 hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 9."
+    "ru": "После последовательного применения правила темы к данным условия получается 9.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 9."
   }
 };
 

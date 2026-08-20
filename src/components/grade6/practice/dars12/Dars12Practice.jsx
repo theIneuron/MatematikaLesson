@@ -14,7 +14,8 @@ import D12_10 from './D12_10.jsx';
 const ITEMS = [D12_01, D12_02, D12_03, D12_04, D12_05, D12_06, D12_07, D12_08, D12_09, D12_10];
 const TITLE = {
   "uz": "Dars 12 amaliyoti. Oddiy kasrlarni bo'lish",
-  "ru": "Практика к уроку 12. Деление обыкновенных дробей"
+  "ru": "Практика к уроку 12. Деление обыкновенных дробей",
+  "en": "Lesson 12 practice. Dividing common fractions"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars12Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

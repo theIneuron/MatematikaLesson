@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "O'xshash hadlarni ixchamlash",
-    "ru": "Приведение подобных слагаемых"
+    "ru": "Приведение подобных слагаемых",
+    "en": "Collecting like terms"
   },
   "prompt": {
     "uz": "4x + 3y − x ifodani soddalashtiring.",
-    "ru": "Упростите выражение 4x + 3y − x."
+    "ru": "Упростите выражение 4x + 3y − x.",
+    "en": "Simplify the expression 4x + 3y − x."
   },
   "options": [
     "3x+3y",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "3x+3y",
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 3x+3y hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 3x+3y."
+    "ru": "После последовательного применения правила темы к данным условия получается 3x+3y.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 3x+3y."
   }
 };
 

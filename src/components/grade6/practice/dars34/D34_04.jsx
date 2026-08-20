@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Chiziqli tenglamalar",
-    "ru": "Линейные уравнения"
+    "ru": "Линейные уравнения",
+    "en": "Linear equations"
   },
   "prompt": {
     "uz": "5x − 6 = 19 tenglamani yeching.",
-    "ru": "Решите уравнение 5x − 6 = 19."
+    "ru": "Решите уравнение 5x − 6 = 19.",
+    "en": "Solve the equation 5x − 6 = 19."
   },
   "options": [
     "3",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "5",
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 5 hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 5."
+    "ru": "После последовательного применения правила темы к данным условия получается 5.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 5."
   }
 };
 

@@ -4,16 +4,19 @@ const ITEM = {
   "type": "input",
   "topic": {
     "uz": "Tenglama yordamida masalalar yechish",
-    "ru": "Решение задач с помощью уравнений"
+    "ru": "Решение задач с помощью уравнений",
+    "en": "Solving problems with equations"
   },
   "prompt": {
     "uz": "Uchta teng qutida jami 81 ta qalam bor. Bitta qutidagi qalamlar sonini yozing.",
-    "ru": "В трёх одинаковых коробках 81 карандаш. Запишите число карандашей в одной коробке."
+    "ru": "В трёх одинаковых коробках 81 карандаш. Запишите число карандашей в одной коробке.",
+    "en": "Three equal boxes hold 81 pencils altogether. Write the number of pencils in one box."
   },
   "answer": "27",
   "explanation": {
     "uz": "Hisoblashdagi amallarni to‘g‘ri tartibda bajarsak, javob 27 bo‘ladi.",
-    "ru": "Если выполнить действия в правильном порядке, получится ответ 27."
+    "ru": "Если выполнить действия в правильном порядке, получится ответ 27.",
+    "en": "Do the operations of the calculation in the right order and the answer is 27."
   }
 };
 

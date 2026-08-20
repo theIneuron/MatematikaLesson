@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "EKUBlarni moslashtirish",
-    "ru": "Практика к уроку 5. Наибольший общий делитель"
+    "ru": "Практика к уроку 5. Наибольший общий делитель",
+    "en": "Matching GCDs"
   },
   "prompt": {
     "uz": "Sonlar juftini EKUBi bilan moslashtiring.",
-    "ru": "Соедините пары чисел с их НОД."
+    "ru": "Соедините пары чисел с их НОД.",
+    "en": "Match each pair of numbers with its GCD."
   },
   "left": [
     "32 va 56",
@@ -30,9 +32,15 @@ const ITEM = {
     "27 va 63": "27 и 63",
     "50 va 80": "50 и 80"
   },
+  "translationsEn": {
+    "32 va 56": "32 and 56",
+    "27 va 63": "27 and 63",
+    "50 va 80": "50 and 80"
+  },
   "explanation": {
     "uz": "EKUB(32,56)=8, EKUB(27,63)=9, EKUB(50,80)=10.",
-    "ru": "Все пары найдены правильно. НОД — наибольший из общих делителей."
+    "ru": "Все пары найдены правильно. НОД — наибольший из общих делителей.",
+    "en": "GCD(32, 56) = 8, GCD(27, 63) = 9, GCD(50, 80) = 10."
   }
 };
 

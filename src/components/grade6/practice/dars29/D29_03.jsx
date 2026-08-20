@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Ratsional sonlarni ko'paytirish va bo'lish",
-    "ru": "Умножение и деление рациональных чисел"
+    "ru": "Умножение и деление рациональных чисел",
+    "en": "Multiplying and dividing rational numbers"
   },
   "prompt": {
     "uz": "Amallarni natijalari bilan moslashtiring.",
-    "ru": "Соедините действия с результатами."
+    "ru": "Соедините действия с результатами.",
+    "en": "Match the operations with their results."
   },
   "left": [
     "−8 · (−5)",
@@ -27,7 +29,8 @@ const ITEM = {
   ],
   "explanation": {
     "uz": "Bir xil ishora musbat, har xil ishora manfiy natija beradi.",
-    "ru": "Одинаковые знаки дают плюс, разные — минус."
+    "ru": "Одинаковые знаки дают плюс, разные — минус.",
+    "en": "The same signs give a positive result and different signs give a negative one."
   }
 };
 

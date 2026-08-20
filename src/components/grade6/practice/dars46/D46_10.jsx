@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Geometriya va ma'lumotlar bo'limi yakuni",
-    "ru": "Итог раздела геометрии и данных"
+    "ru": "Итог раздела геометрии и данных",
+    "en": "Wrap-up of the geometry and data block"
   },
   "prompt": {
     "uz": "10×8 to‘rtburchakdan asosi 6, balandligi 4 uchburchak kesildi. Qolgan yuzni toping.",
-    "ru": "Из прямоугольника 10×8 вырезали треугольник с основанием 6 и высотой 4. Найдите остаток."
+    "ru": "Из прямоугольника 10×8 вырезали треугольник с основанием 6 и высотой 4. Найдите остаток.",
+    "en": "A triangle with the base 6 and the height 4 was cut out of a 10×8 rectangle. Find the area that is left."
   },
   "options": [
     "56 cm²",
@@ -25,7 +27,8 @@ const ITEM = {
   },
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 68 cm² hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 68 cm²."
+    "ru": "После последовательного применения правила темы к данным условия получается 68 см².",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 68 cm²."
   }
 };
 

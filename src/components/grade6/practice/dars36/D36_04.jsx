@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Iqtisodiy va ishga oid masalalar",
-    "ru": "Экономические задачи и задачи на работу"
+    "ru": "Экономические задачи и задачи на работу",
+    "en": "Money problems and work problems"
   },
   "prompt": {
     "uz": "Usta soatiga 15 ta detal tayyorlaydi. 7 soatda nechta detal tayyorlaydi?",
-    "ru": "Мастер изготавливает 15 деталей в час. Сколько деталей он сделает за 7 часов?"
+    "ru": "Мастер изготавливает 15 деталей в час. Сколько деталей он сделает за 7 часов?",
+    "en": "A craftsman makes 15 parts an hour. How many parts does he make in 7 hours?"
   },
   "options": [
     "90",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "105",
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 105 hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 105."
+    "ru": "После последовательного применения правила темы к данным условия получается 105.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 105."
   }
 };
 

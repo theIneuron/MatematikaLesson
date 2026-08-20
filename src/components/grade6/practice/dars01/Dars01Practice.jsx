@@ -13,8 +13,9 @@ import D01_10 from './D01_10.jsx';
 
 const ITEMS = [D01_01, D01_02, D01_03, D01_04, D01_05, D01_06, D01_07, D01_08, D01_09, D01_10];
 const TITLE = {
-  uz: "Dars 1 amaliyoti. Bo'luvchilar va karrali sonlar",
-  ru: 'Практика к уроку 1. Делители и кратные',
+  "uz": "Dars 1 amaliyoti. Bo'luvchilar va karrali sonlar",
+  "ru": "Практика к уроку 1. Делители и кратные",
+  "en": "Lesson 1 practice. Divisors and multiples"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars01Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

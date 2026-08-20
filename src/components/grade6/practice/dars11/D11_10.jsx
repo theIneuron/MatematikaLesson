@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Kasr qismli masala",
-    "ru": "Практика к уроку 11. Умножение обыкновенных дробей"
+    "ru": "Практика к уроку 11. Умножение обыкновенных дробей",
+    "en": "A problem with a fractional part"
   },
   "prompt": {
     "uz": "Omborda 48 kilogramm guruch bor. Uning 5/6 qismi paketlarga joylandi. Paketlangan guruch massasini toping.",
-    "ru": "На складе 48 кг риса. В пакеты расфасовали 5/6 всего риса. Сколько килограммов расфасовали?"
+    "ru": "На складе 48 кг риса. В пакеты расфасовали 5/6 всего риса. Сколько килограммов расфасовали?",
+    "en": "A store has 48 kilograms of rice. 5/6 of it was put into packets. Find the mass of the rice in the packets."
   },
   "options": [
     "36 kg",
@@ -25,7 +27,8 @@ const ITEM = {
   },
   "explanation": {
     "uz": "48 ning 5/6 qismini topamiz: 48 : 6 × 5 = 8 × 5 = 40 kilogramm.",
-    "ru": "Правильный ответ: 40 кг. При умножении дробей перемножают числители и знаменатели, а результат сокращают."
+    "ru": "Правильный ответ: 40 кг. При умножении дробей перемножают числители и знаменатели, а результат сокращают.",
+    "en": "Find 5/6 of 48: 48 : 6 × 5 = 8 × 5 = 40 kilograms."
   }
 };
 

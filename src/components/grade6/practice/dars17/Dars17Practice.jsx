@@ -14,7 +14,8 @@ import D17_10 from './D17_10.jsx';
 const ITEMS = [D17_01, D17_02, D17_03, D17_04, D17_05, D17_06, D17_07, D17_08, D17_09, D17_10];
 const TITLE = {
   "uz": "Dars 17 amaliyoti. Nisbat",
-  "ru": "Практика к уроку 17. Отношение"
+  "ru": "Практика к уроку 17. Отношение",
+  "en": "Lesson 17 practice. Ratio"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars17Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

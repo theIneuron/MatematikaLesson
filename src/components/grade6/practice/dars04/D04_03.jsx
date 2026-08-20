@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Sonlarning turlari",
-    "ru": "Практика к уроку 4. Простые и составные числа"
+    "ru": "Практика к уроку 4. Простые и составные числа",
+    "en": "Kinds of numbers"
   },
   "prompt": {
     "uz": "Sonlarni mos tur bilan bog'lang.",
-    "ru": "Соедините каждое число с его видом."
+    "ru": "Соедините каждое число с его видом.",
+    "en": "Connect each number with its kind."
   },
   "left": [
     "13",
@@ -30,9 +32,15 @@ const ITEM = {
     "murakkab son": "составное число",
     "tub ham, murakkab ham emas": "ни простое, ни составное"
   },
+  "translationsEn": {
+    "tub son": "a prime number",
+    "murakkab son": "a composite number",
+    "tub ham, murakkab ham emas": "neither prime nor composite"
+  },
   "explanation": {
     "uz": "13 tub, 18 murakkab, 1 esa tub ham, murakkab ham emas.",
-    "ru": "Все пары найдены правильно. Простое число имеет ровно два натуральных делителя."
+    "ru": "Все пары найдены правильно. Простое число имеет ровно два натуральных делителя.",
+    "en": "13 is prime, 18 is composite, and 1 is neither prime nor composite."
   }
 };
 

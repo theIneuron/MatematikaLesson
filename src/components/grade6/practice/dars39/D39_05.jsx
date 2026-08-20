@@ -4,11 +4,13 @@ const ITEM = {
   "type": "bool",
   "topic": {
     "uz": "Doira yuzi",
-    "ru": "Площадь круга"
+    "ru": "Площадь круга",
+    "en": "The area of a disc"
   },
   "prompt": {
     "uz": "Doira yuzi S=πr² formula bilan topiladi.",
-    "ru": "Площадь круга вычисляется по формуле S=πr²."
+    "ru": "Площадь круга вычисляется по формуле S=πr².",
+    "en": "The area of a disc is found by the formula S=πr²."
   },
   "options": [
     "Ha",
@@ -19,9 +21,14 @@ const ITEM = {
     "Ha": "Да",
     "Yo'q": "Нет"
   },
+  "translationsEn": {
+    "Ha": "Yes",
+    "Yo'q": "No"
+  },
   "explanation": {
     "uz": "Berilgan fikr mavzuning asosiy qoidasiga to‘liq mos keladi.",
-    "ru": "Утверждение полностью соответствует основному правилу темы."
+    "ru": "Утверждение полностью соответствует основному правилу темы.",
+    "en": "The statement fits the main rule of the topic exactly."
   }
 };
 

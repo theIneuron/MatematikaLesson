@@ -4,16 +4,19 @@ const ITEM = {
   "type": "input",
   "topic": {
     "uz": "Harfli ifodalar",
-    "ru": "Буквенные выражения"
+    "ru": "Буквенные выражения",
+    "en": "Expressions with letters"
   },
   "prompt": {
     "uz": "a = −3 bo‘lganda 5a − 2 qiymatini yozing.",
-    "ru": "При a = −3 запишите значение 5a − 2."
+    "ru": "При a = −3 запишите значение 5a − 2.",
+    "en": "Write the value of 5a − 2 when a = −3."
   },
   "answer": "-17",
   "explanation": {
     "uz": "Hisoblashdagi amallarni to‘g‘ri tartibda bajarsak, javob -17 bo‘ladi.",
-    "ru": "Если выполнить действия в правильном порядке, получится ответ -17."
+    "ru": "Если выполнить действия в правильном порядке, получится ответ -17.",
+    "en": "Do the operations of the calculation in the right order and the answer is -17."
   }
 };
 

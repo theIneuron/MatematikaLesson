@@ -4,11 +4,13 @@ const ITEM = {
   "type": "bool",
   "topic": {
     "uz": "Geometriya va ma'lumotlar bo'limi yakuni",
-    "ru": "Итог раздела геометрии и данных"
+    "ru": "Итог раздела геометрии и данных",
+    "en": "Wrap-up of the geometry and data block"
   },
   "prompt": {
     "uz": "Kvadrat 4 ta simmetriya o‘qiga ega.",
-    "ru": "Квадрат имеет 4 оси симметрии."
+    "ru": "Квадрат имеет 4 оси симметрии.",
+    "en": "A square has 4 axes of symmetry."
   },
   "options": [
     "Ha",
@@ -19,9 +21,14 @@ const ITEM = {
     "Ha": "Да",
     "Yo'q": "Нет"
   },
+  "translationsEn": {
+    "Ha": "Yes",
+    "Yo'q": "No"
+  },
   "explanation": {
     "uz": "Berilgan fikr mavzuning asosiy qoidasiga to‘liq mos keladi.",
-    "ru": "Утверждение полностью соответствует основному правилу темы."
+    "ru": "Утверждение полностью соответствует основному правилу темы.",
+    "en": "The statement fits the main rule of the topic exactly."
   }
 };
 

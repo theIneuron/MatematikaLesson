@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Butun son va kasr",
-    "ru": "Практика к уроку 11. Умножение обыкновенных дробей"
+    "ru": "Практика к уроку 11. Умножение обыкновенных дробей",
+    "en": "A whole number and a fraction"
   },
   "prompt": {
     "uz": "6 × 5/18 ifodada butun sonni kasrga ko'paytiring va javobni qisqartirilgan kasr ko'rinishida toping.",
-    "ru": "Вычислите 6 × 5/18 и выберите сокращённую дробь."
+    "ru": "Вычислите 6 × 5/18 и выберите сокращённую дробь.",
+    "en": "In the expression 6 × 5/18 multiply the whole number by the fraction and find the answer as a reduced fraction."
   },
   "options": [
     "5/3",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "5/3",
   "explanation": {
     "uz": "6 × 5/18 = 30/18. Surat va maxrajni 6 ga bo'lsak 5/3 hosil bo'ladi.",
-    "ru": "Правильный ответ: 5/3. При умножении дробей перемножают числители и знаменатели, а результат сокращают."
+    "ru": "Правильный ответ: 5/3. При умножении дробей перемножают числители и знаменатели, а результат сокращают.",
+    "en": "6 × 5/18 = 30/18. Divide the numerator and the denominator by 6 and you get 5/3."
   }
 };
 

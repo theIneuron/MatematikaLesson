@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "O'q simmetriyasi",
-    "ru": "Осевая симметрия"
+    "ru": "Осевая симметрия",
+    "en": "Reflection symmetry"
   },
   "prompt": {
     "uz": "Kvadrat nechta simmetriya o‘qiga ega?",
-    "ru": "Сколько осей симметрии у квадрата?"
+    "ru": "Сколько осей симметрии у квадрата?",
+    "en": "How many axes of symmetry does a square have?"
   },
   "options": [
     "1",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "4",
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 4 hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 4."
+    "ru": "После последовательного применения правила темы к данным условия получается 4.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 4."
   }
 };
 

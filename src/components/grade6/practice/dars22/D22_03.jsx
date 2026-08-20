@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Foizli natijalar",
-    "ru": "Практика к уроку 22. Задачи на проценты"
+    "ru": "Практика к уроку 22. Задачи на проценты",
+    "en": "Results with percentages"
   },
   "prompt": {
     "uz": "Har bir foizli masalani hisoblang va natijasi bilan moslashtiring.",
-    "ru": "Решите каждую задачу на проценты и соедините с результатом."
+    "ru": "Решите каждую задачу на проценты и соедините с результатом.",
+    "en": "Work out each percentage problem and match it with its result."
   },
   "left": [
     "320 ning 25% qismi",
@@ -30,9 +32,15 @@ const ITEM = {
     "45 soni butunning 15% qismi": "45 составляет 15% целого",
     "500 ning 8% ga kamaygani": "500, уменьшенное на 8%"
   },
+  "translationsEn": {
+    "320 ning 25% qismi": "25% of 320",
+    "45 soni butunning 15% qismi": "45 is 15% of the whole",
+    "500 ning 8% ga kamaygani": "500 made 8% smaller"
+  },
   "explanation": {
     "uz": "320 ning 25 foizi 80; 45 : 0,15 = 300; 500 × 0,92 = 460.",
-    "ru": "Все пары найдены правильно. Новое значение находят умножением начального значения на коэффициент изменения."
+    "ru": "Все пары найдены правильно. Новое значение находят умножением начального значения на коэффициент изменения.",
+    "en": "25 percent of 320 is 80; 45 : 0,15 = 300; 500 × 0,92 = 460."
   }
 };
 

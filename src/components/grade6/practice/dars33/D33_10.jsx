@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "O'xshash hadlarni ixchamlash",
-    "ru": "Приведение подобных слагаемых"
+    "ru": "Приведение подобных слагаемых",
+    "en": "Collecting like terms"
   },
   "prompt": {
     "uz": "3(2x + 1) − 4x + 5 ni ixchamlang.",
-    "ru": "Упростите 3(2x + 1) − 4x + 5."
+    "ru": "Упростите 3(2x + 1) − 4x + 5.",
+    "en": "Collect the like terms in 3(2x + 1) − 4x + 5."
   },
   "options": [
     "2x+8",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "2x+8",
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 2x+8 hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 2x+8."
+    "ru": "После последовательного применения правила темы к данным условия получается 2x+8.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 2x+8."
   }
 };
 

@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Xaritadagi masofa",
-    "ru": "Практика к уроку 20. Масштаб"
+    "ru": "Практика к уроку 20. Масштаб",
+    "en": "A distance on a map"
   },
   "prompt": {
     "uz": "Xarita masshtabi 1 : 100 000. Xaritadagi 4 santimetr haqiqiy masofada necha kilometrni bildiradi?",
-    "ru": "Масштаб карты 1 : 100 000. Какое реальное расстояние изображают 4 сантиметра?"
+    "ru": "Масштаб карты 1 : 100 000. Какое реальное расстояние изображают 4 сантиметра?",
+    "en": "The scale of a map is 1 : 100 000. How many kilometres of real distance do 4 centimetres on the map stand for?"
   },
   "options": [
     "2 km",
@@ -25,7 +27,8 @@ const ITEM = {
   },
   "explanation": {
     "uz": "1 : 100 000 da 1 cm = 1 km. 4 cm = 4 km.",
-    "ru": "Правильный ответ: 4 км. В масштабе 1 : n одному сантиметру на карте соответствуют n сантиметров на местности."
+    "ru": "Правильный ответ: 4 км. В масштабе 1 : n одному сантиметру на карте соответствуют n сантиметров на местности.",
+    "en": "At 1 : 100 000 one cm stands for 1 km. So 4 cm = 4 km."
   }
 };
 

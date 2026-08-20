@@ -14,7 +14,8 @@ import D27_10 from './D27_10.jsx';
 const ITEMS = [D27_01, D27_02, D27_03, D27_04, D27_05, D27_06, D27_07, D27_08, D27_09, D27_10];
 const TITLE = {
   "uz": "Dars 27 amaliyoti. Ratsional sonlarni qo'shish",
-  "ru": "Практика к уроку 27. Сложение рациональных чисел"
+  "ru": "Практика к уроку 27. Сложение рациональных чисел",
+  "en": "Lesson 27 practice. Adding rational numbers"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars27Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Ratsional sonlarni qo'shish",
-    "ru": "Сложение рациональных чисел"
+    "ru": "Сложение рациональных чисел",
+    "en": "Adding rational numbers"
   },
   "prompt": {
     "uz": "Yig‘indilarni natijalari bilan moslashtiring.",
-    "ru": "Соедините суммы с их результатами."
+    "ru": "Соедините суммы с их результатами.",
+    "en": "Match the sums with their results."
   },
   "left": [
     "−1/3 + 5/6",
@@ -27,7 +29,8 @@ const ITEM = {
   ],
   "explanation": {
     "uz": "Umumiy maxrajga keltirilganda javoblar 1/2, −1/2 va −2/3 bo‘ladi.",
-    "ru": "После приведения к общему знаменателю получаем 1/2, −1/2 и −2/3."
+    "ru": "После приведения к общему знаменателю получаем 1/2, −1/2 и −2/3.",
+    "en": "After bringing them to a common denominator the answers are 1/2, −1/2 and −2/3."
   }
 };
 

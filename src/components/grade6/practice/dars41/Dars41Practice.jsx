@@ -14,7 +14,8 @@ import D41_10 from './D41_10.jsx';
 const ITEMS = [D41_01, D41_02, D41_03, D41_04, D41_05, D41_06, D41_07, D41_08, D41_09, D41_10];
 const TITLE = {
   "uz": "Dars 41 amaliyoti. Markaziy simmetriya",
-  "ru": "Практика к уроку 41. Центральная симметрия"
+  "ru": "Практика к уроку 41. Центральная симметрия",
+  "en": "Lesson 41 practice. Point symmetry"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars41Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Jadvalni to'ldirish",
-    "ru": "Практика к уроку 19. Прямая и обратная пропорциональность"
+    "ru": "Практика к уроку 19. Прямая и обратная пропорциональность",
+    "en": "Filling in a table"
   },
   "prompt": {
     "uz": "Jadvaldagi bog'lanishlarga mos yetishmayotgan qiymatlarni toping.",
-    "ru": "Заполните пропуски в таблицах прямой и обратной зависимости."
+    "ru": "Заполните пропуски в таблицах прямой и обратной зависимости.",
+    "en": "Find the missing values that fit the relations in the tables."
   },
   "left": [
     "2 kg → 14 000; 6 kg → ?",
@@ -33,9 +35,18 @@ const ITEM = {
     "42 000 so'm": "42 000 сум",
     "6 kun": "6 дней"
   },
+  "translationsEn": {
+    "2 kg → 14 000; 6 kg → ?": "2 kg → 14 000; 6 kg → ?",
+    "4 ishchi → 15 kun; 10 ishchi → ?": "4 workers → 15 days; 10 workers → ?",
+    "90 km/soat → 4 soat; 120 km/soat → ?": "90 km/h → 4 hours; 120 km/h → ?",
+    "3 soat": "3 hours",
+    "42 000 so'm": "42 000 sum",
+    "6 kun": "6 days"
+  },
   "explanation": {
     "uz": "6 kg 42 000 so'm; 10 ishchi 6 kun; 120 km/soatda vaqt 3 soat.",
-    "ru": "Все пары найдены правильно. При прямой зависимости величины меняются одинаково, при обратной — в противоположных направлениях."
+    "ru": "Все пары найдены правильно. При прямой зависимости величины меняются одинаково, при обратной — в противоположных направлениях.",
+    "en": "6 kg cost 42 000 sum; 10 workers need 6 days; at 120 km/h the time is 3 hours."
   }
 };
 

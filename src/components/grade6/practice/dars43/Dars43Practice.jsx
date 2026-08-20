@@ -14,7 +14,8 @@ import D43_10 from './D43_10.jsx';
 const ITEMS = [D43_01, D43_02, D43_03, D43_04, D43_05, D43_06, D43_07, D43_08, D43_09, D43_10];
 const TITLE = {
   "uz": "Dars 43 amaliyoti. Uchburchak va murakkab shakllar yuzi",
-  "ru": "Практика к уроку 43. Площадь треугольника и сложных фигур"
+  "ru": "Практика к уроку 43. Площадь треугольника и сложных фигур",
+  "en": "Lesson 43 practice. The area of a triangle and of compound shapes"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars43Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

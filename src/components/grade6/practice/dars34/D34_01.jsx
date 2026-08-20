@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Chiziqli tenglamalar",
-    "ru": "Линейные уравнения"
+    "ru": "Линейные уравнения",
+    "en": "Linear equations"
   },
   "prompt": {
     "uz": "x + 9 = 17 tenglamaning ildizini toping.",
-    "ru": "Найдите корень уравнения x + 9 = 17."
+    "ru": "Найдите корень уравнения x + 9 = 17.",
+    "en": "Find the root of the equation x + 9 = 17."
   },
   "options": [
     "6",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "8",
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 8 hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 8."
+    "ru": "После последовательного применения правила темы к данным условия получается 8.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 8."
   }
 };
 

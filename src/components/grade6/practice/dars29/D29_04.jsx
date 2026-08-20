@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Ratsional sonlarni ko'paytirish va bo'lish",
-    "ru": "Умножение и деление рациональных чисел"
+    "ru": "Умножение и деление рациональных чисел",
+    "en": "Multiplying and dividing rational numbers"
   },
   "prompt": {
     "uz": "−1,5 · 0,8 ko‘paytmani hisoblang.",
-    "ru": "Вычислите произведение −1,5 · 0,8."
+    "ru": "Вычислите произведение −1,5 · 0,8.",
+    "en": "Work out the product −1,5 · 0,8."
   },
   "options": [
     "−1,2",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "−1,2",
   "explanation": {
     "uz": "15 · 8 = 120; ikki kasr xonasi ajratiladi va ishora manfiy: −1,2.",
-    "ru": "15 · 8 = 120; отделяем два знака после запятой и ставим минус: −1,2."
+    "ru": "15 · 8 = 120; отделяем два знака после запятой и ставим минус: −1,2.",
+    "en": "15 · 8 = 120; mark off two decimal places and put a minus sign: −1,2."
   }
 };
 

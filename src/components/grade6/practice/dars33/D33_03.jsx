@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "O'xshash hadlarni ixchamlash",
-    "ru": "Приведение подобных слагаемых"
+    "ru": "Приведение подобных слагаемых",
+    "en": "Collecting like terms"
   },
   "prompt": {
     "uz": "Har bir yozuvni unga mos javob yoki tavsif bilan bog‘lang.",
-    "ru": "Соедините каждую запись с подходящим ответом или описанием."
+    "ru": "Соедините каждую запись с подходящим ответом или описанием.",
+    "en": "Connect each record with the answer or the description that fits it."
   },
   "left": [
     "2x+6x",
@@ -26,11 +28,12 @@ const ITEM = {
     2
   ],
   "translationsRu": {
-    "3m+m": "3m+м"
+    "3m+m": "3m+m"
   },
   "explanation": {
     "uz": "Har bir chap kartani alohida tekshirish orqali mosliklar topiladi: 2x+6x ↔ 8x; 9a−4a ↔ 5a; 3m+m ↔ 4m.",
-    "ru": "Каждая пара найдена по определению или вычислению, указанному в условии темы."
+    "ru": "Каждая пара найдена по определению или вычислению, указанному в условии темы.",
+    "en": "The matches are found by checking every card on the left on its own: 2x+6x ↔ 8x; 9a−4a ↔ 5a; 3m+m ↔ 4m."
   }
 };
 

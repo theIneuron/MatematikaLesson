@@ -14,7 +14,8 @@ import D09_10 from './D09_10.jsx';
 const ITEMS = [D09_01, D09_02, D09_03, D09_04, D09_05, D09_06, D09_07, D09_08, D09_09, D09_10];
 const TITLE = {
   "uz": "Dars 9 amaliyoti. Kasrlarni umumiy maxrajga keltirish",
-  "ru": "Практика к уроку 9. Приведение дробей к общему знаменателю"
+  "ru": "Практика к уроку 9. Приведение дробей к общему знаменателю",
+  "en": "Lesson 9 practice. Bringing fractions to a common denominator"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars09Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

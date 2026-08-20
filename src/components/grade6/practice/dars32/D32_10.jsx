@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Qavslarni ochish",
-    "ru": "Раскрытие скобок"
+    "ru": "Раскрытие скобок",
+    "en": "Opening brackets"
   },
   "prompt": {
     "uz": "5(2x − 3) − 2(x + 4) ni soddalashtiring.",
-    "ru": "Упростите 5(2x − 3) − 2(x + 4)."
+    "ru": "Упростите 5(2x − 3) − 2(x + 4).",
+    "en": "Simplify 5(2x − 3) − 2(x + 4)."
   },
   "options": [
     "8x−23",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "8x−23",
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 8x−23 hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 8x−23."
+    "ru": "После последовательного применения правила темы к данным условия получается 8x−23.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 8x−23."
   }
 };
 

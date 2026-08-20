@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "3 ga bo'linish",
-    "ru": "Практика к уроку 3. Признаки делимости на 3 и 9"
+    "ru": "Практика к уроку 3. Признаки делимости на 3 и 9",
+    "en": "Divisible by 3"
   },
   "prompt": {
     "uz": "3 ga bo'linadigan sonni toping.",
-    "ru": "Найдите число, которое делится на 3."
+    "ru": "Найдите число, которое делится на 3.",
+    "en": "Find the number that divides by 3."
   },
   "options": [
     "124",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "231",
   "explanation": {
     "uz": "231 raqamlari yig'indisi 2 + 3 + 1 = 6; 6 soni 3 ga bo'linadi.",
-    "ru": "Правильный ответ: 231. Для делимости на 3 и 9 проверяют сумму цифр числа."
+    "ru": "Правильный ответ: 231. Для делимости на 3 и 9 проверяют сумму цифр числа.",
+    "en": "The digits of 231 add up to 2 + 3 + 1 = 6; and 6 divides by 3."
   }
 };
 

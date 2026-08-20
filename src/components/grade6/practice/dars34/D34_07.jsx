@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Chiziqli tenglamalar",
-    "ru": "Линейные уравнения"
+    "ru": "Линейные уравнения",
+    "en": "Linear equations"
   },
   "prompt": {
     "uz": "2(x + 3) = 18 tenglamaning ildizini toping.",
-    "ru": "Найдите корень уравнения 2(x + 3) = 18."
+    "ru": "Найдите корень уравнения 2(x + 3) = 18.",
+    "en": "Find the root of the equation 2(x + 3) = 18."
   },
   "options": [
     "3",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "6",
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 6 hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 6."
+    "ru": "После последовательного применения правила темы к данным условия получается 6.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 6."
   }
 };
 

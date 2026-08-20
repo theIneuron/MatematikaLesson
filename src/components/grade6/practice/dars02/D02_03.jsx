@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Bo'linish xususiyatlari",
-    "ru": "Практика к уроку 2. Признаки делимости на 2, 5 и 10"
+    "ru": "Практика к уроку 2. Признаки делимости на 2, 5 и 10",
+    "en": "Divisibility properties"
   },
   "prompt": {
     "uz": "Sonlarni mos bo'linish xususiyati bilan bog'lang.",
-    "ru": "Соедините числа с подходящими признаками делимости."
+    "ru": "Соедините числа с подходящими признаками делимости.",
+    "en": "Connect each number with the divisibility that fits it."
   },
   "left": [
     "246",
@@ -30,9 +32,15 @@ const ITEM = {
     "faqat 5 ga": "только на 5",
     "2, 5 va 10 ga": "на 2, 5 и 10"
   },
+  "translationsEn": {
+    "faqat 2 ga": "by 2 only",
+    "faqat 5 ga": "by 5 only",
+    "2, 5 va 10 ga": "by 2, 5 and 10"
+  },
   "explanation": {
     "uz": "246 faqat 2 ga, 375 faqat 5 ga, 920 esa 2, 5 va 10 ga bo'linadi.",
-    "ru": "Все пары найдены правильно. Для делимости на 2, 5 и 10 достаточно проверить последнюю цифру."
+    "ru": "Все пары найдены правильно. Для делимости на 2, 5 и 10 достаточно проверить последнюю цифру.",
+    "en": "246 divides only by 2, 375 only by 5, and 920 by 2, 5 and 10."
   }
 };
 

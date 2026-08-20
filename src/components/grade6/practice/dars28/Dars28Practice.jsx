@@ -14,7 +14,8 @@ import D28_10 from './D28_10.jsx';
 const ITEMS = [D28_01, D28_02, D28_03, D28_04, D28_05, D28_06, D28_07, D28_08, D28_09, D28_10];
 const TITLE = {
   "uz": "Dars 28 amaliyoti. Ratsional sonlarni ayirish",
-  "ru": "Практика к уроку 28. Вычитание рациональных чисел"
+  "ru": "Практика к уроку 28. Вычитание рациональных чисел",
+  "en": "Lesson 28 practice. Subtracting rational numbers"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars28Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

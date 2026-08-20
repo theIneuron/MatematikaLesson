@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Fazoviy shakllar hajmi va o'lchov birliklari",
-    "ru": "Объём пространственных фигур и единицы"
+    "ru": "Объём пространственных фигур и единицы",
+    "en": "The volume of solids and units of measure"
   },
   "prompt": {
     "uz": "Har bir yozuvni unga mos javob yoki tavsif bilan bog‘lang.",
-    "ru": "Соедините каждую запись с подходящим ответом или описанием."
+    "ru": "Соедините каждую запись с подходящим ответом или описанием.",
+    "en": "Connect each record with the answer or the description that fits it."
   },
   "left": [
     "2 dm³",
@@ -35,7 +37,8 @@ const ITEM = {
   },
   "explanation": {
     "uz": "Har bir chap kartani alohida tekshirish orqali mosliklar topiladi: 2 dm³ ↔ 2000 cm³; 3500 cm³ ↔ 3,5 dm³; 0,5 m³ ↔ 500 dm³.",
-    "ru": "Каждая пара найдена по определению или вычислению, указанному в условии темы."
+    "ru": "Каждая пара найдена по определению или вычислению, указанному в условии темы.",
+    "en": "The matches are found by checking every card on the left on its own: 2 dm³ ↔ 2000 cm³; 3500 cm³ ↔ 3,5 dm³; 0,5 m³ ↔ 500 dm³."
   }
 };
 

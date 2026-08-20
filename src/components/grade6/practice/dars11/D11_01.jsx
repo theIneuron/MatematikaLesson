@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Kasrlar ko'paytmasi",
-    "ru": "Практика к уроку 11. Умножение обыкновенных дробей"
+    "ru": "Практика к уроку 11. Умножение обыкновенных дробей",
+    "en": "A product of fractions"
   },
   "prompt": {
     "uz": "2/3 va 5/8 kasrlarini ko'paytiring. Suratlarni va maxrajlarni alohida ko'paytirib, natijani eng sodda ko'rinishda tanlang.",
-    "ru": "Умножьте 2/3 на 5/8 и выберите результат в несократимом виде."
+    "ru": "Умножьте 2/3 на 5/8 и выберите результат в несократимом виде.",
+    "en": "Multiply 2/3 by 5/8. Multiply the numerators and the denominators separately and choose the result in its simplest form."
   },
   "options": [
     "5/12",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "5/12",
   "explanation": {
     "uz": "Suratlar: 2 × 5 = 10, maxrajlar: 3 × 8 = 24. 10/24 ni 2 ga qisqartirsak 5/12 hosil bo'ladi.",
-    "ru": "Правильный ответ: 5/12. При умножении дробей перемножают числители и знаменатели, а результат сокращают."
+    "ru": "Правильный ответ: 5/12. При умножении дробей перемножают числители и знаменатели, а результат сокращают.",
+    "en": "The numerators: 2 × 5 = 10, the denominators: 3 × 8 = 24. Reduce 10/24 by 2 and you get 5/12."
   }
 };
 

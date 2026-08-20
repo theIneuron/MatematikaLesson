@@ -4,11 +4,13 @@ const ITEM = {
   "type": "bool",
   "topic": {
     "uz": "Ko'paytmalar tengligi",
-    "ru": "Практика к уроку 18. Пропорция"
+    "ru": "Практика к уроку 18. Пропорция",
+    "en": "The equality of the products"
   },
   "prompt": {
     "uz": "8 : 12 = 14 : 21 tenglik proporsiya bo'ladi, degan fikrni 8 × 21 va 12 × 14 ko'paytmalarini taqqoslab tekshiring.",
-    "ru": "Верно ли, что 8 : 12 = 14 : 21 является пропорцией?"
+    "ru": "Верно ли, что 8 : 12 = 14 : 21 является пропорцией?",
+    "en": "Compare the products 8 × 21 and 12 × 14 to check the statement that the equality 8 : 12 = 14 : 21 is a proportion."
   },
   "options": [
     "Ha",
@@ -19,9 +21,14 @@ const ITEM = {
     "Ha": "Да",
     "Yo'q": "Нет"
   },
+  "translationsEn": {
+    "Ha": "Yes",
+    "Yo'q": "No"
+  },
   "explanation": {
     "uz": "8 × 21 = 168 va 12 × 14 = 168, shuning uchun tenglik proporsiya.",
-    "ru": "Правильный ответ: Да. В пропорции произведение крайних членов равно произведению средних."
+    "ru": "Правильный ответ: Да. В пропорции произведение крайних членов равно произведению средних.",
+    "en": "8 × 21 = 168 and 12 × 14 = 168, so the equality is a proportion."
   }
 };
 

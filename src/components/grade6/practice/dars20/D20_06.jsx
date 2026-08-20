@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Masofalarni moslashtirish",
-    "ru": "Практика к уроку 20. Масштаб"
+    "ru": "Практика к уроку 20. Масштаб",
+    "en": "Matching distances"
   },
   "prompt": {
     "uz": "Xaritadagi masofa va masshtabdan foydalanib, haqiqiy masofalarni moslashtiring.",
-    "ru": "По расстоянию на карте и масштабу найдите реальные расстояния."
+    "ru": "По расстоянию на карте и масштабу найдите реальные расстояния.",
+    "en": "Use the distance on the map and the scale to match the real distances."
   },
   "left": [
     "3 cm, 1 : 400 000",
@@ -35,7 +37,8 @@ const ITEM = {
   },
   "explanation": {
     "uz": "3 cm = 12 km; 5 cm = 1 km; 7 cm = 7 km.",
-    "ru": "Все пары найдены правильно. В масштабе 1 : n одному сантиметру на карте соответствуют n сантиметров на местности."
+    "ru": "Все пары найдены правильно. В масштабе 1 : n одному сантиметру на карте соответствуют n сантиметров на местности.",
+    "en": "3 cm stand for 12 km; 5 cm for 1 km; 7 cm for 7 km."
   }
 };
 

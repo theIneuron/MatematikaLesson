@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Aylana uzunligi",
-    "ru": "Длина окружности"
+    "ru": "Длина окружности",
+    "en": "The circumference of a circle"
   },
   "prompt": {
     "uz": "Radiusi 6 cm bo‘lgan yarim doiraning perimetrini π=3 da toping.",
-    "ru": "Найдите периметр полукруга радиуса 6 см при π=3."
+    "ru": "Найдите периметр полукруга радиуса 6 см при π=3.",
+    "en": "Find the perimeter of a semicircle with the radius 6 cm, taking π=3."
   },
   "options": [
     "18 cm",
@@ -25,7 +27,8 @@ const ITEM = {
   },
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 30 cm hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 30 cm."
+    "ru": "После последовательного применения правила темы к данным условия получается 30 см.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 30 cm."
   }
 };
 

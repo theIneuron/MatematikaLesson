@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Bir qadamda qisqartirish",
-    "ru": "Практика к уроку 8. Сокращение дробей"
+    "ru": "Практика к уроку 8. Сокращение дробей",
+    "en": "Reducing in one step"
   },
   "prompt": {
     "uz": "88/120 kasrini eng sodda ko'rinishgacha qisqartiring.",
-    "ru": "Сократите дробь 88/120 до несократимого вида."
+    "ru": "Сократите дробь 88/120 до несократимого вида.",
+    "en": "Reduce the fraction 88/120 to its simplest form."
   },
   "options": [
     "8/11",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "11/15",
   "explanation": {
     "uz": "88 va 120 ning EKUBi 8: 88/120 = 11/15.",
-    "ru": "Правильный ответ: 11/15. Для полного сокращения числитель и знаменатель делят на их НОД."
+    "ru": "Правильный ответ: 11/15. Для полного сокращения числитель и знаменатель делят на их НОД.",
+    "en": "The GCD of 88 and 120 is 8: 88/120 = 11/15."
   }
 };
 

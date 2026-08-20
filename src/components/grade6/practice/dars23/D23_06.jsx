@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Bog'lanish turi",
-    "ru": "Практика к уроку 23. Задачи на пропорции"
+    "ru": "Практика к уроку 23. Задачи на пропорции",
+    "en": "The kind of relation"
   },
   "prompt": {
     "uz": "Masaladagi bog'lanishni uning proporsionallik turi bilan moslashtiring.",
-    "ru": "Соедините зависимость в задаче с видом пропорциональности."
+    "ru": "Соедините зависимость в задаче с видом пропорциональности.",
+    "en": "Match the relation in the problem with its kind of proportion."
   },
   "left": [
     "Mahsulot miqdori va narxi",
@@ -33,9 +35,18 @@ const ITEM = {
     "To‘g‘ri proporsional miqdorlar": "Прямо пропорциональные величины",
     "Ko‘paytmasi o‘zgarmaydi": "Произведение не изменяется"
   },
+  "translationsEn": {
+    "Mahsulot miqdori va narxi": "The amount of goods and their cost",
+    "Ishchilar soni va ish muddati": "The number of workers and the time for the job",
+    "Tezlik va bir xil yo‘l vaqti": "The speed and the time over the same route",
+    "Teskari proporsional miqdorlar": "Inversely proportional quantities",
+    "To‘g‘ri proporsional miqdorlar": "Directly proportional quantities",
+    "Ko‘paytmasi o‘zgarmaydi": "Their product stays the same"
+  },
   "explanation": {
     "uz": "Mahsulot va narx to'g'ri, ishchi va muddat teskari, tezlik va vaqt ko'paytmasi o'zgarmaydi.",
-    "ru": "Все пары найдены правильно. Сначала определяют вид зависимости, затем составляют и решают пропорцию."
+    "ru": "Все пары найдены правильно. Сначала определяют вид зависимости, затем составляют и решают пропорцию.",
+    "en": "The goods and the cost are direct, the workers and the time are inverse, and the product of the speed and the time stays the same."
   }
 };
 

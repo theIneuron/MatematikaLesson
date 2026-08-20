@@ -14,7 +14,8 @@ import D16_10 from './D16_10.jsx';
 const ITEMS = [D16_01, D16_02, D16_03, D16_04, D16_05, D16_06, D16_07, D16_08, D16_09, D16_10];
 const TITLE = {
   "uz": "Dars 16 amaliyoti. Kasrlar va o'nli kasrlarga oid masalalar",
-  "ru": "Практика к уроку 16. Задачи с дробями и десятичными дробями"
+  "ru": "Практика к уроку 16. Задачи с дробями и десятичными дробями",
+  "en": "Lesson 16 practice. Problems with fractions and decimals"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars16Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

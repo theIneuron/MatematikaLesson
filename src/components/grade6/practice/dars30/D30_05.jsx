@@ -4,11 +4,13 @@ const ITEM = {
   "type": "bool",
   "topic": {
     "uz": "Koordinata tekisligi",
-    "ru": "Координатная плоскость"
+    "ru": "Координатная плоскость",
+    "en": "The coordinate plane"
   },
   "prompt": {
     "uz": "C(−8; 0) nuqta x o‘qida joylashgan.",
-    "ru": "Точка C(−8; 0) находится на оси x."
+    "ru": "Точка C(−8; 0) находится на оси x.",
+    "en": "The point C(−8; 0) lies on the x axis."
   },
   "options": [
     "Ha",
@@ -19,9 +21,14 @@ const ITEM = {
     "Ha": "Да",
     "Yo'q": "Нет"
   },
+  "translationsEn": {
+    "Ha": "Yes",
+    "Yo'q": "No"
+  },
   "explanation": {
     "uz": "y = 0 bo‘lgan barcha nuqtalar x o‘qida yotadi.",
-    "ru": "Все точки с y = 0 лежат на оси x."
+    "ru": "Все точки с y = 0 лежат на оси x.",
+    "en": "Every point with y = 0 lies on the x axis."
   }
 };
 

@@ -4,16 +4,19 @@ const ITEM = {
   "type": "input",
   "topic": {
     "uz": "Fazoviy shakllar hajmi va o'lchov birliklari",
-    "ru": "Объём пространственных фигур и единицы"
+    "ru": "Объём пространственных фигур и единицы",
+    "en": "The volume of solids and units of measure"
   },
   "prompt": {
     "uz": "Uzunligi 8 cm, eni 5 cm, hajmi 240 cm³ bo‘lgan qutining balandligini yozing.",
-    "ru": "Длина коробки 8 см, ширина 5 см, объём 240 см³. Запишите высоту."
+    "ru": "Длина коробки 8 см, ширина 5 см, объём 240 см³. Запишите высоту.",
+    "en": "A box is 8 cm long, 5 cm wide and its volume is 240 cm³. Write its height."
   },
   "answer": "6",
   "explanation": {
     "uz": "Hisoblashdagi amallarni to‘g‘ri tartibda bajarsak, javob 6 bo‘ladi.",
-    "ru": "Если выполнить действия в правильном порядке, получится ответ 6."
+    "ru": "Если выполнить действия в правильном порядке, получится ответ 6.",
+    "en": "Do the operations of the calculation in the right order and the answer is 6."
   }
 };
 

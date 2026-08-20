@@ -14,7 +14,8 @@ import D13_10 from './D13_10.jsx';
 const ITEMS = [D13_01, D13_02, D13_03, D13_04, D13_05, D13_06, D13_07, D13_08, D13_09, D13_10];
 const TITLE = {
   "uz": "Dars 13 amaliyoti. O'zaro teskari sonlar va sonni qismiga ko'ra topish",
-  "ru": "Практика к уроку 13. Взаимно обратные числа и нахождение целого"
+  "ru": "Практика к уроку 13. Взаимно обратные числа и нахождение целого",
+  "en": "Lesson 13 practice. Reciprocals and finding the whole"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars13Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

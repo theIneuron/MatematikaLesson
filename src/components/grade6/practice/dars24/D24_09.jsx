@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Qarama-qarshi sonlar",
-    "ru": "Практика к уроку 24. Координатная прямая"
+    "ru": "Практика к уроку 24. Координатная прямая",
+    "en": "Opposite numbers"
   },
   "prompt": {
     "uz": "Har bir songa koordinata chizig'idagi qarama-qarshi sonini moslashtiring.",
-    "ru": "Соедините каждое число с противоположным ему числом."
+    "ru": "Соедините каждое число с противоположным ему числом.",
+    "en": "Match each number with its opposite number on the coordinate line."
   },
   "left": [
     "−11",
@@ -27,7 +29,8 @@ const ITEM = {
   ],
   "explanation": {
     "uz": "−11 ga 11, 4 ga −4, −2,5 ga 2,5 qarama-qarshi.",
-    "ru": "Все пары найдены правильно. Чем правее расположено число на координатной прямой, тем оно больше."
+    "ru": "Все пары найдены правильно. Чем правее расположено число на координатной прямой, тем оно больше.",
+    "en": "The opposite of −11 is 11, of 4 it is −4, and of −2,5 it is 2,5."
   }
 };
 

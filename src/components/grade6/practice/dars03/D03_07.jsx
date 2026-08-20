@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Noma'lum raqam",
-    "ru": "Практика к уроку 3. Признаки делимости на 3 и 9"
+    "ru": "Практика к уроку 3. Признаки делимости на 3 и 9",
+    "en": "The unknown digit"
   },
   "prompt": {
     "uz": "52□ soni 9 ga bo'linishi uchun katakka qaysi raqam yoziladi?",
-    "ru": "Какую цифру нужно поставить вместо □ в числе 52□, чтобы оно делилось на 9?"
+    "ru": "Какую цифру нужно поставить вместо □ в числе 52□, чтобы оно делилось на 9?",
+    "en": "Which digit goes in the box so that 52□ divides by 9?"
   },
   "options": [
     "1",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "2",
   "explanation": {
     "uz": "5 + 2 + 2 = 9. Demak, katakka 2 yoziladi.",
-    "ru": "Правильный ответ: 2. Для делимости на 3 и 9 проверяют сумму цифр числа."
+    "ru": "Правильный ответ: 2. Для делимости на 3 и 9 проверяют сумму цифр числа.",
+    "en": "5 + 2 + 2 = 9. So the digit in the box is 2."
   }
 };
 

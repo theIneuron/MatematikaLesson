@@ -14,7 +14,8 @@ import D42_10 from './D42_10.jsx';
 const ITEMS = [D42_01, D42_02, D42_03, D42_04, D42_05, D42_06, D42_07, D42_08, D42_09, D42_10];
 const TITLE = {
   "uz": "Dars 42 amaliyoti. Uchburchak elementlari, turlari va perimetri",
-  "ru": "Практика к уроку 42. Элементы, виды и периметр треугольника"
+  "ru": "Практика к уроку 42. Элементы, виды и периметр треугольника",
+  "en": "Lesson 42 practice. Elements, kinds and perimeter of a triangle"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars42Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

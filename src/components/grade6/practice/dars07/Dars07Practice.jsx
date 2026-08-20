@@ -14,7 +14,8 @@ import D07_10 from './D07_10.jsx';
 const ITEMS = [D07_01, D07_02, D07_03, D07_04, D07_05, D07_06, D07_07, D07_08, D07_09, D07_10];
 const TITLE = {
   "uz": "Dars 7 amaliyoti. Kasrning asosiy xossasi",
-  "ru": "Практика к уроку 7. Основное свойство дроби"
+  "ru": "Практика к уроку 7. Основное свойство дроби",
+  "en": "Lesson 7 practice. The basic property of a fraction"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars07Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

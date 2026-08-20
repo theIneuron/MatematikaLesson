@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Fazoviy shakllar hajmi va o'lchov birliklari",
-    "ru": "Объём пространственных фигур и единицы"
+    "ru": "Объём пространственных фигур и единицы",
+    "en": "The volume of solids and units of measure"
   },
   "prompt": {
     "uz": "Hajmi 120 cm³, asos yuzi 30 cm² bo‘lgan prizma balandligini toping.",
-    "ru": "Объём призмы 120 см³, площадь основания 30 см². Найдите высоту."
+    "ru": "Объём призмы 120 см³, площадь основания 30 см². Найдите высоту.",
+    "en": "The volume of a prism is 120 cm³ and the area of its base is 30 cm². Find its height."
   },
   "options": [
     "3 cm",
@@ -25,7 +27,8 @@ const ITEM = {
   },
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 4 cm hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 4 cm."
+    "ru": "После последовательного применения правила темы к данным условия получается 4 см.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 4 cm."
   }
 };
 

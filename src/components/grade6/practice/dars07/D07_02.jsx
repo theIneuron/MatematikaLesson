@@ -4,16 +4,19 @@ const ITEM = {
   "type": "input",
   "topic": {
     "uz": "Noma'lum surat",
-    "ru": "Практика к уроку 7. Основное свойство дроби"
+    "ru": "Практика к уроку 7. Основное свойство дроби",
+    "en": "The unknown numerator"
   },
   "prompt": {
     "uz": "?/28 = 3/7 tenglik to'g'ri bo'lishi uchun noma'lum suratni topib yozing.",
-    "ru": "Найдите неизвестный числитель в равенстве ?/28 = 3/7."
+    "ru": "Найдите неизвестный числитель в равенстве ?/28 = 3/7.",
+    "en": "Find the unknown numerator that makes the equality ?/28 = 3/7 true."
   },
   "answer": "12",
   "explanation": {
     "uz": "28 : 7 = 4, demak surat ham 3 × 4 = 12 bo'ladi.",
-    "ru": "Правильный ответ: 12. При умножении или делении числителя и знаменателя на одно число значение дроби не меняется."
+    "ru": "Правильный ответ: 12. При умножении или делении числителя и знаменателя на одно число значение дроби не меняется.",
+    "en": "28 : 7 = 4, so the numerator is 3 × 4 = 12 as well."
   }
 };
 

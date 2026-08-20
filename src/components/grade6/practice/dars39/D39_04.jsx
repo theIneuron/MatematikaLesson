@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Doira yuzi",
-    "ru": "Площадь круга"
+    "ru": "Площадь круга",
+    "en": "The area of a disc"
   },
   "prompt": {
     "uz": "Doira yuzi 75 cm², π=3. Radiusini toping.",
-    "ru": "Площадь круга 75 см², π=3. Найдите радиус."
+    "ru": "Площадь круга 75 см², π=3. Найдите радиус.",
+    "en": "The area of a disc is 75 cm² and π=3. Find its radius."
   },
   "options": [
     "3 cm",
@@ -25,7 +27,8 @@ const ITEM = {
   },
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 5 cm hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 5 cm."
+    "ru": "После последовательного применения правила темы к данным условия получается 5 см.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 5 cm."
   }
 };
 

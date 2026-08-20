@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Chiziqli tenglamalar",
-    "ru": "Линейные уравнения"
+    "ru": "Линейные уравнения",
+    "en": "Linear equations"
   },
   "prompt": {
     "uz": "Har bir yozuvni unga mos javob yoki tavsif bilan bog‘lang.",
-    "ru": "Соедините каждую запись с подходящим ответом или описанием."
+    "ru": "Соедините каждую запись с подходящим ответом или описанием.",
+    "en": "Connect each record with the answer or the description that fits it."
   },
   "left": [
     "5x−2=3x+12",
@@ -27,7 +29,8 @@ const ITEM = {
   ],
   "explanation": {
     "uz": "Har bir chap kartani alohida tekshirish orqali mosliklar topiladi: 5x−2=3x+12 ↔ 7; 3(x−1)=15 ↔ 6; 8−2x=14 ↔ −3.",
-    "ru": "Каждая пара найдена по определению или вычислению, указанному в условии темы."
+    "ru": "Каждая пара найдена по определению или вычислению, указанному в условии темы.",
+    "en": "The matches are found by checking every card on the left on its own: 5x−2=3x+12 ↔ 7; 3(x−1)=15 ↔ 6; 8−2x=14 ↔ −3."
   }
 };
 

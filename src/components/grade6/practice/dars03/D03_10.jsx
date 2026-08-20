@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Faqat 3 ga bo'linish",
-    "ru": "Практика к уроку 3. Признаки делимости на 3 и 9"
+    "ru": "Практика к уроку 3. Признаки делимости на 3 и 9",
+    "en": "Divisible by 3 only"
   },
   "prompt": {
     "uz": "3 ga bo'linadigan, lekin 9 ga bo'linmaydigan sonni toping.",
-    "ru": "Найдите число, которое делится на 3, но не делится на 9."
+    "ru": "Найдите число, которое делится на 3, но не делится на 9.",
+    "en": "Find the number that divides by 3 but does not divide by 9."
   },
   "options": [
     "318",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "318",
   "explanation": {
     "uz": "3 + 1 + 8 = 12; u 3 ga bo'linadi, lekin 9 ga bo'linmaydi.",
-    "ru": "Правильный ответ: 318. Для делимости на 3 и 9 проверяют сумму цифр числа."
+    "ru": "Правильный ответ: 318. Для делимости на 3 и 9 проверяют сумму цифр числа.",
+    "en": "3 + 1 + 8 = 12; 12 divides by 3 but does not divide by 9."
   }
 };
 

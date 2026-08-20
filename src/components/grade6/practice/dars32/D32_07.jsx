@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Qavslarni ochish",
-    "ru": "Раскрытие скобок"
+    "ru": "Раскрытие скобок",
+    "en": "Opening brackets"
   },
   "prompt": {
     "uz": "2(3x + 4) − x ifodani soddalashtiring.",
-    "ru": "Упростите выражение 2(3x + 4) − x."
+    "ru": "Упростите выражение 2(3x + 4) − x.",
+    "en": "Simplify the expression 2(3x + 4) − x."
   },
   "options": [
     "5x+8",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "5x+8",
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 5x+8 hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 5x+8."
+    "ru": "После последовательного применения правила темы к данным условия получается 5x+8.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 5x+8."
   }
 };
 

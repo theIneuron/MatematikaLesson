@@ -14,7 +14,8 @@ import D39_10 from './D39_10.jsx';
 const ITEMS = [D39_01, D39_02, D39_03, D39_04, D39_05, D39_06, D39_07, D39_08, D39_09, D39_10];
 const TITLE = {
   "uz": "Dars 39 amaliyoti. Doira yuzi",
-  "ru": "Практика к уроку 39. Площадь круга"
+  "ru": "Практика к уроку 39. Площадь круга",
+  "en": "Lesson 39 practice. The area of a disc"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars39Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

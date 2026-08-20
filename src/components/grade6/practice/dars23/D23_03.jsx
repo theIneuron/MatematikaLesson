@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Masalalarni moslashtirish",
-    "ru": "Практика к уроку 23. Задачи на пропорции"
+    "ru": "Практика к уроку 23. Задачи на пропорции",
+    "en": "Matching problems"
   },
   "prompt": {
     "uz": "Har bir masalani hisoblab, unga mos natijani bog'lang.",
-    "ru": "Решите каждую задачу и соедините с ответом."
+    "ru": "Решите каждую задачу и соедините с ответом.",
+    "en": "Work out each problem and connect it with the result that fits."
   },
   "left": [
     "4 litr bo‘yoq 28 m²; 10 litr → ?",
@@ -29,13 +31,21 @@ const ITEM = {
     "4 litr bo‘yoq 28 m²; 10 litr → ?": "4 литра краски → 28 м²; 10 литров → ?",
     "6 non 27 000 so‘m; 14 non → ?": "6 лепёшек → 27 000 сумов; 14 лепёшек → ?",
     "8 kran 15 soat; 12 kran → ?": "8 кранов → 15 часов; 12 кранов → ?",
-    "10 soat": "10 часа",
+    "10 soat": "10 часов",
     "63 000 so‘m": "63 000 сум",
     "70 m²": "70 м²"
   },
+  "translationsEn": {
+    "4 litr bo‘yoq 28 m²; 10 litr → ?": "4 litres of paint cover 28 m²; 10 litres → ?",
+    "6 non 27 000 so‘m; 14 non → ?": "6 loaves cost 27 000 sum; 14 loaves → ?",
+    "8 kran 15 soat; 12 kran → ?": "8 taps take 15 hours; 12 taps → ?",
+    "10 soat": "10 hours",
+    "63 000 so‘m": "63 000 sum"
+  },
   "explanation": {
     "uz": "10 litr 70 m²; 14 non 63 000 so'm; 12 kran 10 soat.",
-    "ru": "Все пары найдены правильно. Сначала определяют вид зависимости, затем составляют и решают пропорцию."
+    "ru": "Все пары найдены правильно. Сначала определяют вид зависимости, затем составляют и решают пропорцию.",
+    "en": "10 litres cover 70 m²; 14 loaves cost 63 000 sum; 12 taps take 10 hours."
   }
 };
 

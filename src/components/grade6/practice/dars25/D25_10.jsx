@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Murakkab modulli tenglama",
-    "ru": "Практика к уроку 25. Модуль числа"
+    "ru": "Практика к уроку 25. Модуль числа",
+    "en": "A harder equation with a modulus"
   },
   "prompt": {
     "uz": "|x − 3| = 5 tenglamaning ikkala yechimi qaysi qatorda to'g'ri berilganini toping.",
-    "ru": "Найдите оба решения уравнения |x − 3| = 5."
+    "ru": "Найдите оба решения уравнения |x − 3| = 5.",
+    "en": "Find the row that gives both solutions of the equation |x − 3| = 5 correctly."
   },
   "options": [
     "x = −8 va x = 2",
@@ -23,9 +25,16 @@ const ITEM = {
     "x = 2 va x = 8": "x = 2 и x = 8",
     "x = −5 va x = 5": "x = −5 и x = 5"
   },
+  "translationsEn": {
+    "x = −8 va x = 2": "x = −8 and x = 2",
+    "x = −2 va x = 8": "x = −2 and x = 8",
+    "x = 2 va x = 8": "x = 2 and x = 8",
+    "x = −5 va x = 5": "x = −5 and x = 5"
+  },
   "explanation": {
     "uz": "x − 3 = 5 yoki x − 3 = −5; bundan x = 8 yoki x = −2.",
-    "ru": "Правильный ответ: x = −2 и x = 8. Модуль числа — его расстояние от нуля, поэтому модуль не бывает отрицательным."
+    "ru": "Правильный ответ: x = −2 и x = 8. Модуль числа — его расстояние от нуля, поэтому модуль не бывает отрицательным.",
+    "en": "x − 3 = 5 or x − 3 = −5; from that x = 8 or x = −2."
   }
 };
 

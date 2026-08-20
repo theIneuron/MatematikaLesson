@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Uchburchak elementlari, turlari va perimetri",
-    "ru": "Элементы, виды и периметр треугольника"
+    "ru": "Элементы, виды и периметр треугольника",
+    "en": "Elements, kinds and perimeter of a triangle"
   },
   "prompt": {
     "uz": "Har bir yozuvni unga mos javob yoki tavsif bilan bog‘lang.",
-    "ru": "Соедините каждую запись с подходящим ответом или описанием."
+    "ru": "Соедините каждую запись с подходящим ответом или описанием.",
+    "en": "Connect each record with the answer or the description that fits it."
   },
   "left": [
     "uch",
@@ -30,9 +32,15 @@ const ITEM = {
     "tomon": "сторона",
     "burchak": "угол"
   },
+  "translationsEn": {
+    "uch": "the vertices",
+    "tomon": "the sides",
+    "burchak": "the angles"
+  },
   "explanation": {
     "uz": "Har bir chap kartani alohida tekshirish orqali mosliklar topiladi: uch ↔ A,B,C; tomon ↔ AB,BC,CA; burchak ↔ ∠A,∠B,∠C.",
-    "ru": "Каждая пара найдена по определению или вычислению, указанному в условии темы."
+    "ru": "Каждая пара найдена по определению или вычислению, указанному в условии темы.",
+    "en": "The matches are found by checking every card on the left on its own: the vertices ↔ A,B,C; the sides ↔ AB,BC,CA; the angles ↔ ∠A,∠B,∠C."
   }
 };
 

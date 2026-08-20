@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Koordinata tekisligi",
-    "ru": "Координатная плоскость"
+    "ru": "Координатная плоскость",
+    "en": "The coordinate plane"
   },
   "prompt": {
     "uz": "Siljishlarni yangi nuqtalar bilan moslashtiring.",
-    "ru": "Соедините перемещения с новыми точками."
+    "ru": "Соедините перемещения с новыми точками.",
+    "en": "Match the moves with the new points."
   },
   "left": [
     "(1;2) dan 3 o‘ngga",
@@ -30,9 +32,15 @@ const ITEM = {
     "(−2;4) dan 5 pastga": "из (−2;4) на 5 вниз",
     "(3;−1) dan 2 chapga": "из (3;−1) на 2 влево"
   },
+  "translationsEn": {
+    "(1;2) dan 3 o‘ngga": "3 to the right from (1;2)",
+    "(−2;4) dan 5 pastga": "5 down from (−2;4)",
+    "(3;−1) dan 2 chapga": "2 to the left from (3;−1)"
+  },
   "explanation": {
     "uz": "Gorizontal siljish x ni, vertikal siljish y ni o‘zgartiradi.",
-    "ru": "Горизонтальное перемещение меняет x, вертикальное — y."
+    "ru": "Горизонтальное перемещение меняет x, вертикальное — y.",
+    "en": "A horizontal move changes x and a vertical move changes y."
   }
 };
 

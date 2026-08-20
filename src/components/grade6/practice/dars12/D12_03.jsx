@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Bo'linmalarni moslashtirish",
-    "ru": "Практика к уроку 12. Деление обыкновенных дробей"
+    "ru": "Практика к уроку 12. Деление обыкновенных дробей",
+    "en": "Matching quotients"
   },
   "prompt": {
     "uz": "Har bir bo'lish amalini teskari kasr yordamida hisoblang va o'ng ustundagi javobi bilan moslashtiring.",
-    "ru": "Соедините каждое деление дробей с его ответом."
+    "ru": "Соедините каждое деление дробей с его ответом.",
+    "en": "Work out each division with the help of the reciprocal and match it with its answer on the right."
   },
   "left": [
     "4/9 : 2/3",
@@ -27,7 +29,8 @@ const ITEM = {
   ],
   "explanation": {
     "uz": "4/9 : 2/3 = 2/3, 5/8 : 25/12 = 3/10, 7/10 : 21/25 = 5/6.",
-    "ru": "Все пары найдены правильно. Деление на дробь заменяют умножением на обратную дробь."
+    "ru": "Все пары найдены правильно. Деление на дробь заменяют умножением на обратную дробь.",
+    "en": "4/9 : 2/3 = 2/3, 5/8 : 25/12 = 3/10, 7/10 : 21/25 = 5/6."
   }
 };
 

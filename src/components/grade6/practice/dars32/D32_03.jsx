@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Qavslarni ochish",
-    "ru": "Раскрытие скобок"
+    "ru": "Раскрытие скобок",
+    "en": "Opening brackets"
   },
   "prompt": {
     "uz": "Har bir yozuvni unga mos javob yoki tavsif bilan bog‘lang.",
-    "ru": "Соедините каждую запись с подходящим ответом или описанием."
+    "ru": "Соедините каждую запись с подходящим ответом или описанием.",
+    "en": "Connect each record with the answer or the description that fits it."
   },
   "left": [
     "2(a+4)",
@@ -26,11 +28,12 @@ const ITEM = {
     2
   ],
   "translationsRu": {
-    "−3(m+2)": "−3(м+2)"
+    "−3(m+2)": "−3(m+2)"
   },
   "explanation": {
     "uz": "Har bir chap kartani alohida tekshirish orqali mosliklar topiladi: 2(a+4) ↔ 2a+8; 5(y−1) ↔ 5y−5; −3(m+2) ↔ −3m−6.",
-    "ru": "Каждая пара найдена по определению или вычислению, указанному в условии темы."
+    "ru": "Каждая пара найдена по определению или вычислению, указанному в условии темы.",
+    "en": "The matches are found by checking every card on the left on its own: 2(a+4) ↔ 2a+8; 5(y−1) ↔ 5y−5; −3(m+2) ↔ −3m−6."
   }
 };
 

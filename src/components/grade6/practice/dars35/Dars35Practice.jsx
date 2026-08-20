@@ -14,7 +14,8 @@ import D35_10 from './D35_10.jsx';
 const ITEMS = [D35_01, D35_02, D35_03, D35_04, D35_05, D35_06, D35_07, D35_08, D35_09, D35_10];
 const TITLE = {
   "uz": "Dars 35 amaliyoti. Tenglama yordamida masalalar yechish",
-  "ru": "Практика к уроку 35. Решение задач с помощью уравнений"
+  "ru": "Практика к уроку 35. Решение задач с помощью уравнений",
+  "en": "Lesson 35 practice. Solving problems with equations"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars35Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

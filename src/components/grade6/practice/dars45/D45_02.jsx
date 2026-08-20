@@ -4,16 +4,19 @@ const ITEM = {
   "type": "input",
   "topic": {
     "uz": "Ma'lumotlar bilan ishlash",
-    "ru": "Работа с данными"
+    "ru": "Работа с данными",
+    "en": "Working with data"
   },
   "prompt": {
     "uz": "3, 6, 8, 10, 12 qatorining medianasini yozing.",
-    "ru": "Запишите медиану ряда 3, 6, 8, 10, 12."
+    "ru": "Запишите медиану ряда 3, 6, 8, 10, 12.",
+    "en": "Write the median of the list 3, 6, 8, 10, 12."
   },
   "answer": "8",
   "explanation": {
     "uz": "Hisoblashdagi amallarni to‘g‘ri tartibda bajarsak, javob 8 bo‘ladi.",
-    "ru": "Если выполнить действия в правильном порядке, получится ответ 8."
+    "ru": "Если выполнить действия в правильном порядке, получится ответ 8.",
+    "en": "Do the operations of the calculation in the right order and the answer is 8."
   }
 };
 

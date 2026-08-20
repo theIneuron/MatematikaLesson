@@ -14,7 +14,8 @@ import D10_10 from './D10_10.jsx';
 const ITEMS = [D10_01, D10_02, D10_03, D10_04, D10_05, D10_06, D10_07, D10_08, D10_09, D10_10];
 const TITLE = {
   "uz": "Dars 10 amaliyoti. Har xil maxrajli kasrlarni qo'shish va ayirish",
-  "ru": "Практика к уроку 10. Сложение и вычитание дробей"
+  "ru": "Практика к уроку 10. Сложение и вычитание дробей",
+  "en": "Lesson 10 practice. Adding and subtracting fractions"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars10Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

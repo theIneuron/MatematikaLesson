@@ -14,7 +14,8 @@ import D04_10 from './D04_10.jsx';
 const ITEMS = [D04_01, D04_02, D04_03, D04_04, D04_05, D04_06, D04_07, D04_08, D04_09, D04_10];
 const TITLE = {
   "uz": "Dars 4 amaliyoti. Tub va murakkab sonlar",
-  "ru": "Практика к уроку 4. Простые и составные числа"
+  "ru": "Практика к уроку 4. Простые и составные числа",
+  "en": "Lesson 4 practice. Prime and composite numbers"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars04Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

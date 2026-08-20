@@ -14,7 +14,8 @@ import D20_10 from './D20_10.jsx';
 const ITEMS = [D20_01, D20_02, D20_03, D20_04, D20_05, D20_06, D20_07, D20_08, D20_09, D20_10];
 const TITLE = {
   "uz": "Dars 20 amaliyoti. Masshtab",
-  "ru": "Практика к уроку 20. Масштаб"
+  "ru": "Практика к уроку 20. Масштаб",
+  "en": "Lesson 20 practice. Scale"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars20Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

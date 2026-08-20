@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Fazoviy shakllar hajmi va o'lchov birliklari",
-    "ru": "Объём пространственных фигур и единицы"
+    "ru": "Объём пространственных фигур и единицы",
+    "en": "The volume of solids and units of measure"
   },
   "prompt": {
     "uz": "Har bir yozuvni unga mos javob yoki tavsif bilan bog‘lang.",
-    "ru": "Соедините каждую запись с подходящим ответом или описанием."
+    "ru": "Соедините каждую запись с подходящим ответом или описанием.",
+    "en": "Connect each record with the answer or the description that fits it."
   },
   "left": [
     "1 m³",
@@ -34,7 +36,8 @@ const ITEM = {
   },
   "explanation": {
     "uz": "Har bir chap kartani alohida tekshirish orqali mosliklar topiladi: 1 m³ ↔ 1 000 000 cm³; 1 dm³ ↔ 1000 cm³; 1 cm³ ↔ 1 cm³.",
-    "ru": "Каждая пара найдена по определению или вычислению, указанному в условии темы."
+    "ru": "Каждая пара найдена по определению или вычислению, указанному в условии темы.",
+    "en": "The matches are found by checking every card on the left on its own: 1 m³ ↔ 1 000 000 cm³; 1 dm³ ↔ 1000 cm³; 1 cm³ ↔ 1 cm³."
   }
 };
 

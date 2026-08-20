@@ -14,7 +14,8 @@ import D22_10 from './D22_10.jsx';
 const ITEMS = [D22_01, D22_02, D22_03, D22_04, D22_05, D22_06, D22_07, D22_08, D22_09, D22_10];
 const TITLE = {
   "uz": "Dars 22 amaliyoti. Foizga oid masalalar",
-  "ru": "Практика к уроку 22. Задачи на проценты"
+  "ru": "Практика к уроку 22. Задачи на проценты",
+  "en": "Lesson 22 practice. Percentage problems"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars22Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

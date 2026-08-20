@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Aylana va doira",
-    "ru": "Окружность и круг"
+    "ru": "Окружность и круг",
+    "en": "The circle and the disc"
   },
   "prompt": {
     "uz": "Markazdan aylananing istalgan nuqtasigacha bo‘lgan kesma nima deyiladi?",
-    "ru": "Как называется отрезок от центра до любой точки окружности?"
+    "ru": "Как называется отрезок от центра до любой точки окружности?",
+    "en": "What is the line segment from the centre to any point of a circle called?"
   },
   "options": [
     "radius",
@@ -23,9 +25,16 @@ const ITEM = {
     "vatar": "хорда",
     "yoy": "дуга"
   },
+  "translationsEn": {
+    "radius": "radius",
+    "diametr": "diameter",
+    "vatar": "chord",
+    "yoy": "arc"
+  },
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, radius hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается radius."
+    "ru": "После последовательного применения правила темы к данным условия получается радиус.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get the radius."
   }
 };
 

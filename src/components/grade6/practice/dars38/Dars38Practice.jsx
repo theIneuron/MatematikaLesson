@@ -14,7 +14,8 @@ import D38_10 from './D38_10.jsx';
 const ITEMS = [D38_01, D38_02, D38_03, D38_04, D38_05, D38_06, D38_07, D38_08, D38_09, D38_10];
 const TITLE = {
   "uz": "Dars 38 amaliyoti. Aylana uzunligi",
-  "ru": "Практика к уроку 38. Длина окружности"
+  "ru": "Практика к уроку 38. Длина окружности",
+  "en": "Lesson 38 practice. The circumference of a circle"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars38Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

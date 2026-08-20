@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Ratsional sonlarni ayirish",
-    "ru": "Вычитание рациональных чисел"
+    "ru": "Вычитание рациональных чисел",
+    "en": "Subtracting rational numbers"
   },
   "prompt": {
     "uz": "Ayirmalarni javoblari bilan moslashtiring.",
-    "ru": "Соедините разности с ответами."
+    "ru": "Соедините разности с ответами.",
+    "en": "Match the differences with their answers."
   },
   "left": [
     "12 − 19",
@@ -27,7 +29,8 @@ const ITEM = {
   ],
   "explanation": {
     "uz": "Ayirish qarama-qarshi sonni qo‘shish bilan almashtiriladi.",
-    "ru": "Вычитание заменяется сложением противоположного числа."
+    "ru": "Вычитание заменяется сложением противоположного числа.",
+    "en": "Subtraction is replaced by adding the opposite number."
   }
 };
 

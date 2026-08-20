@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Ratsional sonlarni ayirish",
-    "ru": "Вычитание рациональных чисел"
+    "ru": "Вычитание рациональных чисел",
+    "en": "Subtracting rational numbers"
   },
   "prompt": {
     "uz": "O‘nli sonli ayirmalarni natijalar bilan bog‘lang.",
-    "ru": "Соедините разности десятичных чисел с результатами."
+    "ru": "Соедините разности десятичных чисел с результатами.",
+    "en": "Connect the differences of decimal numbers with the results."
   },
   "left": [
     "2,4 − 5,9",
@@ -27,7 +29,8 @@ const ITEM = {
   ],
   "explanation": {
     "uz": "Qarama-qarshi sonni qo‘shish qoidasi natijalarni to‘g‘ri beradi.",
-    "ru": "Правило прибавления противоположного числа даёт эти результаты."
+    "ru": "Правило прибавления противоположного числа даёт эти результаты.",
+    "en": "The rule of adding the opposite number gives these results."
   }
 };
 

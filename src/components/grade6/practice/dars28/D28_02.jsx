@@ -4,16 +4,19 @@ const ITEM = {
   "type": "input",
   "topic": {
     "uz": "Ratsional sonlarni ayirish",
-    "ru": "Вычитание рациональных чисел"
+    "ru": "Вычитание рациональных чисел",
+    "en": "Subtracting rational numbers"
   },
   "prompt": {
     "uz": "−8 − 7 ayirmaning qiymatini yozing.",
-    "ru": "Запишите значение разности −8 − 7."
+    "ru": "Запишите значение разности −8 − 7.",
+    "en": "Write the value of the difference −8 − 7."
   },
   "answer": "-15",
   "explanation": {
     "uz": "−8 − 7 = −8 + (−7) = −15.",
-    "ru": "−8 − 7 = −8 + (−7) = −15."
+    "ru": "−8 − 7 = −8 + (−7) = −15.",
+    "en": "−8 − 7 = −8 + (−7) = −15."
   }
 };
 

@@ -4,16 +4,19 @@ const ITEM = {
   "type": "input",
   "topic": {
     "uz": "Geometriya va ma'lumotlar bo'limi yakuni",
-    "ru": "Итог раздела геометрии и данных"
+    "ru": "Итог раздела геометрии и данных",
+    "en": "Wrap-up of the geometry and data block"
   },
   "prompt": {
     "uz": "Asosi 16 cm, balandligi 9 cm uchburchak yuzini yozing.",
-    "ru": "Запишите площадь треугольника с основанием 16 см и высотой 9 см."
+    "ru": "Запишите площадь треугольника с основанием 16 см и высотой 9 см.",
+    "en": "Write the area of a triangle with the base 16 cm and the height 9 cm."
   },
   "answer": "72",
   "explanation": {
     "uz": "Hisoblashdagi amallarni to‘g‘ri tartibda bajarsak, javob 72 bo‘ladi.",
-    "ru": "Если выполнить действия в правильном порядке, получится ответ 72."
+    "ru": "Если выполнить действия в правильном порядке, получится ответ 72.",
+    "en": "Do the operations of the calculation in the right order and the answer is 72."
   }
 };
 

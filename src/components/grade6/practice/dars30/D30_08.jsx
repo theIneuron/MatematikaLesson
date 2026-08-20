@@ -4,16 +4,19 @@ const ITEM = {
   "type": "input",
   "topic": {
     "uz": "Koordinata tekisligi",
-    "ru": "Координатная плоскость"
+    "ru": "Координатная плоскость",
+    "en": "The coordinate plane"
   },
   "prompt": {
     "uz": "E(3; −4) nuqtadan x o‘qigacha bo‘lgan masofani yozing.",
-    "ru": "Запишите расстояние от точки E(3; −4) до оси x."
+    "ru": "Запишите расстояние от точки E(3; −4) до оси x.",
+    "en": "Write the distance from the point E(3; −4) to the x axis."
   },
   "answer": "4",
   "explanation": {
     "uz": "x o‘qigacha masofa ordinata moduliga teng: |−4| = 4.",
-    "ru": "Расстояние до оси x равно модулю ординаты: |−4| = 4."
+    "ru": "Расстояние до оси x равно модулю ординаты: |−4| = 4.",
+    "en": "The distance to the x axis is the modulus of the ordinate: |−4| = 4."
   }
 };
 

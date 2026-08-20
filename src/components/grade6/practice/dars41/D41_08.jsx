@@ -4,16 +4,19 @@ const ITEM = {
   "type": "input",
   "topic": {
     "uz": "Markaziy simmetriya",
-    "ru": "Центральная симметрия"
+    "ru": "Центральная симметрия",
+    "en": "Point symmetry"
   },
   "prompt": {
     "uz": "C(9; −2) nuqtaning markaziy simmetrigidagi ordinatani yozing.",
-    "ru": "Запишите ординату точки, центрально-симметричной C(9; −2)."
+    "ru": "Запишите ординату точки, центрально-симметричной C(9; −2).",
+    "en": "Write the ordinate of the point symmetrical to C(9; −2) about the centre."
   },
   "answer": "2",
   "explanation": {
     "uz": "Hisoblashdagi amallarni to‘g‘ri tartibda bajarsak, javob 2 bo‘ladi.",
-    "ru": "Если выполнить действия в правильном порядке, получится ответ 2."
+    "ru": "Если выполнить действия в правильном порядке, получится ответ 2.",
+    "en": "Do the operations of the calculation in the right order and the answer is 2."
   }
 };
 

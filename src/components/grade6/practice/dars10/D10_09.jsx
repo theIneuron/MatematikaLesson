@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Murakkabroq amallar",
-    "ru": "Практика к уроку 10. Сложение и вычитание дробей"
+    "ru": "Практика к уроку 10. Сложение и вычитание дробей",
+    "en": "Harder operations"
   },
   "prompt": {
     "uz": "Har bir ifodani uning qisqarmas natijasi bilan moslashtiring.",
-    "ru": "Соедините каждое выражение с его несократимым результатом."
+    "ru": "Соедините каждое выражение с его несократимым результатом.",
+    "en": "Match each expression with its result in the simplest form."
   },
   "left": [
     "1/6 + 5/9",
@@ -27,7 +29,8 @@ const ITEM = {
   ],
   "explanation": {
     "uz": "Umumiy maxrajga keltirib hisoblasak 13/18, 23/40 va 17/20 chiqadi.",
-    "ru": "Все пары найдены правильно. Сначала дроби приводят к общему знаменателю, затем выполняют действие с числителями."
+    "ru": "Все пары найдены правильно. Сначала дроби приводят к общему знаменателю, затем выполняют действие с числителями.",
+    "en": "Bring them to a common denominator and you get 13/18, 23/40 and 17/20."
   }
 };
 

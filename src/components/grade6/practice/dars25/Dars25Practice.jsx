@@ -14,7 +14,8 @@ import D25_10 from './D25_10.jsx';
 const ITEMS = [D25_01, D25_02, D25_03, D25_04, D25_05, D25_06, D25_07, D25_08, D25_09, D25_10];
 const TITLE = {
   "uz": "Dars 25 amaliyoti. Sonning moduli",
-  "ru": "Практика к уроку 25. Модуль числа"
+  "ru": "Практика к уроку 25. Модуль числа",
+  "en": "Lesson 25 practice. The modulus of a number"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars25Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

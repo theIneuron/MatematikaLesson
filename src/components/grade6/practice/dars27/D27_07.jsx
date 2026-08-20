@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Ratsional sonlarni qo'shish",
-    "ru": "Сложение рациональных чисел"
+    "ru": "Сложение рациональных чисел",
+    "en": "Adding rational numbers"
   },
   "prompt": {
     "uz": "−3/4 + 1/2 yig‘indini umumiy maxrajga keltirib hisoblang.",
-    "ru": "Приведите к общему знаменателю и вычислите −3/4 + 1/2."
+    "ru": "Приведите к общему знаменателю и вычислите −3/4 + 1/2.",
+    "en": "Bring the sum −3/4 + 1/2 to a common denominator and work it out."
   },
   "options": [
     "−1/4",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "−1/4",
   "explanation": {
     "uz": "1/2 = 2/4, demak −3/4 + 2/4 = −1/4.",
-    "ru": "1/2 = 2/4, поэтому −3/4 + 2/4 = −1/4."
+    "ru": "1/2 = 2/4, поэтому −3/4 + 2/4 = −1/4.",
+    "en": "1/2 = 2/4, so −3/4 + 2/4 = −1/4."
   }
 };
 

@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "18 va 24 ning EKUKi",
-    "ru": "Практика к уроку 6. Наименьшее общее кратное"
+    "ru": "Практика к уроку 6. Наименьшее общее кратное",
+    "en": "The LCM of 18 and 24"
   },
   "prompt": {
     "uz": "18 va 24 ning eng kichik umumiy karralisini toping.",
-    "ru": "Найдите НОК чисел 18 и 24."
+    "ru": "Найдите НОК чисел 18 и 24.",
+    "en": "Find the least common multiple of 18 and 24."
   },
   "options": [
     "36",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "72",
   "explanation": {
     "uz": "18 va 24 ning eng kichik umumiy karralisi 72.",
-    "ru": "Правильный ответ: 72. НОК — наименьшее положительное общее кратное."
+    "ru": "Правильный ответ: 72. НОК — наименьшее положительное общее кратное.",
+    "en": "The least common multiple of 18 and 24 is 72."
   }
 };
 

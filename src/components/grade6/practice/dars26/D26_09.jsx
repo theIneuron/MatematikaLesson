@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Sonning joylashuvi",
-    "ru": "Практика к уроку 26. Сравнение рациональных чисел"
+    "ru": "Практика к уроку 26. Сравнение рациональных чисел",
+    "en": "Where a number lies"
   },
   "prompt": {
     "uz": "Sonlarni koordinata chizig'idagi joylashuv tavsifi bilan moslashtiring.",
-    "ru": "Соедините числа с описанием их положения на координатной прямой."
+    "ru": "Соедините числа с описанием их положения на координатной прямой.",
+    "en": "Match the numbers with the description of where they lie on the coordinate line."
   },
   "left": [
     "−4,2",
@@ -30,9 +32,15 @@ const ITEM = {
     "Noldan chapda": "Слева от нуля",
     "Noldan o‘ngda": "Справа от нуля"
   },
+  "translationsEn": {
+    "Sanoq boshida": "At the origin",
+    "Noldan chapda": "To the left of zero",
+    "Noldan o‘ngda": "To the right of zero"
+  },
   "explanation": {
     "uz": "−4,2 noldan chapda, 0 sanoq boshida, 5/3 noldan o'ngda.",
-    "ru": "Все пары найдены правильно. Из двух чисел больше то, которое расположено правее на координатной прямой."
+    "ru": "Все пары найдены правильно. Из двух чисел больше то, которое расположено правее на координатной прямой.",
+    "en": "−4,2 is to the left of zero, 0 is at the origin, and 5/3 is to the right of zero."
   }
 };
 

@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Nisbatni soddalashtirish",
-    "ru": "Практика к уроку 17. Отношение"
+    "ru": "Практика к уроку 17. Отношение",
+    "en": "Simplifying a ratio"
   },
   "prompt": {
     "uz": "Savatda 12 ta olma va 18 ta nok bor. Olmalar sonining noklar soniga nisbatini eng sodda ko'rinishda toping.",
-    "ru": "В корзине 12 яблок и 18 груш. Запишите отношение числа яблок к числу груш в простейшем виде."
+    "ru": "В корзине 12 яблок и 18 груш. Запишите отношение числа яблок к числу груш в простейшем виде.",
+    "en": "A basket holds 12 apples and 18 pears. Find the ratio of the number of apples to the number of pears in its simplest form."
   },
   "options": [
     "2 : 3",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "2 : 3",
   "explanation": {
     "uz": "12 : 18 nisbatning ikkala hadini 6 ga bo'lsak 2 : 3 hosil bo'ladi.",
-    "ru": "Правильный ответ: 2 : 3. При сокращении отношения оба его члена делят на одно и то же число."
+    "ru": "Правильный ответ: 2 : 3. При сокращении отношения оба его члена делят на одно и то же число.",
+    "en": "Divide both terms of the ratio 12 : 18 by 6 and you get 2 : 3."
   }
 };
 

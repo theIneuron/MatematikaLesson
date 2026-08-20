@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Yoyilmalarni moslashtirish",
-    "ru": "Практика к уроку 4. Простые и составные числа"
+    "ru": "Практика к уроку 4. Простые и составные числа",
+    "en": "Matching factorisations"
   },
   "prompt": {
     "uz": "84, 90 va 126 sonlarini tub ko'paytuvchilarga ajrating, so'ng har bir sonni o'zining to'liq yoyilmasi bilan moslashtiring.",
-    "ru": "Разложите 84, 90 и 126 на простые множители и соедините с правильным ответом."
+    "ru": "Разложите 84, 90 и 126 на простые множители и соедините с правильным ответом.",
+    "en": "Factorise 84, 90 and 126 into prime factors, then match each number with its complete factorisation."
   },
   "left": [
     "84",
@@ -27,7 +29,8 @@ const ITEM = {
   ],
   "explanation": {
     "uz": "84 = 2² × 3 × 7, 90 = 2 × 3² × 5, 126 = 2 × 3² × 7.",
-    "ru": "Все пары найдены правильно. Простое число имеет ровно два натуральных делителя."
+    "ru": "Все пары найдены правильно. Простое число имеет ровно два натуральных делителя.",
+    "en": "84 = 2² × 3 × 7, 90 = 2 × 3² × 5, 126 = 2 × 3² × 7."
   }
 };
 

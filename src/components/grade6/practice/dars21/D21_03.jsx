@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Foiz va o'nli kasr",
-    "ru": "Практика к уроку 21. Проценты"
+    "ru": "Практика к уроку 21. Проценты",
+    "en": "A percentage and a decimal"
   },
   "prompt": {
     "uz": "Har bir foizni unga teng o'nli kasr bilan moslashtiring.",
-    "ru": "Соедините каждый процент с равной десятичной дробью."
+    "ru": "Соедините каждый процент с равной десятичной дробью.",
+    "en": "Match each percentage with the decimal equal to it."
   },
   "left": [
     "7%",
@@ -27,7 +29,8 @@ const ITEM = {
   ],
   "explanation": {
     "uz": "7% = 0,07; 45% = 0,45; 125% = 1,25.",
-    "ru": "Все пары найдены правильно. Один процент равен одной сотой части целого."
+    "ru": "Все пары найдены правильно. Один процент равен одной сотой части целого.",
+    "en": "7% = 0,07; 45% = 0,45; 125% = 1,25."
   }
 };
 

@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Uchburchak elementlari, turlari va perimetri",
-    "ru": "Элементы, виды и периметр треугольника"
+    "ru": "Элементы, виды и периметр треугольника",
+    "en": "Elements, kinds and perimeter of a triangle"
   },
   "prompt": {
     "uz": "Perimetri 42 cm bo‘lgan teng yonli uchburchakning asosi 12 cm. Yon tomonini toping.",
-    "ru": "Периметр равнобедренного треугольника 42 см, основание 12 см. Найдите боковую сторону."
+    "ru": "Периметр равнобедренного треугольника 42 см, основание 12 см. Найдите боковую сторону.",
+    "en": "The perimeter of an isosceles triangle is 42 cm and its base is 12 cm. Find one of its equal sides."
   },
   "options": [
     "12 cm",
@@ -25,7 +27,8 @@ const ITEM = {
   },
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 15 cm hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 15 cm."
+    "ru": "После последовательного применения правила темы к данным условия получается 15 см.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 15 cm."
   }
 };
 

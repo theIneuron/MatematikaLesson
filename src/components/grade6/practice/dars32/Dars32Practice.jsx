@@ -14,7 +14,8 @@ import D32_10 from './D32_10.jsx';
 const ITEMS = [D32_01, D32_02, D32_03, D32_04, D32_05, D32_06, D32_07, D32_08, D32_09, D32_10];
 const TITLE = {
   "uz": "Dars 32 amaliyoti. Qavslarni ochish",
-  "ru": "Практика к уроку 32. Раскрытие скобок"
+  "ru": "Практика к уроку 32. Раскрытие скобок",
+  "en": "Lesson 32 practice. Opening brackets"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars32Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

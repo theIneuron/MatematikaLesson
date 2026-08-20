@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Qavslarni ochish",
-    "ru": "Раскрытие скобок"
+    "ru": "Раскрытие скобок",
+    "en": "Opening brackets"
   },
   "prompt": {
     "uz": "−(x − 7) ifodaning qavssiz ko‘rinishini tanlang.",
-    "ru": "Выберите выражение без скобок, равное −(x − 7)."
+    "ru": "Выберите выражение без скобок, равное −(x − 7).",
+    "en": "Choose the form of the expression −(x − 7) without brackets."
   },
   "options": [
     "−x−7",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "−x+7",
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, −x+7 hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается −x+7."
+    "ru": "После последовательного применения правила темы к данным условия получается −x+7.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get −x+7."
   }
 };
 

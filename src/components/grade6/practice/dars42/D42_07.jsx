@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Uchburchak elementlari, turlari va perimetri",
-    "ru": "Элементы, виды и периметр треугольника"
+    "ru": "Элементы, виды и периметр треугольника",
+    "en": "Elements, kinds and perimeter of a triangle"
   },
   "prompt": {
     "uz": "Ikki tomoni 9 cm va 13 cm. Uchinchi tomon uchun qaysi uzunlik mumkin?",
-    "ru": "Две стороны равны 9 и 13 см. Какая длина третьей стороны возможна?"
+    "ru": "Две стороны равны 9 и 13 см. Какая длина третьей стороны возможна?",
+    "en": "Two sides are 9 cm and 13 cm. Which length is possible for the third side?"
   },
   "options": [
     "3 cm",
@@ -25,7 +27,8 @@ const ITEM = {
   },
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 10 cm hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 10 cm."
+    "ru": "После последовательного применения правила темы к данным условия получается 10 см.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 10 cm."
   }
 };
 

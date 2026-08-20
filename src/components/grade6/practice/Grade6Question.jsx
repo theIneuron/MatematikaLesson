@@ -13,7 +13,35 @@ const GUIDES = {
     match: 'Для каждой карточки слева найдите ровно одну пару справа. Сначала нажмите левую карточку, затем правую.',
     input: 'Выполните вычисления по шагам и введите числовой ответ с клавиатуры.',
   },
+  en: {
+    choice: 'Compare the options without rushing. Check every number and expression against the rule of the topic and pick the one right answer.',
+    bool: 'Check the statement against the rule of the topic. Choose Yes if the statement is always true and No if it is false.',
+    match: 'For every card on the left find exactly one card on the right. Tap the card on the left first, then the card that matches it.',
+    input: 'Do the calculation step by step. Type the number you get into the field below.',
+  },
 };
+
+// Ekran yozuvlari. Til uchtaga chiqqach ichma-ich shartlar o'rniga jadval.
+const UI = {
+  uz: {
+    numeric: 'Sonli javob',
+    correct: '✓ To‘g‘ri!',
+    wrong: "Javob noto'g'ri. Qoidani eslab, qayta urinib ko'ring.",
+  },
+  ru: {
+    numeric: 'Числовой ответ',
+    correct: '✓ Верно!',
+    wrong: 'Ответ неверный. Вспомните правило и попробуйте ещё раз.',
+  },
+  en: {
+    numeric: 'Numeric answer',
+    correct: '✓ Correct!',
+    wrong: 'That answer is not right. Recall the rule and try again.',
+  },
+};
+
+// Variant yozuvining tarjimasi qaysi jadvalda: UZ asl yozuv, boshqa tillar — xarita.
+const LABELS = { ru: 'translationsRu', en: 'translationsEn' };
 
 const shuffle = (list) => {
   const shuffled = [...list];
@@ -89,10 +117,14 @@ export default function Grade6Question({
   playWrong,
 }) {
   const locked = mode === 'review';
-  const locale = lang === 'ru' ? 'ru' : 'uz';
-  const displayText = useCallback((value) => (
-    locale === 'ru' ? item.translationsRu?.[String(value)] ?? String(value) : String(value)
-  ), [item, locale]);
+  const locale = UI[lang] ? lang : 'uz';
+  const ui = UI[locale];
+  // Tarjimasi yo'q maydon uzbekchaga qaytadi: sinf kanoni shu tilda.
+  const text = useCallback((field) => field?.[locale] ?? field?.uz ?? '', [locale]);
+  const displayText = useCallback((value) => {
+    const table = LABELS[locale];
+    return (table && item[table]?.[String(value)]) ?? String(value);
+  }, [item, locale]);
   const options = useMemo(() => shuffle(item.options || []), [item]);
   const right = useMemo(() => shuffle(item.right || []), [item]);
   const [answer, setAnswer] = useState(() => initialValue(item, initialAnswer));
@@ -158,8 +190,8 @@ export default function Grade6Question({
         @media(max-width:520px){.g6q h2{font-size:20px;margin-bottom:7px}.g6q-explain{font-size:12px;line-height:1.4;margin-bottom:10px;padding:8px 10px}.g6q-options{gap:8px}.g6q-option{min-height:62px;padding:10px;font-size:20px!important}.g6q-match{grid-template-columns:minmax(0,1fr) 54px minmax(0,1fr);gap:4px}.g6q-col{grid-template-rows:repeat(3,minmax(58px,1fr));gap:8px}.g6q-card{font-size:19px!important;min-height:58px;padding:7px 5px}.g6q-links{min-height:190px}.g6q-link{stroke-width:4}}
       `}</style>
       <div className="g6q-bars"><i/><i/></div>
-      <div className="g6q-tag">{item.topic[locale]}</div>
-      <div className="g6q-heading"><h2><MathText text={item.prompt[locale]}/></h2></div>
+      <div className="g6q-tag">{text(item.topic)}</div>
+      <div className="g6q-heading"><h2><MathText text={text(item.prompt)}/></h2></div>
       <p className="g6q-explain">{GUIDES[locale][item.type]}</p>
 
       {item.type === 'input' ? (
@@ -169,7 +201,7 @@ export default function Grade6Question({
             inputMode="decimal"
             value={answer}
             disabled={checked || locked}
-            aria-label={locale === 'ru' ? 'Числовой ответ' : 'Sonli javob'}
+            aria-label={ui.numeric}
             onChange={(event) => {
               const cleaned = event.target.value.replace(/[^\d,.-]/g, '').replace('.', ',');
               const sign = cleaned.startsWith('-') ? '-' : '';
@@ -257,12 +289,10 @@ export default function Grade6Question({
         <div className="g6q-feedback" ref={feedbackRef}>
           {correct ? (
             <>
-              <strong>{locale === 'ru' ? '✓ Верно!' : '✓ To‘g‘ri!'}</strong>
-              <span className="g6q-feedback-why"><MathText text={item.explanation[locale]}/></span>
+              <strong>{ui.correct}</strong>
+              <span className="g6q-feedback-why"><MathText text={text(item.explanation)}/></span>
             </>
-          ) : locale === 'ru'
-            ? 'Ответ неверный. Вспомните правило и попробуйте ещё раз.'
-            : "Javob noto'g'ri. Qoidani eslab, qayta urinib ko'ring."}
+          ) : ui.wrong}
         </div>
       )}
     </div>

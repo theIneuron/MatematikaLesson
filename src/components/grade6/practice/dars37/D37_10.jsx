@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Aylana va doira",
-    "ru": "Окружность и круг"
+    "ru": "Окружность и круг",
+    "en": "The circle and the disc"
   },
   "prompt": {
     "uz": "O nuqta markaz, OA=9 cm. AB diametr bo‘lsa, AB uzunligini toping.",
-    "ru": "O — центр, OA=9 см. Если AB — диаметр, найдите AB."
+    "ru": "O — центр, OA=9 см. Если AB — диаметр, найдите AB.",
+    "en": "The point O is the centre and OA=9 cm. If AB is a diameter, find the length of AB."
   },
   "options": [
     "9 cm",
@@ -25,7 +27,8 @@ const ITEM = {
   },
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 18 cm hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 18 cm."
+    "ru": "После последовательного применения правила темы к данным условия получается 18 см.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 18 cm."
   }
 };
 

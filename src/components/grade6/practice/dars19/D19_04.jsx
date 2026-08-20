@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Tezlik va vaqt",
-    "ru": "Практика к уроку 19. Прямая и обратная пропорциональность"
+    "ru": "Практика к уроку 19. Прямая и обратная пропорциональность",
+    "en": "Speed and time"
   },
   "prompt": {
     "uz": "Mashina 60 km/soat tezlikda yo'lni 4 soatda bosadi. Xuddi shu yo'lni 80 km/soatda necha soatda bosib o'tadi?",
-    "ru": "Автомобиль проходит путь за 4 часа со скоростью 60 км/ч. За сколько часов он пройдёт этот путь со скоростью 80 км/ч?"
+    "ru": "Автомобиль проходит путь за 4 часа со скоростью 60 км/ч. За сколько часов он пройдёт этот путь со скоростью 80 км/ч?",
+    "en": "A car covers a route in 4 hours at a speed of 60 km/h. How many hours does it need for the same route at 80 km/h?"
   },
   "options": [
     "2 soat",
@@ -20,12 +22,19 @@ const ITEM = {
   "translationsRu": {
     "2 soat": "2 часа",
     "3 soat": "3 часа",
-    "5 soat": "5 часа",
-    "6 soat": "6 часа"
+    "5 soat": "5 часов",
+    "6 soat": "6 часов"
+  },
+  "translationsEn": {
+    "2 soat": "2 hours",
+    "3 soat": "3 hours",
+    "5 soat": "5 hours",
+    "6 soat": "6 hours"
   },
   "explanation": {
     "uz": "Yo'l 60 × 4 = 240 km. Vaqt 240 : 80 = 3 soat.",
-    "ru": "Правильный ответ: 3 часа. При прямой зависимости величины меняются одинаково, при обратной — в противоположных направлениях."
+    "ru": "Правильный ответ: 3 часа. При прямой зависимости величины меняются одинаково, при обратной — в противоположных направлениях.",
+    "en": "The route is 60 × 4 = 240 km. The time is 240 : 80 = 3 hours."
   }
 };
 

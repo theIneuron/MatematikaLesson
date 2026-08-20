@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Markaziy simmetriya",
-    "ru": "Центральная симметрия"
+    "ru": "Центральная симметрия",
+    "en": "Point symmetry"
   },
   "prompt": {
     "uz": "Har bir yozuvni unga mos javob yoki tavsif bilan bog‘lang.",
-    "ru": "Соедините каждую запись с подходящим ответом или описанием."
+    "ru": "Соедините каждую запись с подходящим ответом или описанием.",
+    "en": "Connect each record with the answer or the description that fits it."
   },
   "left": [
     "(2;3)",
@@ -27,7 +29,8 @@ const ITEM = {
   ],
   "explanation": {
     "uz": "Har bir chap kartani alohida tekshirish orqali mosliklar topiladi: (2;3) ↔ (−2;−3); (−5;1) ↔ (5;−1); (4;−7) ↔ (−4;7).",
-    "ru": "Каждая пара найдена по определению или вычислению, указанному в условии темы."
+    "ru": "Каждая пара найдена по определению или вычислению, указанному в условии темы.",
+    "en": "The matches are found by checking every card on the left on its own: (2;3) ↔ (−2;−3); (−5;1) ↔ (5;−1); (4;−7) ↔ (−4;7)."
   }
 };
 

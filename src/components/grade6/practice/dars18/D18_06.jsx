@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Hadlar ko'paytmasi",
-    "ru": "Практика к уроку 18. Пропорция"
+    "ru": "Практика к уроку 18. Пропорция",
+    "en": "The product of the terms"
   },
   "prompt": {
     "uz": "Proporsiyadagi ko'paytmalarni mos natija bilan bog'lang va tenglikning to'g'riligini tekshiring.",
-    "ru": "Соедините произведения членов пропорции с их значениями."
+    "ru": "Соедините произведения членов пропорции с их значениями.",
+    "en": "Connect the products of the terms of a proportion with the right value and check that the equality holds."
   },
   "left": [
     "3 × 20",
@@ -27,7 +29,8 @@ const ITEM = {
   ],
   "explanation": {
     "uz": "3 × 20 = 60; 8 × 15 = 120; 14 × 18 = 252.",
-    "ru": "Все пары найдены правильно. В пропорции произведение крайних членов равно произведению средних."
+    "ru": "Все пары найдены правильно. В пропорции произведение крайних членов равно произведению средних.",
+    "en": "3 × 20 = 60; 8 × 15 = 120; 14 × 18 = 252."
   }
 };
 

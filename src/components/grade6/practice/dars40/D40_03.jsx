@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "O'q simmetriyasi",
-    "ru": "Осевая симметрия"
+    "ru": "Осевая симметрия",
+    "en": "Reflection symmetry"
   },
   "prompt": {
     "uz": "Har bir yozuvni unga mos javob yoki tavsif bilan bog‘lang.",
-    "ru": "Соедините каждую запись с подходящим ответом или описанием."
+    "ru": "Соедините каждую запись с подходящим ответом или описанием.",
+    "en": "Connect each record with the answer or the description that fits it."
   },
   "left": [
     "kvadrat",
@@ -27,12 +29,18 @@ const ITEM = {
   ],
   "translationsRu": {
     "kvadrat": "квадрат",
-    "to‘g‘ri to‘rtburchak": "to‘g‘ri прямоугольник",
-    "turli tomonli uchburchak": "turli tomonli треугольник"
+    "to‘g‘ri to‘rtburchak": "прямоугольник",
+    "turli tomonli uchburchak": "разносторонний треугольник"
+  },
+  "translationsEn": {
+    "kvadrat": "a square",
+    "to‘g‘ri to‘rtburchak": "a rectangle",
+    "turli tomonli uchburchak": "a scalene triangle"
   },
   "explanation": {
     "uz": "Har bir chap kartani alohida tekshirish orqali mosliklar topiladi: kvadrat ↔ 4; to‘g‘ri to‘rtburchak ↔ 2; turli tomonli uchburchak ↔ 0.",
-    "ru": "Каждая пара найдена по определению или вычислению, указанному в условии темы."
+    "ru": "Каждая пара найдена по определению или вычислению, указанному в условии темы.",
+    "en": "The matches are found by checking every card on the left on its own: a square ↔ 4; a rectangle ↔ 2; a scalene triangle ↔ 0."
   }
 };
 

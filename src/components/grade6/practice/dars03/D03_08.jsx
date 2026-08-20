@@ -4,16 +4,19 @@ const ITEM = {
   "type": "input",
   "topic": {
     "uz": "Katakdagi raqam",
-    "ru": "Практика к уроку 3. Признаки делимости на 3 и 9"
+    "ru": "Практика к уроку 3. Признаки делимости на 3 и 9",
+    "en": "The digit in the box"
   },
   "prompt": {
     "uz": "47□ soni 9 ga bo'linishi uchun katakka yoziladigan raqamni kiriting.",
-    "ru": "Запишите цифру вместо □ в числе 47□, чтобы оно делилось на 9."
+    "ru": "Запишите цифру вместо □ в числе 47□, чтобы оно делилось на 9.",
+    "en": "Enter the digit that goes in the box so that 47□ divides by 9."
   },
   "answer": "7",
   "explanation": {
     "uz": "4 + 7 + 7 = 18; 18 soni 9 ga bo'linadi.",
-    "ru": "Правильный ответ: 7. Для делимости на 3 и 9 проверяют сумму цифр числа."
+    "ru": "Правильный ответ: 7. Для делимости на 3 и 9 проверяют сумму цифр числа.",
+    "en": "4 + 7 + 7 = 18; and 18 divides by 9."
   }
 };
 

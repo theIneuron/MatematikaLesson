@@ -4,11 +4,13 @@ const ITEM = {
   "type": "match",
   "topic": {
     "uz": "Ratsional sonlarni qo'shish",
-    "ru": "Сложение рациональных чисел"
+    "ru": "Сложение рациональных чисел",
+    "en": "Adding rational numbers"
   },
   "prompt": {
     "uz": "Hisoblashlarni to‘g‘ri javoblari bilan bog‘lang.",
-    "ru": "Соедините вычисления с правильными ответами."
+    "ru": "Соедините вычисления с правильными ответами.",
+    "en": "Connect the calculations with the right answers."
   },
   "left": [
     "−2,5 + 1,2",
@@ -27,7 +29,8 @@ const ITEM = {
   ],
   "explanation": {
     "uz": "Har bir ifodada ishoralar qoidasi qo‘llanadi: natijalar −1,3; −1,4 va −6,9.",
-    "ru": "По правилу знаков получаем соответственно −1,3; −1,4 и −6,9."
+    "ru": "По правилу знаков получаем соответственно −1,3; −1,4 и −6,9.",
+    "en": "The rule of signs is used in each expression: the results are −1,3; −1,4 and −6,9."
   }
 };
 

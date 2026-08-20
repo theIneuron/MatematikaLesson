@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Markaziy simmetriya",
-    "ru": "Центральная симметрия"
+    "ru": "Центральная симметрия",
+    "en": "Point symmetry"
   },
   "prompt": {
     "uz": "Markaziy simmetriya qanday burilishga teng?",
-    "ru": "Какому повороту соответствует центральная симметрия?"
+    "ru": "Какому повороту соответствует центральная симметрия?",
+    "en": "Which turn is point symmetry the same as?"
   },
   "options": [
     "90°",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "180°",
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 180° hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 180°."
+    "ru": "После последовательного применения правила темы к данным условия получается 180°.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 180°."
   }
 };
 

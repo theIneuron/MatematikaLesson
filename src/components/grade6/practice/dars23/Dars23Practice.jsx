@@ -14,7 +14,8 @@ import D23_10 from './D23_10.jsx';
 const ITEMS = [D23_01, D23_02, D23_03, D23_04, D23_05, D23_06, D23_07, D23_08, D23_09, D23_10];
 const TITLE = {
   "uz": "Dars 23 amaliyoti. Proporsiyaga oid masalalar",
-  "ru": "Практика к уроку 23. Задачи на пропорции"
+  "ru": "Практика к уроку 23. Задачи на пропорции",
+  "en": "Lesson 23 practice. Proportion problems"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars23Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

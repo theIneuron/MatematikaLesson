@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Aylana uzunligi",
-    "ru": "Длина окружности"
+    "ru": "Длина окружности",
+    "en": "The circumference of a circle"
   },
   "prompt": {
     "uz": "Radiusi 5 cm bo‘lgan aylana uzunligini π=3,14 da toping.",
-    "ru": "Найдите длину окружности радиуса 5 см при π=3,14."
+    "ru": "Найдите длину окружности радиуса 5 см при π=3,14.",
+    "en": "Find the circumference of a circle with the radius 5 cm, taking π=3,14."
   },
   "options": [
     "15,7 cm",
@@ -25,7 +27,8 @@ const ITEM = {
   },
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 31,4 cm hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 31,4 cm."
+    "ru": "После последовательного применения правила темы к данным условия получается 31,4 см.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 31,4 cm."
   }
 };
 

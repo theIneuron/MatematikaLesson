@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Uchburchak va murakkab shakllar yuzi",
-    "ru": "Площадь треугольника и сложных фигур"
+    "ru": "Площадь треугольника и сложных фигур",
+    "en": "The area of a triangle and of compound shapes"
   },
   "prompt": {
     "uz": "Uchburchak yuzi 48 cm², asosi 12 cm. Balandligini toping.",
-    "ru": "Площадь треугольника 48 см², основание 12 см. Найдите высоту."
+    "ru": "Площадь треугольника 48 см², основание 12 см. Найдите высоту.",
+    "en": "The area of a triangle is 48 cm² and its base is 12 cm. Find its height."
   },
   "options": [
     "4 cm",
@@ -25,7 +27,8 @@ const ITEM = {
   },
   "explanation": {
     "uz": "Shartdagi qiymatlarga mavzu qoidasini ketma-ket qo‘llasak, 8 cm hosil bo‘ladi.",
-    "ru": "После последовательного применения правила темы к данным условия получается 8 cm."
+    "ru": "После последовательного применения правила темы к данным условия получается 8 см.",
+    "en": "Apply the rule of the topic to the values in the problem step by step and you get 8 cm."
   }
 };
 

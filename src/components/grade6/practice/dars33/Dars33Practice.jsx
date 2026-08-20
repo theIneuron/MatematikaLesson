@@ -14,7 +14,8 @@ import D33_10 from './D33_10.jsx';
 const ITEMS = [D33_01, D33_02, D33_03, D33_04, D33_05, D33_06, D33_07, D33_08, D33_09, D33_10];
 const TITLE = {
   "uz": "Dars 33 amaliyoti. O'xshash hadlarni ixchamlash",
-  "ru": "Практика к уроку 33. Приведение подобных слагаемых"
+  "ru": "Практика к уроку 33. Приведение подобных слагаемых",
+  "en": "Lesson 33 practice. Collecting like terms"
 };
 
 const autoScrollBehavior = () => (
@@ -75,6 +76,7 @@ export default function Dars33Practice() {
           onReset={scrollBodyToTop}
           title={TITLE}
           showLanguageSwitch
+          langs={['uz', 'ru', 'en']}
         />
       </div>
     </div>

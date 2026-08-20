@@ -4,11 +4,13 @@ const ITEM = {
   "type": "choice",
   "topic": {
     "uz": "Oldindan qisqartirish",
-    "ru": "Практика к уроку 12. Деление обыкновенных дробей"
+    "ru": "Практика к уроку 12. Деление обыкновенных дробей",
+    "en": "Cancelling first"
   },
   "prompt": {
     "uz": "11/18 : 22/27 ifodada ikkinchi kasrni teskarisiga aylantiring, sonlarni qisqartiring va natijani toping.",
-    "ru": "Вычислите 11/18 : 22/27."
+    "ru": "Вычислите 11/18 : 22/27.",
+    "en": "In the expression 11/18 : 22/27 turn the second fraction into its reciprocal, cancel the numbers and find the result."
   },
   "options": [
     "3/4",
@@ -19,7 +21,8 @@ const ITEM = {
   "answer": "3/4",
   "explanation": {
     "uz": "11/18 : 22/27 = 11/18 × 27/22 = 3/4.",
-    "ru": "Правильный ответ: 3/4. Деление на дробь заменяют умножением на обратную дробь."
+    "ru": "Правильный ответ: 3/4. Деление на дробь заменяют умножением на обратную дробь.",
+    "en": "11/18 : 22/27 = 11/18 × 27/22 = 3/4."
   }
 };
 
