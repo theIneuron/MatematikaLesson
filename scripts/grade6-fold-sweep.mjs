@@ -53,10 +53,19 @@ async function work(id) {
         await page.goto(`${BASE}/6-sinf/matematika/nazariy/${lesson.slug}?lang=${lang}&screen=${s}`,
           { waitUntil: 'domcontentloaded', timeout: 25000 });
         await page.waitForSelector('.lesson-root .stage-content', { timeout: 10000 });
+        // Ждём ШРИФТЫ. Пока они грузятся, страница рисуется запасным шрифтом, а он
+        // выше: под нагрузкой это давало 9 лишних пикселей там, где их нет.
+        await page.evaluate(() => document.fonts && document.fonts.ready).catch(() => {});
         await page.waitForTimeout(4000);
         let under = await fold(page);
         await page.waitForTimeout(3000);
         under = Math.max(under, await fold(page));
+        // Замер под нагрузкой может попасть в незакончившуюся анимацию. Если он
+        // что-то нашёл, перепроверяем в устоявшемся состоянии и верим второму.
+        if (under > 0) {
+          await page.waitForTimeout(3500);
+          under = await fold(page);
+        }
         if (under > 0) hits.push(`${at}: ${under}px`);
       } catch (e) {
         hits.push(`${at}: НЕ ОТКРЫЛСЯ — ${String(e.message).slice(0, 50)}`);

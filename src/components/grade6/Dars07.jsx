@@ -1252,6 +1252,13 @@ const LESSON_STYLES = `
 
 /* Пары «было и стало» */
 .d7-pair { display: flex; align-items: center; justify-content: center; gap: clamp(8px, 1.8vw, 16px); flex-wrap: wrap; width: 100%; padding: clamp(8px, 1.6vw, 12px); border-radius: 14px; }
+/* Низкое окно: у экрана границы два блока сравнения по 206 пикселей, запас на
+   1280 на 680 был всего семь. Под нагрузкой промежуточное состояние вылезало
+   под панель, поэтому подкладка блоков и зазор между ними меньше. */
+@media (min-width: 640px) and (max-height: 700px) {
+  .lesson-root .d7-pair { padding: 7px !important; gap: 10px !important; }
+  .lesson-root .d7-stage { gap: 10px !important; }
+}
 .d7-pair-bad { background: #FFF1EC; border: 1px solid #F3C4B4; }
 .d7-pair-good { background: #E3F0E8; border: 1px solid #A9CFBA; }
 
