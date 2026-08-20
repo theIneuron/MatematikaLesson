@@ -509,7 +509,8 @@ html, body { margin: 0; padding: 0; }
   color: #F2F7F8;
   box-shadow: 0 14px 28px -18px rgba(23,59,82,.85);
 }
-.lesson-root .btn-next.btn-ready { color: ${T.navy}; }
+/* Etalon (Dars01): tayyor tugma apelsin fon ustida OQ yozuv bilan turadi. */
+.lesson-root .btn-next.btn-ready { color: #FFFFFF; }
 .btn-next:hover:not(:disabled) { transform: translateY(-1px); background: #143246; }
 .btn-next:disabled { opacity: .34; cursor: default; box-shadow: none; }
 .btn-next.btn-ready { background: ${T.accent}; box-shadow: 0 14px 28px -18px rgba(255,91,53,.9); }
@@ -907,6 +908,164 @@ html, body { margin: 0; padding: 0; }
   .formula-slot { min-width: 28px; min-height: 34px; font-size: 17px; }
   .scale-target { padding: 7px 12px; }
   .scale-target span { font-size: 22px; }
+}
+
+
+/* 18-dars: kasr yozuvini tuzish. Yuqorida yig'ilayotgan kasr, pastda ikkita
+   qadam — avval maxraj, keyin surat. Faol qadam yorug', ikkinchisi so'nadi. */
+.fraction-entry {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(10px, 2vw, 22px);
+}
+.fraction-slot-pair {
+  display: grid;
+  justify-items: center;
+  /* Kasr chizig'i raqam qutilariga tegib turmasligi kerak. */
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: ${T.cyanSoft};
+  transition: background .2s;
+}
+.fraction-slot-pair.is-done { background: ${T.successSoft}; }
+.fraction-slot-pair i {
+  display: block;
+  width: 46px;
+  height: 3px;
+  border-radius: 2px;
+  background: ${T.ink};
+}
+.fraction-slot {
+  display: grid;
+  place-items: center;
+  min-width: 46px;
+  min-height: 38px;
+  border-radius: 9px;
+  background: rgba(255,255,255,.65);
+  box-shadow: inset 0 0 0 1.5px rgba(23,59,82,.14);
+  color: ${T.ink3};
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px;
+  font-weight: 800;
+  transition: box-shadow .18s, color .18s, background .18s;
+}
+.fraction-slot.is-active { box-shadow: inset 0 0 0 2.4px ${T.accent}; background: #FFFFFF; }
+.fraction-slot.is-filled { background: #FFFFFF; color: ${T.cyan}; box-shadow: inset 0 0 0 2px rgba(22,143,163,.45); }
+.fraction-slot-pair.is-done .fraction-slot.is-filled { color: ${T.success}; box-shadow: inset 0 0 0 2px rgba(34,122,83,.45); }
+.fraction-steps { display: grid; gap: 6px; min-width: 0; }
+.fraction-step { opacity: .42; transition: opacity .22s; }
+.fraction-step.is-active { opacity: 1; }
+.fraction-step b {
+  display: block;
+  margin-bottom: 3px;
+  color: ${T.ink2};
+  font-size: clamp(10px, 1.3vw, 12px);
+  font-weight: 800;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+.tile-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.tile {
+  min-width: 44px;
+  min-height: 42px;
+  padding: 4px 10px;
+  border: 0;
+  border-radius: 11px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1.5px rgba(23,59,82,.14);
+  color: ${T.ink};
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background .18s, box-shadow .18s, opacity .18s;
+}
+.tile:hover:not(:disabled) { box-shadow: inset 0 0 0 2px rgba(22,143,163,.45); }
+.tile:disabled { cursor: default; }
+.tile-done { background: ${T.successSoft}; box-shadow: inset 0 0 0 2px rgba(34,122,83,.5); color: ${T.success}; }
+.tile-bad { background: #FFF6F3; box-shadow: inset 0 0 0 2px rgba(255,91,53,.5); color: ${T.accent}; opacity: .8; }
+
+/* 19-dars: kasrlarni kichikdan kattaga tizish. */
+.order-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 14px;
+  background: ${T.cyanSoft};
+}
+.order-slot {
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.6);
+  box-shadow: inset 0 0 0 1.5px rgba(23,59,82,.14);
+}
+.order-slot.is-filled { background: #FFFFFF; box-shadow: inset 0 0 0 2px rgba(34,122,83,.45); }
+.order-mini { width: 100%; height: 100%; }
+.order-pool { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.order-card {
+  width: 74px;
+  height: 74px;
+  padding: 4px;
+  border: 0;
+  border-radius: 14px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 1.6px rgba(23,59,82,.14);
+  cursor: pointer;
+  transition: box-shadow .18s, opacity .18s;
+}
+.order-card:hover:not(:disabled) { box-shadow: inset 0 0 0 2.4px rgba(22,143,163,.45); }
+.order-card:disabled { cursor: default; }
+.order-card.is-used { opacity: .34; box-shadow: none; background: ${T.successSoft}; }
+
+/* 20-dars: tasmada bo'yalgan kataklar soni va tasdiqlash tugmasi. */
+.cell-count {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.cell-count span { color: ${T.ink2}; font-size: clamp(11px, 1.4vw, 13px); font-weight: 700; }
+.cell-count b {
+  display: grid;
+  place-items: center;
+  min-width: 46px;
+  min-height: 42px;
+  border-radius: 12px;
+  background: #FFFFFF;
+  box-shadow: inset 0 0 0 2px rgba(149,201,61,.6);
+  color: #4C6B18;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 21px;
+  font-weight: 800;
+}
+.cell-count b.is-done { box-shadow: inset 0 0 0 2px rgba(34,122,83,.55); color: ${T.success}; }
+.cell-confirm {
+  min-height: 42px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 12px;
+  background: ${T.navy};
+  color: #F2F7F8;
+  font-size: clamp(12px, 1.5vw, 14px);
+  font-weight: 750;
+  cursor: pointer;
+  transition: background .18s, opacity .18s;
+}
+.cell-confirm:hover:not(:disabled) { background: ${T.accent}; }
+.cell-confirm:disabled { opacity: .35; cursor: default; }
+
+@media (max-width: 620px) {
+  .fraction-entry { grid-template-columns: minmax(0, 1fr); justify-items: center; gap: 8px; }
+  .tile { min-width: 40px; min-height: 40px; font-size: 17px; }
+  .order-card { width: 62px; height: 62px; }
+  .order-slot { width: 54px; height: 54px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

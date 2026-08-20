@@ -37,6 +37,10 @@ export { SummaryScreen } from './summary.jsx';
 export { BarModel, Caption, Plate, RecordRow, RuleRows, StepList, StepRows } from './blocks.jsx';
 export { NumPadScreen, SpanSelect, TableFill } from './inputs.jsx';
 export { FormulaBuild, LevelPick, ScaleRead } from './pickers.jsx';
+export { CellFill, FractionEntry, OrderStrip } from './fractions.jsx';
+export {
+  FractionBar, FractionCircle, FractionGlyph, FractionRay,
+} from './fractionFigures.jsx';
 export {
   DivisionColumn, LevelFigure, QuotientLengthFigure, ScaleFigure,
 } from './mathFigures.jsx';

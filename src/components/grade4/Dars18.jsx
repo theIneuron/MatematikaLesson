@@ -1,798 +1,1463 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
-
-// 4-SINF · 18-DARS · Kasr tushunchasi
-// Approved frame vector: 3,4,4,4,4,4,4,4,5,2,2,2,2,2,3,5.
-
-const T = {
-  bg: '#F5F5F0', ink: '#12212C', ink2: '#50616D', ink3: '#87949D', paper: '#FFFFFF',
-  accent: '#FF5B35', accentSoft: '#FFF0EA', cyan: '#168FA3', cyanSoft: '#E5F5F6',
-  navy: '#173B52', lime: '#95C93D', success: '#227A53', successSoft: '#E7F3EC',
-  warn: '#A96F13', warnSoft: '#FFF5D9', shadowBase: '58, 53, 48',
-};
-
-const FRAME_COUNTS = [3, 4, 4, 4, 4, 4, 4, 4, 5, 2, 2, 2, 2, 2, 3, 5];
-
-const bi = (uz, ru, en) => ({ uz, ru, en });
-
-const D18_SCREENS = [
-  {
-    type: 'hook', eyebrow: bi('Taqsimlash markazi', 'Распределительный центр', "Distribution centre"),
-    title: bi("Kasr har qanday bo'laklardan tuziladimi?", 'Можно ли составить дробь из любых частей?', "Can a fraction be made from any parts?"), bit: 'think',
-    frames: [bi('Lumo taqsimlash markazi', 'Распределительный центр Лумо', "Lumo distribution centre"), bi("5 ta bo'lakdan 2 tasi bo'yalgan", 'Закрашены 2 части из 5', "2 of 5 parts are shaded"), bi("Bu model 2/5 ni ko'rsatadimi?", 'Показывает ли модель 2/5?', "Does this model show 2/5?")],
-    audio: {
-      uz: ["Lumo taqsimlash markazidagi panel beshta bo'lakka ajratilgan.", "Bo'laklardan ikkitasi bo'yalgan, ammo ularning kattaligi bir xil emas.", "Bu model beshdan ikki kasrini ko'rsatadimi? Taxminingizni belgilang yoki shunchaki kuzating."],
-      ru: ['Панель в распределительном центре Лумо разделена на пять частей.', 'Две части закрашены, но части имеют разный размер.', 'Показывает ли эта модель дробь две пятых? Отметьте предположение или просто наблюдайте.'], en: ["The panel at the Lumo distribution centre is divided into five parts.","Two parts are shaded, but they are not the same size.","Does this model show two fifths? Mark your estimate or simply observe."],
-    },
-    visual: { kind: 'unequal', denominator: 5, numerator: 2 },
-    neutralOptions: [bi('Ha', 'Да', "Yes"), bi("Yo'q", 'Нет', "No"), bi('Hali bilmayman', 'Пока не знаю', "I don't know yet")],
-    neutral: bi("Taxmin saqlandi. Endi bo'laklarning o'lchamini tekshiramiz.", 'Предположение сохранено. Теперь проверим размер частей.', "Estimate saved. Now we will check the sizes of the parts."),
-  },
-  {
-    type: 'exploration', eyebrow: bi('Teng taqsimlash', 'Равное распределение', "Equal sharing"), title: bi('Har bir stansiyaga nechta batareya?', 'Сколько батарей получит каждая станция?', "How many batteries will each station receive?"),
-    frames: [bi('12 ta batareya', '12 батарей', "12 batteries"), bi('4 ta stansiya', '4 станции', "4 stations"), bi('Har bir stansiyaga ? tadan', 'Каждой станции по ?', "? for each station"), bi('12 : 4 = ?', '12 : 4 = ?', "12 : 4 = ?")],
-    audio: {
-      uz: ["Taqsimlash markazida o'n ikkita bir xil batareya bor.", "Ularni to'rtta stansiyaga teng taqsimlaymiz.", "Har bir stansiyada bir xil miqdor bo'lishi kerak. Mos javobni tanlang.", "Tanlagan javobingizda barcha o'n ikkita batareya teng taqsimlanishini tekshiring."],
-      ru: ['В распределительном центре есть двенадцать одинаковых батарей.', 'Распределим их поровну между четырьмя станциями.', 'На каждой станции должно быть одинаковое количество. Выберите подходящий ответ.', 'Проверьте, что при выбранном ответе все двенадцать батарей распределены поровну.'], en: ["There are twelve identical batteries at the distribution centre.","We will share them equally among four stations.","Each station must receive the same number. Choose the suitable answer.","Check that your answer shares all twelve batteries equally."],
-    },
-    visual: { kind: 'batteryShare', total: 12, groups: 4, interaction: { type: 'diagnosticChoice', options: [bi('2 tadan', 'По 2', "2 each"), bi('3 tadan', 'По 3', "3 each"), bi('4 tadan', 'По 4', "4 each")], values: [2, 3, 4], correctIndex: 1, feedback: [bi('Har biriga 2 tadan bersak, 4 ta batareya ortib qoladi.', 'Если дать каждой по 2, останутся 4 батареи.', "If each station gets 2, 4 batteries remain."), bi("To'g'ri: har bir stansiyaga 3 tadan batareya tegadi.", 'Верно: каждая станция получит по 3 батареи.', "Correct: each station receives 3 batteries."), bi('Har biriga 4 tadan berish uchun 16 ta batareya kerak.', 'Чтобы дать каждой по 4, нужны 16 батарей.', "To give each station 4 batteries, 16 batteries are needed.")], audioFeedback: [bi("Har biriga ikkitadan bersak, to'rtta batareya ortib qoladi.", 'Если дать каждой по две, останутся четыре батареи.', "If each station gets two, four batteries remain."), bi("To'g'ri. Har bir stansiyaga uchtadan batareya tegadi.", 'Верно. Каждая станция получит по три батареи.', "Correct. Each station receives three batteries."), bi("Har biriga to'rttadan berish uchun o'n oltita batareya kerak.", 'Чтобы дать каждой по четыре, нужны шестнадцать батарей.', "To give each station four batteries, sixteen batteries are needed.")] } },
-  },
-  {
-    type: 'exploration', eyebrow: bi('Butunni tanlash', 'Выбор целого', "Choosing the whole"), title: bi('Kasr qaysi butunga tegishli?', 'К какому целому относится дробь?', "Which whole does the fraction belong to?"),
-    frames: [bi('Ikki obyektning o\'lchami turlicha', 'Два объекта разного размера', "Two objects of different sizes"), bi('Tanlangan obyekt: 1 ta butun', 'Выбранный объект: 1 целое', "Chosen object: 1 whole"), bi('Kattaroq obyekt boshqa butun', 'Большой объект является другим целым', "The larger object is another whole"), bi('Kasrning butuni oldindan aniqlanadi', 'Целое для дроби определяют заранее', "The whole for a fraction is chosen first")],
-    audio: {
-      uz: ["Ekranda o'lchami turlicha bo'lgan ikkita obyekt bor.", "Kasr tuzishdan oldin qaysi obyektni bitta butun deb olayotganimizni aniqlaymiz.", "Kattaroq obyekt tanlangan butunning davomiy qismi emas. U boshqa butundir.", "Demak, kasr doimo oldindan tanlangan bitta butunga tegishli bo'ladi."],
-      ru: ['На экране два объекта разного размера.', 'Перед составлением дроби определим, какой объект считаем одним целым.', 'Большой объект не является продолжением выбранного целого. Это другое целое.', 'Значит, дробь всегда относится к заранее выбранному одному целому.'], en: ["There are two objects of different sizes on the screen.","Before making a fraction, decide which object counts as one whole.","The larger object is not a continuation of the chosen whole. It is another whole.","So a fraction always belongs to one whole that was chosen first."],
-    },
-    visual: { kind: 'wholeChoice', interaction: { type: 'wholeTap', inline: true, options: [bi('Tanlangan butun', 'Выбранное целое', "Chosen whole"), bi('Boshqa butun', 'Другое целое', "Another whole")], feedback: [bi('Bu obyekt tanlangan bitta butun.', 'Этот объект выбран как одно целое.', "This object is the chosen whole."), bi('Bu kattaroq obyekt alohida boshqa butun.', 'Этот большой объект является отдельным другим целым.', "This larger object is a separate whole.")], audioFeedback: [bi('Bu obyekt tanlangan bitta butun.', 'Этот объект выбран как одно целое.', "This object is the chosen whole."), bi('Bu kattaroq obyekt alohida boshqa butun.', 'Этот большой объект является отдельным другим целым.', "This larger object is a separate whole.")] } },
-  },
-  {
-    type: 'exploration', eyebrow: bi('Teng qismlar', 'Равные части', "Equal parts"), title: bi("Teng bo'lmagan qismlardan teng ulushlarga", 'От неравных частей к равным долям', "From unequal parts to equal shares"),
-    frames: [bi('1 ta butun panel', 'Одна целая панель', "1 whole panel"), bi("Teng bo'lmagan qismlar", 'Неравные части', "Unequal parts"), bi('5 ta teng qism', '5 равных частей', "5 equal parts"), bi("Kasr uchun qismlar teng bo'lishi kerak", 'Для дроби части должны быть равными', "A fraction needs equal parts")],
-    audio: {
-      uz: ["Avval bitta butun panelni ko'ramiz.", "Teng bo'lmagan bo'laklarni bir xil ulushlar deb sanay olmaymiz.", "Panelni beshta teng qismga bo'lamiz.", "Kasr butunning teng qismlaridan tuziladi."],
-      ru: ['Сначала видим одну целую панель.', 'Неравные части нельзя считать одинаковыми долями.', 'Разделим панель на пять равных частей.', 'Дробь составляют из равных частей целого.'], en: ["First, look at one whole panel.","Unequal parts cannot be counted as equal shares.","Divide the panel into five equal parts.","A fraction is made from equal parts of a whole."],
-    },
-    visual: { kind: 'equalize', denominator: 5, interaction: { type: 'equalToggle', correctIndex: 1, options: [bi('Teng emas', 'Неравные', "Unequal"), bi('Teng', 'Равные', "Equal")], feedback: [bi("Bu bo'laklarning kattaligi turlicha, shuning uchun ular teng ulushlar emas.", 'Эти части имеют разный размер, поэтому это не равные доли.', "These parts are different sizes, so they are not equal shares."), bi("Endi beshta bo'lak teng. Kasr modelini tuzish mumkin.", 'Теперь пять частей равны. Можно составить модель дроби.', "Now all five parts are equal. We can make a fraction model.")], audioFeedback: [bi("Bu bo'laklarning kattaligi turlicha. Ular teng ulushlar emas.", 'Эти части имеют разный размер. Это не равные доли.', "These parts are different sizes. They are not equal shares."), bi("Endi beshta bo'lak teng. Kasr modelini tuzish mumkin.", 'Теперь пять частей равны. Можно составить модель дроби.', "Now all five parts are equal. We can make a fraction model.")] } },
-  },
-  {
-    type: 'exploration', eyebrow: bi('Maxraj', 'Знаменатель', "Denominator"), title: bi("Butun nechta teng qismga bo'lindi?", 'На сколько равных частей разделили целое?', "How many equal parts was the whole divided into?"),
-    frames: [bi('1 ta butun', '1 целое', "1 whole"), bi('8 ta teng qism', '8 равных частей', "8 equal parts"), bi('Pastdagi son: 8', 'Нижнее число: 8', "Bottom number: 8"), bi("Maxraj jami teng qismlar sonini bildiradi", 'Знаменатель показывает число всех равных частей', "The denominator shows the total number of equal parts")],
-    audio: {
-      uz: ["Bu bitta butun tasma.", "Uni sakkizta teng qismga bo'ldik.", "Kasr chizig'ining pastidagi sakkiz soni maxraj deyiladi.", "Maxraj butun jami nechta teng qismga bo'linganini bildiradi."],
-      ru: ['Это одна целая полоска.', 'Мы разделили её на восемь равных частей.', 'Число восемь под дробной чертой называется знаменателем.', 'Знаменатель показывает, на сколько равных частей разделено целое.'], en: ["This is one whole strip.","It is divided into eight equal parts.","The number eight below the fraction bar is called the denominator.","The denominator shows how many equal parts the whole is divided into."],
-    },
-    visual: { kind: 'bar', denominator: 8, numerator: 0, formula: '□/8', interaction: { type: 'partCount', options: ['1', '2', '3', '4', '5', '6', '7', '8'], correctIndex: 7, feedback: [bi('Birinchi qism sanaldi. Tasma davom etadi.', 'Посчитана первая часть. Полоска продолжается.', "The first part is counted. The strip continues."), bi('Ikki qism sanaldi. Tasma davom etadi.', 'Посчитаны две части. Полоска продолжается.', "Two parts are counted. The strip continues."), bi('Uch qism sanaldi. Tasma davom etadi.', 'Посчитаны три части. Полоска продолжается.', "Three parts are counted. The strip continues."), bi("To'rt qism sanaldi. Tasma davom etadi.", 'Посчитаны четыре части. Полоска продолжается.', "Four parts are counted. The strip continues."), bi('Besh qism sanaldi. Tasma davom etadi.', 'Посчитаны пять частей. Полоска продолжается.', "Five parts are counted. The strip continues."), bi('Olti qism sanaldi. Tasma davom etadi.', 'Посчитаны шесть частей. Полоска продолжается.', "Six parts are counted. The strip continues."), bi('Yetti qism sanaldi. Yana bitta qism bor.', 'Посчитаны семь частей. Осталась ещё одна.', "Seven parts are counted. One part remains."), bi("To'g'ri. Butun sakkizta teng qismga bo'lingan.", 'Верно. Целое разделено на восемь равных частей.', "Correct. The whole is divided into eight equal parts.")], audioFeedback: [bi('Birinchi qism sanaldi. Tasma davom etadi.', 'Посчитана первая часть. Полоска продолжается.', "The first part is counted. The strip continues."), bi('Ikki qism sanaldi. Tasma davom etadi.', 'Посчитаны две части. Полоска продолжается.', "Two parts are counted. The strip continues."), bi('Uch qism sanaldi. Tasma davom etadi.', 'Посчитаны три части. Полоска продолжается.', "Three parts are counted. The strip continues."), bi("To'rt qism sanaldi. Tasma davom etadi.", 'Посчитаны четыре части. Полоска продолжается.', "Four parts are counted. The strip continues."), bi('Besh qism sanaldi. Tasma davom etadi.', 'Посчитаны пять частей. Полоска продолжается.', "Five parts are counted. The strip continues."), bi('Olti qism sanaldi. Tasma davom etadi.', 'Посчитаны шесть частей. Полоска продолжается.', "Six parts are counted. The strip continues."), bi('Yetti qism sanaldi. Yana bitta qism bor.', 'Посчитаны семь частей. Осталась ещё одна.', "Seven parts are counted. One part remains."), bi("To'g'ri. Butun sakkizta teng qismga bo'lingan.", 'Верно. Целое разделено на восемь равных частей.', "Correct. The whole is divided into eight equal parts.")] } },
-  },
-  {
-    type: 'exploration', eyebrow: bi('Surat', 'Числитель', "Numerator"), title: bi("Nechta teng qism olindi?", 'Сколько равных частей взяли?', "How many equal parts were taken?"),
-    frames: [bi('8 ta teng qism', '8 равных частей', "8 equal parts"), bi("3 ta qism bo'yaldi", 'Закрашены 3 части', "3 parts are shaded"), bi('Yuqoridagi son: 3', 'Верхнее число: 3', "Top number: 3"), bi("Surat olingan qismlar sonini bildiradi", 'Числитель показывает число взятых частей', "The numerator shows the number of parts taken")],
-    audio: {
-      uz: ["Butun sakkizta teng qismga bo'linganicha qoladi.", "Ulardan uchtasini bo'yaymiz.", "Kasr chizig'ining yuqorisidagi uch soni surat deyiladi.", "Surat nechta teng qism olinganini yoki bo'yalganini bildiradi."],
-      ru: ['Целое остаётся разделённым на восемь равных частей.', 'Закрасим три из них.', 'Число три над дробной чертой называется числителем.', 'Числитель показывает, сколько равных частей взяли или закрасили.'], en: ["The whole remains divided into eight equal parts.","Shade three of them.","The number three above the fraction bar is called the numerator.","The numerator shows how many equal parts were taken or shaded."],
-    },
-    visual: { kind: 'bar', denominator: 8, numerator: 3, formula: '3/□', interaction: { type: 'sliderNumerator', min: 0, max: 8, initial: 3, label: bi("Bo'yalgan qismlar", 'Закрашенные части', "Shaded parts") } },
-  },
-  {
-    type: 'exploration', eyebrow: bi('Kasr yozuvi', 'Запись дроби', "Fraction notation"), title: bi("3/8 qanday quriladi?", 'Как строится 3/8?', "How is 3/8 built?"), bit: 'point',
-    frames: [bi('Butun: 8 ta teng qism', 'Целое: 8 равных частей', "Whole: 8 equal parts"), bi("Olingan qism: 3 ta", 'Взято частей: 3', "Parts taken: 3"), bi('Surat 3, maxraj 8', 'Числитель 3, знаменатель 8', "Numerator 3, denominator 8"), bi("3/8 — bitta son", '3/8 — одно число', "3/8 — one number")],
-    audio: {
-      uz: ["Butun sakkizta teng qismga bo'lingan.", "Ulardan uchtasi olingan.", "Shuning uchun surat uch, maxraj sakkiz bo'ladi.", "Uch sakkizdan yozuvi miqdorni bildiradigan bitta kasr sonidir."],
-      ru: ['Целое разделено на восемь равных частей.', 'Из них взяли три части.', 'Поэтому числитель равен трём, а знаменатель восьми.', 'Запись три восьмых является одним дробным числом, которое обозначает количество.'], en: ["The whole is divided into eight equal parts.","Three of those parts are taken.","So the numerator is three and the denominator is eight.","Three eighths is one fraction that represents a quantity."],
-    },
-    visual: { kind: 'notation', denominator: 8, numerator: 3, interaction: { type: 'notationTap', options: [bi('Surat', 'Числитель', "Numerator"), bi("Kasr chizig'i", 'Дробная черта', "Fraction bar"), bi('Maxraj', 'Знаменатель', "Denominator")], feedback: [bi("Surat olingan qismlar sonini ko'rsatadi.", 'Числитель показывает число взятых частей.', "The numerator shows the number of parts taken."), bi("Kasr chizig'i surat bilan maxrajni ajratadi.", 'Дробная черта разделяет числитель и знаменатель.', "The fraction bar separates the numerator and denominator."), bi("Maxraj jami teng qismlar sonini ko'rsatadi.", 'Знаменатель показывает число всех равных частей.', "The denominator shows the total number of equal parts.")], audioFeedback: [bi("Surat olingan qismlar sonini ko'rsatadi.", 'Числитель показывает число взятых частей.', "The numerator shows the number of parts taken."), bi("Kasr chizig'i surat bilan maxrajni ajratadi.", 'Дробная черта разделяет числитель и знаменатель.', "The fraction bar separates the numerator and denominator."), bi("Maxraj jami teng qismlar sonini ko'rsatadi.", 'Знаменатель показывает число всех равных частей.', "The denominator shows the total number of equal parts.")] } },
-  },
-  {
-    type: 'exploration', eyebrow: bi('Uchta model', 'Три модели', "Three models"), title: bi("Shakl o'zgarsa, kasr o'zgarmaydi", 'Форма меняется, дробь сохраняется', "The shape changes, but the fraction stays the same"),
-    frames: [bi('Tasma: 3/8', 'Полоска: 3/8', "Strip: 3/8"), bi('Doira: 3/8', 'Круг: 3/8', "Circle: 3/8"), bi('Katakli model: 3/8', 'Клетчатая модель: 3/8', "Grid model: 3/8"), bi('Uchala model ham bir xil kasrni ko\'rsatadi', 'Все три модели показывают одну дробь', "All three models show the same fraction")],
-    audio: {
-      uz: ["Tasmada sakkizta teng qismdan uchtasi bo'yalgan.", "Doirada sakkizta teng sektordan uchtasi bo'yalgan.", "Katakli modelda ham sakkizta teng katakdan uchtasi bo'yalgan.", "Shakllar turlicha, ammo uchala model ham uch sakkizdan kasrini ko'rsatadi."],
-      ru: ['На полоске закрашены три из восьми равных частей.', 'В круге закрашены три из восьми равных секторов.', 'В клетчатой модели закрашены три из восьми равных клеток.', 'Формы различаются, но все три модели показывают дробь три восьмых.'], en: ["Three of eight equal parts are shaded on the strip.","Three of eight equal sectors are shaded in the circle.","Three of eight equal squares are also shaded in the grid model.","The shapes are different, but all three models show three eighths."],
-    },
-    visual: { kind: 'threeModels', denominator: 8, numerator: 3, interaction: { type: 'modelZoom', inline: true, options: [bi('Tasma', 'Полоска', "Strip"), bi('Doira', 'Круг', "Circle"), bi('Katak', 'Сетка', "Grid")], feedback: [bi("Tasma modeli kattalashtirildi: sakkizdan uch qismi bo'yalgan.", 'Модель-полоска увеличена: закрашены три восьмых.', "The strip model is enlarged: three eighths are shaded."), bi("Doira modeli kattalashtirildi: sakkizdan uch qismi bo'yalgan.", 'Модель-круг увеличена: закрашены три восьмых.', "The circle model is enlarged: three eighths are shaded."), bi("Katakli model kattalashtirildi: sakkizdan uch qismi bo'yalgan.", 'Клетчатая модель увеличена: закрашены три восьмых.', "The grid model is enlarged: three eighths are shaded.")], audioFeedback: [bi("Tasma modeli kattalashtirildi. Sakkizdan uch qismi bo'yalgan.", 'Модель полоска увеличена. Закрашены три восьмых.', "The strip model is enlarged. Three eighths are shaded."), bi("Doira modeli kattalashtirildi. Sakkizdan uch qismi bo'yalgan.", 'Модель круг увеличена. Закрашены три восьмых.', "The circle model is enlarged. Three eighths are shaded."), bi("Katakli model kattalashtirildi. Sakkizdan uch qismi bo'yalgan.", 'Клетчатая модель увеличена. Закрашены три восьмых.', "The grid model is enlarged. Three eighths are shaded.")] } },
-  },
-  {
-    type: 'rule', eyebrow: bi('Sonlar nuri', 'Числовой луч', "Number line"), title: bi("Noldan butungacha", 'От нуля до целого', "From zero to one whole"), bit: 'idea',
-    frames: [bi('0/8 — hech bir ulush olinmagan', '0/8 — ни одной доли не взято', "0/8 — no parts taken"), bi('0 dan 1 gacha kesma 8 teng intervalga bo\'lindi', 'Отрезок от 0 до 1 разделён на 8 равных интервалов', "The segment from 0 to 1 is divided into 8 equal intervals"), bi('3 ta qadam: 3/8', '3 шага: 3/8', "3 steps: 3/8"), bi('8 ta qadam: 8/8', '8 шагов: 8/8', "8 steps: 8/8"), bi('8/8 = 1 butun', '8/8 = 1 целое', "8/8 = 1 whole")],
-    audio: {
-      uz: ["Nol sakkizdan hech bir sakkizinchi ulush olinmaganini bildiradi.", "Noldan birgacha bo'lgan kesmani sakkizta teng intervalga bo'lamiz.", "Noldan uchta sakkizinchi qadam yurib, uch sakkizdan nuqtasiga kelamiz.", "Sakkizta sakkizinchi qadam bizni sakkiz sakkizdan nuqtasiga olib keladi.", "Sakkiz sakkizdan bir butunga teng."],
-      ru: ['Ноль восьмых означает, что ни одной восьмой доли не взяли.', 'Разделим отрезок от нуля до единицы на восемь равных интервалов.', 'Сделав три шага по одной восьмой, приходим к точке три восьмых.', 'Восемь шагов по одной восьмой приводят к точке восемь восьмых.', 'Восемь восьмых равны одному целому.'], en: ["Zero eighths means that no eighths have been taken.","Divide the segment from zero to one into eight equal intervals.","Take three steps of one eighth from zero to reach three eighths.","Eight steps of one eighth take us to eight eighths.","Eight eighths equal one whole."],
-    },
-    visual: { kind: 'line', denominator: 8, markers: [{ at: 0, label: '0/8', revealAt: 0 }, { at: 3, label: '3/8', revealAt: 2 }, { at: 8, label: '8/8 = 1', revealAt: 3 }], interaction: { type: 'lineMarker', min: 0, max: 8, initial: 3, label: bi('Erkin nuqta', 'Свободная точка', "Free point") } },
-  },
-  {
-    type: 'test', eyebrow: bi('Mashq · 1/6', 'Тренировка · 1/6', "Practice · 1/6"), title: bi("3/5 ni ko'rsatadigan model", 'Модель дроби 3/5', "A model showing 3/5"),
-    question: bi("Qaysi model 3/5 ni to'g'ri ko'rsatadi?", 'Какая модель правильно показывает 3/5?', "Which model correctly shows 3/5?"),
-    options: [bi('5 teng qismdan 3 tasi bo\'yalgan', 'Закрашены 3 из 5 равных частей', "3 of 5 equal parts are shaded"), bi('5 teng bo\'lmagan qismdan 3 tasi bo\'yalgan', 'Закрашены 3 из 5 неравных частей', "3 of 5 unequal parts are shaded"), bi('Faqat 3 ta alohida shakl', 'Только 3 отдельные фигуры', "Only 3 separate shapes")], correctIndex: 0,
-    feedback: [bi("To'g'ri. Kasr modeli uchun qismlar teng bo'lishi kerak.", 'Верно. В модели дроби части должны быть равными.', "Correct. The parts in a fraction model must be equal."), bi("Qismlar teng emas, shuning uchun ularni bir xil ulushlar deb sanab bo'lmaydi.", 'Части не равны, поэтому их нельзя считать одинаковыми долями.', "The parts are not equal, so they cannot be counted as equal shares."), bi("Avval bitta butun va uning teng qismlari kerak.", 'Сначала нужны одно целое и его равные части.', "First, you need one whole and its equal parts.")],
-    feedbackAudio: [bi("To'g'ri. Kasr modeli uchun qismlar teng bo'lishi kerak.", 'Верно. В модели дроби части должны быть равными.', "Correct. The parts in a fraction model must be equal."), bi("Qismlar teng emas. Ularni bir xil ulushlar deb sanab bo'lmaydi.", 'Части не равны. Их нельзя считать одинаковыми долями.', "The parts are not equal. They cannot be counted as equal shares."), bi("Avval bitta butun va uning teng qismlari kerak.", 'Сначала нужны одно целое и его равные части.', "First, you need one whole and its equal parts.")],
-    proof: bi("5 ta teng qism → kasr modeli", '5 равных частей → модель дроби', "5 equal parts → fraction model"),
-    audio: { intro: { uz: ["Kasrni to'g'ri ko'rsatadigan modelni tanlang."], ru: ['Выберите модель, которая правильно показывает дробь.'], en: ["Choose the model that shows the fraction correctly."] }, on_correct: bi("To'g'ri. Kasr modeli uchun qismlar teng bo'lishi kerak.", 'Верно. В модели дроби части должны быть равными.', "Correct. The parts in a fraction model must be equal."), on_wrong: bi("Qismlarning tengligini yana tekshiring.", 'Ещё раз проверьте, равны ли части.', "Check again whether the parts are equal.") },
-    visual: { kind: 'choiceModels' },
-  },
-  {
-    type: 'test', eyebrow: bi('Mashq · 2/6', 'Тренировка · 2/6', "Practice · 2/6"), title: bi("Kasrni yozing", 'Запишите дробь', "Write the fraction"),
-    question: bi("7 ta teng qismdan 4 tasi bo'yalgan. Qaysi kasr?", 'Закрашены 4 из 7 равных частей. Какая это дробь?', "4 of 7 equal parts are shaded. Which fraction is it?"),
-    options: ['4/7', '7/4', '4/3'], correctIndex: 0,
-    feedback: [bi("To'g'ri. Surat 4, maxraj 7.", 'Верно. Числитель 4, знаменатель 7.', "Correct. The numerator is 4 and the denominator is 7."), bi("Surat va maxraj almashib qolgan: olingan qismlar 4 ta.", 'Числитель и знаменатель перепутаны: взято 4 части.', "The numerator and denominator are swapped: 4 parts were taken."), bi("Jami qismlar 7 ta, 3 ta emas.", 'Всего частей 7, а не 3.', "There are 7 parts in total, not 3.")],
-    feedbackAudio: [bi("To'g'ri. Surat to'rt, maxraj yetti.", 'Верно. Числитель четыре, знаменатель семь.', "Correct. The numerator is four and the denominator is seven."), bi("Surat va maxraj almashib qolgan. Olingan qismlar to'rtta.", 'Числитель и знаменатель перепутаны. Взято четыре части.', "The numerator and denominator are swapped. Four parts were taken."), bi("Jami qismlar yettita, uchta emas.", 'Всего частей семь, а не три.', "There are seven parts in total, not three.")],
-    proof: bi("4 ta olingan / 7 ta teng qism = 4/7", '4 взятые части / 7 равных частей = 4/7', "4 parts taken / 7 equal parts = 4/7"),
-    audio: { intro: { uz: ["Yetti teng qismdan to'rttasi bo'yalgan modelga mos kasrni tanlang."], ru: ['Выберите дробь для модели, где закрашены четыре из семи равных частей.'], en: ["Choose the fraction that matches a model with four of seven equal parts shaded."] }, on_correct: bi("To'g'ri. Surat to'rt, maxraj yetti.", 'Верно. Числитель четыре, знаменатель семь.', "Correct. The numerator is four and the denominator is seven."), on_wrong: bi('Olingan va jami qismlarning vazifasini yana tekshiring.', 'Ещё раз проверьте, что обозначают взятые и все части.', "Check again what the parts taken and all the parts mean.") },
-    visual: { kind: 'bar', denominator: 7, numerator: 4 },
-  },
-  {
-    type: 'test', eyebrow: bi('Mashq · 3/6', 'Тренировка · 3/6', "Practice · 3/6"), title: bi("Qaysi kasr modelga mos?", 'Какая дробь соответствует модели?', "Which fraction matches the model?"),
-    question: bi("6 ta teng qismdan 2 tasi bo'yalgan.", 'Закрашены 2 из 6 равных частей.', "2 of 6 equal parts are shaded."),
-    options: ['2/6', '2/5', '6/2'], correctIndex: 0,
-    feedback: [bi("To'g'ri. Ikki qism olingan, jami olti teng qism bor.", 'Верно. Взяты две части из шести равных.', "Correct. Two parts were taken from six equal parts."), bi("Maxraj jami qismlarni bildiradi: ular 6 ta.", 'Знаменатель показывает число всех частей: их 6.', "The denominator shows all the parts: there are 6."), bi("Surat olingan qismlarni bildiradi: ular 2 ta.", 'Числитель показывает число взятых частей: их 2.', "The numerator shows the parts taken: there are 2.")],
-    feedbackAudio: [bi("To'g'ri. Ikki qism olingan, jami olti teng qism bor.", 'Верно. Взяты две части из шести равных.', "Correct. Two parts were taken from six equal parts."), bi("Maxraj jami qismlarni bildiradi. Ular oltita.", 'Знаменатель показывает число всех частей. Их шесть.', "The denominator shows all the parts. There are six."), bi("Surat olingan qismlarni bildiradi. Ular ikkita.", 'Числитель показывает число взятых частей. Их две.', "The numerator shows the parts taken. There are two.")],
-    proof: bi("Surat 2, maxraj 6 → 2/6", 'Числитель 2, знаменатель 6 → 2/6', "Numerator 2, denominator 6 → 2/6"),
-    audio: { intro: { uz: ["Olti teng qismdan ikkitasi bo'yalgan modelga mos kasrni tanlang."], ru: ['Выберите дробь для модели, где закрашены две из шести равных частей.'], en: ["Choose the fraction that matches a model with two of six equal parts shaded."] }, on_correct: bi("To'g'ri. Surat ikki, maxraj olti.", 'Верно. Числитель два, знаменатель шесть.', "Correct. The numerator is two and the denominator is six."), on_wrong: bi('Jami qismlar va olingan qismlarni yana sanang.', 'Ещё раз посчитайте все и взятые части.', "Count all the parts and the parts taken again.") },
-    visual: { kind: 'bar', denominator: 6, numerator: 2 },
-  },
-  {
-    type: 'test', eyebrow: bi('Mashq · 4/6', 'Тренировка · 4/6', "Practice · 4/6"), title: bi("Bitning xatosini toping", 'Найдите ошибку Бита', "Find Bit's mistake"), bit: 'happy',
-    question: bi("Bit 3/7 modelini 7/3 deb o'qidi. Xato nimada?", 'Бит прочитал модель 3/7 как 7/3. В чём ошибка?', "Bit read the 3/7 model as 7/3. What is the mistake?"),
-    options: [bi('Surat bilan maxrajni almashtirdi', 'Перепутал числитель и знаменатель', "The numerator and denominator were swapped"), bi("Qismlar teng bo'lmagan", 'Части не равны', "The parts were unequal"), bi("Bo'yalgan qismlarni sanamadi", 'Не посчитал закрашенные части', "The shaded parts were not counted")], correctIndex: 0,
-    feedback: [bi("To'g'ri. Olingan 3 ta qism suratga, jami 7 ta qism maxrajga yoziladi.", 'Верно. Три взятые части записывают в числитель, все семь частей записывают в знаменатель.', "Correct. The 3 parts taken go in the numerator, and all 7 parts go in the denominator."), bi("Modeldagi yetti qism teng. Xato bo'linishda emas.", 'Семь частей модели равны. Ошибка не в делении.', "The seven parts in the model are equal. The mistake is not in the division."), bi("Bit 3 va 7 ni ko'rdi, ammo ularning o'rnini almashtirdi.", 'Бит увидел числа 3 и 7, но поменял их местами.', "Bit saw 3 and 7, but swapped their positions.")],
-    feedbackAudio: [bi("To'g'ri. Olingan uchta qism suratga, jami yettita qism maxrajga yoziladi.", 'Верно. Три взятые части записывают в числитель, все семь частей записывают в знаменатель.', "Correct. The three parts taken go in the numerator, and all seven parts go in the denominator."), bi("Modeldagi yetti qism teng. Xato bo'linishda emas.", 'Семь частей модели равны. Ошибка не в делении.', "The seven parts in the model are equal. The mistake is not in the division."), bi("Bit uch va yetti sonlarini ko'rdi, ammo ularning o'rnini almashtirdi.", 'Бит увидел числа три и семь, но поменял их местами.', "Bit saw the numbers three and seven, but swapped their positions.")],
-    proof: bi("3 ta olingan, 7 ta jami → 3/7", '3 взяты, 7 всего → 3/7', "3 taken, 7 in total → 3/7"),
-    audio: { intro: { uz: ["Bit yettita teng qismdan uchtasi bo'yalgan modelda surat bilan maxrajni almashtirdi. Uning xatosini toping."], ru: ['Бит поменял местами числитель и знаменатель в модели с тремя закрашенными частями из семи. Найдите его ошибку.'], en: ["Bit swapped the numerator and denominator in a model with three of seven equal parts shaded. Find his mistake."] }, on_correct: bi("To'g'ri. Olingan qismlar suratga, jami qismlar maxrajga yoziladi.", 'Верно. Взятые части записывают в числитель, все части в знаменатель.', "Correct. The parts taken go in the numerator, and all the parts go in the denominator."), on_wrong: bi('Surat va maxraj nimani bildirishini yana tekshiring.', 'Ещё раз проверьте, что обозначают числитель и знаменатель.', "Check again what the numerator and denominator mean.") },
-    visual: { kind: 'error', denominator: 7, numerator: 3, wrong: '7/3', right: '3/7' },
-  },
-  {
-    type: 'test', eyebrow: bi('Mashq · 5/6', 'Тренировка · 5/6', "Practice · 5/6"), title: bi("5/8 sonlar nurida qayerda?", 'Где находится 5/8 на числовом луче?', "Where is 5/8 on the number line?"),
-    question: bi("To'g'ri nuqtani tanlang.", 'Выберите правильную точку.', "Choose the correct point."), options: [bi('A: 3/8', 'A: 3/8', "A: 3/8"), bi('B: 5/8', 'Б: 5/8', "B: 5/8"), bi('C: 7/8', 'В: 7/8', "C: 7/8")], correctIndex: 1,
-    feedback: [bi("Bu nuqta noldan uchta sakkizinchi qadam uzoqda.", 'Эта точка находится в трёх восьмых шагах от нуля.', "This point is three steps of one eighth from zero."), bi("To'g'ri. Noldan beshta sakkizinchi qadam — 5/8.", 'Верно. Пять шагов по одной восьмой от нуля — это 5/8.', "Correct. Five steps of one eighth from zero give 5/8."), bi("Bu nuqta noldan yettita sakkizinchi qadam uzoqda.", 'Эта точка находится в семи восьмых шагах от нуля.', "This point is seven steps of one eighth from zero.")],
-    feedbackAudio: [bi("Bu nuqta noldan uchta sakkizinchi qadam uzoqda.", 'Эта точка находится в трёх шагах по одной восьмой от нуля.', "This point is three steps of one eighth from zero."), bi("To'g'ri. Noldan beshta sakkizinchi qadam yurildi.", 'Верно. От нуля сделано пять шагов по одной восьмой.', "Correct. Five steps of one eighth were taken from zero."), bi("Bu nuqta noldan yettita sakkizinchi qadam uzoqda.", 'Эта точка находится в семи шагах по одной восьмой от нуля.', "This point is seven steps of one eighth from zero.")],
-    proof: bi("0 dan 5 ta teng qadam → 5/8", '5 равных шагов от 0 → 5/8', "5 equal steps from 0 → 5/8"),
-    audio: { intro: { uz: ["Noldan beshta sakkizinchi qadam uzoqlikdagi nuqtani tanlang."], ru: ['Выберите точку, которая находится в пяти шагах по одной восьмой от нуля.'], en: ["Choose the point that is five steps of one eighth from zero."] }, on_correct: bi("To'g'ri. Noldan beshta sakkizinchi qadam yurildi.", 'Верно. От нуля сделано пять шагов по одной восьмой.', "Correct. Five steps of one eighth were taken from zero."), on_wrong: bi('Noldan boshlab teng qadamlarni yana sanang.', 'Ещё раз посчитайте равные шаги от нуля.', "Count the equal steps again, starting at zero.") },
-    visual: { kind: 'line', denominator: 8, markers: [{ at: 3, label: 'A' }, { at: 5, label: 'B' }, { at: 7, label: 'C' }] },
-  },
-  {
-    type: 'case', eyebrow: bi('Mashq · 6/6', 'Тренировка · 6/6', "Practice · 6/6"), title: bi('Faol panellar ulushi', 'Доля активных панелей', "Fraction of active panels"),
-    frames: [bi('10 ta teng panel', '10 одинаковых панелей', "10 equal panels"), bi('6 ta panel faol', '6 панелей активны', "6 panels are active"), bi('Faol panellar ulushi: 6/10', 'Доля активных панелей: 6/10', "Fraction of active panels: 6/10")],
-    question: bi("10 ta teng paneldan 6 tasi faol. Faol qismini qaysi kasr ko'rsatadi?", 'Из 10 одинаковых панелей активны 6. Какая дробь показывает активную часть?', "6 of 10 equal panels are active. Which fraction shows the active part?"),
-    options: ['6/10', '10/6', '4/10'], correctIndex: 0,
-    feedback: [bi("To'g'ri. Oltita faol panel — surat, o'nta jami panel — maxraj.", 'Верно. Шесть активных панелей — числитель, все десять — знаменатель.', "Correct. The six active panels are the numerator, and all ten panels are the denominator."), bi("Surat va maxraj almashgan. Olingan qism 6 ta.", 'Числитель и знаменатель перепутаны. Взято 6 частей.', "The numerator and denominator are swapped. The part taken is 6."), bi("To'rtta panel faol emas. Savol faol panellar haqida.", 'Четыре панели неактивны, а вопрос задан об активных.', "Four panels are inactive, but the question is about the active panels.")],
-    feedbackAudio: [bi("To'g'ri. Oltita faol panel suratni, o'nta jami panel maxrajni bildiradi.", 'Верно. Шесть активных панелей обозначают числитель, все десять панелей знаменатель.', "Correct. The six active panels are the numerator, and all ten panels are the denominator."), bi("Surat va maxraj almashgan. Olingan qism oltita.", 'Числитель и знаменатель перепутаны. Взято шесть частей.', "The numerator and denominator are swapped. The part taken is six."), bi("To'rtta panel faol emas. Savol faol panellar haqida.", 'Четыре панели неактивны, а вопрос задан об активных.', "Four panels are inactive. The question is about the active panels.")],
-    proof: bi("6 ta faol / 10 ta jami = 6/10", '6 активных / 10 всего = 6/10', "6 active / 10 in total = 6/10"),
-    audio: { intro: { uz: ["Lumo markazida o'nta teng panel bor.", "Ulardan oltitasi faol. Faol panellar ulushini ko'rsatadigan kasrni tanlang."], ru: ['В центре Лумо есть десять одинаковых панелей.', 'Из них активны шесть. Выберите дробь, которая показывает долю активных панелей.'], en: ["There are ten equal panels at the Lumo centre.","Six of them are active. Choose the fraction that shows the active panels."] }, on_correct: bi("To'g'ri. Oltita faol panel suratni, o'nta jami panel maxrajni bildiradi. Demak, faol panellar ulushi olti o'ndan.", 'Верно. Шесть активных панелей обозначают числитель, а все десять панелей обозначают знаменатель. Значит, доля активных панелей равна шести десятым.', "Correct. The six active panels are the numerator, and all ten panels are the denominator. So the fraction of active panels is six tenths."), on_wrong: bi('Faol panellar va jami panellar sonini yana ajrating.', 'Ещё раз разделите число активных и всех панелей.', "Separate the number of active panels from the total number of panels again.") },
-    visual: { kind: 'grid', denominator: 10, numerator: 6 },
-  },
-  {
-    type: 'summary', eyebrow: bi('Yakun', 'Итог', "Summary"), title: bi('Kasr — teng qismlardan tuzilgan bitta son', 'Дробь — одно число из равных частей', "A fraction — one number made from equal parts"), bit: 'happy',
-    frames: [bi("Butun teng qismlarga bo'linadi", 'Целое делят на равные части', "The whole is divided into equal parts"), bi('Maxraj — jami teng qismlar', 'Знаменатель — все равные части', "Denominator — all equal parts"), bi('Surat — olingan qismlar', 'Числитель — взятые части', "Numerator — parts taken"), bi('Model, yozuv va sonlar nuri bir sonni ko\'rsatadi', 'Модель, запись и луч показывают одно число', "The model, notation and number line show the same number"), bi('Keyingi dars: kasrlarni taqqoslash', 'Следующий урок: сравнение дробей', "Next lesson: comparing fractions")],
-    audio: {
-      uz: ["Kasr hosil bo'lishi uchun butun teng qismlarga bo'linadi.", "Maxraj butun jami nechta teng qismga bo'linganini bildiradi.", "Surat nechta teng qism olinganini bildiradi.", "Model, kasr yozuvi va sonlar nuri bir xil miqdorni uch xil ko'rinishda ifodalaydi.", "Keyingi darsda kasrlardan qaysi biri katta yoki kichik ekanini aniqlaymiz."],
-      ru: ['Чтобы получить дробь, целое делят на равные части.', 'Знаменатель показывает число всех равных частей целого.', 'Числитель показывает число взятых равных частей.', 'Модель, запись дроби и числовой луч представляют одно количество тремя способами.', 'На следующем уроке будем определять, какая дробь больше или меньше.'], en: ["To make a fraction, divide the whole into equal parts.","The denominator shows how many equal parts the whole is divided into.","The numerator shows how many equal parts were taken.","The model, fraction notation and number line show the same quantity in three different ways.","In the next lesson, we will find which fraction is greater and which is less."],
-    },
-    visual: { kind: 'summary', denominator: 8, numerator: 3 },
-  },
-];
-
-const TOTAL_SCREENS = 16;
-const MOBILE_DESIGN_W = 390;
-
-const SCREEN_META = [
-  { id: 's0', type: 'hook', subtype: 'story-prediction', template: 'StoryChoice', mechanic: 'StoryChoice', goal: 'Predict whether unequal parts can represent a fraction', misconceptions: ['any parts form a fraction'], active: true, scored: false, scope: 'hook', resetOnReturn: true },
-  { id: 's1', type: 'exploration', subtype: 'equal-sharing-diagnostic', template: 'DiagnosticChoice', mechanic: 'DiagnosticChoice', goal: 'Recover equal sharing before introducing fractions', misconceptions: ['unequal distribution'], active: true, scored: false, scope: null, resetOnReturn: true },
-  { id: 's2', type: 'model', subtype: 'whole-selection', template: 'WholeTap', mechanic: 'WholeTap', goal: 'Choose the whole to which a fraction belongs', misconceptions: ['mixing different wholes'], active: true, scored: false, scope: null, resetOnReturn: true },
-  { id: 's3', type: 'discovery', subtype: 'equal-parts-discovery', template: 'EqualToggle', mechanic: 'EqualToggle', goal: 'Discover that fraction parts must be equal', misconceptions: ['counting unequal pieces as equal shares'], active: true, scored: false, scope: null, resetOnReturn: true },
-  { id: 's4', type: 'discovery', subtype: 'denominator-discovery', template: 'PartCount', mechanic: 'PartCount', goal: 'Connect all equal parts with the denominator', misconceptions: ['denominator counts shaded parts'], active: true, scored: false, scope: null, resetOnReturn: true },
-  { id: 's5', type: 'discovery', subtype: 'numerator-discovery', template: 'NumeratorSlider', mechanic: 'NumeratorSlider', goal: 'Connect selected equal parts with the numerator', misconceptions: ['numerator counts all parts'], active: true, scored: false, scope: null, resetOnReturn: true },
-  { id: 's6', type: 'model', subtype: 'notation-construction', template: 'NotationTap', mechanic: 'NotationTap', goal: 'Build fraction notation from numerator and denominator', misconceptions: ['swapped numerator and denominator'], active: true, scored: false, scope: null, resetOnReturn: true },
-  { id: 's7', type: 'strategy', subtype: 'representation-strategy', template: 'ModelZoom', mechanic: 'ModelZoom', goal: 'Choose and compare bar, circle and grid representations', misconceptions: ['shape changes the fraction'], active: true, scored: false, scope: null, resetOnReturn: true },
-  { id: 's8', type: 'rule', subtype: 'number-line-rule-and-transfer', template: 'LineMarker', mechanic: 'LineMarker', goal: 'Formulate the fraction rule and transfer it to the number line', misconceptions: ['fraction is two unrelated numbers'], active: true, scored: false, scope: null, resetOnReturn: true },
-  { id: 's9', type: 'test', subtype: 'model-selection', template: 'ModelChoice', mechanic: 'ModelChoice', goal: 'Identify a correct equal-parts model', misconceptions: ['unequal parts', 'loose objects without a whole'], active: true, scored: true, scoreUnits: 1, scope: 'module-mikro' },
-  { id: 's10', type: 'test', subtype: 'notation-check', template: 'MCScreen', mechanic: 'MCScreen', goal: 'Write the fraction represented by a model', misconceptions: ['swapped numerator and denominator', 'unshaded parts counted'], active: true, scored: true, scoreUnits: 1, scope: 'module-mikro' },
-  { id: 's11', type: 'test', subtype: 'model-to-fraction', template: 'MCScreen', mechanic: 'MCScreen', goal: 'Match a model to fraction notation', misconceptions: ['all parts used as numerator', 'remaining parts used'], active: true, scored: true, scoreUnits: 1, scope: 'module-mikro' },
-  { id: 's12', type: 'error', subtype: 'misconception-repair', template: 'ErrorRepairChoice', mechanic: 'ErrorRepairChoice', goal: "Repair Bit's numerator-denominator reversal", misconceptions: ['swapped numerator and denominator'], active: true, scored: true, scoreUnits: 1, scope: 'module-mikro' },
-  { id: 's13', type: 'test', subtype: 'number-line-transfer', template: 'NumberLineChoice', mechanic: 'NumberLineChoice', goal: 'Locate a fraction on the number line', misconceptions: ['counting ticks instead of intervals', 'starting from one'], active: true, scored: true, scoreUnits: 1, scope: 'module-mikro' },
-  { id: 's14', type: 'case', subtype: 'life-context-transfer', template: 'CaseChoice', mechanic: 'CaseChoice', goal: 'Transfer fraction meaning to active city panels', misconceptions: ['inactive parts counted', 'whole and part swapped'], active: true, scored: true, scoreUnits: 1, scope: 'final' },
-  { id: 's15', type: 'summary', subtype: 'reflection-and-title', template: 'ReflectionClaim', mechanic: 'ReflectionClaim', goal: 'Reflect on the strategy, claim the title and bridge to comparison', misconceptions: ['fraction as two unrelated numbers'], active: true, scored: false, scope: null },
-];
+// ============================================================================
+// 4-SINF · Dars 18 · Kasr tushunchasi
+//
+// Manba: N. U. Bikbayeva, "Matematika. 4-sinf", 5-nashr 2020, 136-137 va
+// 144-betlar.
+//   136-bet: to'rtburchaklar 15, 6, 12 teng qismga bo'lingan; "Chiziq ostiga
+//            predmetni necha teng qismga bo'lganini ko'rsatuvchi son yoziladi,
+//            uni maxraj deyiladi. Chiziq ustidagi son shunday qismlardan
+//            nechtasi olinganini ko'rsatadi, uni surat deyiladi";
+//   137-bet: 2/15 va 3/15 bo'yalgan hol; "surat va maxraji bir xil bo'lgan
+//            har qanday kasr birga teng" — 15/15 = 1, 6/6 = 1, 12/12 = 1;
+//   144-bet: sonlar nurida A nuqta bilan belgilangan kasrni yozish.
+//
+// Syujet: Lumo City taqsimlash markazi, suv uzeli (SYUJET_4SINF.md, 3-blok).
+// Baholanadigan oltita ekran: s2, s4, s6, s8, s10, s13.
+//
+// Yangi mexanika: FractionEntry — bola avval maxrajni, keyin suratni o'zi
+// qo'yadi. Tartib darslikdagi ta'rif tartibi bilan bir xil.
+// ============================================================================
+import {
+  ChoiceScreen, FitSvg, FractionBar, FractionCircle, FractionEntry,
+  FractionGlyph, FractionRay, KIT_STYLES, RevealScreen, RuleRows, SlotScreen,
+  SummaryScreen, T, TheoryLessonRoot, assertScreenTypeLabels, useT,
+} from './kit/index.js';
 
 const LESSON_META = {
-  lessonId: 'frac-4-18-v1', slug: 'dars18-kasr-tushunchasi',
-  lessonTitle: bi('18-dars. Kasr tushunchasi', 'Урок 18. Понятие дроби', "Lesson 18. Understanding fractions"),
-  skillTags: ['fraction', 'equal_parts', 'numerator', 'denominator', 'number_line'],
-  badge: bi('Kasrlar tadqiqotchisi', 'Исследователь дробей', "Fraction explorer"),
-  frameCounts: FRAME_COUNTS, screens: D18_SCREENS, screenMeta: SCREEN_META, totalScreens: TOTAL_SCREENS,
+  lessonId: 'fraction-idea-4-18-v2',
+  slug: 'dars18-kasr-tushunchasi',
+  lessonTitle: {
+    uz: '18-dars. Kasr tushunchasi',
+    ru: 'Урок 18. Понятие дроби',
+    en: 'Lesson 18. The idea of a fraction',
+  },
+  skillTags: ['fraction', 'numerator', 'denominator', 'equal_parts', 'number_ray'],
 };
 
-let runtimeConfig = { ttsApiBase: '', voiceGender: 'f', correctSoundUrl: '', wrongSoundUrl: '', previewMode: false };
-const configureLesson = (next) => { runtimeConfig = { ...runtimeConfig, ...next }; };
-const normalizeLang = (value) => ['uz', 'ru', 'en'].includes(value) ? value : 'uz';
-const LangContext = createContext('uz');
-const LessonContext = createContext(LESSON_META);
-const useLang = () => useContext(LangContext);
-const useLesson = () => useContext(LessonContext);
-const useT = () => { const lang = useLang(); return useCallback((value) => { if (value == null) return ''; if (React.isValidElement(value)) return value; if (typeof value === 'string' || typeof value === 'number') return String(value); return value[lang] ?? value.uz ?? ''; }, [lang]); };
+const SCREEN_META = [
+  { id: 's0', type: 'hook', scored: false, scope: 'hook' },
+  { id: 's1', type: 'exploration', scored: false, scope: null },
+  { id: 's2', type: 'practice', scored: true, scope: 'module-mikro' },
+  { id: 's3', type: 'exploration', scored: false, scope: null },
+  { id: 's4', type: 'practice', scored: true, scope: 'module-mikro' },
+  { id: 's5', type: 'exploration', scored: false, scope: null },
+  { id: 's6', type: 'practice', scored: true, scope: 'module-mikro' },
+  { id: 's7', type: 'exploration', scored: false, scope: null },
+  { id: 's8', type: 'practice', scored: true, scope: 'module-mikro' },
+  { id: 's9', type: 'exploration', scored: false, scope: null },
+  { id: 's10', type: 'practice', scored: true, scope: 'module-mikro' },
+  { id: 's11', type: 'rule', scored: false, scope: null },
+  { id: 's12', type: 'strategy', scored: false, scope: null },
+  { id: 's13', type: 'error-analysis', scored: true, scope: 'module-mikro' },
+  { id: 's14', type: 'life-case', scored: false, scope: 'final' },
+  { id: 's15', type: 'summary', scored: false, scope: null },
+];
 
-function useIsMobile(breakpoint = 640) {
-  const [mobile, setMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < breakpoint : false);
-  useEffect(() => { if (typeof window === 'undefined') return undefined; const update = () => setMobile(window.innerWidth < breakpoint); window.addEventListener('resize', update); return () => window.removeEventListener('resize', update); }, [breakpoint]);
-  return mobile;
-}
+const TOTAL_SCREENS = SCREEN_META.length;
+assertScreenTypeLabels(SCREEN_META, LESSON_META.lessonId);
 
-function useMobileZoom(breakpoint = 640) {
-  useEffect(() => {
-    if (typeof window === 'undefined') return undefined;
-    const root = document.documentElement;
-    const update = () => {
-      const zoom = window.innerWidth < breakpoint ? window.innerWidth / MOBILE_DESIGN_W : 1;
-      root.style.setProperty('--g4z', String(zoom));
-    };
-    update();
-    window.addEventListener('resize', update);
-    window.addEventListener('orientationchange', update);
-    return () => {
-      window.removeEventListener('resize', update);
-      window.removeEventListener('orientationchange', update);
-      root.style.removeProperty('--g4z');
-    };
-  }, [breakpoint]);
-}
+const FRAME_COUNTS = [4, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 3, 3, 3];
 
-function usePrefersReducedMotion() {
-  const [reduced, setReduced] = useState(typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
-  useEffect(() => { if (typeof window === 'undefined' || !window.matchMedia) return undefined; const media = window.matchMedia('(prefers-reduced-motion: reduce)'); const update = () => setReduced(media.matches); media.addEventListener?.('change', update); return () => media.removeEventListener?.('change', update); }, []);
-  return reduced;
-}
+const DEN_STEP = {
+  uz: 'Chiziq ostiga: nechta teng qism bor?',
+  ru: 'Под черту: на сколько равных частей разделили?',
+  en: 'Below the line: how many equal parts are there?',
+};
+const NUM_STEP = {
+  uz: 'Chiziq ustiga: nechtasi olingan?',
+  ru: 'Над чертой: сколько частей взяли?',
+  en: 'Above the line: how many parts were taken?',
+};
 
-const buildTtsUrl = (base, text, gender) => `${base}/api/tts?text=${encodeURIComponent(String(text).slice(0, 1000))}&g=${gender === 'm' ? 'm' : 'f'}`;
+const CONTENT = {
+  // -------------------------------------------------------------------------
+  s0: {
+    eyebrow: { uz: 'Suv uzeli', ru: 'Водный узел', en: 'The water node' },
+    title: {
+      uz: 'Ikkita bak, ikkalasida bitta bo\'lak',
+      ru: 'Два бака, в каждом по одной части',
+      en: 'Two tanks, one part in each',
+    },
+    question: {
+      uz: "Qaysi bakda bo'yalgan bo'lak butunning oltidan biri?",
+      ru: 'В каком баке закрашенная часть равна одной шестой целого?',
+      en: 'In which tank is the shaded part one sixth of the whole?',
+    },
+    options: [
+      { uz: 'Birinchi bakda', ru: 'В первом баке', en: 'In the first tank' },
+      { uz: 'Ikkinchi bakda', ru: 'Во втором баке', en: 'In the second tank' },
+      { uz: 'Ikkalasida ham', ru: 'В обоих баках', en: 'In both tanks' },
+    ],
+    correctIndex: 0,
+    correctText: {
+      uz: "To'g'ri. Birinchi bakda oltita bo'lak ham teng, shuning uchun bittasi rostdan oltidan bir. Ikkinchi bakda bo'laklar har xil, u yerda ulush haqida gapirib bo'lmaydi.",
+      ru: 'Верно. В первом баке все шесть частей равны, поэтому одна из них действительно одна шестая. Во втором баке части разные, там о доле говорить нельзя.',
+      en: 'Correct. In the first tank all six parts are equal, so one of them really is one sixth. In the second tank the parts differ, so no share can be named at all.',
+    },
+    wrong: [
+      null,
+      {
+        uz: "Ikkinchi bakda ham oltita bo'lak bor, lekin ular teng emas. Katta bo'lak bilan kichik bo'lakni bitta nom bilan atab bo'lmaydi.",
+        ru: 'Во втором баке тоже шесть частей, но они не равны. Большую и маленькую часть нельзя назвать одним именем.',
+        en: 'The second tank also has six parts, but they are not equal. A big part and a small part cannot share one name.',
+      },
+      {
+        uz: "Bo'laklar soni bir xil, ammo bu yetarli emas. Ulush deyish uchun bo'laklar teng bo'lishi shart.",
+        ru: 'Число частей одинаковое, но этого мало. Чтобы говорить о доле, части обязаны быть равными.',
+        en: 'The number of parts is the same, but that is not enough. To speak of a share the parts must be equal.',
+      },
+    ],
+    bitFeedback: true,
+    audio: {
+      intro: {
+        uz: [
+          'Salom! Biz Lumo City taqsimlash markazining suv uzelidamiz.',
+          "Bu yerda suv shahar tumanlari o'rtasida bo'linadi. Ikkita bak keldi, ikkalasi ham oltita bo'lakka bo'lingan.",
+          "Har ikkalasida bitta bo'lak suvga to'ldirilgan. Lekin bakning biri boshqacha bo'lingan.",
+          "Qaysi bakda bo'yalgan bo'lak rostdan butunning oltidan biri? Diqqat bilan qarang.",
+        ],
+        ru: [
+          'Привет! Мы на водном узле распределительного центра Lumo City.',
+          'Здесь воду делят между районами города. Пришли два бака, и каждый разделён на шесть частей.',
+          'В каждом баке водой заполнена одна часть. Но один из баков разделён иначе.',
+          'В каком баке закрашенная часть действительно равна одной шестой целого? Посмотри внимательно.',
+        ],
+        en: [
+          'Hello! We are at the water node of the Lumo City distribution centre.',
+          'Water is shared between the city districts here. Two tanks have arrived, and each is split into six parts.',
+          'One part is filled with water in each tank. But one of the tanks is split differently.',
+          'In which tank is the shaded part really one sixth of the whole? Look carefully.',
+        ],
+      },
+    },
+  },
 
-class AudioEngine {
-  constructor() { this.queue = []; this.index = 0; this.audio = null; this.previewUtterance = null; this.timer = null; this.lang = 'uz'; this.muted = false; this.listener = null; }
-  emit(extra = {}) { this.listener?.({ muted: this.muted, ...extra }); }
-  setLang(lang) { this.lang = lang; }
-  stop() { if (this.timer && typeof window !== 'undefined') window.clearTimeout(this.timer); this.timer = null; if (this.audio) { this.audio.pause(); this.audio.onended = null; this.audio.onerror = null; } if (this.previewUtterance) { this.previewUtterance.onstart = null; this.previewUtterance.onend = null; this.previewUtterance.onerror = null; this.previewUtterance = null; } if (typeof window !== 'undefined' && window.speechSynthesis) { try { window.speechSynthesis.cancel(); } catch { /* preview only */ } } }
-  load(queue) { this.stop(); this.queue = queue || []; this.index = 0; this.emit({ completed: false, currentSegment: null }); }
-  start() { this.play(); }
-  timed(item, duration = null) { if (this.timer) window.clearTimeout(this.timer); if (this.audio) { this.audio.onended = null; this.audio.onerror = null; } this.emit({ isPlaying: false, completed: false, currentSegment: item.id, visualOnly: true }); this.timer = window.setTimeout(() => { this.index += 1; this.play(); }, duration ?? 980); }
-  play() { const item = this.queue[this.index]; if (!item) { this.emit({ isPlaying: false, completed: true, currentSegment: null, visualOnly: this.muted || !runtimeConfig.ttsApiBase }); return; } if (this.muted || !runtimeConfig.ttsApiBase) { if (!this.muted && runtimeConfig.previewMode && typeof window !== 'undefined' && window.speechSynthesis) { try { window.speechSynthesis.cancel(); const utterance = new SpeechSynthesisUtterance(String(item.text)); utterance.lang = { uz: 'uz-UZ', ru: 'ru-RU', en: 'en-GB' }[this.lang] || 'uz-UZ'; utterance.rate = 0.94; utterance.onstart = () => this.emit({ isPlaying: true, completed: false, currentSegment: item.id, visualOnly: false }); utterance.onend = () => { this.emit({ isPlaying: false, currentSegment: null }); this.index += 1; this.play(); }; utterance.onerror = () => this.timed(item); this.previewUtterance = utterance; this.timer = window.setTimeout(() => { try { window.speechSynthesis.speak(utterance); } catch { this.timed(item); } }, 50); return; } catch { /* deterministic timer fallback */ } } this.timed(item); return; } if (!this.audio) { this.audio = new Audio(); this.audio.crossOrigin = 'anonymous'; } this.audio.onended = () => { this.index += 1; this.play(); }; this.audio.onerror = () => this.timed(item); this.audio.src = buildTtsUrl(runtimeConfig.ttsApiBase, item.text, runtimeConfig.voiceGender); this.audio.play().then(() => this.emit({ isPlaying: true, completed: false, currentSegment: item.id, visualOnly: false })).catch(() => this.timed(item)); }
-  toggleMute() { this.muted = !this.muted; this.stop(); this.index = 0; this.emit({ muted: this.muted }); this.start(); }
-  pushOneOff(value) { const texts = Array.isArray(value) ? value : [value]; this.load(texts.filter(Boolean).map((text, index) => ({ id: `feedback-${Date.now()}-${index}`, text }))); this.start(); }
-}
+  // -------------------------------------------------------------------------
+  s1: {
+    eyebrow: { uz: 'Kasr yozuvi', ru: 'Запись дроби', en: 'Writing a fraction' },
+    title: {
+      uz: 'Ikkita son va ular orasidagi chiziq',
+      ru: 'Два числа и черта между ними',
+      en: 'Two numbers and a line between them',
+    },
+    lead: {
+      uz: 'Chiziq ostidagi son maxraj, chiziq ustidagi son surat deyiladi.',
+      ru: 'Число под чертой называют знаменателем, число над чертой — числителем.',
+      en: 'The number below the line is the denominator, the number above it is the numerator.',
+    },
+    note: {
+      uz: 'Maxraj ulushning kattaligini, surat esa shunday ulushlar sonini aytadi.',
+      ru: 'Знаменатель говорит о величине доли, а числитель — сколько таких долей взяли.',
+      en: 'The denominator names the size of the share; the numerator says how many shares were taken.',
+    },
+    audio: {
+      intro: {
+        uz: [
+          "Bunday bo'laklarni yozish uchun maxsus sonlar bor. Ular kasrlar deyiladi.",
+          "Kasrni yozish uchun ikkita raqam va ular orasidagi chiziq ishlatiladi.",
+          "Chiziq ostiga predmetni necha teng qismga bo'lganimizni yozamiz. Bu son maxraj deyiladi.",
+          "Chiziq ustiga shunday qismlardan nechtasini olganimizni yozamiz. Bu son surat deyiladi. Rasmda oltidan bir yozilgan.",
+        ],
+        ru: [
+          'Для записи таких частей есть особые числа. Их называют дробями.',
+          'Чтобы записать дробь, используют две цифры и черту между ними.',
+          'Под чертой пишут, на сколько равных частей разделили предмет. Это число называют знаменателем.',
+          'Над чертой пишут, сколько таких частей взяли. Это число называют числителем. На рисунке записана одна шестая.',
+        ],
+        en: [
+          'There are special numbers for writing such parts. They are called fractions.',
+          'To write a fraction we use two digits and a line between them.',
+          'Below the line we write into how many equal parts the object was divided. That number is the denominator.',
+          'Above the line we write how many such parts were taken. That number is the numerator. The drawing shows one sixth.',
+        ],
+      },
+    },
+  },
 
-let audioEngineInstance = null;
-const getAudioEngine = () => { if (typeof window === 'undefined') return null; if (!audioEngineInstance) audioEngineInstance = new AudioEngine(); return audioEngineInstance; };
+  // -------------------------------------------------------------------------
+  s2: {
+    eyebrow: { uz: 'Birinchi yozuv', ru: 'Первая запись', en: 'The first record' },
+    title: {
+      uz: 'Bo\'yalgan qismni kasr bilan yozing',
+      ru: 'Запиши закрашенную часть дробью',
+      en: 'Write the shaded part as a fraction',
+    },
+    question: {
+      uz: 'Avval chiziq ostidagi sonni, keyin ustidagini tanlang.',
+      ru: 'Сначала выбери число под чертой, потом над чертой.',
+      en: 'Choose the number below the line first, then the one above it.',
+    },
+    den: 15,
+    num: 2,
+    denOptions: [13, 15, 30],
+    numOptions: [2, 13, 15],
+    denStep: DEN_STEP,
+    numStep: NUM_STEP,
+    denDone: {
+      uz: "To'g'ri, tasma o'n beshta teng katakka bo'lingan. Endi nechtasi bo'yalganini tanlang.",
+      ru: 'Верно, полоса разделена на пятнадцать равных клеток. Теперь выбери, сколько из них закрашено.',
+      en: 'Correct, the strip is divided into fifteen equal cells. Now choose how many of them are shaded.',
+    },
+    wrongDen: {
+      uz: "Maxrajga hamma teng kataklar soni yoziladi, faqat bo'yalmaganlari emas. Boshidan oxirigacha sanang.",
+      ru: 'В знаменатель пишут число всех равных клеток, а не только незакрашенных. Посчитай от начала до конца.',
+      en: 'The denominator counts every equal cell, not only the unshaded ones. Count from the start to the end.',
+    },
+    wrongNum: {
+      uz: "Suratga bo'yalgan kataklar soni yoziladi. Rasmda ular ikkita.",
+      ru: 'В числитель пишут число закрашенных клеток. На рисунке их две.',
+      en: 'The numerator counts the shaded cells. There are two of them in the drawing.',
+    },
+    correctText: {
+      uz: "To'g'ri. O'n beshdan ikki. Tasma o'n beshta teng bo'lakka bo'lingan va shundan ikkitasi olingan.",
+      ru: 'Верно. Две пятнадцатых. Полосу разделили на пятнадцать равных частей и взяли две из них.',
+      en: 'Correct. Two fifteenths. The strip was divided into fifteen equal parts and two of them were taken.',
+    },
+    audio: {
+      intro: {
+        uz: [
+          "Suv uzelining birinchi tasmasi o'n beshta teng katakka bo'lingan.",
+          "Ulardan ikkitasi to'ldirilgan.",
+          'Avval chiziq ostiga qanday son turishini tanlang, keyin chiziq ustidagisini.',
+        ],
+        ru: [
+          'Первая полоса водного узла разделена на пятнадцать равных клеток.',
+          'Две из них заполнены.',
+          'Сначала выбери, какое число стоит под чертой, потом над чертой.',
+        ],
+        en: [
+          'The first strip of the water node is divided into fifteen equal cells.',
+          'Two of them are filled.',
+          'First choose the number below the line, then the one above it.',
+        ],
+      },
+    },
+  },
 
-function useAudio(segments) {
-  const lang = useLang();
-  const [state, setState] = useState({ muted: audioEngineInstance?.muted ?? false, completed: false, currentSegment: null, visualOnly: !runtimeConfig.ttsApiBase });
-  /* eslint-disable react-hooks/refs -- stable audio queue */
-  const segmentsRef = useRef(segments); const segmentsKey = JSON.stringify(segments || []); const prevKeyRef = useRef(segmentsKey);
-  if (prevKeyRef.current !== segmentsKey) { segmentsRef.current = segments; prevKeyRef.current = segmentsKey; }
-  const stableSegments = segmentsRef.current;
-  /* eslint-enable react-hooks/refs */
-  useEffect(() => { const engine = getAudioEngine(); if (!engine) return undefined; engine.setLang(lang); engine.listener = (next) => setState((previous) => ({ ...previous, ...next })); engine.load(stableSegments); const timer = window.setTimeout(() => engine.start(), 220); return () => { window.clearTimeout(timer); engine.stop(); engine.listener = null; }; }, [lang, stableSegments]);
-  return { ...state, replay: () => { const engine = getAudioEngine(); engine?.load(stableSegments); engine?.start(); }, toggleMute: () => getAudioEngine()?.toggleMute(), pushOneOff: (text) => getAudioEngine()?.pushOneOff(text) };
-}
+  // -------------------------------------------------------------------------
+  s3: {
+    eyebrow: { uz: 'Surat sanaydi', ru: 'Числитель считает', en: 'The numerator counts' },
+    title: {
+      uz: 'Ulush kattaligi o\'zgarmaydi, soni o\'zgaradi',
+      ru: 'Величина доли не меняется, меняется их количество',
+      en: 'The size of a share stays, only how many changes',
+    },
+    lead: {
+      uz: 'Maxraj olti bo\'lib qolaveradi, surat esa birdan uchgacha o\'sadi.',
+      ru: 'Знаменатель остаётся шестью, а числитель растёт от одного до трёх.',
+      en: 'The denominator stays six while the numerator grows from one to three.',
+    },
+    note: {
+      uz: "Bir xil maxrajli kasrlarda ulushlar bir xil kattalikda bo'ladi.",
+      ru: 'У дробей с одинаковым знаменателем доли одинаковой величины.',
+      en: 'Fractions with the same denominator have shares of the same size.',
+    },
+    audio: {
+      intro: {
+        uz: [
+          "Bitta bakni oltita teng bo'lakka bo'ldik. Har bir bo'lak oltidan bir.",
+          "Bitta bo'lakni to'ldirsak, oltidan bir chiqadi.",
+          "Ikkita bo'lakni to'ldirsak, oltidan ikki bo'ladi. Bo'lak kattaligi o'zgarmadi, faqat soni ko'paydi.",
+          "Uchta bo'lakda esa oltidan uch. Maxraj hamma vaqt olti bo'lib turibdi.",
+        ],
+        ru: [
+          'Один бак разделили на шесть равных частей. Каждая часть это одна шестая.',
+          'Если заполнить одну часть, получится одна шестая.',
+          'Если заполнить две части, будет две шестых. Величина части не изменилась, изменилось их количество.',
+          'А в трёх частях будет три шестых. Знаменатель всё время остаётся шестью.',
+        ],
+        en: [
+          'One tank was divided into six equal parts. Each part is one sixth.',
+          'Filling one part gives one sixth.',
+          'Filling two parts gives two sixths. The size of a part did not change, only how many there are.',
+          'And three parts give three sixths. The denominator stays six the whole time.',
+        ],
+      },
+    },
+  },
 
-function useNarration(value, screen) {
-  const lang = useLang(); const reduced = usePrefersReducedMotion(); const lesson = useLesson();
-  const segments = useMemo(() => { const source = value?.intro ?? value; const texts = source?.[lang] ?? source?.uz ?? []; return (Array.isArray(texts) ? texts : [texts]).filter(Boolean).map((text, index) => ({ id: `s${screen}-beat-${index}`, text })); }, [lang, screen, value]);
-  const audio = useAudio(segments); const active = segments.findIndex((segment) => segment.id === audio.currentSegment); const finalFrame = Math.max(0, lesson.frameCounts[screen] - 1); const feedbackPlaying = audio.currentSegment?.startsWith('feedback-') === true; const frame = reduced || feedbackPlaying || audio.completed ? finalFrame : active >= 0 ? active : 0;
-  return { ...audio, frame, caption: active >= 0 ? segments[active].text : '' };
-}
+  // -------------------------------------------------------------------------
+  s4: {
+    eyebrow: { uz: 'Doira model', ru: 'Круговая модель', en: 'The circle model' },
+    title: {
+      uz: 'Doiraga qaysi yozuv mos keladi?',
+      ru: 'Какая запись подходит кругу?',
+      en: 'Which record fits the circle?',
+    },
+    question: {
+      uz: "Bo'yalgan qismni qaysi kasr ko'rsatadi?",
+      ru: 'Какая дробь показывает закрашенную часть?',
+      en: 'Which fraction shows the shaded part?',
+    },
+    options: [
+      { uz: '3/4', ru: '3/4', en: '3/4' },
+      { uz: '4/3', ru: '4/3', en: '4/3' },
+      { uz: '1/4', ru: '1/4', en: '1/4' },
+    ],
+    correctIndex: 0,
+    correctText: {
+      uz: "To'g'ri. Doira to'rtta teng sektorga bo'lingan, shundan uchtasi bo'yalgan. To'rtdan uch.",
+      ru: 'Верно. Круг разделён на четыре равных сектора, три из них закрашены. Три четвёртых.',
+      en: 'Correct. The circle is divided into four equal sectors and three of them are shaded. Three quarters.',
+    },
+    wrong: [
+      null,
+      {
+        uz: "Sonlar joyini almashtirib qo'ygan. Chiziq ostiga hamma qismlar soni, ustiga esa olinganlari yoziladi.",
+        ru: 'Числа поменялись местами. Под чертой пишут число всех частей, над чертой — число взятых.',
+        en: 'The numbers swapped places. All the parts go below the line and the taken ones above it.',
+      },
+      {
+        uz: "Bu bitta sektor. Rasmda esa uchta sektor bo'yalgan.",
+        ru: 'Это один сектор. А на рисунке закрашены три сектора.',
+        en: 'That is one sector. But three sectors are shaded in the drawing.',
+      },
+    ],
+    audio: {
+      intro: {
+        uz: [
+          "Suv uzelida yumaloq rezervuar ham bor. U to'rtta teng sektorga bo'lingan.",
+          "Ulardan uchtasi to'ldirilgan.",
+          'Uchta yozuv berilgan, faqat bittasi shu rasmga mos keladi.',
+        ],
+        ru: [
+          'На водном узле есть и круглый резервуар. Он разделён на четыре равных сектора.',
+          'Три из них заполнены.',
+          'Даны три записи, и только одна подходит этому рисунку.',
+        ],
+        en: [
+          'The water node also has a round reservoir. It is divided into four equal sectors.',
+          'Three of them are filled.',
+          'Three records are given, and only one of them fits this drawing.',
+        ],
+      },
+    },
+  },
 
-const playSfx = (kind) => { const url = kind === 'correct' ? runtimeConfig.correctSoundUrl : runtimeConfig.wrongSoundUrl; if (!url || typeof window === 'undefined') return; try { new Audio(url).play().catch(() => {}); } catch { /* optional */ } };
+  // -------------------------------------------------------------------------
+  s5: {
+    eyebrow: { uz: 'Butun kasr bilan', ru: 'Целое дробью', en: 'The whole as a fraction' },
+    title: {
+      uz: 'Surat maxrajga teng bo\'lsa, bu butun',
+      ru: 'Если числитель равен знаменателю, это целое',
+      en: 'When the numerator equals the denominator you get a whole',
+    },
+    lead: {
+      uz: 'Hamma qismni olsak, butun predmet qaytadi.',
+      ru: 'Если взять все части, вернётся целый предмет.',
+      en: 'Taking every part brings back the whole object.',
+    },
+    note: {
+      uz: '15/15 = 1, 6/6 = 1, 12/12 = 1 — maxraj qanday bo\'lishidan qat\'i nazar.',
+      ru: '15/15 = 1, 6/6 = 1, 12/12 = 1 — при любом знаменателе.',
+      en: '15/15 = 1, 6/6 = 1, 12/12 = 1 — whatever the denominator is.',
+    },
+    audio: {
+      intro: {
+        uz: [
+          "Endi baklarni to'liq to'ldiramiz.",
+          "Birinchi bak o'n beshta bo'lakka bo'lingan edi va hammasi to'ldi. Bu o'n beshdan o'n besh.",
+          "Ikkinchisi oltita bo'lakka bo'lingan edi. Hammasi to'lganda oltidan olti chiqadi.",
+          "Ikkala holda ham bitta butun bak hosil bo'ldi. Demak surat maxrajga teng bo'lgan har qanday kasr birga teng.",
+        ],
+        ru: [
+          'Теперь заполним баки целиком.',
+          'Первый бак был разделён на пятнадцать частей, и все они заполнились. Это пятнадцать пятнадцатых.',
+          'Второй был разделён на шесть частей. Когда заполнятся все, получится шесть шестых.',
+          'В обоих случаях вышел один целый бак. Значит любая дробь, у которой числитель равен знаменателю, равна единице.',
+        ],
+        en: [
+          'Now let us fill the tanks completely.',
+          'The first tank was split into fifteen parts and all of them filled up. That is fifteen fifteenths.',
+          'The second was split into six parts. When all of them fill up we get six sixths.',
+          'In both cases one whole tank appeared. So any fraction whose numerator equals its denominator is equal to one.',
+        ],
+      },
+    },
+  },
 
-const BitSVG = ({ state = 'present', className = '' }) => {
-  const isWave = state === 'wave';
-  const isHappy = state === 'happy' || isWave || state === 'idea' || state === 'nod';
-  const isThinking = state === 'hint' || state === 'think';
-  const isAwkward = state === 'awkward';
+  // -------------------------------------------------------------------------
+  s6: {
+    eyebrow: { uz: 'Butun bilan taqqoslash', ru: 'Сравнение с целым', en: 'Comparing with the whole' },
+    title: {
+      uz: 'Bu kasr butundan qayerda turadi?',
+      ru: 'Где эта дробь стоит по отношению к целому?',
+      en: 'Where does this fraction stand next to the whole?',
+    },
+    question: {
+      uz: 'Rasmdagi kasr uchun mos joyni tanlang.',
+      ru: 'Выбери подходящее место для дроби с рисунка.',
+      en: 'Choose the right place for the fraction in the drawing.',
+    },
+    slots: [
+      {
+        label: { uz: '1 dan kichik', ru: 'Меньше 1', en: 'Less than 1' },
+        caption: { uz: 'surat kichik', ru: 'числитель меньше', en: 'numerator smaller' },
+      },
+      {
+        label: { uz: '1 ga teng', ru: 'Равна 1', en: 'Equal to 1' },
+        caption: { uz: 'surat maxrajga teng', ru: 'числитель равен знаменателю', en: 'numerator equals denominator' },
+      },
+      {
+        label: { uz: 'Butun emas', ru: 'Не целое', en: 'Not a whole' },
+        caption: { uz: "qismlar teng emas", ru: 'части не равны', en: 'parts are not equal' },
+      },
+    ],
+    correctSlot: 1,
+    correctText: {
+      uz: "To'g'ri. Oltita bo'lakning oltitasi ham to'ldi, ya'ni oltidan olti. Bu bitta butun bak.",
+      ru: 'Верно. Из шести частей заполнены все шесть, то есть шесть шестых. Это один целый бак.',
+      en: 'Correct. All six of the six parts are filled, that is six sixths. This is one whole tank.',
+    },
+    wrong: [
+      {
+        uz: "Kichik bo'lishi uchun surat maxrajdan kichik bo'lishi kerak edi. Bu yerda ikkalasi ham olti.",
+        ru: 'Чтобы дробь была меньше, числитель должен быть меньше знаменателя. А здесь оба числа шесть.',
+        en: 'To be smaller the numerator would have to be less than the denominator. Here both numbers are six.',
+      },
+      null,
+      {
+        uz: "Bu yerda bo'laklar teng. Rasmga qarang: hamma katak bir xil kenglikda.",
+        ru: 'Здесь части равны. Посмотри на рисунок: все клетки одинаковой ширины.',
+        en: 'The parts here are equal. Look at the drawing: every cell has the same width.',
+      },
+    ],
+    audio: {
+      intro: {
+        uz: [
+          "Bak oltita teng bo'lakka bo'lingan va hammasi to'ldi.",
+          'Bunday kasrni butun bilan taqqoslang.',
+          'Uchta javobdan mosini tanlang.',
+        ],
+        ru: [
+          'Бак разделён на шесть равных частей, и все они заполнены.',
+          'Сравни такую дробь с целым.',
+          'Выбери подходящий ответ из трёх.',
+        ],
+        en: [
+          'The tank is split into six equal parts and all of them are filled.',
+          'Compare such a fraction with the whole.',
+          'Choose the right answer out of the three.',
+        ],
+      },
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  s7: {
+    eyebrow: { uz: 'Sonlar nurida', ru: 'На числовом луче', en: 'On the number ray' },
+    title: {
+      uz: 'Kasrning nurda o\'z joyi bor',
+      ru: 'У дроби есть своё место на луче',
+      en: 'A fraction has its own place on the ray',
+    },
+    lead: {
+      uz: '0 dan 1 gacha bo\'lgan kesma teng ulushlarga bo\'linadi.',
+      ru: 'Отрезок от 0 до 1 делят на равные доли.',
+      en: 'The segment from 0 to 1 is divided into equal shares.',
+    },
+    note: {
+      uz: 'Noldan sanaymiz: birinchi belgi 1/5, ikkinchisi 2/5 va hokazo.',
+      ru: 'Считаем от нуля: первая метка это 1/5, вторая 2/5 и так далее.',
+      en: 'We count from zero: the first mark is 1/5, the second 2/5 and so on.',
+    },
+    audio: {
+      intro: {
+        uz: [
+          "Kasr faqat rasmda emas, sonlar nurida ham turadi.",
+          "Noldan birgacha bo'lgan kesmani beshta teng ulushga bo'lamiz.",
+          "Har bir belgi bitta ulushga to'g'ri keladi. Birinchi belgi beshdan bir.",
+          "Keyingisi beshdan ikki, undan keyingisi beshdan uch. Maxraj ulushlar sonidan, surat esa noldan sanalgan belgilar sonidan olinadi.",
+        ],
+        ru: [
+          'Дробь стоит не только на рисунке, но и на числовом луче.',
+          'Отрезок от нуля до единицы разделим на пять равных долей.',
+          'Каждая метка приходится на одну долю. Первая метка это одна пятая.',
+          'Следующая две пятых, а за ней три пятых. Знаменатель берут из числа долей, а числитель из числа меток, отсчитанных от нуля.',
+        ],
+        en: [
+          'A fraction lives not only in a drawing but also on the number ray.',
+          'Divide the segment from zero to one into five equal shares.',
+          'Each mark corresponds to one share. The first mark is one fifth.',
+          'The next is two fifths, and after it three fifths. The denominator comes from the number of shares, the numerator from the marks counted off from zero.',
+        ],
+      },
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  s8: {
+    eyebrow: { uz: 'Nurdagi nuqta', ru: 'Точка на луче', en: 'A point on the ray' },
+    title: {
+      uz: 'A nuqta qaysi kasrni ko\'rsatyapti?',
+      ru: 'Какую дробь показывает точка A?',
+      en: 'Which fraction does point A show?',
+    },
+    question: {
+      uz: 'Avval ulushlar sonini, keyin belgilar sonini tanlang.',
+      ru: 'Сначала выбери число долей, потом число меток.',
+      en: 'Choose the number of shares first, then the number of marks.',
+    },
+    den: 5,
+    num: 3,
+    denOptions: [4, 5, 6],
+    numOptions: [2, 3, 5],
+    denStep: {
+      uz: 'Chiziq ostiga: 0 dan 1 gacha nechta ulush bor?',
+      ru: 'Под черту: сколько долей от 0 до 1?',
+      en: 'Below the line: how many shares from 0 to 1?',
+    },
+    numStep: {
+      uz: 'Chiziq ustiga: noldan nechta ulush sanaldi?',
+      ru: 'Над чертой: сколько долей отсчитали от нуля?',
+      en: 'Above the line: how many shares were counted from zero?',
+    },
+    denDone: {
+      uz: "To'g'ri, kesma beshta teng ulushga bo'lingan. Endi noldan nechta ulush sanalganini tanlang.",
+      ru: 'Верно, отрезок разделён на пять равных долей. Теперь выбери, сколько долей отсчитали от нуля.',
+      en: 'Correct, the segment is divided into five equal shares. Now choose how many shares were counted from zero.',
+    },
+    wrongDen: {
+      uz: "Ulushlarni noldan birgacha sanang, belgilarni emas. Nol va bir ulush emas, ular chegaralar.",
+      ru: 'Считай доли от нуля до единицы, а не метки. Ноль и единица не доли, а границы.',
+      en: 'Count the shares from zero to one, not the marks. Zero and one are boundaries, not shares.',
+    },
+    wrongNum: {
+      uz: "Noldan A nuqtagacha bo'lgan ulushlarni sanang. Ular uchta.",
+      ru: 'Посчитай доли от нуля до точки A. Их три.',
+      en: 'Count the shares from zero to point A. There are three of them.',
+    },
+    correctText: {
+      uz: "To'g'ri. Beshdan uch. Kesma beshta ulushga bo'lingan, A nuqta uchinchi belgida turibdi.",
+      ru: 'Верно. Три пятых. Отрезок разделён на пять долей, а точка A стоит на третьей метке.',
+      en: 'Correct. Three fifths. The segment is divided into five shares and point A stands on the third mark.',
+    },
+    audio: {
+      intro: {
+        uz: [
+          'Suv uzelining shkalasida A nuqta belgilangan.',
+          "Kesma noldan birgacha teng ulushlarga bo'lingan.",
+          'A nuqta qaysi kasrni ko\'rsatayotganini yozing.',
+        ],
+        ru: [
+          'На шкале водного узла отмечена точка A.',
+          'Отрезок от нуля до единицы разделён на равные доли.',
+          'Запиши, какую дробь показывает точка A.',
+        ],
+        en: [
+          'Point A is marked on the water node scale.',
+          'The segment from zero to one is divided into equal shares.',
+          'Write down which fraction point A shows.',
+        ],
+      },
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  s9: {
+    eyebrow: { uz: 'Uchta model', ru: 'Три модели', en: 'Three models' },
+    title: {
+      uz: 'Bitta kasr, uch xil rasm',
+      ru: 'Одна дробь, три разных рисунка',
+      en: 'One fraction, three different pictures',
+    },
+    lead: {
+      uz: 'Tasma, doira va nur bir xil kasrni ko\'rsatishi mumkin.',
+      ru: 'Полоса, круг и луч могут показывать одну и ту же дробь.',
+      en: 'A strip, a circle and a ray can all show the same fraction.',
+    },
+    note: {
+      uz: 'Rasm har xil bo\'lsa ham, maxraj va surat o\'zgarmaydi.',
+      ru: 'Рисунок разный, а знаменатель и числитель остаются теми же.',
+      en: 'The picture differs, but the denominator and the numerator stay the same.',
+    },
+    audio: {
+      intro: {
+        uz: [
+          "Bitta kasrni bir necha xil ko'rsatish mumkin.",
+          "Mana tasma. U to'rtta teng katakka bo'lingan, uchtasi bo'yalgan.",
+          "Mana doira. U ham to'rtta teng sektorga bo'lingan, uchtasi bo'yalgan.",
+          "Mana sonlar nuri. Nolddan birgacha to'rtta ulush bor, nuqta uchinchi belgida. Uchalasida ham to'rtdan uch.",
+        ],
+        ru: [
+          'Одну и ту же дробь можно показать по-разному.',
+          'Вот полоса. Она разделена на четыре равные клетки, три из них закрашены.',
+          'Вот круг. Он тоже разделён на четыре равных сектора, три из них закрашены.',
+          'Вот числовой луч. От нуля до единицы четыре доли, точка стоит на третьей метке. Везде три четвёртых.',
+        ],
+        en: [
+          'The same fraction can be shown in several ways.',
+          'Here is a strip. It is divided into four equal cells, three of them shaded.',
+          'Here is a circle. It is also divided into four equal sectors, three of them shaded.',
+          'Here is the number ray. From zero to one there are four shares and the point stands on the third mark. Three quarters everywhere.',
+        ],
+      },
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  s10: {
+    eyebrow: { uz: 'Uzel hisoboti', ru: 'Отчёт узла', en: 'The node report' },
+    title: {
+      uz: 'Bak qanday to\'lgan?',
+      ru: 'Насколько заполнен бак?',
+      en: 'How full is the tank?',
+    },
+    question: {
+      uz: "Bak 10 ta teng bo'lakka bo'lingan, 7 tasi to'lgan. Qaysi yozuv to'g'ri?",
+      ru: 'Бак разделён на 10 равных частей, заполнено 7. Какая запись верна?',
+      en: 'The tank is divided into 10 equal parts and 7 are filled. Which record is right?',
+    },
+    options: [
+      { uz: '7/10', ru: '7/10', en: '7/10' },
+      { uz: '10/7', ru: '10/7', en: '10/7' },
+      { uz: '7/3', ru: '7/3', en: '7/3' },
+    ],
+    correctIndex: 0,
+    correctText: {
+      uz: "To'g'ri. O'ndan yetti. Chiziq ostida hamma bo'laklar soni, ustida to'lganlari.",
+      ru: 'Верно. Семь десятых. Под чертой число всех частей, над чертой число заполненных.',
+      en: 'Correct. Seven tenths. All the parts go below the line and the filled ones above it.',
+    },
+    wrong: [
+      null,
+      {
+        uz: "Sonlar joyi almashgan. Maxraj har doim hamma teng bo'laklar soni.",
+        ru: 'Числа поменялись местами. Знаменатель это всегда число всех равных частей.',
+        en: 'The numbers swapped places. The denominator is always the number of all the equal parts.',
+      },
+      {
+        uz: "Uch — bu bo'sh bo'laklar soni. Maxrajga esa hammasi, ya'ni o'n yoziladi.",
+        ru: 'Три это число пустых частей. А в знаменатель пишут все части, то есть десять.',
+        en: 'Three is the number of empty parts. But the denominator takes all the parts, that is ten.',
+      },
+    ],
+    audio: {
+      intro: {
+        uz: [
+          'Uzel kunlik hisobotni tayyorlayapti.',
+          "Katta bak o'nta teng bo'lakka bo'lingan, ulardan yettitasi to'lgan.",
+          'Hisobotga qaysi yozuv tushishi kerakligini tanlang.',
+        ],
+        ru: [
+          'Узел готовит дневной отчёт.',
+          'Большой бак разделён на десять равных частей, семь из них заполнены.',
+          'Выбери, какая запись должна попасть в отчёт.',
+        ],
+        en: [
+          'The node is preparing its daily report.',
+          'The big tank is divided into ten equal parts and seven of them are filled.',
+          'Choose which record should go into the report.',
+        ],
+      },
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  s11: {
+    eyebrow: { uz: 'Kasr qoidasi', ru: 'Правило дроби', en: 'The fraction rule' },
+    title: {
+      uz: 'Kasrni o\'qish va yozish',
+      ru: 'Как читать и записывать дробь',
+      en: 'Reading and writing a fraction',
+    },
+    lead: {
+      uz: 'Bu to\'rt qoida har qanday model uchun ishlaydi.',
+      ru: 'Эти четыре правила работают для любой модели.',
+      en: 'These four rules work for any model.',
+    },
+    note: {
+      uz: 'Qismlar teng bo\'lmasa, kasr haqida gapirib bo\'lmaydi.',
+      ru: 'Если части не равны, о дроби говорить нельзя.',
+      en: 'If the parts are not equal, there is no fraction to speak of.',
+    },
+    audio: {
+      intro: {
+        uz: [
+          "Bugungi qoidani bir joyga yig'amiz.",
+          "Birinchi shart. Butun teng qismlarga bo'linishi kerak, aks holda ulush yo'q.",
+          "Maxraj chiziq ostida turadi va nechta teng qism borligini aytadi.",
+          "Surat chiziq ustida turadi va shulardan nechtasi olinganini aytadi. Surat maxrajga teng bo'lsa, kasr birga teng.",
+        ],
+        ru: [
+          'Соберём сегодняшнее правило в одно место.',
+          'Первое условие. Целое должно быть разделено на равные части, иначе доли нет.',
+          'Знаменатель стоит под чертой и говорит, сколько всего равных частей.',
+          'Числитель стоит над чертой и говорит, сколько из них взяли. Если числитель равен знаменателю, дробь равна единице.',
+        ],
+        en: [
+          "Let us gather today's rule in one place.",
+          'First condition. The whole must be divided into equal parts, otherwise there is no share at all.',
+          'The denominator stands below the line and says how many equal parts there are.',
+          'The numerator stands above the line and says how many of them were taken. If the numerator equals the denominator, the fraction equals one.',
+        ],
+      },
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  s12: {
+    eyebrow: { uz: 'Kasr xaritasi', ru: 'Карта дроби', en: 'The fraction map' },
+    title: {
+      uz: 'Chiziq ostiga qaysi son tushadi?',
+      ru: 'Какое число встаёт под черту?',
+      en: 'Which number goes below the line?',
+    },
+    question: {
+      uz: 'Maxrajga nima yoziladi?',
+      ru: 'Что пишут в знаменатель?',
+      en: 'What goes into the denominator?',
+    },
+    options: [
+      {
+        uz: 'Hamma teng qismlar soni',
+        ru: 'Число всех равных частей',
+        en: 'The count of all the equal parts',
+      },
+      {
+        uz: "Bo'yalgan qismlar soni",
+        ru: 'Число закрашенных частей',
+        en: 'The count of the shaded parts',
+      },
+      {
+        uz: "Bo'yalmagan qismlar soni",
+        ru: 'Число незакрашенных частей',
+        en: 'The count of the unshaded parts',
+      },
+    ],
+    correctIndex: 0,
+    correctText: {
+      uz: "To'g'ri. Maxraj butun necha teng qismga bo'linganini ko'rsatadi. Doirada beshta sektor bor, demak chiziq ostiga besh yoziladi.",
+      ru: 'Верно. Знаменатель показывает, на сколько равных частей разделили целое. В круге пять секторов, значит под черту пишут пять.',
+      en: 'Correct. The denominator shows into how many equal parts the whole was divided. The circle has five sectors, so five goes below the line.',
+    },
+    wrong: [
+      null,
+      {
+        uz: "Bo'yalgan qismlar soni suratga, ya'ni chiziq ustiga yoziladi. Bu yerda ikkita sektor bo'yalgan.",
+        ru: 'Число закрашенных частей пишут в числитель, то есть над чертой. Здесь закрашены два сектора.',
+        en: 'The count of the shaded parts goes into the numerator, above the line. Two sectors are shaded here.',
+      },
+      {
+        uz: "Bo'yalmagan qismlar kasrga alohida yozilmaydi. Ular faqat hamma qismlar bilan birga, maxraj ichida hisobga olinadi.",
+        ru: 'Незакрашенные части в дробь отдельно не пишут. Они учитываются только вместе со всеми частями, внутри знаменателя.',
+        en: 'The unshaded parts are never written into the fraction on their own. They only count inside the denominator, together with all the parts.',
+      },
+    ],
+    audio: {
+      intro: {
+        uz: [
+          "Suv uzelida yumaloq rezervuar beshta teng sektorga bo'lingan, ikkitasi to'ldirilgan.",
+          "Yonida bo'sh kasr ramkasi turibdi. Ikkita bog'lovchi rasmni ramka bilan tutashtiradi.",
+          'Chiziq ostidagi uyaga qaysi son tushishini tanlang.',
+        ],
+        ru: [
+          'На водном узле круглый резервуар разделён на пять равных секторов, два заполнены.',
+          'Рядом стоит пустая рамка дроби. Две связи соединяют рисунок с рамкой.',
+          'Выбери, какое число встанет в клетку под чертой.',
+        ],
+        en: [
+          'At the water node a round reservoir is divided into five equal sectors, two of them filled.',
+          'An empty fraction frame stands next to it. Two connectors link the drawing to the frame.',
+          'Choose which number goes into the slot below the line.',
+        ],
+      },
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  s13: {
+    eyebrow: { uz: 'Bit yozuvi', ru: 'Запись Bit', en: "Bit's record" },
+    title: {
+      uz: 'Bit 3/5 deb yozdi',
+      ru: 'Bit записал 3/5',
+      en: 'Bit wrote 3/5',
+    },
+    question: {
+      uz: 'Bit qayerda adashdi?',
+      ru: 'Где ошибся Bit?',
+      en: 'Where did Bit go wrong?',
+    },
+    options: [
+      {
+        uz: "Bo'yalganni bo'yalmaganga taqqosladi, butunga emas",
+        ru: 'Он сравнил закрашенное с незакрашенным, а не с целым',
+        en: 'He compared the shaded part with the unshaded part instead of the whole',
+      },
+      {
+        uz: 'Suratni noto\'g\'ri sanadi',
+        ru: 'Он неверно посчитал числитель',
+        en: 'He counted the numerator incorrectly',
+      },
+      {
+        uz: 'Kasrni teskari yozdi',
+        ru: 'Он записал дробь наоборот',
+        en: 'He wrote the fraction upside down',
+      },
+    ],
+    correctIndex: 0,
+    correctText: {
+      uz: "To'g'ri. Doirada sakkizta sektor bor: uchtasi bo'yalgan, beshtasi bo'sh. Maxrajga sakkiz yoziladi, demak sakkizdan uch.",
+      ru: 'Верно. В круге восемь секторов: три закрашены, пять пустые. В знаменатель идёт восемь, значит три восьмых.',
+      en: 'Correct. The circle has eight sectors: three shaded and five empty. Eight goes into the denominator, so it is three eighths.',
+    },
+    wrong: [
+      null,
+      {
+        uz: "Surat to'g'ri. Bo'yalgan sektorlar rostdan uchta. Xato pastdagi sonda.",
+        ru: 'Числитель верный. Закрашенных секторов действительно три. Ошибка в нижнем числе.',
+        en: 'The numerator is right. There really are three shaded sectors. The mistake is in the lower number.',
+      },
+      {
+        uz: "Tartib to'g'ri: bo'yalgani tepada, butun pastda. Faqat pastdagi son noto'g'ri olingan.",
+        ru: 'Порядок верный: закрашенное сверху, целое снизу. Просто нижнее число взято неверно.',
+        en: 'The order is right: the shaded part on top, the whole below. Only the lower number was taken wrongly.',
+      },
+    ],
+    bitFeedback: true,
+    audio: {
+      intro: {
+        uz: [
+          "Bit yumaloq rezervuarni o'qidi. Unda sakkizta teng sektor bor.",
+          "Uchta sektor to'ldirilgan, beshtasi bo'sh. Bit uchtani beshga qarab, uch bo'lingan besh deb yozdi.",
+          'Bit qayerda adashganini toping.',
+        ],
+        ru: [
+          'Bit прочитал круглый резервуар. В нём восемь равных секторов.',
+          'Три сектора заполнены, пять пустые. Bit посмотрел на три и на пять и записал три пятых.',
+          'Найди, где Bit ошибся.',
+        ],
+        en: [
+          'Bit read the round reservoir. It has eight equal sectors.',
+          'Three sectors are filled and five are empty. Bit looked at three and five and wrote three fifths.',
+          'Find where Bit went wrong.',
+        ],
+      },
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  s14: {
+    eyebrow: { uz: 'Kunlik sarf', ru: 'Дневной расход', en: 'The daily use' },
+    title: {
+      uz: 'Bakda qancha suv qoldi?',
+      ru: 'Сколько воды осталось в баке?',
+      en: 'How much water is left in the tank?',
+    },
+    question: {
+      uz: "Bak 10 ta teng bo'lakka bo'lingan, 4 tasi sarflandi. Qolgan qism qaysi kasr?",
+      ru: 'Бак разделён на 10 равных частей, 4 израсходованы. Какой дробью выразить остаток?',
+      en: 'The tank is divided into 10 equal parts and 4 were used. Which fraction shows what is left?',
+    },
+    options: [
+      { uz: '6/10', ru: '6/10', en: '6/10' },
+      { uz: '4/10', ru: '4/10', en: '4/10' },
+      { uz: '4/6', ru: '4/6', en: '4/6' },
+    ],
+    correctIndex: 0,
+    correctText: {
+      uz: "To'g'ri. O'nta bo'lakdan to'rttasi ketdi, oltitasi qoldi. Maxraj o'zgarmadi, chunki bak baribir o'nta bo'lakka bo'lingan.",
+      ru: 'Верно. Из десяти частей ушли четыре, осталось шесть. Знаменатель не изменился, ведь бак по-прежнему разделён на десять частей.',
+      en: 'Correct. Four of the ten parts went, six remain. The denominator did not change, because the tank is still divided into ten parts.',
+    },
+    wrong: [
+      null,
+      {
+        uz: "Bu sarflangan qism. Bizga esa qolgani kerak, ya'ni o'ndan olti.",
+        ru: 'Это израсходованная часть. А нам нужен остаток, то есть шесть десятых.',
+        en: 'That is the part that was used. We need what is left, that is six tenths.',
+      },
+      {
+        uz: "Maxrajga qolgan bo'laklar soni emas, hamma bo'laklar soni yoziladi. Bak o'nta bo'lakka bo'lingan.",
+        ru: 'В знаменатель идёт не число оставшихся частей, а число всех частей. Бак разделён на десять частей.',
+        en: 'The denominator takes all the parts, not the remaining ones. The tank is divided into ten parts.',
+      },
+    ],
+    audio: {
+      intro: {
+        uz: [
+          'Kun tugadi va uzel yakuniy hisobni beryapti.',
+          "Katta bak o'nta teng bo'lakka bo'lingan edi. Kun davomida to'rtta bo'lak sarflandi.",
+          'Bakda qolgan suvni kasr bilan yozing.',
+        ],
+        ru: [
+          'День закончился, и узел даёт итоговый отчёт.',
+          'Большой бак был разделён на десять равных частей. За день израсходовали четыре части.',
+          'Запиши дробью, сколько воды осталось в баке.',
+        ],
+        en: [
+          'The day is over and the node is filing its final report.',
+          'The big tank was divided into ten equal parts. Four parts were used during the day.',
+          'Write down as a fraction how much water is left in the tank.',
+        ],
+      },
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  s15: {
+    eyebrow: { uz: 'Missiya mukofoti', ru: 'Награда за миссию', en: 'Mission award' },
+    stageLabel: { uz: 'Yakuniy bosqich', ru: 'Финальный этап', en: 'Final stage' },
+    headTitle: {
+      uz: 'Unvongacha bitta savol',
+      ru: 'Один вопрос до звания',
+      en: 'One question before your title',
+    },
+    headLead: {
+      uz: 'Maxraj nimani ko\'rsatishini ayting va unvonni oling.',
+      ru: 'Скажи, что показывает знаменатель, и получи звание.',
+      en: 'Say what the denominator shows and claim your title.',
+    },
+    questionKicker: { uz: 'Yakuniy savol', ru: 'Финальный вопрос', en: 'Final question' },
+    stepLabel: { uz: '1 qadam', ru: '1 шаг', en: '1 step' },
+    reflectionQuestion: {
+      uz: 'Maxraj nimani ko\'rsatadi?',
+      ru: 'Что показывает знаменатель?',
+      en: 'What does the denominator show?',
+    },
+    reflectionStart: {
+      uz: 'Maxraj — bu…',
+      ru: 'Знаменатель это…',
+      en: 'The denominator is…',
+    },
+    reflectionOptions: [
+      {
+        uz: "butun necha teng qismga bo'lingani",
+        ru: 'на сколько равных частей разделили целое',
+        en: 'how many equal parts the whole was divided into',
+      },
+      {
+        uz: "nechta qism olingani",
+        ru: 'сколько частей взяли',
+        en: 'how many parts were taken',
+      },
+      {
+        uz: "nechta qism bo'sh qolgani",
+        ru: 'сколько частей осталось пустыми',
+        en: 'how many parts were left empty',
+      },
+    ],
+    reflectionCorrectIndex: 0,
+    reflectionCorrect: {
+      uz: "To'g'ri. Maxraj ulushning kattaligini beradi, olinganlar sonini esa surat aytadi.",
+      ru: 'Верно. Знаменатель задаёт величину доли, а число взятых долей говорит числитель.',
+      en: 'Correct. The denominator sets the size of the share, while the numerator says how many were taken.',
+    },
+    reflectionWrong: {
+      uz: "Olinganlar soni suratda turadi, bo'sh qolganlar esa kasrga umuman yozilmaydi. Maxraj hamma teng qismlar sonini beradi.",
+      ru: 'Число взятых стоит в числителе, а пустые в дробь вообще не пишут. Знаменатель даёт число всех равных частей.',
+      en: 'The taken parts stand in the numerator, and the empty ones never enter the fraction at all. The denominator gives the count of all the equal parts.',
+    },
+    rewardAnnounce: { uz: 'Unvon olindi:', ru: 'Звание получено:', en: 'Title earned:' },
+    awards: [
+      { min: 5, title: { uz: 'Taqsimlash bosh muhandisi', ru: 'Главный инженер распределения', en: 'Chief distribution engineer' } },
+      { min: 3, title: { uz: 'Ulush hisobchisi', ru: 'Счётчик долей', en: 'Share counter' } },
+      { min: 0, title: { uz: 'Uzel kuzatuvchisi', ru: 'Наблюдатель узла', en: 'Node observer' } },
+    ],
+    mainLabel: { uz: 'Qoida', ru: 'Правило', en: 'Rule' },
+    main: [
+      {
+        uz: "Butun teng qismlarga bo'linishi shart, aks holda ulush yo'q.",
+        ru: 'Целое обязано быть разделено на равные части, иначе доли нет.',
+        en: 'The whole must be divided into equal parts, otherwise there is no share.',
+      },
+      {
+        uz: "Maxraj chiziq ostida: nechta teng qism bor.",
+        ru: 'Знаменатель под чертой: сколько всего равных частей.',
+        en: 'The denominator is below the line: how many equal parts there are.',
+      },
+      {
+        uz: "Surat chiziq ustida: shulardan nechtasi olingan.",
+        ru: 'Числитель над чертой: сколько из них взяли.',
+        en: 'The numerator is above the line: how many of them were taken.',
+      },
+      {
+        uz: "Surat maxrajga teng bo'lsa, kasr birga teng.",
+        ru: 'Если числитель равен знаменателю, дробь равна единице.',
+        en: 'If the numerator equals the denominator, the fraction equals one.',
+      },
+    ],
+    nextLabel: { uz: 'Keyingi missiya', ru: 'Следующая миссия', en: 'Next mission' },
+    nextText: {
+      uz: 'Qaysi ulush kattaroq: kasrlarni taqqoslash.',
+      ru: 'Какая доля больше: сравнение дробей.',
+      en: 'Which share is bigger: comparing fractions.',
+    },
+    audio: {
+      intro: {
+        uz: [
+          "Missiya bajarildi. Suv uzeli endi har bir bakni kasr bilan yozadi.",
+          "Bugun siz butunni teng ulushlarga ajratishni va ularni kasr bilan yozishni o'rgandingiz.",
+          'Unvonni ochish uchun bitta savol qoldi.',
+        ],
+        ru: [
+          'Миссия выполнена. Водный узел теперь записывает каждый бак дробью.',
+          'Сегодня ты умеешь делить целое на равные доли и записывать их дробью.',
+          'До звания остался один вопрос.',
+        ],
+        en: [
+          'Mission complete. The water node now records every tank as a fraction.',
+          'Today you can split a whole into equal shares and write them as a fraction.',
+          'One question stands between you and the title.',
+        ],
+      },
+    },
+  },
+};
+
+// ===========================================================================
+// CHIZMALAR
+// ===========================================================================
+
+// s0, s14 — suv uzeli sahnasi.
+const WaterScene = ({ mode = 'hook', solved = false }) => {
+  const t = useT();
+  const tank = (x, y, w, h, cuts, filled) => {
+    const edges = cuts
+      ? [0, ...cuts, 1].map((value) => x + value * w)
+      : null;
+    const parts = cuts ? cuts.length + 1 : 6;
+    const bounds = edges ?? Array.from({ length: parts + 1 }, (_, i) => x + (i * w) / parts);
+    return (
+      <g>
+        <rect x={x - 8} y={y - 10} width={w + 16} height={h + 20} rx="12" fill="#E8F1F3" stroke="#B7CFD6" strokeWidth="2.4" />
+        {Array.from({ length: parts }, (_, index) => (
+          <rect
+            key={index}
+            x={bounds[index]}
+            y={y}
+            width={bounds[index + 1] - bounds[index]}
+            height={h}
+            fill={index < filled ? '#8FD3E4' : '#FFFFFF'}
+            stroke={index < filled ? T.cyan : 'rgba(23,59,82,.20)'}
+            strokeWidth={index < filled ? 2.4 : 1.5}
+          />
+        ))}
+        <rect x={x} y={y} width={w} height={h} fill="none" stroke={T.ink} strokeWidth="2.6" />
+      </g>
+    );
+  };
 
   return (
-  <svg className={`g1-char g1-char-bit g1-char-state-${state} ${className}`} viewBox="0 0 120 150" aria-hidden="true">
-    <defs>
-      <linearGradient id="g4bbody" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stopColor="#E2ECF2" />
-        <stop offset="100%" stopColor="#B6C7D2" />
-      </linearGradient>
-      <linearGradient id="g4bhead" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stopColor="#EBF2F6" />
-        <stop offset="100%" stopColor="#C4D3DC" />
-      </linearGradient>
-    </defs>
-    <ellipse cx="60" cy="140" rx="30" ry="5" fill="rgba(58,53,48,0.13)" />
-    <g className="g1-bit-ant">
-      <path d="M60 30 V14" stroke="#9FB3BF" strokeWidth="4" strokeLinecap="round" />
-      <circle cx="60" cy="11" r="6" fill="#FF4F28" />
-      <circle cx="58" cy="9" r="2" fill="#FFB9A6" />
-    </g>
-    <rect x="44" y="118" width="12" height="16" rx="5" fill="#9FB3BF" />
-    <rect x="64" y="118" width="12" height="16" rx="5" fill="#9FB3BF" />
-    <rect x="34" y="60" width="52" height="62" rx="18" fill="url(#g4bbody)" stroke="#A9BCC8" strokeWidth="2" />
-    <rect x="44" y="104" width="32" height="10" rx="5" fill="#A9BCC8" opacity="0.5" />
-    {(state === 'happy' || isWave) && (
-      <g className={isWave ? 'bit-double-wave' : ''}>
-        <g className="bit-wave-left">
-          <path d="M36 74 C 26 66 22 56 22 48" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-          <circle cx="22" cy="47" r="5" fill="#B6C7D2" />
+    <FitSvg viewBox="0 0 520 464">
+      <defs>
+        <linearGradient id="d18-wall" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#E7F1F3" />
+          <stop offset="1" stopColor="#F7FBFA" />
+        </linearGradient>
+      </defs>
+      <rect x="0" y="0" width="520" height="464" rx="22" fill="url(#d18-wall)" />
+
+      {/* quvurlar */}
+      <path d="M0 74 H196 V128" fill="none" stroke="#B7CFD6" strokeWidth="12" strokeLinecap="round" />
+      <path d="M520 74 H324 V128" fill="none" stroke="#B7CFD6" strokeWidth="12" strokeLinecap="round" />
+      <circle cx="196" cy="74" r="13" fill="#FFFFFF" stroke="#8FAAB4" strokeWidth="3" />
+      <circle cx="324" cy="74" r="13" fill="#FFFFFF" stroke="#8FAAB4" strokeWidth="3" />
+
+      {mode === 'hook' ? (
+        <g>
+          <text x="260" y="34" textAnchor="middle" fill={T.ink2} fontSize="16" fontWeight="750" fontFamily="Manrope, sans-serif">
+            {t({ uz: 'Ikkala bak oltita bo\'lakka bo\'lingan', ru: 'Оба бака разделены на шесть частей', en: 'Both tanks are split into six parts' })}
+          </text>
+          <text x="70" y="176" textAnchor="middle" fill={T.cyan} fontSize="19" fontWeight="800" fontFamily="JetBrains Mono, monospace">1</text>
+          {tank(104, 150, 376, 70, null, 1)}
+          <text x="70" y="326" textAnchor="middle" fill={T.accent} fontSize="19" fontWeight="800" fontFamily="JetBrains Mono, monospace">2</text>
+          {tank(104, 300, 376, 70, [0.06, 0.3, 0.4, 0.72, 0.82], 1)}
+          <text x="292" y="256" textAnchor="middle" fill={T.ink3} fontSize="13.5" fontWeight="700" fontFamily="Manrope, sans-serif">
+            {t({ uz: 'teng bo\'laklar', ru: 'равные части', en: 'equal parts' })}
+          </text>
+          <text x="292" y="406" textAnchor="middle" fill={T.ink3} fontSize="13.5" fontWeight="700" fontFamily="Manrope, sans-serif">
+            {t({ uz: 'har xil bo\'laklar', ru: 'разные части', en: 'different parts' })}
+          </text>
         </g>
-        <g className="bit-wave-right">
-          <path d="M84 74 C 94 66 98 56 98 48" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-          <circle cx="98" cy="47" r="5" fill="#B6C7D2" />
+      ) : (
+        <g>
+          <text x="260" y="34" textAnchor="middle" fill={T.ink2} fontSize="16" fontWeight="750" fontFamily="Manrope, sans-serif">
+            {t({ uz: 'Kun oxiridagi bak', ru: 'Бак в конце дня', en: 'The tank at the end of the day' })}
+          </text>
+          {tank(70, 160, 380, 92, null, 0)}
+          {Array.from({ length: 10 }, (_, index) => (
+            <rect
+              key={index}
+              x={70 + (index * 380) / 10}
+              y={160}
+              width={38}
+              height={92}
+              fill={index < 4 ? '#F2D9CF' : '#8FD3E4'}
+              stroke={index < 4 ? T.accent : T.cyan}
+              strokeWidth="2.2"
+            />
+          ))}
+          <rect x="70" y="160" width="380" height="92" fill="none" stroke={T.ink} strokeWidth="2.6" />
+          <text x="146" y="288" textAnchor="middle" fill={T.accent} fontSize="14" fontWeight="750" fontFamily="Manrope, sans-serif">
+            {t({ uz: 'sarflandi', ru: 'израсходовано', en: 'used' })}
+          </text>
+          <text x="336" y="288" textAnchor="middle" fill={T.cyan} fontSize="14" fontWeight="750" fontFamily="Manrope, sans-serif">
+            {t({ uz: 'qoldi', ru: 'осталось', en: 'left' })}
+          </text>
+          <g opacity={solved ? 1 : 0.35} style={{ transition: 'opacity .4s' }}>
+            <rect x="146" y="326" width="228" height="94" rx="16" fill="#FFFFFF" stroke={solved ? T.success : T.ink3} strokeWidth="2.4" />
+            <FractionGlyph num={6} den={10} x={260} y={372} size={32} tone={solved ? T.success : T.ink3} />
+          </g>
         </g>
-      </g>
-    )}
-    {state === 'present' && (
-      <g>
-        <path d="M36 76 C 28 84 26 94 30 102" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="30" cy="103" r="5" fill="#B6C7D2" />
-        <g className="g1-bit-wave">
-          <path d="M84 74 C 96 66 100 54 98 44" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-          <circle cx="98" cy="43" r="5" fill="#B6C7D2" />
-        </g>
-      </g>
-    )}
-    {isThinking && (
-      <g>
-        <path d="M36 76 C 28 84 26 94 30 102" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="30" cy="103" r="5" fill="#B6C7D2" />
-        <g className="bit-think-hand">
-          <path d="M84 76 C 92 74 92 66 84 61" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-          <circle cx="83" cy="60" r="5" fill="#B6C7D2" />
-        </g>
-      </g>
-    )}
-    {isAwkward && (
-      <g className="bit-awkward-hands">
-        <path d="M36 76 C 39 88 46 96 54 99" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="54" cy="99" r="5" fill="#B6C7D2" />
-        <path d="M84 76 C 81 88 74 96 66 99" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="66" cy="99" r="5" fill="#B6C7D2" />
-      </g>
-    )}
-    {state === 'point' && (
-      <g>
-        <path d="M36 76 C 28 84 26 94 30 102" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="30" cy="103" r="5" fill="#B6C7D2" />
-        <g className="bit-point-arm">
-          <path d="M84 76 C 94 72 101 67 108 62" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-          <circle cx="109" cy="61" r="5" fill="#B6C7D2" />
-        </g>
-      </g>
-    )}
-    {state === 'idea' && (
-      <g>
-        <path d="M36 76 C 29 82 27 91 30 101" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="30" cy="102" r="5" fill="#B6C7D2" />
-        <path d="M84 76 C 92 68 95 58 94 50" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="94" cy="49" r="5" fill="#B6C7D2" />
-      </g>
-    )}
-    {state === 'focus' && (
-      <g className="bit-focus-hands">
-        <path d="M36 77 C 41 88 47 93 53 94" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="53" cy="94" r="5" fill="#B6C7D2" />
-        <path d="M84 77 C 79 88 73 93 67 94" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="67" cy="94" r="5" fill="#B6C7D2" />
-      </g>
-    )}
-    {state === 'nod' && (
-      <g>
-        <path d="M36 76 C 28 84 26 94 30 102" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="30" cy="103" r="5" fill="#B6C7D2" />
-        <g className="bit-nod-hand">
-          <path d="M84 75 C 93 70 99 62 99 54" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-          <circle cx="99" cy="53" r="5" fill="#B6C7D2" />
-        </g>
-      </g>
-    )}
-    <rect x="28" y="28" width="64" height="46" rx="16" fill="url(#g4bhead)" stroke="#A9BCC8" strokeWidth="2" />
-    <rect x="36" y="36" width="48" height="30" rx="10" fill="#16242C" />
-    <path d="M40 40 h18 a4 4 0 0 1 -4 8 h-14 Z" fill="rgba(255,255,255,0.08)" />
-    <g className="g1-eyes" fill="#5BD6F2">
-      {isAwkward
-        ? <><ellipse cx="50" cy="53" rx="4.8" ry="3.2" /><ellipse cx="70" cy="53" rx="4.8" ry="3.2" /></>
-        : isThinking
-        ? <><circle cx="50" cy="50" r="4.5" /><circle cx="70" cy="49" r="5.5" /></>
-        : <><circle cx="50" cy="50" r="5" /><circle cx="70" cy="50" r="5" /></>}
-    </g>
-    {isHappy && <path d="M50 58 Q60 65 70 58" stroke="#5BD6F2" strokeWidth="2.6" fill="none" strokeLinecap="round" />}
-    {(state === 'present' || state === 'point' || state === 'focus') && <path d="M52 58 h16" stroke="#5BD6F2" strokeWidth="2.6" strokeLinecap="round" />}
-    {isThinking && <circle cx="60" cy="59" r="2.4" fill="#5BD6F2" />}
-    {isAwkward && (
-      <g className="bit-awkward-face">
-        <path d="M53 62 Q60 57 67 62" stroke="#5BD6F2" strokeWidth="2.4" fill="none" strokeLinecap="round" />
-        <circle cx="43" cy="59" r="4" fill="#FF9B8A" opacity=".5" />
-        <circle cx="77" cy="59" r="4" fill="#FF9B8A" opacity=".5" />
-      </g>
-    )}
-    {isThinking && (
-      <g>
-        <circle cx="99" cy="38" r="9" fill="#FFC23C" />
-        <text x="99" y="42.5" textAnchor="middle" fontSize="12" fontWeight="800" fill="#5A3A00">?</text>
-      </g>
-    )}
-    {state === 'point' && (
-      <g className="bit-point-target">
-        <circle cx="110" cy="61" r="8" fill="none" stroke="#FF5B35" strokeWidth="2" />
-        <circle cx="110" cy="61" r="2" fill="#FF5B35" />
-      </g>
-    )}
-    {state === 'idea' && (
-      <g className="bit-idea-bulb">
-        <circle cx="99" cy="36" r="9" fill="#FFC23C" />
-        <path d="M95 36 Q99 31 103 36 M97 42 h4" stroke="#7A5200" strokeWidth="1.6" fill="none" strokeLinecap="round" />
-      </g>
-    )}
-    {state === 'focus' && (
-      <g className="bit-focus-scan">
-        <path d="M43 45 h34" stroke="#95C93D" strokeWidth="2" strokeLinecap="round" />
-        <circle cx="80" cy="45" r="3" fill="#95C93D" />
-      </g>
-    )}
-    {state === 'nod' && (
-      <g className="bit-nod-check">
-        <circle cx="99" cy="38" r="9" fill="#95C93D" />
-        <path d="M95 38 l3 3 6-7" stroke="#FFFFFF" strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-      </g>
-    )}
-  </svg>
+      )}
+    </FitSvg>
   );
 };
-const AudioIndicator = ({ audio }) => { const t = useT(); const muteLabel = audio.muted ? t(bi('Ovozni yoqish', 'Включить звук', 'Turn sound on')) : t(bi("Ovozni o'chirish", 'Выключить звук', 'Turn sound off')); const replayLabel = t(bi('Qayta eshitish', 'Повторить', 'Replay')); return <div className="audio-controls"><button type="button" className="icon-btn" onClick={audio.toggleMute} aria-label={muteLabel} title={muteLabel}>{audio.muted ? '🔇' : audio.isPlaying ? '🔊' : '🔉'}</button>{!audio.muted && <button type="button" className="icon-btn" onClick={audio.replay} aria-label={replayLabel} title={replayLabel}>↻</button>}</div>; };
 
-const ScreenTypeLabel = ({ type }) => { const lang = useLang(); const labels = { hook: bi('Missiya', 'Миссия', "Mission"), exploration: bi('Kashfiyot', 'Исследование', "Explore"), rule: bi('Qoida', 'Правило', "Rule"), test: bi('Tekshiruv', 'Проверка', "Check"), case: bi('Vazifa', 'Задача', "Task"), summary: bi('Yakun', 'Итог', "Summary") }; return <span className="screen-type">{labels[type]?.[lang] ?? labels[type]?.uz ?? type}</span>; };
-
-function Stage({ screen, audio, onPrev, onNext, nextDisabled = false, finish = false, children }) {
-  const t = useT(); const mobile = useIsMobile(); const lesson = useLesson(); const c = lesson.screens[screen]; const pad = mobile ? 14 : 48;
-  const captionVisible = Boolean(audio.caption && (audio.muted || audio.visualOnly));
-  return <main className={`stage stage-${c.type}`}><header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}><div className="progress-track" aria-label={`${screen + 1} / ${lesson.screens.length}`}><div className="progress-fill progress-bar" style={{ width: `${(screen + 1) / lesson.screens.length * 100}%` }}/></div><div className="stage-chrome"><div className="chrome-title"><span className="status-dot"/><span>{t(c.eyebrow)}</span></div><div className="chrome-actions"><ScreenTypeLabel type={c.type}/><AudioIndicator audio={audio}/><span className="screen-count">{String(screen + 1).padStart(2, '0')} / {lesson.screens.length}</span></div></div></header><section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>{children}<div className={`caption-slot ${captionVisible ? 'is-visible' : ''}`} aria-live="polite"><span>{captionVisible ? audio.caption : ''}</span></div></section><footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{screen === 0 ? <span/> : <button type="button" className="btn-ghost" onClick={onPrev}>← {t(bi('Orqaga', 'Назад', "Back"))}</button>}<button type="button" className="btn-white-accent" disabled={nextDisabled || !onNext} onClick={onNext}>{finish ? t(bi('Darsni yakunlash', 'Завершить урок', "Finish lesson")) : t(bi('Davom etish', 'Продолжить', "Continue"))} →</button></footer></main>;
-}
-
-const Heading = ({ c, hook = false }) => { const t = useT(); return <div className="heading"><div><span data-g4-role={hook ? 'hook-topic' : undefined}>{t(c.eyebrow)}</span><h1 data-g4-role={hook ? 'hook-title' : undefined}>{t(c.title)}</h1></div>{c.bit && !hook && <BitSVG state={c.bit}/>}</div>; };
-
-function FractionBar({ denominator, numerator = 0, color = 'cyan', label, unequal = false, frame = 99, revealAt = 1, onSegmentClick, activeSegment = null }) {
-  const widths = [1, 1.55, .72, 1.25, .58, 1.4, .8, 1.15];
-  return <div className="fraction-model"><div className={`fraction-bar ${unequal ? 'unequal' : ''}`}>{Array.from({ length: denominator }, (_, index) => { const className = `${index < numerator && frame >= revealAt ? `filled ${color}` : ''} ${activeSegment === index ? 'segment-active' : ''}`; return onSegmentClick ? <button type="button" key={index} className={className} aria-label={`${index + 1}`} onClick={() => onSegmentClick(index)}/> : <i key={index} className={className} style={unequal ? { flex: widths[index] ?? 1 } : undefined}/>; })}</div>{label && <b>{label}</b>}</div>;
-}
-
-const polar = (cx, cy, r, angle) => { const radians = (angle - 90) * Math.PI / 180; return { x: cx + r * Math.cos(radians), y: cy + r * Math.sin(radians) }; };
-const sectorPath = (index, count) => { const start = polar(50, 50, 42, index * 360 / count); const end = polar(50, 50, 42, (index + 1) * 360 / count); return `M50 50 L${start.x} ${start.y} A42 42 0 ${360 / count > 180 ? 1 : 0} 1 ${end.x} ${end.y} Z`; };
-
-function FractionCircle({ denominator, numerator, frame, revealAt = 2 }) { return <svg className="fraction-circle" viewBox="0 0 100 100" aria-hidden="true">{Array.from({ length: denominator }, (_, index) => <path key={index} d={sectorPath(index, denominator)} className={index < numerator && frame >= revealAt ? 'filled' : ''}/>)}</svg>; }
-
-function NumberLine({ denominator, marker, markers = [], frame = 99, interactiveMarker = null, answerState = null }) {
-  const allMarkers = marker == null ? markers : [{ at: marker, label: `${marker}/${denominator}` }];
-  return <div className={`number-line-wrap ${answerState ? 'number-line-choice' : ''}`}><svg className="number-line-svg" viewBox="0 0 640 110" role="img"><line x1="35" y1="55" x2="605" y2="55" className="axis"/>{Array.from({ length: denominator + 1 }, (_, index) => { const x = 35 + 570 * index / denominator; return <g key={index}><line x1={x} y1="44" x2={x} y2="66" className="tick"/>{(index === 0 || index === denominator) && <text x={x} y="90" textAnchor="middle">{index === 0 ? '0' : '1'}</text>}</g>; })}{allMarkers.map((item, index) => { const x = 35 + 570 * item.at / denominator; const revealAt = item.revealAt ?? (markers.length ? 0 : 2); const picked = answerState?.picked === index; const right = answerState?.solved && answerState.correctIndex === index; const bad = picked && !right; return <g key={`${item.at}-${item.label}`} className={`${frame >= revealAt ? 'marker on' : 'marker'} ${picked ? 'answer-picked' : ''} ${right ? 'answer-right' : ''} ${bad ? 'answer-bad' : ''}`}><circle cx={x} cy="55" r={answerState ? 22 : 13}/><text x={x} y="25" textAnchor="middle">{item.label}</text></g>; })}{interactiveMarker !== null && <g className="marker free-marker on"><circle cx={35 + 570 * interactiveMarker / denominator} cy="55" r="10"/><text x={35 + 570 * interactiveMarker / denominator} y="105" textAnchor="middle">{interactiveMarker}/{denominator}</text></g>}</svg>{answerState && <div className="number-line-hit-targets">{allMarkers.map((item, index) => <button type="button" key={`${item.at}-${item.label}`} className="number-line-marker-action" style={{ left: `${(35 + 570 * item.at / denominator) / 640 * 100}%` }} aria-label={String(item.label)} disabled={answerState.disabled || answerState.solved} onClick={() => answerState.onPick(index)}/>)}</div>}</div>;
-}
-
-function GridModel({ denominator, numerator, frame, revealAt = 1 }) { return <div className="grid-model" style={{ gridTemplateColumns: `repeat(${Math.min(5, denominator)},1fr)` }}>{Array.from({ length: denominator }, (_, index) => <i key={index} className={index < numerator && frame >= revealAt ? 'filled' : ''}/>)}</div>; }
-
-function VisualModel({ visual, frame, solved = false, promptReady = false, interactionState = null, onInteract, answerState = null }) {
+// s1 — kasr yozuvi va uning bo'laklari.
+const NotationFigure = ({ frame = 0 }) => {
   const t = useT();
-  if (!visual) return null;
-  const visibleFrame = solved || promptReady ? 99 : frame;
-  const revealFrame = solved ? 99 : frame;
-  if (visual.kind === 'batteryShare') { const perGroup = typeof interactionState === 'number' ? visual.interaction.values[interactionState] : 0; const correct = interactionState === visual.interaction.correctIndex; return <div className="model-card battery-share"><div className="battery-bank">{Array.from({ length: visual.total }, (_, index) => <i key={index}>▰</i>)}</div><div className={`station-grid ${visibleFrame >= 1 ? 'show' : ''}`}>{Array.from({ length: visual.groups }, (_, group) => <div key={group}><b>{group + 1}</b><span>{Array.from({ length: perGroup }, (_, index) => <i key={index} className={visibleFrame >= 2 ? 'assigned' : ''}>▰</i>)}</span></div>)}</div><strong className={correct ? 'show' : ''}>12 : 4 = 3</strong></div>; }
-  if (visual.kind === 'wholeChoice') return <div className="model-card whole-choice">{[0, 1].map((index) => <button type="button" key={index} className={`whole-object ${(interactionState === index || (interactionState === null && index === 0 && visibleFrame >= 1)) ? 'chosen' : ''}`} onClick={() => onInteract?.(index, index)} aria-label={String(index + 1)}><span>1</span></button>)}</div>;
-  if (visual.kind === 'unequal') return <div className="model-card"><FractionBar {...visual} unequal frame={visibleFrame}/></div>;
-  if (visual.kind === 'equalize') return <div className={`model-card model-pair equal-toggle state-${interactionState ?? 'auto'}`}><div className={interactionState === 0 ? 'model-selected' : ''}><FractionBar denominator={visual.denominator} unequal frame={visibleFrame}/></div><span>→</span><div className={interactionState === 1 ? 'model-selected' : ''}><FractionBar denominator={visual.denominator} frame={visibleFrame}/></div></div>;
-  if (visual.kind === 'differentWholes') return <div className={`model-card different-wholes ${interactionState === 1 ? 'same-size' : ''}`}><div className="small-whole"><FractionBar denominator={visual.denominator} numerator={visual.numerator} frame={99} label="1/2"/></div><div className="large-whole"><FractionBar denominator={visual.denominator} numerator={visual.numerator} frame={99} label="1/2"/></div></div>;
-  if (visual.kind === 'bar') { const liveNumerator = visual.interaction?.type === 'sliderNumerator' && typeof interactionState === 'number' ? interactionState : visual.numerator; const baseLabel = visual.interaction?.type === 'sliderNumerator' ? `${liveNumerator}/${visual.denominator}` : visual.formula ?? `${visual.numerator}/${visual.denominator}`; const liveLabel = visual.interaction?.type === 'partCount' && visibleFrame < 2 ? '□/?' : baseLabel; return <div className="model-card"><FractionBar {...visual} numerator={liveNumerator} frame={visibleFrame} label={liveLabel}/></div>; }
-  if (visual.kind === 'notation') return <div className={`model-card notation notation-focus-${interactionState ?? 'none'}`}><FractionBar {...visual} frame={visibleFrame}/><div><b className={interactionState === 0 ? 'notation-active' : ''}>{visual.numerator}</b><span className={interactionState === 1 ? 'notation-active' : ''}/><b className={interactionState === 2 ? 'notation-active' : ''}>{visual.denominator}</b><small>{visibleFrame >= 2 ? t({ uz: 'surat · maxraj', ru: 'числитель · знаменатель', en: 'numerator · denominator' }) : ''}</small></div></div>;
-  if (visual.kind === 'circleBar') return <div className="model-card model-pair"><FractionBar {...visual} frame={visibleFrame} label={`${visual.numerator}/${visual.denominator}`}/><FractionCircle {...visual} frame={visibleFrame}/></div>;
-  if (visual.kind === 'threeModels') return <div className="model-card three-models"><button type="button" className={`model-zoom ${interactionState === 0 ? 'zoomed' : ''}`} onClick={() => onInteract?.(0, 0)}><FractionBar {...visual} frame={visibleFrame} revealAt={0} label={`${visual.numerator}/${visual.denominator}`}/></button><button type="button" className={`model-zoom ${interactionState === 1 ? 'zoomed' : ''}`} onClick={() => onInteract?.(1, 1)}><FractionCircle {...visual} frame={visibleFrame} revealAt={1}/></button><button type="button" className={`model-zoom ${interactionState === 2 ? 'zoomed' : ''}`} onClick={() => onInteract?.(2, 2)}><GridModel {...visual} frame={visibleFrame} revealAt={2}/></button></div>;
-  if (visual.kind === 'line') return <div className="model-card"><NumberLine {...visual} frame={visibleFrame} interactiveMarker={visual.interaction?.type === 'lineMarker' && typeof interactionState === 'number' ? interactionState : null} answerState={answerState}/></div>;
-  if (visual.kind === 'representations') return <div className="model-card triple-model"><GridModel {...visual} frame={visibleFrame}/><FractionBar {...visual} frame={visibleFrame}/><NumberLine denominator={visual.denominator} marker={visual.numerator} frame={visibleFrame}/></div>;
-  if (visual.kind === 'choiceModels') { const models = [<FractionBar denominator={5} numerator={3} frame={99}/>, <FractionBar denominator={5} numerator={3} unequal frame={99}/>, <div className="loose-shapes"><i/><i/><i/></div>]; return <div className="model-card choice-models">{models.map((model, index) => { const picked = answerState?.picked === index; const right = answerState?.solved && answerState.correctIndex === index; return <button type="button" key={index} className={`model-answer ${picked ? 'picked' : ''} ${right ? 'right' : ''} ${picked && !right ? 'bad' : ''}`} onClick={() => answerState?.onPick(index)} disabled={answerState?.solved}><b>{String.fromCharCode(65 + index)}</b><span>{t(answerState?.options?.[index])}</span>{model}</button>; })}</div>; }
-  if (visual.kind === 'grid') return <div className="model-card"><GridModel {...visual} frame={visibleFrame}/></div>;
-  if (visual.kind === 'error') return <div className="model-card error-model"><FractionBar {...visual} frame={99}/><s>{visual.wrong}</s><span>→</span><b className={solved ? 'show' : ''}>{visual.right}</b></div>;
-  if (visual.kind === 'comparison') { const items = visual.items.map((item) => ({ ...item })); let relation = visual.relation; if (visual.interaction?.type === 'numeratorSlider' && typeof interactionState === 'number') { items[1].numerator = interactionState; const sign = visual.interaction.fixedNumerator < interactionState ? '<' : visual.interaction.fixedNumerator > interactionState ? '>' : '='; relation = `${visual.interaction.fixedNumerator}/${visual.interaction.denominator} ${sign} ${interactionState}/${visual.interaction.denominator}`; } if (visual.interaction?.type === 'denominatorDial' && typeof interactionState === 'number') { items[1].denominator = interactionState; const sign = visual.interaction.fixedDenominator < interactionState ? '>' : visual.interaction.fixedDenominator > interactionState ? '<' : '='; relation = `${visual.interaction.numerator}/${visual.interaction.fixedDenominator} ${sign} ${visual.interaction.numerator}/${interactionState}`; } return <div className="model-card compare-model">{items.map((item, index) => <FractionBar key={`${index}-${item.numerator}/${item.denominator}`} {...item} frame={visibleFrame} revealAt={item.revealAt ?? (visual.simultaneous ? 1 : index + 1)} onSegmentClick={visual.interaction?.type === 'segmentTap' ? (segment) => onInteract?.({ model: index, segment }, 0) : undefined} activeSegment={interactionState?.model === index ? interactionState.segment : null} label={`${item.numerator}/${item.denominator}`}/>)}<strong className={revealFrame >= (visual.relationRevealAt ?? (promptReady ? 1 : 3)) ? 'show' : ''}>{relation}</strong></div>; }
-  if (visual.kind === 'half') return <div className={`model-card compare-model half-model ${interactionState === true ? 'half-marked' : ''}`}>{visual.items.map((item, index) => <FractionBar key={`${item.numerator}/${item.denominator}`} {...item} frame={visibleFrame} revealAt={item.revealAt ?? index + 1} label={`${item.numerator}/${item.denominator}`}/>)}<strong className={revealFrame >= (visual.relationRevealAt ?? (promptReady ? 1 : 3)) ? 'show' : ''}>{visual.relation}</strong></div>;
-  if (visual.kind === 'errorCompare') return <div className="model-card error-compare"><div className="compare-model">{visual.items.map((item) => <FractionBar key={`${item.numerator}/${item.denominator}`} {...item} frame={99} label={`${item.numerator}/${item.denominator}`}/>)}</div><div className="error-formula"><s>{visual.wrong}</s><span>→</span><b className={solved ? 'show' : ''}>{visual.right}</b></div></div>;
-  if (visual.kind === 'summary') return <div className="model-card summary-model"><FractionBar {...visual} frame={99} label={`${visual.numerator}/${visual.denominator}`}/><NumberLine denominator={visual.denominator} marker={visual.numerator} frame={99}/></div>;
-  return <div className="model-card strategy-visual">◆</div>;
-}
+  return (
+    <FitSvg viewBox="0 0 520 164">
+      <g opacity={frame >= 1 ? 1 : 0.3} style={{ transition: 'opacity .4s' }}>
+        <FractionBar parts={6} shaded={1} x={26} y={44} width={180} height={58} />
+      </g>
+      <g opacity={frame >= 2 ? 1 : 0.3} style={{ transition: 'opacity .4s' }}>
+        <FractionGlyph num={1} den={6} x={400} y={73} size={38} tone={T.cyan} />
+      </g>
+      <g opacity={frame >= 3 ? 1 : 0.3} style={{ transition: 'opacity .4s' }}>
+        <path d="M322 47 L358 55" stroke={T.ink3} strokeWidth="1.8" />
+        <text x="314" y="45" textAnchor="end" fill={T.ink2} fontSize="13.5" fontWeight="750" fontFamily="Manrope, sans-serif">
+          {t({ uz: 'surat', ru: 'числитель', en: 'numerator' })}
+        </text>
+        <text x="314" y="28" textAnchor="end" fill={T.ink3} fontSize="11" fontFamily="Manrope, sans-serif">
+          {t({ uz: 'nechtasi olingan', ru: 'сколько взяли', en: 'how many taken' })}
+        </text>
+      </g>
+      <g opacity={frame >= 3 ? 1 : 0.3} style={{ transition: 'opacity .4s' }}>
+        <path d="M322 99 L358 92" stroke={T.ink3} strokeWidth="1.8" />
+        <text x="314" y="103" textAnchor="end" fill={T.ink2} fontSize="13.5" fontWeight="750" fontFamily="Manrope, sans-serif">
+          {t({ uz: 'maxraj', ru: 'знаменатель', en: 'denominator' })}
+        </text>
+        <text x="314" y="120" textAnchor="end" fill={T.ink3} fontSize="11" fontFamily="Manrope, sans-serif">
+          {t({ uz: 'nechta teng qism', ru: 'сколько равных частей', en: 'how many equal parts' })}
+        </text>
+      </g>
+      <g opacity={frame >= 3 ? 1 : 0.25} style={{ transition: 'opacity .4s' }}>
+        <text x="116" y="146" textAnchor="middle" fill={T.ink3} fontSize="13" fontWeight="700" fontFamily="Manrope, sans-serif">
+          {t({ uz: 'Oltidan bir', ru: 'Одна шестая', en: 'One sixth' })}
+        </text>
+      </g>
+    </FitSvg>
+  );
+};
 
-function G4TitleReveal({ active, title, onComplete }) {
+// s3 — bir xil maxraj, o'sib boruvchi surat.
+const CountUpFigure = ({ frame = 0 }) => (
+  <FitSvg viewBox="0 0 520 232">
+    {[1, 2, 3].map((shaded, index) => (
+      <g key={shaded} opacity={frame >= index + 1 ? 1 : 0.25} style={{ transition: 'opacity .4s' }}>
+        <FractionBar parts={6} shaded={shaded} x={46} y={16 + index * 70} width={340} height={50} />
+        <FractionGlyph num={shaded} den={6} x={444} y={44 + index * 70} size={26} tone={T.cyan} />
+      </g>
+    ))}
+  </FitSvg>
+);
+
+// s5 — butunga aylangan kasrlar.
+const WholeFigure = ({ frame = 0 }) => {
   const t = useT();
-  const [visible, setVisible] = useState(false);
-  const wasActiveRef = useRef(active);
-  const onCompleteRef = useRef(onComplete);
+  const rows = [
+    { parts: 15, on: frame >= 2 },
+    { parts: 6, on: frame >= 3 },
+  ];
+  return (
+    <FitSvg viewBox="0 0 520 232">
+      {rows.map((row, index) => (
+        <g key={row.parts} opacity={row.on ? 1 : 0.25} style={{ transition: 'opacity .4s' }}>
+          <FractionBar parts={row.parts} shaded={row.parts} x={46} y={24 + index * 88} width={306} height={56} />
+          <FractionGlyph num={row.parts} den={row.parts} x={402} y={54 + index * 88} size={24} tone={T.success} />
+          <text x={452} y={62 + index * 88} fill={T.success} fontSize="22" fontWeight="800" fontFamily="JetBrains Mono, monospace">
+            = 1
+          </text>
+        </g>
+      ))}
+      <g opacity={frame >= 4 ? 1 : 0.25} style={{ transition: 'opacity .4s' }}>
+        <text x="260" y="216" textAnchor="middle" fill={T.ink2} fontSize="13.5" fontWeight="750" fontFamily="Manrope, sans-serif">
+          {t({
+            uz: 'Surat maxrajga teng bo\'lgan har qanday kasr birga teng',
+            ru: 'Любая дробь с равными числителем и знаменателем равна единице',
+            en: 'Any fraction with equal numerator and denominator equals one',
+          })}
+        </text>
+      </g>
+    </FitSvg>
+  );
+};
 
-  useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
+// s7, s8 — sonlar nuri.
+const RayFigure = ({ frame = 0, mark = null, showFraction = true, letter = false }) => (
+  <FitSvg viewBox="0 0 520 190">
+    <FractionRay parts={5} mark={frame >= 2 || mark !== null ? (mark ?? (frame >= 4 ? 3 : frame - 1)) : null} showFraction={showFraction} y={104} />
+    {letter && mark !== null && (
+      <text x={60 + (mark / 5) * 396} y={144} textAnchor="middle" fill={T.accent} fontSize="18" fontWeight="800" fontFamily="JetBrains Mono, monospace">
+        A
+      </text>
+    )}
+  </FitSvg>
+);
 
-  useEffect(() => {
-    const wasActive = wasActiveRef.current;
-    wasActiveRef.current = active;
-    if (!active || wasActive || typeof window === 'undefined') return undefined;
-    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    const frame = window.requestAnimationFrame(() => setVisible(true));
-    const timer = window.setTimeout(() => { setVisible(false); onCompleteRef.current?.(); }, reduced ? 120 : 3900);
-    return () => {
-      window.cancelAnimationFrame(frame);
-      window.clearTimeout(timer);
-    };
-  }, [active]);
+// s9 — bitta kasr uchta modelda.
+const ThreeModels = ({ frame = 0 }) => (
+  <FitSvg viewBox="0 0 520 232">
+    <g opacity={frame >= 1 ? 1 : 0.25} style={{ transition: 'opacity .4s' }}>
+      <FractionBar parts={4} shaded={3} x={32} y={40} width={150} height={70} />
+      <FractionGlyph num={3} den={4} x={107} y={168} size={22} tone={T.cyan} />
+    </g>
+    <g opacity={frame >= 2 ? 1 : 0.25} style={{ transition: 'opacity .4s' }}>
+      <FractionCircle parts={4} shaded={3} cx={260} cy={74} r={44} />
+      <FractionGlyph num={3} den={4} x={260} y={168} size={22} tone={T.cyan} />
+    </g>
+    <g opacity={frame >= 3 ? 1 : 0.25} style={{ transition: 'opacity .4s' }}>
+      <g transform="translate(230 -22) scale(0.52)">
+        <FractionRay parts={4} mark={3} showFraction={false} y={190} />
+      </g>
+      <FractionGlyph num={3} den={4} x={412} y={168} size={22} tone={T.cyan} />
+    </g>
+  </FitSvg>
+);
 
-  if (!visible || typeof document === 'undefined') return null;
-  const localizedTitle = t(title);
-  const ariaLabel = `${t(bi('Unvon', 'Звание', 'Title'))}: ${localizedTitle}`;
-  return createPortal(
-    <div className="rank-boost-overlay g4-title-reveal-overlay" data-g4-role="rank-overlay" role="status" aria-live="assertive" aria-atomic="true" aria-label={ariaLabel}>
-      <div className="rank-boost-card g4-title-reveal-card">
-        <div className="rank-boost-rays g4-title-reveal-rays" aria-hidden="true" />
-        <div className="rank-boost-confetti g4-title-reveal-confetti" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <i key={index} style={{ left: `${3 + index * 5.35}%`, animationDelay: `${(index % 7) * -0.21}s` }} />)}</div>
-        <div className="rank-boost-medal g4-title-reveal-medal" aria-hidden="true">★</div>
-        <h2 className="g4-title-reveal-title">{localizedTitle}</h2>
-      </div>
-    </div>,
-    document.body,
+// s13 — Bit ning doirasi.
+const BitCircleFigure = ({ solved = false }) => {
+  const t = useT();
+  return (
+    <FitSvg viewBox="0 0 520 232">
+      <FractionCircle parts={8} shaded={3} cx={148} cy={112} r={80} />
+      <text x="148" y="216" textAnchor="middle" fill={T.ink3} fontSize="13" fontWeight="700" fontFamily="Manrope, sans-serif">
+        {t({ uz: '3 ta bo\'yalgan, 5 ta bo\'sh', ru: '3 закрашены, 5 пустые', en: '3 shaded, 5 empty' })}
+      </text>
+      <g>
+        <rect x="268" y="42" width="212" height="66" rx="16" fill="#FFF6F3" stroke={T.accent} strokeWidth="2.4" />
+        <FractionGlyph num={3} den={5} x={330} y={76} size={26} tone={T.accent} />
+        <text x="410" y="82" textAnchor="middle" fill={T.accent} fontSize="15" fontWeight="750" fontFamily="Manrope, sans-serif">
+          Bit
+        </text>
+      </g>
+      <g opacity={solved ? 1 : 0.3} style={{ transition: 'opacity .4s' }}>
+        <rect x="268" y="128" width="212" height="66" rx="16" fill={solved ? T.successSoft : '#FFFFFF'} stroke={solved ? T.success : T.ink3} strokeWidth="2.4" strokeDasharray={solved ? '' : '5 5'} />
+        <FractionGlyph num={3} den={solved ? 8 : '?'} x={330} y={162} size={26} tone={solved ? T.success : T.ink3} />
+        <text x="416" y="168" textAnchor="middle" fill={solved ? T.success : T.ink3} fontSize="14" fontWeight="750" fontFamily="Manrope, sans-serif">
+          {t({ uz: 'to\'g\'ri', ru: 'верно', en: 'right' })}
+        </text>
+      </g>
+    </FitSvg>
+  );
+};
+
+// s11 — qoida kartasi.
+const RulePanel = ({ frame = 0 }) => {
+  const t = useT();
+  return (
+    <RuleRows
+      frame={frame}
+      rows={[
+        {
+          tone: T.accent,
+          head: t({ uz: 'Teng qismlar', ru: 'Равные части', en: 'Equal parts' }),
+          body: t({ uz: "Butun teng bo'linmasa, ulush yo'q", ru: 'Если целое разделено неравно, доли нет', en: 'If the whole is split unevenly there is no share' }),
+          formula: '=',
+        },
+        {
+          tone: T.cyan,
+          head: t({ uz: 'Maxraj', ru: 'Знаменатель', en: 'Denominator' }),
+          body: t({ uz: 'Chiziq ostida: nechta teng qism bor', ru: 'Под чертой: сколько всего равных частей', en: 'Below the line: how many equal parts' }),
+          formula: '6',
+        },
+        {
+          tone: T.navy,
+          head: t({ uz: 'Surat', ru: 'Числитель', en: 'Numerator' }),
+          body: t({ uz: 'Chiziq ustida: shulardan nechtasi olingan', ru: 'Над чертой: сколько из них взяли', en: 'Above the line: how many were taken' }),
+          formula: '1',
+        },
+        {
+          tone: T.success,
+          head: t({ uz: 'Butun', ru: 'Целое', en: 'The whole' }),
+          body: t({ uz: 'Surat maxrajga teng bo\'lsa', ru: 'Если числитель равен знаменателю', en: 'When the numerator equals the denominator' }),
+          formula: '6/6 = 1',
+        },
+      ]}
+    />
+  );
+};
+
+// s12 — kasr xaritasi: rasmning qaysi qismi qaysi joyga tushadi.
+//
+// Ilgari bu ekranda oddiy matn ro'yxati turardi va ro'yxatning o'zi javobni
+// aytib qo'yardi. Endi chizma bor: doira, bo'sh kasr ramkasi va ikkita
+// bog'lovchi. Javob berilmaguncha bog'lovchilar kulrang va uyalarda savol
+// belgisi turadi, javobdan keyin xarita to'liq ochiladi.
+const MapFigure = ({ solved = false }) => {
+  const t = useT();
+  const slot = (y, value, tone) => (
+    <g>
+      <rect
+        x={358}
+        y={y}
+        width={72}
+        height={48}
+        rx="12"
+        fill={solved ? '#FFFFFF' : 'rgba(255,255,255,.7)'}
+        stroke={solved ? tone : 'rgba(23,59,82,.22)'}
+        strokeWidth={solved ? 2.6 : 1.8}
+        strokeDasharray={solved ? '' : '5 4'}
+      />
+      <text
+        x={394}
+        y={y + 33}
+        textAnchor="middle"
+        fill={solved ? tone : T.ink3}
+        fontSize="24"
+        fontWeight="800"
+        fontFamily="JetBrains Mono, monospace"
+      >
+        {solved ? value : '?'}
+      </text>
+    </g>
+  );
+  return (
+    <FitSvg viewBox="0 0 520 210">
+      <FractionCircle parts={5} shaded={2} cx={116} cy={104} r={72} />
+
+      {/* bo'yalgan sektorlardan yuqoridagi uyaga */}
+      <path
+        d="M186 62 C246 34 300 40 352 52"
+        fill="none"
+        stroke={solved ? T.cyan : 'rgba(23,59,82,.26)'}
+        strokeWidth={solved ? 2.6 : 1.8}
+        strokeDasharray={solved ? '' : '6 5'}
+      />
+      {/* butun doiradan pastdagi uyaga */}
+      <path
+        d="M188 154 C248 176 300 166 352 144"
+        fill="none"
+        stroke={solved ? T.navy : 'rgba(23,59,82,.26)'}
+        strokeWidth={solved ? 2.6 : 1.8}
+        strokeDasharray={solved ? '' : '6 5'}
+      />
+
+      {slot(30, 2, T.cyan)}
+      <line x1={362} y1={90} x2={426} y2={90} stroke={solved ? T.ink : 'rgba(23,59,82,.3)'} strokeWidth="3" strokeLinecap="round" />
+      {slot(102, 5, T.navy)}
+
+      <g opacity={solved ? 1 : 0} style={{ transition: 'opacity .35s' }}>
+        <text x={268} y={34} textAnchor="middle" fill={T.cyan} fontSize="12.5" fontWeight="800" fontFamily="Manrope, sans-serif">
+          {t({ uz: "bo'yalganlar", ru: 'закрашенные', en: 'the shaded ones' })}
+        </text>
+        <text x={268} y={192} textAnchor="middle" fill={T.navy} fontSize="12.5" fontWeight="800" fontFamily="Manrope, sans-serif">
+          {t({ uz: 'hamma teng qismlar', ru: 'все равные части', en: 'all the equal parts' })}
+        </text>
+      </g>
+    </FitSvg>
+  );
+};
+
+// ===========================================================================
+// EKRANLAR
+// ===========================================================================
+const Screen0 = (props) => (
+  <ChoiceScreen {...props} plain ratio="28 / 25" ordinal={0} figure={() => <WaterScene />} />
+);
+const Screen1 = (props) => (
+  <RevealScreen {...props} ratio="520 / 164" figure={({ frame }) => <NotationFigure frame={frame} />} />
+);
+const Screen2 = (props) => (
+  <FractionEntry
+    {...props}
+    figure={({ solved }) => (
+      <FitSvg viewBox="0 0 520 172">
+        <FractionBar parts={15} shaded={2} x={46} y={26} width={428} height={72} />
+        <FractionGlyph num={solved ? 2 : '?'} den={solved ? 15 : '?'} x={260} y={140} size={24} tone={solved ? T.success : T.ink3} />
+      </FitSvg>
+    )}
+    ratio="520 / 172"
+  />
+);
+const Screen3 = (props) => <RevealScreen {...props} figure={({ frame }) => <CountUpFigure frame={frame} />} />;
+const Screen4 = (props) => (
+  <ChoiceScreen
+    {...props}
+    ordinal={1}
+    figure={({ solved }) => (
+      <FitSvg viewBox="0 0 520 232">
+        <FractionCircle parts={4} shaded={3} cx={200} cy={112} r={82} />
+        <g opacity={solved ? 1 : 0.25} style={{ transition: 'opacity .4s' }}>
+          <FractionGlyph num={3} den={4} x={392} y={104} size={36} tone={T.success} />
+        </g>
+      </FitSvg>
+    )}
+  />
+);
+const Screen5 = (props) => <RevealScreen {...props} figure={({ frame }) => <WholeFigure frame={frame} />} />;
+const Screen6 = (props) => (
+  <SlotScreen
+    {...props}
+    ratio="520 / 172"
+    figure={({ solved }) => (
+      <FitSvg viewBox="0 0 520 172">
+        <FractionBar parts={6} shaded={6} x={46} y={26} width={428} height={72} />
+        <FractionGlyph num={6} den={6} x={222} y={140} size={24} tone={solved ? T.success : T.cyan} />
+        <g opacity={solved ? 1 : 0}>
+          <text x={278} y={148} fill={T.success} fontSize="24" fontWeight="800" fontFamily="JetBrains Mono, monospace">= 1</text>
+        </g>
+      </FitSvg>
+    )}
+  />
+);
+const Screen7 = (props) => (
+  <RevealScreen {...props} ratio="520 / 190" figure={({ frame }) => <RayFigure frame={frame} />} />
+);
+const Screen8 = (props) => (
+  <FractionEntry
+    {...props}
+    ratio="520 / 190"
+    figure={({ solved }) => <RayFigure mark={3} showFraction={solved} letter />}
+  />
+);
+const Screen9 = (props) => <RevealScreen {...props} figure={({ frame }) => <ThreeModels frame={frame} />} />;
+const Screen10 = (props) => (
+  <ChoiceScreen
+    {...props}
+    ordinal={2}
+    ratio="520 / 172"
+    figure={({ solved }) => (
+      <FitSvg viewBox="0 0 520 172">
+        <FractionBar parts={10} shaded={7} x={46} y={26} width={428} height={72} />
+        <FractionGlyph num={solved ? 7 : '?'} den={solved ? 10 : '?'} x={260} y={140} size={24} tone={solved ? T.success : T.ink3} />
+      </FitSvg>
+    )}
+  />
+);
+const Screen11 = (props) => (
+  <RevealScreen {...props} plain figure={({ frame }) => <RulePanel frame={frame + 1} />} />
+);
+const Screen12 = (props) => (
+  <ChoiceScreen {...props} ordinal={3} ratio="520 / 210" figure={({ solved }) => <MapFigure solved={solved} />} />
+);
+const Screen13 = (props) => (
+  <ChoiceScreen {...props} ordinal={4} stack figure={({ solved }) => <BitCircleFigure solved={solved} />} />
+);
+const Screen14 = (props) => (
+  <ChoiceScreen {...props} plain ratio="28 / 25" ordinal={5} figure={({ solved }) => <WaterScene mode="final" solved={solved} />} />
+);
+const Screen15 = (props) => <SummaryScreen {...props} />;
+
+const SCREENS = [
+  Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7,
+  Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14, Screen15,
+];
+
+export default function Grade4Dars18(props) {
+  return (
+    <TheoryLessonRoot
+      {...props}
+      lessonMeta={LESSON_META}
+      screenMeta={SCREEN_META}
+      totalScreens={TOTAL_SCREENS}
+      frameCounts={FRAME_COUNTS}
+      content={CONTENT}
+      screens={SCREENS}
+      styles={KIT_STYLES}
+    />
   );
 }
-
-function G4TitleCard({ title, firstTry, total }) {
-  const t = useT();
-  return <aside className="g4-title-card g4-title-card-stage g4-title-card-compact" data-g4-role="title-card" role="status" aria-live="polite" aria-atomic="true">
-    <div className="g4-title-card-confetti" data-g4-role="reward-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index} />)}</div>
-    <div className="g4-title-card-bit" data-g4-role="reward-bit"><BitSVG state="happy" /></div>
-    <div className="g4-title-card-medal" data-g4-role="reward-medal" aria-hidden="true">★</div>
-    <span className="g4-title-card-kicker">{t({ uz: "UNVON OLINDI", ru: 'ЗВАНИЕ ПОЛУЧЕНО', en: "TITLE EARNED" })}</span>
-    <h2 className="g4-title-card-title">{t(title)}</h2>
-    <div className="g4-title-card-score"><strong>{firstTry}/{total}</strong><span>{t({ uz: "birinchi urinishda", ru: 'с первой попытки', en: 'on the first attempt' })}</span></div>
-  </aside>;
-}
-
-function G4FinalTitleReward({ ready, titleClaimed, reflectionChoice, onClaim, title, firstTry, total }) {
-  const t = useT();
-  const [revealRequested, setRevealRequested] = useState(false);
-  const completeReveal = () => { setRevealRequested(false); onClaim(); };
-  return <>
-    <G4TitleReveal active={revealRequested} title={title} onComplete={completeReveal} />
-    {titleClaimed && <G4TitleCard title={title} firstTry={firstTry} total={total} />}
-    {!titleClaimed && <button type="button" className="g4-title-claim" data-g4-role="title-claim" disabled={!ready || reflectionChoice === null || revealRequested} onClick={() => setRevealRequested(true)}><span aria-hidden="true">★</span><strong>{t({ uz: "Unvonni olish", ru: 'Получить звание', en: "Claim title" })}</strong><small>{ready && reflectionChoice !== null ? t(title) : t(bi('Avval xulosani tanlang', 'Сначала выберите вывод', 'Choose a reflection first'))}</small></button>}
-  </>;
-}
-
-const RANGE_INTERACTIONS = new Set(['sliderNumerator', 'lineMarker', 'numeratorSlider', 'denominatorDial']);
-
-function OptionalInteraction({ interaction, state, onChange, disabled = false }) {
-  const t = useT();
-  if (!interaction) return null;
-  const liveValue = typeof state === 'number' ? state : interaction.initial;
-  let feedbackIndex = null;
-  if (state === true || (state && typeof state === 'object')) feedbackIndex = 0;
-  else if (typeof state === 'number' && !RANGE_INTERACTIONS.has(interaction.type)) feedbackIndex = state;
-  const liveFormula = interaction.type === 'denominatorDial' ? `${interaction.numerator}/${liveValue}` : interaction.type === 'numeratorSlider' ? `${liveValue}/${interaction.denominator}` : interaction.type === 'lineMarker' || interaction.type === 'sliderNumerator' ? `${liveValue}/8` : String(liveValue ?? '');
-  return <section className="optional-lab" aria-label={t(bi("Ixtiyoriy tajriba", 'Необязательный эксперимент', "Optional experiment"))}>
-    {!interaction.inline && RANGE_INTERACTIONS.has(interaction.type) && <label className="range-lab"><span>{t(interaction.label)}</span><input type="range" min={interaction.min} max={interaction.max} value={liveValue} disabled={disabled} onChange={(event) => onChange(Number(event.target.value), null)}/><output>{liveFormula}</output></label>}
-    {!interaction.inline && !RANGE_INTERACTIONS.has(interaction.type) && interaction.type !== 'halfMarker' && interaction.options && <div className={`mini-options ${interaction.type === 'partCount' ? 'count-options' : ''}`}>{interaction.options.map((option, index) => <button type="button" key={`${index}-${t(option)}`} className={state === index ? 'active' : ''} disabled={disabled} onClick={() => onChange(index, index)}>{t(option)}</button>)}</div>}
-    {interaction.type === 'halfMarker' && <button type="button" className={`mini-action ${state === true ? 'active' : ''}`} disabled={disabled} onClick={() => onChange(true, 0)}>{t(interaction.options[0])}</button>}
-    <FeedbackBlock show={feedbackIndex !== null} correct={interaction.correctIndex == null || feedbackIndex === interaction.correctIndex}>{feedbackIndex !== null ? t(interaction.feedback?.[feedbackIndex]) : ''}</FeedbackBlock>
-  </section>;
-}
-
-function VisualPanel({ visual, frame, solved = false, promptReady = false, audio, hintLevel = 0, answerState = null, disabled = false, onActivityChange }) {
-  const lang = useLang(); const t = useT(); const [interactionState, setInteractionState] = useState(null); const interaction = visual?.interaction; const flashTimer = useRef(null);
-  useEffect(() => () => { if (flashTimer.current !== null) window.clearTimeout(flashTimer.current); }, []);
-  if (!visual) return null;
-  const interact = (value, feedbackIndex = null) => { if (disabled) return; setInteractionState(value); const completed = interaction?.correctIndex == null || feedbackIndex === interaction.correctIndex; onActivityChange?.(completed); if (flashTimer.current !== null) window.clearTimeout(flashTimer.current); if (['notationTap', 'segmentTap', 'halfMarker'].includes(interaction?.type)) flashTimer.current = window.setTimeout(() => setInteractionState(null), 3000); if (feedbackIndex !== null) { const feedback = interaction?.audioFeedback?.[feedbackIndex]; const spoken = feedback?.[lang] ?? feedback?.uz; if (spoken) audio?.pushOneOff(spoken); } };
-  return <div className={`visual-shell ${hintLevel >= 2 ? 'hint-emphasis' : ''} ${disabled ? 'is-locked' : ''}`} data-g4-role="visual-frame" aria-disabled={disabled}><VisualModel visual={visual} frame={frame} solved={solved} promptReady={promptReady} interactionState={interactionState} onInteract={interact} answerState={answerState}/><OptionalInteraction interaction={interaction} state={interactionState} onChange={interact} disabled={disabled}/>{hintLevel >= 2 && !solved && <div className="model-hint" role="status" aria-live="polite">{t(bi("Modeldagi teng qismlar va berilgan sonlarni yana taqqoslang.", 'Ещё раз сравните равные части модели и данные числа.', "Compare the equal parts in the model with the given numbers again."))}</div>}</div>;
-}
-
-function BeatList({ frames = [], frame, conditional = false, solved = false, onReplay }) { const t = useT(); return <div className={`beat-list ${conditional ? 'conditional' : ''}`}>{frames.map((item, index) => { const className = index <= frame || solved ? 'beat show' : 'beat'; const content = <><b>{index + 1}</b><span>{t(item)}</span></>; return onReplay ? <button type="button" key={`${index}-${t(item)}`} className={className} onClick={() => onReplay(index)}>{content}</button> : <div key={`${index}-${t(item)}`} className={className}>{content}</div>; })}</div>; }
-
-function FeedbackBlock({ show, correct, children, proof = null }) { const t = useT(); const [open, setOpen] = useState(false); useEffect(() => { if (!show) { const frame = requestAnimationFrame(() => setOpen(false)); return () => cancelAnimationFrame(frame); } let second = 0; const first = requestAnimationFrame(() => { second = requestAnimationFrame(() => setOpen(true)); }); return () => { cancelAnimationFrame(first); cancelAnimationFrame(second); }; }, [show]); return <div data-g4-role={show ? (correct ? 'feedback-frame bit-answer-comment' : 'feedback-frame') : undefined} data-g4-feedback={show ? (correct ? 'solution' : 'wrong') : undefined} role={show ? 'status' : undefined} aria-hidden={!show} className={`feedback feedback-slot ${correct ? 'correct' : 'wrong'} ${open ? 'open' : ''}`}><span className="feedback-bit" data-g4-role="feedback-bit"><BitSVG state={correct ? 'nod' : 'awkward'}/></span><p data-g4-role={show && correct ? 'bit-answer-comment' : undefined}>{show && correct && <b className="proof-label">{t({ uz: 'YECHIM', ru: 'РЕШЕНИЕ', en: 'SOLUTION' })}</b>}<span>{show ? children : ''}</span>{show && proof && <strong className="feedback-proof">{proof}</strong>}</p></div>; }
-
-function Options({ values, picked, solved, correctIndex, onPick, neutral = false, disabled = false }) { const t = useT(); return <div className="options">{values.map((value, index) => <button type="button" data-g4-role="answer-card" key={`${index}-${t(value)}`} className={`option ${picked === index ? 'picked' : ''} ${!neutral && solved && index === correctIndex ? 'right' : ''} ${!neutral && picked === index && !solved ? 'bad' : ''}`} onClick={() => onPick(index)} disabled={disabled || solved}><b>{String.fromCharCode(65 + index)}</b><span>{t(value)}</span></button>)}</div>; }
-
-function LessonScreen({ screen, storedAnswer, answers, onAnswer, onPrev, onNext, finishLesson }) {
-  const t = useT(); const lang = useLang(); const lesson = useLesson(); const c = lesson.screens[screen]; const meta = SCREEN_META[screen]; const audio = useNarration(c.audio, screen); const scored = meta.scored === true;
-  const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null);
-  const [solved, setSolved] = useState(storedAnswer?.correct === true);
-  const [neutralPicked, setNeutralPicked] = useState(storedAnswer?.neutralChoice ?? null);
-  const [activityComplete, setActivityComplete] = useState(storedAnswer?.activityComplete === true);
-  const [hintLevel, setHintLevel] = useState((storedAnswer?.attempts ?? 0) >= 2 && storedAnswer?.correct !== true ? 2 : 0);
-  const [reflectionChoice, setReflectionChoice] = useState(storedAnswer?.reflectionChoice ?? null);
-  const [titleClaimed, setTitleClaimed] = useState(storedAnswer?.titleClaimed === true);
-  const attempts = useRef(storedAnswer?.attempts ?? 0);
-  const clean = useRef(storedAnswer?.firstTry ?? true);
-  const narrationReady = audio.muted || audio.completed;
-  const choose = (index) => { if (solved || !narrationReady) return; attempts.current += 1; const ok = index === c.correctIndex; if (!ok) clean.current = false; setPicked(index); setSolved(ok); setHintLevel(ok ? 0 : attempts.current >= 2 ? 2 : 0); playSfx(ok ? 'correct' : 'wrong'); const feedbackAudio = ok ? c.audio.on_correct : (c.feedbackAudio?.[index] ?? c.audio.on_wrong); const spoken = feedbackAudio?.[lang] ?? feedbackAudio?.uz ?? (ok ? "To'g'ri." : 'Yana tekshiring.'); audio.pushOneOff(spoken); onAnswer({ screenIdx: screen, stage: meta.scope, question: t(c.question), options: c.options.map(t), correctIndex: c.correctIndex, correctAnswer: t(c.options[c.correctIndex]), studentAnswerIndex: index, studentAnswer: t(c.options[index]), correct: ok, firstTry: ok && clean.current && attempts.current === 1, attempts: attempts.current, solved: ok }); };
-  const chooseNeutral = (index) => { if (!narrationReady) return; setNeutralPicked(index); const spoken = c.neutralAudio?.[lang] ?? c.neutralAudio?.uz ?? c.neutral?.[lang] ?? c.neutral?.uz; if (spoken) audio.pushOneOff(spoken); onAnswer({ screenIdx: screen, stage: meta.scope, question: t(c.frames[c.frames.length - 1]), options: c.neutralOptions.map(t), correctIndex: null, correctAnswer: null, studentAnswerIndex: index, studentAnswer: t(c.neutralOptions[index]), correct: true, firstTry: true, attempts: 1, solved: true, neutralChoice: index }); };
-  const completeActivity = (complete) => { if (!complete) return; setActivityComplete(true); if (storedAnswer?.activityComplete !== true) onAnswer({ screenIdx: screen, stage: meta.scope, question: t(c.title), options: [], correctIndex: null, correctAnswer: null, studentAnswerIndex: null, studentAnswer: null, correct: true, firstTry: true, attempts: 1, solved: true, activityComplete: true }); };
-  const introSource = c.audio?.intro?.[lang] ?? c.audio?.intro?.uz ?? [];
-  const introLastFrame = Math.max(0, (Array.isArray(introSource) ? introSource.length : 1) - 1);
-  const frame = scored ? (solved ? lesson.frameCounts[screen] - 1 : Math.min(audio.frame, introLastFrame)) : audio.frame;
-  const finish = screen === lesson.screens.length - 1;
-  const directVisualChoice = scored && (c.visual?.kind === 'choiceModels' || (c.visual?.kind === 'line' && Array.isArray(c.visual.markers)));
-  const answerState = directVisualChoice ? { picked, solved, correctIndex: c.correctIndex, onPick: choose, options: c.options, disabled: !narrationReady } : null;
-  const narrationTexts = c.audio?.intro?.[lang] ?? c.audio?.intro?.uz ?? c.audio?.[lang] ?? c.audio?.uz ?? [];
-  const replayStrategy = c.visual?.interaction?.type === 'strategyReplay' ? (index) => { if (!narrationReady) return; completeActivity(true); const text = (Array.isArray(narrationTexts) ? narrationTexts : [narrationTexts])[index]; if (text) audio.pushOneOff(text); } : undefined;
-  const requiresInteraction = Boolean(c.visual?.interaction);
-  const canAdvance = finish
-    ? titleClaimed
-    : scored
-      ? solved && narrationReady
-      : c.neutralOptions
-        ? neutralPicked !== null && narrationReady
-        : requiresInteraction
-          ? activityComplete && narrationReady
-          : narrationReady;
-  const reflectionOptions = [
-    bi("Avval butunni teng qismlarga bo'laman", 'Сначала разделю целое на равные части', 'First, I divide the whole into equal parts'),
-    bi("Maxrajda jami, suratda olingan qismlarni tekshiraman", 'Проверю все части в знаменателе и взятые части в числителе', 'I check all parts in the denominator and the taken parts in the numerator'),
-    bi("Model, yozuv va sonlar nurini solishtiraman", 'Сопоставлю модель, запись и числовой луч', 'I compare the model, notation and number line'),
-  ];
-  const chooseReflection = (index) => { if (!narrationReady || titleClaimed) return; setReflectionChoice(index); onAnswer({ ...(storedAnswer ?? {}), screenIdx: screen, stage: null, reflectionChoice: index, titleClaimed: false }); audio.pushOneOff(t(reflectionOptions[index])); };
-  const claimTitle = () => {
-    if (!narrationReady || reflectionChoice === null || titleClaimed) return;
-    setTitleClaimed(true);
-    onAnswer({ screenIdx: screen, stage: null, question: t(bi("Kasrni tekshirishda qaysi qadamdan foydalanasiz?", 'Какой шаг вы будете использовать для проверки дроби?', 'Which step will you use to check a fraction?')), options: reflectionOptions.map((option) => t(option)), correctIndex: null, correctAnswer: null, studentAnswerIndex: reflectionChoice, studentAnswer: t(reflectionOptions[reflectionChoice]), correct: true, firstTry: true, attempts: 1, solved: true, reflectionChoice, titleClaimed: true });
-  };
-  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={finish ? (titleClaimed ? finishLesson : undefined) : onNext} nextDisabled={!canAdvance} finish={finish}><div className={`stack ${screen === 0 ? "hook-stack" : ""}`} data-g4-screen={screen === 0 ? "hook" : undefined}><Heading c={c} hook={screen === 0}/>{screen === 0 && <h2 className="hook-question-prompt" data-g4-role="hook-question">{t(c.frames[c.frames.length - 1])}</h2>}{screen === 0 ? <section className="hook-scene-adapter" data-g4-role="hook-scene"><div className="hook-scene-visual" data-g4-role="visual-frame"><VisualPanel visual={c.visual} frame={frame} solved={solved} promptReady={scored && introLastFrame === 0} audio={audio} hintLevel={hintLevel} answerState={answerState} disabled={!narrationReady} onActivityChange={completeActivity}/><div className="hook-frame-bit" data-g4-role="hook-bit"><BitSVG state={c.bit || 'think'}/></div></div></section> : <VisualPanel visual={c.visual} frame={frame} solved={solved} promptReady={scored && introLastFrame === 0} audio={audio} hintLevel={hintLevel} answerState={answerState} disabled={!narrationReady} onActivityChange={completeActivity}/>}<BeatList frames={c.frames} frame={frame} conditional={scored} solved={solved} onReplay={replayStrategy}/>{c.neutralOptions && <section className="question" data-g4-role="answer-card"><h2>{t(c.frames[c.frames.length - 1])}</h2><Options values={c.neutralOptions} picked={neutralPicked} onPick={chooseNeutral} neutral disabled={!narrationReady}/><FeedbackBlock show={neutralPicked !== null} correct>{t(c.neutral)}</FeedbackBlock></section>}{scored && <section className="question"><h2>{t(c.question)}</h2>{!directVisualChoice && <Options values={c.options} picked={picked} solved={solved} correctIndex={c.correctIndex} onPick={choose} disabled={!narrationReady}/>}<FeedbackBlock show={picked !== null} correct={solved} proof={solved ? t(c.proof) : null}>{picked !== null ? t(c.feedback[picked]) : ''}</FeedbackBlock></section>}{finish && <section className="final-reflection" data-g4-role="reflection"><strong>{t(bi("Kasrni tekshirishda qaysi qadamdan foydalanasiz?", 'Какой шаг вы будете использовать для проверки дроби?', 'Which step will you use to check a fraction?'))}</strong><div>{reflectionOptions.map((option, index) => <button type="button" key={t(option)} className={reflectionChoice === index ? 'is-selected' : ''} aria-pressed={reflectionChoice === index} disabled={!narrationReady || titleClaimed} onClick={() => chooseReflection(index)}><span>{index + 1}</span>{t(option)}</button>)}</div></section>}{finish && <G4FinalTitleReward ready={narrationReady} titleClaimed={titleClaimed} reflectionChoice={reflectionChoice} onClaim={claimTitle} title={lesson.badge} firstTry={answers.filter((answer, index) => index >= 9 && index <= 14 && answer?.firstTry === true).length} total={6} />}</div></Stage>;
-}
-
-export function FractionLessonShell({ lesson, studentName, lang: langProp, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished, previewMode }) {
-  const showPreviewControls = langProp === undefined || langProp === null; const preview = previewMode ?? showPreviewControls; const initialLang = normalizeLang(langProp); const [previewLang, setPreviewLang] = useState(initialLang); const lang = showPreviewControls ? normalizeLang(previewLang) : initialLang;
-  configureLesson({ ttsApiBase: ttsApiBase || '', voiceGender: voiceGender || 'f', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', previewMode: preview });
-  const [current, setCurrent] = useState(0); const [answers, setAnswers] = useState([]);
-  useMobileZoom();
-  // eslint-disable-next-line react-hooks/purity -- lesson duration starts when this component mounts
-  const started = useRef(Date.now()); const finished = useRef(false);
-  const recordAnswer = useCallback((answer) => setAnswers((previous) => { const next = [...previous]; const old = previous[answer.screenIdx]; next[answer.screenIdx] = { ...answer, firstTry: old?.firstTry === false ? false : answer.firstTry }; return next; }), []);
-  const finishLesson = useCallback(() => { if (finished.current) return; finished.current = true; const scored = [9, 10, 11, 12, 13, 14]; const firstTryCorrect = scored.filter((index) => answers[index]?.firstTry === true).length; const payload = { lessonId: LESSON_META.lessonId, lessonTitle: LESSON_META.lessonTitle[lang], studentName: studentName || null, durationSec: Math.floor((Date.now() - started.current) / 1000), totalQuestions: 6, correctAnswers: firstTryCorrect, scorePercent: Math.round(firstTryCorrect / 6 * 100), finalScore: firstTryCorrect, finalTotal: 6, passed: firstTryCorrect / 6 >= 0.6, firstTryStats: { total: 6, firstTryCorrect }, attemptsTotal: scored.reduce((sum, index) => sum + (answers[index]?.attempts ?? 0), 0), skillTags: lesson.skillTags, answers: answers.filter(Boolean) }; if (onFinished) onFinished(payload); else console.log(`[${lesson.slug} preview]`, payload); }, [answers, lang, lesson, onFinished, studentName]);
-  return <LessonContext.Provider value={lesson}><LangContext.Provider value={lang}><style>{STYLES + G4_ETALON_OVERRIDES}</style><div className={`lesson-root ${preview ? 'lesson-root-preview' : ''}`}>{showPreviewControls && <div className="preview-language" aria-label={bi("Ko'rish tili", 'Язык предпросмотра', 'Preview language')[lang]}>{['uz', 'ru', 'en'].map((code) => <button type="button" key={code} className={previewLang === code ? 'active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}<LessonScreen key={current} screen={current} storedAnswer={answers[current]} answers={answers} onAnswer={recordAnswer} onPrev={() => setCurrent((value) => Math.max(0, value - 1))} onNext={() => setCurrent((value) => Math.min(lesson.screens.length - 1, value + 1))} finishLesson={finishLesson}/></div></LangContext.Provider></LessonContext.Provider>;
-}
-
-export default function Grade4Dars18({ studentName, lang, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished, previewMode }) { return <FractionLessonShell lesson={LESSON_META} studentName={studentName} lang={lang} ttsApiBase={ttsApiBase} voiceGender={voiceGender} correctSoundUrl={correctSoundUrl} wrongSoundUrl={wrongSoundUrl} onFinished={onFinished} previewMode={previewMode}/>; }
-
-const G4_ETALON_OVERRIDES = `
-/* Local Dars01 visual contract. Content, narration and scoring stay lesson-owned. */
-html:has(.lesson-root),body:has(.lesson-root),.lesson-root,.lesson-root button,.lesson-root input,.lesson-root textarea,.lesson-root select{font-family:'Manrope',system-ui,sans-serif}
-.lesson-root h1,.lesson-root [data-g4-role="hook-title"] h1{font-family:'Source Serif 4',Georgia,serif!important;font-size:clamp(26px,4.2vw,36px)!important;font-weight:650!important;line-height:1.08!important;letter-spacing:-.012em!important;text-align:left!important}
-.lesson-root .question h2,.lesson-root .hook-question-prompt{font-family:'Manrope',system-ui,sans-serif!important;font-size:clamp(17px,2.5vw,21px)!important;font-weight:800!important;line-height:1.28!important;text-align:left!important}
-.lesson-root .summary-stack h2,.lesson-root .final-reflection h2,.lesson-root .reflection-card h2,.lesson-root [data-g4-role="title-card"] h2{font-family:'Source Serif 4',Georgia,serif!important}
-.lesson-root .screen-count,.lesson-root .formula,.lesson-root .formula-card,.lesson-root .equation,.lesson-root .proof,.lesson-root .proof-label,.lesson-root .result-chip,.lesson-root .model-label,.lesson-root .frac{font-family:'JetBrains Mono',monospace!important}
-.lesson-root [data-g4-role="hook-topic"]{font-size:clamp(14px,1.8vw,16px)!important}.lesson-root .summary-stack h2{font-size:25px}.lesson-root .option{font-size:clamp(15px,2vw,18px)}
-[data-g4-role="hook-title"]{display:block;width:100%;font-size:36px!important;justify-content:flex-start!important;text-align:left}
-.hook-stack{height:100%;min-height:0;display:flex!important;flex-direction:column;align-items:stretch;gap:9px!important;overflow:hidden}
-.hook-stack>.heading{height:auto!important;min-height:0!important;overflow:visible!important;align-items:flex-start!important;flex:0 0 auto}
-.hook-question-prompt{flex:0 0 auto;margin:0;padding:0 2px;color:#173B52;font-size:21px!important}
-.hook-stack>.question{flex:0 0 auto;height:auto!important;min-height:0}
-.hook-stack .feedback[aria-hidden="true"]{display:none!important}
-.stage-hook .hook-question>h2,.hook-stack>.question>h2{display:none}
-[data-g4-role="hook-scene"]{position:relative;isolation:isolate;width:100%!important;height:206px!important;min-width:0;min-height:206px!important;flex:0 0 206px!important;display:block!important;grid-template-columns:1fr!important;overflow:hidden}
-[data-g4-role~="visual-frame"]{position:relative;isolation:isolate;min-width:0;min-height:0;max-width:100%;overflow:hidden!important;contain:paint}
-[data-g4-screen="hook"] [data-g4-role~="visual-frame"],.stage-hook [data-g4-role="hook-scene"]>[data-g4-role~="visual-frame"]{width:min(760px,100%);min-height:206px;height:100%;margin-inline:auto;border:1px solid rgba(144,228,235,.12);border-radius:24px;background:radial-gradient(circle at 87% 24%,rgba(121,211,218,.16),transparent 24%),radial-gradient(circle at 9% 88%,rgba(149,201,61,.11),transparent 25%),linear-gradient(145deg,rgba(22,143,163,.25),transparent 48%),linear-gradient(135deg,#153B50,#0B2232 72%);box-shadow:0 22px 50px -30px rgba(14,33,44,.75)}
-.stage-hook .hook-card{padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
-.hook-scene-visual{width:100%!important;max-width:100%!important;height:100%;min-height:130px;padding:14px 112px 14px 16px;box-sizing:border-box}
-.hook-scene-visual>[data-g4-role~="visual-frame"]{height:100%;padding:0;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;contain:layout paint}
-.hook-frame-bit{position:absolute;right:42px;bottom:-4px;z-index:4;width:88px;height:110px;overflow:hidden;pointer-events:none}
-.hook-frame-bit>.g1-char,.hook-frame-bit>.bit,.hook-frame-bit>svg{width:100%;height:100%;display:block}
-[data-g4-role~="visual-frame"] img,[data-g4-role~="visual-frame"] picture,[data-g4-role~="visual-frame"] video,[data-g4-role~="visual-frame"] canvas,[data-g4-role~="visual-frame"] svg{display:block;max-width:100%!important;max-height:100%!important;object-fit:contain;overflow:hidden!important}
-.visual-shell,.attempt-model,.model-card,.test-model,.topic-visual,.conversion-visual,.time-visual,.area-visual,.length-visual,.mass-visual,.hook-model{min-width:0;min-height:0;max-width:100%;overflow:hidden}
-.lesson-root .feedback[data-g4-role~="feedback-frame"]{height:auto!important;min-height:88px!important;padding:8px 15px 8px 9px!important;border-radius:18px!important;display:grid!important;grid-template-columns:62px minmax(0,1fr)!important;align-items:center!important;gap:12px!important;overflow:hidden}
-.lesson-root .feedback[data-g4-role~="feedback-frame"] [data-g4-role="feedback-bit"],.lesson-root .feedback[data-g4-role~="feedback-frame"]>.feedback-bit{width:62px!important;height:76px!important;display:block;overflow:hidden}
-.lesson-root .feedback[data-g4-role~="feedback-frame"] [data-g4-role="feedback-bit"]>.g1-char,.lesson-root .feedback[data-g4-role~="feedback-frame"] [data-g4-role="feedback-bit"]>.bit,.lesson-root .feedback[data-g4-role~="feedback-frame"] [data-g4-role="feedback-bit"]>svg{width:100%!important;height:100%!important}
-.lesson-root .feedback[data-g4-feedback="solution"][data-g4-role~="bit-answer-comment"]{height:auto!important;min-height:72px!important;border-radius:15px!important;grid-template-columns:51px minmax(0,1fr)!important;background:linear-gradient(135deg,#FFFFFF,#E7F3EC)!important;box-shadow:inset 5px 0 #227A53,0 13px 26px -23px rgba(34,122,83,.75)!important}
-.lesson-root .feedback[data-g4-feedback="solution"][data-g4-role~="bit-answer-comment"] [data-g4-role="feedback-bit"],.lesson-root .feedback[data-g4-feedback="solution"][data-g4-role~="bit-answer-comment"]>.feedback-bit{width:51px!important;height:64px!important}
-.lesson-root .feedback[data-g4-feedback="wrong"]{height:auto!important;min-height:88px!important;border-radius:18px!important;background:linear-gradient(135deg,#FFFFFF,#FFF5D9)!important;box-shadow:inset 5px 0 #A96F13,0 13px 26px -23px rgba(169,111,19,.72)!important}
-.lesson-root .feedback[data-g4-role~="feedback-frame"] p{min-width:0;margin:0;font-family:'Manrope',system-ui,sans-serif!important;font-size:15px!important;line-height:1.42!important;text-align:left}
-.rank-boost-overlay{position:fixed;inset:0;z-index:120;padding:0;display:grid;place-items:center;overflow:hidden;overscroll-behavior:contain;background:rgba(8,13,24,.64);backdrop-filter:blur(2px) saturate(.78);animation:g4-title-reveal-life 3.9s ease both}.rank-boost-overlay .g4-title-reveal-title{font-size:58px!important}
-[data-g4-role="title-card"]{position:relative;isolation:isolate;max-width:100%;overflow:hidden}
-[data-g4-role="title-claim"]{font-family:'Manrope',system-ui,sans-serif}
-.hook-scene-visual{width:min(760px,100%)!important;margin-inline:auto!important}
-.lesson-frame .preview-language{display:none!important}
-@media(max-width:639.98px){.lesson-root{zoom:1!important;width:100%!important}.stage{width:min(390px,100%)!important}}
-@media(max-width:639.98px){
-  .lesson-root h1,.lesson-root [data-g4-role="hook-title"] h1{font-size:clamp(22px,6.2vw,28px)!important}
-  .lesson-root [data-g4-role="hook-title"]{font-size:25px!important}
-  .lesson-root .question h2,.lesson-root .hook-question-prompt{font-size:17px!important}
-  [data-g4-role="hook-scene"]{height:164px!important;min-height:164px!important;flex:0 0 164px!important}
-  [data-g4-screen="hook"] [data-g4-role~="visual-frame"],.stage-hook [data-g4-role="hook-scene"]>[data-g4-role~="visual-frame"]{min-height:164px;border-radius:18px}
-  .hook-scene-visual{min-height:112px;padding:10px 78px 10px 11px}
-  .hook-stack>.question .options,.stage-hook .hook-question .options{grid-template-columns:repeat(3,minmax(0,1fr))!important}
-  .hook-stack>.question .option,.stage-hook .hook-question .option{min-height:44px!important;grid-template-columns:1fr!important;justify-items:center!important;text-align:center!important}
-  .hook-frame-bit{right:12px;bottom:-7px;width:68px;height:85px}
-  .lesson-root .feedback[data-g4-role~="feedback-frame"]{height:auto!important;min-height:88px!important;grid-template-columns:54px minmax(0,1fr)!important;gap:9px!important}
-  .lesson-root .feedback[data-g4-role~="feedback-frame"] [data-g4-role="feedback-bit"],.lesson-root .feedback[data-g4-role~="feedback-frame"]>.feedback-bit{width:54px!important;height:68px!important}
-  .lesson-root .feedback[data-g4-feedback="solution"][data-g4-role~="bit-answer-comment"]{height:auto!important;min-height:68px!important;border-radius:15px!important;grid-template-columns:47px minmax(0,1fr)!important}
-  .lesson-root .feedback[data-g4-feedback="solution"][data-g4-role~="bit-answer-comment"] [data-g4-role="feedback-bit"],.lesson-root .feedback[data-g4-feedback="solution"][data-g4-role~="bit-answer-comment"]>.feedback-bit{width:47px!important;height:59px!important}
-  .lesson-root .feedback[data-g4-role~="feedback-frame"] p{font-size:14px!important}.rank-boost-overlay .g4-title-reveal-title{font-size:29px!important}
-}
-@media(prefers-reduced-motion:reduce){.rank-boost-overlay,.rank-boost-overlay * ,[data-g4-role="title-card"],[data-g4-role="title-card"] *{animation:none!important;transition:none!important}.rank-boost-overlay{opacity:1}.g4-title-reveal-confetti,.g4-title-card-confetti{display:none!important}}
-.lesson-root [class*="formula"],.lesson-root [class*="equation"]{font-family:'JetBrains Mono',monospace!important}
-.hook-stack>.question[data-g4-role="answer-card"]{display:contents!important}
-.hook-stack>.question[data-g4-role="answer-card"]:has(.feedback.open)>.options{display:none!important}
-.lesson-root .question:has(.feedback[data-g4-feedback="solution"].open)>.options{display:none!important}
-.visual-shell{overflow:hidden!important}
-.visual-shell>.model-card{min-height:0!important;max-height:none!important;padding:8px!important;gap:5px!important;overflow:hidden!important}
-.visual-shell>.model-card .fraction-model{gap:4px!important}
-.visual-shell>.model-card .fraction-model>b{font-size:16px!important;line-height:1!important}
-.visual-shell>.model-card .fraction-bar{height:54px!important}
-.visual-shell>.model-card.three-models,.visual-shell>.model-card.choice-models,.visual-shell>.model-card.summary-model{min-height:0!important;height:auto!important}
-.visual-shell>.model-card.three-models{grid-template-columns:repeat(3,minmax(0,1fr))!important}
-.visual-shell>.model-card.three-models .model-zoom{min-height:96px!important;padding:3px!important;overflow:hidden!important}
-.visual-shell>.model-card.three-models .fraction-circle{width:84px!important;height:84px!important}
-.visual-shell>.model-card.three-models .grid-model i{height:24px!important}
-.visual-shell>.model-card.choice-models{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important}
-.visual-shell>.model-card.choice-models .model-answer{min-width:0!important;min-height:96px!important;height:auto!important;padding:5px!important;grid-template-columns:24px minmax(0,1fr)!important;gap:3px!important;overflow:hidden!important}
-.visual-shell>.model-card.choice-models .model-answer>b{width:23px!important;height:23px!important}
-.visual-shell>.model-card.choice-models .model-answer>span{min-width:0;font-size:10px!important;line-height:1.12!important}
-.visual-shell>.model-card.choice-models .model-answer>.fraction-model,.visual-shell>.model-card.choice-models .model-answer>.loose-shapes{grid-column:1/-1}
-.visual-shell>.model-card.choice-models .fraction-bar{height:30px!important}
-.visual-shell>.model-card.choice-models .loose-shapes i{width:24px!important;height:24px!important}
-.visual-shell>.model-card.summary-model{padding-block:7px!important;grid-template-columns:1fr 1fr!important;gap:5px!important}
-.visual-shell>.model-card.summary-model .number-line-wrap,.visual-shell>.model-card.summary-model .number-line-svg{height:68px!important}
-.stack:has(>.visual-shell>.summary-model)>.visual-shell{min-height:88px!important}
-.stack:has(>.visual-shell>.summary-model)>.beat-list{padding:6px!important}
-.stack:has(>.visual-shell>.summary-model)>.beat-list .beat{min-height:44px!important;padding:4px!important;gap:4px!important}
-.stack:has(>.visual-shell>.summary-model)>.beat-list .beat>span{font-size:10px!important;line-height:1.1!important}
-@media(max-width:639.98px){
-  .visual-shell>.model-card{padding:5px!important;gap:3px!important}
-  .visual-shell>.model-card .fraction-bar{height:36px!important}
-  .visual-shell>.model-card .fraction-model>b{font-size:12px!important}
-  .visual-shell>.model-card.three-models{min-height:0!important;max-height:none!important;padding-block:3px!important}
-  .visual-shell>.model-card.three-models .model-zoom{min-height:82px!important;padding:2px!important}
-  .visual-shell>.model-card.three-models .fraction-circle{width:70px!important;height:70px!important}
-  .visual-shell>.model-card.three-models .grid-model i{height:20px!important}
-  .visual-shell>.model-card.choice-models{gap:3px!important}
-  .visual-shell>.model-card.choice-models .model-answer{min-height:80px!important;padding:3px!important;grid-template-columns:20px minmax(0,1fr)!important}
-  .visual-shell>.model-card.choice-models .model-answer>b{width:19px!important;height:19px!important;font-size:7px!important}
-  .visual-shell>.model-card.choice-models .model-answer>span{font-size:7px!important;line-height:1.05!important}
-  .visual-shell>.model-card.choice-models .fraction-bar{height:23px!important;border-width:2px!important}
-  .visual-shell>.model-card.choice-models .loose-shapes i{width:18px!important;height:18px!important}
-  .visual-shell>.model-card.summary-model{min-height:0!important;max-height:none!important;padding-block:4px!important;grid-template-columns:1fr 1fr!important;gap:3px!important}
-  .visual-shell>.model-card.summary-model .number-line-wrap,.visual-shell>.model-card.summary-model .number-line-svg{height:52px!important}
-  .stack:has(>.visual-shell>.summary-model)>.visual-shell{min-height:62px!important}
-  .stack:has(>.visual-shell>.summary-model)>.beat-list{padding:4px!important}
-  .stack:has(>.visual-shell>.summary-model)>.beat-list .beat{min-height:34px!important;padding:3px!important}
-  .stack:has(>.visual-shell>.summary-model)>.beat-list .beat>span{font-size:8px!important;line-height:1.05!important}
-}
-.lesson-root [data-g4-role="title-card"]{width:100%!important;min-height:116px!important;height:auto!important;margin:0!important;padding:12px 82px 11px 67px!important;border-radius:17px!important;display:flex!important;flex-direction:column!important;justify-content:center!important;gap:4px!important;color:#FFF!important;background:radial-gradient(circle at 82% 20%,rgba(255,194,60,.26),transparent 30%),linear-gradient(135deg,#173B52,#0E6978)!important;box-shadow:0 28px 58px -27px rgba(22,143,163,.8)!important}
-.lesson-root [data-g4-role="title-card"] [data-g4-role="reward-bit"]{width:72px!important;height:90px!important}
-.lesson-root [data-g4-role="title-card"] [data-g4-role="reward-medal"]{width:44px!important;height:44px!important}
-@media(max-width:639.98px){
-  .lesson-root [data-g4-role="title-card"]{min-height:88px!important;padding:9px 59px 8px 51px!important;border-radius:14px!important}
-  .lesson-root [data-g4-role="title-card"] [data-g4-role="reward-bit"]{width:57px!important;height:71px!important}
-  .lesson-root [data-g4-role="title-card"] [data-g4-role="reward-medal"]{width:34px!important;height:34px!important}
-}
-.hook-stack>.beat-list{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important;padding:5px!important}
-.hook-stack>.beat-list .beat{min-height:38px!important;padding:4px!important;grid-template-columns:23px minmax(0,1fr)!important;gap:4px!important}
-.hook-stack>.beat-list .beat>b{width:22px!important;height:22px!important}.hook-stack>.beat-list .beat>span{font-size:9px!important;line-height:1.12!important}
-@media(max-width:639.98px) and (max-height:700px){.hook-stack>.beat-list{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;padding:2px!important;gap:2px!important}.hook-stack>.beat-list .beat{min-height:26px!important;padding:2px!important;grid-template-columns:16px minmax(0,1fr)!important;gap:2px!important}.hook-stack>.beat-list .beat>b{width:16px!important;height:16px!important}.hook-stack>.beat-list .beat>span{font-size:7px!important;line-height:1.05!important}}
-`;
-
-const STYLES = `
-.g4-title-card-placeholder{width:100%;min-height:116px}
-.g4-title-card{position:relative;isolation:isolate;width:100%;min-height:116px;margin:0;padding:12px 82px 11px 67px;border-radius:17px;display:flex;flex-direction:column;justify-content:center;gap:4px;overflow:hidden;color:#FFF;background:radial-gradient(circle at 82% 20%,rgba(255,194,60,.26),transparent 30%),linear-gradient(135deg,#173B52,#0E6978);box-shadow:0 28px 58px -27px rgba(22,143,163,.8);transform:translateY(-2px)}
-.g4-title-card-medal{position:absolute;left:11px;top:50%;width:44px;height:44px;border:3px solid rgba(255,255,255,.58);border-radius:50%;display:grid;place-items:center;transform:translateY(-50%);color:#5A3A00;background:linear-gradient(145deg,#FFE284,#FFC23C);box-shadow:0 0 0 8px rgba(255,255,255,.08),0 15px 30px -15px rgba(0,0,0,.6);font-size:19px;z-index:2}
-.g4-title-card-bit{position:absolute;right:3px;bottom:2px;width:72px;height:90px;z-index:2;animation:g4-title-card-bit-float 2.8s ease-in-out 1 both}.g4-title-card-bit>svg,.g4-title-card-bit .bit,.g4-title-card-bit .g1-char{width:100%;height:100%}
-.g4-title-card-kicker{position:relative;color:#A8EAF0;font:900 10px/1.2 'JetBrains Mono',monospace;letter-spacing:.13em;z-index:2}.g4-title-card-title{position:relative;margin:0!important;font:750 clamp(16px,2.2vw,21px)/1.05 'Source Serif 4',Georgia,serif;z-index:2}.g4-title-card-score{position:relative;align-self:flex-start;margin-top:5px;padding:5px 9px;border-radius:10px;display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.10);z-index:2}.g4-title-card-score strong{color:#FFE284;font-family:'JetBrains Mono',monospace}.g4-title-card-score span{color:rgba(255,255,255,.72);font-size:9px}
-.g4-title-card-confetti{position:absolute;inset:0;pointer-events:none}.g4-title-card-confetti i{position:absolute;top:-16px;width:7px;height:12px;border-radius:2px;animation:g4-title-card-fall 2.4s linear 2 both}.g4-title-card-confetti i:nth-child(4n+1){background:#FFC23C}.g4-title-card-confetti i:nth-child(4n+2){background:#FF5B35}.g4-title-card-confetti i:nth-child(4n+3){background:#77E1EA}.g4-title-card-confetti i:nth-child(4n){background:#95C93D}.g4-title-card-confetti i:nth-child(1){left:8%;animation-delay:-.3s}.g4-title-card-confetti i:nth-child(2){left:17%;animation-delay:-1.1s}.g4-title-card-confetti i:nth-child(3){left:29%;animation-delay:-.7s}.g4-title-card-confetti i:nth-child(4){left:41%;animation-delay:-1.7s}.g4-title-card-confetti i:nth-child(5){left:52%;animation-delay:-.2s}.g4-title-card-confetti i:nth-child(6){left:63%;animation-delay:-1.3s}.g4-title-card-confetti i:nth-child(7){left:73%;animation-delay:-.8s}.g4-title-card-confetti i:nth-child(8){left:84%;animation-delay:-1.9s}.g4-title-card-confetti i:nth-child(9){left:12%;animation-delay:-2s}.g4-title-card-confetti i:nth-child(10){left:36%;animation-delay:-1.4s}.g4-title-card-confetti i:nth-child(11){left:68%;animation-delay:-.5s}.g4-title-card-confetti i:nth-child(12){left:91%;animation-delay:-1.6s}
-.g4-title-reveal-overlay{position:fixed;inset:0;z-index:120;padding:0;display:grid;place-items:center;overflow:hidden;overscroll-behavior:contain;pointer-events:none;background:rgba(8,13,24,.64);backdrop-filter:blur(2px) saturate(.78);animation:g4-title-reveal-life 3.2s ease both}.g4-title-reveal-card{position:relative;isolation:isolate;width:100%;min-height:100dvh;padding:36px 24px;border:0;border-radius:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;overflow:hidden;color:#FFF;text-align:center;background:radial-gradient(circle at 50% 50%,rgba(255,214,80,.17),transparent 31%)}.g4-title-reveal-card::after{content:'';position:absolute;z-index:0;top:50%;left:50%;width:min(440px,82vw);height:min(440px,82vw);border-radius:50%;background:radial-gradient(circle,rgba(255,222,105,.17),transparent 68%);transform:translate(-50%,-50%)}
-.g4-title-reveal-rays{position:absolute;z-index:0;top:50%;left:50%;width:160vmax;height:160vmax;border-radius:50%;opacity:.28;background:repeating-conic-gradient(from -4deg,rgba(255,218,91,.88) 0 8deg,transparent 8deg 20deg);transform:translate(-50%,-50%);animation:g4-title-reveal-rays-in .8s cubic-bezier(.16,1,.3,1) both,g4-title-reveal-rays-turn 26s linear .8s 1 both}.g4-title-reveal-medal{position:absolute;top:50%;left:50%;z-index:2;width:112px;height:112px;border:6px solid rgba(255,255,255,.72);border-radius:50%;display:grid;place-items:center;color:#653C00;background:linear-gradient(145deg,#FFF2A0,#FFC13B);box-shadow:0 0 0 13px rgba(255,255,255,.09),0 0 54px 10px rgba(255,204,63,.38),0 22px 38px -18px rgba(0,0,0,.7);font-size:52px;animation:g4-title-reveal-medal-in 1s cubic-bezier(.16,1,.3,1) .15s both}.g4-title-reveal-title{position:absolute;top:calc(50% + 82px);left:50%;z-index:2;width:min(680px,calc(100vw - 48px));margin:0!important;font:750 clamp(34px,5vw,58px)/1.02 'Source Serif 4',Georgia,serif;text-shadow:0 4px 24px rgba(0,0,0,.72);transform:translateX(-50%);animation:g4-title-reveal-title-in .7s ease .52s both}
-.g4-title-reveal-confetti{position:absolute;inset:0;pointer-events:none}.g4-title-reveal-confetti i{position:absolute;top:-20px;width:8px;height:14px;border-radius:2px;background:#FFE284;animation:g4-title-reveal-fall 2.4s linear 2 both}.g4-title-reveal-confetti i:nth-child(3n+2){background:#FF7050}.g4-title-reveal-confetti i:nth-child(3n){background:#77E1EA}
-@keyframes g4-title-card-bit-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}@keyframes g4-title-card-fall{to{transform:translateY(230px) rotate(460deg)}}@keyframes g4-title-reveal-life{0%{opacity:0}12%,84%{opacity:1}100%{opacity:0}}@keyframes g4-title-reveal-medal-in{from{opacity:0;transform:translate(-50%,-50%) scale(.25) rotate(-25deg)}to{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0)}}@keyframes g4-title-reveal-title-in{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}@keyframes g4-title-reveal-rays-in{from{opacity:0;transform:translate(-50%,-50%) scale(.5)}to{opacity:.28;transform:translate(-50%,-50%) scale(1)}}@keyframes g4-title-reveal-rays-turn{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}@keyframes g4-title-reveal-fall{to{transform:translateY(470px) rotate(560deg)}}
-@media(max-width:639.98px){.g4-title-card-placeholder{min-height:88px}.g4-title-card{min-height:88px;padding:9px 59px 8px 51px;border-radius:14px}.g4-title-card-medal{left:8px;width:34px;height:34px;font-size:14px}.g4-title-card-bit{width:57px;height:71px}.g4-title-card-title{font-size:14px}.g4-title-reveal-card{min-height:100dvh;padding:24px 18px}.g4-title-reveal-medal{width:88px;height:88px;border-width:5px;font-size:40px}.g4-title-reveal-title{top:calc(50% + 62px);font-size:29px}}
-@media(prefers-reduced-motion:reduce){.g4-title-card,.g4-title-card-bit,.g4-title-reveal-overlay,.g4-title-reveal-rays,.g4-title-reveal-medal,.g4-title-reveal-title{animation:none!important}.g4-title-card{opacity:1;transform:none!important}.g4-title-card-confetti,.g4-title-reveal-confetti{display:none}.g4-title-reveal-overlay{opacity:1}.g4-title-reveal-rays{opacity:.28;transform:translate(-50%,-50%)}.g4-title-reveal-medal{opacity:1;transform:translate(-50%,-50%)}.g4-title-reveal-title{opacity:1;transform:translateX(-50%)}}
-.lesson-root h1,.lesson-root h2,.lesson-root h3,.lesson-root h4,.lesson-root h5,.lesson-root h6,.lesson-root p,.lesson-root ul,.lesson-root ol{margin:0}.lesson-root button,.lesson-root input{font:inherit}.stage-chrome{min-width:0}.chrome-actions{flex:none}.progress-track{width:100%}.stage{margin:0 auto}.stage-header{flex-shrink:0}.stage-content{flex:1 1 auto}.stage-nav{flex:0 0 auto;gap:12px}.btn-white-accent,.btn-ghost{min-width:128px;min-height:50px;padding:0 18px;border:0;border-radius:15px;cursor:pointer;font-weight:900}.btn-white-accent{color:${T.accent};background:#fff;box-shadow:0 12px 24px -17px rgba(255,91,53,.8)}.btn-white-accent:hover{color:#fff;background:${T.accent}}.lesson-root .stack{animation-duration:.5s!important}.fraction-bar button{flex:1;min-width:0;background:#fff;box-shadow:inset -2px 0 rgba(23,59,82,.25);transition:background .4s ease,transform .28s ease}.fraction-bar button:last-child{box-shadow:none}.fraction-bar button.filled{background:${T.cyan}}.fraction-bar button.filled.lime{background:${T.lime}}.compare-model>strong,.error-formula b,.error-model>b{transition:opacity .32s ease}.caption,.proof{animation:feedback-in .32s ease both}.beat-list button.beat{border:0;text-align:left;cursor:pointer}.beat-list button.beat:hover{box-shadow:inset 0 0 0 2px rgba(22,143,163,.25)}
-.lesson-root button:focus-visible,.lesson-root input:focus-visible,.lesson-root input[type="range"]:focus-visible{outline:3px solid ${T.cyan};outline-offset:3px}.lesson-root .icon-btn{width:44px!important;height:44px!important}.compare-model>strong.show,.error-formula b.show,.error-model>b.show{opacity:1}@media(max-width:639.98px){.btn-white-accent,.btn-ghost{min-width:110px;padding:0 11px}}
-.battery-share{gap:10px}.battery-bank{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;color:${T.cyan};font-size:24px}.station-grid{width:100%;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;opacity:.12;transition:.4s ease}.station-grid.show,.battery-share>strong.show{opacity:1}.station-grid>div{padding:10px;border-radius:14px;display:grid;gap:7px;text-align:center;background:${T.cyanSoft}}.station-grid b{color:${T.navy};font:900 13px 'JetBrains Mono',monospace}.station-grid span{display:flex;justify-content:center;gap:3px}.station-grid i{opacity:.12;color:${T.lime};font-style:normal;transition:.35s ease}.station-grid i.assigned{opacity:1}.battery-share>strong{opacity:.12;color:${T.success};font:900 22px 'JetBrains Mono',monospace;transition:opacity .32s ease}.whole-choice{grid-template-columns:.75fr 1.25fr;align-items:end}.whole-choice>.whole-object{width:100%;height:95px;border:4px solid rgba(23,59,82,.28);border-radius:16px;display:grid;place-items:center;background:#fff;cursor:pointer;transition:.4s ease}.whole-choice>.whole-object:last-child{height:145px}.whole-choice>.whole-object.chosen{border-color:${T.accent};background:${T.accentSoft};box-shadow:0 0 0 5px rgba(255,91,53,.12)}.whole-choice span{color:${T.navy};font:900 22px 'JetBrains Mono',monospace}.three-models{grid-template-columns:1.2fr .7fr .9fr;align-items:center}.three-models .grid-model{grid-template-columns:repeat(4,1fr)!important}.three-models .grid-model i{height:38px}.model-zoom{width:100%;min-height:150px;padding:8px;border:0;border-radius:16px;display:grid;place-items:center;background:transparent;cursor:pointer;transition:transform .4s ease,background .32s ease}.model-zoom.zoomed{transform:scale(1.06);background:${T.cyanSoft}}.model-zoom .fraction-model{width:100%}
-.different-wholes{grid-template-columns:.65fr 1.35fr!important;align-items:end}.different-wholes>div{width:100%;transition:max-width .4s ease}.different-wholes .small-whole{max-width:250px}.different-wholes .large-whole{max-width:520px}.different-wholes.same-size{grid-template-columns:1fr 1fr!important}.different-wholes.same-size .small-whole,.different-wholes.same-size .large-whole{max-width:380px}.equal-toggle>div{padding:8px;border-radius:15px;transition:.35s ease}.equal-toggle .model-selected{background:${T.accentSoft};box-shadow:0 0 0 3px rgba(255,91,53,.2)}.notation-active{filter:drop-shadow(0 0 8px rgba(255,91,53,.65));color:${T.accent}!important}.error-compare{gap:10px}.error-compare>.compare-model{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:16px}.error-formula{display:flex;align-items:center;justify-content:center;gap:14px}.error-formula s{color:${T.warn};font:900 22px 'JetBrains Mono',monospace}.error-formula span{color:${T.accent};font-size:24px}.error-formula b{opacity:.12;color:${T.success};font:900 22px 'JetBrains Mono',monospace;transition:opacity .32s ease}.heading .g1-char{width:76px;height:95px;flex:none;overflow:visible;filter:drop-shadow(0 9px 11px rgba(23,59,82,.2))}.reward .g1-char{width:72px;height:90px}.g1-bit-ant{transform-origin:60px 28px;animation:antenna .55s ease-out 1 both}.g1-bit-wave,.bit-wave-left,.bit-wave-right,.bit-think-hand,.bit-point-arm,.bit-nod-hand{transform-origin:84px 76px;animation:think .65s ease-out 1 both}.bit-double-wave,.bit-awkward-hands,.bit-focus-hands{transform-origin:center;animation:happy .65s ease-out 1 both}.bit-idea-bulb,.bit-point-target,.bit-focus-scan,.bit-nod-check{animation:pulse .55s ease-out 1 both}
-.visual-shell{display:grid;gap:9px}.visual-shell.hint-emphasis>.model-card{box-shadow:0 0 0 4px rgba(22,143,163,.28),0 18px 34px -28px rgba(${T.shadowBase},.48)}.model-hint{padding:10px 13px;border-radius:13px;color:${T.navy};background:${T.cyanSoft};font-size:12px;font-weight:850;animation:feedback-in .32s ease both}.optional-lab{padding:10px 12px;border-radius:16px;display:grid;gap:8px;background:rgba(255,255,255,.88);box-shadow:0 12px 25px -23px rgba(${T.shadowBase},.5)}.mini-options{display:flex;flex-wrap:wrap;justify-content:center;gap:7px}.mini-options button,.mini-action{min-height:44px;padding:8px 12px;border:0;border-radius:12px;color:${T.navy};background:${T.cyanSoft};cursor:pointer;font-size:12px;font-weight:850}.mini-options button.active,.mini-action.active{color:#fff;background:${T.cyan}}.count-options{display:grid;grid-template-columns:repeat(8,1fr)}.range-lab{display:grid;grid-template-columns:auto minmax(120px,1fr) 54px;align-items:center;gap:10px;color:${T.ink2};font-size:12px;font-weight:850}.range-lab input{width:100%;accent-color:${T.accent}}.range-lab output{color:${T.navy};font:900 14px 'JetBrains Mono',monospace}.fraction-bar button{padding:0;border:0;cursor:pointer}.fraction-bar button.segment-active{box-shadow:inset 0 0 0 4px ${T.accent}!important}.half-model.half-marked .fraction-bar{box-shadow:0 0 0 4px rgba(255,91,53,.22)}
-.stage-hook .model-card{position:relative;isolation:isolate;overflow:hidden;border:1px solid rgba(144,228,235,.12);border-radius:24px;background:radial-gradient(circle at 87% 24%,rgba(121,211,218,.16),transparent 24%),radial-gradient(circle at 9% 88%,rgba(149,201,61,.11),transparent 25%),linear-gradient(145deg,rgba(22,143,163,.25),transparent 48%),linear-gradient(135deg,#153B50,#0B2232 72%);box-shadow:0 22px 50px -30px rgba(14,33,44,.75)}
-@media(max-width:639.98px){.stage-hook .model-card{border-radius:18px}}
-@media(max-width:639.98px){.different-wholes,.whole-choice,.three-models{grid-template-columns:1fr!important}.whole-choice>.whole-object,.whole-choice>.whole-object:last-child{height:70px}.station-grid{grid-template-columns:repeat(2,1fr)}.error-compare>.compare-model{grid-template-columns:1fr}.heading .g1-char{width:62px;height:78px}.range-lab{grid-template-columns:1fr 55px}.range-lab span{grid-column:1/-1}.count-options{grid-template-columns:repeat(4,1fr)}}
-html:has(.lesson-root),body:has(.lesson-root),#root:has(.lesson-root),.lesson-page:has(.lesson-root),.lesson-frame:has(.lesson-root){width:100%;height:100%;min-height:0!important;margin:0;overflow:hidden!important;overscroll-behavior:none}
-.lesson-root,.lesson-root *{box-sizing:border-box}.lesson-root h1,.lesson-root h2,.lesson-root p{margin:0}.lesson-root button{font:inherit}.lesson-root{position:fixed;inset:0;width:100%;height:100dvh;overflow:hidden;color:${T.ink};background:radial-gradient(circle at 88% 9%,rgba(22,143,163,.11),transparent 25%),linear-gradient(145deg,#F7F8F4,#EEF3F1);font-family:'Manrope',system-ui,sans-serif;zoom:var(--g4z,1)}.stage{width:min(936px,100%);height:100%;margin:auto;display:flex;flex-direction:column;overflow:hidden}.stage-header{flex:none;padding-top:10px;padding-bottom:8px;background:rgba(247,248,244,.88);backdrop-filter:blur(14px);z-index:5}.progress-track{height:6px;margin-bottom:10px;border-radius:999px;background:rgba(80,97,109,.16);overflow:hidden}.progress-fill{height:100%;border-radius:inherit;background:linear-gradient(90deg,${T.cyan},${T.accent});box-shadow:0 0 12px rgba(255,91,53,.42);transition:width .45s ease}.stage-chrome,.chrome-title,.chrome-actions,.audio-controls{display:flex;align-items:center}.stage-chrome{justify-content:space-between;gap:12px}.chrome-title,.chrome-actions,.audio-controls{gap:9px}.chrome-title{min-width:0;overflow:hidden;color:${T.ink2};font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.chrome-title>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.status-dot{width:8px;height:8px;flex:none;border-radius:50%;background:${T.accent};box-shadow:0 0 10px rgba(255,91,53,.65)}.screen-type{padding:4px 8px;border-radius:999px;color:${T.cyan};background:${T.cyanSoft};font-size:10px;font-weight:800}.screen-count{font:700 12px 'JetBrains Mono',monospace}.icon-btn{width:36px;height:36px;border:0;border-radius:10px;background:#fff;cursor:pointer}.stage-content{flex:1;min-height:0;padding-top:10px;padding-bottom:8px;overflow:hidden;display:flex;flex-direction:column;gap:6px}.stage-nav{flex:none;min-height:72px;display:flex;align-items:center;justify-content:space-between;background:rgba(245,245,240,.95)}.btn-primary,.btn-ghost{min-width:128px;min-height:50px;padding:0 18px;border:0;border-radius:15px;cursor:pointer;font-weight:900}.btn-primary{color:${T.accent};background:#fff;box-shadow:0 12px 24px -17px rgba(255,91,53,.8)}.btn-primary:hover{color:#fff;background:${T.accent}}.btn-ghost{color:${T.ink2};background:transparent}.btn-white-accent:disabled,.btn-ghost:disabled{cursor:not-allowed;opacity:.48;filter:saturate(.45)}.stack{flex:1;min-height:0;max-height:100%;overflow:hidden;display:grid;align-content:center;gap:9px;animation:page-in .45s cubic-bezier(.16,1,.3,1) both}.heading{min-height:74px;display:flex;align-items:center;justify-content:space-between;gap:14px}.heading>div>span{color:${T.cyan};font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.heading h1{margin-top:4px!important;font:750 clamp(24px,4vw,36px)/1.06 'Source Serif 4',Georgia,serif}.heading .bit{width:76px;height:95px;flex:none;overflow:visible;filter:drop-shadow(0 9px 11px rgba(23,59,82,.2))}.model-card,.question,.beat-list,.reward{padding:16px;border-radius:21px;background:rgba(255,255,255,.92);box-shadow:0 18px 34px -28px rgba(${T.shadowBase},.48)}.model-card{min-height:190px;display:grid;place-items:center;gap:16px}.fraction-model{width:min(520px,92%);display:grid;gap:9px;text-align:center}.fraction-model>b{color:${T.navy};font:900 20px 'JetBrains Mono',monospace}.fraction-bar{height:78px;display:flex;border:4px solid ${T.navy};border-radius:13px;overflow:hidden;background:#fff}.fraction-bar i{flex:1;min-width:0;background:#fff;box-shadow:inset -2px 0 rgba(23,59,82,.25);transition:background .45s ease,transform .28s ease}.fraction-bar i:last-child{box-shadow:none}.fraction-bar i.filled{background:${T.cyan}}.fraction-bar i.filled.lime{background:${T.lime}}.fraction-bar i:active{transform:scale(.92)}.fraction-bar.unequal i{flex-basis:0}.model-pair{grid-template-columns:1fr 40px 1fr}.model-pair>span{color:${T.accent};font:900 28px 'JetBrains Mono',monospace}.fraction-circle{width:150px;height:150px}.fraction-circle path{fill:#fff;stroke:${T.navy};stroke-width:1.8;transition:fill .45s ease}.fraction-circle path.filled{fill:${T.lime}}.notation{grid-template-columns:1.2fr .8fr}.notation>div:last-child{display:grid;justify-items:center}.notation>div:last-child>b{font:900 34px 'JetBrains Mono',monospace}.notation>div:last-child>span{width:70px;height:4px;background:${T.navy}}.notation small{margin-top:8px;color:${T.ink2};font-size:11px}.number-line-svg{width:min(680px,100%);height:120px;overflow:visible}.number-line-svg .axis,.number-line-svg .tick{stroke:${T.navy};stroke-width:4;stroke-linecap:round}.number-line-svg .tick{stroke-width:2}.number-line-svg text{fill:${T.navy};font:900 14px 'JetBrains Mono',monospace}.number-line-svg .marker{opacity:.12;transition:.4s ease}.number-line-svg .marker.on{opacity:1}.number-line-svg .marker circle{fill:${T.accent}}.number-line-svg .marker text{fill:${T.accent}}.grid-model{width:min(520px,92%);display:grid;gap:6px}.grid-model i{height:52px;border-radius:10px;background:#F1F3F1;box-shadow:inset 0 0 0 2px rgba(23,59,82,.15);transition:.4s ease}.grid-model i.filled{background:${T.cyanSoft};box-shadow:inset 0 0 0 3px ${T.cyan}}.triple-model{grid-template-columns:1fr 1fr;align-items:center}.triple-model .number-line-svg{grid-column:1/-1;height:92px}.choice-models{grid-template-columns:repeat(3,1fr)}.choice-models .fraction-bar{height:54px}.loose-shapes{display:flex;justify-content:center;gap:7px}.loose-shapes i{width:42px;height:42px;border-radius:50%;background:${T.lime}}.error-model{grid-template-columns:1fr auto auto auto;align-items:center}.error-model s{color:${T.warn};font:900 24px 'JetBrains Mono',monospace}.error-model>span{color:${T.accent};font-size:25px}.error-model>b{opacity:.12;color:${T.success};font:900 24px 'JetBrains Mono',monospace}.compare-model{grid-template-columns:1fr 1fr;position:relative}.compare-model>strong{grid-column:1/-1;opacity:.12;color:${T.success};font:900 23px 'JetBrains Mono',monospace}.half-model .fraction-bar{background:linear-gradient(90deg,#fff 0 49.2%,rgba(255,91,53,.35) 49.2% 50.8%,#fff 50.8%)}.summary-model{grid-template-columns:1fr 1fr}.summary-model .number-line-svg{height:92px}.beat-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px}.beat{min-height:54px;padding:9px;border-radius:13px;display:grid;grid-template-columns:28px 1fr;align-items:center;gap:8px;opacity:.12;transform:translateY(6px);background:#F8F8F4;transition:.4s ease}.beat.show{opacity:1;transform:none;background:${T.cyanSoft}}.beat>b{width:27px;height:27px;border-radius:9px;display:grid;place-items:center;color:#fff;background:${T.cyan};font:900 10px 'JetBrains Mono',monospace}.beat span{font-size:12px;font-weight:800;line-height:1.3}.question{display:grid;gap:12px}.question h2{font:720 clamp(17px,2.5vw,22px)/1.25 'Source Serif 4',Georgia,serif}.options{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.option{min-height:58px;padding:10px;border:0;border-radius:15px;display:grid;grid-template-columns:28px 1fr;align-items:center;gap:8px;color:${T.ink};background:#F8F8F4;text-align:left;cursor:pointer}.option>b{width:27px;height:27px;border-radius:9px;display:grid;place-items:center;color:${T.cyan};background:${T.cyanSoft};font:900 11px 'JetBrains Mono',monospace}.option.picked{transform:translateY(-2px);background:${T.accentSoft};box-shadow:inset 0 0 0 2px rgba(255,91,53,.27)}.option.right{background:${T.successSoft};box-shadow:inset 0 0 0 2px rgba(34,122,83,.25)}.option.bad{background:${T.warnSoft};box-shadow:inset 0 0 0 2px rgba(169,111,19,.25)}.feedback{padding:12px 14px;border-radius:15px;display:grid;grid-template-columns:28px 1fr;gap:9px;animation:feedback-in .3s ease both}.feedback.correct{background:${T.successSoft};box-shadow:inset 4px 0 ${T.success}}.feedback.wrong{background:${T.warnSoft};box-shadow:inset 4px 0 ${T.warn}}.feedback p{font-size:13px;line-height:1.45}.proof{padding:12px;border-radius:14px;color:${T.success};background:${T.successSoft};text-align:center;font:900 15px 'JetBrains Mono',monospace;animation:feedback-in .35s ease both}.caption-slot{flex:none;min-height:42px;padding:7px 12px;border-radius:13px;display:flex;align-items:center;visibility:hidden;color:#fff;background:rgba(23,59,82,.94);font-size:11px;line-height:1.3}.caption-slot.is-visible{visibility:visible}.reward{display:grid;grid-template-columns:90px 1fr;align-items:center;color:#fff;background:${T.navy}}.reward .bit{width:72px;height:90px}.reward small,.reward span{display:block;color:#9DE3E7}.reward strong{font:900 25px 'JetBrains Mono',monospace}.preview-language{position:fixed;top:9px;right:9px;z-index:30;display:flex;gap:3px;padding:3px;border-radius:999px;background:#fff}.preview-language button{padding:5px 10px;border:0;border-radius:999px;background:transparent;cursor:pointer;font-size:10px;font-weight:900}.preview-language button.active{color:#fff;background:${T.accent}}.bit-ant{transform-origin:60px 28px;animation:antenna 2.1s ease-in-out 1 both}.bit-hand{transform-origin:84px 76px;animation:think 1.7s ease-in-out 1 both}.bit-spark{animation:pulse 1.35s ease-in-out 1 both}@keyframes page-in{from{opacity:0;transform:translateY(10px)}}@keyframes feedback-in{from{opacity:0;transform:translateY(7px)}}@keyframes antenna{50%{transform:rotate(5deg)}}@keyframes think{50%{transform:rotate(-5deg) translateY(-2px)}}@keyframes pulse{to{transform:scale(1.08)}}
-@media(max-width:639.98px){.stage{width:min(390px,100%)}.stage-header{padding-top:58px}.screen-type{display:none}.heading{min-height:66px}.heading h1{font-size:25px}.heading .bit{width:62px;height:78px}.model-card,.question,.beat-list,.reward{padding:12px;border-radius:17px}.model-card{min-height:155px}.model-pair,.notation,.triple-model,.summary-model{grid-template-columns:1fr}.model-pair>span{transform:rotate(90deg)}.fraction-bar{height:60px}.fraction-circle{width:112px;height:112px}.triple-model .number-line-svg{grid-column:auto}.choice-models{grid-template-columns:1fr}.beat-list{grid-template-columns:1fr 1fr}.options{grid-template-columns:1fr}.option{min-height:50px}.stage-nav{min-height:68px}.btn-primary,.btn-ghost{min-width:110px;padding:0 11px}.error-model{grid-template-columns:1fr auto auto}.error-model .fraction-model{grid-column:1/-1}.compare-model{grid-template-columns:1fr}.compare-model>strong{grid-column:1}.number-line-svg{height:95px}.grid-model i{height:40px}}
-.g4-title-claim{width:100%;min-height:116px;padding:15px 22px;border:0;border-radius:18px;display:grid;grid-template-columns:48px 1fr;grid-template-rows:auto auto;align-items:center;column-gap:13px;color:#fff;background:linear-gradient(135deg,#0E6978,#173B52);cursor:pointer;text-align:left;box-shadow:0 22px 42px -25px rgba(14,105,120,.9)}.g4-title-claim>span{grid-row:1/3;width:46px;height:46px;border-radius:50%;display:grid;place-items:center;color:#5A3A00;background:linear-gradient(145deg,#FFE284,#FFC23C);font-size:21px}.g4-title-claim>strong{font:750 18px 'Source Serif 4',Georgia,serif}.g4-title-claim>small{color:#A8EAF0;font-size:12px;font-weight:800}.g4-title-claim:hover{transform:translateY(-2px);box-shadow:0 25px 48px -24px rgba(14,105,120,1)}
-.feedback{min-height:76px!important;padding:11px 15px 11px 10px!important;grid-template-columns:52px 1fr!important;align-items:center!important;gap:11px!important}.feedback.correct{background:linear-gradient(135deg,#DDF2E6,#F7FFF9)!important;box-shadow:inset 5px 0 ${T.success},0 13px 26px -23px rgba(34,122,83,.75)!important}.feedback.wrong{background:linear-gradient(135deg,#FFF0BE,#FFF9E8)!important;box-shadow:inset 5px 0 ${T.warn},0 13px 26px -23px rgba(169,111,19,.72)!important}.feedback-bit{width:50px;height:62px;display:block;overflow:visible}.feedback-bit .g1-char,.feedback-bit .bit,.feedback-bit>svg{width:100%;height:100%}.feedback p{display:grid;gap:7px;font-size:15px!important;line-height:1.48!important}.feedback-proof{padding-top:7px;border-top:1px solid rgba(34,122,83,.2);color:${T.success};font:900 15px/1.35 'JetBrains Mono',monospace}
-.choice-models{grid-template-columns:1fr!important;gap:11px!important}.model-answer{width:100%;min-height:104px;padding:12px 14px;border:0;border-radius:17px;display:grid;grid-template-columns:34px minmax(150px,.85fr) minmax(250px,1.15fr);align-items:center;gap:12px;color:${T.ink};background:#F8F8F4;cursor:pointer;text-align:left;transition:.32s ease}.model-answer>b{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;color:${T.cyan};background:${T.cyanSoft};font:900 12px 'JetBrains Mono',monospace}.model-answer>span{font-size:14px;font-weight:850}.model-answer .fraction-model{width:100%}.model-answer.picked{background:${T.accentSoft};box-shadow:inset 0 0 0 3px rgba(255,91,53,.25)}.model-answer.right{background:${T.successSoft};box-shadow:inset 0 0 0 3px rgba(34,122,83,.3)}.model-answer.bad{background:${T.warnSoft};box-shadow:inset 0 0 0 3px rgba(169,111,19,.26)}.model-answer:disabled{cursor:default}.number-line-choice .marker{cursor:pointer}.number-line-choice .marker:focus-visible{outline:3px solid ${T.cyan};outline-offset:4px}.number-line-choice .marker.answer-picked circle{fill:${T.warn}}.number-line-choice .marker.answer-right circle{fill:${T.success}}.number-line-choice .marker.answer-bad circle{fill:${T.warn}}
-.number-line-wrap{width:min(680px,100%);height:120px;position:relative}.number-line-wrap .number-line-svg{width:100%;height:100%}.number-line-hit-targets{position:absolute;inset:0;pointer-events:none}.number-line-marker-action{width:44px;height:44px;position:absolute;top:50%;padding:0;border:0;border-radius:50%;transform:translate(-50%,-50%);background:transparent;cursor:pointer;pointer-events:auto}.number-line-marker-action:disabled{cursor:default}.number-line-marker-action:focus-visible{outline:3px solid ${T.cyan};outline-offset:3px}
-@media(max-width:639.98px){.g4-title-claim{min-height:88px;grid-template-columns:40px 1fr;padding:10px 13px}.g4-title-claim>span{width:38px;height:38px}.model-answer{min-height:132px;grid-template-columns:32px 1fr}.model-answer>.fraction-model,.model-answer>.loose-shapes{grid-column:1/-1}.feedback{grid-template-columns:44px 1fr!important}.feedback-bit{width:43px;height:54px}.feedback p{font-size:14px!important}}
-.visual-shell.is-locked{pointer-events:none;opacity:.68}.feedback.feedback-slot{height:76px;min-height:76px!important;overflow:hidden;visibility:hidden;opacity:0;animation:none}.feedback.feedback-slot.open{visibility:visible;opacity:1;animation:feedback-in .3s ease both}.feedback-proof small{display:block;margin-bottom:3px;font:900 9px/1.1 'JetBrains Mono',monospace;letter-spacing:.12em}.g4-title-claim:disabled{cursor:not-allowed;opacity:.48;transform:none;box-shadow:none}.final-reflection{padding:9px 11px;border-radius:16px;display:grid;gap:7px;background:rgba(255,255,255,.9);box-shadow:0 12px 25px -23px rgba(${T.shadowBase},.5)}.final-reflection>strong{font:750 14px/1.2 'Source Serif 4',Georgia,serif}.final-reflection>div{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.final-reflection button{min-height:44px;padding:6px;border:0;border-radius:12px;display:grid;grid-template-columns:24px 1fr;align-items:center;gap:5px;color:${T.navy};background:${T.cyanSoft};cursor:pointer;text-align:left;font-size:10px;font-weight:850}.final-reflection button>span{width:23px;height:23px;border-radius:8px;display:grid;place-items:center;color:#fff;background:${T.cyan};font:900 9px 'JetBrains Mono',monospace}.final-reflection button.is-selected{color:#fff;background:${T.cyan}}.final-reflection button:disabled{cursor:default}
-@media(max-width:639.98px){.lesson-root{width:390px}.stage{width:390px}.stage-header{padding-top:8px;padding-bottom:5px}.lesson-root-preview .stage-header{padding-top:52px}.progress-track{height:4px;margin-bottom:5px}.stage-chrome{gap:5px}.chrome-title{font-size:8px}.chrome-actions,.audio-controls{gap:4px}.icon-btn{width:32px;height:32px}.stage-content{padding-top:3px;padding-bottom:3px;gap:3px}.caption-slot{min-height:30px;padding:4px 8px;border-radius:9px;font-size:9px;line-height:1.16}.stage-nav{min-height:56px}.btn-primary,.btn-ghost{min-width:106px;min-height:44px;padding:0 9px;border-radius:12px;font-size:12px}.stack{gap:4px}.heading{min-height:42px;gap:6px}.heading>div>span{font-size:8px}.heading h1{margin-top:1px!important;font-size:18px;line-height:1.02}.heading .bit,.heading .g1-char{width:42px;height:52px}.model-card,.question,.beat-list,.reward,.optional-lab{padding:6px;border-radius:12px}.model-card{min-height:88px;max-height:116px;gap:4px}.fraction-model{gap:3px}.fraction-model>b{font-size:13px}.fraction-bar{height:40px;border-width:3px;border-radius:9px}.fraction-circle{width:82px;height:82px}.number-line-svg,.triple-model .number-line-svg,.summary-model .number-line-svg{height:64px}.grid-model{gap:3px}.grid-model i,.three-models .grid-model i{height:25px;border-radius:6px}.model-pair,.notation,.triple-model,.summary-model{grid-template-columns:1fr 28px 1fr}.model-pair>span{transform:none;font-size:17px}.notation>div:last-child>b{font-size:22px}.notation>div:last-child>span{width:45px;height:3px}.notation small{margin-top:3px;font-size:8px}.three-models,.different-wholes,.whole-choice{grid-template-columns:repeat(3,minmax(0,1fr))!important}.different-wholes{grid-template-columns:1fr 1fr!important}.whole-choice{grid-template-columns:1fr 1fr!important}.whole-choice>.whole-object,.whole-choice>.whole-object:last-child{height:52px}.beat-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:3px}.beat{min-height:32px;padding:3px;border-radius:8px;grid-template-columns:19px 1fr;gap:3px}.beat>b{width:19px;height:19px;border-radius:6px;font-size:7px}.beat span{font-size:9px;line-height:1.12}.question{gap:4px}.question h2{font-size:13px;line-height:1.12}.options{grid-template-columns:1fr;gap:3px}.option{min-height:44px;padding:4px;border-radius:10px;grid-template-columns:24px 1fr;gap:4px;font-size:10px}.option>b{width:23px;height:23px;border-radius:7px;font-size:8px}.feedback.feedback-slot{height:56px;min-height:56px!important;padding:5px 7px!important;grid-template-columns:34px 1fr!important;gap:5px!important}.feedback-bit{width:33px;height:41px}.feedback p{gap:2px;font-size:9px!important;line-height:1.18!important}.feedback-proof{padding-top:2px;font-size:9px;line-height:1.12}.optional-lab{gap:4px}.mini-options{gap:3px}.mini-options button,.mini-action{min-height:44px;padding:4px 7px;border-radius:9px;font-size:9px}.range-lab{grid-template-columns:1fr 44px;gap:4px;font-size:9px}.range-lab span{grid-column:1/-1}.range-lab output{font-size:10px}.choice-models{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:3px!important}.model-answer{min-height:92px;padding:4px;border-radius:10px;grid-template-columns:22px 1fr;gap:3px}.model-answer>b{width:21px;height:21px;border-radius:6px;font-size:8px}.model-answer>span{font-size:8px}.model-answer>.fraction-model,.model-answer>.loose-shapes{grid-column:1/-1}.model-answer .fraction-bar{height:27px;border-width:2px}.loose-shapes{gap:2px}.loose-shapes i{width:22px;height:22px}.model-hint{padding:4px 6px;border-radius:8px;font-size:9px}.station-grid{grid-template-columns:repeat(4,1fr);gap:3px}.station-grid>div{padding:3px;border-radius:7px;gap:2px}.station-grid b{font-size:8px}.battery-bank{gap:2px;font-size:14px}.battery-share>strong{font-size:14px}.error-formula{gap:5px}.error-formula s,.error-formula b{font-size:14px}.error-formula span{font-size:15px}.final-reflection{padding:5px 6px;border-radius:11px;gap:4px}.final-reflection>strong{font-size:11px}.final-reflection>div{gap:3px}.final-reflection button{min-height:44px;padding:3px;border-radius:8px;grid-template-columns:18px 1fr;gap:2px;font-size:8px}.final-reflection button>span{width:18px;height:18px;border-radius:5px;font-size:7px}.g4-title-claim{min-height:68px;padding:6px 9px;grid-template-columns:32px 1fr;column-gap:7px}.g4-title-claim>span{width:31px;height:31px;font-size:14px}.g4-title-claim>strong{font-size:13px}.g4-title-claim>small{font-size:8px}.g4-title-card-placeholder,.g4-title-card{min-height:68px}.g4-title-card{padding:6px 46px 5px 40px}.g4-title-card-medal{left:6px;width:29px;height:29px}.g4-title-card-bit{width:44px;height:55px}.g4-title-card-title{font-size:11px}.g4-title-card-kicker,.g4-title-card-score span{font-size:7px}.g4-title-card-score{margin-top:2px;padding:3px 5px}}
-@media(max-width:639.98px) and (max-height:700px){.stage-header{padding-top:5px}.lesson-root-preview .stage-header{padding-top:46px}.stage-nav{min-height:50px}.caption-slot{min-height:27px}.stack{gap:3px}.heading{min-height:38px}.heading h1{font-size:16px}.heading .bit,.heading .g1-char{width:36px;height:45px}.model-card{min-height:78px;max-height:100px}.fraction-circle{width:70px;height:70px}.number-line-svg,.triple-model .number-line-svg,.summary-model .number-line-svg{height:56px}.feedback.feedback-slot{height:52px;min-height:52px!important}.beat{min-height:29px}.g4-title-claim,.g4-title-card-placeholder,.g4-title-card{min-height:62px}}
-@media(prefers-reduced-motion:reduce){.lesson-root *,.lesson-root *::before,.lesson-root *::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}.beat,.marker,.compare-model>strong,.error-model>b{opacity:1!important;transform:none!important}}
-`;
