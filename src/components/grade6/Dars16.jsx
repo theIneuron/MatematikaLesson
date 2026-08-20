@@ -154,7 +154,7 @@ const CONTENT = {
     eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'План решения из трёх шагов', uz: 'Uch qadamli yechim rejasi', en: 'A three step plan' },
     steps: [
-      { ru: 'Что дано: целое или часть?', uz: 'Nima berilgan: butunmi yoki qism?', en: 'What is given: the whole or a part?' },
+      { ru: 'Что дано: целое или часть', uz: 'Nima berilgan: butunmi yoki qism', en: 'What is given: the whole or a part' },
       { ru: 'Выбираем действие: умножить или разделить', uz: "Amalni tanlaymiz: ko'paytirish yoki bo'lish", en: 'Choose the action: multiply or divide' },
       { ru: 'Прикидываем ответ и проверяем', uz: 'Javobni chamalaymiz va tekshiramiz', en: 'Estimate the answer and check' },
     ],

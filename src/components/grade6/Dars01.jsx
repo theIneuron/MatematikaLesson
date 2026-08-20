@@ -781,7 +781,7 @@ const CONTENT = {
       uz: ["Bo'ling", 'Qoldiqqa qarang', "Qoldiq 0 — bo'linadi"],
       en: ['Divide', 'Look at the remainder', 'Remainder 0 means it divides']
     },
-    m1_no: { ru: 'Остаток не 0 — не делится', uz: "Qoldiq 0 emas — bo'linmaydi", en: 'A remainder that is not 0 means it does not' },
+    m1_no: { ru: 'Остаток не 0 — не делится.', uz: "Qoldiq 0 emas — bo'linmaydi.", en: 'A remainder that is not 0 means it does not.' },
     m2_title: { ru: 'Способ 2. Найти все делители', uz: "2-usul. Barcha bo'luvchilarni topish", en: 'Method 2. Find every divisor' },
     m2_steps: {
       ru: [
