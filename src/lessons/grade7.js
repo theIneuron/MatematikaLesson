@@ -167,8 +167,11 @@ export const grade7Nazariy = [
 // jsx-question kontrakti 5-sinf amaliyotidan olindi (5-sinfning O'ZIGA
 // tegilmadi), matematikasi esa 7-sinfning. Ilgari shu darsda boshqa to'plam
 // turgan edi -- metodist uni olib tashlashga qaror qildi.
-// Uch topshiriq (03, 04, 08) harfli ifodalar ustida: bu metodistning
-// topshirigi, garchi rejada harfli ifodalar 2-dars bo'lsa ham.
+// Uch topshiriq (03, 04, 08) harfli ifodalar ustida. Metodist qarori
+// 2026-08-20: qolsin, chunki bu YANGI material emas, TAKRORLASH -- 6-sinfda
+// o'tilgan (shu kursning 31-darsi «Harfli ifodalar», 32-darsi «Qavslarni
+// ochish», 33-darsi o'xshash hadlar). 7-sinf rejasida bu mavzular 2, 5 va
+// 6-darslarda qaytadan, chuqurroq keladi.
 export const grade7Amaliy = [
   {
     slug: 'dars01-amaliyot-sonli-ifodalar',

@@ -3,6 +3,9 @@
 // TUSHUNARSIZ deb topildi va olib tashlandi. O'rniga harfli ifoda: harf
 // o'rniga son qo'yiladi va qiymat hisoblanadi.
 //
+// Harf o'rniga son qo'yish 6-sinfda o'tilgan (shu kursning 31-darsi
+// «Harfli ifodalar»), ya'ni bu yerda takrorlash va tekshiruv.
+//
 // a = 4, b = −3. Qiymati 12 ga teng yozuvlarni belgilash kerak.
 // Hisob (tekshirilgan):
 //   a − b + 5      = 4 + 3 + 5   = 12   HA

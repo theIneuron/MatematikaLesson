@@ -3,6 +3,11 @@
 // o'zgartirildi -- harfli ifodalar so'raldi, 4-si esa «murakkabroq
 // variant» bo'lishi kerak. Ilgari bu yerda amallar navbati edi.
 //
+// NEGA 1-DARSDA QAVS OCHISH BOR. Qoida yangi emas: 6-sinfda o'tilgan (shu
+// kursning 32-darsi «Qavslarni ochish» -- qavs oldidagi plus va minus).
+// Shuning uchun bu yerda u TEKSHIRILADI, o'rgatilmaydi; razbor esa
+// xatoning sababini ko'rsatadi.
+//
 // (7m − 4) − (2m − 9). Ikkinchi qavs oldida MINUS turadi, shuning uchun
 // o'sha qavs ichidagi HAMMA hadning ishorasi o'zgaradi:
 //   7m − 4 − 2m + 9 = 5m + 5

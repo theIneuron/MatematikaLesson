@@ -3,6 +3,10 @@
 // o'zgartirildi -- «harfli ifodalarni qo'shish yoki ayirish» so'raldi.
 // Ilgari bu yerda qavs qo'yish topshirig'i edi.
 //
+// NEGA 1-DARSDA HARF BOR. Bu yangi material emas: o'xshash hadlarni yig'ish
+// 6-sinfda o'tilgan (shu kursning 33-darsi). 1-dars amaliyotida u
+// TAKRORLASH bo'lib turadi -- metodist shunday qaror qildi 2026-08-20.
+//
 // (3a + 5) + (2a − 8). Qavslar ochiladi, o'xshash hadlar yig'iladi:
 //   harfli hadlar: 3a + 2a = 5a   (koeffitsientlar QO'SHILADI)
 //   ozod hadlar:   5 + (−8) = −3  (minus yo'qolmaydi)
