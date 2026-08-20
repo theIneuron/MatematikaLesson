@@ -82,7 +82,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Кувшин и стаканчики', uz: 'Ko\'za va stakanlar', en: 'A jug and small cups' },
     lead: {
       ru: 'На празднике в кувшине 3/4 литра сока. Стаканчик вмещает 1/8 литра.',
@@ -120,7 +119,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Деление — это «сколько раз помещается»', uz: "Bo'lish — bu «necha marta sig'adi»", en: 'Division asks how many times it fits' },
     lines: [
       { ru: '6 : 2 = 3', uz: '6 : 2 = 3', en: '6 ÷ 2 = 3' },
@@ -151,7 +149,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Сколько восьмых в 3/4', uz: "3/4 ichida nechta 1/8 bor", en: 'How many eighths are in 3/4' },
     total: 8,
     filled: 6,
@@ -180,7 +177,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Перевернуть и умножить', uz: "Ag'darib ko'paytirish", en: 'Flip and multiply' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -239,7 +235,6 @@ const CONTENT = {
   },
 
   s_whole: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Когда рядом целое число', uz: 'Butun son qatnashganda', en: 'When a whole number is involved' },
     lines: [
       { ru: '5 : 1/2 = 5 · 2 = 10', uz: '5 : 1/2 = 5 · 2 = 10', en: '5 ÷ 1/2 = 5 · 2 = 10' },
@@ -270,7 +265,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Посчитаем 7/8 : 7/16', uz: "7/8 : 7/16 ni hisoblaymiz", en: 'Let us compute 7/8 ÷ 7/16' },
     lead: { ru: 'Сначала заменяем деление умножением, потом сокращаем.', uz: "Avval bo'lishni ko'paytirish bilan almashtiramiz, keyin qisqartiramiz.", en: 'Replace division with multiplication first, then reduce.' },
     steps: [
@@ -303,7 +297,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Переворачивают только делитель', uz: "Faqat bo'luvchi ag'dariladi", en: 'Only the divisor gets flipped' },
     bad_line: { ru: '4/5 : 2/3 = 5/4 · 3/2', uz: '4/5 : 2/3 = 5/4 · 3/2', en: '4/5 ÷ 2/3 = 5/4 · 3/2' },
     good_line: { ru: '4/5 : 2/3 = 4/5 · 3/2 = 6/5', uz: '4/5 : 2/3 = 4/5 · 3/2 = 6/5', en: '4/5 ÷ 2/3 = 4/5 · 3/2 = 6/5' },
@@ -333,7 +326,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Как делить дроби', uz: "Kasrlar qanday bo'linadi", en: 'How to divide fractions' },
     rule_1: {
       ru: 'Чтобы разделить на дробь, надо умножить на перевёрнутую дробь. Первую дробь не меняем, делитель переворачиваем. Делитель не может быть нулём.',
@@ -353,7 +345,6 @@ const CONTENT = {
   },
 
   s_div: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Деление дробей', uz: "Kasrlarni bo'lish", en: 'Dividing fractions' },
     lead: { ru: 'Переверни делитель и умножай.', uz: "Bo'luvchini ag'daring va ko'paytiring.", en: 'Flip the divisor and multiply.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -402,7 +393,6 @@ const CONTENT = {
   },
 
   s_fit: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Сколько раз поместится', uz: "Necha marta sig'adi", en: 'How many times it fits' },
     lead: { ru: 'Это тот же вопрос, что и деление.', uz: "Bu bo'lishning o'sha savoli.", en: 'This is the same question as division.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -462,7 +452,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Больше или меньше делимого', uz: "Bo'linuvchidan katta yoki kichik", en: 'Larger or smaller than the dividend' },
     lead: { ru: 'Смотри на делитель: меньше 1 — результат растёт.', uz: "Bo'luvchiga qarang: 1 dan kichik bo'lsa, natija o'sadi.", en: 'Look at the divisor: less than 1 means the result grows.' },
     bin_a: { ru: 'Результат больше', uz: 'Natija kattaroq', en: 'Result is larger' },
@@ -497,7 +486,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -543,7 +531,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Разливаем сок', uz: 'Sharbat quyamiz', en: 'Pouring the juice' },
     lead: { ru: 'В кувшине 3/4 литра сока, стаканчик вмещает 1/8 литра.', uz: "Ko'zada 3/4 litr sharbat bor, stakanga 1/8 litr sig'adi.", en: 'The jug holds 3/4 of a litre and a cup holds 1/8.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -585,7 +572,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -671,7 +657,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Дроби', uz: 'Matematika · Kasrlar', en: 'Mathematics · Fractions' },
     heading: { ru: 'Деление дробей', uz: "Kasrlarni bo'lish", en: 'Dividing fractions' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1003,7 +988,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d12-banner fade-up delay-1' + (phase === 'play' ? ' d12-banner-play' : '')}>

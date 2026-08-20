@@ -82,7 +82,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Пол-оборота карусели', uz: 'Karuselning yarim aylanishi', en: 'Half a turn of the roundabout' },
     lead: {
       ru: 'На карусели четырёхугольник и домик. Её повернули на пол-оборота.',
@@ -120,7 +119,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Зеркало прошлого урока', uz: "O'tgan darsdagi ko'zgu", en: 'Last lesson’s mirror' },
     done: {
       ru: 'При отражении фигуру переворачивают через линию. Сегодня фигуру не переворачивают, а поворачивают вокруг точки.',
@@ -147,7 +145,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Поворот на пол-оборота', uz: 'Yarim aylanish', en: 'A half turn' },
     lines: [
       { ru: 'ставим булавку в точку O и поворачиваем', uz: "O nuqtaga to'g'nog'ich sanchib buramiz", en: 'pin the shape at O and turn it' },
@@ -179,7 +176,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Строим пару через центр', uz: 'Markaz orqali juftini quramiz', en: 'Building the pair through the centre' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -242,7 +238,6 @@ const CONTENT = {
   },
 
   s_which: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Ось и центр — разные свойства', uz: "O'q va markaz — boshqa xossalar", en: 'Axis and centre are different things' },
     lines: [
       { ru: 'у прямоугольника есть и оси, и центр', uz: "to'g'ri to'rtburchakda o'qlar ham, markaz ham bor", en: 'a rectangle has axes and a centre' },
@@ -274,7 +269,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Через начало координат', uz: 'Koordinata boshi orqali', en: 'Through the origin' },
     lead: { ru: 'Точка A (4; 3). Центр симметрии — начало координат.', uz: "A (4; 3) nuqtasi. Simmetriya markazi — koordinata boshi.", en: 'Point A (4; 3). The centre is the origin.' },
     steps: [
@@ -307,7 +301,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Меняются оба знака', uz: "Ikkala ishora o'zgaradi", en: 'Both signs change' },
     bad_line: { ru: 'ошибка: (4; 3) через центр даёт (−4; 3)', uz: 'xato: (4; 3) markaz orqali (−4; 3) beradi', en: 'mistake: (4; 3) through the centre gives (−4; 3)' },
     good_line: { ru: 'верно: (−4; −3), знаки меняют оба числа', uz: "to'g'ri: (−4; −3), ikkala son ishorasini o'zgartiradi", en: 'right: (−4; −3), both numbers flip' },
@@ -337,7 +330,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Центр симметрии', uz: 'Simmetriya markazi', en: 'The centre of symmetry' },
     rule_1: {
       ru: 'Центр симметрии — точка, вокруг которой фигуру можно повернуть на пол-оборота так, что она совпадёт сама с собой. Точка и её пара лежат на одной прямой с центром, и центр делит отрезок между ними пополам.',
@@ -357,7 +349,6 @@ const CONTENT = {
   },
 
   s_has: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Есть ли центр?', uz: 'Markaz bormi?', en: 'Does it have a centre?' },
     lead: { ru: 'Мысленно поверни фигуру на пол-оборота.', uz: 'Shaklni xayolan yarim aylantiring.', en: 'Turn the shape half a turn in your head.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -418,7 +409,6 @@ const CONTENT = {
   },
 
   s_coord: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Пара через начало координат', uz: 'Koordinata boshi orqali juft', en: 'The pair through the origin' },
     lead: { ru: 'Меняются знаки у обоих чисел.', uz: "Ikkala sonning ishorasi o'zgaradi.", en: 'Both numbers change sign.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -486,7 +476,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Есть ли центр симметрии?', uz: 'Simmetriya markazi bormi?', en: 'Does it have a centre?' },
     lead: { ru: 'Проверяй поворотом на пол-оборота.', uz: 'Yarim aylantirib tekshiring.', en: 'Test with a half turn.' },
     bin_a: { ru: 'Центр есть', uz: 'Markaz bor', en: 'Has a centre' },
@@ -521,7 +510,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -567,7 +555,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Карусель повернулась', uz: 'Karusel burildi', en: 'The roundabout turned' },
     lead: { ru: 'Центр карусели — точка O. Азиз сидит в 2 м от центра.', uz: "Karusel markazi — O nuqta. Aziz markazdan 2 m da o'tirgan.", en: 'The centre is O. Aziz sits 2 m from it.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -613,7 +600,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -709,7 +695,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Геометрия', uz: 'Matematika · Geometriya', en: 'Mathematics · Geometry' },
     heading: { ru: 'Центральная симметрия', uz: 'Markaziy simmetriya', en: 'Point symmetry' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1073,7 +1058,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d41-banner fade-up delay-1' + (phase === 'play' ? ' d41-banner-play' : '')}>

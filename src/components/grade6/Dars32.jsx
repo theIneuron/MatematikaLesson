@@ -81,7 +81,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Наборы к школе', uz: "Maktabga to'plamlar", en: 'Back to school sets' },
     lead: {
       ru: 'В наборе тетрадь за 3000 и ручка за 2000. Класс берёт 4 набора.',
@@ -119,7 +118,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Буква вместо цены', uz: "Narx o'rniga harf", en: 'A letter instead of a price' },
     done: {
       ru: 'Цена набора это a + b. Четыре набора записывают как 4(a + b): скобка показывает, что умножается вся сумма.',
@@ -146,7 +144,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Два честных способа', uz: "Ikkita halol yo'l", en: 'Two honest ways' },
     lines: [
       { ru: 'по наборам: 4 · (3000 + 2000) = 4 · 5000 = 20 000', uz: "to'plamlar bo'yicha: 4 · (3000 + 2000) = 4 · 5000 = 20 000", en: 'by sets: 4 · (3000 + 2000) = 4 · 5000 = 20 000' },
@@ -178,7 +175,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Множитель идёт к каждому', uz: "Ko'paytuvchi har biriga boradi", en: 'The factor reaches every term' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -237,7 +233,6 @@ const CONTENT = {
   },
 
   s_minus: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Минус перед скобкой', uz: 'Qavs oldidagi minus', en: 'A minus before the bracket' },
     lines: [
       { ru: '−(a − 5) — это −1 · (a − 5)', uz: '−(a − 5) — bu −1 · (a − 5)', en: '−(a − 5) means −1 · (a − 5)' },
@@ -269,7 +264,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Отрицательный множитель', uz: "Manfiy ko'paytuvchi", en: 'A negative factor' },
     lead: { ru: 'Раскроем скобки: −3(2y − 5).', uz: "Qavslarni ochamiz: −3(2y − 5).", en: 'Open the brackets: −3(2y − 5).' },
     steps: [
@@ -302,7 +296,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Никого не пропускаем', uz: 'Hech kimni tashlab ketmaymiz', en: 'Nobody gets skipped' },
     bad_line: { ru: 'ошибка: −(a − 5) = −a − 5', uz: 'xato: −(a − 5) = −a − 5', en: 'mistake: −(a − 5) = −a − 5' },
     good_line: { ru: 'верно: −(a − 5) = −a + 5', uz: "to'g'ri: −(a − 5) = −a + 5", en: 'right: −(a − 5) = −a + 5' },
@@ -332,7 +325,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Как раскрывают скобки', uz: 'Qavslar qanday ochiladi', en: 'How brackets are opened' },
     rule_1: {
       ru: 'Множитель перед скобкой умножается на каждое слагаемое: k(a + b) = ka + kb. Знак каждого произведения находят по правилу знаков.',
@@ -352,7 +344,6 @@ const CONTENT = {
   },
 
   s_plus: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Скобки с плюсом', uz: 'Plyusli qavslar', en: 'Brackets with a plus' },
     lead: { ru: 'Умножай на каждое слагаемое.', uz: "Har bir qo'shiluvchiga ko'paytiring.", en: 'Multiply every term.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -401,7 +392,6 @@ const CONTENT = {
   },
 
   s_neg: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Минус перед скобкой', uz: 'Qavs oldidagi minus', en: 'A minus before the bracket' },
     lead: { ru: 'Помни: минус — это множитель −1.', uz: "Yodda tuting: minus bu −1 ko'paytuvchi.", en: 'Remember: a minus is the factor −1.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -465,7 +455,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Поменяются ли знаки?', uz: "Ishoralar o'zgaradimi?", en: 'Will the signs flip?' },
     lead: { ru: 'Смотри только на множитель перед скобкой.', uz: "Faqat qavs oldidagi ko'paytuvchiga qarang.", en: 'Look only at the factor before the bracket.' },
     bin_a: { ru: 'Знаки меняются', uz: "Ishoralar o'zgaradi", en: 'The signs flip' },
@@ -500,7 +489,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -546,7 +534,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Наборы для класса', uz: "Sinf uchun to'plamlar", en: 'Sets for the class' },
     lead: { ru: 'Тетрадь 3000, ручка 2000, набор из одной тетради и одной ручки.', uz: "Daftar 3000, ruchka 2000, to'plamda bittadan daftar va ruchka.", en: 'Notebook 3000, pen 2000, a set holds one of each.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -592,7 +579,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -678,7 +664,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Выражения', uz: 'Matematika · Ifodalar', en: 'Mathematics · Expressions' },
     heading: { ru: 'Раскрытие скобок', uz: 'Qavslarni ochish', en: 'Opening brackets' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1044,7 +1029,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d32-banner fade-up delay-1' + (phase === 'play' ? ' d32-banner-play' : '')}>

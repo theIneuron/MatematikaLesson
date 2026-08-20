@@ -82,7 +82,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Компот на три кувшина', uz: 'Uch ko\'zaga kompot', en: 'Compote for three jugs' },
     lead: {
       ru: 'В столовой сварили 10 литров компота и разливают поровну в 3 кувшина.',
@@ -120,7 +119,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Дробь можно записать десятичной', uz: "Kasrni o'nli ko'rinishda yozish", en: 'A fraction can become a decimal' },
     rows: [
       { n: 1, d: 2, dec: '0,5' },
@@ -152,7 +150,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Остаток повторяется', uz: 'Qoldiq takrorlanadi', en: 'The remainder repeats' },
     steps: [
       { ru: '10 : 3 = 3, остаток 1', uz: "10 : 3 = 3, qoldiq 1", en: '10 ÷ 3 = 3, remainder 1' },
@@ -184,7 +181,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Узнаём по знаменателю', uz: 'Maxrajga qarab tanish', en: 'Tell by the denominator' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -247,7 +243,6 @@ const CONTENT = {
   },
 
   s_round: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Округление: смотрим на следующую цифру', uz: 'Yaxlitlash: keyingi raqamga qaraymiz', en: 'Rounding: look at the next digit' },
     lines: [
       { ru: '3,333… → до десятых: следующая цифра 3, меньше 5 → 3,3', uz: "3,333… → o'ndanlargacha: keyingi raqam 3, 5 dan kichik → 3,3", en: '3.333… → to tenths: the next digit is 3, less than 5 → 3.3' },
@@ -279,7 +274,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Запишем 5/11 десятичной', uz: "5/11 ni o'nli ko'rinishda yozamiz", en: 'Write 5/11 as a decimal' },
     lead: { ru: '11 не раскладывается на двойки и пятёрки — ждём период.', uz: "11 ikki va beshga yoyilmaydi — davrni kutamiz.", en: '11 has no twos or fives, so expect a repeat.' },
     steps: [
@@ -312,7 +306,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Округляем один раз', uz: 'Bir marta yaxlitlaymiz', en: 'Round only once' },
     bad_line: { ru: '2,449 → 2,45 → 2,5', uz: '2,449 → 2,45 → 2,5', en: '2.449 → 2.45 → 2.5' },
     good_line: { ru: '2,449 → до десятых сразу: 2,4', uz: "2,449 → o'ndanlargacha darrov: 2,4", en: '2.449 → straight to tenths: 2.4' },
@@ -342,7 +335,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Период и округление', uz: 'Davr va yaxlitlash', en: 'Periods and rounding' },
     rule_1: {
       ru: 'Если у несократимой дроби в знаменателе только 2 и 5, десятичная запись конечная. Иначе она периодическая, и повторяющуюся часть пишут в скобках.',
@@ -362,7 +354,6 @@ const CONTENT = {
   },
 
   s_kind: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Конечная или периодическая', uz: 'Chekli yoki davriy', en: 'Finite or repeating' },
     lead: { ru: 'Сократи дробь и разложи знаменатель.', uz: 'Kasrni qisqartiring va maxrajni yoying.', en: 'Reduce the fraction and factor the denominator.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -423,7 +414,6 @@ const CONTENT = {
   },
 
   s_rnd: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Округление', uz: 'Yaxlitlash', en: 'Rounding' },
     lead: { ru: 'Смотри только на одну цифру после нужного разряда.', uz: 'Kerakli xonadan keyingi bitta raqamga qarang.', en: 'Look at just one digit after the place you need.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -483,7 +473,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Разложи по знаменателю', uz: 'Maxrajga qarab ajrating', en: 'Sort by the denominator' },
     lead: { ru: 'Только 2 и 5 в знаменателе — запись конечная.', uz: "Maxrajda faqat 2 va 5 bo'lsa — yozuv chekli.", en: 'Only 2 and 5 in the denominator means a finite decimal.' },
     bin_a: { ru: 'Конечная', uz: 'Chekli', en: 'Finite' },
@@ -518,7 +507,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -564,7 +552,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Компот по кувшинам', uz: "Ko'zalarga kompot", en: 'Compote into jugs' },
     lead: { ru: '10 литров компота разливают в 3 кувшина поровну.', uz: "10 litr kompot 3 ta ko'zaga teng quyiladi.", en: '10 litres of compote are poured equally into 3 jugs.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -606,7 +593,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -692,7 +678,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Десятичные дроби', uz: "Matematika · O'nli kasrlar", en: 'Mathematics · Decimals' },
     heading: { ru: 'Период и округление', uz: 'Davr va yaxlitlash', en: 'Periods and rounding' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1017,7 +1002,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d15-banner fade-up delay-1' + (phase === 'play' ? ' d15-banner-play' : '')}>

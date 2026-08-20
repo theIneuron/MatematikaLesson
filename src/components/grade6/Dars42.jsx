@@ -82,7 +82,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Три палочки', uz: 'Uchta tayoqcha', en: 'Three sticks' },
     lead: {
       ru: 'На столе палочки 3 см, 4 см и 10 см. Из них хотят собрать треугольник.',
@@ -120,7 +119,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Периметр и углы', uz: 'Perimetr va burchaklar', en: 'Perimeter and angles' },
     done: {
       ru: 'Периметр — сумма всех сторон. Углы измеряют в градусах, а развёрнутый угол, то есть прямая линия, равен 180 градусам.',
@@ -147,7 +145,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Три угла складываются в прямую', uz: "Uch burchak to'g'ri chiziqqa yig'iladi", en: 'Three angles make a straight line' },
     lines: [
       { ru: 'у треугольника 3 вершины, 3 стороны, 3 угла', uz: 'uchburchakda 3 uch, 3 tomon, 3 burchak', en: 'a triangle has 3 vertices, 3 sides, 3 angles' },
@@ -179,7 +176,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Третий угол', uz: 'Uchinchi burchak', en: 'The third angle' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -238,7 +234,6 @@ const CONTENT = {
   },
 
   s_kinds: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Виды треугольников', uz: 'Uchburchak turlari', en: 'Kinds of triangles' },
     lines: [
       { ru: 'по сторонам: все равны, две равны, все разные', uz: "tomonlar bo'yicha: barchasi teng, ikkitasi teng, barchasi har xil", en: 'by sides: all equal, two equal, all different' },
@@ -270,7 +265,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Соберётся или нет', uz: "Yasaladimi yoki yo'q", en: 'Will it close or not' },
     lead: { ru: 'Палочки 3, 4 и 10. Проверим, сомкнутся ли они.', uz: 'Tayoqchalar 3, 4 va 10. Ular tutashadimi, tekshiramiz.', en: 'Sticks 3, 4 and 10. Check whether they meet.' },
     steps: [
@@ -303,7 +297,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Не любые три числа', uz: 'Har qanday uch son emas', en: 'Not any three numbers' },
     bad_line: { ru: 'ошибка: палочек три, значит треугольник будет', uz: "xato: tayoqcha uchta, demak uchburchak bo'ladi", en: 'mistake: three sticks means a triangle' },
     good_line: { ru: 'верно: 3 + 4 = 7 меньше 10, не замкнётся', uz: "to'g'ri: 3 + 4 = 7 dan 10 katta, tutashmaydi", en: 'right: 3 + 4 = 7 is less than 10, no closing' },
@@ -333,7 +326,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Что известно о треугольнике', uz: "Uchburchak haqida nima ma'lum", en: 'What we know about triangles' },
     rule_1: {
       ru: 'У треугольника три вершины, три стороны и три угла, а сумма углов равна 180°. Периметр — сумма всех сторон. Виды считают по сторонам и по углам отдельно.',
@@ -353,7 +345,6 @@ const CONTENT = {
   },
 
   s_ang: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Находим угол', uz: 'Burchakni topamiz', en: 'Finding the angle' },
     lead: { ru: 'Все три угла вместе дают 180°.', uz: "Uchala burchak birga 180° beradi.", en: 'All three angles make 180°.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -402,7 +393,6 @@ const CONTENT = {
   },
 
   s_kind: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Виды и периметр', uz: 'Turlar va perimetr', en: 'Kinds and perimeter' },
     lead: { ru: 'Смотри отдельно на стороны и отдельно на углы.', uz: 'Tomonlarga va burchaklarga alohida qarang.', en: 'Look at the sides and the angles separately.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -478,7 +468,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Соберётся ли треугольник?', uz: 'Uchburchak yasaladimi?', en: 'Will a triangle close?' },
     lead: { ru: 'Сравни самую длинную сторону с суммой двух других.', uz: "Eng uzun tomonni boshqa ikkitasining yig'indisi bilan solishtiring.", en: 'Compare the longest side with the sum of the other two.' },
     bin_a: { ru: 'Соберётся', uz: 'Yasaladi', en: 'It closes' },
@@ -513,7 +502,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -559,7 +547,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Каркас из палочек', uz: 'Tayoqchalardan karkas', en: 'A frame of sticks' },
     lead: { ru: 'В наборе палочки 5, 6, 9 и 12 см.', uz: "To'plamda 5, 6, 9 va 12 sm tayoqchalar bor.", en: 'The set has sticks of 5, 6, 9 and 12 cm.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -605,7 +592,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -706,7 +692,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Геометрия', uz: 'Matematika · Geometriya', en: 'Mathematics · Geometry' },
     heading: { ru: 'Треугольник', uz: 'Uchburchak', en: 'The triangle' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1109,7 +1094,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d42-banner fade-up delay-1' + (phase === 'play' ? ' d42-banner-play' : '')}>

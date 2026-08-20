@@ -82,7 +82,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Опрос в школе', uz: "Maktabdagi so'rovnoma", en: 'The school survey' },
     lead: {
       ru: 'В опросе участвовали 200 учеников. Математику выбрали 25 процентов из них.',
@@ -120,7 +119,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Дробь и десятичная запись', uz: "Kasr va o'nli yozuv", en: 'Fraction and decimal' },
     rows: [
       { frac: [1, 4], dec: '0,25' },
@@ -152,7 +150,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Процент — сотая доля', uz: 'Foiz — yuzdan bir ulush', en: 'A percent is a hundredth' },
     lines: [
       { ru: '1 процент — это 1 клетка из 100', uz: '1 foiz — bu 100 dan 1 katak', en: '1 percent is 1 cell out of 100' },
@@ -184,7 +181,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Процент от числа', uz: 'Sonning foizi', en: 'A percent of a number' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -243,7 +239,6 @@ const CONTENT = {
   },
 
   s_how: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Сколько это процентов', uz: 'Bu necha foiz', en: 'What percent is it' },
     lines: [
       { ru: '30 из 120 — какая это часть?', uz: '120 dan 30 — bu qanday qism?', en: '30 out of 120: what share is it?' },
@@ -275,7 +270,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: '18 человек из 24', uz: '24 dan 18 kishi', en: '18 people out of 24' },
     lead: { ru: 'Какую часть класса это составляет в процентах?', uz: 'Bu sinfning necha foizini tashkil qiladi?', en: 'What percent of the class is that?' },
     steps: [
@@ -308,7 +302,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Процент всегда от какого-то целого', uz: 'Foiz doim qaysidir butundan', en: 'A percent always belongs to a whole' },
     bad_line: { ru: 'ошибка: 25% от 200 = 25 человек', uz: "xato: 200 ning 25% i = 25 kishi", en: 'mistake: 25% of 200 = 25 people' },
     good_line: { ru: 'верно: 200 · 0,25 = 50 человек', uz: "to'g'ri: 200 · 0,25 = 50 kishi", en: 'right: 200 · 0.25 = 50 people' },
@@ -338,7 +331,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Что такое процент', uz: 'Foiz nima', en: 'What a percent is' },
     rule_1: {
       ru: 'Процент — это сотая доля числа. Чтобы найти процент от числа, переводим процент в десятичную дробь и умножаем.',
@@ -358,7 +350,6 @@ const CONTENT = {
   },
 
   s_part: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Процент от числа', uz: 'Sonning foizi', en: 'A percent of a number' },
     lead: { ru: 'Удобно сначала найти 1% или 10%.', uz: "Avval 1% yoki 10% ni topish qulay.", en: 'It helps to find 1% or 10% first.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -407,7 +398,6 @@ const CONTENT = {
   },
 
   s_ratio: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Сколько это процентов', uz: 'Bu necha foiz', en: 'What percent is it' },
     lead: { ru: 'Часть делим на целое и умножаем на 100.', uz: "Qismni butunga bo'lib 100 ga ko'paytiramiz.", en: 'Divide the part by the whole and multiply by 100.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -471,7 +461,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Больше или меньше половины', uz: 'Yarimdan katta yoki kichik', en: 'More or less than half' },
     lead: { ru: 'Половина — это 50 процентов.', uz: 'Yarim — bu 50 foiz.', en: 'A half is 50 percent.' },
     bin_a: { ru: 'Больше половины', uz: "Yarimdan ko'p", en: 'More than half' },
@@ -506,7 +495,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -552,7 +540,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Итоги опроса', uz: "So'rovnoma natijalari", en: 'Survey results' },
     lead: { ru: 'В опросе 200 учеников. Математику выбрали 25%, спорт 40%.', uz: "So'rovnomada 200 o'quvchi. Matematikani 25%, sportni 40% tanladi.", en: 'Two hundred students took part: 25% chose maths and 40% sport.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -590,7 +577,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -681,7 +667,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Проценты', uz: 'Matematika · Foizlar', en: 'Mathematics · Percentages' },
     heading: { ru: 'Проценты', uz: 'Foizlar', en: 'Percentages' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1003,7 +988,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d21-banner fade-up delay-1' + (phase === 'play' ? ' d21-banner-play' : '')}>

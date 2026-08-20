@@ -82,7 +82,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Сколько книг за месяц', uz: 'Bir oyda nechta kitob', en: 'Books in a month' },
     lead: {
       ru: 'Пятеро ребят прочитали 2, 3, 3, 4 и 28 книг.',
@@ -120,7 +119,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Таблица и диаграмма', uz: 'Jadval va diagramma', en: 'Table and chart' },
     done: {
       ru: 'Таблица даёт точные числа, диаграмма — картину целиком. Одна строка данных, два способа показать.',
@@ -147,7 +145,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Три вопроса к набору', uz: "To'plamga uch savol", en: 'Three questions for a set' },
     lines: [
       { ru: 'что встречается чаще всего — мода', uz: "eng ko'p uchraydigani — moda", en: 'what appears most often: the mode' },
@@ -179,7 +176,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Сначала по порядку', uz: 'Avval tartib bilan', en: 'Order first' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -238,7 +234,6 @@ const CONTENT = {
   },
 
   s_out: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Одно большое число', uz: 'Bitta katta son', en: 'One big number' },
     lines: [
       { ru: 'размах: наибольшее минус наименьшее', uz: 'kenglik: eng kattadan eng kichigi ayiriladi', en: 'range: largest minus smallest' },
@@ -270,7 +265,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Разбираем таблицу', uz: 'Jadvalni tahlil qilamiz', en: 'Reading the table' },
     lead: { ru: 'Данные: 2, 3, 3, 4, 28.', uz: "Ma'lumotlar: 2, 3, 3, 4, 28.", en: 'Data: 2, 3, 3, 4, 28.' },
     steps: [
@@ -303,7 +297,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Медиана требует порядка', uz: 'Mediana tartib talab qiladi', en: 'The median needs order' },
     bad_line: { ru: 'ошибка: в ряду 3, 9, 5 медиана 9', uz: 'xato: 3, 9, 5 qatorida mediana 9', en: 'mistake: in 3, 9, 5 the median is 9' },
     good_line: { ru: 'верно: 3, 5, 9 — медиана 5', uz: "to'g'ri: 3, 5, 9 — mediana 5", en: 'right: 3, 5, 9 gives median 5' },
@@ -333,7 +326,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Четыре числа о наборе', uz: "To'plam haqida to'rt son", en: 'Four numbers about a set' },
     rule_1: {
       ru: 'Мода — значение, которое встречается чаще всего. Медиана — середина упорядоченного ряда. Среднее арифметическое — сумма, делённая на количество. Размах — наибольшее минус наименьшее.',
@@ -353,7 +345,6 @@ const CONTENT = {
   },
 
   s_three: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Мода, медиана, среднее', uz: "Moda, mediana, o'rtacha", en: 'Mode, median, mean' },
     lead: { ru: 'Ряд: 2, 4, 4, 6, 9.', uz: 'Qator: 2, 4, 4, 6, 9.', en: 'The row: 2, 4, 4, 6, 9.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -402,7 +393,6 @@ const CONTENT = {
   },
 
   s_read: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Размах и выводы', uz: 'Kenglik va xulosalar', en: 'Range and conclusions' },
     lead: { ru: 'Смотри не только на числа, но и на разброс.', uz: 'Faqat sonlarga emas, tarqalishga ham qarang.', en: 'Look at the spread, not only the numbers.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -470,7 +460,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Мода или медиана', uz: 'Moda yoki mediana', en: 'Mode or median' },
     lead: { ru: 'Смотри, о чём именно говорит описание.', uz: "Ta'rif aynan nima haqida ekaniga qarang.", en: 'See what each description is about.' },
     bin_a: { ru: 'Это мода', uz: 'Bu moda', en: 'The mode' },
@@ -505,7 +494,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -551,7 +539,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Читательский дневник', uz: 'Mutolaa daftari', en: 'The reading log' },
     lead: { ru: 'Данные группы: 2, 3, 3, 4, 28 книг.', uz: "Guruh ma'lumotlari: 2, 3, 3, 4, 28 kitob.", en: 'The group data: 2, 3, 3, 4, 28 books.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -589,7 +576,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -680,7 +666,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Данные', uz: "Matematika · Ma'lumotlar", en: 'Mathematics · Data' },
     heading: { ru: 'Работа с данными', uz: "Ma'lumotlar bilan ishlash", en: 'Working with data' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1042,7 +1027,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d45-banner fade-up delay-1' + (phase === 'play' ? ' d45-banner-play' : '')}>

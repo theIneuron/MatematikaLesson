@@ -85,7 +85,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 // ============================================================
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: '', uz: '', en: '' },
     lead: { ru: '', uz: '', en: '' },
     voice_a: { ru: '', uz: '', en: '' },   // реплика первого героя
@@ -108,7 +107,6 @@ const CONTENT = {
   // s_recall, s1, s_tool … — по одному узлу на экран, имена совпадают с SCREEN_META.
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Тема', uz: 'Matematika · Mavzu', en: 'Mathematics · Topic' },
     heading: { ru: '', uz: '', en: '' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -159,7 +157,7 @@ const Zaglushka = ({ screen, onNext, onPrev }) => {
   const t = useT();
   const audio = useAudio([]);
   return (
-    <Stage eyebrow={CONTENT.s14.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} audioState={audio}
+    <Stage screen={screen} totalScreens={TOTAL_SCREENS} audioState={audio}
       navContent={<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={navLocked(false)} label={<NextLabel/>} onClick={onNext}/></>}>
       <p className="body">{t(CONTENT.s14.heading)}</p>
     </Stage>

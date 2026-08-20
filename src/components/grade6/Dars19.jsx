@@ -82,7 +82,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Забор на субботнике', uz: 'Hashardagi devor', en: 'The fence on clean up day' },
     lead: {
       ru: 'Два маляра красят забор за 6 часов. К ним пришли ещё двое, теперь их четверо.',
@@ -120,7 +119,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Пропорция из прошлого урока', uz: "O'tgan darsdagi proporsiya", en: 'The proportion from last lesson' },
     rows: [
       { a: 2, b: 30 },
@@ -151,7 +149,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Две таблицы рядом', uz: 'Ikki jadval yonma-yon', en: 'Two tables side by side' },
     direct: { title: { ru: 'банки и площадь', uz: 'banka va yuza', en: 'tins and area' }, rows: [[2, 30], [4, 60]] },
     inverse: { title: { ru: 'маляры и время', uz: "bo'yoqchi va vaqt", en: 'painters and time' }, rows: [[2, 6], [4, 3]] },
@@ -184,7 +181,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Прямая связь: считаем пропорцией', uz: "To'g'ri bog'lanish: proporsiya bilan", en: 'Direct link: use a proportion' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -243,7 +239,6 @@ const CONTENT = {
   },
 
   s_inv: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Обратная связь: постоянное произведение', uz: "Teskari bog'lanish: doimiy ko'paytma", en: 'Inverse link: a constant product' },
     lines: [
       { ru: '2 маляра · 6 часов = 12', uz: "2 bo'yoqchi · 6 soat = 12", en: '2 painters · 6 hours = 12' },
@@ -275,7 +270,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: '5 рабочих кладут плитку за 12 дней', uz: "5 ishchi 12 kunda plitka teradi", en: '5 workers tile a floor in 12 days' },
     lead: { ru: 'Сколько дней уйдёт у шестерых?', uz: 'Olti kishiga necha kun ketadi?', en: 'How long will six workers need?' },
     steps: [
@@ -308,7 +302,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Сначала тип связи, потом счёт', uz: "Avval bog'lanish turi, keyin hisob", en: 'The kind of link first, the arithmetic second' },
     bad_line: { ru: 'ошибка: 2 : 6 = 4 : x при обратной связи', uz: "xato: teskari bog'lanishda 2 : 6 = 4 : x", en: 'mistake: 2 : 6 = 4 : x for an inverse link' },
     good_line: { ru: 'верно: 2 · 6 = 4 · x', uz: "to'g'ri: 2 · 6 = 4 · x", en: 'right: 2 · 6 = 4 · x' },
@@ -338,7 +331,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Два вида пропорциональности', uz: 'Ikki xil proporsionallik', en: 'Two kinds of proportion' },
     rule_1: {
       ru: 'Прямая пропорциональность: во сколько раз растёт одна величина, во столько же растёт другая, а их отношение постоянно.',
@@ -358,7 +350,6 @@ const CONTENT = {
   },
 
   s_dir: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Прямая связь', uz: "To'g'ri bog'lanish", en: 'Direct link' },
     lead: { ru: 'Растёт одно — растёт другое. Работает пропорция.', uz: "Biri o'ssa, ikkinchisi ham o'sadi. Proporsiya ishlaydi.", en: 'One grows, the other grows. A proportion works.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -415,7 +406,6 @@ const CONTENT = {
   },
 
   s_ind: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Обратная связь', uz: "Teskari bog'lanish", en: 'Inverse link' },
     lead: { ru: 'Растёт одно — уменьшается другое. Считай произведение.', uz: "Biri o'ssa, ikkinchisi kamayadi. Ko'paytmani hisoblang.", en: 'One grows, the other shrinks. Use the product.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -491,7 +481,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Прямая или обратная', uz: "To'g'ri yoki teskari", en: 'Direct or inverse' },
     lead: { ru: 'Смотри, растут числа вместе или расходятся.', uz: "Sonlar birga o'sadimi yoki qarama-qarshi ketadimi, qarang.", en: 'See whether the numbers grow together or move apart.' },
     bin_a: { ru: 'Прямая', uz: "To'g'ri", en: 'Direct' },
@@ -526,7 +515,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -572,7 +560,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Забор и краска', uz: "Devor va bo'yoq", en: 'The fence and the paint' },
     lead: { ru: 'Забор красят 4 маляра. Двое красят его за 6 часов, а на весь забор уходит 5 банок краски.', uz: "Devorni 4 bo'yoqchi bo'yaydi. Ikki kishi uni 6 soatda bo'yaydi, butun devorga 5 banka bo'yoq ketadi.", en: 'Four painters work on the fence. Two of them need 6 hours, and the whole fence takes 5 tins.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -614,7 +601,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -710,7 +696,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Пропорциональность', uz: 'Matematika · Proporsionallik', en: 'Mathematics · Proportionality' },
     heading: { ru: 'Прямая и обратная', uz: "To'g'ri va teskari", en: 'Direct and inverse' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1036,7 +1021,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d19-banner fade-up delay-1' + (phase === 'play' ? ' d19-banner-play' : '')}>

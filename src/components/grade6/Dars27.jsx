@@ -82,7 +82,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Очки и штрафы', uz: 'Ochkolar va jarimalar', en: 'Points and penalties' },
     lead: {
       ru: 'На викторине команда набрала 5 очков, а потом получила штраф в 8 очков.',
@@ -120,7 +119,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Шаги по прямой', uz: "Chiziq bo'ylab qadamlar", en: 'Steps along the line' },
     done: {
       ru: 'Вправо — увеличиваем, влево — уменьшаем. Сегодня каждое слагаемое станет таким шагом.',
@@ -147,7 +145,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Сложение — это два шага', uz: "Qo'shish — ikki qadam", en: 'Addition is two steps' },
     lines: [
       { ru: 'от нуля идём вправо на 5: это очки', uz: "noldan o'ngga 5 qadam: bu ochkolar", en: 'from zero five steps right: the points' },
@@ -179,7 +176,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Одинаковые знаки', uz: 'Bir xil ishoralar', en: 'Same signs' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -238,7 +234,6 @@ const CONTENT = {
   },
 
   s_diff: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Разные знаки', uz: 'Har xil ishoralar', en: 'Different signs' },
     lines: [
       { ru: '−9 + 4: шаги в разные стороны', uz: '−9 + 4: qadamlar har xil tomonga', en: '−9 + 4: the steps go opposite ways' },
@@ -270,7 +265,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Цепочка из трёх слагаемых', uz: "Uch qo'shiluvchidan iborat zanjir", en: 'A chain of three addends' },
     lead: { ru: 'Считаем −7 + 10 + (−5) по шагам.', uz: '−7 + 10 + (−5) ni qadamlab hisoblaymiz.', en: 'Compute −7 + 10 + (−5) step by step.' },
     steps: [
@@ -303,7 +297,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Знак второго слагаемого', uz: "Ikkinchi qo'shiluvchining ishorasi", en: 'The sign of the second addend' },
     zero_line: { ru: '7 + (−7) = 0: противоположные гасят друг друга', uz: "7 + (−7) = 0: qarama-qarshilar bir-birini so'ndiradi", en: '7 + (−7) = 0: opposites cancel out' },
     bad_line: { ru: 'ошибка: 5 + (−8) = 3, знак потерян', uz: "xato: 5 + (−8) = 3, ishora yo'qolgan", en: 'mistake: 5 + (−8) = 3 with the sign lost' },
@@ -333,7 +326,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Как складывать', uz: "Qanday qo'shiladi", en: 'How to add' },
     rule_1: {
       ru: 'Если знаки одинаковые, складываем модули и оставляем общий знак. Если знаки разные, из большего модуля вычитаем меньший и берём знак числа с большим модулем.',
@@ -353,7 +345,6 @@ const CONTENT = {
   },
 
   s_same: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Одинаковые знаки', uz: 'Bir xil ishoralar', en: 'Same signs' },
     lead: { ru: 'Складываем модули, знак оставляем общий.', uz: "Modullarni qo'shamiz, ishorani umumiy qoldiramiz.", en: 'Add the absolute values and keep the common sign.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -402,7 +393,6 @@ const CONTENT = {
   },
 
   s_mixed: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Разные знаки', uz: 'Har xil ishoralar', en: 'Different signs' },
     lead: { ru: 'Вычитаем модули, знак берём у большего.', uz: 'Modullarni ayiramiz, ishorani kattasidan olamiz.', en: 'Subtract the absolute values and take the sign of the bigger.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -466,7 +456,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Какой знак у суммы', uz: "Yig'indi ishorasi qanday", en: 'What sign will the sum have' },
     lead: { ru: 'Смотри, чей модуль больше, считать не обязательно.', uz: "Kimning moduli katta ekaniga qarang, hisoblash shart emas.", en: 'See whose absolute value is bigger; no need to compute.' },
     bin_a: { ru: 'Сумма положительная', uz: "Yig'indi musbat", en: 'The sum is positive' },
@@ -501,7 +490,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -547,7 +535,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Счёт команды', uz: 'Jamoa hisobi', en: 'The team score' },
     lead: { ru: 'Команда набрала 5, получила штраф 8, потом набрала ещё 6.', uz: "Jamoa 5 to'pladi, 8 jarima oldi, keyin yana 6 to'pladi.", en: 'The team scored 5, took an 8 point penalty, then scored 6 more.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -585,7 +572,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -671,7 +657,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Отрицательные числа', uz: 'Matematika · Manfiy sonlar', en: 'Mathematics · Negative numbers' },
     heading: { ru: 'Сложение', uz: "Qo'shish", en: 'Addition' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1066,7 +1051,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d27-banner fade-up delay-1' + (phase === 'play' ? ' d27-banner-play' : '')}>

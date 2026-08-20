@@ -82,7 +82,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Полка на 24 книги', uz: '24 kitoblik javon', en: 'A shelf for 24 books' },
     lead: {
       ru: 'Полка в библиотеке рассчитана на 24 книги. Сейчас на ней 18.',
@@ -120,7 +119,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Оба числа делим на одно', uz: "Ikkala sonni bittaga bo'lamiz", en: 'Divide both by the same number' },
     from: { n: 6, d: 8 },
     to: { n: 3, d: 4 },
@@ -149,7 +147,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Полка: 18 из 24', uz: '24 dan 18', en: 'The shelf: 18 out of 24' },
     rows: [
       { n: 18, d: 24, by: 2 },
@@ -181,7 +178,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Сокращаем шагами', uz: 'Qadamlab qisqartiramiz', en: 'Reducing step by step' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -240,7 +236,6 @@ const CONTENT = {
   },
 
   s_gcd: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'НОД делает это за один шаг', uz: 'EKUB buni bir qadamda qiladi', en: 'The GCD does it in one step' },
     from: { n: 16, d: 24 },
     gcd: 8,
@@ -270,7 +265,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Сократим 45/60', uz: '45/60 ni qisqartiramiz', en: 'Let us reduce 45/60' },
     lead: { ru: 'Оба числа оканчиваются на 5 и 0 — значит, делятся на 5.', uz: "Ikkala son 5 va 0 bilan tugaydi — demak, 5 ga bo'linadi.", en: 'Both numbers end in 5 and 0, so both divide by 5.' },
     steps: [
@@ -303,7 +297,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Когда сокращать уже нельзя', uz: 'Qachon qisqartirib bo\'lmaydi', en: 'When you must stop' },
     good: { n: 5, d: 6 },
     bad: { n: 7, d: 9 },
@@ -332,7 +325,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Как сокращать дробь', uz: 'Kasrni qanday qisqartirish kerak', en: 'How to reduce a fraction' },
     rule_1: {
       ru: 'Сократить дробь значит разделить числитель и знаменатель на их общий делитель. Значение дроби при этом не меняется.',
@@ -352,7 +344,6 @@ const CONTENT = {
   },
 
   s_cut: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Сократи до конца', uz: 'Oxirigacha qisqartiring', en: 'Reduce all the way' },
     lead: { ru: 'Проверь: у ответа не должно остаться общего делителя.', uz: "Tekshiring: javobda umumiy bo'luvchi qolmasligi kerak.", en: 'Check: the answer must have no common divisor left.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -401,7 +392,6 @@ const CONTENT = {
   },
 
   s_find: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'На что сократить', uz: 'Nechaga qisqartirish kerak', en: 'What to divide by' },
     lead: { ru: 'Ищи наибольший общий делитель: тогда шаг будет один.', uz: "Eng katta umumiy bo'luvchini qidiring: shunda bir qadam bo'ladi.", en: 'Look for the greatest common divisor: then one step is enough.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -461,7 +451,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Сократится или нет', uz: "Qisqaradimi yoki yo'q", en: 'Reducible or not' },
     lead: { ru: 'Дробь несократима, если общих делителей, кроме 1, нет.', uz: "1 dan boshqa umumiy bo'luvchi bo'lmasa, kasr qisqarmas.", en: 'A fraction is irreducible if it has no common divisor but 1.' },
     bin_a: { ru: 'Сократится', uz: 'Qisqaradi', en: 'Reducible' },
@@ -496,7 +485,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -542,7 +530,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Работы сданы', uz: 'Ishlar topshirildi', en: 'Papers handed in' },
     lead: { ru: 'В классе 36 учеников, работы сдали 27.', uz: "Sinfda 36 o'quvchi bor, 27 tasi ish topshirdi.", en: 'There are 36 students in the class and 27 handed in their papers.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -588,7 +575,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -684,7 +670,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Дроби', uz: 'Matematika · Kasrlar', en: 'Mathematics · Fractions' },
     heading: { ru: 'Сокращение дробей', uz: 'Kasrlarni qisqartirish', en: 'Reducing fractions' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1041,7 +1026,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d8-banner fade-up delay-1' + (phase === 'play' ? ' d8-banner-play' : '')}>

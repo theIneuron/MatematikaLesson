@@ -82,7 +82,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Две ленты, разная разметка', uz: 'Ikki tasma, har xil belgi', en: 'Two tapes, different marks' },
     lead: {
       ru: 'На уроке технологии две одинаковые ленты. Одна размечена на 4 части, другая на 6.',
@@ -120,7 +119,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Расширение: обратный ход', uz: 'Kengaytirish: teskari yo\'l', en: 'Expanding: the other direction' },
     from: { n: 3, d: 4 },
     to: { n: 9, d: 12 },
@@ -150,7 +148,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Общая разметка — 12', uz: 'Umumiy belgi — 12', en: 'A shared scale of 12' },
     a: { n: 3, d: 4, to: { n: 9, d: 12 } },
     b: { n: 5, d: 6, to: { n: 10, d: 12 } },
@@ -179,7 +176,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'НОК знаменателей', uz: 'Maxrajlarning EKUKi', en: 'The LCM of the denominators' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -236,7 +232,6 @@ const CONTENT = {
   },
 
   s_easy: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Лёгкий случай', uz: 'Oson hol', en: 'The easy case' },
     a: { n: 1, d: 3, to: { n: 3, d: 9 }, by: 3 },
     b: { n: 5, d: 9 },
@@ -265,7 +260,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Сравним 3/8 и 5/12', uz: '3/8 va 5/12 ni solishtiramiz', en: 'Compare 3/8 and 5/12' },
     lead: { ru: 'Ни один знаменатель не делится на другой — ищем НОК.', uz: "Maxrajlar bir-biriga bo'linmaydi — EKUK ni qidiramiz.", en: 'Neither denominator divides the other, so find the LCM.' },
     steps: [
@@ -298,7 +292,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Произведение тоже общее, но крупное', uz: "Ko'paytma ham umumiy, lekin katta", en: 'The product works too, but it is bigger' },
     lcm_line: { ru: 'НОК(6, 8) = 24 → 5/6 = 20/24', uz: 'EKUK(6, 8) = 24 → 5/6 = 20/24', en: 'LCM(6, 8) = 24 → 5/6 = 20/24' },
     prod_line: { ru: '6 · 8 = 48 → 5/6 = 40/48', uz: '6 · 8 = 48 → 5/6 = 40/48', en: '6 · 8 = 48 → 5/6 = 40/48' },
@@ -327,7 +320,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Как привести к общему знаменателю', uz: 'Umumiy maxrajga qanday keltiriladi', en: 'How to reach a common denominator' },
     rule_1: {
       ru: 'Находим НОК знаменателей. Для каждой дроби делим НОК на её знаменатель — это дополнительный множитель. Умножаем на него и числитель, и знаменатель.',
@@ -347,7 +339,6 @@ const CONTENT = {
   },
 
   s_lcd: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди общий знаменатель', uz: 'Umumiy maxrajni toping', en: 'Find the common denominator' },
     lead: { ru: 'Нужно наименьшее число, которое делится на оба знаменателя.', uz: "Ikkala maxrajga bo'linadigan eng kichik son kerak.", en: 'You need the smallest number divisible by both denominators.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -396,7 +387,6 @@ const CONTENT = {
   },
 
   s_mult: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Дополнительный множитель', uz: "Qo'shimcha ko'paytuvchi", en: 'The extra factor' },
     lead: { ru: 'Дели общий знаменатель на знаменатель дроби.', uz: "Umumiy maxrajni kasr maxrajiga bo'ling.", en: 'Divide the common denominator by the fraction’s denominator.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -456,7 +446,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Какой знаменатель общий', uz: 'Qaysi maxraj umumiy', en: 'Which denominator is common' },
     lead: { ru: 'В карточке пара знаменателей. Реши, какое НОК им подходит.', uz: 'Kartochkada maxrajlar juftligi. Ularga qaysi EKUK mos ekanini aniqlang.', en: 'Each card holds a pair of denominators. Decide which LCM fits.' },
     bin_a: { ru: 'НОК = 12', uz: 'EKUK = 12', en: 'LCM = 12' },
@@ -491,7 +480,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -537,7 +525,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Ленты на выставку', uz: "Ko'rgazma uchun tasmalar", en: 'Tapes for the exhibition' },
     lead: { ru: 'Азиз украсил 2/3 стенда, Дилноза 3/5 такого же стенда.', uz: "Aziz stendning 2/3 qismini, Dilnoza xuddi shunday stendning 3/5 qismini bezadi.", en: 'Aziz decorated 2/3 of a stand, Dilnoza 3/5 of an identical one.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -579,7 +566,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -675,7 +661,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Дроби', uz: 'Matematika · Kasrlar', en: 'Mathematics · Fractions' },
     heading: { ru: 'Общий знаменатель', uz: 'Umumiy maxraj', en: 'Common denominator' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1009,7 +994,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d9-banner fade-up delay-1' + (phase === 'play' ? ' d9-banner-play' : '')}>

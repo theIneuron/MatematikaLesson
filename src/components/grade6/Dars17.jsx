@@ -82,7 +82,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Зелёная краска', uz: "Yashil bo'yoq", en: 'Green paint' },
     lead: {
       ru: 'В изостудии зелёный цвет делают так: 2 части синей краски и 3 части жёлтой.',
@@ -120,7 +119,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Сокращение никуда не делось', uz: 'Qisqartirish hech qayerga ketmadi', en: 'Reducing is still here' },
     from: { n: 4, d: 6 },
     to: { n: 2, d: 3 },
@@ -149,7 +147,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Отношение 2 к 3', uz: '2 ning 3 ga nisbati', en: 'The ratio 2 to 3' },
     mixes: [
       { a: 2, b: 3 },
@@ -181,7 +178,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Упрощаем отношение', uz: 'Nisbatni soddalashtiramiz', en: 'Simplifying a ratio' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -240,7 +236,6 @@ const CONTENT = {
   },
 
   s_whole: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Часть к части и часть к целому', uz: 'Qismning qismga va butunga nisbati', en: 'Part to part and part to whole' },
     lines: [
       { ru: 'синей к жёлтой — 2 : 3', uz: "ko'kning sariqqa nisbati — 2 : 3", en: 'blue to yellow is 2 : 3' },
@@ -272,7 +267,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'В классе 12 мальчиков и 18 девочек', uz: "Sinfda 12 o'g'il va 18 qiz bola", en: '12 boys and 18 girls in a class' },
     lead: { ru: 'Сначала отношение, потом доля от всего класса.', uz: 'Avval nisbat, keyin butun sinfdagi ulush.', en: 'The ratio first, then the share of the class.' },
     steps: [
@@ -305,7 +299,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Порядок и способ сравнения', uz: 'Tartib va solishtirish usuli', en: 'Order and the way of comparing' },
     order_line: { ru: '2 : 3 и 3 : 2 — разные отношения', uz: "2 : 3 va 3 : 2 — har xil nisbatlar", en: '2 : 3 and 3 : 2 are different ratios' },
     diff_line: { ru: 'отношение — это деление, а не вычитание', uz: "nisbat bu bo'lish, ayirish emas", en: 'a ratio is division, not subtraction' },
@@ -335,7 +328,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Что такое отношение', uz: 'Nisbat nima', en: 'What a ratio is' },
     rule_1: {
       ru: 'Отношение двух чисел — их частное. Оно показывает, во сколько раз одно больше другого или сколько частей приходится на части. Отношение упрощают делением обоих чисел на общий делитель.',
@@ -355,7 +347,6 @@ const CONTENT = {
   },
 
   s_simp: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Упрости отношение', uz: 'Nisbatni soddalashtiring', en: 'Simplify the ratio' },
     lead: { ru: 'Дели оба числа на их наибольший общий делитель.', uz: "Ikkala sonni eng katta umumiy bo'luvchiga bo'ling.", en: 'Divide both numbers by their greatest common divisor.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -404,7 +395,6 @@ const CONTENT = {
   },
 
   s_share: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Части по отношению', uz: 'Nisbat bo\'yicha qismlar', en: 'Shares from a ratio' },
     lead: { ru: 'Сложи части отношения — получишь целое в частях.', uz: "Nisbat qismlarini qo'shing — butun qismlarda chiqadi.", en: 'Add the parts of the ratio to get the whole in parts.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -468,7 +458,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Тот же рецепт или нет', uz: "O'sha retseptmi yoki yo'q", en: 'Same recipe or not' },
     lead: { ru: 'Упрости каждое отношение и сравни с 2 : 3.', uz: '2 : 3 bilan solishtirish uchun har bir nisbatni soddalashtiring.', en: 'Simplify each ratio and compare it with 2 : 3.' },
     bin_a: { ru: 'Равно 2 : 3', uz: '2 : 3 ga teng', en: 'Equals 2 : 3' },
@@ -503,7 +492,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -549,7 +537,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Банка зелёной краски', uz: "Yashil bo'yoq bankasi", en: 'A tin of green paint' },
     lead: { ru: 'Зелёную краску мешают в отношении 2 : 3. Всего нужно 15 литров.', uz: "Yashil bo'yoq 2 : 3 nisbatda aralashtiriladi. Jami 15 litr kerak.", en: 'Green paint is mixed 2 : 3 and 15 litres are needed.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -587,7 +574,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -678,7 +664,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Отношения', uz: 'Matematika · Nisbatlar', en: 'Mathematics · Ratios' },
     heading: { ru: 'Отношение', uz: 'Nisbat', en: 'Ratio' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1017,7 +1002,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d17-banner fade-up delay-1' + (phase === 'play' ? ' d17-banner-play' : '')}>

@@ -81,7 +81,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: {
       ru: 'Ярмарка: 117 значков по 3 в набор',
       uz: "Yarmarka: 117 nishon 3 tadan to'plamga",
@@ -138,7 +137,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Приём прошлого урока', uz: "O'tgan darsning usuli", en: 'Last lesson’s trick' },
     nums: ['30', '45'],
     caps: [
@@ -170,7 +168,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Цифры те же — ответ тот же', uz: "Raqamlar o'sha — javob ham o'sha", en: 'Same digits, same answer' },
     trio: ['117', '171', '711'],
     sum_label: { ru: 'сумма цифр', uz: "raqamlar yig'indisi", en: 'sum of the digits' },
@@ -199,7 +196,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Складываем цифры', uz: "Raqamlarni qo'shamiz", en: 'Adding the digits' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -253,7 +249,6 @@ const CONTENT = {
   },
 
   s_nine: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'А что с девяткой', uz: "To'qqiz-chi", en: 'And what about nine' },
     rows: [
       { n: '117', s: 9, three: true, nine: true },
@@ -285,7 +280,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Число 4815', uz: '4815 soni', en: 'The number 4815' },
     lead: {
       ru: 'Четыре цифры — и всё равно хватает сложения.',
@@ -329,7 +323,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где приём не работает', uz: 'Usul qayerda ishlamaydi', en: 'Where the trick stops working' },
     title: { ru: 'Признак не считает за тебя', uz: "Alomat siz uchun hisoblamaydi", en: 'The rule does not count for you' },
     num: '117',
     cap_yes: { ru: 'делится на 3', uz: "3 ga bo'linadi", en: 'divides by 3' },
@@ -360,7 +353,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Признаки на 3 и на 9', uz: "3 va 9 ga bo'linish alomatlari", en: 'The rules for 3 and 9' },
     rule_1: {
       ru: 'Если сумма цифр числа делится на 3, то и само число делится на 3. Если сумма цифр делится на 9, то число делится на 9.',
@@ -380,7 +372,6 @@ const CONTENT = {
   },
 
   s_names: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'На что делится число', uz: "Son nimaga bo'linadi", en: 'What the number divides by' },
     lead: { ru: 'Сложи цифры и посмотри на сумму.', uz: "Raqamlarni qo'shing va yig'indiga qarang.", en: 'Add the digits and look at the sum.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -441,7 +432,6 @@ const CONTENT = {
   },
 
   s_sum: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Считаем сумму цифр', uz: "Raqamlar yig'indisini hisoblaymiz", en: 'Adding the digits' },
     lead: { ru: 'Сначала сумма, потом ответ.', uz: "Avval yig'indi, keyin javob.", en: 'First the sum, then the answer.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -485,7 +475,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Разложи по тройке', uz: "Uchlik bo'yicha ajrating", en: 'Sort by three' },
     lead: { ru: 'Сумма цифр решает, в какую корзину.', uz: "Raqamlar yig'indisi qaysi savatga tushishini hal qiladi.", en: 'The sum of the digits decides which basket.' },
     bin_a: { ru: 'Делится на 3', uz: "3 ga bo'linadi", en: 'Divides by 3' },
@@ -520,7 +509,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -566,7 +554,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Наборы значков', uz: "Nishon to'plamlari", en: 'Badge sets' },
     lead: { ru: 'На ярмарке пять коробок. В наборе 3 значка, все наборы должны быть полными.', uz: "Yarmarkada beshta quti bor. To'plamda 3 ta nishon, barcha to'plamlar to'la bo'lishi kerak.", en: 'There are five boxes at the fair. A set holds 3 badges and every set must be full.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -613,7 +600,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -704,7 +690,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Делимость', uz: "Matematika · Bo'linish", en: 'Mathematics · Divisibility' },
     heading: { ru: 'Признаки на 3 и 9', uz: "3 va 9 ga bo'linish alomatlari", en: 'The rules for 3 and 9' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1105,7 +1090,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d3-banner fade-up delay-1' + (phase === 'play' ? ' d3-banner-play' : '')}>

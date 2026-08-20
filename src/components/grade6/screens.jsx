@@ -1246,8 +1246,8 @@ const FeedbackBlock = ({ show, isCorrect, wrongClass, children }) => {
 // Надпись над слайдом («BU NIMAGA KERAK», «MASHQ», «УРОК ПРОЙДЕН») убрана по
 // решению методиста 2026-08-20: она ничего не объясняла, а кнопка сайта
 // «← Darslar ro'yxati» наезжала на неё, и ребёнок видел обрубок «...RAK».
-// Проп `eyebrow` уроки по-прежнему передают, слой его молча не рисует: данные
-// остаются на месте, вернуть подпись — одна строка.
+// Поле `eyebrow` удалено и из данных уроков (решение методиста 2026-08-20):
+// хранить текст, которого нет на экране, незачем.
 const Stage = ({ children, screen, totalScreens, navContent, audioState }) => {
   const isMobile = useIsMobile();
   const padH = isMobile ? 12 : 'clamp(16px, 4vw, 48px)';
@@ -1418,7 +1418,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
   const figNode = figure ? figure(solved) : null;
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
         {titleNode && <Title node={titleNode}/>}
         {/* Savol matni javobdan keyin ham qoladi — bola nimaga javob berganini ko'rib tursin. */}
@@ -1781,7 +1781,7 @@ const RevealScreen = ({ screen, screenContent, onNext, onPrev, totalScreens, ren
   // `muted` HAM uzatiladi: ovoz o'chirilganda segmentlar bir zumda «tugaydi» va
   // ularning id'lari oldinga uchib ketadi — kino oxirgi kadrdan boshlanardi.
   // Bunday holatda kadrlarni faqat taymer boshqarishi kerak.
-  return (<Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>{renderStep({ t, lang, step, last, refs, muted: audio.muted, activeAudioId: audio.currentSegment, lastCompletedAudioId: audio.lastCompletedSegment })}</Stage>);
+  return (<Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>{renderStep({ t, lang, step, last, refs, muted: audio.muted, activeAudioId: audio.currentSegment, lastCompletedAudioId: audio.lastCompletedSegment })}</Stage>);
 };
 
 // ============================================================
@@ -1853,7 +1853,7 @@ const HookScreen = ({ screen, totalScreens, content, sceneNode, onAnswer, onNext
     </>
   );
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="hk">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <p className="body fade-up delay-1" style={{ margin: 0 }}>{t(c.lead)}</p>
@@ -2115,7 +2115,7 @@ const PickDivisors = ({ screen, screenContent, totalScreens, onNext, onPrev, sto
   };
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={navLocked(!solved || !audio.canAdvance)} label={<NextLabel/>} onClick={onNext}/></>);
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 16px)' }}>
         <div className="fade-up">
           <p className="small mono" style={{ margin: 0, color: T.accent, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{t(c.label)}</p>
@@ -2188,7 +2188,7 @@ const RuleScreen = ({ screen, screenContent, onNext, onPrev, totalScreens, examp
   const audio = useAudio([{ id: `s${screen}_a`, text: pickL(c.audio, lang), trigger: 'on_mount', waits_for: null }]);
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={<NextLabel/>}/></>);
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.3vw, 20px)', justifyContent: 'center' }}>
         <Floaters/>
         <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{t(c.title)}</h2>
@@ -2278,7 +2278,7 @@ const Classify = ({ screen, screenContent, onNext, onPrev, storedAnswer, onAnswe
   const cardLabel = (v) => (typeof v === 'string' ? v : pickL(v, lang));
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={navLocked(!solved || !audio.canAdvance)} onClick={onNext} label={<NextLabel/>}/></>);
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)' }}>
         <div className="fade-up">
           <h2 className="title h-sub">{t(c.title)}</h2>
@@ -2405,7 +2405,7 @@ const DragMatch = ({ screen, screenContent, onAnswer, onNext, onPrev, totalScree
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={navLocked(!solved || !audio.canAdvance)} onClick={onNext} label={<NextLabel/>}/></>);
   const readingFont = isMobile ? 'clamp(12px, 3.4vw, 14px)' : 'clamp(13px, 1.7vw, 15px)';
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)' }}>
         <div className="fade-up">
           <h2 className="title h-sub">{t(c.title)}</h2>
@@ -2604,7 +2604,7 @@ const useRecord = (props, total) => {
 // неверный ответ не пускает дальше, балл считается по первой попытке.
 //
 // Урок даёт данные, а не вёрстку:
-//   content = { eyebrow, title, lead, counter, items: [{
+//   content = { title, lead, counter, items: [{
 //     q,                 — вопрос
 //     opts: [узел…],     — от двух до четырёх вариантов
 //     correct,           — индекс верного
@@ -2671,7 +2671,7 @@ const MultiTask = (props) => {
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         {c.lead && <p className="small fade-up delay-1" style={{ margin: 0, color: T.ink3 }}>{t(c.lead)}</p>}
@@ -2793,7 +2793,7 @@ const FinalPanel = (props) => {
   const lastWrong = dead.length ? (it.wrong && it.wrong[dead[dead.length - 1]]) : null;
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.intro_line)}</h2>
         {!done && <TaskCount node={c.counter} i={idx + 1} n={items.length}/>}
@@ -2905,10 +2905,9 @@ const SummaryScreen = ({ screen, totalScreens, content, sceneNode, cards = null,
   // shuning uchun yakuniy ekranda "n / m" qatori yo'q.
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{tri(lang, 'Пройти заново', "Qaytadan o'tish", 'Start over')}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{tri(lang, 'Завершить урок', 'Darsni tugatish', 'Finish the lesson')}</button></>);
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      {/* Ixcham tuzilish: sarlavha va ball BITTA qatorda (eyebrow Stage'ning
-          o'zida bor, takrorlanmaydi), ichki bo'shliqlar kichraytirilgan —
-          yakuniy ekran 360x640 da ham skrollsiz sig'adi. */}
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+      {/* Ixcham tuzilish: sarlavha va ball BITTA qatorda, ichki bo'shliqlar
+          kichraytirilgan — yakuniy ekran 360x640 da ham skrollsiz sig'adi. */}
       <div className="g6-final-slide" style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.8vw, 16px)', justifyContent: 'center' }}>
         <Floaters/>
         {/* БАННЕР (методист 2026-08-13): наверху полоса про математику, а не

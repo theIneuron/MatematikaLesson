@@ -82,7 +82,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Две станции канатной дороги', uz: "Kanat yo'lining ikki bekati", en: 'Two cable car stations' },
     lead: {
       ru: 'Ноль на указателе — уровень посёлка. Нижняя станция у озера на −15 м, верхняя на +40 м.',
@@ -120,7 +119,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Противоположные числа', uz: 'Qarama-qarshi sonlar', en: 'Opposite numbers' },
     done: {
       ru: 'У каждого числа есть противоположное: тот же модуль, другой знак. Сегодня оно и превратит вычитание в сложение.',
@@ -147,7 +145,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Вычесть значит прибавить противоположное', uz: "Ayirish — qarama-qarshini qo'shish", en: 'Subtracting means adding the opposite' },
     lines: [
       { ru: '40 − (−15)', uz: '40 − (−15)', en: '40 − (−15)' },
@@ -179,7 +176,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Переворачиваем карточку', uz: "Kartochkani ag'daramiz", en: 'Flip the card' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -238,7 +234,6 @@ const CONTENT = {
   },
 
   s_minus: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Вычитаем отрицательное', uz: 'Manfiyni ayiramiz', en: 'Subtracting a negative' },
     lines: [
       { ru: '4 − (−7): вычитаем −7', uz: '4 − (−7): −7 ni ayiramiz', en: '4 − (−7): we subtract −7' },
@@ -270,7 +265,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Цепочка с двумя действиями', uz: 'Ikki amalli zanjir', en: 'A chain with two operations' },
     lead: { ru: 'Считаем −6 − (−4) − 5 по шагам.', uz: '−6 − (−4) − 5 ni qadamlab hisoblaymiz.', en: 'Compute −6 − (−4) − 5 step by step.' },
     steps: [
@@ -303,7 +297,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Порядок здесь важен', uz: 'Bu yerda tartib muhim', en: 'Order matters here' },
     bad_line: { ru: 'ошибка: 5 − 9 = 4, переставили числа', uz: "xato: 5 − 9 = 4, sonlar o'rni almashtirilgan", en: 'mistake: 5 − 9 = 4, the numbers were swapped' },
     good_line: { ru: 'верно: 5 − 9 = 5 + (−9) = −4', uz: "to'g'ri: 5 − 9 = 5 + (−9) = −4", en: 'right: 5 − 9 = 5 + (−9) = −4' },
@@ -333,7 +326,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Как вычитать', uz: 'Qanday ayiriladi', en: 'How to subtract' },
     rule_1: {
       ru: 'Чтобы вычесть число, надо прибавить противоположное: a − b = a + (−b). Дальше работает правило сложения из прошлого урока.',
@@ -353,7 +345,6 @@ const CONTENT = {
   },
 
   s_swap: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Превращаем в сложение', uz: "Qo'shishga aylantiramiz", en: 'Turn it into addition' },
     lead: { ru: 'Считать пока не нужно: только переверни вычитаемое.', uz: "Hozircha hisoblash shart emas: faqat ayriluvchini ag'daring.", en: 'No need to compute yet: just flip the subtracted number.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -402,7 +393,6 @@ const CONTENT = {
   },
 
   s_calc: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Считаем разности', uz: 'Ayirmalarni hisoblaymiz', en: 'Compute the differences' },
     lead: { ru: 'Сначала переворот, потом правило сложения.', uz: "Avval ag'darish, keyin qo'shish qoidasi.", en: 'Flip first, then use the addition rule.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -466,7 +456,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Какой знак у разности', uz: 'Ayirma ishorasi qanday', en: 'What sign will the difference have' },
     lead: { ru: 'Переверни в уме и посмотри, куда пойдёт шаг.', uz: "Xayolan ag'daring va qadam qayoqqa borishiga qarang.", en: 'Flip it in your head and see which way the step goes.' },
     bin_a: { ru: 'Разность положительная', uz: 'Ayirma musbat', en: 'The difference is positive' },
@@ -501,7 +490,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -547,7 +535,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Перепад высот', uz: 'Balandliklar farqi', en: 'The height difference' },
     lead: { ru: 'Нижняя станция −15 м, верхняя +40 м, площадка отдыха +12 м.', uz: 'Quyi bekat −15 m, yuqorigisi +40 m, dam olish maydonchasi +12 m.', en: 'Lower station −15 m, upper +40 m, rest area +12 m.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -593,7 +580,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -679,7 +665,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Отрицательные числа', uz: 'Matematika · Manfiy sonlar', en: 'Mathematics · Negative numbers' },
     heading: { ru: 'Вычитание', uz: 'Ayirish', en: 'Subtraction' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1065,7 +1050,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d28-banner fade-up delay-1' + (phase === 'play' ? ' d28-banner-play' : '')}>

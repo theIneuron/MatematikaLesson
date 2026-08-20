@@ -80,7 +80,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Пицца: 1/2 или 2/4?', uz: 'Pitsa: 1/2 yoki 2/4?', en: 'Pizza: 1/2 or 2/4?' },
     lead: {
       ru: 'На классном часе две одинаковые пиццы. Одну разрезали пополам, другую на четыре части.',
@@ -118,7 +117,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Числитель и знаменатель', uz: 'Surat va maxraj', en: 'Numerator and denominator' },
     cap_den: { ru: 'знаменатель: на сколько частей разрезали', uz: "maxraj: nechaga bo'lingan", en: 'denominator: how many parts' },
     cap_num: { ru: 'числитель: сколько взяли', uz: 'surat: nechtasi olingan', en: 'numerator: how many taken' },
@@ -147,7 +145,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Разрезов больше — часть та же', uz: "Kesim ko'p, qism o'sha", en: 'More cuts, same part' },
     steps: [
       { n: 1, d: 2 },
@@ -179,7 +176,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Расширение дроби', uz: 'Kasrni kengaytirish', en: 'Expanding a fraction' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -235,7 +231,6 @@ const CONTENT = {
   },
 
   s_short: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Обратный ход: сокращение', uz: 'Teskari yo\'l: qisqartirish', en: 'The other way: reducing' },
     from: { n: 6, d: 8 },
     to: { n: 3, d: 4 },
@@ -264,7 +259,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Сократим 18/24', uz: '18/24 ni qisqartiramiz', en: 'Let us reduce 18/24' },
     lead: { ru: 'Можно шагами, а можно сразу — через НОД из пятого урока.', uz: "Qadamlab ham, birdaniga ham bo'ladi — beshinchi darsdagi EKUB orqali.", en: 'Step by step, or in one go with the GCD from lesson five.' },
     steps: [
@@ -297,7 +291,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Делить надо ОБА числа', uz: "IKKALA sonni ham bo'lish kerak", en: 'BOTH numbers must change' },
     good: { from: { n: 2, d: 4 }, to: { n: 1, d: 2 } },
     bad: { from: { n: 2, d: 4 }, to: { n: 1, d: 4 } },
@@ -326,7 +319,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Основное свойство дроби', uz: 'Kasrning asosiy xossasi', en: 'The basic property of a fraction' },
     rule_1: {
       ru: 'Если числитель и знаменатель умножить или разделить на одно и то же число, кроме нуля, значение дроби не изменится.',
@@ -346,7 +338,6 @@ const CONTENT = {
   },
 
   s_equal: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Равные дроби', uz: 'Teng kasrlar', en: 'Equal fractions' },
     lead: { ru: 'Смотри, во сколько раз выросли оба числа.', uz: "Ikkala son necha barobar oshganiga qarang.", en: 'See how many times both numbers grew.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -395,7 +386,6 @@ const CONTENT = {
   },
 
   s_mult: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Подбери множитель', uz: "Ko'paytuvchini toping", en: 'Find the multiplier' },
     lead: { ru: 'Сначала знаменатель, потом числитель.', uz: 'Avval maxraj, keyin surat.', en: 'First the denominator, then the numerator.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -455,7 +445,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Равно 1/2 или нет', uz: "1/2 ga tengmi yoki yo'q", en: 'Equal to 1/2 or not' },
     lead: { ru: 'Половина — это когда знаменатель вдвое больше числителя.', uz: "Yarim — bu maxraj suratdan ikki barobar katta bo'lganda.", en: 'A half is when the denominator is twice the numerator.' },
     bin_a: { ru: 'Равно 1/2', uz: '1/2 ga teng', en: 'Equals 1/2' },
@@ -490,7 +479,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -536,7 +524,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Пицца на всех', uz: 'Hammaga pitsa', en: 'Pizza for everyone' },
     lead: { ru: 'Пиццу разрезали на 12 кусков. Азиз взял 3, Дилноза 4.', uz: "Pitsa 12 bo'lakka bo'lindi. Aziz 3 tasini, Dilnoza 4 tasini oldi.", en: 'The pizza is cut into 12 pieces. Aziz took 3, Dilnoza 4.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -582,7 +569,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -673,7 +659,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Дроби', uz: 'Matematika · Kasrlar', en: 'Mathematics · Fractions' },
     heading: { ru: 'Основное свойство дроби', uz: 'Kasrning asosiy xossasi', en: 'The basic property' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1075,7 +1060,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d7-banner fade-up delay-1' + (phase === 'play' ? ' d7-banner-play' : '')}>

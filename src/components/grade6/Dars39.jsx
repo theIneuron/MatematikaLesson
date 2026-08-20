@@ -82,7 +82,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Две лепёшки', uz: 'Ikkita non', en: 'Two flatbreads' },
     lead: {
       ru: 'Маленькая лепёшка 20 см в поперечнике, большая 40 см. Обе посыпают кунжутом.',
@@ -120,7 +119,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Площадь и квадрат числа', uz: 'Yuza va sonning kvadrati', en: 'Area and the square of a number' },
     done: {
       ru: 'Площадь измеряют квадратиками. У квадрата со стороной a площадь равна a · a, это и называют квадратом числа.',
@@ -147,7 +145,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Сколько квадратиков в круге', uz: 'Doirada nechta kvadratcha bor', en: 'How many squares fit in a disc' },
     lines: [
       { ru: 'строим квадрат со стороной r', uz: "tomoni r bo'lgan kvadrat quramiz", en: 'build a square with side r' },
@@ -179,7 +176,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Сначала квадрат, потом π', uz: 'Avval kvadrat, keyin π', en: 'Square first, then π' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -242,7 +238,6 @@ const CONTENT = {
   },
 
   s_half: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'По диаметру, половина и кольцо', uz: 'Diametr orqali, yarmi va halqa', en: 'From the diameter, halves and rings' },
     lines: [
       { ru: 'дан диаметр: сначала r = d : 2', uz: "diametr berilgan: avval r = d : 2", en: 'diameter given: first r = d : 2' },
@@ -274,7 +269,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Две лепёшки на противне', uz: 'Tovadagi ikki non', en: 'Two flatbreads on a tray' },
     lead: { ru: 'Маленькая 20 см в поперечнике, большая 40 см.', uz: 'Kichigi 20 sm, kattasi 40 sm.', en: 'The small one 20 cm across, the big one 40 cm.' },
     steps: [
@@ -307,7 +301,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Длина или площадь', uz: 'Uzunlikmi yoki yuza', en: 'Length or area' },
     bad_line: { ru: 'ошибка: S = 2πr, это длина окружности', uz: 'xato: S = 2πr, bu aylana uzunligi', en: 'mistake: S = 2πr, that is the circumference' },
     good_line: { ru: 'верно: S = πr², в ответе квадратные единицы', uz: "to'g'ri: S = πr², javobda kvadrat birliklar", en: 'right: S = πr², the answer is in square units' },
@@ -337,7 +330,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Площадь круга', uz: 'Doira yuzi', en: 'The area of a disc' },
     rule_1: {
       ru: 'Площадь круга равна π умножить на радиус в квадрате: S = πr². Сначала радиус умножают сам на себя, потом на π. Ответ получается в квадратных единицах.',
@@ -357,7 +349,6 @@ const CONTENT = {
   },
 
   s_area: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Находим площадь', uz: 'Yuzani topamiz', en: 'Finding the area' },
     lead: { ru: 'Сначала квадрат радиуса, потом π.', uz: 'Avval radius kvadrati, keyin π.', en: 'Radius squared first, then π.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -418,7 +409,6 @@ const CONTENT = {
   },
 
   s_more: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Половина, кольцо и рост', uz: "Yarmi, halqa va o'sish", en: 'Halves, rings and growth' },
     lead: { ru: 'Считай π равным 3,14.', uz: "π ni 3,14 deb oling.", en: 'Take π as 3.14.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -494,7 +484,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Длина или площадь', uz: 'Uzunlikmi yoki yuza', en: 'Length or area' },
     lead: { ru: 'Реши, что именно нужно посчитать.', uz: "Aynan nimani hisoblash kerakligini hal qiling.", en: 'Decide what exactly must be computed.' },
     bin_a: { ru: 'Нужна длина окружности', uz: 'Aylana uzunligi kerak', en: 'Circumference is needed' },
@@ -529,7 +518,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -575,7 +563,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Лепёшки на противне', uz: 'Tovadagi nonlar', en: 'Flatbreads on a tray' },
     lead: { ru: 'Маленькая лепёшка радиуса 10 см, большая радиуса 20 см.', uz: 'Kichik non radiusi 10 sm, kattasiniki 20 sm.', en: 'The small bread has radius 10 cm, the big one 20 cm.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -621,7 +608,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -717,7 +703,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Геометрия', uz: 'Matematika · Geometriya', en: 'Mathematics · Geometry' },
     heading: { ru: 'Площадь круга', uz: 'Doira yuzi', en: 'The area of a disc' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1129,7 +1114,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d39-banner fade-up delay-1' + (phase === 'play' ? ' d39-banner-play' : '')}>

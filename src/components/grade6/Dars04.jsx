@@ -80,7 +80,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: {
       ru: 'Мастерская: 12 плиток и 13',
       uz: 'Ustaxona: 12 plitka va 13',
@@ -130,7 +129,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Все прямоугольники из 12', uz: "12 tadan barcha to'rtburchaklar", en: 'Every rectangle from 12' },
     shapes: [[1, 12], [2, 6], [3, 4]],
     done: {
@@ -158,7 +156,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'А теперь 13 плиток', uz: 'Endi 13 plitka', en: 'And now 13 tiles' },
     tries: [2, 3, 4, 5, 6],
     cap_only: { ru: 'Только 1 на 13', uz: 'Faqat 1 ga 13', en: 'Only 1 by 13' },
@@ -187,7 +184,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Простое или составное', uz: 'Tub yoki murakkab', en: 'Prime or composite' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -242,7 +238,6 @@ const CONTENT = {
   },
 
   s_sieve: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Решето: кто останется', uz: "G'alvir: kim qoladi", en: 'The sieve: who is left' },
     done: {
       ru: 'Ушли кратные 2, 3 и 5. Остались 2, 3, 5, 7, 11, 13, 17, 19, 23, 29 — простые числа до 30.',
@@ -269,7 +264,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Разложим 84 на простые', uz: "84 ni tub ko'paytuvchilarga yoyamiz", en: 'Factor 84 into primes' },
     lead: { ru: 'Делим на самое маленькое простое, пока не останется 1.', uz: "Eng kichik tub songa bo'lamiz, 1 qolguncha.", en: 'Divide by the smallest prime until 1 is left.' },
     rows: [
@@ -307,7 +301,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Особый случай', uz: 'Alohida holat', en: 'A special case' },
     title: { ru: 'Единица не в счёт', uz: 'Bir soni hisobga kirmaydi', en: 'One is neither' },
     done: {
       ru: 'У 1 всего один делитель — она сама. Значит 1 не простое и не составное: для простого нужно ровно два делителя.',
@@ -334,7 +327,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Два делителя или больше', uz: "Ikkita bo'luvchi yoki ko'proq", en: 'Two divisors or more' },
     rule_1: {
       ru: 'Простое число имеет ровно два делителя: 1 и само себя. Составное — больше двух. У числа 1 делитель один, поэтому оно не относится ни к тем, ни к другим.',
@@ -354,7 +346,6 @@ const CONTENT = {
   },
 
   s_kind: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Простое или составное', uz: 'Tub yoki murakkab', en: 'Prime or composite' },
     lead: { ru: 'Ищи делитель по порядку: 2, 3, 5, 7.', uz: "Bo'luvchini tartib bilan qidiring: 2, 3, 5, 7.", en: 'Look for a divisor in order: 2, 3, 5, 7.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -398,7 +389,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Разложи по корзинам', uz: 'Savatlarga ajrating', en: 'Sort into baskets' },
     lead: { ru: 'Два делителя — простое. Больше двух — составное.', uz: "Ikkita bo'luvchi — tub. Ikkitadan ko'p — murakkab.", en: 'Two divisors: prime. More than two: composite.' },
     bin_a: { ru: 'Простые', uz: 'Tub', en: 'Prime' },
@@ -433,7 +423,6 @@ const CONTENT = {
   },
 
   s_factor: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Разложение на простые', uz: "Tub ko'paytuvchilarga yoyish", en: 'Prime factorisation' },
     lead: { ru: 'Начинай с самого маленького простого делителя.', uz: "Eng kichik tub bo'luvchidan boshlang.", en: 'Start with the smallest prime divisor.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -482,7 +471,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -528,7 +516,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Панно из плиток', uz: 'Plitkalardan pano', en: 'A panel of tiles' },
     lead: { ru: 'В мастерской пять наборов плиток. Панно должно быть прямоугольным, но не полоской.', uz: "Ustaxonada beshta plitka to'plami bor. Pano to'rtburchak bo'lishi kerak, tasma emas.", en: 'The workshop has five sets of tiles. The panel must be a rectangle, not a strip.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -571,7 +558,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -662,7 +648,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Делимость', uz: "Matematika · Bo'linish", en: 'Mathematics · Divisibility' },
     heading: { ru: 'Простые и составные', uz: 'Tub va murakkab', en: 'Prime and composite' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1049,7 +1034,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d4-banner fade-up delay-1' + (phase === 'play' ? ' d4-banner-play' : '')}>

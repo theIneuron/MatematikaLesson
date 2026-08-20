@@ -82,7 +82,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Записка во дворе', uz: 'Hovlidagi xat', en: 'A note in the yard' },
     lead: {
       ru: 'Двор размечен дорожками от флагштока. В записке сказано: скамейка в точке (2; −3).',
@@ -120,7 +119,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'На прямой хватало одного числа', uz: 'Chiziqda bitta son yetardi', en: 'One number was enough on a line' },
     done: {
       ru: 'На прямой одно число полностью задаёт место. Но двор — не прямая: по нему можно идти и вбок, и вперёд.',
@@ -147,7 +145,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Две оси и порядок', uz: "Ikki o'q va tartib", en: 'Two axes and an order' },
     lines: [
       { ru: 'первое число — по оси x, вправо или влево', uz: "birinchi son — x o'qi bo'ylab, o'ngga yoki chapga", en: 'the first number goes along x, right or left' },
@@ -179,7 +176,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Ставим точку', uz: "Nuqtani qo'yamiz", en: 'Plotting a point' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -242,7 +238,6 @@ const CONTENT = {
   },
 
   s_quad: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Четыре четверти', uz: "To'rtta chorak", en: 'Four quarters' },
     lines: [
       { ru: 'справа сверху оба числа положительные', uz: "o'ng tepada ikkala son ham musbat", en: 'top right: both numbers positive' },
@@ -274,7 +269,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Расстояние по дорожке', uz: "Yo'lka bo'ylab masofa", en: 'Distance along a path' },
     lead: { ru: 'Качели в точке (−3; 2), ворота в точке (5; 2).', uz: "Arg'imchoq (−3; 2) da, darvoza (5; 2) da.", en: 'The swing is at (−3; 2), the gate at (5; 2).' },
     steps: [
@@ -307,7 +301,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Пара — это не набор чисел', uz: "Juftlik — sonlar to'plami emas", en: 'A pair is not just two numbers' },
     bad_line: { ru: 'ошибка: (2; −3) и (−3; 2) — «одно и то же»', uz: "xato: (2; −3) va (−3; 2) — «bir xil»", en: 'mistake: (2; −3) and (−3; 2) are “the same”' },
     good_line: { ru: 'верно: это разные точки в разных четвертях', uz: "to'g'ri: bular har xil chorakdagi turli nuqtalar", en: 'right: different points in different quarters' },
@@ -337,7 +330,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Как читают точку', uz: "Nuqta qanday o'qiladi", en: 'How a point is read' },
     rule_1: {
       ru: 'Точку на плоскости задаёт упорядоченная пара: первое число откладывают по оси x, второе по оси y, отсчёт всегда от начала координат.',
@@ -357,7 +349,6 @@ const CONTENT = {
   },
 
   s_read: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Читаем координаты', uz: "Koordinatalarni o'qiymiz", en: 'Reading coordinates' },
     lead: { ru: 'Сначала горизонталь, потом вертикаль.', uz: 'Avval gorizontal, keyin vertikal.', en: 'Horizontal first, then vertical.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -406,7 +397,6 @@ const CONTENT = {
   },
 
   s_where: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Где находится точка', uz: 'Nuqta qayerda joylashgan', en: 'Where the point is' },
     lead: { ru: 'Смотри на знаки: они сразу выдают место.', uz: 'Ishoralarga qarang: ular joyni darrov aytadi.', en: 'Look at the signs: they give the place away.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -482,7 +472,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Выше или ниже оси', uz: "O'qdan yuqorida yoki pastda", en: 'Above or below the axis' },
     lead: { ru: 'Решает только второе число пары.', uz: 'Faqat juftlikning ikkinchi soni hal qiladi.', en: 'Only the second number of the pair decides.' },
     bin_a: { ru: 'Выше оси x', uz: "x o'qidan yuqorida", en: 'Above the x axis' },
@@ -517,7 +506,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -563,7 +551,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'План двора', uz: 'Hovli rejasi', en: 'The yard plan' },
     lead: { ru: 'Фонтан (−4; 1), качели (−3; 2), скамейка (2; −3), ворота (5; 2).', uz: "Favvora (−4; 1), arg'imchoq (−3; 2), skameyka (2; −3), darvoza (5; 2).", en: 'Fountain (−4; 1), swing (−3; 2), bench (2; −3), gate (5; 2).' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -605,7 +592,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -701,7 +687,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Координаты', uz: 'Matematika · Koordinatalar', en: 'Mathematics · Coordinates' },
     heading: { ru: 'Плоскость', uz: 'Tekislik', en: 'The plane' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1136,7 +1121,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d30-banner fade-up delay-1' + (phase === 'play' ? ' d30-banner-play' : '')}>

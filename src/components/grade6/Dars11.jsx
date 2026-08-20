@@ -82,7 +82,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Морковь в теплице', uz: 'Issiqxonadagi sabzi', en: 'Carrots in the greenhouse' },
     lead: {
       ru: 'Азизу отдали половину грядки. На 2/3 своей половины он посадил морковь.',
@@ -120,7 +119,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Дробь плюс дробь много раз', uz: 'Kasrni bir necha marta olish', en: 'Taking a fraction several times' },
     lines: [
       { ru: '1/4 + 1/4 + 1/4 = 3/4', uz: '1/4 + 1/4 + 1/4 = 3/4', en: '1/4 + 1/4 + 1/4 = 3/4' },
@@ -151,7 +149,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Часть от части', uz: 'Qismning qismi', en: 'A part of a part' },
     rows: 2,
     cols: 3,
@@ -184,7 +181,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Числитель на числитель', uz: 'Surat suratga, maxraj maxrajga', en: 'Numerators, then denominators' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -247,7 +243,6 @@ const CONTENT = {
   },
 
   s_pre: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Сокращать удобнее заранее', uz: 'Oldindan qisqartirish qulayroq', en: 'Reducing before is easier' },
     lines: [
       { ru: '4/9 · 3/8', uz: '4/9 · 3/8', en: '4/9 · 3/8' },
@@ -279,7 +274,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Посчитаем 5/6 · 3/10', uz: '5/6 · 3/10 ni hisoblaymiz', en: 'Let us compute 5/6 · 3/10' },
     lead: { ru: 'Сначала ищем, что можно сократить крест-накрест.', uz: "Avval krestasiga nimani qisqartirish mumkinligini qidiramiz.", en: 'First look for crosswise reductions.' },
     steps: [
@@ -312,7 +306,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Умножение не всегда увеличивает', uz: "Ko'paytirish har doim kattalashtirmaydi", en: 'Multiplying does not always increase' },
     lines: [
       { ru: '6 · 3 = 18, стало больше', uz: '6 · 3 = 18, kattalashdi', en: '6 · 3 = 18, it grew' },
@@ -344,7 +337,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Как умножать дроби', uz: "Kasrlar qanday ko'paytiriladi", en: 'How to multiply fractions' },
     rule_1: {
       ru: 'Числитель умножаем на числитель, знаменатель на знаменатель. Общий знаменатель не нужен. Сокращать удобнее до умножения, крест-накрест.',
@@ -364,7 +356,6 @@ const CONTENT = {
   },
 
   s_mul: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Умножение дробей', uz: "Kasrlarni ko'paytirish", en: 'Multiplying fractions' },
     lead: { ru: 'Сначала посмотри, что сокращается.', uz: 'Avval nima qisqarishiga qarang.', en: 'First look for what reduces.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -413,7 +404,6 @@ const CONTENT = {
   },
 
   s_part: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Часть от числа', uz: 'Sonning kasr qismi', en: 'A fraction of a number' },
     lead: { ru: 'Найти часть от числа значит умножить число на дробь.', uz: "Sonning qismini topish uni kasrga ko'paytirish demakdir.", en: 'Finding a part of a number means multiplying it by the fraction.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -473,7 +463,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Больше или меньше единицы', uz: 'Birdan katta yoki kichik', en: 'More or less than one' },
     lead: { ru: 'Смотри на множители: каждый меньше 1 — результат тоже меньше.', uz: "Ko'paytuvchilarga qarang: har biri 1 dan kichik bo'lsa, natija ham kichik.", en: 'Look at the factors: if each is less than 1, the result is too.' },
     bin_a: { ru: 'Больше 1', uz: '1 dan katta', en: 'More than 1' },
@@ -508,7 +497,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -554,7 +542,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Грядка и рассада', uz: "Pushta va ko'chat", en: 'The bed and the seedlings' },
     lead: { ru: 'В теплице 24 горшка. Азиз занял 3/4 из них, а на 1/3 своих горшков посадил базилик.', uz: "Issiqxonada 24 tuvak bor. Aziz ularning 3/4 qismini oldi, o'z tuvaklarining 1/3 qismiga rayhon ekdi.", en: 'The greenhouse has 24 pots. Aziz took 3/4 of them and planted basil in 1/3 of his pots.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -592,7 +579,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -683,7 +669,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Дроби', uz: 'Matematika · Kasrlar', en: 'Mathematics · Fractions' },
     heading: { ru: 'Умножение дробей', uz: "Kasrlarni ko'paytirish", en: 'Multiplying fractions' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1011,7 +996,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d11-banner fade-up delay-1' + (phase === 'play' ? ' d11-banner-play' : '')}>

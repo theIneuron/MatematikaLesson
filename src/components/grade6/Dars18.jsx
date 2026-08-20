@@ -82,7 +82,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Карта похода', uz: 'Yurish xaritasi', en: 'The hiking map' },
     lead: {
       ru: 'На карте от школы до родника 4 см. В масштабе 1 см — это 3 км на местности.',
@@ -120,7 +119,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Равные отношения', uz: 'Teng nisbatlar', en: 'Equal ratios' },
     rows: [
       { a: 2, b: 3 },
@@ -152,7 +150,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Пропорция и её проверка', uz: 'Proporsiya va uni tekshirish', en: 'A proportion and its check' },
     prop: { a: 2, b: 3, c: 4, d: 6 },
     lines: [
@@ -185,7 +182,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Ищем неизвестный член', uz: "Noma'lum hadni qidiramiz", en: 'Finding the unknown term' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -244,7 +240,6 @@ const CONTENT = {
   },
 
   s_scale: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Масштаб — это тоже пропорция', uz: 'Masshtab ham proporsiya', en: 'Scale is a proportion too' },
     lines: [
       { ru: '1 см : 3 км = 4 см : x', uz: '1 sm : 3 km = 4 sm : x', en: '1 cm : 3 km = 4 cm : x' },
@@ -276,7 +271,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: '5 тетрадей стоят 12 500 сум', uz: "5 ta daftar 12 500 so'm", en: '5 notebooks cost 12,500' },
     lead: { ru: 'Сколько заплатим за 8 таких тетрадей?', uz: "Shunday 8 ta daftar uchun qancha to'laymiz?", en: 'What do 8 such notebooks cost?' },
     steps: [
@@ -309,7 +303,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Порядок величин и проверка', uz: 'Kattaliklar tartibi va tekshiruv', en: 'Order of quantities and the check' },
     bad_line: { ru: 'ошибка: 5 : 12 500 = x : 8', uz: 'xato: 5 : 12 500 = x : 8', en: 'mistake: 5 : 12,500 = x : 8' },
     good_line: { ru: 'верно: 5 : 12 500 = 8 : x', uz: "to'g'ri: 5 : 12 500 = 8 : x", en: 'right: 5 : 12,500 = 8 : x' },
@@ -339,7 +332,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Основное свойство пропорции', uz: 'Proporsiyaning asosiy xossasi', en: 'The basic property of a proportion' },
     rule_1: {
       ru: 'Пропорция — равенство двух отношений. В верной пропорции произведение крайних членов равно произведению средних.',
@@ -359,7 +351,6 @@ const CONTENT = {
   },
 
   s_check: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Верна ли пропорция?', uz: "Proporsiya to'g'rimi?", en: 'Is the proportion true?' },
     lead: { ru: 'Перемножь крайние и средние — числа должны совпасть.', uz: "Chetkilar va o'rtadagilarni ko'paytiring — sonlar mos kelishi kerak.", en: 'Multiply the outer and inner terms: the numbers must match.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -420,7 +411,6 @@ const CONTENT = {
   },
 
   s_find: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди неизвестный член', uz: "Noma'lum hadni toping", en: 'Find the unknown term' },
     lead: { ru: 'Перемножь два известных напротив и раздели на третий.', uz: "Qarama-qarshi ikki ma'lum sonni ko'paytiring va uchinchisiga bo'ling.", en: 'Multiply the two known opposite numbers and divide by the third.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -480,7 +470,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Верная или неверная', uz: "To'g'ri yoki noto'g'ri", en: 'True or false' },
     lead: { ru: 'Считай произведения крайних и средних.', uz: "Chetkilar va o'rtadagilar ko'paytmasini hisoblang.", en: 'Compute the products of the outer and inner terms.' },
     bin_a: { ru: 'Верная', uz: "To'g'ri", en: 'True' },
@@ -515,7 +504,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -561,7 +549,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Маршрут по карте', uz: 'Xarita bo\'yicha marshrut', en: 'The route on the map' },
     lead: { ru: 'Масштаб карты: 1 см — 3 км. От школы до родника 4 см, до моста 6 см.', uz: "Xarita masshtabi: 1 sm — 3 km. Maktabdan buloqqacha 4 sm, ko'prikkacha 6 sm.", en: 'Map scale: 1 cm is 3 km. The spring is 4 cm away and the bridge 6 cm.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -603,7 +590,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -694,7 +680,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Пропорции', uz: 'Matematika · Proporsiyalar', en: 'Mathematics · Proportions' },
     heading: { ru: 'Пропорция', uz: 'Proporsiya', en: 'Proportion' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1010,7 +995,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d18-banner fade-up delay-1' + (phase === 'play' ? ' d18-banner-play' : '')}>

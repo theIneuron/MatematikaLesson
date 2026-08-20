@@ -82,7 +82,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Весы в кабинете физики', uz: 'Fizika xonasidagi tarozi', en: 'Scales in the physics room' },
     lead: {
       ru: 'Слева мешочек и гиря 3 кг, справа гиря 10 кг. Весы в равновесии.',
@@ -120,7 +119,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Когда равенство верно', uz: "Tenglik qachon to'g'ri", en: 'When an equality is true' },
     done: {
       ru: 'Равенство с буквой верно не всегда, а только при некоторых значениях. Найти такое значение — и значит решить уравнение.',
@@ -147,7 +145,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Снимаем одинаковое с обеих чаш', uz: 'Ikkala tovoqdan bir xilini olamiz', en: 'Take the same off both pans' },
     lines: [
       { ru: 'x + 3 = 10', uz: 'x + 3 = 10', en: 'x + 3 = 10' },
@@ -179,7 +176,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Одно действие — обе части', uz: 'Bitta amal — ikkala tomon', en: 'One move, both sides' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -238,7 +234,6 @@ const CONTENT = {
   },
 
   s_two: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Уравнение в два шага', uz: 'Ikki bosqichli tenglama', en: 'A two step equation' },
     lines: [
       { ru: '2x + 1 = 9: два мешочка и гиря', uz: '2x + 1 = 9: ikki xaltacha va tosh', en: '2x + 1 = 9: two bags and a weight' },
@@ -270,7 +265,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Мешочки на обеих чашах', uz: 'Xaltachalar ikkala tovoqda', en: 'Bags on both pans' },
     lead: { ru: 'Решим 5x = 2x + 9.', uz: "5x = 2x + 9 ni yechamiz.", en: 'Solve 5x = 2x + 9.' },
     steps: [
@@ -303,7 +297,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Одна чаша не считается', uz: "Bitta tovoq hisobga o'tmaydi", en: 'One pan is not enough' },
     bad_line: { ru: 'ошибка: x + 3 = 10, значит x = 13', uz: 'xato: x + 3 = 10, demak x = 13', en: 'mistake: x + 3 = 10 so x = 13' },
     good_line: { ru: 'верно: снимаем 3 с обеих частей, x = 7', uz: "to'g'ri: ikkala tomondan 3 olamiz, x = 7", en: 'right: take 3 off both sides, x = 7' },
@@ -333,7 +326,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Как решают уравнение', uz: 'Tenglama qanday yechiladi', en: 'How an equation is solved' },
     rule_1: {
       ru: 'Уравнение — равенство с буквой, а его корень — значение, при котором равенство верно. С обеими частями делают одно и то же действие: прибавляют, вычитают, умножают или делят на одно число.',
@@ -353,7 +345,6 @@ const CONTENT = {
   },
 
   s_one: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Один шаг', uz: 'Bir bosqich', en: 'One step' },
     lead: { ru: 'Сделай обратное действие с обеими частями.', uz: 'Ikkala tomonga teskari amalni bajaring.', en: 'Do the opposite move on both sides.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -402,7 +393,6 @@ const CONTENT = {
   },
 
   s_multi: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Два шага и скобки', uz: 'Ikki bosqich va qavslar', en: 'Two steps and brackets' },
     lead: { ru: 'Сначала слагаемые, потом коэффициент.', uz: 'Avval hadlar, keyin koeffitsiyent.', en: 'Terms first, coefficient second.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -462,7 +452,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Подходит ли x = 4?', uz: "x = 4 to'g'ri keladimi?", en: 'Does x = 4 fit?' },
     lead: { ru: 'Подставь четвёрку и сравни части.', uz: "To'rtni qo'ying va tomonlarni solishtiring.", en: 'Substitute four and compare the sides.' },
     bin_a: { ru: 'x = 4 подходит', uz: "x = 4 to'g'ri keladi", en: 'x = 4 fits' },
@@ -497,7 +486,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -543,7 +531,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Мешочки и гири', uz: 'Xaltachalar va toshlar', en: 'Bags and weights' },
     lead: { ru: 'Все мешочки одинаковые, их масса x килограммов.', uz: "Barcha xaltachalar bir xil, massasi x kilogramm.", en: 'All bags are identical and weigh x kilograms.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -589,7 +576,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -680,7 +666,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Уравнения', uz: 'Matematika · Tenglamalar', en: 'Mathematics · Equations' },
     heading: { ru: 'Линейные уравнения', uz: 'Chiziqli tenglamalar', en: 'Linear equations' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1052,7 +1037,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d34-banner fade-up delay-1' + (phase === 'play' ? ' d34-banner-play' : '')}>

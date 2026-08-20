@@ -82,7 +82,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Два паруса для змея', uz: 'Varrak uchun ikki yelkan', en: 'Two sails for the kite' },
     lead: {
       ru: 'Оба паруса треугольные, основание 8 см и высота 5 см. Но один прямой, другой скошенный.',
@@ -120,7 +119,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Площадь прямоугольника', uz: "To'rtburchak yuzi", en: 'The area of a rectangle' },
     done: {
       ru: 'Площадь прямоугольника — произведение сторон. Через прямоугольник мы и найдём площадь треугольника.',
@@ -147,7 +145,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Два треугольника — прямоугольник', uz: "Ikki uchburchak — to'rtburchak", en: 'Two triangles make a rectangle' },
     lines: [
       { ru: 'берём второй такой же треугольник', uz: 'ikkinchi xuddi shunday uchburchakni olamiz', en: 'take a second identical triangle' },
@@ -179,7 +176,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Основание, высота, половина', uz: 'Asos, balandlik, yarim', en: 'Base, height, half' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -242,7 +238,6 @@ const CONTENT = {
   },
 
   s_lean: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Наклон не важен', uz: 'Qiyalik muhim emas', en: 'The lean does not matter' },
     lines: [
       { ru: 'основание одно и то же: 8', uz: 'asos bir xil: 8', en: 'the same base: 8' },
@@ -274,7 +269,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Составная фигура', uz: 'Murakkab shakl', en: 'A compound shape' },
     lead: { ru: 'Змей из двух треугольников: верхний 6 на 4, нижний 6 на 2.', uz: "Ikki uchburchakdan varrak: yuqorisi 6 ga 4, pastkisi 6 ga 2.", en: 'A kite of two triangles: top 6 by 4, bottom 6 by 2.' },
     steps: [
@@ -307,7 +301,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Про двойку и про высоту', uz: 'Ikki va balandlik haqida', en: 'About the two and the height' },
     bad_line: { ru: 'ошибка: 8 · 5 = 40, забыли разделить на 2', uz: "xato: 8 · 5 = 40, 2 ga bo'lish unutilgan", en: 'mistake: 8 · 5 = 40, forgot to halve' },
     good_line: { ru: 'верно: 40 : 2 = 20 см²', uz: "to'g'ri: 40 : 2 = 20 sm²", en: 'right: 40 : 2 = 20 cm²' },
@@ -337,7 +330,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Половина прямоугольника', uz: "To'rtburchakning yarmi", en: 'Half a rectangle' },
     rule_1: {
       ru: 'Площадь треугольника равна основанию, умноженному на высоту, делённому на два: S = ah : 2. Высота — перпендикуляр от вершины к основанию.',
@@ -357,7 +349,6 @@ const CONTENT = {
   },
 
   s_area: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Площадь треугольника', uz: 'Uchburchak yuzi', en: 'The area of a triangle' },
     lead: { ru: 'Перемножь и раздели на два.', uz: "Ko'paytirib, ikkiga bo'ling.", en: 'Multiply, then halve.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -414,7 +405,6 @@ const CONTENT = {
   },
 
   s_comp: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Составные фигуры', uz: 'Murakkab shakllar', en: 'Compound shapes' },
     lead: { ru: 'Разбей на части или обведи и вычти.', uz: "Qismlarga bo'ling yoki o'rab ayiring.", en: 'Cut into parts, or box in and subtract.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -490,7 +480,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Сложить или вычесть', uz: "Qo'shishmi yoki ayirish", en: 'Add or subtract' },
     lead: { ru: 'Смотри, фигура собрана из частей или из неё вырезали.', uz: "Shakl qismlardan yig'ilganmi yoki undan qirqib olinganmi, qarang.", en: 'See whether the shape is built up or cut into.' },
     bin_a: { ru: 'Складываем части', uz: "Qismlarni qo'shamiz", en: 'Add the parts' },
@@ -525,7 +514,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -571,7 +559,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Бумага на змея', uz: "Varrakka qog'oz", en: 'Paper for the kite' },
     lead: { ru: 'Змей из двух треугольников с общим основанием 6 см.', uz: "Umumiy asosi 6 sm bo'lgan ikki uchburchakdan varrak.", en: 'A kite of two triangles sharing a 6 cm base.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -617,7 +604,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -718,7 +704,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Геометрия', uz: 'Matematika · Geometriya', en: 'Mathematics · Geometry' },
     heading: { ru: 'Площадь треугольника', uz: 'Uchburchak yuzi', en: 'Area of a triangle' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1105,7 +1090,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d43-banner fade-up delay-1' + (phase === 'play' ? ' d43-banner-play' : '')}>

@@ -82,7 +82,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Дорога в школу', uz: 'Maktabgacha yo\'l', en: 'The way to school' },
     lead: {
       ru: 'Азиз прошёл 2/5 дороги до школы. Это ровно 600 метров.',
@@ -120,7 +119,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Делим на дробь', uz: "Kasrga bo'lamiz", en: 'Dividing by a fraction' },
     lines: [
       { ru: '6 : 2/3 = 6 · 3/2 = 9', uz: '6 : 2/3 = 6 · 3/2 = 9', en: '6 ÷ 2/3 = 6 · 3/2 = 9' },
@@ -150,7 +148,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Произведение равно 1', uz: "Ko'paytma 1 ga teng", en: 'The product equals 1' },
     pairs: [
       { a: { n: 2, d: 5 }, b: { n: 5, d: 2 } },
@@ -182,7 +179,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Целое по его части', uz: "Qismiga ko'ra butunni topish", en: 'The whole from its part' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -241,7 +237,6 @@ const CONTENT = {
   },
 
   s_two: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Две похожие задачи', uz: "Ikkita o'xshash masala", en: 'Two similar problems' },
     left_q: { ru: 'Известно целое: 20 страниц. Найти 3/4', uz: "Butun ma'lum: 20 bet. 3/4 qismini topish", en: 'The whole is known: 20 pages. Find 3/4' },
     left_a: { ru: '20 · 3/4 = 15', uz: '20 · 3/4 = 15', en: '20 · 3/4 = 15' },
@@ -272,7 +267,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: '21 страница — это 7/9 книги', uz: "21 bet bu kitobning 7/9 qismi", en: '21 pages are 7/9 of a book' },
     lead: { ru: 'Известна часть, значит делим на дробь.', uz: "Qism ma'lum, demak kasrga bo'lamiz.", en: 'The part is known, so divide by the fraction.' },
     steps: [
@@ -305,7 +299,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Умножить вместо деления', uz: "Bo'lish o'rniga ko'paytirish", en: 'Multiplying instead of dividing' },
     bad_line: { ru: '600 · 2/5 = 240 м', uz: '600 · 2/5 = 240 m', en: '600 · 2/5 = 240 m' },
     good_line: { ru: '600 : 2/5 = 1500 м', uz: '600 : 2/5 = 1500 m', en: '600 ÷ 2/5 = 1500 m' },
@@ -335,7 +328,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Обратные числа и целое по части', uz: "Teskari sonlar va qismga ko'ra butun", en: 'Reciprocals and the whole from a part' },
     rule_1: {
       ru: 'Два числа взаимно обратны, если их произведение равно 1. Чтобы найти обратное дроби, её переворачивают. У нуля обратного числа нет.',
@@ -355,7 +347,6 @@ const CONTENT = {
   },
 
   s_rec: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди обратное число', uz: 'Teskari sonni toping', en: 'Find the reciprocal' },
     lead: { ru: 'Проверь себя умножением: должно получиться 1.', uz: "O'zingizni ko'paytirib tekshiring: 1 chiqishi kerak.", en: 'Check by multiplying: the product must be 1.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -404,7 +395,6 @@ const CONTENT = {
   },
 
   s_whole: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди целое', uz: 'Butunni toping', en: 'Find the whole' },
     lead: { ru: 'Целое всегда больше своей части — так проверяют ответ.', uz: "Butun doim o'z qismidan katta — javob shunday tekshiriladi.", en: 'The whole is always larger than its part: that is how you check.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -468,7 +458,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Произведение равно 1 или нет', uz: "Ko'paytma 1 ga tengmi yoki yo'q", en: 'Does the product equal 1' },
     lead: { ru: 'Взаимно обратные числа дают в произведении ровно 1.', uz: "O'zaro teskari sonlar ko'paytmada roppa-rosa 1 beradi.", en: 'Reciprocals multiply to exactly 1.' },
     bin_a: { ru: 'Произведение 1', uz: "Ko'paytma 1", en: 'Product is 1' },
@@ -503,7 +492,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -549,7 +537,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Дорога Азиза', uz: 'Azizning yo\'li', en: 'Aziz’s route' },
     lead: { ru: 'Азиз прошёл 2/5 дороги, это 600 метров.', uz: "Aziz yo'lning 2/5 qismini bosdi, bu 600 metr.", en: 'Aziz has walked 2/5 of the way, which is 600 metres.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -595,7 +582,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -686,7 +672,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Дроби', uz: 'Matematika · Kasrlar', en: 'Mathematics · Fractions' },
     heading: { ru: 'Обратные числа и целое по части', uz: "Teskari sonlar va qismga ko'ra butun", en: 'Reciprocals and the whole' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1017,7 +1002,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d13-banner fade-up delay-1' + (phase === 'play' ? ' d13-banner-play' : '')}>

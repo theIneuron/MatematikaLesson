@@ -82,7 +82,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Макет школы', uz: 'Maktab maketi', en: 'The school model' },
     lead: {
       ru: 'Макет школы собран в масштабе 1 : 100. Здание на нём длиной 40 см.',
@@ -120,7 +119,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Отношение и пропорция', uz: 'Nisbat va proporsiya', en: 'Ratio and proportion' },
     lines: [
       { ru: '1 см : 3 км — отношение на карте', uz: '1 sm : 3 km — xaritadagi nisbat', en: '1 cm : 3 km is the map ratio' },
@@ -151,7 +149,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Что значит 1 : 100', uz: '1 : 100 nimani anglatadi', en: 'What 1 : 100 means' },
     lines: [
       { ru: '1 см на макете — 100 см в жизни', uz: 'maketda 1 sm — hayotda 100 sm', en: '1 cm on the model is 100 cm in life' },
@@ -183,7 +180,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'С макета в жизнь', uz: 'Maketdan hayotga', en: 'From the model to life' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -246,7 +242,6 @@ const CONTENT = {
   },
 
   s_back: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Обратный ход: в жизнь и на макет', uz: 'Teskari yo\'l: hayotdan maketga', en: 'The other way: from life to the model' },
     lines: [
       { ru: 'реальная стена 25 м, масштаб 1 : 500', uz: 'haqiqiy devor 25 m, masshtab 1 : 500', en: 'a real wall of 25 m at 1 : 500' },
@@ -278,7 +273,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Карта 1 : 200 000', uz: 'Xarita 1 : 200 000', en: 'A 1 : 200,000 map' },
     lead: { ru: 'На карте отрезок 7 см. Сколько это километров?', uz: 'Xaritada kesma 7 sm. Bu necha kilometr?', en: 'A segment on the map is 7 cm. How many kilometres is that?' },
     steps: [
@@ -311,7 +305,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Единицы и направление масштаба', uz: 'Birliklar va masshtab yo\'nalishi', en: 'Units and the direction of a scale' },
     bad_line: { ru: 'ошибка: 40 см · 100 = 40 м', uz: 'xato: 40 sm · 100 = 40 m', en: 'mistake: 40 cm · 100 = 40 m' },
     good_line: { ru: 'верно: 40 см · 100 = 4000 см = 40 м', uz: "to'g'ri: 40 sm · 100 = 4000 sm = 40 m", en: 'right: 40 cm · 100 = 4,000 cm = 40 m' },
@@ -341,7 +334,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Как работает масштаб', uz: 'Masshtab qanday ishlaydi', en: 'How a scale works' },
     rule_1: {
       ru: 'Масштаб 1 : n значит, что 1 см на изображении соответствует n см в жизни. С макета в жизнь — умножаем на n, из жизни на макет — делим на n.',
@@ -361,7 +353,6 @@ const CONTENT = {
   },
 
   s_real: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'С макета в жизнь', uz: 'Maketdan hayotga', en: 'From model to life' },
     lead: { ru: 'Сначала умножь, потом переводи единицы.', uz: "Avval ko'paytiring, keyin birlikni o'zgartiring.", en: 'Multiply first, convert units after.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -422,7 +413,6 @@ const CONTENT = {
   },
 
   s_model: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Из жизни на макет', uz: 'Hayotdan maketga', en: 'From life to the model' },
     lead: { ru: 'Сначала переведи в сантиметры, потом дели.', uz: "Avval santimetrga o'tkazing, keyin bo'ling.", en: 'Convert to centimetres first, then divide.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -494,7 +484,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Уменьшает или увеличивает', uz: 'Kichraytiradi yoki kattalashtiradi', en: 'Shrinks or enlarges' },
     lead: { ru: 'Смотри, где стоит единица в записи масштаба.', uz: 'Masshtab yozuvida bir qayerda turganiga qarang.', en: 'See where the one stands in the scale.' },
     bin_a: { ru: 'Уменьшает', uz: 'Kichraytiradi', en: 'Shrinks' },
@@ -529,7 +518,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -575,7 +563,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Макет школьного двора', uz: 'Maktab hovlisi maketi', en: 'The schoolyard model' },
     lead: { ru: 'Макет в масштабе 1 : 100. Здание на макете 40 см, беговая дорожка настоящая 60 м.', uz: "Maket 1 : 100 masshtabda. Maketda bino 40 sm, haqiqiy yugurish yo'lagi 60 m.", en: 'The model is 1 : 100. The building is 40 cm on it and the real running track is 60 m.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -621,7 +608,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -722,7 +708,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Масштаб', uz: 'Matematika · Masshtab', en: 'Mathematics · Scale' },
     heading: { ru: 'Масштаб', uz: 'Masshtab', en: 'Scale' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1037,7 +1022,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d20-banner fade-up delay-1' + (phase === 'play' ? ' d20-banner-play' : '')}>

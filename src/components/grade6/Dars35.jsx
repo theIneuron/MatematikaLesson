@@ -82,7 +82,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Билеты на концерт', uz: 'Konsertga chiptalar', en: 'Concert tickets' },
     lead: {
       ru: 'Продали 40 билетов. Взрослых на 8 больше, чем детских.',
@@ -120,7 +119,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Решать уравнение мы умеем', uz: 'Tenglamani yechishni bilamiz', en: 'We can already solve equations' },
     done: {
       ru: 'Само решение уже знакомо. Трудность в другом: превратить текст задачи в такую запись.',
@@ -147,7 +145,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Что обозначить буквой', uz: 'Nimani harf bilan belgilash', en: 'What the letter should stand for' },
     lines: [
       { ru: 'детских билетов — x', uz: 'bolalar chiptasi — x', en: 'child tickets: x' },
@@ -179,7 +176,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'От условия к уравнению', uz: 'Shartdan tenglamaga', en: 'From the text to the equation' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -247,7 +243,6 @@ const CONTENT = {
   },
 
   s_back: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Корень — ещё не ответ', uz: 'Ildiz hali javob emas', en: 'The root is not the answer yet' },
     lines: [
       { ru: 'x = 16 — это детские билеты', uz: 'x = 16 — bu bolalar chiptasi', en: 'x = 16 is the child tickets' },
@@ -279,7 +274,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Два класса на линейке', uz: 'Saf tortgan ikki sinf', en: 'Two classes in line' },
     lead: { ru: 'В двух классах 54 ученика, в 6А на 6 больше. Сколько в 6А?', uz: "Ikki sinfda 54 o'quvchi bor, 6A da 6 ta ko'p. 6A da nechta?", en: 'Two classes have 54 students, 6A has 6 more. How many in 6A?' },
     steps: [
@@ -312,7 +306,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Ответили не на тот вопрос', uz: 'Boshqa savolga javob berildi', en: 'Answering the wrong question' },
     bad_line: { ru: 'ошибка: нашли x = 16 и написали в ответ 24', uz: 'xato: x = 16 topilgan, javobga 24 yozilgan', en: 'mistake: found x = 16 but wrote 24' },
     good_line: { ru: 'верно: спрашивали про детские, значит 16', uz: "to'g'ri: bolalarniki so'ralgan, demak 16", en: 'right: the question was about children, so 16' },
@@ -342,7 +335,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'План решения задачи', uz: 'Masala yechish rejasi', en: 'The plan for a word problem' },
     rule_1: {
       ru: 'Обозначь буквой одну величину, лучше меньшую. Вырази через неё остальные. Составь уравнение из условия и реши его.',
@@ -362,7 +354,6 @@ const CONTENT = {
   },
 
   s_make: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Составь уравнение', uz: 'Tenglama tuzing', en: 'Build the equation' },
     lead: { ru: 'Решать пока не нужно: только запиши.', uz: 'Hozircha yechish shart emas: faqat yozing.', en: 'No solving yet: just write it down.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -411,7 +402,6 @@ const CONTENT = {
   },
 
   s_ans: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Реши и ответь на вопрос', uz: 'Yeching va savolga javob bering', en: 'Solve and answer the question' },
     lead: { ru: 'Найди корень, потом посмотри, о чём спрашивали.', uz: "Ildizni toping, keyin nima so'ralganiga qarang.", en: 'Find the root, then check what was asked.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -479,7 +469,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Подходит ли уравнение?', uz: 'Tenglama mos keladimi?', en: 'Does the equation fit?' },
     lead: { ru: 'Условие одно: двух чисел вместе 30, второе на 4 больше первого. Первое — x.', uz: "Shart bitta: ikki sonning yig'indisi 30, ikkinchisi birinchisidan 4 ta ko'p. Birinchisi — x.", en: 'One text: two numbers add to 30, the second is 4 more. The first is x.' },
     bin_a: { ru: 'Подходит', uz: 'Mos keladi', en: 'Fits' },
@@ -514,7 +503,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -560,7 +548,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Касса перед концертом', uz: 'Konsert oldidan kassa', en: 'The box office' },
     lead: { ru: 'Продали 40 билетов, взрослых на 8 больше детских.', uz: "40 ta chipta sotildi, kattalarniki bolalarnikidan 8 ta ko'p.", en: '40 tickets sold, 8 more adult than child.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -602,7 +589,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -688,7 +674,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Уравнения', uz: 'Matematika · Tenglamalar', en: 'Mathematics · Equations' },
     heading: { ru: 'Задачи через уравнение', uz: 'Tenglama orqali masalalar', en: 'Problems through equations' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1039,7 +1024,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d35-banner fade-up delay-1' + (phase === 'play' ? ' d35-banner-play' : '')}>

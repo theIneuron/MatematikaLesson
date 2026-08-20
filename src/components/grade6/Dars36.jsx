@@ -82,7 +82,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Заказ на ярмарку', uz: 'Yarmarkaga buyurtma', en: 'An order for the fair' },
     lead: {
       ru: 'Мадина шьёт весь заказ за 6 часов, Зилола за 12. Начали работать вместе.',
@@ -120,7 +119,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Цена, количество, стоимость', uz: 'Narx, miqdor, qiymat', en: 'Price, amount, cost' },
     done: {
       ru: 'Три величины связаны умножением: крайние дают среднее, а по стоимости и одной из них находят вторую делением.',
@@ -147,7 +145,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Работа устроена так же', uz: 'Ish ham xuddi shunday', en: 'Work is built the same way' },
     lines: [
       { ru: 'производительность — сколько сумок в час', uz: 'unumdorlik — soatiga nechta sumka', en: 'rate: how many bags per hour' },
@@ -179,7 +176,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Третья величина в тройке', uz: 'Uchlikdagi uchinchi kattalik', en: 'The third quantity in a trio' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -238,7 +234,6 @@ const CONTENT = {
   },
 
   s_join: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Работают вместе', uz: 'Birga ishlashadi', en: 'Working together' },
     lines: [
       { ru: 'заказ 12 сумок: Мадина 2 в час, Зилола 1 в час', uz: '12 ta sumka: Madina soatiga 2 ta, Zilola 1 ta', en: '12 bags: Madina 2 per hour, Zilola 1 per hour' },
@@ -270,7 +265,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Скидка на ярмарке', uz: 'Yarmarkadagi chegirma', en: 'A discount at the fair' },
     lead: { ru: 'Сумка стоит 30 000 сум, на ярмарке скидка 20%.', uz: "Sumka 30 000 so'm turadi, yarmarkada 20% chegirma.", en: 'A bag costs 30 000 soums with a 20% discount at the fair.' },
     steps: [
@@ -303,7 +297,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Времена не складываются', uz: "Vaqtlar qo'shilmaydi", en: 'Times do not add' },
     bad_line: { ru: 'ошибка: 6 и 12 часов, вместе 9 или 18', uz: 'xato: 6 va 12 soat, birga 9 yoki 18', en: 'mistake: 6 and 12 hours giving 9 or 18' },
     good_line: { ru: 'верно: складываем 2 и 1 сумку в час, выходит 4 часа', uz: "to'g'ri: soatiga 2 va 1 ta sumkani qo'shamiz, 4 soat chiqadi", en: 'right: add 2 and 1 bags an hour, giving 4 hours' },
@@ -333,7 +326,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Одна тройка на две темы', uz: 'Ikki mavzuga bitta uchlik', en: 'One trio for two topics' },
     rule_1: {
       ru: 'Цена · количество = стоимость, и точно так же производительность · время = работа. Среднюю величину находят умножением, крайнюю — делением.',
@@ -353,7 +345,6 @@ const CONTENT = {
   },
 
   s_three: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Тройка величин', uz: 'Kattaliklar uchligi', en: 'The trio of quantities' },
     lead: { ru: 'Смотри, какая величина неизвестна.', uz: "Qaysi kattalik noma'lumligiga qarang.", en: 'See which quantity is missing.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -410,7 +401,6 @@ const CONTENT = {
   },
 
   s_work: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Работа и скидка', uz: 'Ish va chegirma', en: 'Work and discount' },
     lead: { ru: 'Помни: складываются производительности.', uz: "Yodda tuting: unumdorliklar qo'shiladi.", en: 'Remember: the rates add.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -478,7 +468,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Умножить или разделить', uz: "Ko'paytirish yoki bo'lish", en: 'Multiply or divide' },
     lead: { ru: 'Смотри, какая величина неизвестна: средняя или крайняя.', uz: "Qaysi kattalik noma'lumligiga qarang: o'rtadagimi yoki chetdagi.", en: 'See which quantity is missing: the middle or an outer one.' },
     bin_a: { ru: 'Умножаем', uz: "Ko'paytiramiz", en: 'We multiply' },
@@ -513,7 +502,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -559,7 +547,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Мастерская к ярмарке', uz: 'Yarmarkaga ustaxona', en: 'The workshop before the fair' },
     lead: { ru: 'Мадина шьёт 2 сумки в час, Зилола 1. Сумка стоит 30 000 сум.', uz: "Madina soatiga 2 ta, Zilola 1 ta sumka tikadi. Sumka 30 000 so'm turadi.", en: 'Madina sews 2 bags an hour, Zilola 1. A bag costs 30 000 soums.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -601,7 +588,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -692,7 +678,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Задачи', uz: 'Matematika · Masalalar', en: 'Mathematics · Word problems' },
     heading: { ru: 'Деньги и работа', uz: 'Pul va ish', en: 'Money and work' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1045,7 +1030,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d36-banner fade-up delay-1' + (phase === 'play' ? ' d36-banner-play' : '')}>

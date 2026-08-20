@@ -83,7 +83,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Салфетка для сюзане', uz: "So'zana uchun salfetka", en: 'A cloth for the embroidery' },
     lead: {
       ru: 'Салфетка прямоугольная. Её складывают, чтобы узор с двух половинок совпал.',
@@ -121,7 +120,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Равные расстояния', uz: 'Teng masofalar', en: 'Equal distances' },
     done: {
       ru: 'Расстояние от точки до линии измеряют по перпендикуляру — по самому короткому пути. Это и будет главным признаком.',
@@ -148,7 +146,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Линия сгиба — это зеркало', uz: "Buklash chizig'i — ko'zgu", en: 'The fold line is a mirror' },
     lines: [
       { ru: 'сложили лист — половинки совпали', uz: 'varaqni bukladik — yarmilar mos tushdi', en: 'fold the sheet: the halves match' },
@@ -180,7 +177,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Отражаем точку', uz: 'Nuqtani akslantiramiz', en: 'Reflecting a point' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -243,7 +239,6 @@ const CONTENT = {
   },
 
   s_axes: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Сколько осей у фигуры', uz: "Shaklning nechta o'qi bor", en: 'How many axes a shape has' },
     lines: [
       { ru: 'у прямоугольника 2 оси: вдоль и поперёк', uz: "to'g'ri to'rtburchakda 2 o'q: bo'yiga va ko'ndalangiga", en: 'a rectangle has 2: lengthwise and crosswise' },
@@ -275,7 +270,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Отражение на плоскости', uz: 'Tekislikda akslantirish', en: 'Reflection on the plane' },
     lead: { ru: 'Точка A (3; 2). Отразим её через ось y, потом через ось x.', uz: "A (3; 2) nuqtasi. Uni y o'qi, keyin x o'qi orqali akslantiramiz.", en: 'Point A (3; 2). Reflect it in the y axis, then in the x axis.' },
     steps: [
@@ -308,7 +302,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Диагональ не всегда ось', uz: "Diagonal har doim o'q emas", en: 'A diagonal is not always an axis' },
     bad_line: { ru: 'ошибка: у прямоугольника 4 оси, как у квадрата', uz: "xato: to'g'ri to'rtburchakda kvadratdek 4 o'q", en: 'mistake: a rectangle has 4 axes like a square' },
     good_line: { ru: 'верно: по диагонали половинки не совпадают, осей 2', uz: "to'g'ri: diagonal bo'ylab yarmilar mos tushmaydi, o'q 2 ta", en: 'right: the halves do not match along a diagonal, so 2' },
@@ -338,7 +331,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Ось симметрии', uz: "Simmetriya o'qi", en: 'The axis of symmetry' },
     rule_1: {
       ru: 'Ось симметрии — линия, по которой фигуру можно сложить так, что половинки совпадут. Точка и её пара лежат по разные стороны оси на равном расстоянии, а отрезок между ними перпендикулярен оси.',
@@ -358,7 +350,6 @@ const CONTENT = {
   },
 
   s_count: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Считаем оси', uz: "O'qlarni sanaymiz", en: 'Counting the axes' },
     lead: { ru: 'Мысленно складывай фигуру и смотри, совпало ли.', uz: 'Shaklni xayolan buklab, mos tushganiga qarang.', en: 'Fold the shape in your head and see if it matches.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -411,7 +402,6 @@ const CONTENT = {
   },
 
   s_coord: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Отражение в координатах', uz: 'Koordinatalarda akslantirish', en: 'Reflection in coordinates' },
     lead: { ru: 'Через ось y меняется первое число, через ось x — второе.', uz: "y o'qi orqali birinchi son, x o'qi orqali ikkinchisi o'zgaradi.", en: 'The y axis flips the first number, the x axis the second.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -479,7 +469,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Есть ли ось симметрии?', uz: "Simmetriya o'qi bormi?", en: 'Does it have an axis?' },
     lead: { ru: 'Проверяй складыванием: совпало или нет?', uz: "Buklab tekshiring: mos tushdimi yoki yo'q?", en: 'Test by folding: match or no match?' },
     bin_a: { ru: 'Ось есть', uz: "O'q bor", en: 'Has an axis' },
@@ -514,7 +503,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -560,7 +548,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Узор на сюзане', uz: "So'zanadagi naqsh", en: 'The suzani pattern' },
     lead: { ru: 'Мастерица вышила левую половину и складывает салфетку.', uz: "Kashtachi chap yarmini tikdi va salfetkani buklaydi.", en: 'The embroiderer stitched the left half and folds the cloth.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -602,7 +589,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -698,7 +684,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Геометрия', uz: 'Matematika · Geometriya', en: 'Mathematics · Geometry' },
     heading: { ru: 'Осевая симметрия', uz: "O'q simmetriyasi", en: 'Reflection symmetry' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1117,7 +1102,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d40-banner fade-up delay-1' + (phase === 'play' ? ' d40-banner-play' : '')}>

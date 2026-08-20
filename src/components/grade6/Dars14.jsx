@@ -82,7 +82,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Четыре гирьки на весах', uz: 'Tarozidagi to\'rtta tosh', en: 'Four weights on the scales' },
     lead: {
       ru: 'На уроке физики взвешивают детали. Одна деталь весит 1,25 кг, их четыре.',
@@ -120,7 +119,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Десятичная — это тоже дробь', uz: "O'nli kasr ham kasr", en: 'A decimal is a fraction too' },
     rows: [
       { dec: '0,4', n: 4, d: 10 },
@@ -152,7 +150,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Где ставить запятую', uz: 'Vergul qayerga qo\'yiladi', en: 'Where the comma goes' },
     lines: [
       { ru: '1,25 · 4', uz: '1,25 · 4', en: '1.25 · 4' },
@@ -184,7 +181,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Считаем как целые', uz: 'Butun sonlardek hisoblaymiz', en: 'Compute as whole numbers' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -243,7 +239,6 @@ const CONTENT = {
   },
 
   s_div: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Деление: сдвигаем запятую', uz: "Bo'lish: vergulni suramiz", en: 'Division: shift the point' },
     lines: [
       { ru: '7,5 : 2,5', uz: '7,5 : 2,5', en: '7.5 ÷ 2.5' },
@@ -275,7 +270,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Посчитаем 4,8 : 0,6', uz: '4,8 : 0,6 ni hisoblaymiz', en: 'Let us compute 4.8 ÷ 0.6' },
     lead: { ru: 'У делителя один знак после запятой — умножаем оба числа на 10.', uz: "Bo'luvchida verguldan keyin bitta raqam bor — ikkala sonni 10 ga ko'paytiramiz.", en: 'The divisor has one digit after the point, so multiply both by 10.' },
     steps: [
@@ -308,7 +302,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Запятая едет по разрядам', uz: 'Vergul xonalar bo\'ylab suriladi', en: 'The comma moves across places' },
     rows: [
       { ru: '3,7 · 10 = 37', uz: '3,7 · 10 = 37', en: '3.7 · 10 = 37' },
@@ -341,7 +334,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Как считать с запятой', uz: 'Vergul bilan qanday hisoblanadi', en: 'How to compute with decimals' },
     rule_1: {
       ru: 'Умножение: считаем как целые числа и отделяем столько знаков после запятой, сколько их было у множителей вместе.',
@@ -361,7 +353,6 @@ const CONTENT = {
   },
 
   s_mul: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Умножение с запятой', uz: "Vergul bilan ko'paytirish", en: 'Multiplying decimals' },
     lead: { ru: 'Сначала как целые, потом считай знаки.', uz: 'Avval butun sonlardek, keyin raqamlarni sanang.', en: 'Whole numbers first, then count the digits.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -410,7 +401,6 @@ const CONTENT = {
   },
 
   s_dv: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Деление с запятой', uz: "Vergul bilan bo'lish", en: 'Dividing decimals' },
     lead: { ru: 'Сделай делитель целым, умножив оба числа.', uz: "Ikkala sonni ko'paytirib, bo'luvchini butun qiling.", en: 'Make the divisor whole by multiplying both numbers.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -470,7 +460,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Больше или меньше первого числа', uz: 'Birinchi sondan katta yoki kichik', en: 'Larger or smaller than the first number' },
     lead: { ru: 'Смотри на второй множитель: меньше 1 — результат уменьшится.', uz: "Ikkinchi ko'paytuvchiga qarang: 1 dan kichik bo'lsa, natija kamayadi.", en: 'Look at the second factor: below 1 makes the result smaller.' },
     bin_a: { ru: 'Больше', uz: 'Kattaroq', en: 'Larger' },
@@ -505,7 +494,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -551,7 +539,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Опыт с деталями', uz: 'Detallar bilan tajriba', en: 'The experiment with parts' },
     lead: { ru: 'Деталь весит 1,25 кг. На весах лежат четыре детали.', uz: "Detal 1,25 kg. Tarozida to'rtta detal turibdi.", en: 'One part weighs 1.25 kg and four are on the scales.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -593,7 +580,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -684,7 +670,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Десятичные дроби', uz: "Matematika · O'nli kasrlar", en: 'Mathematics · Decimals' },
     heading: { ru: 'Умножение и деление', uz: "Ko'paytirish va bo'lish", en: 'Multiplying and dividing' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1010,7 +995,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d14-banner fade-up delay-1' + (phase === 'play' ? ' d14-banner-play' : '')}>

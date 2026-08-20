@@ -112,7 +112,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: {
       ru: 'Турнир: команды по 5 или по 6?',
       uz: "Turnir: beshtadan yoki oltitadan?",
@@ -173,7 +172,6 @@ const CONTENT = {
   // AVVAL KO'RSATAMIZ, KEYIN O'ZI QILADI. Ko'rsatishda 24 va 6, keyin bolaning
   // navbati: son 25 qat'iy, u faqat bo'luvchini tanlaydi.
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Делится или нет', uz: "Bo'linadimi yoki yo'q", en: 'Does it divide or not' },
     demo_banner: {
       ru: 'Смотри — покажу на примере',
@@ -242,7 +240,6 @@ const CONTENT = {
   },
 
   s1: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Один пример — два названия', uz: 'Bitta misol — ikkita nom', en: 'One example, two names' },
     bridge: {
       ru: '12 игроков разошлись на 3 команды: 12 : 3 = 4. Посмотри на рисунок.',
@@ -276,7 +273,6 @@ const CONTENT = {
   },
 
   s2: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     question: { ru: 'Теперь разбери пример сам', uz: "Endi misolni o'zingiz tahlil qiling", en: 'Now work out an example yourself' },
     row_a: { ru: '20 — это … числа 5', uz: "20 — bu 5 sonining …", en: '20 is the … of 5' },
     row_b: { ru: '5 — это … числа 20', uz: "5 — bu 20 sonining …", en: '5 is the … of 20' },
@@ -305,7 +301,6 @@ const CONTENT = {
   },
 
   s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Два названия одного деления', uz: "Bitta bo'lishning ikki nomi", en: 'Two names for one division' },
     rule_1: { ru: 'Если a делится на b без остатка, то b называют делителем числа a.', uz: "Agar a soni b ga qoldiqsiz bo'linsa, b soni a sonining bo'luvchisi deyiladi.", en: 'If a divides by b with no remainder, then b is called a divisor of a.' },
     rule_2: { ru: 'В том же самом примере a называют кратным числа b.', uz: "Xuddi shu misolning o'zida a soni b sonining karralisi deyiladi.", en: 'In the very same example a is called a multiple of b.' },
@@ -318,7 +313,6 @@ const CONTENT = {
   // Dizayn metodistning Claude Design maketidan (delimiteli-kratnye.html).
   // {v} — qator soni o'rniga qo'yiladi.
   s4: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'А если остаётся лишнее?', uz: 'Ortib qolsa-chi?', en: 'What if something is left over?' },
     rest_label: { ru: 'остаток', uz: 'qoldiq', en: 'remainder' },
     note_ok: {
@@ -363,7 +357,6 @@ const CONTENT = {
   },
 
   s5: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     bridge: { ru: 'Проверим на другом числе.', uz: 'Boshqa sonda tekshiramiz.', en: 'Let us try another number.' },
     question: { ru: '14 разделили на 4 равные части. Что получится?', uz: "14 ni 4 ta teng qismga ajratdik. Nima bo'ladi?", en: '14 was split into 4 equal parts. What comes out?' },
     correctIndex: 0,
@@ -396,7 +389,6 @@ const CONTENT = {
   // qarab yuradi, ko'paytmasi chiqadi, ikkalasi qatorga o'tadi. Uchinchi juftlik
   // (uch va to'rt) o'rtada UCHRASHADI — qidirish shu yerda tugaydi.
   s6: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Делители ищем парами', uz: "Bo'luvchilarni juftlab qidiramiz", en: 'Finding divisors in pairs' },
     cap_all: { ru: 'Делители числа 12', uz: "12 ning bo'luvchilari", en: 'Divisors of 12' },
     // Мостик к хуку: те же двенадцать игроков, что и на прошлом экране.
@@ -470,7 +462,6 @@ const CONTENT = {
   },
 
   s9: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     label: { ru: 'выбираем делители', uz: "bo'luvchilarni tanlaymiz", en: 'choosing divisors' },
     context: { ru: 'Нажимай на подходящие числа в ряду.', uz: "Qatordan mos sonlarni bosing.", en: 'Tap the numbers in the row that fit.' },
     question: { ru: 'Выбери все делители числа 18', uz: "18 sonining barcha bo'luvchilarini tanlang", en: 'Choose all the divisors of 18' },
@@ -508,7 +499,6 @@ const CONTENT = {
   // CHETGA CHIQARIB TASHLAYDI va 12 dan keyin DEVORGA urilib tugaydi.
   // Dizayn metodistning maketidan (kratnye-i-deliteli.html).
   s10: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Бесконечно и конечно', uz: 'Cheksiz va sanoqli', en: 'Endless and countable' },
     cap_mult: { ru: 'Кратные числа 3', uz: '3 ga karrali sonlar', en: 'Multiples of 3' },
     cap_div: { ru: 'Делители числа 12', uz: "12 ning bo'luvchilari", en: 'Divisors of 12' },
@@ -571,7 +561,6 @@ const CONTENT = {
   },
 
   s11: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Собери делители', uz: "Bo'luvchilarni yig'ing", en: 'Collect the divisors' },
     lead: { ru: 'Для каждого числа выбери из списка полный набор его делителей.', uz: "Har bir son uchun ro'yxatdan uning to'liq bo'luvchilar to'plamini tanlang.", en: 'For each number choose the full set of its divisors from the list.' },
     pairs: [
@@ -604,7 +593,6 @@ const CONTENT = {
   },
 
   s12: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Делитель 6 или кратное 6?', uz: "6 ning bo'luvchisimi yoki 6 ga karralimi?", en: 'A divisor of 6 or a multiple of 6?' },
     lead: { ru: 'Делитель не больше самого числа, кратное — не меньше.', uz: "Bo'luvchi sondan katta emas, karrali son esa kichik emas.", en: 'A divisor is not larger than the number itself, a multiple is not smaller.' },
     bin_a: { ru: 'Делитель 6', uz: "6 ning bo'luvchisi", en: 'Divisor of 6' },
@@ -641,7 +629,6 @@ const CONTENT = {
   },
 
   s13: {
-    eyebrow: { ru: 'Итог урока', uz: 'Dars yakuni', en: 'The end of the lesson' },
     label: { ru: 'финальная задача', uz: 'yakuniy masala', en: 'final task' },
     context: { ru: 'Ищи парами и нажимай на подходящие числа.', uz: "Juftlab qidiring va mos sonlarni bosing.", en: 'Look in pairs and tap the numbers that fit.' },
     question: { ru: 'Выбери все делители числа 36', uz: "36 sonining barcha bo'luvchilarini tanlang", en: 'Choose all the divisors of 36' },
@@ -672,7 +659,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     heading: { ru: 'Делители и кратные', uz: "Bo'luvchilar va karrali sonlar", en: 'Divisors and multiples' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
     banner: { ru: 'Математика · Делимость', uz: 'Matematika · Bo\'linish', en: 'Mathematics · Divisibility' },
@@ -715,7 +701,6 @@ const CONTENT = {
 
   // Ekran 2 — ESLAYMIZ. Ko'paytirish jadvali tayyor bo'luvchilar ro'yxati.
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Ты это уже знаешь', uz: 'Buni siz allaqachon bilasiz', en: 'You already know this' },
     lead: { ru: '3 команды по 4 игрока — это 12 участников.', uz: "4 nafardan 3 jamoa — bu 12 ishtirokchi.", en: '3 teams of 4 players make 12 participants.' },
     lbl_div: { ru: 'делители', uz: "bo'luvchilar", en: 'divisors' },
@@ -824,7 +809,6 @@ const CONTENT = {
   // Muvaffaqiyatsiz qadam (beshlik) ham yozuvda QOLADI — bola rad javobini
   // ko'rishi kerak, hozirgi darsda faqat omadli juftliklar ko'rsatiladi.
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Найти все делители числа 24', uz: "24 sonining barcha bo'luvchilarini topish", en: 'Find every divisor of 24' },
     lead: { ru: 'То самое число, с которого начался урок. Записываю каждый шаг, ничего не стираю.', uz: "Dars shu sondan boshlangan edi. Har bir qadamni yozib boraman, hech narsani o'chirmayman.", en: 'The very number the lesson began with. I write down every step and erase nothing.' },
     rows: [
@@ -902,7 +886,6 @@ const CONTENT = {
 
   // Ekran 9 — MASHQ 1. Rollarni nomlash, uchta misol ketma-ket.
   s_roles: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Назови каждое число', uz: 'Har bir sonni nomlang', en: 'Name each number' },
     lead: { ru: 'Игроки расходятся по командам. Делитель не больше самого числа, кратное — не меньше.', uz: "O'yinchilar jamoalarga bo'linadi. Bo'luvchi sondan katta emas, karrali son esa kichik emas.", en: 'The players split into teams. A divisor is not larger than the number, a multiple is not smaller.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -929,7 +912,6 @@ const CONTENT = {
 
   // Ekran 10 — MASHQ 2. Birinchi usul amalda, to'rtta tekshiruv.
   s_check: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Делится или нет', uz: "Bo'linadimi yoki yo'q", en: 'Does it divide or not' },
     lead: { ru: 'Ответь да или нет. Смотри на остаток.', uz: "Ha yoki yo'q deb javob bering. Qoldiqqa qarang.", en: 'Answer yes or no. Look at the remainder.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -974,7 +956,6 @@ const CONTENT = {
 
   // Ekran 11, ikkinchi topshiriq: 20 ning bo'luvchilari (birinchisi — s9, 18).
   s9b: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     label: { ru: 'теперь сам', uz: "endi o'zingiz", en: 'now on your own' },
     context: { ru: 'Тот же способ, но подсказок нет.', uz: "O'sha usul, lekin ishora yo'q.", en: 'The same method, but no hints.' },
     question: { ru: 'Выбери все делители числа 20', uz: "20 sonining barcha bo'luvchilarini tanlang", en: 'Choose all the divisors of 20' },
@@ -996,7 +977,6 @@ const CONTENT = {
 
   // Ekran 12 — MASHQ 4. XATONI TOPISH. Birinchi topshiriq TUZOQ: xato yo'q.
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikini tekshirgandek tekshiring.", en: "Check someone else's work the way you would check your own." },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -1033,7 +1013,6 @@ const CONTENT = {
   // aks holda javob 6 chiqadi va imtihondagi «24 ning bo'luvchilari nechta»
   // savoliga qarama-qarshi bo'lardi.
   s_grid: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Фотографии с турнира', uz: 'Turnir suratlari', en: 'Photos from the tournament' },
     lead: { ru: 'Фотографии выкладывают в школьную галерею одинаковыми рядами.', uz: 'Suratlar maktab galereyasiga bir xil qatorlar qilib joylanadi.', en: 'The photos go into the school gallery in equal rows.' },
     // Условие — УТВЕРЖДЕНИЕ, а не второй вопрос. Раньше на экране стояли два
@@ -1089,7 +1068,6 @@ const CONTENT = {
 
   // Ekran 14 — YAKUNIY TEST. Bitta ekranda beshta topshiriq (3-sinf naqshi).
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -1728,7 +1706,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev }) => {
   const handY = handPhase >= 2 ? spots.goY : spots.divY;
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <div className="rs-top fade-up">
           <h2 className="title h-sub" style={{ margin: 0 }}>{t(c.title)}</h2>
@@ -2075,7 +2053,7 @@ const SolveTogether = ({ screen, totalScreens, onNext, onPrev }) => {
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <p className="small fade-up delay-1" style={{ margin: 0, color: T.ink3 }}>{t(c.lead)}</p>
@@ -2204,7 +2182,7 @@ const RolesPractice = (props) => {
   const opts = [c.opt_mult, c.opt_div];
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <p className="small fade-up delay-1" style={{ margin: 0, color: T.ink3 }}>{t(c.lead)}</p>
@@ -2301,7 +2279,7 @@ const CheckPractice = (props) => {
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <p className="small fade-up delay-1" style={{ margin: 0, color: T.ink3 }}>{t(c.lead)}</p>
@@ -2400,7 +2378,7 @@ const FindError = (props) => {
   const opts = task === 0 ? [t(c.t1_opt_aziz), t(c.t1_opt_dilnoza)] : t2opts;
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <p className="small fade-up delay-1" style={{ margin: 0, color: T.ink3 }}>{t(c.lead)}</p>
@@ -2563,7 +2541,7 @@ const GridTask = (props) => {
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <p className="small fade-up delay-1" style={{ margin: 0, color: T.ink3 }}>{t(c.lead)}</p>

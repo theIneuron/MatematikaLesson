@@ -82,7 +82,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Круг за 60 секунд', uz: '60 soniyada bir aylana', en: 'A lap in 60 seconds' },
     lead: {
       ru: 'Азиз пробегал круг за 60 секунд. После тренировок он улучшил результат на 10 процентов.',
@@ -120,7 +119,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Процент от числа', uz: 'Sonning foizi', en: 'A percent of a number' },
     lines: [
       { ru: '10% от 60 = 60 · 0,1 = 6', uz: "60 ning 10% i = 60 · 0,1 = 6", en: '10% of 60 = 60 · 0.1 = 6' },
@@ -151,7 +149,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Уменьшить на 10 процентов', uz: '10 foizga kamaytirish', en: 'Decrease by 10 percent' },
     lines: [
       { ru: '10% от 60 = 6', uz: "60 ning 10% i = 6", en: '10% of 60 = 6' },
@@ -183,7 +180,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Увеличить на проценты', uz: 'Foizga oshirish', en: 'Increase by a percent' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -242,7 +238,6 @@ const CONTENT = {
   },
 
   s_whole: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Целое по проценту', uz: 'Foizga ko\'ra butun', en: 'The whole from a percent' },
     lines: [
       { ru: '30 — это 20% числа', uz: '30 — bu sonning 20% i', en: '30 is 20% of a number' },
@@ -274,7 +269,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Цена упала с 25 000 до 20 000', uz: 'Narx 25 000 dan 20 000 ga tushdi', en: 'The price fell from 25,000 to 20,000' },
     lead: { ru: 'На сколько процентов подешевел товар?', uz: 'Mahsulot necha foizga arzonlashdi?', en: 'By what percent did it get cheaper?' },
     steps: [
@@ -307,7 +301,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Два изменения подряд', uz: "Ketma-ket ikki o'zgarish", en: 'Two changes in a row' },
     up_line: { ru: '100 · 1,1 = 110 — рост на 10%', uz: "100 · 1,1 = 110 — 10% ga o'sish", en: '100 · 1.1 = 110 is a 10% rise' },
     down_line: { ru: '110 · 0,9 = 99 — падение на 10%', uz: '110 · 0,9 = 99 — 10% ga tushish', en: '110 · 0.9 = 99 is a 10% fall' },
@@ -337,7 +330,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Три задачи на проценты', uz: 'Foizga oid uch masala', en: 'Three percentage problems' },
     rule_1: {
       ru: 'Увеличить на p процентов — умножить на 1 плюс сотые доли p. Уменьшить — умножить на 1 минус эти доли. Найти целое по части — разделить на десятичную запись процента.',
@@ -357,7 +349,6 @@ const CONTENT = {
   },
 
   s_change: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Увеличить и уменьшить', uz: 'Oshirish va kamaytirish', en: 'Increase and decrease' },
     lead: { ru: 'Найди процент от исходного числа и прибавь или вычти.', uz: "Dastlabki sondan foizni toping va qo'shing yoki ayiring.", en: 'Find the percent of the original number and add or subtract.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -406,7 +397,6 @@ const CONTENT = {
   },
 
   s_find: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Целое и процент изменения', uz: "Butun va o'zgarish foizi", en: 'The whole and the percent of change' },
     lead: { ru: 'Дана часть — делим. Дано изменение — делим на прежнее значение.', uz: "Qism berilgan — bo'lamiz. O'zgarish berilgan — avvalgi qiymatga bo'lamiz.", en: 'A part is given: divide. A change is given: divide by the old value.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -470,7 +460,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Стало больше или меньше', uz: "Ko'paydi yoki kamaydi", en: 'More or less than before' },
     lead: { ru: 'Множитель больше 1 увеличивает, меньше 1 уменьшает.', uz: "1 dan katta ko'paytuvchi oshiradi, kichigi kamaytiradi.", en: 'A factor above 1 increases, below 1 decreases.' },
     bin_a: { ru: 'Стало больше', uz: "Ko'paydi", en: 'It grew' },
@@ -505,7 +494,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -551,7 +539,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Забег и тренировки', uz: 'Yugurish va mashqlar', en: 'The lap and the training' },
     lead: { ru: 'Азиз пробегал круг за 60 секунд, после тренировок улучшил на 10%.', uz: "Aziz aylanani 60 soniyada yugurardi, mashqlardan keyin 10% ga yaxshiladi.", en: 'Aziz ran a lap in 60 seconds and improved by 10% after training.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -597,7 +584,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -683,7 +669,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Проценты', uz: 'Matematika · Foizlar', en: 'Mathematics · Percentages' },
     heading: { ru: 'Задачи на проценты', uz: 'Foizga oid masalalar', en: 'Percentage problems' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -996,7 +981,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d22-banner fade-up delay-1' + (phase === 'play' ? ' d22-banner-play' : '')}>

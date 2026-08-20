@@ -80,7 +80,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: {
       ru: 'Остановка: 12 минут и 18',
       uz: 'Bekat: 12 daqiqa va 18',
@@ -122,7 +121,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Кратные числа', uz: 'Karrali sonlar', en: 'Multiples' },
     row12: [12, 24, 36, 48, 60],
     row18: [18, 36, 54, 72],
@@ -151,7 +149,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Первая общая минута', uz: 'Birinchi umumiy daqiqa', en: 'The first shared minute' },
     marks: [12, 18, 24, 36, 48, 54, 60, 72],
     done: {
@@ -179,7 +176,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Способ: до первой встречи', uz: 'Usul: birinchi uchrashuvgacha', en: 'Method: up to the first meeting' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -235,7 +231,6 @@ const CONTENT = {
   },
 
   s_fact: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Способ 2: через простые', uz: 'Usul 2: tub sonlar orqali', en: 'Method 2: through primes' },
     a: { n: 12, f: [2, 2, 3] },
     b: { n: 18, f: [2, 3, 3] },
@@ -265,7 +260,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Автобусы: через 36 минут', uz: 'Avtobuslar: 36 daqiqadan keyin', en: 'The buses: in 36 minutes' },
     lead: { ru: 'Проверим оба способа на числах из задачи.', uz: "Masaladagi sonlarda ikkala usulni tekshiramiz.", en: 'Let us check both methods on the numbers from the problem.' },
     rows: [
@@ -298,7 +292,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Связь', uz: "Bog'lanish", en: 'The link' },
     title: { ru: 'НОД и НОК связаны', uz: "EKUB va EKUK bog'liq", en: 'GCD and LCM are linked' },
     line_1: { ru: 'НОД(12, 18) = 6', uz: 'EKUB(12, 18) = 6', en: 'GCD(12, 18) = 6' },
     line_2: { ru: 'НОК(12, 18) = 36', uz: 'EKUK(12, 18) = 36', en: 'LCM(12, 18) = 36' },
@@ -329,7 +322,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Наименьшее общее кратное', uz: 'Eng kichik umumiy karrali', en: 'The least common multiple' },
     rule_1: {
       ru: 'НОК(a, b) — самое маленькое число, которое делится и на a, и на b. Оно не меньше большего из чисел.',
@@ -349,7 +341,6 @@ const CONTENT = {
   },
 
   s_first: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Первое общее кратное', uz: 'Birinchi umumiy karrali', en: 'The first common multiple' },
     lead: { ru: 'Идём по кратным большего числа: так быстрее.', uz: "Katta sonning karralilari bo'yicha yuring: shunda tezroq.", en: 'Walk along the multiples of the larger number: it is faster.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -398,7 +389,6 @@ const CONTENT = {
   },
 
   s_lcm: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди НОК', uz: 'EKUK ni toping', en: 'Find the LCM' },
     lead: { ru: 'Кратные по списку или простые множители — способ твой.', uz: "Karralilar ro'yxati yoki tub ko'paytuvchilar — usul sizniki.", en: 'A list of multiples or prime factors — your choice.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -458,7 +448,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Кратно и 4, и 6?', uz: "4 ga ham, 6 ga ham karralimi?", en: 'A multiple of both 4 and 6?' },
     lead: { ru: 'Число должно делиться на оба сразу.', uz: "Son ikkalasiga birdan bo'linishi kerak.", en: 'The number must divide by both at once.' },
     bin_a: { ru: 'Кратно обоим', uz: 'Ikkalasiga karrali', en: 'Multiple of both' },
@@ -493,7 +482,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -539,7 +527,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Расписание кружков', uz: "To'garaklar jadvali", en: 'The clubs timetable' },
     lead: { ru: 'Шахматы идут каждые 4 дня, робототехника каждые 6. Сегодня были оба.', uz: "Shaxmat har 4 kunda, robototexnika har 6 kunda bo'ladi. Bugun ikkalasi ham bo'ldi.", en: 'Chess meets every 4 days, robotics every 6. Today both met.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -578,7 +565,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -669,7 +655,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Делимость', uz: "Matematika · Bo'linish", en: 'Mathematics · Divisibility' },
     heading: { ru: 'Наименьшее общее кратное', uz: 'Eng kichik umumiy karrali', en: 'Least common multiple' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1006,7 +991,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d6-banner fade-up delay-1' + (phase === 'play' ? ' d6-banner-play' : '')}>

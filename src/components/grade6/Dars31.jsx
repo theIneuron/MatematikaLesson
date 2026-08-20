@@ -83,7 +83,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Прокат велосипедов', uz: 'Velosiped prokati', en: 'The bike rental' },
     lead: {
       ru: 'На табличке: 1 час — 5000 сум. Диёра берёт велосипед на t часов.',
@@ -121,7 +120,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Числовое выражение и его значение', uz: 'Sonli ifoda va uning qiymati', en: 'A numeric expression and its value' },
     done: {
       ru: 'Пока часов ровно три, запись годится один раз. Для двух часов её придётся написать заново.',
@@ -148,7 +146,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Одна запись на все случаи', uz: 'Barcha hollarga bitta yozuv', en: 'One line for every case' },
     rows: [
       { t: '2', calc: '5000 · 2', res: '10 000' },
@@ -186,7 +183,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Подставляем число', uz: "Sonni qo'yamiz", en: 'Substituting a number' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -247,7 +243,6 @@ const CONTENT = {
   },
 
   s_form: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Формула из двух частей', uz: 'Ikki qismli formula', en: 'A formula with two parts' },
     lines: [
       { ru: 'прокат берёт залог 10 000 сум', uz: "prokat 10 000 so'm garov oladi", en: 'the rental takes a 10 000 soum deposit' },
@@ -280,7 +275,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Значение при отрицательном числе', uz: 'Manfiy sondagi qiymat', en: 'The value at a negative number' },
     lead: { ru: 'Найдём значение 3x + 7 при x = 4 и при x = −2.', uz: '3x + 7 ning x = 4 va x = −2 dagi qiymatini topamiz.', en: 'Find the value of 3x + 7 at x = 4 and at x = −2.' },
     steps: [
@@ -313,7 +307,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Рядом — значит умножить', uz: "Yonma-yon — ko'paytirish demak", en: 'Side by side means multiply' },
     bad_line: { ru: 'ошибка: 5a при a = 3 это 53', uz: 'xato: a = 3 da 5a bu 53', en: 'mistake: 5a at a = 3 is 53' },
     good_line: { ru: 'верно: 5a = 5 · 3 = 15', uz: "to'g'ri: 5a = 5 · 3 = 15", en: 'right: 5a = 5 · 3 = 15' },
@@ -343,7 +336,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Буква вместо числа', uz: "Son o'rniga harf", en: 'A letter instead of a number' },
     rule_1: {
       ru: 'В буквенном выражении буква стоит на месте числа, которое меняется. Число перед буквой — коэффициент, знак умножения между ними не пишут.',
@@ -363,7 +355,6 @@ const CONTENT = {
   },
 
   s_write: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Записываем выражение', uz: 'Ifodani yozamiz', en: 'Writing the expression' },
     lead: { ru: 'Считать не нужно: только запиши.', uz: 'Hisoblash shart emas: faqat yozing.', en: 'No computing: just write it.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -412,7 +403,6 @@ const CONTENT = {
   },
 
   s_value: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Находим значение', uz: 'Qiymatni topamiz', en: 'Finding the value' },
     lead: { ru: 'Подставь число и выполни действия.', uz: "Sonni qo'ying va amallarni bajaring.", en: 'Substitute the number and do the operations.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -476,7 +466,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Умножить или прибавить', uz: "Ko'paytirish yoki qo'shish", en: 'Multiply or add' },
     lead: { ru: 'Слушай оборот речи: «в … раз» или «на …».', uz: "Iboraga quloq soling: «… marta» yoki «… ga».", en: 'Listen to the phrase: “times” or “more”.' },
     bin_a: { ru: 'Запись 5a', uz: '5a yozuvi', en: 'The line 5a' },
@@ -511,7 +500,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -557,7 +545,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Сколько заплатит Диёра', uz: "Diyora qancha to'laydi", en: 'What Diyora pays' },
     lead: { ru: 'Час проката 5000 сум, залог 10 000 сум: 5000t + 10 000.', uz: "Prokatning bir soati 5000 so'm, garov 10 000 so'm: 5000t + 10 000.", en: 'An hour costs 5000 soums, the deposit is 10 000: 5000t + 10 000.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -599,7 +586,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -690,7 +676,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Выражения', uz: 'Matematika · Ifodalar', en: 'Mathematics · Expressions' },
     heading: { ru: 'Буквенные выражения', uz: 'Harfli ifodalar', en: 'Letter expressions' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1047,7 +1032,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d31-banner fade-up delay-1' + (phase === 'play' ? ' d31-banner-play' : '')}>

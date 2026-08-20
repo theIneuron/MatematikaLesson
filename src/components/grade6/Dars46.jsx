@@ -82,7 +82,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Проект круглой клумбы', uz: 'Dumaloq gulzor loyihasi', en: 'The round flower bed project' },
     lead: {
       ru: 'Клумба 6 м в поперечнике. По краю ставят бордюр, внутри сеют траву.',
@@ -120,7 +119,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Карта раздела', uz: "Bo'lim xaritasi", en: 'The map of the section' },
     done: {
       ru: 'За раздел мы научились измерять по краю, внутри и в объёме, отражать фигуры и описывать данные. Осталось выбирать нужное.',
@@ -147,7 +145,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Вопрос выбирает формулу', uz: 'Savol formulani tanlaydi', en: 'The question picks the formula' },
     lines: [
       { ru: 'по краю — длина: C = πd', uz: 'chetidan — uzunlik: C = πd', en: 'along the edge: length, C = πd' },
@@ -179,7 +176,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Считаем бордюр', uz: 'Bordyurni hisoblaymiz', en: 'Computing the border' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -242,7 +238,6 @@ const CONTENT = {
   },
 
   s_more: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Симметрия и данные в проекте', uz: "Loyihada simmetriya va ma'lumotlar", en: 'Symmetry and data in a project' },
     lines: [
       { ru: 'у круга осей бесконечно много, центр один', uz: "doirada o'q cheksiz, markaz bitta", en: 'a disc has endless axes and one centre' },
@@ -274,7 +269,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Треугольный флажок', uz: 'Uchburchak flajok', en: 'The triangular flag' },
     lead: { ru: 'Флажок со сторонами 3, 4 и 5 дм, основание 4, высота 3.', uz: 'Tomonlari 3, 4 va 5 dm flajok, asosi 4, balandligi 3.', en: 'A flag with sides 3, 4, 5 dm; base 4, height 3.' },
     steps: [
@@ -307,7 +301,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Три ошибки раздела', uz: "Bo'limning uch xatosi", en: 'Three mistakes of the section' },
     bad_line: { ru: 'ошибка: 2πr вместо πr² и наоборот', uz: "xato: πr² o'rniga 2πr va teskarisi", en: 'mistake: 2πr instead of πr² and back' },
     good_line: { ru: 'ошибка: диаметр подставили вместо радиуса', uz: "xato: radius o'rniga diametr qo'yilgan", en: 'mistake: the diameter used as the radius' },
@@ -337,7 +330,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Сводка раздела', uz: "Bo'lim xulosasi", en: 'The section in brief' },
     rule_1: {
       ru: 'По краю считают длину: C = πd и периметр как сумму сторон. Внутри считают площадь: S = πr² и S = ah : 2. Наполняют объёмом: V = a · b · c, где 1 дм³ = 1 литр.',
@@ -357,7 +349,6 @@ const CONTENT = {
   },
 
   s_pick: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Выбери формулу', uz: 'Formulani tanlang', en: 'Choose the formula' },
     lead: { ru: 'Считать пока не нужно: только выбери.', uz: 'Hozircha hisoblash shart emas: faqat tanlang.', en: 'No computing yet: just choose.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -418,7 +409,6 @@ const CONTENT = {
   },
 
   s_calc: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Считаем по разделу', uz: "Bo'lim bo'yicha hisoblaymiz", en: 'Computing across the section' },
     lead: { ru: 'Считай π равным 3,14.', uz: "π ni 3,14 deb oling.", en: 'Take π as 3.14.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -486,7 +476,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'По краю или внутри', uz: 'Chetdanmi yoki ichidan', en: 'Edge or inside' },
     lead: { ru: 'Смотри, где именно располагается материал.', uz: 'Material aynan qayerda joylashishiga qarang.', en: 'See where the material actually goes.' },
     bin_a: { ru: 'Считаем длину', uz: 'Uzunlik hisoblanadi', en: 'Compute a length' },
@@ -521,7 +510,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -567,7 +555,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Выставка проектов', uz: "Loyihalar ko'rgazmasi", en: 'The project fair' },
     lead: { ru: 'Клумба d = 6 м, флажок 3-4-5 дм, бак 20 на 20 на 20 см.', uz: 'Gulzor d = 6 m, flajok 3-4-5 dm, bak 20 ga 20 ga 20 sm.', en: 'Bed d = 6 m, flag 3-4-5 dm, tank 20 by 20 by 20 cm.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -613,7 +600,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь раздел.', uz: "Butun bo'limga beshta topshiriq.", en: 'Five tasks covering the section.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -714,7 +700,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Раздел пройден', uz: "Bo'lim o'tildi", en: 'Section finished' },
     banner: { ru: 'Математика · Итог раздела', uz: "Matematika · Bo'lim yakuni", en: 'Mathematics · Section review' },
     heading: { ru: 'Геометрия и данные', uz: "Geometriya va ma'lumotlar", en: 'Geometry and data' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1121,7 +1106,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d46-banner fade-up delay-1' + (phase === 'play' ? ' d46-banner-play' : '')}>

@@ -82,7 +82,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Коробки с мячами', uz: "To'plar solingan quti", en: 'Boxes of balls' },
     lead: {
       ru: 'В каждой коробке x мячей. В зале 5 коробок, из кладовки принесли ещё 3.',
@@ -120,7 +119,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Коэффициент и буквенная часть', uz: 'Koeffitsiyent va harfli qism', en: 'Coefficient and letter part' },
     done: {
       ru: 'У каждого слагаемого есть число впереди и буквенная часть. Сегодня посмотрим, что бывает, когда буквенные части совпадают.',
@@ -147,7 +145,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Считаем коробки, а не мячи', uz: "To'plarni emas, qutilarni sanaymiz", en: 'Counting boxes, not balls' },
     lines: [
       { ru: '5 коробок и ещё 3 коробки', uz: '5 ta quti va yana 3 ta quti', en: '5 boxes and 3 more boxes' },
@@ -179,7 +176,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Работаем с коэффициентами', uz: 'Koeffitsiyentlar bilan ishlaymiz', en: 'Working with coefficients' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -238,7 +234,6 @@ const CONTENT = {
   },
 
   s_diff: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Разные буквы не складываются', uz: "Har xil harflar qo'shilmaydi", en: 'Different letters do not add' },
     lines: [
       { ru: '3a + 4b: коробки мячей и скакалки', uz: "3a + 4b: to'p qutilari va arg'amchilar", en: '3a + 4b: ball boxes and skipping ropes' },
@@ -271,7 +266,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Сначала скобки, потом подобные', uz: "Avval qavslar, keyin o'xshashlar", en: 'Brackets first, then like terms' },
     lead: { ru: 'Упростим 4(x + 2) − 3x.', uz: "4(x + 2) − 3x ni soddalashtiramiz.", en: 'Simplify 4(x + 2) − 3x.' },
     steps: [
@@ -304,7 +298,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Буква никуда не девается', uz: 'Harf hech qayerga ketmaydi', en: 'The letter does not vanish' },
     bad_line: { ru: 'ошибка: 5x + 3x = 8', uz: 'xato: 5x + 3x = 8', en: 'mistake: 5x + 3x = 8' },
     good_line: { ru: 'верно: 5x + 3x = 8x', uz: "to'g'ri: 5x + 3x = 8x", en: 'right: 5x + 3x = 8x' },
@@ -334,7 +327,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Как приводят подобные', uz: "O'xshash hadlar qanday ixchamlanadi", en: 'How like terms are collected' },
     rule_1: {
       ru: 'Подобные слагаемые — это слагаемые с одинаковой буквенной частью. Их приводят так: складывают или вычитают коэффициенты, а буквенную часть оставляют.',
@@ -354,7 +346,6 @@ const CONTENT = {
   },
 
   s_same: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Приводим подобные', uz: "O'xshashlarni ixchamlaymiz", en: 'Collecting like terms' },
     lead: { ru: 'Работай с коэффициентами, букву не трогай.', uz: 'Koeffitsiyentlar bilan ishlang, harfga tegmang.', en: 'Work with the coefficients and leave the letter.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -403,7 +394,6 @@ const CONTENT = {
   },
 
   s_mix: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Скобки и знаки', uz: 'Qavslar va ishoralar', en: 'Brackets and signs' },
     lead: { ru: 'Сначала раскрой скобки, потом собери подобные.', uz: "Avval qavslarni oching, keyin o'xshashlarni yig'ing.", en: 'Open the brackets first, then collect.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -467,7 +457,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Подобные или нет', uz: "O'xshashmi yoki yo'q", en: 'Alike or not' },
     lead: { ru: 'Смотри только на буквенную часть.', uz: 'Faqat harfli qismga qarang.', en: 'Look only at the letter part.' },
     bin_a: { ru: 'Подобные', uz: "O'xshash", en: 'Alike' },
@@ -502,7 +491,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -548,7 +536,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Инвентарь спортзала', uz: 'Sport zali inventari', en: 'The gym inventory' },
     lead: { ru: 'В коробке x мячей, в связке y скакалок.', uz: "Qutida x ta to'p, bog'lamda y ta arg'amchi.", en: 'A box holds x balls, a bundle holds y ropes.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -586,7 +573,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -672,7 +658,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Выражения', uz: 'Matematika · Ifodalar', en: 'Mathematics · Expressions' },
     heading: { ru: 'Подобные слагаемые', uz: "O'xshash hadlar", en: 'Like terms' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1011,7 +996,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d33-banner fade-up delay-1' + (phase === 'play' ? ' d33-banner-play' : '')}>

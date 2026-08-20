@@ -82,7 +82,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Табло погоды', uz: 'Ob-havo tablosi', en: 'The weather board' },
     lead: {
       ru: 'В холле школы табло: в одном городе −3 градуса, в другом −8.',
@@ -120,7 +119,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Прямая и расстояние', uz: 'Chiziq va masofa', en: 'The line and the distance' },
     done: {
       ru: 'Прямая ставит числа по местам, а модуль показывает расстояние до нуля. Сегодня свяжем то и другое.',
@@ -147,7 +145,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Правее значит больше', uz: "O'ngroq — kattaroq", en: 'Further right means greater' },
     lines: [
       { ru: '−8 стоит левее, чем −3', uz: '−8 soni −3 dan chapda turadi', en: '−8 stands left of −3' },
@@ -179,7 +176,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Сравниваем два отрицательных', uz: 'Ikki manfiy sonni solishtiramiz', en: 'Comparing two negatives' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -242,7 +238,6 @@ const CONTENT = {
   },
 
   s_mix: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Разные знаки и дроби', uz: 'Har xil ishoralar va kasrlar', en: 'Different signs and fractions' },
     lines: [
       { ru: 'любое положительное больше любого отрицательного', uz: 'har qanday musbat son har qanday manfiydan katta', en: 'any positive number beats any negative one' },
@@ -274,7 +269,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Расставим по порядку', uz: 'Tartib bilan joylashtiramiz', en: 'Put them in order' },
     lead: { ru: 'Числа: −5; 0,5; −0,5; 3; −2.', uz: 'Sonlar: −5; 0,5; −0,5; 3; −2.', en: 'The numbers: −5; 0.5; −0.5; 3; −2.' },
     steps: [
@@ -307,7 +301,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Модуль больше — число меньше', uz: 'Modul katta — son kichik', en: 'Bigger absolute value, smaller number' },
     bad_line: { ru: 'ошибка: −10 больше −2, ведь 10 больше 2', uz: 'xato: −10 soni −2 dan katta, axir 10 soni 2 dan katta', en: 'mistake: −10 beats −2 because 10 beats 2' },
     good_line: { ru: 'верно: −10 левее, значит −10 меньше', uz: "to'g'ri: −10 chaproqda, demak −10 kichik", en: 'right: −10 sits further left, so it is smaller' },
@@ -337,7 +330,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Как сравнивать', uz: 'Qanday solishtiriladi', en: 'How to compare' },
     rule_1: {
       ru: 'На координатной прямой из двух чисел больше то, которое стоит правее. Любое положительное больше нуля и любого отрицательного.',
@@ -357,7 +349,6 @@ const CONTENT = {
   },
 
   s_cmp: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Что больше', uz: 'Qaysi biri katta', en: 'Which is greater' },
     lead: { ru: 'Смотри на прямую: правее значит больше.', uz: "Chiziqqa qarang: o'ngroq degani kattaroq.", en: 'Look at the line: further right means greater.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -418,7 +409,6 @@ const CONTENT = {
   },
 
   s_order: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'По возрастанию', uz: "O'sish tartibida", en: 'In increasing order' },
     lead: { ru: 'Сначала самые левые, потом всё правее.', uz: "Avval eng chapdagilar, keyin o'ngroqlari.", en: 'Leftmost first, then further right.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -482,7 +472,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Больше или меньше −3', uz: '−3 dan katta yoki kichik', en: 'Greater or less than −3' },
     lead: { ru: 'Правее −3 значит больше, левее — меньше.', uz: "−3 dan o'ngda — katta, chapda — kichik.", en: 'Right of −3 is greater, left of it is smaller.' },
     bin_a: { ru: 'Больше −3', uz: '−3 dan katta', en: 'Greater than −3' },
@@ -517,7 +506,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -563,7 +551,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Табло четырёх городов', uz: "To'rt shahar tablosi", en: 'The four city board' },
     lead: { ru: 'На табло: −3, −8, 0 и 4 градуса.', uz: 'Tabloda: −3, −8, 0 va 4 daraja.', en: 'The board shows −3, −8, 0 and 4 degrees.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -601,7 +588,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -697,7 +683,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Отрицательные числа', uz: 'Matematika · Manfiy sonlar', en: 'Mathematics · Negative numbers' },
     heading: { ru: 'Сравнение чисел', uz: 'Sonlarni taqqoslash', en: 'Comparing numbers' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1041,7 +1026,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d26-banner fade-up delay-1' + (phase === 'play' ? ' d26-banner-play' : '')}>

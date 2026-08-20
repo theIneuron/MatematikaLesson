@@ -81,7 +81,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Печатаем газету', uz: 'Gazeta chop etamiz', en: 'Printing the paper' },
     lead: {
       ru: 'Принтер печатает 40 страниц школьной газеты за 2 минуты.',
@@ -119,7 +118,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Два типа связи', uz: "Ikki xil bog'lanish", en: 'Two kinds of link' },
     direct: { ru: 'прямая: отношение постоянно', uz: "to'g'ri: nisbat doimiy", en: 'direct: constant ratio' },
     inverse: { ru: 'обратная: произведение постоянно', uz: "teskari: ko'paytma doimiy", en: 'inverse: constant product' },
@@ -148,7 +146,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Порядок работы', uz: 'Ish tartibi', en: 'The order of work' },
     steps: [
       { ru: 'Записать данные таблицей', uz: "Ma'lumotni jadvalga yozish", en: 'Write the data in a table' },
@@ -185,7 +182,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Задача о покупке', uz: 'Xarid masalasi', en: 'A shopping problem' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -244,7 +240,6 @@ const CONTENT = {
   },
 
   s_inv: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Тот же порядок, другая связь', uz: "O'sha tartib, boshqa bog'lanish", en: 'Same order, different link' },
     lines: [
       { ru: '4 принтера печатают тираж за 6 часов', uz: "4 printer nashrni 6 soatda bosadi", en: '4 printers do the run in 6 hours' },
@@ -276,7 +271,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Расход топлива', uz: "Yoqilg'i sarfi", en: 'Fuel consumption' },
     lead: { ru: 'Автобус тратит 6 литров на 100 км. Сколько уйдёт на 250 км?', uz: "Avtobus 100 km ga 6 litr sarflaydi. 250 km ga qancha ketadi?", en: 'A bus uses 6 litres per 100 km. How much for 250 km?' },
     steps: [
@@ -309,7 +303,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Единицы и проверка', uz: 'Birliklar va tekshiruv', en: 'Units and the check' },
     unit_line: { ru: 'ошибка: 2 минуты и 1 час в одной пропорции', uz: 'xato: bitta proporsiyada 2 daqiqa va 1 soat', en: 'mistake: 2 minutes and 1 hour in one proportion' },
     fix_line: { ru: 'верно: 2 минуты и 60 минут', uz: "to'g'ri: 2 daqiqa va 60 daqiqa", en: 'right: 2 minutes and 60 minutes' },
@@ -339,7 +332,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Порядок решения', uz: 'Yechish tartibi', en: 'The order of solving' },
     rule_1: {
       ru: 'Записываем данные таблицей, называем тип связи словами, потом пишем пропорцию для прямой связи или равенство произведений для обратной.',
@@ -359,7 +351,6 @@ const CONTENT = {
   },
 
   s_dir: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Прямые задачи', uz: "To'g'ri masalalar", en: 'Direct problems' },
     lead: { ru: 'Скажи тип связи вслух, потом считай.', uz: "Bog'lanish turini ovoz chiqarib ayting, keyin hisoblang.", en: 'Say the kind of link out loud, then compute.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -408,7 +399,6 @@ const CONTENT = {
   },
 
   s_ind: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Обратные задачи', uz: 'Teskari masalalar', en: 'Inverse problems' },
     lead: { ru: 'Сначала посчитай всю работу целиком.', uz: 'Avval butun ishni hisoblang.', en: 'Compute the whole job first.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -484,7 +474,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Какая связь в задаче', uz: "Masalada qanday bog'lanish", en: 'Which link is in the problem' },
     lead: { ru: 'В карточке две пары чисел из одной задачи.', uz: 'Kartochkada bitta masaladan ikki juft son.', en: 'Each card shows two pairs from one problem.' },
     bin_a: { ru: 'Прямая', uz: "To'g'ri", en: 'Direct' },
@@ -519,7 +508,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -565,7 +553,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Тираж школьной газеты', uz: 'Maktab gazetasi nashri', en: 'The school paper print run' },
     lead: { ru: 'Принтер печатает 40 страниц за 2 минуты. Весь тираж — 600 страниц.', uz: "Printer 2 daqiqada 40 bet bosadi. Butun nashr — 600 bet.", en: 'The printer makes 40 pages in 2 minutes and the whole run is 600 pages.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -603,7 +590,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -699,7 +685,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Пропорции', uz: 'Matematika · Proporsiyalar', en: 'Mathematics · Proportions' },
     heading: { ru: 'Задачи на пропорцию', uz: 'Proporsiyaga oid masalalar', en: 'Proportion problems' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1005,7 +990,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d23-banner fade-up delay-1' + (phase === 'play' ? ' d23-banner-play' : '')}>

@@ -82,7 +82,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Сколько воды в аквариуме', uz: 'Akvariumda qancha suv', en: 'How much water in the tank' },
     lead: {
       ru: 'Аквариум 40 см в длину, 20 в ширину и 25 в высоту. Его наполняют доверху.',
@@ -120,7 +119,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Площадь считали квадратиками', uz: 'Yuzani kvadratchalar bilan sanardik', en: 'Area was counted in squares' },
     done: {
       ru: 'Площадь измеряют квадратиками, и единица получается квадратной. Объём будем измерять кубиками, и единица станет кубической.',
@@ -147,7 +145,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Считаем кубики слоями', uz: 'Kubchalarni qavatlab sanaymiz', en: 'Counting cubes layer by layer' },
     lines: [
       { ru: 'в одном слое: 5 · 4 = 20 кубиков', uz: 'bir qavatda: 5 · 4 = 20 kubcha', en: 'in one layer: 5 · 4 = 20 cubes' },
@@ -179,7 +176,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Три измерения', uz: "Uch o'lchov", en: 'Three measurements' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -242,7 +238,6 @@ const CONTENT = {
   },
 
   s_unit: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Дециметр, литр и тысяча', uz: 'Detsimetr, litr va ming', en: 'Decimetre, litre and a thousand' },
     lines: [
       { ru: 'кубик 10 на 10 на 10 см — это 1 дм³', uz: '10 ga 10 ga 10 sm kubcha — bu 1 dm³', en: 'a 10 by 10 by 10 cm cube is 1 dm³' },
@@ -274,7 +269,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Аквариум в литрах', uz: 'Akvarium litrda', en: 'The tank in litres' },
     lead: { ru: 'Аквариум 40 на 20 см, высота 25 см.', uz: 'Akvarium 40 ga 20 sm, balandligi 25 sm.', en: 'The tank is 40 by 20 cm, 25 cm tall.' },
     steps: [
@@ -307,7 +301,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Не десять, а тысяча', uz: "O'n emas, ming", en: 'Not ten but a thousand' },
     bad_line: { ru: 'ошибка: 1 дм³ = 10 см³', uz: 'xato: 1 dm³ = 10 sm³', en: 'mistake: 1 dm³ = 10 cm³' },
     good_line: { ru: 'верно: 1 дм³ = 1000 см³ = 1 литр', uz: "to'g'ri: 1 dm³ = 1000 sm³ = 1 litr", en: 'right: 1 dm³ = 1000 cm³ = 1 litre' },
@@ -337,7 +330,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Объём и его единицы', uz: 'Hajm va uning birliklari', en: 'Volume and its units' },
     rule_1: {
       ru: 'Объём прямоугольной коробки равен произведению длины, ширины и высоты: V = a · b · c. У куба все измерения равны. Единица объёма кубическая.',
@@ -357,7 +349,6 @@ const CONTENT = {
   },
 
   s_vol: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Находим объём', uz: 'Hajmni topamiz', en: 'Finding the volume' },
     lead: { ru: 'Перемножь три измерения.', uz: "Uch o'lchovni ko'paytiring.", en: 'Multiply the three measurements.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -418,7 +409,6 @@ const CONTENT = {
   },
 
   s_conv: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Единицы и литры', uz: 'Birliklar va litrlar', en: 'Units and litres' },
     lead: { ru: 'В одном литре 1000 кубических сантиметров.', uz: 'Bir litrda 1000 kub santimetr bor.', en: 'One litre holds 1000 cubic centimetres.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -490,7 +480,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Площадь или объём', uz: 'Yuzami yoki hajm', en: 'Area or volume' },
     lead: { ru: 'Смотри, покрывают поверхность или заполняют внутри.', uz: "Yuzani qoplaydimi yoki ichini to'ldiradimi, qarang.", en: 'See whether it covers a surface or fills the inside.' },
     bin_a: { ru: 'Это площадь', uz: 'Bu yuza', en: 'Area' },
@@ -525,7 +514,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -571,7 +559,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Аквариум и лейка', uz: 'Akvarium va chelak', en: 'The tank and the jug' },
     lead: { ru: 'Аквариум 40 на 20 см, высота 25 см. Лейка на 5 литров.', uz: 'Akvarium 40 ga 20 sm, balandligi 25 sm. Chelak 5 litrlik.', en: 'The tank is 40 by 20 by 25 cm. The jug holds 5 litres.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -613,7 +600,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -714,7 +700,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Геометрия', uz: 'Matematika · Geometriya', en: 'Mathematics · Geometry' },
     heading: { ru: 'Объём', uz: 'Hajm', en: 'Volume' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1188,7 +1173,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d44-banner fade-up delay-1' + (phase === 'play' ? ' d44-banner-play' : '')}>

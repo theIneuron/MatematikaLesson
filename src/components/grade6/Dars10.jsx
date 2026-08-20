@@ -81,7 +81,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Стенгазета на двоих', uz: 'Ikki kishilik devoriy gazeta', en: 'A wall paper for two' },
     lead: {
       ru: 'Класс готовит стенгазету. Азиз оформил 1/3 листа, Дилноза 1/4.',
@@ -119,7 +118,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Сначала общая разметка', uz: 'Avval umumiy belgi', en: 'A shared scale first' },
     a: { n: 1, d: 3, to: { n: 4, d: 12 } },
     b: { n: 1, d: 4, to: { n: 3, d: 12 } },
@@ -148,7 +146,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Складываем числители', uz: "Suratlarni qo'shamiz", en: 'Add the numerators' },
     sum: { n: 7, d: 12 },
     half: { n: 6, d: 12 },
@@ -177,7 +174,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Три шага сложения', uz: "Qo'shishning uch qadami", en: 'Three steps of addition' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -236,7 +232,6 @@ const CONTENT = {
   },
 
   s_sub: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Вычитание тем же способом', uz: "Ayirish ham shu usulda", en: 'Subtraction the same way' },
     lines: [
       { ru: '5/6 − 1/4', uz: '5/6 − 1/4', en: '5/6 − 1/4' },
@@ -268,7 +263,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Посчитаем 3/4 − 2/5', uz: '3/4 − 2/5 ni hisoblaymiz', en: 'Let us compute 3/4 − 2/5' },
     lead: { ru: 'Знаменатели взаимно простые, поэтому НОК равен их произведению.', uz: "Maxrajlar o'zaro tub, shuning uchun EKUK ularning ko'paytmasiga teng.", en: 'The denominators are coprime, so the LCM is their product.' },
     steps: [
@@ -301,7 +295,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Знаменатели не складывают', uz: "Maxrajlar qo'shilmaydi", en: 'Denominators are never added' },
     bad_line: { ru: '1/2 + 1/3 = 2/5', uz: '1/2 + 1/3 = 2/5', en: '1/2 + 1/3 = 2/5' },
     good_line: { ru: '1/2 + 1/3 = 3/6 + 2/6 = 5/6', uz: '1/2 + 1/3 = 3/6 + 2/6 = 5/6', en: '1/2 + 1/3 = 3/6 + 2/6 = 5/6' },
@@ -330,7 +323,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Как складывать и вычитать', uz: "Qanday qo'shiladi va ayiriladi", en: 'How to add and subtract' },
     rule_1: {
       ru: 'Приводим дроби к общему знаменателю, складываем или вычитаем числители, знаменатель оставляем прежним. Ответ по возможности сокращаем.',
@@ -350,7 +342,6 @@ const CONTENT = {
   },
 
   s_add: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Сложение', uz: "Qo'shish", en: 'Addition' },
     lead: { ru: 'Сначала общий знаменатель, потом числители.', uz: 'Avval umumiy maxraj, keyin suratlar.', en: 'The common denominator first, then the numerators.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -399,7 +390,6 @@ const CONTENT = {
   },
 
   s_minus: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Вычитание', uz: 'Ayirish', en: 'Subtraction' },
     lead: { ru: 'План тот же: общий знаменатель, потом числители.', uz: 'Reja o\'sha: umumiy maxraj, keyin suratlar.', en: 'The same plan: common denominator, then numerators.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -459,7 +449,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Больше или меньше половины', uz: 'Yarmidan katta yoki kichik', en: 'More or less than a half' },
     lead: { ru: 'Считать до конца не обязательно: сравни с половиной.', uz: 'Oxirigacha hisoblash shart emas: yarim bilan solishtiring.', en: 'You need not finish the computation: compare with a half.' },
     bin_a: { ru: 'Больше 1/2', uz: '1/2 dan katta', en: 'More than 1/2' },
@@ -494,7 +483,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -540,7 +528,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Осталось место', uz: 'Joy qoldi', en: 'Space left over' },
     lead: { ru: 'На стенгазете Азиз занял 1/3 листа, Дилноза 1/4.', uz: "Devoriy gazetada Aziz varaqning 1/3, Dilnoza 1/4 qismini egalladi.", en: 'On the wall paper Aziz took 1/3 of the sheet and Dilnoza 1/4.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -578,7 +565,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -664,7 +650,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Дроби', uz: 'Matematika · Kasrlar', en: 'Mathematics · Fractions' },
     heading: { ru: 'Сложение и вычитание', uz: "Qo'shish va ayirish", en: 'Adding and subtracting' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -999,7 +984,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d10-banner fade-up delay-1' + (phase === 'play' ? ' d10-banner-play' : '')}>

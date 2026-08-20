@@ -82,7 +82,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Мороз и жара', uz: 'Sovuq va issiq', en: 'Frost and heat' },
     lead: {
       ru: 'Зимой термометр показал −7 градусов, летом +5 в тени ранним утром.',
@@ -120,7 +119,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Противоположные числа', uz: 'Qarama-qarshi sonlar', en: 'Opposite numbers' },
     pair: [-4, 4],
     done: {
@@ -148,7 +146,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Модуль — это расстояние', uz: 'Modul — bu masofa', en: 'Absolute value is a distance' },
     lines: [
       { ru: 'от −7 до нуля 7 единиц', uz: '−7 dan nolgacha 7 birlik', en: 'from −7 to zero is 7 units' },
@@ -180,7 +177,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Как найти модуль', uz: 'Modul qanday topiladi', en: 'How to find an absolute value' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -239,7 +235,6 @@ const CONTENT = {
   },
 
   s_eq: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Уравнение с модулем', uz: 'Modulli tenglama', en: 'An equation with absolute value' },
     lines: [
       { ru: 'какие числа стоят в 3 шагах от нуля?', uz: 'noldan 3 qadamda qaysi sonlar turadi?', en: 'which numbers are 3 steps from zero?' },
@@ -271,7 +266,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Расстояние между точками', uz: 'Nuqtalar orasidagi masofa', en: 'The distance between points' },
     lead: { ru: 'Точка A стоит на −2, точка B на 5.', uz: "A nuqtasi −2 da, B nuqtasi 5 da turibdi.", en: 'Point A is at −2 and point B at 5.' },
     steps: [
@@ -304,7 +298,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Модуль не убирает минус везде', uz: 'Modul har joyda minusni yo\'qotmaydi', en: 'Absolute value does not erase every minus' },
     bad_line: { ru: 'ошибка: минус модуль −3 равен 3', uz: 'xato: minus modul −3 teng 3', en: 'mistake: minus the absolute value of −3 equals 3' },
     good_line: { ru: 'верно: модуль −3 равен 3, а минус перед ним даёт −3', uz: "to'g'ri: −3 ning moduli 3, oldidagi minus esa −3 beradi", en: 'right: the absolute value is 3 and the minus in front gives −3' },
@@ -334,7 +327,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Что такое модуль', uz: 'Modul nima', en: 'What absolute value is' },
     rule_1: {
       ru: 'Модуль числа — это расстояние от точки до начала отсчёта. У положительного числа модуль равен самому числу, у отрицательного — противоположному, у нуля равен нулю.',
@@ -354,7 +346,6 @@ const CONTENT = {
   },
 
   s_abs: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди модуль', uz: 'Modulni toping', en: 'Find the absolute value' },
     lead: { ru: 'Считай шаги до нуля, знак не переносится.', uz: 'Nolgacha qadamlarni sanang, ishora ko\'chmaydi.', en: 'Count the steps to zero; the sign does not carry over.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -407,7 +398,6 @@ const CONTENT = {
   },
 
   s_dist: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Уравнения и расстояния', uz: 'Tenglamalar va masofalar', en: 'Equations and distances' },
     lead: { ru: 'Помни: подходящих чисел обычно два.', uz: 'Esda tuting: mos sonlar odatda ikkita.', en: 'Remember: usually two numbers fit.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -479,7 +469,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Модуль равен самому числу или нет?', uz: "Modul sonning o'ziga tengmi?", en: 'Does the absolute value equal the number?' },
     lead: { ru: 'У положительных и нуля модуль совпадает с числом.', uz: "Musbat sonlar va nolda modul son bilan mos keladi.", en: 'For positives and zero the absolute value matches the number.' },
     bin_a: { ru: 'Равен числу', uz: 'Songa teng', en: 'Equals the number' },
@@ -514,7 +503,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -560,7 +548,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Термометр за окном', uz: 'Deraza ortidagi termometr', en: 'The thermometer outside' },
     lead: { ru: 'Утром было −7, днём стало +5.', uz: 'Ertalab −7 edi, kunduzi +5 bo\'ldi.', en: 'In the morning it was −7 and by noon +5.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -602,7 +589,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -693,7 +679,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Отрицательные числа', uz: 'Matematika · Manfiy sonlar', en: 'Mathematics · Negative numbers' },
     heading: { ru: 'Модуль числа', uz: 'Sonning moduli', en: 'Absolute value' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1051,7 +1036,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d25-banner fade-up delay-1' + (phase === 'play' ? ' d25-banner-play' : '')}>

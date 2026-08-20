@@ -82,7 +82,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Один оборот колеса', uz: "G'ildirakning bir aylanishi", en: 'One turn of the wheel' },
     lead: {
       ru: 'Диаметр колеса самоката 20 см. Колесо сделало ровно один оборот.',
@@ -120,7 +119,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Диаметр и сама линия', uz: "Diametr va chiziqning o'zi", en: 'The diameter and the line itself' },
     done: {
       ru: 'Диаметр — прямая через центр, а окружность — линия вокруг. Понятно, что линия длиннее, но во сколько раз?',
@@ -147,7 +145,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Опыт с ниткой', uz: 'Ip bilan tajriba', en: 'The string experiment' },
     rows: [
       { d: '4', c: '12,6', q: '3,1' },
@@ -184,7 +181,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Считаем длину', uz: 'Uzunlikni hisoblaymiz', en: 'Computing the length' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -247,7 +243,6 @@ const CONTENT = {
   },
 
   s_rad: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Через радиус и обратно', uz: 'Radius orqali va teskarisiga', en: 'Through the radius and back' },
     lines: [
       { ru: 'd = 2r, значит C = π · 2r = 2πr', uz: 'd = 2r, demak C = π · 2r = 2πr', en: 'd = 2r, so C = π · 2r = 2πr' },
@@ -279,7 +274,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Путь самоката', uz: "Samokatning yo'li", en: 'The scooter’s distance' },
     lead: { ru: 'Диаметр колеса 20 см. Колесо сделало 10 оборотов.', uz: "G'ildirak diametri 20 sm. G'ildirak 10 marta aylandi.", en: 'A 20 cm wheel makes 10 turns.' },
     steps: [
@@ -312,7 +306,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Радиус вместо диаметра', uz: "Diametr o'rniga radius", en: 'Radius in place of diameter' },
     bad_line: { ru: 'ошибка: r = 5, пишут C = 3,14 · 5 = 15,7', uz: 'xato: r = 5, C = 3,14 · 5 = 15,7 deb yoziladi', en: 'mistake: r = 5 giving C = 3.14 · 5 = 15.7' },
     good_line: { ru: 'верно: C = 2 · 3,14 · 5 = 31,4', uz: "to'g'ri: C = 2 · 3,14 · 5 = 31,4", en: 'right: C = 2 · 3.14 · 5 = 31.4' },
@@ -342,7 +335,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Длина окружности', uz: 'Aylana uzunligi', en: 'The circumference' },
     rule_1: {
       ru: 'Отношение длины окружности к её диаметру одинаково у всех кругов. Это число обозначают π и берут равным примерно 3,14. Отсюда C = πd и C = 2πr.',
@@ -362,7 +354,6 @@ const CONTENT = {
   },
 
   s_len: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Находим длину', uz: 'Uzunlikni topamiz', en: 'Finding the length' },
     lead: { ru: 'Считай π равным 3,14.', uz: "π ni 3,14 deb oling.", en: 'Take π as 3.14.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -423,7 +414,6 @@ const CONTENT = {
   },
 
   s_back: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Обратный ход и половинка', uz: "Teskari yo'l va yarim aylana", en: 'Backwards and half a circle' },
     lead: { ru: 'По длине находим диаметр делением.', uz: "Uzunlik orqali diametrni bo'lish bilan topamiz.", en: 'From the length the diameter comes by dividing.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -495,7 +485,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Какая формула нужна', uz: 'Qaysi formula kerak', en: 'Which formula fits' },
     lead: { ru: 'Смотри, что дано: диаметр, радиус или сама длина.', uz: "Nima berilganiga qarang: diametr, radius yoki uzunlikning o'zi.", en: 'See what is given: diameter, radius or the length itself.' },
     bin_a: { ru: 'Умножаем на π', uz: "π ga ko'paytiramiz", en: 'Multiply by π' },
@@ -530,7 +519,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -576,7 +564,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Колесо самоката', uz: "Samokat g'ildiragi", en: 'The scooter wheel' },
     lead: { ru: 'Диаметр колеса 20 см, длина окружности 62,8 см.', uz: "G'ildirak diametri 20 sm, aylana uzunligi 62,8 sm.", en: 'The wheel is 20 cm across, its circumference 62.8 cm.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -618,7 +605,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -719,7 +705,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Геометрия', uz: 'Matematika · Geometriya', en: 'Mathematics · Geometry' },
     heading: { ru: 'Длина окружности', uz: 'Aylana uzunligi', en: 'The circumference' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1109,7 +1094,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d38-banner fade-up delay-1' + (phase === 'play' ? ' d38-banner-play' : '')}>

@@ -80,7 +80,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: {
       ru: 'Подарки: 24 ручки и 36 тетрадей',
       uz: "Sovg'alar: 24 ruchka va 36 daftar",
@@ -122,7 +121,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Делители 24 и 36', uz: "24 va 36 ning bo'luvchilari", en: 'The divisors of 24 and 36' },
     d24: [1, 2, 3, 4, 6, 8, 12, 24],
     d36: [1, 2, 3, 4, 6, 9, 12, 18, 36],
@@ -153,7 +151,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Общие делители', uz: "Umumiy bo'luvchilar", en: 'Common divisors' },
     common: [1, 2, 3, 4, 6, 12],
     cap_common: { ru: 'общие', uz: 'umumiy', en: 'common' },
@@ -183,7 +180,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Способ: два ряда', uz: 'Usul: ikki qator', en: 'Method: two rows' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -239,7 +235,6 @@ const CONTENT = {
   },
 
   s_fact: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Способ 2: через простые', uz: 'Usul 2: tub sonlar orqali', en: 'Method 2: through primes' },
     a: { n: 24, f: [2, 2, 2, 3] },
     b: { n: 36, f: [2, 2, 3, 3] },
@@ -269,7 +264,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Сколько наборов из 24 и 36', uz: "24 va 36 dan nechta to'plam", en: 'How many sets from 24 and 36' },
     lead: { ru: 'НОД уже найден. Теперь посмотрим, что попадёт в каждый набор.', uz: "EKUB topildi. Endi har bir to'plamga nima tushishini ko'ramiz.", en: 'The GCD is found. Now let us see what goes into each set.' },
     rows: [
@@ -302,7 +296,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Особый случай', uz: 'Alohida holat', en: 'A special case' },
     title: { ru: 'Когда НОД равен 1', uz: 'EKUB 1 ga teng bo\'lganda', en: 'When the GCD is 1' },
     a: { n: 8, d: [1, 2, 4, 8] },
     b: { n: 15, d: [1, 3, 5, 15] },
@@ -331,7 +324,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Наибольший общий делитель', uz: "Eng katta umumiy bo'luvchi", en: 'The greatest common divisor' },
     rule_1: {
       ru: 'НОД(a, b) — самое большое число, на которое делятся и a, и b. Если НОД равен 1, числа называют взаимно простыми.',
@@ -351,7 +343,6 @@ const CONTENT = {
   },
 
   s_common: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Общий делитель', uz: "Umumiy bo'luvchi", en: 'A common divisor' },
     lead: { ru: 'Число должно делить оба, а не одно.', uz: "Son ikkalasini ham bo'lishi kerak, bittasini emas.", en: 'The number must divide both, not just one.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -404,7 +395,6 @@ const CONTENT = {
   },
 
   s_gcd: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди НОД', uz: 'EKUB ni toping', en: 'Find the GCD' },
     lead: { ru: 'Два ряда делителей или простые множители — способ выбирай сам.', uz: "Ikki qator bo'luvchi yoki tub ko'paytuvchilar — usulni o'zingiz tanlang.", en: 'Two rows of divisors or prime factors — pick the method yourself.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -464,7 +454,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Взаимно простые или нет', uz: "O'zaro tubmi yoki yo'q", en: 'Coprime or not' },
     lead: { ru: 'Взаимно простые — те, у кого общий делитель только 1.', uz: "O'zaro tub — umumiy bo'luvchisi faqat 1 bo'lganlar.", en: 'Coprime means the only common divisor is 1.' },
     bin_a: { ru: 'Взаимно простые', uz: "O'zaro tub", en: 'Coprime' },
@@ -499,7 +488,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -545,7 +533,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Ещё подарки', uz: "Yana sovg'alar", en: 'More gifts' },
     lead: { ru: 'На складе 30 блокнотов и 45 карандашей. Наборы одинаковые, остатка нет.', uz: "Omborda 30 bloknot va 45 qalam bor. To'plamlar bir xil, qoldiq yo'q.", en: 'The store has 30 notepads and 45 pencils. The sets are identical, nothing is left.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -588,7 +575,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -684,7 +670,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Делимость', uz: "Matematika · Bo'linish", en: 'Mathematics · Divisibility' },
     heading: { ru: 'Наибольший общий делитель', uz: "Eng katta umumiy bo'luvchi", en: 'Greatest common divisor' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1063,7 +1048,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d5-banner fade-up delay-1' + (phase === 'play' ? ' d5-banner-play' : '')}>

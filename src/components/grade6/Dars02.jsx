@@ -83,7 +83,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 // ============================================================
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: {
       ru: 'Счёт в буфете: разделится поровну?',
       uz: "Bufetdagi hisob: teng bo'linadimi?",
@@ -138,7 +137,6 @@ const CONTENT = {
 
   // Экран 2 — ВСПОМНИМ. Чётные и нечётные из пятого класса: опора под признак.
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Чётное и нечётное', uz: 'Juft va toq', en: 'Even and odd' },
     cap_even: { ru: '6 стульев — все парами', uz: "6 stul — hammasi juft bo'lib", en: '6 chairs, all in pairs' },
     cap_odd: { ru: '7 стульев — один без пары', uz: "7 stul — bittasi juftsiz", en: '7 chairs, one without a pair' },
@@ -168,7 +166,6 @@ const CONTENT = {
 
   // Экран 3 — ЯДРО. Решает ОДНА цифра, и это видно на длинном числе.
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Решает последняя цифра', uz: 'Oxirgi raqam hal qiladi', en: 'The last digit decides' },
     number: '12 345 678',
     cap_all: { ru: 'Восемь цифр — делить долго', uz: "Sakkiz raqam — bo'lish uzoq", en: 'Eight digits, dividing takes long' },
@@ -199,7 +196,6 @@ const CONTENT = {
 
   // Экран 4 — СПОСОБ 1, «показ, потом сам».
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Делится ли на 2?', uz: "2 ga bo'linadimi?", en: 'Does it divide by 2?' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -256,7 +252,6 @@ const CONTENT = {
 
   // Экран 5 — СПОСОБ 2: пятёрка.
   s_five: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'А если платят пятеро', uz: "Agar besh kishi to'lasa", en: 'And if five are paying' },
     cap_row: { ru: 'Цены буфета', uz: 'Bufet narxlari', en: 'Snack bar prices' },
     done: {
@@ -285,7 +280,6 @@ const CONTENT = {
 
   // Экран 6 — РЕШАЕМ ВМЕСТЕ: одно число, три вопроса.
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Счёт 40 тысяч', uz: "Hisob 40 ming", en: 'A bill of 40 thousand' },
     lead: {
       ru: 'Одно число и три вопроса. Ответ на каждый даёт одна и та же цифра.',
@@ -326,7 +320,6 @@ const CONTENT = {
 
   // Экран 7 — ГРАНИЦА. Признак по последней цифре НЕ универсален.
   s_edge: {
-    eyebrow: { ru: 'Где приём не работает', uz: 'Usul qayerda ishlamaydi', en: 'Where the trick stops working' },
     title: { ru: 'А на 3 так нельзя', uz: "3 ga esa bunday bo'lmaydi", en: 'But not for 3' },
     trio: ['12', '13', '21'],
     caps: [
@@ -360,7 +353,6 @@ const CONTENT = {
 
   // Экран 8 — ПРАВИЛО и возврат к хуку.
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Три признака по последней цифре', uz: "Oxirgi raqam bo'yicha uchta alomat", en: 'Three rules from the last digit' },
     rule_1: {
       ru: 'На 2 делятся числа с последней цифрой 0, 2, 4, 6, 8. На 5 — с цифрой 0 или 5. На 10 — только с цифрой 0.',
@@ -381,7 +373,6 @@ const CONTENT = {
 
   // Экран 9 — ПРАКТИКА: назови, на что делится.
   s_names: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'На что делится цена', uz: "Narx nimaga bo'linadi", en: 'What the price divides by' },
     lead: { ru: 'Смотри только на последнюю цифру.', uz: 'Faqat oxirgi raqamga qarang.', en: 'Look only at the last digit.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -443,7 +434,6 @@ const CONTENT = {
 
   // Экран 10 — ПРАКТИКА: способ 1 на четырёх числах.
   s_two: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Делится на 2 или нет', uz: "2 ga bo'linadimi yoki yo'q", en: 'Divides by 2 or not' },
     lead: { ru: 'Способ первый: закрой все цифры, кроме последней.', uz: "Birinchi usul: oxirgisidan boshqa hamma raqamni yoping.", en: 'Method one: cover every digit but the last.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -488,7 +478,6 @@ const CONTENT = {
 
   // Экран 11 — ПРАКТИКА: корзины по признаку пятёрки.
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Разложи цены по пятёрке', uz: "Narxlarni beshlik bo'yicha ajrating", en: 'Sort the prices by five' },
     lead: { ru: 'Пятёрке нужны на конце 0 или 5.', uz: "Beshlikka oxirida 0 yoki 5 kerak.", en: 'Five needs a 0 or a 5 at the end.' },
     bin_a: { ru: 'Делится на 5', uz: "5 ga bo'linadi", en: 'Divides by 5' },
@@ -524,7 +513,6 @@ const CONTENT = {
 
   // Экран 12 — ПРАКТИКА: найди ошибку.
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -571,7 +559,6 @@ const CONTENT = {
 
   // Экран 13 — ЗАДАЧА из жизни буфета.
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Счёт на пятерых', uz: 'Besh kishilik hisob', en: 'A bill for five' },
     lead: { ru: 'В буфете пять счетов. Платят пятеро, каждый вносит поровну.', uz: "Bufetda beshta hisob bor. Besh kishi to'laydi, har biri tengdan.", en: 'There are five bills at the snack bar. Five people pay, each the same.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -619,7 +606,6 @@ const CONTENT = {
 
   // Экран 14 — ФИНАЛЬНЫЙ ТЕСТ.
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -711,7 +697,6 @@ const CONTENT = {
 
   // Экран 15 — ИТОГ.
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Делимость', uz: "Matematika · Bo'linish", en: 'Mathematics · Divisibility' },
     heading: { ru: 'Признаки делимости', uz: "Bo'linish alomatlari", en: 'Divisibility rules' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1199,7 +1184,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d2-banner fade-up delay-1' + (phase === 'play' ? ' d2-banner-play' : '')}>

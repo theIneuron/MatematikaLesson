@@ -82,7 +82,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Билеты со скидкой', uz: 'Chegirmali chiptalar', en: 'Tickets with a discount' },
     lead: {
       ru: 'Класс идёт в музей. Билет стоит 12 500 сум, школьникам скидка 1/5 цены.',
@@ -120,7 +119,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Два обратных действия', uz: 'Ikki teskari amal', en: 'Two opposite actions' },
     left_q: { ru: 'Дано целое 20, найти 3/4', uz: 'Butun 20 berilgan, 3/4 qismini topish', en: 'The whole is 20, find 3/4' },
     left_a: { ru: '20 · 3/4 = 15', uz: '20 · 3/4 = 15', en: '20 · 3/4 = 15' },
@@ -151,7 +149,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'План решения из трёх шагов', uz: 'Uch qadamli yechim rejasi', en: 'A three step plan' },
     steps: [
       { ru: 'Что дано: целое или часть', uz: 'Nima berilgan: butunmi yoki qism', en: 'What is given: the whole or a part' },
@@ -188,7 +185,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Задача со скидкой', uz: 'Chegirmali masala', en: 'A discount problem' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -247,7 +243,6 @@ const CONTENT = {
   },
 
   s_dec: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'С десятичными план тот же', uz: "O'nli kasrlarda reja o'sha", en: 'The same plan with decimals' },
     lines: [
       { ru: 'дано целое 250, найти 0,4 → 250 · 0,4 = 100', uz: 'butun 250 berilgan, 0,4 qismi → 250 · 0,4 = 100', en: 'whole 250, find 0.4 → 250 · 0.4 = 100' },
@@ -278,7 +273,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Автобус на экскурсию', uz: 'Ekskursiya avtobusi', en: 'The trip bus' },
     lead: { ru: 'В автобусе 40 мест. Заняли 3/5, потом села ещё половина оставшихся.', uz: "Avtobusda 40 joy bor. 3/5 qismi band bo'ldi, keyin qolganlarning yarmi o'tirdi.", en: 'The bus has 40 seats. 3/5 were taken, then half the rest sat down.' },
     steps: [
@@ -311,7 +305,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Часть — всегда от какого-то целого', uz: 'Qism har doim qaysidir butundan', en: 'A part always belongs to some whole' },
     bad_line: { ru: 'ошибка: 40 · 1/2 = 20 свободных', uz: "xato: 40 · 1/2 = 20 bo'sh joy", en: 'mistake: 40 · 1/2 = 20 free seats' },
     good_line: { ru: 'верно: 16 · 1/2 = 8, целое здесь 16', uz: "to'g'ri: 16 · 1/2 = 8, bu yerda butun 16", en: 'right: 16 · 1/2 = 8, the whole here is 16' },
@@ -341,7 +334,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'План решения задачи', uz: 'Masala yechish rejasi', en: 'The plan for a word problem' },
     rule_1: {
       ru: 'Найди в условии целое. Если нужна его часть — умножай на дробь. Если целое неизвестно, а часть дана — дели на дробь.',
@@ -361,7 +353,6 @@ const CONTENT = {
   },
 
   s_part: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найти часть', uz: 'Qismni topish', en: 'Find the part' },
     lead: { ru: 'Целое известно — значит умножаем.', uz: "Butun ma'lum — demak ko'paytiramiz.", en: 'The whole is known, so multiply.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -410,7 +401,6 @@ const CONTENT = {
   },
 
   s_whole: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найти целое', uz: 'Butunni topish', en: 'Find the whole' },
     lead: { ru: 'Дана часть — значит делим. Ответ должен быть больше части.', uz: "Qism berilgan — demak bo'lamiz. Javob qismdan katta bo'lishi kerak.", en: 'A part is given, so divide. The answer must exceed the part.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -474,7 +464,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Больше или меньше данного числа', uz: 'Berilgan sondan katta yoki kichik', en: 'Larger or smaller than the given number' },
     lead: { ru: 'Это быстрая прикидка: она ловит неверно выбранное действие.', uz: "Bu tez chamalash: u noto'g'ri tanlangan amalni ushlaydi.", en: 'This is the quick check that catches a wrong choice of action.' },
     bin_a: { ru: 'Больше 20', uz: '20 dan katta', en: 'More than 20' },
@@ -509,7 +498,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -555,7 +543,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Экскурсия целиком', uz: "Ekskursiya to\'liq", en: 'The whole trip' },
     lead: { ru: 'В классе 30 учеников, поехали 4/5. Билет со скидкой стоит 10 000 сум.', uz: "Sinfda 30 o'quvchi bor, 4/5 qismi bordi. Chegirmali chipta 10 000 so'm.", en: 'A class of 30 with 4/5 going. A discounted ticket costs 10,000.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -593,7 +580,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -689,7 +675,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Дроби', uz: 'Matematika · Kasrlar', en: 'Mathematics · Fractions' },
     heading: { ru: 'Задачи на дроби', uz: 'Kasrlarga oid masalalar', en: 'Fraction word problems' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1024,7 +1009,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d16-banner fade-up delay-1' + (phase === 'play' ? ' d16-banner-play' : '')}>

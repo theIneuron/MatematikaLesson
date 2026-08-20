@@ -82,7 +82,6 @@ registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
 
 const CONTENT = {
   s_hook: {
-    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
     title: { ru: 'Задание в мастерской', uz: 'Ustaxonadagi topshiriq', en: 'A task in the workshop' },
     lead: {
       ru: 'Мастер сказал: покрасить окружность тарелки. Фаррух и Нилуфар поняли по-разному.',
@@ -120,7 +119,6 @@ const CONTENT = {
   },
 
   s_recall: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
     title: { ru: 'Расстояние от точки до точки', uz: 'Nuqtadan nuqtagacha masofa', en: 'Distance from point to point' },
     done: {
       ru: 'Расстояние — это длина, оно всегда неотрицательно. Сегодня всё будет решаться сравнением расстояния с одним числом.',
@@ -147,7 +145,6 @@ const CONTENT = {
   },
 
   s_core: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Линия и вся фигура', uz: 'Chiziq va butun shakl', en: 'The line and the whole shape' },
     lines: [
       { ru: 'окружность — линия, все точки на равном расстоянии от центра', uz: 'aylana — chiziq, barcha nuqtalari markazdan teng masofada', en: 'a circle is a line: every point equally far from the centre' },
@@ -179,7 +176,6 @@ const CONTENT = {
   },
 
   s_tool: {
-    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
     title: { ru: 'Радиус и диаметр', uz: 'Radius va diametr', en: 'Radius and diameter' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
@@ -242,7 +238,6 @@ const CONTENT = {
   },
 
   s_parts: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
     title: { ru: 'Хорда, дуга и где точка', uz: 'Vatar, yoy va nuqta qayerda', en: 'Chord, arc and where a point is' },
     lines: [
       { ru: 'хорда соединяет две точки окружности', uz: 'vatar aylananing ikki nuqtasini birlashtiradi', en: 'a chord joins two points of the circle' },
@@ -274,7 +269,6 @@ const CONTENT = {
   },
 
   s_solve: {
-    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
     title: { ru: 'Где окажется точка', uz: "Nuqta qayerda bo'ladi", en: 'Where the point lands' },
     lead: { ru: 'Диаметр тарелки 18 см. Пятнышко в 11 см от центра.', uz: "Tarelka diametri 18 sm. Dog' markazdan 11 sm da.", en: 'The plate’s diameter is 18 cm. A speck is 11 cm from the centre.' },
     steps: [
@@ -307,7 +301,6 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Радиус или диаметр', uz: 'Radius yoki diametr', en: 'Radius or diameter' },
     bad_line: { ru: 'ошибка: ширина тарелки 24 см, значит радиус 24', uz: 'xato: tarelka eni 24 sm, demak radius 24', en: 'mistake: the plate is 24 cm wide so the radius is 24' },
     good_line: { ru: 'верно: 24 — это диаметр, радиус 12', uz: "to'g'ri: 24 bu diametr, radius 12", en: 'right: 24 is the diameter, the radius is 12' },
@@ -337,7 +330,6 @@ const CONTENT = {
   },
 
   s_rule: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     title: { ru: 'Что есть что', uz: 'Nima nima ekan', en: 'What is what' },
     rule_1: {
       ru: 'Окружность — линия, все точки которой одинаково удалены от центра. Круг — сама окружность вместе со всем, что внутри. Радиус идёт от центра до окружности, диаметр вдвое длиннее: d = 2r.',
@@ -357,7 +349,6 @@ const CONTENT = {
   },
 
   s_rad: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Радиус и диаметр', uz: 'Radius va diametr', en: 'Radius and diameter' },
     lead: { ru: 'Диаметр вдвое длиннее радиуса.', uz: 'Diametr radiusdan ikki barobar uzun.', en: 'The diameter is twice the radius.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -418,7 +409,6 @@ const CONTENT = {
   },
 
   s_where: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Элементы и положение', uz: 'Elementlar va joylashuv', en: 'Parts and position' },
     lead: { ru: 'Сравнивай расстояние с радиусом.', uz: 'Masofani radius bilan solishtiring.', en: 'Compare the distance with the radius.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -494,7 +484,6 @@ const CONTENT = {
   },
 
   s_bins: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Внутри или снаружи', uz: 'Ichkarida yoki tashqarida', en: 'Inside or outside' },
     lead: { ru: 'Радиус круга 5 см. На карточке — расстояние от точки до центра.', uz: 'Doira radiusi 5 sm. Kartochkada nuqtadan markazgacha masofa.', en: 'The radius is 5 cm. Each card shows a distance to the centre.' },
     bin_a: { ru: 'Внутри круга', uz: 'Doira ichida', en: 'Inside the disc' },
@@ -529,7 +518,6 @@ const CONTENT = {
   },
 
   s_error: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
     lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -575,7 +563,6 @@ const CONTENT = {
   },
 
   s_task: {
-    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Тарелки на круге', uz: 'Charxdagi tarelkalar', en: 'Plates on the wheel' },
     lead: { ru: 'Тарелка шириной 24 см, узор идёт по краю.', uz: 'Tarelka eni 24 sm, naqsh chetidan boradi.', en: 'A plate 24 cm wide with a pattern along the edge.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
@@ -621,7 +608,6 @@ const CONTENT = {
   },
 
   s_final: {
-    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
     intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -722,7 +708,6 @@ const CONTENT = {
   },
 
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
     banner: { ru: 'Математика · Геометрия', uz: 'Matematika · Geometriya', en: 'Mathematics · Geometry' },
     heading: { ru: 'Окружность и круг', uz: 'Aylana va doira', en: 'Circle and disc' },
     main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
@@ -1131,7 +1116,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
   );
 
   return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
+    <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div className="rv-col">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <div className={'d37-banner fade-up delay-1' + (phase === 'play' ? ' d37-banner-play' : '')}>
