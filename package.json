@@ -17,7 +17,8 @@
     "audit:grade4:batch1": "npm run guard:grade4:migration && node scripts/grade4-etalon-contract-audit.mjs Dars02 Dars03 Dars04 Dars05 Dars06 Dars07 Dars08 Dars09 Dars10 Dars11 && node scripts/grade4-lessons-02-16-rules-audit.mjs Dars02 Dars03 Dars04 Dars05 Dars06 Dars07 Dars08 Dars09 Dars10 Dars11 && node scripts/grade4-batch1-math-audit.mjs Dars02 Dars03 Dars04 Dars05 Dars06 Dars07 Dars08 Dars09 Dars10 Dars11 && node scripts/grade4-i18n-audit.mjs Dars02 Dars03 Dars04 Dars05 Dars06 Dars07 Dars08 Dars09 Dars10 Dars11 && npm run guard:grade4:migration",
     "test:grade4:browser": "npm run guard:grade4:migration && node scripts/grade4-browser-smoke.mjs && npm run guard:grade4:migration",
     "test:grade4:browser:trilingual": "node scripts/grade4-trilingual-browser-smoke.mjs",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "guard:grade4:kit": "node scripts/grade4-kit-lesson-guard.mjs"
   },
   "dependencies": {
     "framer-motion": "^12.42.2",

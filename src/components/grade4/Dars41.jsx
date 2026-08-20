@@ -1,1669 +1,1908 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
+// ============================================================================
+// 4-SINF · Dars 41 · Simmetrik shakllar. Burish simmetriyasi
+//
+// Manba: N. U. Bikbayeva, "Matematika. 4-sinf", o'zbek nashri, 199-202-betlar.
+// Skelet: src/books/grade4/Dars41_SCENARIO.md.
+// Syujet: Lumo City arxitektura byurosining naqsh ustaxonasi (SYUJET_4SINF.md,
+// 5-blok). Ish tuguni yangi: markaziy bekat uchun panjara-oyna.
+//
+// YADRO. Dastgoh naqshning faqat yarmini kesadi, ikkinchi yarmi KO'ZGU bilan
+// chiqadi. Bit o'ng yarmini ko'zgu qilmay nusxa ko'chirgan, shuning uchun
+// chokda barglar bir-biriga emas, bir tomonga qaraydi.
+//
+// Ikkinchi yo'nalish: dumaloq guldasta bitta bargdan BURISH bilan quriladi.
+// Shakl bir aylanishda n marta o'ziga mos tushsa, burish burchagi 360 : n.
+//
+// RITM (metodist talabi): qisqa tushuntirish -> misol -> yana tushuntirish ->
+// misol. Baholanadigan olti ekran: s2, s4, s6, s8, s10, s13.
+//
+// Infratuzilma ko'chirilmaydi, `kit/` dan import qilinadi (CLAUDE.md §5).
+// ============================================================================
+import { useEffect, useState } from 'react';
+import {
+  BitSVG, BuildScreen, ChoiceScreen, FitSvg, KIT_STYLES, RevealScreen, SlotScreen,
+  SummaryScreen, T, TheoryLessonRoot, assertScreenTypeLabels, usePrefersReducedMotion, useT,
+} from './kit/index.js';
 
-// 4-sinf · Dars 41 · O'q va aylanish simmetriyasi
-// 15 ekran · boshqariladigan audio · har bir mazmunli harakat yakunlangach navigatsiya ochiladi.
-const T = {
-  bg: '#F5F5F0', ink: '#12212C', ink2: '#50616D', ink3: '#87949D', paper: '#FFFFFF',
-  accent: '#FF5B35', accentSoft: '#FFF0EA', cyan: '#168FA3', cyanSoft: '#E5F5F6',
-  navy: '#173B52', lime: '#95C93D', success: '#227A53', successSoft: '#E7F3EC',
-  warn: '#A96F13', warnSoft: '#FFF5D9', shadowBase: '58, 53, 48',
+const LESSON_META = {
+  lessonId: 'sym-4-41-v2',
+  slug: 'dars41-simmetriya-va-burilish-simmetriyasi',
+  lessonTitle: {
+    uz: '41-dars. Simmetriya va burilish simmetriyasi',
+    ru: 'Урок 41. Симметрия и поворотная симметрия',
+    en: 'Lesson 41. Line and rotational symmetry',
+  },
+  skillTags: ['line_symmetry', 'equal_distance', 'mirror_construction', 'rotational_symmetry', 'turn_angle'],
 };
-const FRAME_COUNTS = [3, 4, 4, 4, 4, 4, 4, 5, 2, 2, 2, 2, 2, 3, 5];
-const TOTAL_SCREENS = FRAME_COUNTS.length;
-const LESSON_META = { lessonId: "symmetry-4-41-v1", slug: "dars41-simmetriya-va-burilish-simmetriyasi", lessonTitle: {"uz":"Simmetriya va burilish simmetriyasi","ru":"Симметрия и поворотная симметрия","en":"Line and rotational symmetry"}, skillTags: ["line-symmetry","rotational-symmetry","reflection","turn"] };
-const LESSON_REWARD_TITLE = {
-  "uz": "Simmetriya detektori",
-  "ru": "Детектор симметрии",
-  "en": "Symmetry detector"
-};
+
 const SCREEN_META = [
-  { id: 's0', type: 'hook', template: 'hypothesis-choice', goal: 'diagnose-prior-model', mechanic: 'hypothesis-choice', active: true, assessed: false, scored: false, scope: 'hook', misconceptions: ['surface-feature-choice'] },
-  { id: 's1', type: 'exploration', template: 'guided-model', goal: 'inspect-first-model', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: [] },
-  { id: 's2', type: 'exploration', template: 'guided-compare', goal: 'compare-representations', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: ['representation-swap'] },
-  { id: 's3', type: 'exploration', template: 'guided-construction', goal: 'build-mathematical-model', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: ['construction-order'] },
-  { id: 's4', type: 'exploration', template: 'guided-second-model', goal: 'connect-second-representation', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: [] },
-  { id: 's5', type: 'exploration', template: 'guided-pattern', goal: 'discover-pattern', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: ['visual-guess'] },
-  { id: 's6', type: 'rule', template: 'guided-verification', goal: 'verify-discovery', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: ['unchecked-result'] },
-  { id: 's7', type: 'rule', template: 'guided-rule', goal: 'formulate-rule', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: [] },
-  { id: 's8', type: 'test', template: 'choice-retry', goal: 'apply-model', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'module-mikro', misconceptions: ['wrong-operation'] },
-  { id: 's9', type: 'test', template: 'choice-retry', goal: 'apply-representation', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'module-mikro', misconceptions: ['wrong-representation'] },
-  { id: 's10', type: 'test', template: 'choice-retry', goal: 'independent-application', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'module-mikro', misconceptions: ['calculation-slip'] },
-  { id: 's11', type: 'strategy', template: 'strategy-choice', goal: 'choose-strategy', mechanic: 'strategy-choice', active: true, assessed: false, scored: false, scope: null, misconceptions: ['strategy-without-check'] },
-  { id: 's12', type: 'error', template: 'error-repair', goal: 'repair-typical-error', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'module-mikro', misconceptions: ['repeat-typical-error'] },
-  { id: 's13', type: 'case', template: 'life-transfer', goal: 'transfer-to-life-context', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'final', misconceptions: ['context-data-mismatch'] },
-  { id: 's14', type: 'summary', template: 'guided-reflection', goal: 'reflect-and-bridge', mechanic: 'guided-reveal-and-reflection', active: true, assessed: false, scored: false, scope: null, misconceptions: [] },
+  { id: 's0', type: 'hook', scored: false, scope: 'hook' },
+  { id: 's1', type: 'exploration', scored: false, scope: null },
+  { id: 's2', type: 'practice', scored: true, scope: 'module-mikro' },
+  { id: 's3', type: 'exploration', scored: false, scope: null },
+  { id: 's4', type: 'practice', scored: true, scope: 'module-mikro' },
+  { id: 's5', type: 'exploration', scored: false, scope: null },
+  { id: 's6', type: 'practice', scored: true, scope: 'module-mikro' },
+  { id: 's7', type: 'exploration', scored: false, scope: null },
+  { id: 's8', type: 'practice', scored: true, scope: 'module-mikro' },
+  { id: 's9', type: 'exploration', scored: false, scope: null },
+  { id: 's10', type: 'practice', scored: true, scope: 'module-mikro' },
+  { id: 's11', type: 'rule', scored: false, scope: null },
+  { id: 's12', type: 'strategy', scored: false, scope: null },
+  { id: 's13', type: 'error-analysis', scored: true, scope: 'module-mikro' },
+  { id: 's14', type: 'life-case', scored: false, scope: 'final' },
+  { id: 's15', type: 'summary', scored: false, scope: null },
 ];
-const bi = (uz, ru, en) => ({ uz, ru, en });
-const SOLUTION_LABEL = bi('YECHIM', 'РЕШЕНИЕ', 'SOLUTION');
-const HOOK_FEEDBACK = bi("Tanlovingizni model bilan solishtiring. Keyingi ekranda sababni tekshirasiz.", 'Сравните свой выбор с моделью. На следующем экране вы проверите причину.', 'Compare your choice with the model. You will check the reason on the next screen.');
-const REFLECTION = {
-  question: bi("Bu mavzuda sizga qaysi usul ko'proq yordam berdi?", 'Какой способ больше всего помог вам в этой теме?', 'Which method helped you most in this topic?'),
-  options: [
-    bi("Modelni bosqichma-bosqich tekshirish", 'Проверять модель шаг за шагом', 'Checking the model step by step'),
-    bi("Ikki tasvirni solishtirish", 'Сравнивать два представления', 'Comparing two representations'),
-    bi("Javobni boshqa usul bilan tekshirish", 'Проверять ответ другим способом', 'Checking the answer another way'),
-  ],
-};
+
+const TOTAL_SCREENS = SCREEN_META.length;
+assertScreenTypeLabels(SCREEN_META, LESSON_META.lessonId);
+
+// Har ekrandagi ovoz bo'laklari soni: chizmadagi kadr shu bo'lakka ergashadi.
+const FRAME_COUNTS = [4, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 3, 3, 3, 3, 3];
+
+// ---------------------------------------------------------------------------
+// KONTENT: UZ (asosiy), RU, EN + har ekran uchun ovoz.
+// Ovoz ekran matnidan kengroq: ekranda natija, ovozda sabab.
+// Ovozda belgi yo'q, sonlar so'z bilan (audio_rules).
+// ---------------------------------------------------------------------------
 const CONTENT = {
-  "s0": {
-    "eyebrow": {
-      "uz": "Logo sinovi",
-      "ru": "Испытание логотипа",
-      "en": "Logo test"
+  s0: {
+    eyebrow: { uz: 'Naqsh ustaxonasi', ru: 'Мастерская орнамента', en: 'The pattern workshop' },
+    title: {
+      uz: 'Chok nega qovushmadi?',
+      ru: 'Почему стык не сошёлся?',
+      en: 'Why does the seam not meet?',
     },
-    "title": {
-      "uz": "Oynada va burilganda",
-      "ru": "В зеркале и при повороте",
-      "en": "In a mirror and after a turn"
+    question: {
+      uz: "O'ng yarimda nima noto'g'ri?",
+      ru: 'Что не так с правой половиной?',
+      en: 'What is wrong with the right half?',
     },
-    "scene": "hook",
-    "closedSet": true,
-    "frames": [
-      {
-        "uz": "Logo oynadagi aksiga mos tushadi.",
-        "ru": "Логотип совпадает со своим отражением.",
-        "en": "The logo matches its reflection."
-      },
-      {
-        "uz": "Logo 180° ga burilganda ham mos tushadi.",
-        "ru": "Логотип совпадает с собой и после поворота на 180°.",
-        "en": "The logo also matches itself after a 180° turn."
-      },
-      {
-        "uz": "Bu bir xil tekshiruvmi?",
-        "ru": "Это одна и та же проверка?",
-        "en": "Are these the same test?"
-      }
+    options: [
+      { uz: "U ko'zgudagidek emas, oddiy nusxa", ru: 'Это не отражение, а простая копия', en: 'It is a plain copy, not a reflection' },
+      { uz: 'Undagi barglar soni kamroq', ru: 'В ней меньше листьев', en: 'It has fewer leaves' },
+      { uz: "U o'qdan uzoqroqda turibdi", ru: 'Она стоит дальше от оси', en: 'It stands further from the axis' },
+      { uz: 'U burab qo\'yilgan', ru: 'Она повёрнута', en: 'It has been turned' },
     ],
-    "question": {
-      "uz": "Oynadagi aks va bir yuz sakson darajali burilish bir xil tekshiruvmi?",
-      "ru": "Отражение в зеркале и поворот на сто восемьдесят градусов — одна и та же проверка?",
-      "en": "Are reflection and a one-hundred-and-eighty-degree turn the same test?"
+    correctIndex: 0,
+    correctText: {
+      uz: "To'g'ri. Nusxada barglar bir tomonga qaraydi. Ko'zguda esa ular bir-biriga qaraydi va chokda naqsh yopiladi.",
+      ru: 'Верно. В копии листья смотрят в одну сторону. В отражении они смотрят друг на друга, и узор на стыке закрывается.',
+      en: 'Correct. In a copy the leaves point the same way. In a reflection they face each other and the pattern closes at the seam.',
     },
-    "options": [
+    wrong: [
+      null,
       {
-        "uz": "Ha, bir xil tekshiruv",
-        "ru": "Да, это одна проверка",
-        "en": "Yes, they are the same test"
+        uz: "Barglar soni teng: ikkala yarmida ham oltitadan. Xato ularning yo'nalishida.",
+        ru: 'Листьев поровну: по шесть в каждой половине. Ошибка в их направлении.',
+        en: 'The leaves are equal in number: six in each half. The error is in the way they point.',
       },
       {
-        "uz": "Yo'q, ular ikki xil tekshiruv",
-        "ru": "Нет, это две разные проверки",
-        "en": "No, they are different tests"
+        uz: "Ikkala yarim ham chokka tegib turibdi. Masofa emas, yo'nalish boshqacha.",
+        ru: 'Обе половины прилегают к стыку. Различается не расстояние, а направление.',
+        en: 'Both halves touch the seam. What differs is not the distance but the direction.',
       },
       {
-        "uz": "Hali tekshirish kerak",
-        "ru": "Это ещё нужно проверить",
-        "en": "We still need to investigate"
-      }
+        uz: "Burasak, barglar aylana bo'ylab tartib bilan ketardi. Bu yerda ular shunchaki ko'chirilgan.",
+        ru: 'При повороте листья шли бы по кругу. Здесь они просто скопированы.',
+        en: 'After a turn the leaves would run around a circle. Here they are simply copied.',
+      },
     ],
-    "neutral": {
-      "uz": "Taxmin saqlandi. Buklash va burish sinovlarini alohida ko'ramiz.",
-      "ru": "Гипотеза сохранена. Рассмотрим сгибание и поворот отдельно.",
-      "en": "Estimate saved. We will examine folding and turning separately."
-    },
-    "audio": {
-      "intro": {
-        "uz": [
-          "Logo oynadagi aksiga mos tushadi.",
-          "Logo bir yuz sakson darajaga burilganda ham mos tushadi.",
-          "Bu bir xil tekshiruvmi?"
+    bitFeedback: true,
+    audio: {
+      intro: {
+        uz: [
+          "Salom, do'stim! Lumo City arxitektura byurosi markaziy bekatga panjara-oyna tayyorlamoqda.",
+          "Dastgoh naqshning faqat chap yarmini kesadi. O'ng yarmi ko'zgu qonuni bilan chiqishi kerak.",
+          "Bit chap yarmni ko'chirib, o'ngga qo'ydi. Chokda barglar bir-biriga qaramay, bir tomonga qaradi.",
+          "Naqsh yopilmadi. Sizningcha, o'ng yarimda nima noto'g'ri? Javobni tanlang.",
         ],
-        "ru": [
-          "Логотип совпадает со своим отражением.",
-          "Логотип совпадает с собой и после поворота на сто восемьдесят градусов.",
-          "Это одна и та же проверка?"
+        ru: [
+          'Привет, друг! Архитектурное бюро Lumo City готовит решётчатое окно для центральной станции.',
+          'Станок режет только левую половину узора. Правая должна получиться по закону зеркала.',
+          'Bit скопировал левую половину и поставил её справа. На стыке листья смотрят в одну сторону, а не друг на друга.',
+          'Узор не закрылся. Как ты думаешь, что не так с правой половиной? Выбери ответ.',
         ],
-        "en": [
-          "The logo matches its reflection.",
-          "The logo also matches itself after a one-hundred-and-eighty-degree turn.",
-          "Are these the same test?"
-        ]
-      }
-    }
-  },
-  "s1": {
-    "eyebrow": {
-      "uz": "Tushuntirish 1/7",
-      "ru": "Объяснение 1/7",
-      "en": "Explanation 1/7"
-    },
-    "title": {
-      "uz": "Simmetriya o'qi",
-      "ru": "Ось симметрии",
-      "en": "Line of symmetry"
-    },
-    "scene": "line-symmetry",
-    "frames": [
-      {
-        "uz": "Shakl ustida simmetriya o'qini belgilang.",
-        "ru": "Отметьте на фигуре ось симметрии.",
-        "en": "Mark a line of symmetry on the shape."
-      },
-      {
-        "uz": "Shaklni shu chiziq bo'ylab buklang.",
-        "ru": "Сложите фигуру по этой линии.",
-        "en": "Fold the shape along this line."
-      },
-      {
-        "uz": "Ikki yarmi ustma-ust tushadi.",
-        "ru": "Две половины совпадают.",
-        "en": "The two halves coincide."
-      },
-      {
-        "uz": "Bu chiziq — simmetriya o'qi.",
-        "ru": "Эта линия — ось симметрии.",
-        "en": "This line is a line of symmetry."
-      }
-    ],
-    "audio": {
-      "uz": [
-        "Shakl ustida simmetriya o'qini belgilang.",
-        "Shaklni shu chiziq bo'ylab buklang.",
-        "Ikki yarmi ustma-ust tushadi.",
-        "Bu chiziq, simmetriya o'qi."
-      ],
-      "ru": [
-        "Отметьте на фигуре ось симметрии.",
-        "Сложите фигуру по этой линии.",
-        "Две половины совпадают.",
-        "Эта линия является осью симметрии."
-      ],
-      "en": [
-        "Mark a line of symmetry on the shape.",
-        "Fold the shape along this line.",
-        "The two halves coincide.",
-        "This line is a line of symmetry."
-      ]
-    }
-  },
-  "s2": {
-    "eyebrow": {
-      "uz": "Tushuntirish 2/7",
-      "ru": "Объяснение 2/7",
-      "en": "Explanation 2/7"
-    },
-    "title": {
-      "uz": "Vertikal va gorizontal o'qlar",
-      "ru": "Вертикальная и горизонтальная оси",
-      "en": "Vertical and horizontal lines"
-    },
-    "scene": "rectangle-axes",
-    "frames": [
-      {
-        "uz": "Kvadrat bo'lmagan to'g'ri to'rtburchakning vertikal simmetriya o'qi bor.",
-        "ru": "У неквадратного прямоугольника есть вертикальная ось симметрии.",
-        "en": "A non-square rectangle has a vertical line of symmetry."
-      },
-      {
-        "uz": "Uning gorizontal simmetriya o'qi ham bor.",
-        "ru": "У него также есть горизонтальная ось симметрии.",
-        "en": "It also has a horizontal line of symmetry."
-      },
-      {
-        "uz": "Demak, unda 2 ta o'q bor.",
-        "ru": "Значит, у него 2 оси.",
-        "en": "So it has 2 lines of symmetry."
-      },
-      {
-        "uz": "Diagonal bo'yicha buklanganda tomonlar ustma-ust tushmaydi.",
-        "ru": "При складывании по диагонали стороны не совпадают.",
-        "en": "Its sides do not coincide when folded diagonally."
-      }
-    ],
-    "audio": {
-      "uz": [
-        "Kvadrat bo'lmagan to'g'ri to'rtburchakning vertikal simmetriya o'qi bor.",
-        "Uning gorizontal simmetriya o'qi ham bor.",
-        "Demak, unda ikkita o'q bor.",
-        "Diagonal bo'yicha buklanganda tomonlar ustma-ust tushmaydi."
-      ],
-      "ru": [
-        "У неквадратного прямоугольника есть вертикальная ось симметрии.",
-        "У него также есть горизонтальная ось симметрии.",
-        "Значит, у него две оси.",
-        "При складывании по диагонали стороны не совпадают."
-      ],
-      "en": [
-        "A non-square rectangle has a vertical line of symmetry.",
-        "It also has a horizontal line of symmetry.",
-        "So it has two lines of symmetry.",
-        "Its sides do not coincide when folded diagonally."
-      ]
-    }
-  },
-  "s3": {
-    "eyebrow": {
-      "uz": "Tushuntirish 3/7",
-      "ru": "Объяснение 3/7",
-      "en": "Explanation 3/7"
-    },
-    "title": {
-      "uz": "Teng bo'lish yetarli emas",
-      "ru": "Разделить поровну недостаточно",
-      "en": "Equal halves are not enough"
-    },
-    "scene": "correspondence",
-    "frames": [
-      {
-        "uz": "Chiziq shakl yuzini teng ikkiga bo'lishi mumkin.",
-        "ru": "Линия может разделить площадь фигуры на две равные части.",
-        "en": "A line may split a shape into two equal areas."
-      },
-      {
-        "uz": "O'qning ikki tomonidagi mos nuqtalarni belgilang.",
-        "ru": "Отметьте соответствующие точки по обе стороны линии.",
-        "en": "Mark corresponding points on the two sides of the line."
-      },
-      {
-        "uz": "Agar o'qqacha masofalar teng bo'lmasa, nuqtalar mos tushmaydi.",
-        "ru": "Если расстояния до линии не равны, точки не совпадут.",
-        "en": "If their distances from the line differ, the points will not coincide."
-      },
-      {
-        "uz": "Simmetriya uchun yarmlar buklanganda aynan ustma-ust tushishi kerak.",
-        "ru": "Для симметрии половины должны точно совпасть при складывании.",
-        "en": "For symmetry, the halves must coincide exactly when folded."
-      }
-    ],
-    "audio": {
-      "uz": [
-        "Chiziq shakl yuzini teng ikkiga bo'lishi mumkin.",
-        "O'qning ikki tomonidagi mos nuqtalarni belgilang.",
-        "Agar o'qqacha masofalar teng bo'lmasa, nuqtalar mos tushmaydi.",
-        "Simmetriya uchun yarmlar buklanganda aynan ustma-ust tushishi kerak."
-      ],
-      "ru": [
-        "Линия может разделить площадь фигуры на две равные части.",
-        "Отметьте соответствующие точки по обе стороны линии.",
-        "Если расстояния до линии не равны, точки не совпадут.",
-        "Для симметрии половины должны точно совпасть при складывании."
-      ],
-      "en": [
-        "A line may split a shape into two equal areas.",
-        "Mark corresponding points on the two sides of the line.",
-        "If their distances from the line differ, the points will not coincide.",
-        "For symmetry, the halves must coincide exactly when folded."
-      ]
-    }
-  },
-  "s4": {
-    "eyebrow": {
-      "uz": "Tushuntirish 4/7",
-      "ru": "Объяснение 4/7",
-      "en": "Explanation 4/7"
-    },
-    "title": {
-      "uz": "Burilish simmetriyasi",
-      "ru": "Поворотная симметрия",
-      "en": "Rotational symmetry"
-    },
-    "scene": "rotation",
-    "frames": [
-      {
-        "uz": "Shaklning burilish markazini belgilang.",
-        "ru": "Отметьте центр поворота фигуры.",
-        "en": "Mark the shape's centre of rotation."
-      },
-      {
-        "uz": "Uni markaz atrofida 90° ga buring.",
-        "ru": "Поверните её вокруг центра на 90°.",
-        "en": "Turn it 90° about the centre."
-      },
-      {
-        "uz": "Shakl dastlabki holatga mos tushishi yoki tushmasligini tekshiring.",
-        "ru": "Проверьте, совпала ли фигура с исходным положением.",
-        "en": "Check whether it matches its starting position."
-      },
-      {
-        "uz": "Burilish burchagi 360° dan kichik bo'lishi kerak.",
-        "ru": "Угол поворота должен быть меньше 360°.",
-        "en": "The turn angle must be less than 360°."
-      }
-    ],
-    "audio": {
-      "uz": [
-        "Shaklning burilish markazini belgilang.",
-        "Uni markaz atrofida to'qson darajaga buring.",
-        "Shakl dastlabki holatga mos tushishi yoki tushmasligini tekshiring.",
-        "Burilish burchagi uch yuz oltmish darajadan kichik bo'lishi kerak."
-      ],
-      "ru": [
-        "Отметьте центр поворота фигуры.",
-        "Поверните её вокруг центра на девяносто градусов.",
-        "Проверьте, совпала ли фигура с исходным положением.",
-        "Угол поворота должен быть меньше трёхсот шестидесяти градусов."
-      ],
-      "en": [
-        "Mark the shape's centre of rotation.",
-        "Turn it ninety degrees about the centre.",
-        "Check whether it matches its starting position.",
-        "The turn angle must be less than three hundred and sixty degrees."
-      ]
-    }
-  },
-  "s5": {
-    "eyebrow": {
-      "uz": "Tushuntirish 5/7",
-      "ru": "Объяснение 5/7",
-      "en": "Explanation 5/7"
-    },
-    "title": {
-      "uz": "Kvadrat va to'g'ri to'rtburchak",
-      "ru": "Квадрат и прямоугольник",
-      "en": "Square and rectangle"
-    },
-    "scene": "square-rectangle",
-    "frames": [
-      {
-        "uz": "Kvadrat 90° ga burilganda o'ziga mos tushadi.",
-        "ru": "Квадрат совпадает с собой после поворота на 90°.",
-        "en": "A square matches itself after a 90° turn."
-      },
-      {
-        "uz": "Kvadrat bo'lmagan to'g'ri to'rtburchak 90° da mos tushmaydi.",
-        "ru": "Неквадратный прямоугольник не совпадает после поворота на 90°.",
-        "en": "A non-square rectangle does not match after a 90° turn."
-      },
-      {
-        "uz": "U 180° ga burilganda o'ziga mos tushadi.",
-        "ru": "Он совпадает с собой после поворота на 180°.",
-        "en": "It matches itself after a 180° turn."
-      },
-      {
-        "uz": "Eng kichik mos burilishlarni taqqoslang.",
-        "ru": "Сравните наименьшие подходящие повороты.",
-        "en": "Compare the smallest matching turns."
-      }
-    ],
-    "audio": {
-      "uz": [
-        "Kvadrat to'qson darajaga burilganda o'ziga mos tushadi.",
-        "Kvadrat bo'lmagan to'g'ri to'rtburchak to'qson darajada mos tushmaydi.",
-        "U bir yuz sakson darajaga burilganda o'ziga mos tushadi.",
-        "Eng kichik mos burilishlarni taqqoslang."
-      ],
-      "ru": [
-        "Квадрат совпадает с собой после поворота на девяносто градусов.",
-        "Неквадратный прямоугольник не совпадает после поворота на девяносто градусов.",
-        "Он совпадает с собой после поворота на сто восемьдесят градусов.",
-        "Сравните наименьшие подходящие повороты."
-      ],
-      "en": [
-        "A square matches itself after a ninety-degree turn.",
-        "A non-square rectangle does not match after a ninety-degree turn.",
-        "It matches itself after a one-hundred-and-eighty-degree turn.",
-        "Compare the smallest matching turns."
-      ]
-    }
-  },
-  "s6": {
-    "eyebrow": {
-      "uz": "Tushuntirish 6/7",
-      "ru": "Объяснение 6/7",
-      "en": "Explanation 6/7"
-    },
-    "title": {
-      "uz": "Ikki simmetriya birga",
-      "ru": "Два вида симметрии вместе",
-      "en": "Both kinds together"
-    },
-    "scene": "compare",
-    "frames": [
-      {
-        "uz": "O'qli simmetriyada asosiy obyekt — o'q.",
-        "ru": "Для осевой симметрии главный объект — ось.",
-        "en": "A line is central to line symmetry."
-      },
-      {
-        "uz": "Burilish simmetriyasida asosiy obyekt — markaz.",
-        "ru": "Для поворотной симметрии главный объект — центр.",
-        "en": "A centre is central to rotational symmetry."
-      },
-      {
-        "uz": "O'qli simmetriya buklash bilan tekshiriladi.",
-        "ru": "Осевую симметрию проверяют складыванием.",
-        "en": "Line symmetry is tested by folding."
-      },
-      {
-        "uz": "Burilish simmetriyasi aylantirish bilan tekshiriladi.",
-        "ru": "Поворотную симметрию проверяют поворотом.",
-        "en": "Rotational symmetry is tested by turning."
-      }
-    ],
-    "audio": {
-      "uz": [
-        "O'qli simmetriyada asosiy obyekt o'qdir.",
-        "Burilish simmetriyasida asosiy obyekt markazdir.",
-        "O'qli simmetriya buklash bilan tekshiriladi.",
-        "Burilish simmetriyasi aylantirish bilan tekshiriladi."
-      ],
-      "ru": [
-        "Для осевой симметрии главным объектом является ось.",
-        "Для поворотной симметрии главным объектом является центр.",
-        "Осевую симметрию проверяют складыванием.",
-        "Поворотную симметрию проверяют поворотом."
-      ],
-      "en": [
-        "A line is central to line symmetry.",
-        "A centre is central to rotational symmetry.",
-        "Line symmetry is tested by folding.",
-        "Rotational symmetry is tested by turning."
-      ]
-    }
-  },
-  "s7": {
-    "eyebrow": {
-      "uz": "Tushuntirish 7/7",
-      "ru": "Объяснение 7/7",
-      "en": "Explanation 7/7"
-    },
-    "title": {
-      "uz": "Simmetriya algoritmi",
-      "ru": "Алгоритм симметрии",
-      "en": "Symmetry algorithm"
-    },
-    "scene": "checklist",
-    "frames": [
-      {
-        "uz": "Buklanganda yarmlar mos tushadimi?",
-        "ru": "Совпадают ли половины при складывании?",
-        "en": "Do the halves match when folded?"
-      },
-      {
-        "uz": "Mos nuqtalar o'qdan teng uzoqdami?",
-        "ru": "Равно ли удалены соответствующие точки от оси?",
-        "en": "Are corresponding points equally far from the line?"
-      },
-      {
-        "uz": "Burilish markazi qayerda?",
-        "ru": "Где находится центр поворота?",
-        "en": "Where is the centre of rotation?"
-      },
-      {
-        "uz": "Eng kichik mos burilish nechaga teng?",
-        "ru": "Каков наименьший подходящий поворот?",
-        "en": "What is the smallest matching turn?"
-      },
-      {
-        "uz": "Yo'q: oynaviy aks va burilish ikki xil tekshiruv.",
-        "ru": "Нет: отражение и поворот проверяются по-разному.",
-        "en": "No: reflection and rotation are different tests."
-      }
-    ],
-    "audio": {
-      "uz": [
-        "Buklanganda yarmlar mos tushadimi?",
-        "Mos nuqtalar o'qdan teng uzoqdami?",
-        "Burilish markazi qayerda?",
-        "Eng kichik mos burilish nechaga teng?",
-        "Demak oynaviy simmetriya buklash bilan, burilish simmetriyasi esa markaz atrofida burish bilan tekshiriladi; ular bir xil tekshiruv emas."
-      ],
-      "ru": [
-        "Совпадают ли половины при складывании?",
-        "Равно ли удалены соответствующие точки от оси?",
-        "Где находится центр поворота?",
-        "Каков наименьший подходящий поворот?",
-        "Итак, осевую симметрию проверяют складыванием, а поворотную симметрию поворотом вокруг центра; это разные проверки."
-      ],
-      "en": [
-        "Do the halves match when folded?",
-        "Are corresponding points equally far from the line?",
-        "Where is the centre of rotation?",
-        "What is the smallest matching turn?",
-        "Therefore, line symmetry is checked by folding, while rotational symmetry is checked by turning around a centre; they are different tests."
-      ]
-    }
-  },
-  "s8": {
-    "eyebrow": {
-      "uz": "Mashq 1/6",
-      "ru": "Задание 1/6",
-      "en": "Task 1/6"
-    },
-    "title": {
-      "uz": "Aynan ikkita o'q",
-      "ru": "Ровно две оси",
-      "en": "Exactly two lines"
-    },
-    "scene": "axis-count",
-    "closedSet": true,
-    "frames": [
-      {
-        "uz": "Shaklning aynan 2 ta simmetriya o'qi bo'lishi kerak.",
-        "ru": "У фигуры должно быть ровно 2 оси симметрии.",
-        "en": "The shape must have exactly 2 lines of symmetry."
-      },
-      {
-        "uz": "Variantlarni buklash orqali tekshiring.",
-        "ru": "Проверьте варианты складыванием.",
-        "en": "Check the options by folding."
-      }
-    ],
-    "question": {
-      "uz": "Qaysi shaklda aynan 2 ta o'q bor?",
-      "ru": "У какой фигуры ровно 2 оси симметрии?",
-      "en": "Which shape has exactly 2 lines of symmetry?"
-    },
-    "options": [
-      {
-        "uz": "Kvadrat",
-        "ru": "Квадрат",
-        "en": "Square"
-      },
-      {
-        "uz": "Kvadrat bo'lmagan to'g'ri to'rtburchak",
-        "ru": "Неквадратный прямоугольник",
-        "en": "Non-square rectangle"
-      },
-      {
-        "uz": "Teng yonli uchburchak",
-        "ru": "Равнобедренный треугольник",
-        "en": "Isosceles triangle"
-      }
-    ],
-    "correctIndex": 1,
-    "proof": {
-      "uz": "Kvadrat bo'lmagan to'g'ri to'rtburchakda faqat vertikal va gorizontal 2 ta simmetriya o'qi bor.",
-      "ru": "У неквадратного прямоугольника только 2 оси симметрии: вертикальная и горизонтальная.",
-      "en": "A non-square rectangle has exactly 2 lines of symmetry: vertical and horizontal."
-    },
-    "audio": {
-      "intro": {
-        "uz": [
-          "Shaklning aynan ikkita simmetriya o'qi bo'lishi kerak.",
-          "Variantlarni buklash orqali tekshiring."
+        en: [
+          'Hello, friend! The Lumo City architecture bureau is preparing a lattice window for the central station.',
+          'The cutter only cuts the left half of the pattern. The right half has to come from the law of the mirror.',
+          'Bit copied the left half and placed it on the right. At the seam the leaves point the same way instead of facing each other.',
+          'The pattern did not close. What do you think is wrong with the right half? Choose an answer.',
         ],
-        "ru": [
-          "У фигуры должно быть ровно две оси симметрии.",
-          "Проверьте варианты складыванием."
-        ],
-        "en": [
-          "The shape must have exactly two lines of symmetry.",
-          "Check the options by folding."
-        ]
       },
-      "on_correct": {
-        "uz": "To'g'ri. Kvadrat bo'lmagan to'g'ri to'rtburchakda faqat vertikal va gorizontal ikkita simmetriya o'qi bor.",
-        "ru": "Верно. У неквадратного прямоугольника только две оси симметрии: вертикальная и горизонтальная.",
-        "en": "Correct. A non-square rectangle has exactly two lines of symmetry: vertical and horizontal."
-      },
-      "on_wrong": [
-        {
-          "uz": "Yana bir qarang: Kvadratning vertikal, gorizontal va ikkita diagonal simmetriya o'qi bor, jami to'rtta. Shartda aynan ikkita o'q kerak.",
-          "ru": "Посмотрите ещё раз: У квадрата четыре оси симметрии: вертикальная, горизонтальная и две диагональные. По условию нужны ровно две оси.",
-          "en": "Look again: A square has four lines of symmetry: vertical, horizontal and two diagonal lines. The condition asks for exactly two."
-        },
-        {
-          "uz": "To'g'ri. Kvadrat bo'lmagan to'g'ri to'rtburchakda faqat vertikal va gorizontal ikkita simmetriya o'qi bor.",
-          "ru": "Верно. У неквадратного прямоугольника только две оси симметрии: вертикальная и горизонтальная.",
-          "en": "Correct. A non-square rectangle has exactly two lines of symmetry: vertical and horizontal."
-        },
-        {
-          "uz": "Yana bir qarang: Teng yonli uchburchakda uchdan asos o'rtasiga o'tuvchi faqat bitta simmetriya o'qi bor. Shartda aynan ikkita o'q kerak.",
-          "ru": "Посмотрите ещё раз: У равнобедренного треугольника только одна ось, проходящая от вершины к середине основания. По условию нужны две.",
-          "en": "Look again: An isosceles triangle has only one line of symmetry, from the vertex to the midpoint of the base. The condition asks for two."
-        }
-      ]
     },
-    "feedbackAudio": [
-      {
-        "uz": "Yana bir qarang: Kvadratning vertikal, gorizontal va ikkita diagonal simmetriya o'qi bor, jami to'rtta. Shartda aynan ikkita o'q kerak.",
-        "ru": "Посмотрите ещё раз: У квадрата четыре оси симметрии: вертикальная, горизонтальная и две диагональные. По условию нужны ровно две оси.",
-        "en": "Look again: A square has four lines of symmetry: vertical, horizontal and two diagonal lines. The condition asks for exactly two."
-      },
-      {
-        "uz": "To'g'ri. Kvadrat bo'lmagan to'g'ri to'rtburchakda faqat vertikal va gorizontal ikkita simmetriya o'qi bor.",
-        "ru": "Верно. У неквадратного прямоугольника только две оси симметрии: вертикальная и горизонтальная.",
-        "en": "Correct. A non-square rectangle has exactly two lines of symmetry: vertical and horizontal."
-      },
-      {
-        "uz": "Yana bir qarang: Teng yonli uchburchakda uchdan asos o'rtasiga o'tuvchi faqat bitta simmetriya o'qi bor. Shartda aynan ikkita o'q kerak.",
-        "ru": "Посмотрите ещё раз: У равнобедренного треугольника только одна ось, проходящая от вершины к середине основания. По условию нужны две.",
-        "en": "Look again: An isosceles triangle has only one line of symmetry, from the vertex to the midpoint of the base. The condition asks for two."
-      }
-    ]
   },
-  "s9": {
-    "eyebrow": {
-      "uz": "Mashq 2/6",
-      "ru": "Задание 2/6",
-      "en": "Task 2/6"
+
+  s1: {
+    eyebrow: { uz: 'Simmetriya o\'qi', ru: 'Ось симметрии', en: 'The axis of symmetry' },
+    title: {
+      uz: 'Buklab tekshiramiz',
+      ru: 'Проверяем сгибом',
+      en: 'We check by folding',
     },
-    "title": {
-      "uz": "Kvadratning eng kichik burilishi",
-      "ru": "Наименьший поворот квадрата",
-      "en": "Smallest turn of a square"
+    lead: {
+      uz: "Panelni chiziq bo'ylab buklaymiz. Ikki yarim ustma-ust tushsa, bu chiziq simmetriya o'qi.",
+      ru: 'Сгибаем панель по прямой. Если половины совпали, эта прямая — ось симметрии.',
+      en: 'We fold the panel along a line. If the halves land on each other, that line is the axis of symmetry.',
     },
-    "scene": "square-turn",
-    "closedSet": true,
-    "frames": [
-      {
-        "uz": "Kvadratni markazi atrofida buring.",
-        "ru": "Поверните квадрат вокруг его центра.",
-        "en": "Turn the square about its centre."
-      },
-      {
-        "uz": "Eng kichik mos burchakni tanlang.",
-        "ru": "Выберите наименьший подходящий угол.",
-        "en": "Choose the smallest matching angle."
-      }
-    ],
-    "question": {
-      "uz": "Kvadratning eng kichik mos burilishi qaysi?",
-      "ru": "Каков наименьший поворот квадрата, при котором он совпадает с собой?",
-      "en": "What is the square's smallest matching turn?"
+    note: {
+      uz: "Chiziq boshqa joydan o'tsa, yarimlar mos tushmaydi: u simmetriya o'qi emas.",
+      ru: 'Если прямая проходит иначе, половины не совпадают: это не ось симметрии.',
+      en: 'If the line runs elsewhere, the halves do not match: it is not an axis of symmetry.',
     },
-    "options": [
-      {
-        "uz": "45°",
-        "ru": "45°",
-        "en": "45°"
-      },
-      {
-        "uz": "90°",
-        "ru": "90°",
-        "en": "90°"
-      },
-      {
-        "uz": "180°",
-        "ru": "180°",
-        "en": "180°"
-      }
-    ],
-    "correctIndex": 1,
-    "proof": {
-      "uz": "Kvadrat 90° ga burilganda birinchi marta o'ziga mos tushadi.",
-      "ru": "Квадрат впервые совпадает с собой после поворота на 90°.",
-      "en": "A square first matches itself after a 90° turn."
-    },
-    "audio": {
-      "intro": {
-        "uz": [
-          "Kvadratni markazi atrofida buring.",
-          "Eng kichik mos burchakni tanlang."
+    audio: {
+      intro: {
+        uz: [
+          "Bitta panelni olamiz. Unda to'rtta barg bor va ular chokka qaragan.",
+          "O'rtasidan tik chiziq o'tkazamiz. Bu chiziq bo'ylab panelni buklaymiz.",
+          "Ikki yarim aniq ustma-ust tushdi. Demak, bu chiziq simmetriya o'qi.",
+          "Endi chiziqni boshqa joydan o'tkazamiz. Buklaganda yarimlar mos tushmadi. Har qanday chiziq o'q bo'lavermaydi.",
         ],
-        "ru": [
-          "Поверните квадрат вокруг его центра.",
-          "Выберите наименьший подходящий угол."
+        ru: [
+          'Возьмём одну панель. На ней четыре листа, и они повёрнуты к стыку.',
+          'Проведём через середину прямую. По этой прямой сложим панель.',
+          'Половины легли точно друг на друга. Значит, эта прямая и есть ось симметрии.',
+          'Теперь проведём прямую в другом месте. При сгибе половины не совпали. Не всякая прямая является осью.',
         ],
-        "en": [
-          "Turn the square about its centre.",
-          "Choose the smallest matching angle."
-        ]
+        en: [
+          'Take one panel. It carries four leaves and they face the seam.',
+          'Draw a straight line through the middle. Fold the panel along that line.',
+          'The halves landed exactly on each other. So this line is an axis of symmetry.',
+          'Now draw a line somewhere else. After the fold the halves did not match. Not every line is an axis.',
+        ],
       },
-      "on_correct": {
-        "uz": "To'g'ri. Kvadrat to'qson darajaga burilganda birinchi marta o'ziga mos tushadi.",
-        "ru": "Верно. Квадрат впервые совпадает с собой после поворота на девяносто градусов.",
-        "en": "Correct. A square first matches itself after a ninety-degree turn."
-      },
-      "on_wrong": [
-        {
-          "uz": "Yana bir qarang: Qirq besh darajada kvadrat tomonlari avvalgi tomonlar orasidagi yo'nalishga keladi va mos tushmaydi. Birinchi mos burilish to'qson daraja.",
-          "ru": "Посмотрите ещё раз: После поворота на сорок пять градусов стороны квадрата оказываются между прежними направлениями и не совпадают. Первый подходящий поворот: девяносто градусов.",
-          "en": "Look again: After a forty-five-degree turn, the square's sides lie between their original directions. The first matching turn is ninety degrees."
-        },
-        {
-          "uz": "To'g'ri. Kvadrat to'qson darajaga burilganda birinchi marta o'ziga mos tushadi.",
-          "ru": "Верно. Квадрат впервые совпадает с собой после поворота на девяносто градусов.",
-          "en": "Correct. A square first matches itself after a ninety-degree turn."
-        },
-        {
-          "uz": "Yana bir qarang: Bir yuz sakson daraja kvadratni o'ziga mos tushiradi, ammo to'qson daraja undan kichik va allaqachon mos tushiradi.",
-          "ru": "Посмотрите ещё раз: Поворот на сто восемьдесят градусов совмещает квадрат с собой, но девяносто градусов меньше и уже дают совпадение.",
-          "en": "Look again: A one-hundred-and-eighty-degree turn works, but ninety degrees is smaller and already makes the square match."
-        }
-      ]
     },
-    "feedbackAudio": [
-      {
-        "uz": "Yana bir qarang: Qirq besh darajada kvadrat tomonlari avvalgi tomonlar orasidagi yo'nalishga keladi va mos tushmaydi. Birinchi mos burilish to'qson daraja.",
-        "ru": "Посмотрите ещё раз: После поворота на сорок пять градусов стороны квадрата оказываются между прежними направлениями и не совпадают. Первый подходящий поворот: девяносто градусов.",
-        "en": "Look again: After a forty-five-degree turn, the square's sides lie between their original directions. The first matching turn is ninety degrees."
-      },
-      {
-        "uz": "To'g'ri. Kvadrat to'qson darajaga burilganda birinchi marta o'ziga mos tushadi.",
-        "ru": "Верно. Квадрат впервые совпадает с собой после поворота на девяносто градусов.",
-        "en": "Correct. A square first matches itself after a ninety-degree turn."
-      },
-      {
-        "uz": "Yana bir qarang: Bir yuz sakson daraja kvadratni o'ziga mos tushiradi, ammo to'qson daraja undan kichik va allaqachon mos tushiradi.",
-        "ru": "Посмотрите ещё раз: Поворот на сто восемьдесят градусов совмещает квадрат с собой, но девяносто градусов меньше и уже дают совпадение.",
-        "en": "Look again: A one-hundred-and-eighty-degree turn works, but ninety degrees is smaller and already makes the square match."
-      }
-    ]
   },
-  "s10": {
-    "eyebrow": {
-      "uz": "Mashq 3/6",
-      "ru": "Задание 3/6",
-      "en": "Task 3/6"
+
+  s2: {
+    eyebrow: { uz: 'Uchta panel', ru: 'Три панели', en: 'Three panels' },
+    title: {
+      uz: 'Qaysi panel simmetrik?',
+      ru: 'Какая панель симметрична?',
+      en: 'Which panel is symmetric?',
     },
-    "title": {
-      "uz": "To'g'ri to'rtburchak",
-      "ru": "Прямоугольник",
-      "en": "Rectangle"
+    question: {
+      uz: "Qaysi panelda naqsh o'qqa nisbatan simmetrik?",
+      ru: 'На какой панели узор симметричен относительно оси?',
+      en: 'On which panel is the pattern symmetric about the axis?',
     },
-    "scene": "rectangle-turn",
-    "closedSet": true,
-    "frames": [
-      {
-        "uz": "Kvadrat bo'lmagan to'g'ri to'rtburchakni buring.",
-        "ru": "Поверните неквадратный прямоугольник.",
-        "en": "Turn a non-square rectangle."
-      },
-      {
-        "uz": "Dastlabki holatga qachon mos tushishini toping.",
-        "ru": "Найдите, когда он совпадёт с исходным положением.",
-        "en": "Find when it matches its starting position."
-      }
+    options: [
+      { uz: '1-panel', ru: 'Панель 1', en: 'Panel 1' },
+      { uz: '2-panel', ru: 'Панель 2', en: 'Panel 2' },
+      { uz: '3-panel', ru: 'Панель 3', en: 'Panel 3' },
     ],
-    "question": {
-      "uz": "Kvadrat bo'lmagan to'g'ri to'rtburchak qaysi burilishda mos tushadi?",
-      "ru": "После какого поворота неквадратный прямоугольник совпадает с собой?",
-      "en": "After which turn does a non-square rectangle match itself?"
+    correctIndex: 1,
+    correctText: {
+      uz: "To'g'ri. Ikkinchi panelda barglar o'qqa qarab bir-biriga tik turibdi va o'qdan bir xil masofada.",
+      ru: 'Верно. На второй панели листья обращены друг к другу и стоят на одинаковом расстоянии от оси.',
+      en: 'Correct. On the second panel the leaves face each other and stand at the same distance from the axis.',
     },
-    "options": [
+    wrong: [
       {
-        "uz": "90°",
-        "ru": "90°",
-        "en": "90°"
+        uz: "Birinchi panelda barglar bir tomonga qaragan. Bu ko'chirma, ko'zgu emas.",
+        ru: 'На первой панели листья смотрят в одну сторону. Это копия, а не отражение.',
+        en: 'On the first panel the leaves point the same way. That is a copy, not a reflection.',
       },
+      null,
       {
-        "uz": "180°",
-        "ru": "180°",
-        "en": "180°"
+        uz: "Uchinchi panelda o'ng yarim pastga siljigan. Buklasak, barglar ustma-ust tushmaydi.",
+        ru: 'На третьей панели правая половина сдвинута вниз. При сгибе листья не совпадут.',
+        en: 'On the third panel the right half is shifted down. After a fold the leaves will not match.',
       },
-      {
-        "uz": "270°",
-        "ru": "270°",
-        "en": "270°"
-      }
     ],
-    "correctIndex": 1,
-    "proof": {
-      "uz": "Kvadrat bo'lmagan to'g'ri to'rtburchak 180° ga burilganda o'ziga mos tushadi.",
-      "ru": "Неквадратный прямоугольник совпадает с собой после поворота на 180°.",
-      "en": "A non-square rectangle matches itself after a 180° turn."
-    },
-    "audio": {
-      "intro": {
-        "uz": [
-          "Kvadrat bo'lmagan to'g'ri to'rtburchakni buring.",
-          "Dastlabki holatga qachon mos tushishini toping."
+    audio: {
+      intro: {
+        uz: [
+          "Ustaxonaga uchta panel keldi. Har birida tik chiziq chizilgan.",
+          "Har bir panelni shu chiziq bo'ylab xayolan buklab ko'ring.",
+          "Qaysi panelda naqsh o'qqa nisbatan simmetrik? Javobni tanlang.",
         ],
-        "ru": [
-          "Поверните неквадратный прямоугольник.",
-          "Найдите, когда он совпадёт с исходным положением."
+        ru: [
+          'В мастерскую поступили три панели. На каждой проведена вертикальная прямая.',
+          'Мысленно сложи каждую панель по этой прямой.',
+          'На какой панели узор симметричен относительно оси? Выбери ответ.',
         ],
-        "en": [
-          "Turn a non-square rectangle.",
-          "Find when it matches its starting position."
-        ]
+        en: [
+          'Three panels have arrived at the workshop. A vertical line is drawn on each of them.',
+          'Fold each panel along that line in your head.',
+          'On which panel is the pattern symmetric about the axis? Choose an answer.',
+        ],
       },
-      "on_correct": {
-        "uz": "To'g'ri. Kvadrat bo'lmagan to'g'ri to'rtburchak bir yuz sakson darajaga burilganda o'ziga mos tushadi.",
-        "ru": "Верно. Неквадратный прямоугольник совпадает с собой после поворота на сто восемьдесят градусов.",
-        "en": "Correct. A non-square rectangle matches itself after a one-hundred-and-eighty-degree turn."
-      },
-      "on_wrong": [
-        {
-          "uz": "Yana bir qarang: To'qson darajali burilishda uzun va qisqa tomonlar o'rin almashadi, shuning uchun kvadrat bo'lmagan to'g'ri to'rtburchak mos tushmaydi.",
-          "ru": "Посмотрите ещё раз: При повороте на девяносто градусов длинные и короткие стороны меняются местами, поэтому неквадратный прямоугольник не совпадает.",
-          "en": "Look again: A ninety-degree turn swaps the long and short side positions, so a non-square rectangle does not match."
-        },
-        {
-          "uz": "To'g'ri. Kvadrat bo'lmagan to'g'ri to'rtburchak bir yuz sakson darajaga burilganda o'ziga mos tushadi.",
-          "ru": "Верно. Неквадратный прямоугольник совпадает с собой после поворота на сто восемьдесят градусов.",
-          "en": "Correct. A non-square rectangle matches itself after a one-hundred-and-eighty-degree turn."
-        },
-        {
-          "uz": "Yana bir qarang: Ikki yuz yetmish daraja ham chorak burilish holatiga olib kelib, uzun va qisqa tomonlarni almashtiradi. Yarim burilish, ya'ni bir yuz sakson daraja kerak.",
-          "ru": "Посмотрите ещё раз: Двести семьдесят градусов тоже дают положение четверти оборота и меняют длинные и короткие стороны местами. Нужен поворот на сто восемьдесят градусов.",
-          "en": "Look again: A two-hundred-and-seventy-degree turn also swaps the long and short side positions. A half-turn of one hundred and eighty degrees is needed."
-        }
-      ]
     },
-    "feedbackAudio": [
-      {
-        "uz": "Yana bir qarang: To'qson darajali burilishda uzun va qisqa tomonlar o'rin almashadi, shuning uchun kvadrat bo'lmagan to'g'ri to'rtburchak mos tushmaydi.",
-        "ru": "Посмотрите ещё раз: При повороте на девяносто градусов длинные и короткие стороны меняются местами, поэтому неквадратный прямоугольник не совпадает.",
-        "en": "Look again: A ninety-degree turn swaps the long and short side positions, so a non-square rectangle does not match."
-      },
-      {
-        "uz": "To'g'ri. Kvadrat bo'lmagan to'g'ri to'rtburchak bir yuz sakson darajaga burilganda o'ziga mos tushadi.",
-        "ru": "Верно. Неквадратный прямоугольник совпадает с собой после поворота на сто восемьдесят градусов.",
-        "en": "Correct. A non-square rectangle matches itself after a one-hundred-and-eighty-degree turn."
-      },
-      {
-        "uz": "Yana bir qarang: Ikki yuz yetmish daraja ham chorak burilish holatiga olib kelib, uzun va qisqa tomonlarni almashtiradi. Yarim burilish, ya'ni bir yuz sakson daraja kerak.",
-        "ru": "Посмотрите ещё раз: Двести семьдесят градусов тоже дают положение четверти оборота и меняют длинные и короткие стороны местами. Нужен поворот на сто восемьдесят градусов.",
-        "en": "Look again: A two-hundred-and-seventy-degree turn also swaps the long and short side positions. A half-turn of one hundred and eighty degrees is needed."
-      }
-    ]
   },
-  "s11": {
-    "eyebrow": {
-      "uz": "Mashq 4/6",
-      "ru": "Задание 4/6",
-      "en": "Task 4/6"
+
+  s3: {
+    eyebrow: { uz: 'Masofa qoidasi', ru: 'Правило расстояния', en: 'The distance rule' },
+    title: {
+      uz: "O'qdan bir xil masofa",
+      ru: 'Одинаковое расстояние от оси',
+      en: 'The same distance from the axis',
     },
-    "title": {
-      "uz": "O'qli, ammo burilishsiz",
-      "ru": "Осевая, но не поворотная",
-      "en": "Line but not rotational symmetry"
+    lead: {
+      uz: "Nuqtadan o'qqa tik yo'l chizamiz va shuncha katakni narigi tomonda sanaymiz.",
+      ru: 'Проводим от точки перпендикуляр к оси и отсчитываем столько же клеток по другую сторону.',
+      en: 'We draw a perpendicular from the point to the axis and count the same number of cells on the other side.',
     },
-    "scene": "line-only",
-    "closedSet": true,
-    "frames": [
-      {
-        "uz": "Shaklda simmetriya o'qi bo'lishi kerak.",
-        "ru": "У фигуры должна быть ось симметрии.",
-        "en": "The shape must have a line of symmetry."
-      },
-      {
-        "uz": "Ammo 360° dan kichik burilishda mos tushmasligi kerak.",
-        "ru": "Но она не должна совпадать при повороте меньше чем на 360°.",
-        "en": "But it must not match after a turn smaller than 360°."
-      }
-    ],
-    "question": {
-      "uz": "Qaysi shaklda o'qli simmetriya bor, ammo burilish simmetriyasi yo'q?",
-      "ru": "У какой фигуры есть осевая симметрия, но нет поворотной?",
-      "en": "Which shape has line symmetry but no rotational symmetry?"
+    note: {
+      uz: "Yodda tuting: o'zaro simmetrik nuqtalar simmetriya o'qidan ayni bir xil masofada yotadi.",
+      ru: 'Запомни: взаимно симметричные точки лежат на одинаковом расстоянии от оси симметрии.',
+      en: 'Remember: mutually symmetric points lie at the same distance from the axis of symmetry.',
     },
-    "options": [
-      {
-        "uz": "Teng yonli uchburchak",
-        "ru": "Равнобедренный треугольник",
-        "en": "Isosceles triangle"
-      },
-      {
-        "uz": "Teng tomonli uchburchak",
-        "ru": "Равносторонний треугольник",
-        "en": "Equilateral triangle"
-      },
-      {
-        "uz": "Kvadrat",
-        "ru": "Квадрат",
-        "en": "Square"
-      }
-    ],
-    "correctIndex": 0,
-    "proof": {
-      "uz": "Teng yonli uchburchakda bitta simmetriya o'qi bor, ammo u 360° dan kichik burilishda mos tushmaydi.",
-      "ru": "У равнобедренного треугольника есть одна ось симметрии, но он не совпадает при повороте меньше 360°.",
-      "en": "An isosceles triangle has one line of symmetry but does not match after a turn smaller than 360°."
-    },
-    "audio": {
-      "intro": {
-        "uz": [
-          "Shaklda simmetriya o'qi bo'lishi kerak.",
-          "Ammo uch yuz oltmish darajadan kichik burilishda mos tushmasligi kerak."
+    audio: {
+      intro: {
+        uz: [
+          "Panelni katakli qog'ozga qo'yamiz. O'rtada simmetriya o'qi turibdi.",
+          "A nuqta o'qdan uch katak chapda. Undan o'qqa tik yo'l chizamiz.",
+          "Narigi tomonda ham xuddi shu tik yo'lda uch katak sanaymiz. A shtrix nuqtasi shu yerda.",
+          "Yodda tuting: o'zaro simmetrik nuqtalar simmetriya o'qidan ayni bir xil masofada yotadi.",
         ],
-        "ru": [
-          "У фигуры должна быть ось симметрии.",
-          "Но она не должна совпадать при повороте меньше чем на триста шестьдесят градусов."
+        ru: [
+          'Положим панель на клетчатую бумагу. Посередине стоит ось симметрии.',
+          'Точка А на три клетки левее оси. Проведём от неё перпендикуляр к оси.',
+          'По другую сторону на том же перпендикуляре отсчитаем три клетки. Там и стоит точка А штрих.',
+          'Запомни: взаимно симметричные точки лежат на одинаковом расстоянии от оси симметрии.',
         ],
-        "en": [
-          "The shape must have a line of symmetry.",
-          "But it must not match after a turn smaller than three hundred and sixty degrees."
-        ]
+        en: [
+          'Put the panel on squared paper. The axis of symmetry stands in the middle.',
+          'Point A is three cells to the left of the axis. Draw a perpendicular from it to the axis.',
+          'On the other side, along the same perpendicular, count three cells. Point A prime stands there.',
+          'Remember: mutually symmetric points lie at the same distance from the axis of symmetry.',
+        ],
       },
-      "on_correct": {
-        "uz": "To'g'ri. Teng yonli uchburchakda bitta simmetriya o'qi bor, ammo u uch yuz oltmish darajadan kichik burilishda mos tushmaydi.",
-        "ru": "Верно. У равнобедренного треугольника есть одна ось симметрии, но он не совпадает при повороте менее чем на триста шестьдесят градусов.",
-        "en": "Correct. An isosceles triangle has one line of symmetry but does not match after a turn smaller than three hundred and sixty degrees."
-      },
-      "on_wrong": [
-        {
-          "uz": "To'g'ri. Teng yonli uchburchakda bitta simmetriya o'qi bor, ammo u uch yuz oltmish darajadan kichik burilishda mos tushmaydi.",
-          "ru": "Верно. У равнобедренного треугольника есть одна ось симметрии, но он не совпадает при повороте менее чем на триста шестьдесят градусов.",
-          "en": "Correct. An isosceles triangle has one line of symmetry but does not match after a turn smaller than three hundred and sixty degrees."
-        },
-        {
-          "uz": "Yana bir qarang: Teng tomonli uchburchakda o'qlar bor, lekin u bir yuz yigirma darajada ham o'ziga mos tushadi. Demak unda burilish simmetriyasi mavjud.",
-          "ru": "Посмотрите ещё раз: У равностороннего треугольника есть оси, но он также совпадает с собой после поворота на сто двадцать градусов. У него есть поворотная симметрия.",
-          "en": "Look again: An equilateral triangle has lines of symmetry, but it also matches after a one-hundred-and-twenty-degree turn, so it has rotational symmetry."
-        },
-        {
-          "uz": "Yana bir qarang: Kvadratning to'rtta o'qi bor va u to'qson darajada o'ziga mos tushadi. Shart esa burilish simmetriyasi bo'lmagan shaklni so'raydi.",
-          "ru": "Посмотрите ещё раз: У квадрата четыре оси, и он совпадает с собой после поворота на девяносто градусов. Нужна фигура без поворотной симметрии.",
-          "en": "Look again: A square has four lines and matches after a ninety-degree turn. The condition requires a shape without rotational symmetry."
-        }
-      ]
     },
-    "feedbackAudio": [
-      {
-        "uz": "To'g'ri. Teng yonli uchburchakda bitta simmetriya o'qi bor, ammo u uch yuz oltmish darajadan kichik burilishda mos tushmaydi.",
-        "ru": "Верно. У равнобедренного треугольника есть одна ось симметрии, но он не совпадает при повороте менее чем на триста шестьдесят градусов.",
-        "en": "Correct. An isosceles triangle has one line of symmetry but does not match after a turn smaller than three hundred and sixty degrees."
-      },
-      {
-        "uz": "Yana bir qarang: Teng tomonli uchburchakda o'qlar bor, lekin u bir yuz yigirma darajada ham o'ziga mos tushadi. Demak unda burilish simmetriyasi mavjud.",
-        "ru": "Посмотрите ещё раз: У равностороннего треугольника есть оси, но он также совпадает с собой после поворота на сто двадцать градусов. У него есть поворотная симметрия.",
-        "en": "Look again: An equilateral triangle has lines of symmetry, but it also matches after a one-hundred-and-twenty-degree turn, so it has rotational symmetry."
-      },
-      {
-        "uz": "Yana bir qarang: Kvadratning to'rtta o'qi bor va u to'qson darajada o'ziga mos tushadi. Shart esa burilish simmetriyasi bo'lmagan shaklni so'raydi.",
-        "ru": "Посмотрите ещё раз: У квадрата четыре оси, и он совпадает с собой после поворота на девяносто градусов. Нужна фигура без поворотной симметрии.",
-        "en": "Look again: A square has four lines and matches after a ninety-degree turn. The condition requires a shape without rotational symmetry."
-      }
-    ]
   },
-  "s12": {
-    "eyebrow": {
-      "uz": "Mashq 5/6",
-      "ru": "Задание 5/6",
-      "en": "Task 5/6"
+
+  s4: {
+    eyebrow: { uz: 'Aksni qo\'ying', ru: 'Поставь отражение', en: 'Place the reflection' },
+    title: {
+      uz: 'B nuqtaning aksi qayerda?',
+      ru: 'Где отражение точки B?',
+      en: 'Where is the reflection of point B?',
     },
-    "title": {
-      "uz": "Bit to'rtta o'q berdi",
-      "ru": "Бит отметил четыре оси",
-      "en": "Bit marked four lines"
+    question: {
+      uz: "B nuqta o'qdan 4 katak chapda. Aksi qaysi katakda turadi?",
+      ru: 'Точка B на 4 клетки левее оси. В какой клетке стоит её отражение?',
+      en: 'Point B is 4 cells to the left of the axis. In which cell does its reflection stand?',
     },
-    "scene": "axis-error",
-    "closedSet": true,
-    "frames": [
-      {
-        "uz": "Bit kvadrat bo'lmagan to'g'ri to'rtburchakka 4 ta o'q belgiladi.",
-        "ru": "Бит отметил 4 оси у неквадратного прямоугольника.",
-        "en": "Bit marked 4 lines on a non-square rectangle."
-      },
-      {
-        "uz": "Diagonallar bo'yicha buklashda yarmlar mos tushmaydi.",
-        "ru": "При складывании по диагоналям половины не совпадают.",
-        "en": "The halves do not coincide when folded along the diagonals."
-      }
+    token: "B'",
+    slots: [
+      { label: { uz: '2 katak', ru: '2 клетки', en: '2 cells' }, caption: { uz: "o'qdan", ru: 'от оси', en: 'from the axis' } },
+      { label: { uz: '4 katak', ru: '4 клетки', en: '4 cells' }, caption: { uz: "o'qdan", ru: 'от оси', en: 'from the axis' } },
+      { label: { uz: '6 katak', ru: '6 клеток', en: '6 cells' }, caption: { uz: "o'qdan", ru: 'от оси', en: 'from the axis' } },
     ],
-    "question": {
-      "uz": "Bit nechta o'qni qoldirishi kerak?",
-      "ru": "Сколько осей должен оставить Бит?",
-      "en": "How many lines should Bit keep?"
+    correctSlot: 1,
+    correctText: {
+      uz: "To'g'ri. B o'qdan to'rt katak chapda, aksi ham o'qdan to'rt katak o'ngda.",
+      ru: 'Верно. B на четыре клетки левее оси, и отражение на четыре клетки правее оси.',
+      en: 'Correct. B is four cells left of the axis, and its reflection is four cells right of the axis.',
     },
-    "options": [
+    wrong: [
       {
-        "uz": "2 ta o'q",
-        "ru": "2 оси",
-        "en": "2 lines"
+        uz: "Ikki katak — bu o'qdan panel chetigacha bo'lgan masofa. Bizga B nuqtadan o'qqacha masofa kerak.",
+        ru: 'Две клетки — это расстояние от оси до края панели. А нужно расстояние от точки B до оси.',
+        en: 'Two cells is the distance from the axis to the edge of the panel. We need the distance from point B to the axis.',
       },
+      null,
       {
-        "uz": "4 ta o'q",
-        "ru": "4 оси",
-        "en": "4 lines"
+        uz: "Olti katak — bu B dan aksigacha bo'lgan butun yo'l emas. Har bir nuqta o'qdan to'rt katak narida turadi.",
+        ru: 'Шесть клеток — это не то, что нужно: каждая точка стоит на четыре клетки от оси.',
+        en: 'Six cells is not what we need: each point stands four cells from the axis.',
       },
-      {
-        "uz": "O'q yo'q",
-        "ru": "Нет осей",
-        "en": "No lines"
-      }
     ],
-    "correctIndex": 0,
-    "proof": {
-      "uz": "Kvadrat bo'lmagan to'g'ri to'rtburchakda diagonal o'q emas; faqat 2 ta o'q qoladi.",
-      "ru": "Диагонали неквадратного прямоугольника не являются осями; остаются только 2 оси.",
-      "en": "The diagonals of a non-square rectangle are not lines of symmetry; only 2 lines remain."
-    },
-    "audio": {
-      "intro": {
-        "uz": [
-          "Bit kvadrat bo'lmagan to'g'ri to'rtburchakka to'rtta o'q belgiladi.",
-          "Diagonallar bo'yicha buklashda yarmlar mos tushmaydi."
+    audio: {
+      intro: {
+        uz: [
+          "Endi o'zingiz qo'yasiz. B nuqta o'qdan to'rt katak chapda turibdi.",
+          "Uning aksi qaysi katakda bo'ladi? O'qdan sanang.",
+          "Javobni tanlang.",
         ],
-        "ru": [
-          "Бит отметил четыре оси у неквадратного прямоугольника.",
-          "При складывании по диагоналям половины не совпадают."
+        ru: [
+          'Теперь ставишь ты. Точка B стоит на четыре клетки левее оси.',
+          'В какой клетке будет её отражение? Считай от оси.',
+          'Выбери ответ.',
         ],
-        "en": [
-          "Bit marked four lines on a non-square rectangle.",
-          "The halves do not coincide when folded along the diagonals."
-        ]
+        en: [
+          'Now it is your turn. Point B stands four cells to the left of the axis.',
+          'In which cell will its reflection be? Count from the axis.',
+          'Choose an answer.',
+        ],
       },
-      "on_correct": {
-        "uz": "To'g'ri. Kvadrat bo'lmagan to'g'ri to'rtburchakda diagonal o'q emas, faqat ikkita o'q qoladi.",
-        "ru": "Верно. Диагонали неквадратного прямоугольника не являются осями, остаются только две оси.",
-        "en": "Correct. The diagonals of a non-square rectangle are not lines of symmetry, only two lines remain."
-      },
-      "on_wrong": [
-        {
-          "uz": "To'g'ri. Kvadrat bo'lmagan to'g'ri to'rtburchakda diagonal o'q emas, faqat ikkita o'q qoladi.",
-          "ru": "Верно. Диагонали неквадратного прямоугольника не являются осями, остаются только две оси.",
-          "en": "Correct. The diagonals of a non-square rectangle are not lines of symmetry, only two lines remain."
-        },
-        {
-          "uz": "Yana bir qarang: Diagonallar bo'yicha buklanganda kvadrat bo'lmagan to'g'ri to'rtburchakning uzun va qisqa tomonlari mos kelmaydi. Faqat vertikal va gorizontal o'qlar qoladi.",
-          "ru": "Посмотрите ещё раз: При складывании по диагонали длинные и короткие стороны неквадратного прямоугольника не совпадают. Остаются только вертикальная и горизонтальная оси.",
-          "en": "Look again: Across a diagonal, the long and short sides of a non-square rectangle do not match. Only the vertical and horizontal lines remain."
-        },
-        {
-          "uz": "Yana bir qarang: Vertikal va gorizontal chiziqlar bo'yicha buklanganda yarmlar mos tushadi. Shuning uchun o'q yo'q emas, aynan ikkita o'q bor.",
-          "ru": "Посмотрите ещё раз: При складывании по вертикали и горизонтали половины совпадают. Поэтому осей не ноль, а ровно две.",
-          "en": "Look again: The halves match when folded vertically and horizontally. Therefore, the shape has exactly two lines, not none."
-        }
-      ]
     },
-    "feedbackAudio": [
-      {
-        "uz": "To'g'ri. Kvadrat bo'lmagan to'g'ri to'rtburchakda diagonal o'q emas, faqat ikkita o'q qoladi.",
-        "ru": "Верно. Диагонали неквадратного прямоугольника не являются осями, остаются только две оси.",
-        "en": "Correct. The diagonals of a non-square rectangle are not lines of symmetry, only two lines remain."
-      },
-      {
-        "uz": "Yana bir qarang: Diagonallar bo'yicha buklanganda kvadrat bo'lmagan to'g'ri to'rtburchakning uzun va qisqa tomonlari mos kelmaydi. Faqat vertikal va gorizontal o'qlar qoladi.",
-        "ru": "Посмотрите ещё раз: При складывании по диагонали длинные и короткие стороны неквадратного прямоугольника не совпадают. Остаются только вертикальная и горизонтальная оси.",
-        "en": "Look again: Across a diagonal, the long and short sides of a non-square rectangle do not match. Only the vertical and horizontal lines remain."
-      },
-      {
-        "uz": "Yana bir qarang: Vertikal va gorizontal chiziqlar bo'yicha buklanganda yarmlar mos tushadi. Shuning uchun o'q yo'q emas, aynan ikkita o'q bor.",
-        "ru": "Посмотрите ещё раз: При складывании по вертикали и горизонтали половины совпадают. Поэтому осей не ноль, а ровно две.",
-        "en": "Look again: The halves match when folded vertically and horizontally. Therefore, the shape has exactly two lines, not none."
-      }
-    ]
   },
-  "s13": {
-    "eyebrow": {
-      "uz": "Mashq 6/6",
-      "ru": "Задание 6/6",
-      "en": "Task 6/6"
+
+  s5: {
+    eyebrow: { uz: 'Shaklni qurish', ru: 'Построение фигуры', en: 'Building the figure' },
+    title: {
+      uz: 'Uchlari bo\'yicha quramiz',
+      ru: 'Строим по вершинам',
+      en: 'We build it vertex by vertex',
     },
-    "title": {
-      "uz": "Logo talabi",
-      "ru": "Требование к логотипу",
-      "en": "Logo requirement"
+    lead: {
+      uz: "Har bir uchni o'z masofasiga qo'yamiz, keyin ularni tutashtiramiz. Shakl o'zi chiqadi.",
+      ru: 'Каждую вершину ставим на своё расстояние, затем соединяем. Фигура получается сама.',
+      en: 'We place each vertex at its own distance, then join them. The figure appears on its own.',
     },
-    "scene": "logo",
-    "closedSet": true,
-    "frames": [
-      {
-        "uz": "Logo aynan 2 ta simmetriya o'qiga ega bo'lishi kerak.",
-        "ru": "У логотипа должно быть ровно 2 оси симметрии.",
-        "en": "The logo must have exactly 2 lines of symmetry."
-      },
-      {
-        "uz": "U 180° ga burilganda ham o'ziga mos tushishi kerak.",
-        "ru": "Он также должен совпадать с собой после поворота на 180°.",
-        "en": "It must also match itself after a 180° turn."
-      },
-      {
-        "uz": "Ikkala talabni birga tekshiring.",
-        "ru": "Проверьте оба требования вместе.",
-        "en": "Check both requirements together."
-      }
-    ],
-    "question": {
-      "uz": "Qaysi shakl logo uchun mos?",
-      "ru": "Какая фигура выполняет все требования?",
-      "en": "Which shape meets every requirement?"
+    question: {
+      uz: "Belgilangan uchning aksi qaysi katakda? Uni bosing.",
+      ru: 'В какой клетке отражение отмеченной вершины? Нажми на неё.',
+      en: 'In which cell is the reflection of the marked vertex? Tap it.',
     },
-    "options": [
-      {
-        "uz": "Kvadrat bo'lmagan to'g'ri to'rtburchak",
-        "ru": "Неквадратный прямоугольник",
-        "en": "Non-square rectangle"
-      },
-      {
-        "uz": "Teng yonli uchburchak",
-        "ru": "Равнобедренный треугольник",
-        "en": "Isosceles triangle"
-      },
-      {
-        "uz": "Ixtiyoriy parallelogramm",
-        "ru": "Любой параллелограмм",
-        "en": "Any parallelogram"
-      }
-    ],
-    "correctIndex": 0,
-    "proof": {
-      "uz": "Kvadrat bo'lmagan to'g'ri to'rtburchakda 2 ta o'q bor va u 180° ga burilganda mos tushadi.",
-      "ru": "У неквадратного прямоугольника 2 оси, и он совпадает после поворота на 180°.",
-      "en": "A non-square rectangle has 2 lines and matches after a 180° turn."
+    buildSteps: 3,
+    correctText: {
+      uz: "Uchta uch ham o'z joyiga tushdi va kvadrat tutashdi. Siz shaklni o'zingiz qurdingiz.",
+      ru: 'Все три вершины встали на свои места, и квадрат замкнулся. Ты построил фигуру сам.',
+      en: 'All three vertices landed in place and the square closed. You built the figure yourself.',
     },
-    "audio": {
-      "intro": {
-        "uz": [
-          "Logo aynan ikkita simmetriya o'qiga ega bo'lishi kerak.",
-          "U bir yuz sakson darajaga burilganda ham o'ziga mos tushishi kerak.",
-          "Ikkala talabni birga tekshiring."
+    wrongText: {
+      uz: "Bu katak emas. Belgilangan uchdan o'qqacha nechta katak borligini sanang va o'shancha katakni narigi tomonda oling.",
+      ru: 'Не эта клетка. Сосчитай, сколько клеток от отмеченной вершины до оси, и отложи столько же по другую сторону.',
+      en: 'Not that cell. Count the cells from the marked vertex to the axis and take the same number on the other side.',
+    },
+    note: {
+      uz: "Bitta uch xato qo'yilsa, butun shakl qiyshayadi.",
+      ru: 'Если одна вершина поставлена неверно, вся фигура перекосится.',
+      en: 'If one vertex is placed wrongly, the whole figure goes crooked.',
+    },
+    audio: {
+      intro: {
+        uz: [
+          "Darslikdagi vazifa: chiziq simmetriya o'qi bo'lsa, kvadratga simmetrik kvadrat chizing.",
+          "Butun kvadratni birdan ko'chirmaymiz. Avval bitta uchni olamiz va uni o'z masofasiga qo'yamiz. Mana shu birinchi uch.",
+          "Endi navbat sizga. Qolgan uchta uchni o'zingiz qo'yasiz.",
+          "Chapda qaysi uch yonib tursa, o'shaning aksini o'ng tomondagi katakdan toping va bosing. Uchtasi ham joyiga tushsa, kvadrat o'zi tutashadi.",
         ],
-        "ru": [
-          "У логотипа должно быть ровно две оси симметрии.",
-          "Он также должен совпадать с собой после поворота на сто восемьдесят градусов.",
-          "Проверьте оба требования вместе."
+        ru: [
+          'Задание из учебника. Если прямая является осью симметрии, начерти квадрат, симметричный данному.',
+          'Не переносим весь квадрат сразу. Сначала берём одну вершину и ставим её на своё расстояние. Вот эта первая вершина.',
+          'Теперь очередь за тобой. Остальные три вершины ты поставишь сам.',
+          'Слева горит вершина: найди её отражение в клетке справа и нажми. Когда все три встанут на место, квадрат замкнётся сам.',
         ],
-        "en": [
-          "The logo must have exactly two lines of symmetry.",
-          "It must also match itself after a one-hundred-and-eighty-degree turn.",
-          "Check both requirements together."
-        ]
+        en: [
+          'A task from the textbook: if the line is an axis of symmetry, draw the square symmetric to the given one.',
+          'We do not move the whole square at once. First we take one vertex and place it at its own distance. Here is that first vertex.',
+          'Now it is your turn. You will place the other three vertices yourself.',
+          'A vertex lights up on the left: find its reflection in a cell on the right and tap it. When all three are in place, the square closes on its own.',
+        ],
       },
-      "on_correct": {
-        "uz": "To'g'ri. Kvadrat bo'lmagan to'g'ri to'rtburchakda ikkita o'q bor va u bir yuz sakson darajaga burilganda mos tushadi.",
-        "ru": "Верно. У неквадратного прямоугольника две оси, и он совпадает после поворота на сто восемьдесят градусов.",
-        "en": "Correct. A non-square rectangle has two lines and matches after a one-hundred-and-eighty-degree turn."
-      },
-      "on_wrong": [
-        {
-          "uz": "To'g'ri. Kvadrat bo'lmagan to'g'ri to'rtburchakda ikkita o'q bor va u bir yuz sakson darajaga burilganda mos tushadi.",
-          "ru": "Верно. У неквадратного прямоугольника две оси, и он совпадает после поворота на сто восемьдесят градусов.",
-          "en": "Correct. A non-square rectangle has two lines and matches after a one-hundred-and-eighty-degree turn."
-        },
-        {
-          "uz": "Yana bir qarang: Teng yonli uchburchakda faqat bitta o'q bor va u bir yuz sakson darajada o'ziga mos tushmaydi. Ikkala shart ham bajarilmadi.",
-          "ru": "Посмотрите ещё раз: У равнобедренного треугольника только одна ось, и после поворота на сто восемьдесят градусов он не совпадает. Оба условия не выполнены.",
-          "en": "Look again: An isosceles triangle has only one line and does not match after a one-hundred-and-eighty-degree turn. It fails both conditions."
-        },
-        {
-          "uz": "Yana bir qarang: Parallelogramm bir yuz sakson darajada mos tushadi, ammo umumiy parallelogrammda simmetriya o'qlari yo'q. Aynan ikki o'q uchun to'g'ri to'rtburchak kerak.",
-          "ru": "Посмотрите ещё раз: Параллелограмм совпадает после поворота на сто восемьдесят градусов, но у общего параллелограмма нет осей симметрии. Нужен прямоугольник.",
-          "en": "Look again: A parallelogram matches after a one-hundred-and-eighty-degree turn, but a general parallelogram has no symmetry lines. Use a non-square rectangle."
-        }
-      ]
     },
-    "feedbackAudio": [
-      {
-        "uz": "To'g'ri. Kvadrat bo'lmagan to'g'ri to'rtburchakda ikkita o'q bor va u bir yuz sakson darajaga burilganda mos tushadi.",
-        "ru": "Верно. У неквадратного прямоугольника две оси, и он совпадает после поворота на сто восемьдесят градусов.",
-        "en": "Correct. A non-square rectangle has two lines and matches after a one-hundred-and-eighty-degree turn."
-      },
-      {
-        "uz": "Yana bir qarang: Teng yonli uchburchakda faqat bitta o'q bor va u bir yuz sakson darajada o'ziga mos tushmaydi. Ikkala shart ham bajarilmadi.",
-        "ru": "Посмотрите ещё раз: У равнобедренного треугольника только одна ось, и после поворота на сто восемьдесят градусов он не совпадает. Оба условия не выполнены.",
-        "en": "Look again: An isosceles triangle has only one line and does not match after a one-hundred-and-eighty-degree turn. It fails both conditions."
-      },
-      {
-        "uz": "Yana bir qarang: Parallelogramm bir yuz sakson darajada mos tushadi, ammo umumiy parallelogrammda simmetriya o'qlari yo'q. Aynan ikki o'q uchun to'g'ri to'rtburchak kerak.",
-        "ru": "Посмотрите ещё раз: Параллелограмм совпадает после поворота на сто восемьдесят градусов, но у общего параллелограмма нет осей симметрии. Нужен прямоугольник.",
-        "en": "Look again: A parallelogram matches after a one-hundred-and-eighty-degree turn, but a general parallelogram has no symmetry lines. Use a non-square rectangle."
-      }
-    ]
   },
-  "s14": {
-    "eyebrow": {
-      "uz": "Yakun",
-      "ru": "Итог",
-      "en": "Summary"
+
+  s6: {
+    eyebrow: { uz: 'Aksni tanlang', ru: 'Выбери отражение', en: 'Choose the reflection' },
+    title: {
+      uz: 'Qaysi kvadrat to\'g\'ri aks?',
+      ru: 'Какой квадрат — верное отражение?',
+      en: 'Which square is the true reflection?',
     },
-    "title": {
-      "uz": "Simmetriya detektori",
-      "ru": "Детектор симметрии",
-      "en": "Symmetry detector"
+    question: {
+      uz: "Chiziq simmetriya o'qi. Qaysi kvadrat unga nisbatan simmetrik?",
+      ru: 'Прямая — ось симметрии. Какой квадрат симметричен относительно неё?',
+      en: 'The line is the axis of symmetry. Which square is symmetric about it?',
     },
-    "scene": "summary",
-    "frames": [
-      {
-        "uz": "Simmetriya o'qi buklash bilan tekshiriladi.",
-        "ru": "Ось симметрии проверяют складыванием.",
-        "en": "Test a line of symmetry by folding."
-      },
-      {
-        "uz": "Mos nuqtalar o'qdan teng uzoqlikda bo'ladi.",
-        "ru": "Соответствующие точки равно удалены от оси.",
-        "en": "Corresponding points are equally far from the line."
-      },
-      {
-        "uz": "Burilish simmetriyasining markazi bor.",
-        "ru": "У поворотной симметрии есть центр.",
-        "en": "Rotational symmetry has a centre."
-      },
-      {
-        "uz": "Eng kichik mos burilish burchagini toping.",
-        "ru": "Найдите наименьший подходящий угол поворота.",
-        "en": "Find the smallest matching turn angle."
-      },
-      {
-        "uz": "Keyingi darsda tenglamalarni o'rganamiz.",
-        "ru": "На следующем уроке изучим уравнения.",
-        "en": "Next, we will study equations."
-      }
+    options: [
+      { uz: '1-kvadrat', ru: 'Квадрат 1', en: 'Square 1' },
+      { uz: '2-kvadrat', ru: 'Квадрат 2', en: 'Square 2' },
+      { uz: '3-kvadrat', ru: 'Квадрат 3', en: 'Square 3' },
+      { uz: '4-kvadrat', ru: 'Квадрат 4', en: 'Square 4' },
     ],
-    "audio": {
-      "uz": [
-        "Simmetriya o'qi buklash bilan tekshiriladi.",
-        "Mos nuqtalar o'qdan teng uzoqlikda bo'ladi.",
-        "Burilish simmetriyasining markazi bor.",
-        "Eng kichik mos burilish burchagini toping.",
-        "Keyingi darsda tenglamalarni o'rganamiz."
-      ],
-      "ru": [
-        "Ось симметрии проверяют складыванием.",
-        "Соответствующие точки равно удалены от оси.",
-        "У поворотной симметрии есть центр.",
-        "Найдите наименьший подходящий угол поворота.",
-        "На следующем уроке изучим уравнения."
-      ],
-      "en": [
-        "Test a line of symmetry by folding.",
-        "Corresponding points are equally far from the line.",
-        "Rotational symmetry has a centre.",
-        "Find the smallest matching turn angle.",
-        "Next, we will study equations."
-      ]
-    }
-  }
+    correctIndex: 2,
+    correctText: {
+      uz: "To'g'ri. Uchinchi kvadratning har bir uchi o'qdan xuddi shuncha katak narida turibdi.",
+      ru: 'Верно. Каждая вершина третьего квадрата стоит на таком же расстоянии от оси.',
+      en: 'Correct. Every vertex of the third square stands at the same distance from the axis.',
+    },
+    wrong: [
+      {
+        uz: "Birinchi kvadrat shunchaki o'ngga surilgan: o'qdan masofasi kattaroq bo'lib qolgan.",
+        ru: 'Первый квадрат просто сдвинут вправо: расстояние до оси стало больше.',
+        en: 'The first square is just slid to the right: its distance from the axis has grown.',
+      },
+      {
+        uz: "Ikkinchi kvadrat o'qqa juda yaqin turibdi. Buklaganda u chapdagisidan kichik chiqadi.",
+        ru: 'Второй квадрат стоит слишком близко к оси. При сгибе он не ляжет на левый.',
+        en: 'The second square stands too close to the axis. After a fold it will not land on the left one.',
+      },
+      null,
+      {
+        uz: "To'rtinchi kvadrat burab qo'yilgan. Ko'zguda shakl burilmaydi, faqat tomoni almashadi.",
+        ru: 'Четвёртый квадрат повёрнут. В зеркале фигура не поворачивается, меняется только сторона.',
+        en: 'The fourth square is turned. In a mirror a figure is not turned, only its side changes.',
+      },
+    ],
+    audio: {
+      intro: {
+        uz: [
+          "Chapda kvadrat, o'rtada simmetriya o'qi. O'ngda to'rtta nomzod turibdi.",
+          "Har bir nomzodning uchlarini o'qdan sanab ko'ring.",
+          "Qaysi biri to'g'ri aks? Javobni tanlang.",
+        ],
+        ru: [
+          'Слева квадрат, посередине ось симметрии. Справа стоят четыре кандидата.',
+          'Отсчитай вершины каждого кандидата от оси.',
+          'Какой из них верное отражение? Выбери ответ.',
+        ],
+        en: [
+          'On the left there is a square, in the middle the axis of symmetry. Four candidates stand on the right.',
+          'Count the vertices of each candidate from the axis.',
+          'Which one is the true reflection? Choose an answer.',
+        ],
+      },
+    },
+  },
+
+  s7: {
+    eyebrow: { uz: 'Burish simmetriyasi', ru: 'Поворотная симметрия', en: 'Rotational symmetry' },
+    title: {
+      uz: 'Burab tekshiramiz',
+      ru: 'Проверяем поворотом',
+      en: 'We check by turning',
+    },
+    lead: {
+      uz: "Shaklni markazidan ushlab burasak, u bir aylanishda bir necha marta o'ziga mos tushishi mumkin.",
+      ru: 'Если держать фигуру за центр и вращать, за один оборот она может несколько раз совпасть с собой.',
+      en: 'If you hold a figure by its centre and turn it, in one full turn it can land on itself several times.',
+    },
+    note: {
+      uz: 'Bir aylanish 360 daraja. Uchburchak uchun 360 : 3 = 120.',
+      ru: 'Полный оборот — 360 градусов. Для треугольника 360 : 3 = 120.',
+      en: 'A full turn is 360 degrees. For the triangle 360 : 3 = 120.',
+    },
+    audio: {
+      intro: {
+        uz: [
+          "Ustaxonada dumaloq guldasta ham kesiladi. U bitta bargdan burish bilan quriladi.",
+          "Avval oddiyroq shaklni sinaymiz. Teng tomonli uchburchakni markazidan ushlab buramiz.",
+          "Bir marta to'liq aylantirguncha u uch marta dastlabki holatiga mos tushdi.",
+          "Bir aylanish uch yuz oltmish daraja. Uni uchga bo'lsak, bir yuz yigirma chiqadi. Har bir yuz yigirma darajada shakl o'ziga tushadi.",
+        ],
+        ru: [
+          'В мастерской режут и круглую розетку. Её строят из одного лепестка поворотом.',
+          'Сначала проверим фигуру попроще. Возьмём равносторонний треугольник за центр и повернём.',
+          'За один полный оборот он три раза совпал со своим начальным положением.',
+          'Полный оборот равен трёмстам шестидесяти градусам. Разделим на три, получится сто двадцать. Каждые сто двадцать градусов фигура ложится на себя.',
+        ],
+        en: [
+          'The workshop also cuts a round rosette. It is built from a single petal by turning.',
+          'First let us test a simpler figure. Hold an equilateral triangle by its centre and turn it.',
+          'In one full turn it matched its starting position three times.',
+          'A full turn is three hundred and sixty degrees. Divide it by three and you get one hundred and twenty. Every one hundred and twenty degrees the figure lands on itself.',
+        ],
+      },
+    },
+  },
+
+  s8: {
+    eyebrow: { uz: 'Guldasta', ru: 'Розетка', en: 'The rosette' },
+    title: {
+      uz: 'Necha marta mos tushadi?',
+      ru: 'Сколько раз совпадёт?',
+      en: 'How many times will it match?',
+    },
+    question: {
+      uz: "To'rt bargli guldasta bir aylanishda necha marta o'ziga mos tushadi?",
+      ru: 'Сколько раз розетка из четырёх лепестков совпадёт с собой за один оборот?',
+      en: 'How many times does a four-petal rosette match itself in one full turn?',
+    },
+    options: [
+      { uz: '2 marta', ru: '2 раза', en: '2 times' },
+      { uz: '3 marta', ru: '3 раза', en: '3 times' },
+      { uz: '4 marta', ru: '4 раза', en: '4 times' },
+      { uz: '8 marta', ru: '8 раз', en: '8 times' },
+    ],
+    correctIndex: 2,
+    correctText: {
+      uz: "To'g'ri. To'rtta barg teng joylashgan, shuning uchun to'rt marta. Burish burchagi 360 : 4 = 90 daraja.",
+      ru: 'Верно. Четыре лепестка расположены поровну, поэтому четыре раза. Угол поворота 360 : 4 = 90 градусов.',
+      en: 'Correct. Four petals are placed evenly, so four times. The turn angle is 360 : 4 = 90 degrees.',
+    },
+    wrong: [
+      {
+        uz: "Ikki marta — bu yarim aylanish bilan sanalgan. Butun aylanishni oxirigacha kuzating.",
+        ru: 'Два раза — это счёт по половине оборота. Досмотри оборот до конца.',
+        en: 'Two times counts only half a turn. Follow the whole turn to the end.',
+      },
+      {
+        uz: "Uch marta uchburchakda edi, unda uchta tomon bor. Bu yerda barglar to'rtta.",
+        ru: 'Три раза было у треугольника, у него три стороны. Здесь лепестков четыре.',
+        en: 'Three times belonged to the triangle with its three sides. Here there are four petals.',
+      },
+      null,
+      {
+        uz: "Sakkiz — barglar bilan ular orasidagi bo'shliqlar birga sanalgan. Faqat barglarni sanang.",
+        ru: 'Восемь — это лепестки вместе с промежутками. Считай только лепестки.',
+        en: 'Eight counts the petals together with the gaps. Count only the petals.',
+      },
+    ],
+    audio: {
+      intro: {
+        uz: [
+          "Oyna markaziga to'rt bargli guldasta qo'yiladi. Barglar teng joylashgan.",
+          "Uni markazidan ushlab, sekin buramiz. Har mos tushganda belgi yonadi.",
+          "Bir aylanishda u necha marta o'ziga mos tushadi? Javobni tanlang.",
+        ],
+        ru: [
+          'В середину окна ставят розетку из четырёх лепестков. Лепестки расположены поровну.',
+          'Возьмём её за центр и медленно повернём. При каждом совпадении загорается метка.',
+          'Сколько раз за оборот она совпадёт с собой? Выбери ответ.',
+        ],
+        en: [
+          'A four-petal rosette goes into the middle of the window. The petals are placed evenly.',
+          'Hold it by the centre and turn it slowly. A marker lights up at every match.',
+          'How many times will it match itself in one turn? Choose an answer.',
+        ],
+      },
+    },
+  },
+
+  s9: {
+    eyebrow: { uz: 'Ikki tekshiruv', ru: 'Две проверки', en: 'Two checks' },
+    title: {
+      uz: 'O\'q bormi, burish bormi?',
+      ru: 'Есть ось, есть поворот?',
+      en: 'Is there an axis, is there a turn?',
+    },
+    lead: {
+      uz: "Bu ikkisi har xil tekshiruv. Bir naqshda faqat bittasi bo'lishi ham mumkin.",
+      ru: 'Это две разные проверки. В одном узоре может быть только одна из них.',
+      en: 'These are two different checks. A pattern may have only one of them.',
+    },
+    note: {
+      uz: "Shuning uchun har bir naqsh ikki tekshiruvdan alohida o'tadi.",
+      ru: 'Поэтому каждый узор проходит обе проверки по отдельности.',
+      en: 'That is why every pattern goes through both checks separately.',
+    },
+    audio: {
+      intro: {
+        uz: [
+          "Uchta naqshni yonma-yon qo'yamiz va ikkala tekshiruvni o'tkazamiz.",
+          "Birinchisi buklaganda mos tushdi, lekin burasak mos tushmadi. Unda faqat o'q bor.",
+          "Ikkinchisi buklaganda mos tushmadi, burasak esa mos tushdi. Unda faqat burish bor.",
+          "Uchinchisida ikkalasi ham bor. Demak, o'q borligidan burish bor degan xulosa chiqmaydi.",
+        ],
+        ru: [
+          'Поставим рядом три узора и проведём обе проверки.',
+          'Первый совпал при сгибе, но не совпал при повороте. У него есть только ось.',
+          'Второй не совпал при сгибе, зато совпал при повороте. У него есть только поворот.',
+          'У третьего есть и то, и другое. Значит, из наличия оси не следует наличие поворота.',
+        ],
+        en: [
+          'Put three patterns side by side and run both checks.',
+          'The first matched after a fold but not after a turn. It has only an axis.',
+          'The second did not match after a fold, yet it matched after a turn. It has only a turn.',
+          'The third has both. So having an axis does not mean having a turn.',
+        ],
+      },
+    },
+  },
+
+  s10: {
+    eyebrow: { uz: 'Burish burchagi', ru: 'Угол поворота', en: 'The turn angle' },
+    title: {
+      uz: 'Burish burchagi qancha?',
+      ru: 'Чему равен угол поворота?',
+      en: 'What is the turn angle?',
+    },
+    question: {
+      uz: "Olti bargli guldasta necha darajaga burilsa, o'ziga mos tushadi?",
+      ru: 'На сколько градусов повернуть розетку из шести лепестков, чтобы она совпала с собой?',
+      en: 'Through how many degrees must a six-petal rosette turn to land on itself?',
+    },
+    options: [
+      { uz: '30 daraja', ru: '30 градусов', en: '30 degrees' },
+      { uz: '60 daraja', ru: '60 градусов', en: '60 degrees' },
+      { uz: '90 daraja', ru: '90 градусов', en: '90 degrees' },
+      { uz: '360 daraja', ru: '360 градусов', en: '360 degrees' },
+    ],
+    correctIndex: 1,
+    correctText: {
+      uz: "To'g'ri. 360 : 6 = 60. Har oltmish darajada guldasta o'ziga mos tushadi.",
+      ru: 'Верно. 360 : 6 = 60. Каждые шестьдесят градусов розетка ложится на себя.',
+      en: 'Correct. 360 : 6 = 60. Every sixty degrees the rosette lands on itself.',
+    },
+    wrong: [
+      {
+        uz: "O'ttiz daraja — bu bitta bargning yarmi. Barg qo'shnisining o'rniga to'liq kelishi kerak.",
+        ru: 'Тридцать градусов — это половина лепестка. Лепесток должен полностью встать на место соседнего.',
+        en: 'Thirty degrees is half a petal. A petal has to land fully on the place of its neighbour.',
+      },
+      null,
+      {
+        uz: "To'qson daraja to'rt bargli guldastada edi. Bu yerda barglar oltita.",
+        ru: 'Девяносто градусов было у розетки из четырёх лепестков. Здесь лепестков шесть.',
+        en: 'Ninety degrees belonged to the four-petal rosette. Here there are six petals.',
+      },
+      {
+        uz: "Uch yuz oltmish daraja — bu butun aylanish. Guldasta undan ancha oldin mos tushadi.",
+        ru: 'Триста шестьдесят градусов — это целый оборот. Розетка совпадёт гораздо раньше.',
+        en: 'Three hundred and sixty degrees is a whole turn. The rosette matches much earlier.',
+      },
+    ],
+    audio: {
+      intro: {
+        uz: [
+          "Katta guldastada olti barg bor. Ular ham teng joylashgan.",
+          "Bir aylanishni barglar soniga bo'lamiz.",
+          "Guldasta necha darajaga burilsa, o'ziga mos tushadi? Javobni tanlang.",
+        ],
+        ru: [
+          'У большой розетки шесть лепестков. Они тоже расположены поровну.',
+          'Разделим полный оборот на число лепестков.',
+          'На сколько градусов повернуть розетку, чтобы она совпала с собой? Выбери ответ.',
+        ],
+        en: [
+          'The large rosette has six petals. They are placed evenly as well.',
+          'Divide the full turn by the number of petals.',
+          'Through how many degrees must the rosette turn to land on itself? Choose an answer.',
+        ],
+      },
+    },
+  },
+
+  s11: {
+    eyebrow: { uz: 'Yodda tuting', ru: 'Запомни', en: 'Keep in mind' },
+    title: {
+      uz: 'Ikki qoida — ikki tekshiruv',
+      ru: 'Два правила — две проверки',
+      en: 'Two rules, two checks',
+    },
+    lead: {
+      uz: 'Naqshni tekshirishda shu ikki qoidaga tayanamiz.',
+      ru: 'При проверке узора опираемся на эти два правила.',
+      en: 'When we check a pattern we rely on these two rules.',
+    },
+    audio: {
+      intro: {
+        uz: [
+          "Endi qoidani yig'amiz. Birinchisi darslikdan.",
+          "O'zaro simmetrik nuqtalar simmetriya o'qidan ayni bir xil masofada yotadi.",
+          "Ikkinchisi burish uchun. Shakl bir aylanishda necha marta o'ziga mos tushsa, uch yuz oltmishni shu songa bo'lamiz. Chiqqan son burish burchagi bo'ladi.",
+        ],
+        ru: [
+          'Теперь соберём правило. Первое взято из учебника.',
+          'Взаимно симметричные точки лежат на одинаковом расстоянии от оси симметрии.',
+          'Второе правило про поворот. Сколько раз фигура совпадает с собой за оборот, на столько и делим триста шестьдесят. Получится угол поворота.',
+        ],
+        en: [
+          'Now let us put the rule together. The first one comes from the textbook.',
+          'Mutually symmetric points lie at the same distance from the axis of symmetry.',
+          'The second one is about turning. However many times a figure matches itself in one turn, divide three hundred and sixty by that number. The result is the turn angle.',
+        ],
+      },
+    },
+  },
+
+  s12: {
+    eyebrow: { uz: 'Qaysi yo\'l tez?', ru: 'Какой путь быстрее?', en: 'Which way is quicker?' },
+    title: {
+      uz: 'Qaysi tekshiruv qulay?',
+      ru: 'Какая проверка удобнее?',
+      en: 'Which check is more convenient?',
+    },
+    question: {
+      uz: 'Dumaloq guldasta uchun qaysi tekshiruv qulayroq?',
+      ru: 'Какая проверка удобнее для круглой розетки?',
+      en: 'Which check is more convenient for a round rosette?',
+    },
+    options: [
+      { uz: 'Buklab tekshirish', ru: 'Проверка сгибом', en: 'Checking by folding' },
+      { uz: 'Burab tekshirish', ru: 'Проверка поворотом', en: 'Checking by turning' },
+      { uz: 'Ikkalasini ham qilish', ru: 'Сделать обе', en: 'Doing both' },
+    ],
+    correctIndex: 1,
+    correctText: {
+      uz: "To'g'ri. Guldasta bitta bargdan burish bilan qurilgan, shuning uchun burish bir qadamda javob beradi.",
+      ru: 'Верно. Розетка построена из одного лепестка поворотом, поэтому поворот даёт ответ за один шаг.',
+      en: 'Correct. The rosette is built from one petal by turning, so the turn gives the answer in a single step.',
+    },
+    wrong: [
+      {
+        uz: "Buklab ham topsa bo'ladi, lekin dumaloq naqshda o'qlar ko'p: har birini alohida sinash uzoq.",
+        ru: 'Сгибом тоже можно, но у круглого узора осей много: проверять каждую долго.',
+        en: 'Folding also works, but a round pattern has many axes: testing each one takes long.',
+      },
+      null,
+      {
+        uz: "Ikkala tekshiruv ham to'g'ri javob beradi. Lekin bu yerda bittasi yetadi, ish esa tezroq bitadi.",
+        ru: 'Обе проверки дают верный ответ. Но здесь хватает одной, и работа идёт быстрее.',
+        en: 'Both checks give the right answer. But here one is enough, and the work goes faster.',
+      },
+    ],
+    audio: {
+      intro: {
+        uz: [
+          "Ustaxonada vaqt cheklangan. Har bir naqsh uchun bitta tekshiruv tanlanadi.",
+          "Oldingizda dumaloq guldasta turibdi.",
+          "Qaysi tekshiruv qulayroq? Javobni tanlang.",
+        ],
+        ru: [
+          'Времени в мастерской немного. Для каждого узора выбирают одну проверку.',
+          'Перед тобой круглая розетка.',
+          'Какая проверка удобнее? Выбери ответ.',
+        ],
+        en: [
+          'Time in the workshop is short. One check is chosen for each pattern.',
+          'A round rosette is in front of you.',
+          'Which check is more convenient? Choose an answer.',
+        ],
+      },
+    },
+  },
+
+  s13: {
+    eyebrow: { uz: "Bitning yozuvi", ru: 'Запись Bit', en: 'Bit record' },
+    title: {
+      uz: 'Pasportda qaysi qator yolg\'on?',
+      ru: 'Какая строка в паспорте ложна?',
+      en: 'Which line of the passport is false?',
+    },
+    question: {
+      uz: "Bit oyna pasportini to'ldirdi. Qaysi qator noto'g'ri?",
+      ru: 'Bit заполнил паспорт окна. Какая строка неверна?',
+      en: 'Bit filled in the window passport. Which line is wrong?',
+    },
+    passport: [
+      { uz: "Panjara panelida bitta simmetriya o'qi bor.", ru: 'У панели решётки есть одна ось симметрии.', en: 'The lattice panel has one axis of symmetry.' },
+      { uz: "O'qning ikki tomonidagi barglar o'qdan bir xil masofada.", ru: 'Листья по обе стороны оси на одинаковом расстоянии от неё.', en: 'The leaves on both sides of the axis are at the same distance from it.' },
+      { uz: "Panelda o'q bor, demak burish simmetriyasi ham bor.", ru: 'У панели есть ось, значит есть и поворотная симметрия.', en: 'The panel has an axis, so it also has rotational symmetry.' },
+      { uz: 'Guldasta olti marta mos tushadi, burish burchagi 60 daraja.', ru: 'Розетка совпадает шесть раз, угол поворота 60 градусов.', en: 'The rosette matches six times, the turn angle is 60 degrees.' },
+    ],
+    options: [
+      { uz: '1-qator', ru: 'Строка 1', en: 'Line 1' },
+      { uz: '2-qator', ru: 'Строка 2', en: 'Line 2' },
+      { uz: '3-qator', ru: 'Строка 3', en: 'Line 3' },
+      { uz: '4-qator', ru: 'Строка 4', en: 'Line 4' },
+    ],
+    correctIndex: 2,
+    correctText: {
+      uz: "To'g'ri. O'q borligidan burish kelib chiqmaydi. Panelni burasak, barglar o'z o'rniga tushmaydi.",
+      ru: 'Верно. Из наличия оси поворот не следует. Если повернуть панель, листья не встанут на свои места.',
+      en: 'Correct. A turn does not follow from an axis. If you turn the panel, the leaves do not land on their places.',
+    },
+    wrong: [
+      {
+        uz: "Birinchi qator to'g'ri: panelni o'rtasidan buklasak, yarimlar mos tushadi.",
+        ru: 'Первая строка верна: если сложить панель посередине, половины совпадут.',
+        en: 'The first line is right: fold the panel in the middle and the halves match.',
+      },
+      {
+        uz: "Ikkinchi qator to'g'ri: bu darslikdagi qoidaning o'zi.",
+        ru: 'Вторая строка верна: это и есть правило из учебника.',
+        en: 'The second line is right: it is the rule from the textbook itself.',
+      },
+      null,
+      {
+        uz: "To'rtinchi qator to'g'ri: uch yuz oltmishni oltiga bo'lsak, oltmish chiqadi.",
+        ru: 'Четвёртая строка верна: триста шестьдесят разделить на шесть — шестьдесят.',
+        en: 'The fourth line is right: three hundred and sixty divided by six is sixty.',
+      },
+    ],
+    bitFeedback: true,
+    audio: {
+      intro: {
+        uz: [
+          "Ish tugadi, Bit oyna pasportini to'ldirdi. To'rtta qatordan bittasi yolg'on.",
+          "Har bir qatorni oynaning o'zi bilan solishtiring.",
+          "Qaysi qator noto'g'ri? Javobni tanlang.",
+        ],
+        ru: [
+          'Работа закончена, Bit заполнил паспорт окна. Одна из четырёх строк ложна.',
+          'Сверь каждую строку с самим окном.',
+          'Какая строка неверна? Выбери ответ.',
+        ],
+        en: [
+          'The work is done and Bit filled in the window passport. One of the four lines is false.',
+          'Check every line against the window itself.',
+          'Which line is wrong? Choose an answer.',
+        ],
+      },
+    },
+  },
+
+  s14: {
+    eyebrow: { uz: 'Shahar qarori', ru: 'Решение города', en: 'The city decision' },
+    title: {
+      uz: 'Qaysi panel oynaga tushadi?',
+      ru: 'Какая панель встанет в окно?',
+      en: 'Which panel goes into the window?',
+    },
+    question: {
+      uz: 'Dastgoh bitta ko\'zgu bilan qaysi panelni kesa oladi?',
+      ru: 'Какую панель станок вырежет одним зеркальным проходом?',
+      en: 'Which panel can the cutter make with a single mirror pass?',
+    },
+    options: [
+      { uz: '1-panel', ru: 'Панель 1', en: 'Panel 1' },
+      { uz: '2-panel', ru: 'Панель 2', en: 'Panel 2' },
+      { uz: '3-panel', ru: 'Панель 3', en: 'Panel 3' },
+    ],
+    correctIndex: 2,
+    correctText: {
+      uz: "To'g'ri. Uchinchi panelda o'q bor, shuning uchun yarmi kesiladi va qolgani ko'zgu bilan chiqadi. Oyna joyiga tushdi va chok qovushdi.",
+      ru: 'Верно. У третьей панели есть ось, поэтому режут половину, а остальное даёт зеркало. Окно встало на место, и стык сошёлся.',
+      en: 'Correct. The third panel has an axis, so half is cut and the mirror gives the rest. The window is in place and the seam meets.',
+    },
+    wrong: [
+      {
+        uz: "Birinchi panelda o'q yo'q: uni butunlay kesishga to'g'ri keladi.",
+        ru: 'У первой панели нет оси: её пришлось бы резать целиком.',
+        en: 'The first panel has no axis: it would have to be cut whole.',
+      },
+      {
+        uz: "Ikkinchi panelda burish bor, lekin o'q yo'q. Ko'zgu bu yerda yordam bermaydi.",
+        ru: 'У второй панели есть поворот, но нет оси. Зеркало здесь не поможет.',
+        en: 'The second panel has a turn but no axis. The mirror does not help here.',
+      },
+      null,
+    ],
+    audio: {
+      intro: {
+        uz: [
+          "Bekat uchun uchta tayyor panel qoldi. Dastgoh vaqti oz.",
+          "Bitta ko'zgu bilan kesish uchun panelda simmetriya o'qi bo'lishi kerak.",
+          "Qaysi panel tanlanadi? Javobni tanlang.",
+        ],
+        ru: [
+          'Для станции осталось три готовые панели. Времени у станка мало.',
+          'Чтобы вырезать одним зеркальным проходом, у панели должна быть ось симметрии.',
+          'Какую панель выберут? Выбери ответ.',
+        ],
+        en: [
+          'Three finished panels are left for the station. The cutter has little time.',
+          'To cut with a single mirror pass, the panel needs an axis of symmetry.',
+          'Which panel will be chosen? Choose an answer.',
+        ],
+      },
+    },
+  },
+
+  s15: {
+    eyebrow: { uz: 'Mukofot', ru: 'Награда', en: 'Reward' },
+    stageLabel: { uz: 'YAKUNIY BOSQICH', ru: 'ФИНАЛЬНЫЙ ЭТАП', en: 'FINAL STAGE' },
+    headTitle: {
+      uz: 'Unvongacha bitta savol',
+      ru: 'Один вопрос до звания',
+      en: 'One question before your title',
+    },
+    headLead: {
+      uz: "Qoidani tanlang va simmetriyani tushunganingizni ko'rsating.",
+      ru: 'Выбери правило и покажи, что понимаешь симметрию.',
+      en: 'Choose the rule and show that you understand symmetry.',
+    },
+    questionKicker: { uz: 'YAKUNIY SAVOL', ru: 'ФИНАЛЬНЫЙ ВОПРОС', en: 'FINAL QUESTION' },
+    stepLabel: { uz: '1 QADAM', ru: '1 ШАГ', en: '1 STEP' },
+    reflectionQuestion: {
+      uz: 'Qaysi qoida simmetriya o\'qini to\'g\'ri tasvirlaydi?',
+      ru: 'Какое правило верно описывает ось симметрии?',
+      en: 'Which rule correctly describes the axis of symmetry?',
+    },
+    reflectionStart: {
+      uz: "Bitta javobni tanlang: aks nuqta qayerda turadi?",
+      ru: 'Выбери один ответ: где стоит симметричная точка?',
+      en: 'Choose one answer: where does the symmetric point stand?',
+    },
+    reflectionOptions: [
+      { uz: "O'qdan xuddi shuncha masofada, narigi tomonda", ru: 'На таком же расстоянии от оси, по другую сторону', en: 'At the same distance from the axis, on the other side' },
+      { uz: "O'qning yonida, masofa muhim emas", ru: 'Рядом с осью, расстояние не важно', en: 'Next to the axis, the distance does not matter' },
+      { uz: 'Panel chetidan xuddi shuncha masofada', ru: 'На таком же расстоянии от края панели', en: 'At the same distance from the edge of the panel' },
+    ],
+    reflectionCorrectIndex: 0,
+    reflectionCorrect: {
+      uz: "Shunday. Masofa har doim o'qdan o'lchanadi, panel chetidan emas.",
+      ru: 'Именно так. Расстояние всегда отмеряют от оси, а не от края панели.',
+      en: 'Exactly. The distance is always measured from the axis, not from the edge of the panel.',
+    },
+    reflectionWrong: {
+      uz: "Hali emas. Buklash chizig'ini eslang: nuqta va uning aksi shu chiziqdan teng uzoqlikda.",
+      ru: 'Пока нет. Вспомни линию сгиба: точка и её отражение одинаково удалены от неё.',
+      en: 'Not yet. Remember the fold line: a point and its reflection are equally far from it.',
+    },
+    rewardAnnounce: { uz: 'Unvon olindi:', ru: 'Звание получено:', en: 'Title earned:' },
+    mainLabel: { uz: 'Darsning ikki qoidasi', ru: 'Два правила урока', en: 'The two rules of the lesson' },
+    main: [
+      { uz: "O'zaro simmetrik nuqtalar o'qdan bir xil masofada yotadi.", ru: 'Взаимно симметричные точки лежат на одинаковом расстоянии от оси.', en: 'Mutually symmetric points lie at the same distance from the axis.' },
+      { uz: 'Shaklni uchlari bo\'yicha quramiz, keyin tutashtiramiz.', ru: 'Фигуру строим по вершинам, затем соединяем.', en: 'We build a figure vertex by vertex, then join them.' },
+      { uz: "Shakl n marta mos tushsa, burish burchagi 360 : n.", ru: 'Если фигура совпадает n раз, угол поворота равен 360 : n.', en: 'If a figure matches n times, the turn angle is 360 : n.' },
+      { uz: "O'q borligidan burish simmetriyasi kelib chiqmaydi.", ru: 'Из наличия оси поворотная симметрия не следует.', en: 'Rotational symmetry does not follow from having an axis.' },
+    ],
+    awards: [
+      {
+        min: 6,
+        title: { uz: 'Naqsh ustasi', ru: 'Мастер орнамента', en: 'Pattern master' },
+        text: { uz: "Barcha oltita vazifa birinchi urinishda yechildi.", ru: 'Все шесть заданий решены с первой попытки.', en: 'All six tasks were solved on the first attempt.' },
+      },
+      {
+        min: 4,
+        title: { uz: 'Panjara chizmachisi', ru: 'Чертёжник решётки', en: 'Lattice draughtsman' },
+        text: { uz: "Siz o'q va burishni ishonchli ajratasiz.", ru: 'Ты уверенно различаешь ось и поворот.', en: 'You can tell an axis from a turn with confidence.' },
+      },
+      {
+        min: 0,
+        title: { uz: 'Ustaxona shogirdi', ru: 'Подмастерье мастерской', en: 'Workshop apprentice' },
+        text: { uz: "Asos qo'yildi. Qoidani takrorlab, natijani yaxshilashga harakat qiling.", ru: 'Основа заложена. Повтори правило и попробуй улучшить результат.', en: 'The base is laid. Repeat the rule and try to improve the result.' },
+      },
+    ],
+    nextLabel: { uz: 'Keyingi missiya', ru: 'Следующая миссия', en: 'Next mission' },
+    nextText: {
+      uz: "Oyna tasdiqlandi. Buyurtmada panellar soni muhr ostida qoldi — boshqaruv markazi noma'lum sonni topishni so'raydi.",
+      ru: 'Окно утверждено. В заказе число панелей осталось под пломбой — центр управления просит найти неизвестное.',
+      en: 'The window is approved. In the order the number of panels is still sealed, and the control centre asks you to find the unknown.',
+    },
+    audio: {
+      intro: {
+        uz: [
+          "Panjara-oyna bekat devoriga o'rnatildi. Chok qovushdi, naqsh yopildi.",
+          "Endi bitta savol qoldi. Qoidani tanlang va unvonni oling.",
+          "Aks nuqta qayerda turadi? Javobni tanlang.",
+        ],
+        ru: [
+          'Решётчатое окно установили в стену станции. Стык сошёлся, узор закрылся.',
+          'Остался один вопрос. Выбери правило и получи звание.',
+          'Где стоит симметричная точка? Выбери ответ.',
+        ],
+        en: [
+          'The lattice window has been set into the wall of the station. The seam met and the pattern closed.',
+          'One question is left. Choose the rule and claim your title.',
+          'Where does the symmetric point stand? Choose an answer.',
+        ],
+      },
+    },
+  },
 };
 
-let runtimeConfig = { ttsApiBase: '', voiceGender: 'f', correctSoundUrl: '', wrongSoundUrl: '', previewMode: false };
-const configureLesson = (next) => { runtimeConfig = { ...runtimeConfig, ...next }; };
-const normalizeLang = (value) => ['uz', 'ru', 'en'].includes(value) ? value : 'uz';
-const LangContext = createContext('uz');
-const useLang = () => useContext(LangContext);
-const useT = () => { const lang = useLang(); return useCallback((value) => { if (value == null) return ''; if (React.isValidElement(value)) return value; if (typeof value === 'string' || typeof value === 'number') return String(value); return value[lang] ?? value.uz ?? ''; }, [lang]); };
-function useIsMobile(breakpoint = 640) { const [mobile, setMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < breakpoint : false); useEffect(() => { if (typeof window === 'undefined') return undefined; const update = () => setMobile(window.innerWidth < breakpoint); window.addEventListener('resize', update); return () => window.removeEventListener('resize', update); }, [breakpoint]); return mobile; }
-function usePrefersReducedMotion() { const [reduced, setReduced] = useState(typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches); useEffect(() => { if (typeof window === 'undefined' || !window.matchMedia) return undefined; const media = window.matchMedia('(prefers-reduced-motion: reduce)'); const update = () => setReduced(media.matches); media.addEventListener?.('change', update); return () => media.removeEventListener?.('change', update); }, []); return reduced; }
-const buildTtsUrl = (base, text, gender) => base + '/api/tts?text=' + encodeURIComponent(String(text).slice(0, 1000)) + '&g=' + (gender === 'm' ? 'm' : 'f');
-class AudioEngine {
-  constructor() { this.queue = []; this.index = 0; this.audio = null; this.previewUtterance = null; this.timer = null; this.lang = 'uz'; this.muted = false; this.listener = null; }
-  emit(extra = {}) { this.listener?.({ muted: this.muted, ...extra }); }
-  setLang(lang) { this.lang = lang; }
-  stop() { if (this.timer && typeof window !== 'undefined') window.clearTimeout(this.timer); this.timer = null; if (this.audio) { this.audio.onended = null; this.audio.onerror = null; this.audio.pause(); this.audio.removeAttribute('src'); } if (this.previewUtterance) { this.previewUtterance.onstart = null; this.previewUtterance.onend = null; this.previewUtterance.onerror = null; } if (typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.cancel(); this.previewUtterance = null; }
-  load(queue) { this.stop(); this.queue = queue; this.index = 0; this.emit({ isPlaying: false, completed: false, currentSegment: null }); }
-  start() { if (!this.queue.length) { this.emit({ completed: true }); return; } this.play(); }
-  timed(item) { const ms = Math.max(1500, Math.min(6500, String(item.text).split(/\s+/).length * 330)); this.emit({ isPlaying: true, completed: false, currentSegment: item.id, visualOnly: true }); this.timer = window.setTimeout(() => { this.emit({ isPlaying: false, currentSegment: null }); this.index += 1; this.play(); }, ms); }
-  play() { const item = this.queue[this.index]; if (!item) { this.emit({ isPlaying: false, completed: true, currentSegment: null, visualOnly: this.muted || !runtimeConfig.ttsApiBase }); return; } if (this.muted || !runtimeConfig.ttsApiBase) { if (!this.muted && runtimeConfig.previewMode && typeof window !== 'undefined' && window.speechSynthesis) { try { window.speechSynthesis.cancel(); const utterance = new SpeechSynthesisUtterance(String(item.text)); utterance.lang = { uz: 'uz-UZ', ru: 'ru-RU', en: 'en-GB' }[this.lang] || 'uz-UZ'; utterance.rate = 0.94; utterance.onstart = () => this.emit({ isPlaying: true, completed: false, currentSegment: item.id, visualOnly: false }); utterance.onend = () => { this.emit({ isPlaying: false, currentSegment: null }); this.index += 1; this.play(); }; utterance.onerror = () => this.timed(item); this.previewUtterance = utterance; this.timer = window.setTimeout(() => { try { window.speechSynthesis.speak(utterance); } catch { this.timed(item); } }, 50); return; } catch { /* deterministic timer fallback */ } } this.timed(item); return; } if (!this.audio) { this.audio = new Audio(); this.audio.crossOrigin = 'anonymous'; } this.audio.onended = () => { this.index += 1; this.play(); }; this.audio.onerror = () => this.timed(item); this.audio.src = buildTtsUrl(runtimeConfig.ttsApiBase, item.text, runtimeConfig.voiceGender); this.audio.play().then(() => this.emit({ isPlaying: true, completed: false, currentSegment: item.id, visualOnly: false })).catch(() => this.timed(item)); }
-  toggleMute() { this.muted = !this.muted; this.stop(); this.emit({ isPlaying: false, completed: this.muted, currentSegment: null, muted: this.muted, visualOnly: true }); }
-  pushOneOff(text) { if (!text) return; this.stop(); this.queue = [{ id: 'feedback-' + Date.now(), text }]; this.index = 0; this.play(); }
-}
-let audioEngineInstance = null;
-const getAudioEngine = () => { if (!audioEngineInstance) audioEngineInstance = new AudioEngine(); return audioEngineInstance; };
-function useAudio(segments) { const lang = useLang(); const stableKey = useMemo(() => JSON.stringify(segments), [segments]); const stableSegments = useMemo(() => JSON.parse(stableKey), [stableKey]); const [state, setState] = useState({ isPlaying: false, completed: false, currentSegment: null, muted: false, visualOnly: false }); useEffect(() => { const engine = getAudioEngine(); engine.setLang(lang); engine.listener = (next) => setState((previous) => ({ ...previous, ...next })); engine.load(stableSegments); const timer = window.setTimeout(() => engine.start(), 120); return () => { window.clearTimeout(timer); engine.stop(); }; }, [lang, stableSegments]); return { ...state, replay: () => { const engine = getAudioEngine(); engine.load(stableSegments); engine.start(); }, toggleMute: () => getAudioEngine().toggleMute(), pushOneOff: (text) => getAudioEngine().pushOneOff(text) }; }
-function useNarration(value, screen) { const lang = useLang(); const reduced = usePrefersReducedMotion(); const segments = useMemo(() => { const source = value?.intro ?? value; const texts = source?.[lang] ?? source?.uz ?? []; return (Array.isArray(texts) ? texts : [texts]).filter(Boolean).map((text, index) => ({ id: 's' + screen + '-beat-' + index, text })); }, [lang, screen, value]); const audio = useAudio(segments); const active = segments.findIndex((segment) => segment.id === audio.currentSegment); const finalFrame = Math.max(0, FRAME_COUNTS[screen] - 1); const feedbackPlaying = audio.currentSegment?.startsWith('feedback-') === true; const frame = reduced || feedbackPlaying || audio.completed ? finalFrame : active >= 0 ? active : 0; return { ...audio, frame, caption: active >= 0 ? segments[active].text : '' }; }
-function useGuidedNarration(value, screen, step) { const lang = useLang(); const texts = useMemo(() => { const source = value?.intro ?? value; const localized = source?.[lang] ?? source?.uz ?? []; return (Array.isArray(localized) ? localized : [localized]).filter(Boolean); }, [lang, value]); const intro = useMemo(() => texts.length ? [{ id: 's' + screen + '-beat-0', text: texts[0] }] : [], [screen, texts]); const audio = useAudio(intro); const speakStep = useCallback((index) => { const text = texts[index]; if (text) audio.pushOneOff(text); }, [audio, texts]); return { ...audio, frame: step, caption: texts[step] ?? '', speakStep }; }
-const isAudioReady = (audio) => !audio || audio.muted || audio.visualOnly || audio.completed;
-const playSfx = (kind) => { const url = kind === 'correct' ? runtimeConfig.correctSoundUrl : runtimeConfig.wrongSoundUrl; if (!url || typeof window === 'undefined') return; try { new Audio(url).play().catch(() => {}); } catch { /* optional */ } };
+// ---------------------------------------------------------------------------
+// CHIZMALAR
+//
+// Naqsh motivi ataylab NOSIMMETRIK (barg bir tomonga qaraydi): faqat shunda
+// nusxa bilan ko'zgu ko'z bilan farqlanadi. Animatsiya faqat matematik holat
+// o'zgarishini ko'rsatadi: o'q paydo bo'ladi, aks o'z masofasiga tushadi,
+// guldasta bir qadam buriladi. Bezak uchun harakat yo'q.
+// ---------------------------------------------------------------------------
+const WOOD = '#B5813F';
+const WOOD_DARK = '#6B451F';
+const WOOD_LIGHT = '#F0DFC0';
+const GLASS = '#EAF4F0';
 
-const BitSVG = ({ state = 'present', className = '' }) => {
-  const isWave = state === 'wave';
-  const isHappy = state === 'happy' || isWave || state === 'idea' || state === 'nod';
-  const isThinking = state === 'hint' || state === 'think';
-  const isAwkward = state === 'awkward';
+// Bitta o'yma barg (islimi naqshi). dir = 1 o'ngga qaraydi, dir = -1 chapga.
+// Shakl ataylab nosimmetrik: nusxa va ko'zgu ko'z bilan darrov ajraladi.
+const Leaf = ({ x, y, s = 1, dir = 1, tone = WOOD, muted = false }) => (
+  <g transform={`translate(${x} ${y}) scale(${dir * s} ${s})`} opacity={muted ? 0.4 : 1}>
+    <path
+      d="M-16 1 C-16 -9 -9 -15 -1 -13 C4 -12 9 -8 17 0 C9 8 4 12 -1 13 C-9 15 -16 9 -16 1 Z"
+      fill={tone}
+      stroke={WOOD_DARK}
+      strokeWidth="1.6"
+      strokeLinejoin="round"
+    />
+    <path d="M-11 0 C-5 -3 3 -2 12 0" fill="none" stroke={WOOD_LIGHT} strokeWidth="1.6" strokeLinecap="round" />
+    <circle cx="-8" cy="0" r="2.6" fill={WOOD_LIGHT} />
+  </g>
+);
 
+// Yog'och ramka, shisha va panjara chiviqlari. Chiviqlar naqshni ushlab
+// turadi va panelga haqiqiy panjara ko'rinishini beradi.
+const PanelBox = ({ x, y, w, h, glass = GLASS, stroke = WOOD_DARK, width = 3, bars = true }) => {
+  const inset = 10;
+  const cols = 3;
+  const rows = 2;
   return (
-  <svg className={`g1-char g1-char-bit g1-char-state-${state} ${className}`} data-g4-role={className.includes('feedback-bit') ? 'feedback-bit' : undefined} viewBox="0 0 120 150" aria-hidden="true">
-    <defs>
-      <linearGradient id="g4bbody" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stopColor="#E2ECF2" />
-        <stop offset="100%" stopColor="#B6C7D2" />
-      </linearGradient>
-      <linearGradient id="g4bhead" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stopColor="#EBF2F6" />
-        <stop offset="100%" stopColor="#C4D3DC" />
-      </linearGradient>
-    </defs>
-    <ellipse cx="60" cy="140" rx="30" ry="5" fill="rgba(58,53,48,0.13)" />
-    <g className="g1-bit-ant">
-      <path d="M60 30 V14" stroke="#9FB3BF" strokeWidth="4" strokeLinecap="round" />
-      <circle cx="60" cy="11" r="6" fill="#FF4F28" />
-      <circle cx="58" cy="9" r="2" fill="#FFB9A6" />
+    <g>
+      <rect x={x} y={y} width={w} height={h} rx="10" fill={glass} />
+      {bars && (
+        <g opacity="0.5">
+          {Array.from({ length: cols - 1 }, (_, index) => (
+            <line
+              key={`bv${index}`}
+              x1={x + (w * (index + 1)) / cols}
+              y1={y + inset}
+              x2={x + (w * (index + 1)) / cols}
+              y2={y + h - inset}
+              stroke={WOOD}
+              strokeWidth="3.4"
+              strokeLinecap="round"
+            />
+          ))}
+          {Array.from({ length: rows - 1 }, (_, index) => (
+            <line
+              key={`bh${index}`}
+              x1={x + inset}
+              y1={y + (h * (index + 1)) / rows}
+              x2={x + w - inset}
+              y2={y + (h * (index + 1)) / rows}
+              stroke={WOOD}
+              strokeWidth="3.4"
+              strokeLinecap="round"
+            />
+          ))}
+        </g>
+      )}
+      <rect x={x} y={y} width={w} height={h} rx="10" fill="none" stroke={stroke} strokeWidth={width} />
     </g>
-    <rect x="44" y="118" width="12" height="16" rx="5" fill="#9FB3BF" />
-    <rect x="64" y="118" width="12" height="16" rx="5" fill="#9FB3BF" />
-    <rect x="34" y="60" width="52" height="62" rx="18" fill="url(#g4bbody)" stroke="#A9BCC8" strokeWidth="2" />
-    <rect x="44" y="104" width="32" height="10" rx="5" fill="#A9BCC8" opacity="0.5" />
-    {(state === 'happy' || isWave) && (
-      <g className={isWave ? 'bit-double-wave' : ''}>
-        <g className="bit-wave-left">
-          <path d="M36 74 C 26 66 22 56 22 48" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-          <circle cx="22" cy="47" r="5" fill="#B6C7D2" />
-        </g>
-        <g className="bit-wave-right">
-          <path d="M84 74 C 94 66 98 56 98 48" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-          <circle cx="98" cy="47" r="5" fill="#B6C7D2" />
-        </g>
-      </g>
-    )}
-    {state === 'present' && (
-      <g>
-        <path d="M36 76 C 28 84 26 94 30 102" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="30" cy="103" r="5" fill="#B6C7D2" />
-        <g className="g1-bit-wave">
-          <path d="M84 74 C 96 66 100 54 98 44" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-          <circle cx="98" cy="43" r="5" fill="#B6C7D2" />
-        </g>
-      </g>
-    )}
-    {isThinking && (
-      <g>
-        <path d="M36 76 C 28 84 26 94 30 102" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="30" cy="103" r="5" fill="#B6C7D2" />
-        <g className="bit-think-hand">
-          <path d="M84 76 C 92 74 92 66 84 61" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-          <circle cx="83" cy="60" r="5" fill="#B6C7D2" />
-        </g>
-      </g>
-    )}
-    {isAwkward && (
-      <g className="bit-awkward-hands">
-        <path d="M36 76 C 39 88 46 96 54 99" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="54" cy="99" r="5" fill="#B6C7D2" />
-        <path d="M84 76 C 81 88 74 96 66 99" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="66" cy="99" r="5" fill="#B6C7D2" />
-      </g>
-    )}
-    {state === 'point' && (
-      <g>
-        <path d="M36 76 C 28 84 26 94 30 102" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="30" cy="103" r="5" fill="#B6C7D2" />
-        <g className="bit-point-arm">
-          <path d="M84 76 C 94 72 101 67 108 62" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-          <circle cx="109" cy="61" r="5" fill="#B6C7D2" />
-        </g>
-      </g>
-    )}
-    {state === 'idea' && (
-      <g>
-        <path d="M36 76 C 29 82 27 91 30 101" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="30" cy="102" r="5" fill="#B6C7D2" />
-        <path d="M84 76 C 92 68 95 58 94 50" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="94" cy="49" r="5" fill="#B6C7D2" />
-      </g>
-    )}
-    {state === 'focus' && (
-      <g className="bit-focus-hands">
-        <path d="M36 77 C 41 88 47 93 53 94" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="53" cy="94" r="5" fill="#B6C7D2" />
-        <path d="M84 77 C 79 88 73 93 67 94" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="67" cy="94" r="5" fill="#B6C7D2" />
-      </g>
-    )}
-    {state === 'nod' && (
-      <g>
-        <path d="M36 76 C 28 84 26 94 30 102" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="30" cy="103" r="5" fill="#B6C7D2" />
-        <g className="bit-nod-hand">
-          <path d="M84 75 C 93 70 99 62 99 54" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-          <circle cx="99" cy="53" r="5" fill="#B6C7D2" />
-        </g>
-      </g>
-    )}
-    <rect x="28" y="28" width="64" height="46" rx="16" fill="url(#g4bhead)" stroke="#A9BCC8" strokeWidth="2" />
-    <rect x="36" y="36" width="48" height="30" rx="10" fill="#16242C" />
-    <path d="M40 40 h18 a4 4 0 0 1 -4 8 h-14 Z" fill="rgba(255,255,255,0.08)" />
-    <g className="g1-eyes" fill="#5BD6F2">
-      {isAwkward
-        ? <><ellipse cx="50" cy="53" rx="4.8" ry="3.2" /><ellipse cx="70" cy="53" rx="4.8" ry="3.2" /></>
-        : isThinking
-        ? <><circle cx="50" cy="50" r="4.5" /><circle cx="70" cy="49" r="5.5" /></>
-        : <><circle cx="50" cy="50" r="5" /><circle cx="70" cy="50" r="5" /></>}
-    </g>
-    {isHappy && <path d="M50 58 Q60 65 70 58" stroke="#5BD6F2" strokeWidth="2.6" fill="none" strokeLinecap="round" />}
-    {(state === 'present' || state === 'point' || state === 'focus') && <path d="M52 58 h16" stroke="#5BD6F2" strokeWidth="2.6" strokeLinecap="round" />}
-    {isThinking && <circle cx="60" cy="59" r="2.4" fill="#5BD6F2" />}
-    {isAwkward && (
-      <g className="bit-awkward-face">
-        <path d="M53 62 Q60 57 67 62" stroke="#5BD6F2" strokeWidth="2.4" fill="none" strokeLinecap="round" />
-        <circle cx="43" cy="59" r="4" fill="#FF9B8A" opacity=".5" />
-        <circle cx="77" cy="59" r="4" fill="#FF9B8A" opacity=".5" />
-      </g>
-    )}
-    {isThinking && (
-      <g>
-        <circle cx="99" cy="38" r="9" fill="#FFC23C" />
-        <text x="99" y="42.5" textAnchor="middle" fontSize="12" fontWeight="800" fill="#5A3A00">?</text>
-      </g>
-    )}
-    {state === 'point' && (
-      <g className="bit-point-target">
-        <circle cx="110" cy="61" r="8" fill="none" stroke="#FF5B35" strokeWidth="2" />
-        <circle cx="110" cy="61" r="2" fill="#FF5B35" />
-      </g>
-    )}
-    {state === 'idea' && (
-      <g className="bit-idea-bulb">
-        <circle cx="99" cy="36" r="9" fill="#FFC23C" />
-        <path d="M95 36 Q99 31 103 36 M97 42 h4" stroke="#7A5200" strokeWidth="1.6" fill="none" strokeLinecap="round" />
-      </g>
-    )}
-    {state === 'focus' && (
-      <g className="bit-focus-scan">
-        <path d="M43 45 h34" stroke="#95C93D" strokeWidth="2" strokeLinecap="round" />
-        <circle cx="80" cy="45" r="3" fill="#95C93D" />
-      </g>
-    )}
-    {state === 'nod' && (
-      <g className="bit-nod-check">
-        <circle cx="99" cy="38" r="9" fill="#95C93D" />
-        <path d="M95 38 l3 3 6-7" stroke="#FFFFFF" strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-      </g>
-    )}
-  </svg>
   );
 };
-const AudioIndicator = ({ audio }) => { const t = useT(); const muteLabel = audio.muted ? bi("Ovozni yoqish", 'Включить звук', 'Turn sound on') : bi("Ovozni o'chirish", 'Выключить звук', 'Turn sound off'); return <div className="audio-indicator audio-controls"><button type="button" data-audio-control="mute" onClick={audio.toggleMute} aria-label={t(muteLabel)}>{audio.muted ? '🔇' : '🔊'}</button><span className={audio.isPlaying ? 'audio-wave playing' : 'audio-wave'}><i/><i/><i/></span>{!audio.muted && <button type="button" onClick={audio.replay} aria-label={t(bi('Qayta eshittirish', 'Повторить', 'Replay'))}>↻</button>}</div>; };
-const ScreenTypeLabel = ({ type }) => { const t = useT(); const labels = { hook: bi('Taxmin', 'Гипотеза', "Estimate"), exploration: bi('Tadqiqot', 'Исследование', "Explore"), rule: bi('Qoida', 'Правило', "Rule"), strategy: bi('Strategiya', 'Стратегия', 'Strategy'), error: bi('Xatoni tuzatish', 'Исправление ошибки', 'Error repair'), test: bi('Mashq', 'Задание', "Task"), case: bi('Vaziyat', 'Ситуация', "Situation"), summary: bi('Yakun', 'Итог', "Summary") }; return <span className="screen-type">{t(labels[type])}</span>; };
-const Stage = ({ screen, audio, onPrev, onNext, canAdvance = true, canFinish = true, finish = false, children }) => { const t = useT(); const mobile = useIsMobile(); const meta = SCREEN_META[screen]; const c = CONTENT[`s${screen}`]; const pad = mobile ? 12 : 24; const ready = canAdvance && canFinish && isAudioReady(audio); const showCaption = Boolean(audio?.caption && (audio.muted || audio.visualOnly)); return <main className={`stage stage-${meta.type}`}><header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}><div className="progress-track" aria-label={`${screen + 1} / ${TOTAL_SCREENS}`}><div className="progress-fill progress-bar" style={{ width: `${(screen + 1) / TOTAL_SCREENS * 100}%` }}/></div><div className="stage-chrome"><div className="chrome-title"><span className="status-dot"/><span>{t(c.eyebrow)}</span></div><div className="chrome-actions"><ScreenTypeLabel type={meta.type}/>{audio && <AudioIndicator audio={audio}/>}<span className="screen-count">{String(screen + 1).padStart(2, '0')} / {TOTAL_SCREENS}</span></div></div></header><section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}><div className="stage-body">{children}</div><div className="caption-slot" aria-live="polite">{showCaption ? <div className="caption">{audio.caption}</div> : <span aria-hidden="true"/>}</div></section><footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{screen === 0 ? <span/> : <button type="button" className="btn-ghost" onClick={onPrev}>← {t(bi('Orqaga', 'Назад', "Back"))}</button>}<button type="button" className="btn-white-accent" disabled={!ready} aria-disabled={!ready} onClick={onNext}>{finish ? t(bi('Darsni yakunlash', 'Завершить урок', "Finish lesson")) : t(bi('Davom etish', 'Продолжить', "Continue"))} →</button></footer></main>; };
-const Heading = ({ c, state = 'present', showBit = false }) => { const t = useT(); return <div className={'heading ' + (showBit ? '' : 'heading-solo')}><div><span>{t(c.eyebrow)}</span><h1>{t(c.title)}</h1></div>{showBit && <BitSVG state={state}/>}</div>; };
 
-const G4TitleReveal = ({ active, title, onComplete }) => {
+const AxisLine = ({ x, y1, y2, tone = T.accent, dash = '7 6' }) => (
+  <line x1={x} y1={y1} x2={x} y2={y2} stroke={tone} strokeWidth="2.4" strokeDasharray={dash} strokeLinecap="round" />
+);
+
+// s0 va s14 fon: bekat panjara-oynasi. `mirrored` — o'ng yarim ko'zgu bo'lsa.
+const LatticeWindow = ({ mirrored }) => {
   const t = useT();
-  useEffect(() => { if (!active) return undefined; const timer = window.setTimeout(() => onComplete?.(), window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 80 : 3900); return () => window.clearTimeout(timer); }, [active, onComplete]);
-  if (!active || typeof document === 'undefined') return null;
-  return createPortal(<div className="g4-title-reveal-overlay rank-boost-overlay" data-g4-role="rank-overlay" role="status" aria-live="assertive" aria-atomic="true" aria-label={`${t(bi('Unvon olindi', 'Звание получено', 'Title earned'))}: ${t(title)}`}><div className="g4-title-reveal-card rank-boost-card"><div className="g4-title-reveal-rays" aria-hidden="true"/><div className="g4-title-reveal-confetti rank-boost-confetti" data-g4-role="reward-confetti" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <i key={index} style={{ '--g4-title-i': index, '--g4-title-delay': `${(index % 7) * -0.21}s` }}/>)}</div><div className="g4-title-reveal-medal rank-boost-medal" data-g4-role="reward-medal" aria-hidden="true">★</div><h2>{t(title)}</h2></div></div>, document.body);
+  const seam = 450;
+  const rows = [112, 196];
+  const leftCols = [160, 262, 364];
+  const rightCols = [536, 638, 740];
+  return (
+    <FitSvg viewBox="0 0 900 300">
+      <defs>
+        <linearGradient id="d41glass" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#123246" />
+          <stop offset="100%" stopColor="#0A2233" />
+        </linearGradient>
+      </defs>
+      <rect x="34" y="26" width="832" height="248" rx="18" fill="url(#d41glass)" stroke={WOOD} strokeWidth="7" />
+      <rect x="46" y="38" width="808" height="224" rx="12" fill="none" stroke="rgba(144,228,235,.22)" strokeWidth="2" />
+
+      {/* panjara chiviqlari: naqsh ular ustiga o'rnatiladi */}
+      <g opacity="0.42">
+        {[211, 313, 415, 485, 587, 689].map((x) => (
+          <line key={`bv${x}`} x1={x} y1="52" x2={x} y2="248" stroke={WOOD} strokeWidth="4" strokeLinecap="round" />
+        ))}
+        {[154].map((y) => (
+          <line key={`bh${y}`} x1="60" y1={y} x2="840" y2={y} stroke={WOOD} strokeWidth="4" strokeLinecap="round" />
+        ))}
+      </g>
+
+      {rows.map((y) => (
+        <g key={`row-${y}`}>
+          {leftCols.map((x) => <Leaf key={`l-${x}-${y}`} x={x} y={y} dir={1} s={1.12} />)}
+          {rightCols.map((x) => <Leaf key={`r-${x}-${y}`} x={x} y={y} dir={mirrored ? -1 : 1} s={1.12} />)}
+        </g>
+      ))}
+
+      <AxisLine x={seam} y1="46" y2="254" tone={mirrored ? T.lime : T.accent} />
+      <circle cx={seam} cy="150" r="9" fill={mirrored ? T.lime : T.accent} opacity="0.9" />
+      <text x={seam} y="288" textAnchor="middle" fill={mirrored ? T.lime : '#FFB39B'} fontSize="15" fontWeight="800" fontFamily="Manrope, sans-serif">
+        {mirrored
+          ? t({ uz: 'chok qovushdi', ru: 'стык сошёлся', en: 'the seam meets' })
+          : t({ uz: 'chok qovushmadi', ru: 'стык не сошёлся', en: 'the seam does not meet' })}
+      </text>
+    </FitSvg>
+  );
 };
-const G4TitleCard = ({ title, answers = [] }) => {
-  const t = useT(); const scored = SCREEN_META.map((item, index) => item.scored ? index : null).filter((index) => index !== null); const firstTry = scored.filter((index) => answers[index]?.firstTry === true).length;
-  return <aside className="g4-title-card-stage" data-g4-role="title-card" role="status" aria-live="polite" aria-atomic="true"><div className="g4-title-card-confetti" data-g4-role="reward-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index}/>)}</div><div className="g4-title-card-bit" data-g4-role="reward-bit"><BitSVG state="happy"/></div><div className="g4-title-card-medal" data-g4-role="reward-medal" aria-hidden="true">★</div><span className="g4-title-card-kicker">{t(bi('UNVON OLINDI', 'ЗВАНИЕ ПОЛУЧЕНО', 'TITLE EARNED'))}</span><h2>{t(title)}</h2><div className="g4-title-card-score"><strong>{firstTry}/{scored.length}</strong><span>{t(bi('birinchi urinishda', 'с первой попытки', 'on the first attempt'))}</span></div></aside>;
+
+// s1: buklash. Kadr 0 panel, 1 o'q, 2 to'g'ri o'qda mos tushdi, 3 boshqa
+// chiziqda mos tushmadi. Ko'zgu haqiqiy: matrix(-1 0 0 1 2a 0).
+const FoldPanel = ({ frame }) => {
+  const t = useT();
+  const axis = frame >= 3 ? 386 : 310;
+  const ok = frame === 2;
+  const bad = frame >= 3;
+  const rows = [96, 174];
+  const left = [222, 272];
+  const right = [348, 398];
+  return (
+    <FitSvg viewBox="0 0 620 250">
+      <PanelBox x={150} y={46} w={320} h={164} />
+      {rows.map((y) => (
+        <g key={y}>
+          {left.map((x) => <Leaf key={`l${x}${y}`} x={x} y={y} dir={1} s={0.78} />)}
+          {right.map((x) => <Leaf key={`r${x}${y}`} x={x} y={y} dir={-1} s={0.78} />)}
+        </g>
+      ))}
+
+      {frame >= 1 && <AxisLine x={axis} y1="40" y2="216" tone={bad ? T.warn : T.cyan} />}
+
+      {frame >= 2 && (
+        <g transform={`matrix(-1 0 0 1 ${2 * axis} 0)`} opacity="0.85">
+          {rows.map((y) => right.map((x) => (
+            <Leaf key={`m${x}${y}`} x={x} y={y} dir={-1} s={0.78} tone={bad ? '#E9C08F' : '#8FD3B5'} />
+          )))}
+        </g>
+      )}
+
+      {frame >= 2 && (
+        <g>
+          <rect x="176" y="222" width="268" height="24" rx="12" fill={ok ? T.successSoft : T.warnSoft} />
+          <text x="310" y="239" textAnchor="middle" fill={ok ? T.success : T.warn} fontSize="13" fontWeight="800" fontFamily="Manrope, sans-serif">
+            {ok
+              ? t({ uz: "ustma-ust tushdi — bu o'q", ru: 'совпало — это ось', en: 'they match — this is an axis' })
+              : t({ uz: "mos tushmadi — o'q emas", ru: 'не совпало — не ось', en: 'no match — not an axis' })}
+          </text>
+        </g>
+      )}
+    </FitSvg>
+  );
 };
-function ConversionVisual({ scene, frame }) { const visual = <ConversionVisualContent scene={scene} frame={frame}/>; const sceneName = String(scene ?? ''); return /(^|-)hook($|-)/.test(sceneName) ? visual : <div className="canonical-visual-frame" data-g4-role="visual-frame" style={{ position: 'relative', isolation: 'isolate', minWidth: 0, maxWidth: '100%', height: '100%', overflow: 'hidden' }}>{visual}</div>; }
-function ConversionVisualContent({ scene, frame }) {
-  const f = Math.max(0, Math.min(4, frame));
-  const on = (step) => step <= f ? 'topic-step topic-on' : 'topic-step';
-  if (scene === 'hook') return <div className="topic-visual topic-v41 scene-hook" aria-hidden="true"><svg viewBox="0 0 600 220">
-    <g className={on(0)}><path d="M58 58 v104 M58 110 h72 M130 58 v104" fill="none" stroke="#173B52" strokeWidth="16" strokeLinecap="round"/><line x1="178" y1="28" x2="178" y2="192" stroke="#FF5B35" strokeWidth="4" strokeDasharray="9 7"/><path d="M226 58 v104 M226 110 h72 M298 58 v104" fill="none" stroke="#168FA3" strokeWidth="16" strokeLinecap="round"/><path d="M157 48 l17-16 17 16 M157 172 l17 16 17-16" fill="none" stroke="#FF5B35" strokeWidth="4"/></g>
-    <g className={on(1)}><g transform="rotate(180 458 110)"><path d="M422 58 v104 M422 110 h72 M494 58 v104" fill="none" stroke="#FFF0EA" strokeWidth="22" strokeLinecap="round"/><path d="M422 58 v104 M422 110 h72 M494 58 v104" fill="none" stroke="#FF5B35" strokeWidth="14" strokeLinecap="round"/></g><path d="M530 68 a76 76 0 1 1 -8-28" fill="none" stroke="#168FA3" strokeWidth="5"/><path d="M515 31 l20 5 -12 17z" fill="#168FA3"/><text x="458" y="204" textAnchor="middle" fill="#173B52" fontSize="21" fontWeight="900">180°</text></g>
-    <g className={on(2)}><rect x="320" y="22" width="78" height="38" rx="14" fill="#E5F5F6" stroke="#168FA3" strokeWidth="3"/><text x="359" y="48" textAnchor="middle" fill="#173B52" fontSize="24" fontWeight="900">= ?</text></g>
-  </svg></div>;
-  if (scene === 'square-rectangle') return <div className="topic-visual topic-v41 scene-square-rectangle" aria-hidden="true"><svg viewBox="0 0 600 220">
-    <g className={on(0)}><rect x="62" y="52" width="118" height="118" rx="10" fill="#E5F5F6" stroke="#173B52" strokeWidth="5"/><rect x="62" y="52" width="118" height="118" rx="10" fill="none" stroke="#95C93D" strokeWidth="6" transform="rotate(90 121 111)"/><path d="M205 74 a86 86 0 0 1 -4 72" fill="none" stroke="#168FA3" strokeWidth="4"/><text x="121" y="204" textAnchor="middle" fill="#173B52" fontSize="19" fontWeight="900">90° ✓</text></g>
-    <g className={on(1)}><rect x="332" y="72" width="190" height="78" rx="10" fill="#E5F5F6" stroke="#173B52" strokeWidth="5"/><rect x="388" y="16" width="78" height="190" rx="10" fill="#FFF0EA" fillOpacity=".35" stroke="#FF5B35" strokeWidth="5"/><text x="427" y="204" textAnchor="middle" fill="#FF5B35" fontSize="19" fontWeight="900">90° ✕</text></g>
-    <g className={on(2)}><rect x="332" y="72" width="190" height="78" rx="10" fill="none" stroke="#95C93D" strokeWidth="6" transform="rotate(180 427 111)"/><text x="532" y="56" textAnchor="middle" fill="#227A53" fontSize="19" fontWeight="900">180° ✓</text></g>
-    <g className={on(3)}><path d="M244 44 V178" stroke="#87949D" strokeWidth="3" strokeDasharray="8 7"/><circle cx="572" cy="28" r="15" fill="#95C93D"/><path d="M564 28 l6 6 11-15" fill="none" stroke="#173B52" strokeWidth="4"/></g>
-  </svg></div>;
-  const triangle = scene === 'line-only';
-  const square = /square-turn/.test(scene);
-  const rectangle = /rectangle|axis-count|axis-error|logo/.test(scene);
-  const turn = square ? 90 : rectangle ? 180 : Math.min(180, (f + 1) * 45);
-  return <div className={'topic-visual topic-v41 scene-' + scene} aria-hidden="true"><svg viewBox="0 0 600 220">
-    <g className={on(0)}>{triangle ? <path d="M76 180 L156 38 L236 180 Z" fill="#E5F5F6" stroke="#173B52" strokeWidth="5"/> : <rect x={rectangle ? 52 : square ? 86 : 72} y={rectangle ? 64 : 42} width={rectangle ? 210 : square ? 140 : 160} height={rectangle ? 112 : 140} rx="12" fill="#E5F5F6" stroke="#173B52" strokeWidth="5"/>}<line x1="156" y1="24" x2="156" y2="198" stroke="#FF5B35" strokeWidth="4" strokeDasharray="10 8"/></g>
-    {!triangle && <g className={on(1)}><line x1="38" y1="120" x2="274" y2="120" stroke="#168FA3" strokeWidth="4" strokeDasharray="10 8"/>{scene === 'axis-error' && <><line x1="52" y1="64" x2="262" y2="176" stroke="#FF5B35" strokeWidth="4"/><line x1="262" y1="64" x2="52" y2="176" stroke="#FF5B35" strokeWidth="4"/></>}</g>}
-    <g className={on(2)}>{scene === 'correspondence' ? <><circle cx="112" cy="92" r="9" fill="#95C93D"/><circle cx="200" cy="92" r="9" fill="#95C93D"/><path d="M112 108 H200" stroke="#95C93D" strokeWidth="4" strokeDasharray="7 6"/></> : <g transform={'rotate('+turn+' 428 112)'}>{triangle ? <path d="M360 176 L428 50 L496 176 Z" fill="#FFF0EA" stroke="#FF5B35" strokeWidth="5"/> : <rect x={rectangle?338:358} y={rectangle?67:42} width={rectangle?180:140} height={rectangle?90:140} rx="12" fill="#FFF0EA" stroke="#FF5B35" strokeWidth="5"/>}<circle cx="428" cy="112" r="7" fill="#173B52"/></g>}</g>
-    <g className={on(3)}><path d="M536 112 a108 108 0 0 1 -34 78" fill="none" stroke="#168FA3" strokeWidth="5"/><path d="M493 181 l8 21 15-16z" fill="#168FA3"/><text x="523" y="62" textAnchor="middle" fill="#173B52" fontSize="22" fontWeight="900">{turn}°</text></g>
-    <g className={on(4)}><circle cx="566" cy="30" r="15" fill="#95C93D"/><path d="M558 30 l6 6 11-15" fill="none" stroke="#173B52" strokeWidth="4"/></g>
-  </svg></div>;
-}
-const RevealFrames = ({ frames, frame }) => { const t = useT(); const currentFrame = Math.max(0, Math.min(frame, frames.length - 1)); return <div className="reveal-grid">{frames.map((item, index) => <div className={index <= frame ? 'reveal-card show' : 'reveal-card'} data-current={index === currentFrame ? 'true' : undefined} key={index}><b>{index + 1}</b><span>{t(item)}</span></div>)}</div>; };
-const GuidedFramePanel = ({ frames, step, onAdvance, audioReady }) => { const t = useT(); const complete = step >= frames.length - 1; return <div className="guided-panel" aria-live="polite"><div className="guided-progress" aria-label={`${step + 1} / ${frames.length}`}>{frames.map((_, index) => <i className={index <= step ? 'active' : ''} key={index}/>)}</div><div className="guided-frame"><b>{step + 1}</b><span>{t(frames[step])}</span></div><div className="guided-action">{complete ? <span className="guided-complete">✓ {t(bi('Bosqichlar tugadi', 'Шаги завершены', 'Steps complete'))}</span> : <button type="button" className="btn-white-accent step-button" disabled={!audioReady} onClick={onAdvance}>{t(bi('Keyingi qadam', 'Следующий шаг', 'Next step'))} →</button>}</div></div>; };
-function HookScreen({ screen, storedAnswer, onAnswer, onPrev, onNext }) { const t = useT(); const c = CONTENT.s0; const audio = useNarration(c.audio, screen); const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null); const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0); const answerReady = isAudioReady(audio); const choose = (index) => { if (!answerReady) return; const nextAttempts = attempts + 1; setPicked(index); setAttempts(nextAttempts); audio.pushOneOff(t(HOOK_FEEDBACK)); onAnswer({ stage: SCREEN_META[screen].scope, screenIdx: screen, question: t(c.question), options: c.options.map((option) => t(option)), correctIndex: null, correctAnswer: null, studentAnswerIndex: index, studentAnswer: t(c.options[index]), correct: true, firstTry: storedAnswer?.firstTry ?? true, attempts: nextAttempts, wrongChoices: [] }); }; return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={picked !== null}><div className="stack hook-stack" data-g4-screen="hook"><header className="hook-intro"><span data-g4-role="hook-topic">{t(c.eyebrow)}</span><h1 data-g4-role="hook-title">{t(c.title)}</h1><h2 data-g4-role="hook-question">{t(c.question)}</h2></header><section className="hook-card" data-g4-role="hook-scene"><div className="hook-visual-frame" data-g4-role="visual-frame"><div className="hook-visual-content"><div className="hook-model"><ConversionVisual scene={c.scene} frame={audio.frame}/></div><RevealFrames frames={c.frames} frame={audio.frame}/></div><div className="hook-bit" data-g4-role="hook-bit"><BitSVG state="think"/></div></div></section><section className="question hook-question hook-answers" aria-live="polite"><div className="options">{c.options.map((option, index) => <button type="button" data-g4-role="answer-card" className={'option ' + (picked === index ? 'picked' : '')} disabled={!answerReady} onClick={() => choose(index)} key={index}><b>{String.fromCharCode(65 + index)}</b><span>{t(option)}</span></button>)}</div><div className="feedback-slot hook-feedback-slot">{picked !== null && <div className="feedback open neutral" data-g4-role="feedback-frame" data-g4-feedback="diagnostic"><div className="feedback-bit-wrap" data-g4-role="feedback-bit"><BitSVG className="feedback-bit" state="nod"/></div><p>{t(HOOK_FEEDBACK)}</p></div>}</div></section></div></Stage>; }
-function InfoScreen({ screen, onPrev, onNext }) { const c = CONTENT[`s${screen}`]; const [step, setStep] = useState(0); const audio = useGuidedNarration(c.audio, screen, step); const complete = step >= c.frames.length - 1; const audioReady = isAudioReady(audio); const advance = () => { if (complete || !audioReady) return; const nextStep = step + 1; setStep(nextStep); audio.speakStep(nextStep); }; const bitState = screen === 7 ? 'happy' : ['focus', 'point', 'idea'][(screen - 1) % 3]; return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={complete}><div className="stack info-stack"><Heading c={c} state={bitState} showBit/><section className="model-card guided-card"><ConversionVisual scene={c.scene} frame={step}/><GuidedFramePanel frames={c.frames} step={step} onAdvance={advance} audioReady={audioReady}/></section></div></Stage>; }
-function QuestionScreen({ screen, storedAnswer, onAnswer, onPrev, onNext }) { const t = useT(); const c = CONTENT[`s${screen}`]; const audio = useNarration(c.audio, screen); const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null); const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0); const [wrongChoices, setWrongChoices] = useState(storedAnswer?.wrongChoices ?? []); const openChoice = SCREEN_META[screen].type === 'strategy'; const revealed = picked !== null; const correct = openChoice ? revealed : picked === c.correctIndex; const canAnswer = isAudioReady(audio); const baseBitState = screen === 12 ? 'awkward' : screen === 13 ? 'point' : 'focus'; const bitState = revealed ? (correct ? 'nod' : 'awkward') : baseBitState; const choose = (index) => { if (!canAnswer || correct || wrongChoices.includes(index)) return; const ok = openChoice || index === c.correctIndex; const nextAttempts = attempts + 1; const nextWrongChoices = ok ? wrongChoices : [...wrongChoices, index]; setPicked(index); setAttempts(nextAttempts); setWrongChoices(nextWrongChoices); playSfx(ok ? 'correct' : 'wrong'); audio.pushOneOff(t(ok ? c.audio.on_correct : c.feedbackAudio[index])); onAnswer({ stage: SCREEN_META[screen].scope, screenIdx: screen, question: t(c.question), options: c.options.map((option) => t(option)), correctIndex: c.correctIndex, correctAnswer: t(c.options[c.correctIndex]), studentAnswerIndex: index, studentAnswer: t(c.options[index]), correct: ok, firstTry: storedAnswer?.firstTry === false ? false : nextAttempts === 1 && ok, attempts: nextAttempts, wrongChoices: nextWrongChoices }); }; const showProof = !openChoice && (correct || (!correct && wrongChoices.length >= 2)); return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={correct}><div className="stack question-stack"><Heading c={c} state={bitState} showBit/><section className="test-layout"><div className="test-model"><ConversionVisual scene={c.scene} frame={audio.frame}/><RevealFrames frames={c.frames} frame={audio.frame}/></div><div className="question" aria-live="polite"><h2>{t(c.question)}</h2><div className="options">{c.options.map((option, index) => { const cls = openChoice && picked === index ? 'picked' : index === c.correctIndex && correct ? 'right' : wrongChoices.includes(index) ? 'bad' : ''; return <button type="button" className={'option ' + cls} disabled={!canAnswer || correct || wrongChoices.includes(index)} onClick={() => choose(index)} key={index}><b>{String.fromCharCode(65 + index)}</b><span>{t(option)}</span></button>; })}</div><div className="feedback-slot question-feedback-slot">{revealed && <div className="feedback-stack"><div className={'feedback open ' + (correct ? 'correct' : 'wrong')} data-g4-role={correct ? 'feedback-frame bit-answer-comment' : 'feedback-frame'} data-g4-feedback={correct ? 'solution' : 'wrong'}><span className="feedback-bit-wrap" data-g4-role="feedback-bit"><BitSVG state={correct ? "nod" : "awkward"}/></span><p>{correct && <b className="proof-label">{t(SOLUTION_LABEL)}: </b>}{t(correct ? c.audio.on_correct : c.audio.on_wrong[picked])}</p></div>{showProof && <div className="proof"><b className="proof-label">{t(SOLUTION_LABEL)}</b><span>{t(c.proof)}</span></div>}</div>}</div></div></section></div></Stage>; }
-const Screen0 = (props) => <HookScreen {...props}/>;
-const Screen1 = (props) => <InfoScreen {...props}/>;
-const Screen2 = (props) => <InfoScreen {...props}/>;
-const Screen3 = (props) => <InfoScreen {...props}/>;
-const Screen4 = (props) => <InfoScreen {...props}/>;
-const Screen5 = (props) => <InfoScreen {...props}/>;
-const Screen6 = (props) => <InfoScreen {...props}/>;
-const Screen7 = (props) => <InfoScreen {...props}/>;
-const Screen8 = (props) => <QuestionScreen {...props}/>;
-const Screen9 = (props) => <QuestionScreen {...props}/>;
-const Screen10 = (props) => <QuestionScreen {...props}/>;
-const Screen11 = (props) => <QuestionScreen {...props}/>;
-const Screen12 = (props) => <QuestionScreen {...props}/>;
-const Screen13 = (props) => <QuestionScreen {...props}/>;
-function Screen14({ screen, answers, onPrev, finishLesson, finalState, onFinalState }) {
-  const t = useT(); const c = CONTENT.s14; const storedAnswer = finalState; const [step, setStep] = useState(storedAnswer.step); const [reflection, setReflection] = useState(storedAnswer.reflection); const [titleClaimed, setTitleClaimed] = useState(storedAnswer?.titleClaimed === true); const [revealRequested, setRevealRequested] = useState(false); const audio = useGuidedNarration(c.audio, screen, step); const complete = step >= c.frames.length - 1; const audioReady = isAudioReady(audio); const titleState = titleClaimed ? 'claimed' : 'unclaimed';
-  const advance = () => { if (complete || !audioReady) return; const nextStep = step + 1; setStep(nextStep); onFinalState((previous) => ({ ...previous, step: nextStep })); audio.speakStep(nextStep); };
-  const chooseReflection = (index) => { setReflection(index); onFinalState((previous) => ({ ...previous, reflection: index })); };
-  const claimTitle = () => { if (reflection === null) return; if (!complete || !audioReady || titleClaimed || revealRequested) return; setRevealRequested(true); };
-  const completeReveal = useCallback(() => { setRevealRequested(false); setTitleClaimed(true); onFinalState((previous) => ({ ...previous, titleClaimed: true })); }, [onFinalState]);
-  const finish = () => { if (reflection === null || !titleClaimed) return; finishLesson(); };
-return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={finish} canAdvance={complete && reflection !== null} canFinish={titleState === 'claimed'} finish><div className="stack summary-stack"><Heading c={c} state={titleState === 'claimed' ? 'happy' : 'idea'} showBit/>{!complete ? <section className="model-card summary-card guided-card"><ConversionVisual scene={c.scene} frame={step}/><GuidedFramePanel frames={c.frames} step={step} onAdvance={advance} audioReady={audioReady}/></section> : <div className="summary-complete"><section className="reflection-card final-reflection" data-g4-role="reflection" aria-live="polite"><h2>{t(REFLECTION.question)}</h2><div className="reflection-options">{REFLECTION.options.map((option, index) => <button type="button" className={'option ' + (reflection === index ? 'picked' : '')} disabled={!audioReady || revealRequested} onClick={() => chooseReflection(index)} key={index}><b>{String.fromCharCode(65 + index)}</b><span>{t(option)}</span></button>)}</div></section><G4TitleReveal active={revealRequested} title={LESSON_REWARD_TITLE} onComplete={completeReveal}/>{titleState !== 'claimed' ? <section className="title-claim-card"><span>★</span><h2>{t(LESSON_REWARD_TITLE)}</h2><button type="button" data-g4-role="title-claim" className="btn-white-accent g4-title-claim" disabled={reflection === null || revealRequested || !audioReady} onClick={claimTitle}>{t(bi('Unvonni olish', 'Получить звание', 'Claim title'))}</button></section> : null}{titleState === 'claimed' && <G4TitleCard title={LESSON_REWARD_TITLE} answers={answers}/>}</div>}</div></Stage>;
-}
-const SCREENS = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14];
-export default function Grade4Dars41({ studentName, lang: langProp, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished, previewMode }) { const showPreviewControls = langProp === undefined || langProp === null; const preview = previewMode ?? showPreviewControls; const initialLang = normalizeLang(langProp); const [previewLang, setPreviewLang] = useState(initialLang); const lang = showPreviewControls ? normalizeLang(previewLang) : normalizeLang(langProp); configureLesson({ ttsApiBase: ttsApiBase || '', voiceGender: voiceGender || 'f', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', previewMode: preview }); const [current, setCurrent] = useState(0); const [answers, setAnswers] = useState([]); const [finalState, setFinalState] = useState({ step: 0, reflection: null, titleClaimed: false }); const [startedAt] = useState(() => Date.now()); const finished = useRef(false); const recordAnswer = useCallback((answer) => setAnswers((previous) => { const next = [...previous]; const old = previous[answer.screenIdx]; next[answer.screenIdx] = { ...answer, firstTry: old ? old.firstTry : answer.firstTry }; return next; }), []); const finishLesson = useCallback(() => { if (finished.current) return; finished.current = true; const scored = SCREEN_META.map((meta, index) => meta.scored ? index : null).filter((index) => index !== null); const firstTryCorrect = scored.filter((index) => answers[index]?.firstTry === true).length; const payload = { lessonId: LESSON_META.lessonId, lessonTitle: LESSON_META.lessonTitle[lang], studentName: studentName || null, durationSec: Math.floor((Date.now() - startedAt) / 1000), totalQuestions: scored.length, correctAnswers: firstTryCorrect, scorePercent: Math.round(firstTryCorrect / scored.length * 100), finalScore: firstTryCorrect, finalTotal: scored.length, passed: firstTryCorrect / scored.length >= 0.6, firstTryStats: { total: scored.length, firstTryCorrect }, attemptsTotal: scored.reduce((sum, index) => sum + (answers[index]?.attempts ?? 0), 0), skillTags: LESSON_META.skillTags, answers: answers.filter(Boolean) }; if (onFinished) onFinished(payload); else console.log('[Grade4 Dars41 preview]', payload); }, [answers, lang, onFinished, startedAt, studentName]); const Current = SCREENS[current]; return <LangContext.Provider value={lang}><style>{STYLES}</style><div className={'lesson-root ' + (preview ? 'lesson-root-preview' : '')}>{showPreviewControls && <div className="preview-language" aria-label={bi("Ko'rish tili", 'Язык предпросмотра', 'Preview language')[lang]}>{['uz', 'ru', 'en'].map((code) => <button type="button" key={code} className={previewLang === code ? 'preview-active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}<Current key={current} screen={current} storedAnswer={answers[current]} answers={answers} onAnswer={recordAnswer} finalState={finalState} onFinalState={setFinalState} onPrev={() => setCurrent((value) => Math.max(0, value - 1))} onNext={() => setCurrent((value) => Math.min(TOTAL_SCREENS - 1, value + 1))} finishLesson={finishLesson}/></div></LangContext.Provider>; }
 
-const TOPIC_STYLES = `
-.topic-visual{width:100%;min-height:156px;display:grid;place-items:center;padding:8px 10px;border-radius:18px;background:linear-gradient(145deg,#FFFFFF,#EEF5F3);box-shadow:0 16px 34px -27px rgba(58,53,48,.58);overflow:hidden}
-.topic-visual svg{display:block;width:min(100%,680px);height:auto;max-height:210px}
-.topic-step{opacity:0;transform:translateY(8px) scale(.985);transform-origin:center;transition:opacity .5s ease,transform .6s cubic-bezier(.16,1,.3,1)}
-.topic-step.topic-on{opacity:1;transform:none;animation:topic-micro-in .62s cubic-bezier(.16,1,.3,1) both}
-.topic-v39 .topic-step.topic-on circle,.topic-v43 .topic-step.topic-on circle{animation:topic-pulse 1.8s ease-in-out 2}
-.topic-v41 .topic-step.topic-on:nth-child(3){transition:transform .8s ease}
-@keyframes topic-micro-in{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
-@keyframes topic-pulse{0%,100%{filter:drop-shadow(0 0 0 rgba(149,201,61,0))}50%{filter:drop-shadow(0 0 8px rgba(149,201,61,.8))}}
-@media (max-width:640px){.topic-visual{min-height:128px;padding:4px}.topic-visual svg{max-height:160px}}
-@media (prefers-reduced-motion:reduce){.topic-step,.topic-step.topic-on{animation:none!important;transition:none!important;opacity:1;transform:none}.topic-v39 circle,.topic-v43 circle{animation:none!important}}
+// Bitta panel: `kind` naqsh turini beradi.
+//   mirror — o'qqa nisbatan simmetrik
+//   copy   — o'ng yarim ko'chirma
+//   shift  — o'ng yarim pastga siljigan
+//   spin   — parrakcha (burish bor, o'q yo'q)
+//   plain  — tartibsiz (ikkalasi ham yo'q)
+const PatternPanel = ({ x, y, w, h, kind, state = 'idle', label, bare = false }) => {
+  const cx = x + w / 2;
+  const cy = y + h / 2;
+  const dx = w * 0.19;
+  const dy = h * 0.19;
+  const tone = state === 'right' ? T.success : state === 'wrong' ? T.accent : WOOD_DARK;
+  const glass = state === 'right' ? '#EAF6EF' : state === 'wrong' ? '#FDECE6' : GLASS;
+  const s = Math.min(w, h) / 210;
+  const leaves = [];
+  if (kind === 'spin') {
+    [0, 90, 180, 270].forEach((a) => leaves.push({ x: cx, y: cy, dir: 1, rot: a, off: dx }));
+  } else if (kind === 'plain') {
+    leaves.push({ x: cx - dx, y: cy - dy, dir: 1 }, { x: cx + dx, y: cy - dy, dir: 1 },
+      { x: cx - dx * 0.2, y: cy + dy, dir: -1 });
+  } else {
+    const rightDir = kind === 'mirror' || kind === 'shift' ? -1 : 1;
+    const drop = kind === 'shift' ? dy * 0.55 : 0;
+    leaves.push({ x: cx - dx, y: cy - dy, dir: 1 }, { x: cx - dx, y: cy + dy, dir: 1 },
+      { x: cx + dx, y: cy - dy + drop, dir: rightDir }, { x: cx + dx, y: cy + dy + drop, dir: rightDir });
+  }
+  return (
+    <g>
+      {!bare && <PanelBox x={x} y={y} w={w} h={h} glass={glass} stroke={tone} width={state === 'idle' ? 3 : 4} />}
+      {kind !== 'spin' && kind !== 'plain' && <AxisLine x={cx} y1={y + 10} y2={y + h - 10} tone={T.cyan} />}
+      {leaves.map((leaf, index) => (leaf.rot !== undefined
+        ? (
+          <g key={index} transform={`rotate(${leaf.rot} ${cx} ${cy})`}>
+            <Leaf x={cx + leaf.off} y={cy} dir={1} s={s * 0.72} />
+          </g>
+        )
+        : <Leaf key={index} x={leaf.x} y={leaf.y} dir={leaf.dir} s={s * 0.72} />))}
+      {label && (
+        <text x={cx} y={y + h + 24} textAnchor="middle" fill={tone} fontSize="16" fontWeight="800" fontFamily="JetBrains Mono, monospace">
+          {label}
+        </text>
+      )}
+    </g>
+  );
+};
+
+// s2 va s14: uchta bir xil o'lchamli ramka, markazda.
+const PanelRow = ({ kinds, picked, solved, correctIndex }) => {
+  const w = 226;
+  const h = 238;
+  const gap = 26;
+  const total = kinds.length * w + (kinds.length - 1) * gap;
+  const x0 = (780 - total) / 2;
+  return (
+    <FitSvg viewBox="0 0 780 300">
+      {kinds.map((kind, index) => {
+        const state = solved && index === correctIndex
+          ? 'right'
+          : picked === index && !solved ? 'wrong' : 'idle';
+        return (
+          <PatternPanel
+            key={kind + index}
+            x={x0 + index * (w + gap)}
+            y={14}
+            w={w}
+            h={h}
+            kind={kind}
+            state={state}
+            label={String(index + 1)}
+          />
+        );
+      })}
+    </FitSvg>
+  );
+};
+
+// Katakli maydon: o'q, nuqta va uning aksi.
+const CELL = 26;
+const GX = 62;
+const GY = 30;
+const gx = (col) => GX + col * CELL;
+const gy = (row) => GY + row * CELL;
+const AXIS_COL = 10;
+
+const GridBase = ({ cols = 20, rows = 7 }) => (
+  <g>
+    <rect x={GX} y={GY} width={cols * CELL} height={rows * CELL} rx="8" fill="#FBFDF7" stroke="rgba(23,59,82,.12)" strokeWidth="1.5" />
+    {Array.from({ length: cols + 1 }, (_, index) => (
+      <line key={`v${index}`} x1={gx(index)} y1={GY} x2={gx(index)} y2={gy(rows)} stroke="rgba(23,59,82,.10)" strokeWidth="1" />
+    ))}
+    {Array.from({ length: rows + 1 }, (_, index) => (
+      <line key={`h${index}`} x1={GX} y1={gy(index)} x2={gx(cols)} y2={gy(index)} stroke="rgba(23,59,82,.10)" strokeWidth="1" />
+    ))}
+  </g>
+);
+
+const Dot = ({ col, row, tone, name, ghost = false }) => (
+  <g>
+    <circle cx={gx(col)} cy={gy(row)} r="7.5" fill={ghost ? 'none' : tone} stroke={tone} strokeWidth="2.4" strokeDasharray={ghost ? '4 4' : undefined} />
+    {name && (
+      <text x={gx(col)} y={gy(row) - 14} textAnchor="middle" fill={tone} fontSize="15" fontWeight="800" fontFamily="JetBrains Mono, monospace">
+        {name}
+      </text>
+    )}
+  </g>
+);
+
+const Span = ({ fromCol, toCol, row, tone, text }) => (
+  <g>
+    <line x1={gx(fromCol)} y1={gy(row)} x2={gx(toCol)} y2={gy(row)} stroke={tone} strokeWidth="2" strokeDasharray="5 4" />
+    <text x={(gx(fromCol) + gx(toCol)) / 2} y={gy(row) + 22} textAnchor="middle" fill={tone} fontSize="14" fontWeight="800" fontFamily="JetBrains Mono, monospace">
+      {text}
+    </text>
+  </g>
+);
+
+// s3: masofa qoidasi.
+const AxisGrid = ({ frame }) => {
+  const t = useT();
+  const row = 3;
+  return (
+    <FitSvg viewBox="0 0 640 250">
+      <GridBase />
+      <AxisLine x={gx(AXIS_COL)} y1={GY - 6} y2={gy(7) + 6} />
+      <text x={gx(AXIS_COL)} y={GY - 12} textAnchor="middle" fill={T.accent} fontSize="12" fontWeight="800" fontFamily="Manrope, sans-serif">
+        {t({ uz: "simmetriya o'qi", ru: 'ось симметрии', en: 'axis of symmetry' })}
+      </text>
+      {frame >= 1 && <Dot col={7} row={row} tone={T.cyan} name="A" />}
+      {frame >= 1 && <Span fromCol={7} toCol={AXIS_COL} row={row} tone={T.cyan} text="3" />}
+      {frame >= 2 && <Span fromCol={AXIS_COL} toCol={13} row={row} tone={T.success} text="3" />}
+      {frame >= 2 && <Dot col={13} row={row} tone={T.success} name="A'" />}
+      {frame >= 3 && (
+        <text x="320" y="240" textAnchor="middle" fill={T.ink2} fontSize="14" fontWeight="750" fontFamily="Manrope, sans-serif">
+          {t({ uz: "o'qdan chapga 3, o'ngga ham 3", ru: 'от оси влево 3 и вправо тоже 3', en: 'three left of the axis and three right' })}
+        </text>
+      )}
+    </FitSvg>
+  );
+};
+
+// s4: aksni o'z katagiga qo'yish. `picked` — tanlangan slot.
+const AxisPlace = ({ solved, picked }) => {
+  const t = useT();
+  const row = 3;
+  const cols = [12, 14, 16];
+  return (
+    <FitSvg viewBox="0 0 640 250">
+      <GridBase />
+      <AxisLine x={gx(AXIS_COL)} y1={GY - 6} y2={gy(7) + 6} />
+      <Dot col={6} row={row} tone={T.cyan} name="B" />
+      <Span fromCol={6} toCol={AXIS_COL} row={row} tone={T.cyan} text="4" />
+      {cols.map((col, index) => {
+        const chosen = picked === index;
+        const right = solved && index === 1;
+        const tone = right ? T.success : chosen ? T.accent : T.ink3;
+        return <Dot key={col} col={col} row={row} tone={tone} ghost={!chosen && !right} name={right ? "B'" : null} />;
+      })}
+      {solved && <Span fromCol={AXIS_COL} toCol={14} row={row} tone={T.success} text="4" />}
+      <text x="320" y="240" textAnchor="middle" fill={T.ink2} fontSize="14" fontWeight="750" fontFamily="Manrope, sans-serif">
+        {t({ uz: "masofa o'qdan sanaladi", ru: 'расстояние считают от оси', en: 'the distance is counted from the axis' })}
+      </text>
+    </FitSvg>
+  );
+};
+
+const SQ = { c1: 4, c2: 8, r1: 1, r2: 4 };
+const mirrorCol = (col) => 2 * AXIS_COL - col;
+
+// s5 — ikki qadamli ekran (metodist qarori 2026-08-19).
+//   1-qadam: ovoz bilan birinchi uch ko'zguga qanday o'tishi ko'rsatiladi.
+//   2-qadam: qolgan uchta uchni BOLA O'ZI qo'yadi — katakli maydonning o'ng
+//            yarmi tegiladigan bo'ladi, faol uch chapda yonib turadi.
+// Hamma uch qo'yilgach kvadrat o'zi tutashadi.
+const MIRROR_DEMO = [SQ.c1, SQ.r1];
+const MIRROR_TARGETS = [[SQ.c2, SQ.r1], [SQ.c2, SQ.r2], [SQ.c1, SQ.r2]];
+const HOT_COLS = [11, 12, 13, 14, 15, 16, 17, 18, 19];
+const HOT_ROWS = [0, 1, 2, 3, 4, 5, 6];
+
+const MirrorBuild = ({ frame, placed, done, canPlace, onPick }) => {
+  const t = useT();
+  const corners = [[SQ.c1, SQ.r1], [SQ.c2, SQ.r1], [SQ.c2, SQ.r2], [SQ.c1, SQ.r2]];
+  const placedSet = placed ?? new Set();
+  const showDemo = frame >= 1 || canPlace;
+  const activeIndex = Math.min(placedSet.size, MIRROR_TARGETS.length - 1);
+  const [aCol, aRow] = MIRROR_TARGETS[activeIndex];
+  const live = canPlace && !done;
+  const points = corners.map(([col, row]) => `${gx(mirrorCol(col))},${gy(row)}`).join(' ');
+  return (
+    <FitSvg viewBox="0 0 640 250">
+      <GridBase />
+      <AxisLine x={gx(AXIS_COL)} y1={GY - 6} y2={gy(7) + 6} />
+      <polygon
+        points={corners.map(([col, row]) => `${gx(col)},${gy(row)}`).join(' ')}
+        fill="rgba(149,201,61,.18)"
+        stroke={T.cyan}
+        strokeWidth="2.6"
+      />
+
+      {/* 1-qadam: namuna uch. Chapdagi manba uch ham nuqta bilan belgilanadi —
+          bola qaysi uch ko'chirilayotganini ko'rib turadi. */}
+      {showDemo && (
+        <g>
+          <line
+            x1={gx(MIRROR_DEMO[0])}
+            y1={gy(MIRROR_DEMO[1])}
+            x2={gx(mirrorCol(MIRROR_DEMO[0]))}
+            y2={gy(MIRROR_DEMO[1])}
+            stroke={T.success}
+            strokeWidth="1.6"
+            strokeDasharray="4 4"
+          />
+          <Dot col={MIRROR_DEMO[0]} row={MIRROR_DEMO[1]} tone={T.cyan} />
+          <Dot col={mirrorCol(MIRROR_DEMO[0])} row={MIRROR_DEMO[1]} tone={T.success} />
+        </g>
+      )}
+
+      {/* 2-qadam: bola qo'ygan uchlar — chapdagi juftligi bilan birga */}
+      {MIRROR_TARGETS.map(([col, row], index) => (placedSet.has(`${col},${row}`) ? (
+        <g key={`p${index}`}>
+          <line x1={gx(col)} y1={gy(row)} x2={gx(mirrorCol(col))} y2={gy(row)} stroke={T.success} strokeWidth="1.6" strokeDasharray="4 4" />
+          <Dot col={col} row={row} tone={T.cyan} />
+          <Dot col={mirrorCol(col)} row={row} tone={T.success} />
+        </g>
+      ) : null))}
+
+      {done && <polygon points={points} fill="rgba(34,122,83,.16)" stroke={T.success} strokeWidth="2.6" />}
+
+      {/* faol uch va tegiladigan kataklar */}
+      {live && (
+        <g>
+          {/* Faol uch chapda: to'ldirilgan nuqta + halqa. */}
+          <Dot col={aCol} row={aRow} tone={T.accent} />
+          <circle cx={gx(aCol)} cy={gy(aRow)} r="12" fill="none" stroke={T.accent} strokeWidth="2.2" opacity="0.55" />
+          <line x1={gx(aCol)} y1={gy(aRow)} x2={gx(AXIS_COL)} y2={gy(aRow)} stroke={T.accent} strokeWidth="1.6" strokeDasharray="4 4" />
+          {/* Tegiladigan zona ko'rinmaydi: ortiqcha katak chizilmaydi,
+              maydonning o'z panjarasi yetarli (metodist qarori). */}
+          {HOT_ROWS.map((row) => HOT_COLS.map((col) => (
+            <rect
+              key={`h${col}-${row}`}
+              x={gx(col) - CELL / 2}
+              y={gy(row) - CELL / 2}
+              width={CELL}
+              height={CELL}
+              fill="transparent"
+              stroke="none"
+              style={{ cursor: 'pointer' }}
+              onClick={() => onPick(col === mirrorCol(aCol) && row === aRow, `${aCol},${aRow}`)}
+            />
+          )))}
+        </g>
+      )}
+
+      <text x="320" y="240" textAnchor="middle" fill={T.ink2} fontSize="14" fontWeight="750" fontFamily="Manrope, sans-serif">
+        {done
+          ? t({ uz: 'uchlar tutashdi — kvadrat tayyor', ru: 'вершины соединились — квадрат готов', en: 'the vertices joined — the square is ready' })
+          : live
+            ? t({ uz: "belgilangan uchning aksini bosing", ru: 'нажми клетку отражения отмеченной вершины', en: 'tap the cell where the marked vertex is reflected' })
+            : t({ uz: "har uch — o'z masofasiga", ru: 'каждая вершина — на своё расстояние', en: 'each vertex to its own distance' })}
+      </text>
+    </FitSvg>
+  );
+};
+
+// s6: to'rtta bir xil ramka, har birida o'q, asl kvadrat va nomzod.
+const MIRROR_CANDIDATES = [
+  { shift: 2, drop: 0, turn: 0 },
+  { shift: -2, drop: 0, turn: 0 },
+  { shift: 0, drop: 0, turn: 0 },
+  { shift: 0, drop: 0, turn: 38 },
+];
+
+const MirrorChoice = ({ picked, solved, correctIndex }) => {
+  const w = 182;
+  const h = 232;
+  const gap = 14;
+  const total = 4 * w + 3 * gap;
+  const x0 = (800 - total) / 2;
+  const cell = 15;
+  return (
+    <FitSvg viewBox="0 0 800 300">
+      {MIRROR_CANDIDATES.map((cand, index) => {
+        const state = solved && index === correctIndex
+          ? 'right'
+          : picked === index && !solved ? 'wrong' : 'idle';
+        const tone = state === 'right' ? T.success : state === 'wrong' ? T.accent : WOOD_DARK;
+        const glass = state === 'right' ? '#EAF6EF' : state === 'wrong' ? '#FDECE6' : GLASS;
+        const x = x0 + index * (w + gap);
+        const ax = x + w / 2;
+        const top = 32;
+        const src = [[-4, 0], [-1.6, 0], [-1.6, 2.4], [-4, 2.4]];
+        const dst = src.map(([cx, cy]) => [-cx + cand.shift, cy + cand.drop]);
+        const toPt = ([cx, cy]) => `${ax + cx * cell},${top + 44 + cy * cell}`;
+        const cxm = dst.reduce((sum, p) => sum + p[0], 0) / 4;
+        const cym = dst.reduce((sum, p) => sum + p[1], 0) / 4;
+        return (
+          <g key={index}>
+            <PanelBox x={x} y={top} w={w} h={h} glass={glass} stroke={tone} width={state === 'idle' ? 2.6 : 4} bars={false} />
+            <AxisLine x={ax} y1={top + 10} y2={top + h - 10} tone={T.cyan} />
+            <polygon points={src.map(toPt).join(' ')} fill="rgba(23,59,82,.10)" stroke={T.ink3} strokeWidth="2" />
+            <g transform={cand.turn ? `rotate(${cand.turn} ${ax + cxm * cell} ${top + 44 + cym * cell})` : undefined}>
+              <polygon points={dst.map(toPt).join(' ')} fill="rgba(255,91,53,.14)" stroke={T.accent} strokeWidth="2.4" />
+            </g>
+            <text x={ax} y={top + h + 22} textAnchor="middle" fill={tone} fontSize="16" fontWeight="800" fontFamily="JetBrains Mono, monospace">
+              {index + 1}
+            </text>
+          </g>
+        );
+      })}
+    </FitSvg>
+  );
+};
+
+// s7, s8, s10: burish. `n` — bir aylanishdagi mos tushishlar soni.
+// Burish silliq va AYLANA ICHIDA bo'ladi (metodist qarori 2026-08-19):
+//   * shakl aylananing ichiga qirqiladi (clipPath) va radiusi halqadan kichik —
+//     hech qachon halqadan chiqmaydi;
+//   * burilish qadam-baqadam, har qadam CSS transition bilan silliq o'tadi va
+//     mos tushgan joyda bir lahza to'xtaydi — bola aynan mos tushishni ko'radi;
+//   * halqada har bir mos tushish burchagida belgi bor, o'tilgani yonadi.
+// prefers-reduced-motion da harakat yo'q: shakl yakuniy holatda turadi.
+const ROTOR_STEP_MS = 1500;
+
+const RotorFigure = ({ n, mode = 'rosette', running = true, solved = false, showAngle = false }) => {
+  const t = useT();
+  const reduced = usePrefersReducedMotion();
+  const [tick, setTick] = useState(0);
+  const step = 360 / n;
+  const auto = running && !reduced;
+
+  useEffect(() => {
+    if (!auto) return undefined;
+    let value = 0;
+    const id = window.setInterval(() => {
+      value += 1;
+      setTick(value);
+      if (value >= n * 2) window.clearInterval(id);
+    }, ROTOR_STEP_MS);
+    return () => window.clearInterval(id);
+  }, [auto, n]);
+
+  // Harakat o'chirilgan bo'lsa shakl yakuniy holatda turadi.
+  const turn = auto ? tick : n;
+  const matches = Math.min(turn, n);
+  const angle = step * turn;
+  const cx = 176;
+  const cy = 125;
+  const ring = 108;
+  const reach = 74;               // shakl radiusi — halqadan ancha ichkarida
+  const clipId = `d41rotor-${mode}-${n}`;
+  const petals = Array.from({ length: n }, (_, index) => index);
+
+  return (
+    <FitSvg viewBox="0 0 640 250">
+      <defs>
+        <clipPath id={clipId}>
+          <circle cx={cx} cy={cy} r={ring - 4} />
+        </clipPath>
+      </defs>
+
+      {/* halqa va mos tushish belgilari */}
+      <circle cx={cx} cy={cy} r={ring} fill="#F7FBF5" stroke="rgba(23,59,82,.14)" strokeWidth="1.6" />
+      {petals.map((index) => {
+        const a = ((index * step - 90) * Math.PI) / 180;
+        const lit = index < matches;
+        return (
+          <circle
+            key={`tick-${index}`}
+            cx={cx + (ring + 9) * Math.cos(a)}
+            cy={cy + (ring + 9) * Math.sin(a)}
+            r={lit ? 6 : 4}
+            fill={lit ? T.lime : 'rgba(23,59,82,.18)'}
+            style={{ transition: 'fill .3s ease, r .3s ease' }}
+          />
+        );
+      })}
+
+      <g clipPath={`url(#${clipId})`}>
+        <g
+          transform={`rotate(${angle} ${cx} ${cy})`}
+          style={{ transition: `transform ${ROTOR_STEP_MS - 400}ms cubic-bezier(.32,.06,.28,1)` }}
+        >
+          {mode === 'triangle'
+            ? (
+              <g>
+                <polygon
+                  points={petals.map((index) => {
+                    const a = ((index * 120 - 90) * Math.PI) / 180;
+                    return `${cx + reach * Math.cos(a)},${cy + reach * Math.sin(a)}`;
+                  }).join(' ')}
+                  fill="rgba(149,201,61,.20)"
+                  stroke={T.cyan}
+                  strokeWidth="3"
+                  strokeLinejoin="round"
+                />
+                <circle cx={cx} cy={cy - reach} r="8" fill={T.accent} />
+              </g>
+            )
+            : petals.map((index) => (
+              <g key={index} transform={`rotate(${index * step} ${cx} ${cy})`}>
+                <path
+                  d={`M${cx} ${cy - 18} Q${cx + 24} ${cy - 52} ${cx} ${cy - reach} Q${cx - 24} ${cy - 52} ${cx} ${cy - 18} Z`}
+                  fill={index === 0 ? 'rgba(255,91,53,.24)' : 'rgba(149,201,61,.22)'}
+                  stroke={index === 0 ? T.accent : T.cyan}
+                  strokeWidth="2.4"
+                  strokeLinejoin="round"
+                />
+              </g>
+            ))}
+        </g>
+      </g>
+      <circle cx={cx} cy={cy} r="6" fill={T.navy} />
+
+      <g>
+        <text x="330" y="62" fill={T.ink2} fontSize="14" fontWeight="750" fontFamily="Manrope, sans-serif">
+          {t({ uz: 'mos tushdi', ru: 'совпадений', en: 'matches' })}
+        </text>
+        <text x="330" y="112" fill={T.cyan} fontSize="44" fontWeight="800" fontFamily="JetBrains Mono, monospace">
+          {matches}
+        </text>
+        <text x="330" y="150" fill={T.ink3} fontSize="13" fontWeight="700" fontFamily="Manrope, sans-serif">
+          {t({ uz: 'bir aylanishda', ru: 'за один оборот', en: 'in one full turn' })}
+        </text>
+        {(showAngle || solved) && (
+          <g>
+            <rect x="322" y="166" width="248" height="52" rx="14" fill={T.successSoft} />
+            <text x="446" y="199" textAnchor="middle" fill={T.success} fontSize="21" fontWeight="800" fontFamily="JetBrains Mono, monospace">
+              {`360 : ${n} = ${step}`}
+            </text>
+          </g>
+        )}
+      </g>
+    </FitSvg>
+  );
+};
+
+// s9: bitta naqsh ikki tekshiruvdan alohida o'tadi.
+const SYMMETRY_CASES = [
+  { kind: 'mirror', fold: true, turn: false },
+  { kind: 'spin', fold: false, turn: true },
+  { kind: 'rosette', fold: true, turn: true },
+];
+
+const SymmetryPair = ({ frame }) => {
+  const t = useT();
+  const w = 218;
+  const h = 186;
+  const gap = 24;
+  const total = 3 * w + 2 * gap;
+  const x0 = (780 - total) / 2;
+  return (
+    <FitSvg viewBox="0 0 780 292">
+      {SYMMETRY_CASES.map((item, index) => {
+        const x = x0 + index * (w + gap);
+        const open = frame >= index + 1;
+        const cx = x + w / 2;
+        return (
+          <g key={index}>
+            <PanelBox x={x} y={16} w={w} h={h} stroke={open ? T.cyan : 'rgba(23,59,82,.2)'} width={open ? 3 : 2} />
+            {item.kind === 'rosette'
+              ? Array.from({ length: 4 }, (_, petal) => (
+                <g key={petal} transform={`rotate(${petal * 90} ${cx} ${93})`}>
+                  <path d={`M${cx} 78 Q${cx + 16} 44 ${cx} 32 Q${cx - 16} 44 ${cx} 78 Z`} fill="rgba(22,143,163,.16)" stroke={T.cyan} strokeWidth="2" />
+                </g>
+              ))
+              : (
+                <PatternPanel x={x + 16} y={30} w={w - 32} h={h - 28} kind={item.kind} bare />
+              )}
+            {[['fold', item.fold], ['turn', item.turn]].map(([key, value], badge) => (
+              <g key={key} opacity={open ? 1 : 0.25}>
+                <rect x={x + 14 + badge * 100} y={h + 26} width="90" height="30" rx="15" fill={value ? T.successSoft : T.warnSoft} />
+                <text x={x + 59 + badge * 100} y={h + 46} textAnchor="middle" fill={value ? T.success : T.warn} fontSize="12" fontWeight="800" fontFamily="Manrope, sans-serif">
+                  {key === 'fold'
+                    ? `${t({ uz: 'buklash', ru: 'сгиб', en: 'fold' })} ${value ? '✓' : '✕'}`
+                    : `${t({ uz: 'burish', ru: 'поворот', en: 'turn' })} ${value ? '✓' : '✕'}`}
+                </text>
+              </g>
+            ))}
+          </g>
+        );
+      })}
+    </FitSvg>
+  );
+};
+
+// s11: QOIDA kartasi. Matn ko'p bo'lgani uchun HTML — o'lchami kontentga qarab.
+const RuleCard = ({ frame }) => {
+  const t = useT();
+  const rows = [
+    {
+      badge: '1',
+      tone: T.cyan,
+      head: t({ uz: "O'q simmetriyasi", ru: 'Осевая симметрия', en: 'Line symmetry' }),
+      body: t({
+        uz: "O'zaro simmetrik nuqtalar simmetriya o'qidan ayni bir xil masofada yotadi.",
+        ru: 'Взаимно симметричные точки лежат на одинаковом расстоянии от оси симметрии.',
+        en: 'Mutually symmetric points lie at the same distance from the axis of symmetry.',
+      }),
+      formula: null,
+    },
+    {
+      badge: '2',
+      tone: T.accent,
+      head: t({ uz: 'Burish simmetriyasi', ru: 'Поворотная симметрия', en: 'Rotational symmetry' }),
+      body: t({
+        uz: "Shakl bir aylanishda n marta o'ziga mos tushsa, burish burchagi shunga teng:",
+        ru: 'Если фигура совпадает с собой n раз за оборот, угол поворота равен:',
+        en: 'If a figure matches itself n times in one turn, the turn angle is:',
+      }),
+      formula: '360 : n',
+    },
+  ];
+  return (
+    <div className="d41-rule">
+      {rows.map((row, index) => (
+        <div key={row.badge} className={`d41-rule-row ${frame >= index + 1 ? 'is-open' : ''}`}>
+          <span className="d41-rule-num" style={{ background: row.tone }}>{row.badge}</span>
+          <div>
+            <strong style={{ color: row.tone }}>{row.head}</strong>
+            <p>{row.body}</p>
+          </div>
+          {row.formula && <b className="d41-rule-formula">{row.formula}</b>}
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// s13: Bit pasporti. To'rt qator, bittasi yolg'on.
+const PassportAudit = ({ picked, solved, rows, falseIndex }) => {
+  const t = useT();
+  return (
+    <div className="d41-passport">
+      {rows.map((row, index) => {
+        const isFalse = solved && index === falseIndex;
+        const isPicked = picked === index && !solved;
+        return (
+          <div key={index} className={`d41-row ${isFalse ? 'is-false' : ''} ${isPicked ? 'is-picked' : ''}`}>
+            <span className="d41-row-num">{index + 1}</span>
+            <p>{t(row)}</p>
+            {isFalse && <b>{t({ uz: "yolg'on", ru: 'ложь', en: 'false' })}</b>}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// EKRANLAR
+// ---------------------------------------------------------------------------
+const Screen0 = (props) => (
+  <ChoiceScreen
+    {...props}
+    plain
+    ratio="30 / 11"
+    ordinal={3}
+    figure={({ solved }) => (
+      <div className="hero-scene">
+        <div className="hero-head">
+          <span>LUMO CITY · ARXITEKTURA BYUROSI · NAQSH USTAXONASI</span>
+          {/* Javob berilmaguncha holat NEYTRAL: "NUSXA" so'zi savolning
+              javobini oldindan aytib qo'yardi (METODIK_PROFIL). */}
+          <span className={solved ? 'hero-state' : 'hero-state hero-state-alert'}>
+            {solved ? "KO'ZGU" : 'TEKSHIRUV'}
+          </span>
+        </div>
+        <div className="hero-body">
+          <LatticeWindow mirrored={solved} />
+        </div>
+        <div className="d41-hero-bit" aria-hidden="true"><BitSVG state={solved ? 'happy' : 'think'} /></div>
+      </div>
+    )}
+  />
+);
+const Screen1 = (props) => <RevealScreen {...props} ratio="62 / 25" figure={({ frame }) => <FoldPanel frame={frame} />} />;
+const Screen2 = (props) => (
+  <ChoiceScreen
+    {...props}
+    ordinal={1}
+    ratio="78 / 30"
+    figure={({ solved, picked }) => (
+      <PanelRow kinds={['copy', 'mirror', 'shift']} picked={picked} solved={solved} correctIndex={1} />
+    )}
+  />
+);
+const Screen3 = (props) => <RevealScreen {...props} ratio="64 / 25" figure={({ frame }) => <AxisGrid frame={frame} />} />;
+const Screen4 = (props) => (
+  <SlotScreen
+    {...props}
+    ratio="64 / 25"
+    figure={({ solved, picked }) => <AxisPlace solved={solved} picked={picked} />}
+  />
+);
+const Screen5 = (props) => (
+  <BuildScreen
+    {...props}
+    ratio="64 / 25"
+    figure={({ frame, placed, done, canPlace, onPick }) => (
+      <MirrorBuild frame={frame} placed={placed} done={done} canPlace={canPlace} onPick={onPick} />
+    )}
+  />
+);
+const Screen6 = (props) => (
+  <ChoiceScreen
+    {...props}
+    ordinal={2}
+    ratio="80 / 30"
+    figure={({ solved, picked }) => <MirrorChoice picked={picked} solved={solved} correctIndex={2} />}
+  />
+);
+const Screen7 = (props) => (
+  <RevealScreen {...props} ratio="64 / 25" figure={() => <RotorFigure n={3} mode="triangle" showAngle />} />
+);
+const Screen8 = (props) => (
+  <ChoiceScreen
+    {...props}
+    ordinal={3}
+    ratio="64 / 25"
+    figure={({ solved }) => <RotorFigure n={4} solved={solved} />}
+  />
+);
+const Screen9 = (props) => <RevealScreen {...props} ratio="78 / 29" figure={({ frame }) => <SymmetryPair frame={frame} />} />;
+const Screen10 = (props) => (
+  <ChoiceScreen
+    {...props}
+    ordinal={4}
+    ratio="64 / 25"
+    figure={({ solved }) => <RotorFigure n={6} solved={solved} />}
+  />
+);
+const Screen11 = (props) => <RevealScreen {...props} plain ratio="auto" figure={({ frame }) => <RuleCard frame={frame} />} />;
+const Screen12 = (props) => (
+  <ChoiceScreen
+    {...props}
+    ordinal={5}
+    ratio="64 / 25"
+    figure={({ solved }) => <RotorFigure n={6} solved={solved} />}
+  />
+);
+const Screen13 = (props) => (
+  <ChoiceScreen
+    {...props}
+    plain
+    ratio="auto"
+    ordinal={6}
+    figure={({ solved, picked }) => (
+      <PassportAudit rows={CONTENT.s13.passport} picked={picked} solved={solved} falseIndex={2} />
+    )}
+  />
+);
+const Screen14 = (props) => (
+  <ChoiceScreen
+    {...props}
+    ordinal={7}
+    ratio="78 / 30"
+    figure={({ solved, picked }) => (
+      <PanelRow kinds={['plain', 'spin', 'mirror']} picked={picked} solved={solved} correctIndex={2} />
+    )}
+  />
+);
+const Screen15 = (props) => <SummaryScreen {...props} />;
+
+const SCREENS = [
+  Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7,
+  Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14, Screen15,
+];
+
+// ---------------------------------------------------------------------------
+// Darsning o'z uslublari. Umumiy qatlam — KIT_STYLES.
+// ---------------------------------------------------------------------------
+const LESSON_STYLES = `
+.d41-hero-bit {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 62px;
+  height: 78px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.d41-hero-bit svg { width: 100%; height: 100%; }
+
+.d41-rule { display: grid; gap: 10px; align-content: center; }
+.d41-rule-row {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: ${T.paper};
+  box-shadow: inset 0 0 0 1px rgba(23,59,82,.1), 0 12px 26px -24px rgba(${T.shadowBase}, .5);
+  opacity: .3;
+  transition: opacity .4s ease;
+}
+.d41-rule-row.is-open { opacity: 1; }
+.d41-rule-num {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  color: #FFFFFF;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 900;
+}
+.d41-rule-row strong { display: block; font-size: 13px; letter-spacing: .01em; }
+.d41-rule-row p { margin-top: 3px; color: ${T.ink2}; font-size: clamp(12px, 1.5vw, 14px); line-height: 1.38; }
+.d41-rule-formula {
+  padding: 7px 12px;
+  border-radius: 11px;
+  color: ${T.accent};
+  background: ${T.accentSoft};
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(15px, 2vw, 19px);
+}
+
+.d41-passport { display: grid; gap: 7px; align-content: center; }
+.d41-row {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 13px;
+  background: ${T.paper};
+  box-shadow: inset 0 0 0 1px rgba(23,59,82,.1);
+  transition: background .25s, box-shadow .25s;
+}
+.d41-row p { color: ${T.ink}; font-size: clamp(12px, 1.5vw, 14px); line-height: 1.35; }
+.d41-row-num {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  color: ${T.cyan};
+  background: ${T.cyanSoft};
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 800;
+}
+.d41-row.is-picked { background: #FFF6F3; box-shadow: inset 0 0 0 1.6px rgba(255,91,53,.45); }
+.d41-row.is-false { background: ${T.warnSoft}; box-shadow: inset 0 0 0 1.8px rgba(169,111,19,.45); }
+.d41-row.is-false .d41-row-num { color: ${T.warn}; background: rgba(169,111,19,.14); }
+.d41-row b {
+  padding: 4px 9px;
+  border-radius: 999px;
+  color: ${T.warn};
+  background: rgba(169,111,19,.14);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
 `;
 
-const G4_TITLE_STYLES = `
-.g4-title-reveal-overlay{
-  position:fixed;inset:0;z-index:120;padding:0;display:grid;place-items:center;overflow:hidden;overscroll-behavior:contain;pointer-events:none;
-  background:rgba(8,13,24,.64);backdrop-filter:blur(2px) saturate(.78);animation:g4-title-reveal-overlay-life 3.8s ease both
+export default function Grade4Dars41(props) {
+  return (
+    <TheoryLessonRoot
+      {...props}
+      lessonMeta={LESSON_META}
+      screenMeta={SCREEN_META}
+      totalScreens={TOTAL_SCREENS}
+      frameCounts={FRAME_COUNTS}
+      content={CONTENT}
+      screens={SCREENS}
+      styles={KIT_STYLES + LESSON_STYLES}
+    />
+  );
 }
-.g4-title-reveal-card{
-  position:relative;isolation:isolate;width:100%;min-height:100dvh;padding:36px 24px;border:0;border-radius:0;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;overflow:hidden;color:#FFF;text-align:center;
-  background:radial-gradient(circle at 50% 50%,rgba(255,214,80,.17),transparent 31%)
-}
-.g4-title-reveal-card::after{
-  content:"";position:absolute;z-index:0;top:50%;left:50%;width:min(440px,82vw);height:min(440px,82vw);border-radius:50%;
-  background:radial-gradient(circle,rgba(255,222,105,.17),transparent 68%);transform:translate(-50%,-50%);pointer-events:none
-}
-.g4-title-reveal-rays{
-  position:absolute;z-index:0;top:50%;left:50%;width:160vmax;height:160vmax;border-radius:50%;opacity:.28;
-  background:repeating-conic-gradient(from -4deg,rgba(255,218,91,.88) 0 8deg,transparent 8deg 20deg);
-  transform:translate(-50%,-50%);
-  animation:g4-title-reveal-rays-in .8s cubic-bezier(.16,1,.3,1) both,g4-title-reveal-rays-spin 26s linear .8s 1 both
-}
-.g4-title-reveal-medal{
-  position:absolute;top:50%;left:50%;z-index:2;width:112px;height:112px;margin:0;border:6px solid rgba(255,255,255,.72);border-radius:50%;
-  display:grid;place-items:center;color:#653C00;background:linear-gradient(145deg,#FFF2A0,#FFC13B);
-  box-shadow:0 0 0 13px rgba(255,255,255,.09),0 0 54px 10px rgba(255,204,63,.38),0 22px 38px -18px rgba(0,0,0,.7);
-  font-size:52px;transform:translate(-50%,-50%);animation:g4-title-reveal-medal-in 1s cubic-bezier(.16,1,.3,1) .15s both
-}
-.g4-title-reveal-card h2{
-  position:absolute;top:calc(50% + 82px);left:50%;z-index:2;width:min(680px,calc(100vw - 48px));margin:0;
-  font-family:'Source Serif 4',Georgia,serif;font-size:clamp(34px,5vw,58px);line-height:1.02;text-shadow:0 4px 24px rgba(0,0,0,.72);
-  transform:translateX(-50%);animation:g4-title-reveal-title-in .7s ease .52s both
-}
-.g4-title-reveal-confetti{position:absolute;inset:0;pointer-events:none}
-.g4-title-reveal-confetti i{
-  position:absolute;top:-20px;left:calc(3% + var(--g4-title-i) * 5.35%);width:8px;height:14px;border-radius:2px;background:#FFE284;
-  animation:g4-title-reveal-confetti-fall 2.4s linear var(--g4-title-delay) 2 both
-}
-.g4-title-reveal-confetti i:nth-child(3n+2){background:#FF7050}.g4-title-reveal-confetti i:nth-child(3n){background:#77E1EA}
-.g4-title-card-stage{
-  position:relative;width:100%;min-height:116px;margin:0;padding:12px 82px 11px 67px;border-radius:17px;
-  display:flex;flex-direction:column;justify-content:center;gap:4px;overflow:hidden;color:#FFF;
-  background:radial-gradient(circle at 82% 20%,rgba(255,194,60,.26),transparent 30%),linear-gradient(135deg,#173B52,#0E6978);
-  box-shadow:0 28px 58px -27px rgba(22,143,163,.8);transform:translateY(-2px)
-}
-.g4-title-card-bit{position:absolute;right:3px;bottom:2px;width:72px;height:90px;animation:g4-title-card-bit-float 2.8s ease-in-out 1 both}
-.g4-title-card-bit .g1-char{width:100%;height:100%}
-.g4-title-card-medal{
-  position:absolute;left:11px;top:50%;width:44px;height:44px;border:3px solid rgba(255,255,255,.58);border-radius:50%;
-  display:grid;place-items:center;transform:translateY(-50%);color:#5A3A00;background:linear-gradient(145deg,#FFE284,#FFC23C);
-  box-shadow:0 0 0 8px rgba(255,255,255,.08),0 15px 30px -15px rgba(0,0,0,.6);font-size:19px
-}
-.g4-title-card-kicker{color:#A8EAF0;font:900 10px 'JetBrains Mono',monospace;letter-spacing:.13em}
-.g4-title-card-stage h2{max-width:590px;margin:0;font:750 clamp(16px,2.2vw,21px)/1.05 'Source Serif 4',Georgia,serif}
-.g4-title-card-score{
-  align-self:flex-start;margin-top:5px;padding:5px 9px;border-radius:10px;display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.10)
-}
-.g4-title-card-score strong{color:#FFE284;font-family:'JetBrains Mono',monospace}.g4-title-card-score span{color:rgba(255,255,255,.72);font-size:9px}
-.g4-title-card-confetti{position:absolute;inset:0;pointer-events:none}
-.g4-title-card-confetti i{position:absolute;top:-16px;width:7px;height:12px;border-radius:2px;animation:g4-title-card-confetti-fall 2.4s linear 2 both}
-.g4-title-card-confetti i:nth-child(4n+1){background:#FFC23C}.g4-title-card-confetti i:nth-child(4n+2){background:#FF5B35}.g4-title-card-confetti i:nth-child(4n+3){background:#77E1EA}.g4-title-card-confetti i:nth-child(4n){background:#95C93D}
-.g4-title-card-confetti i:nth-child(1){left:8%;animation-delay:-.3s}.g4-title-card-confetti i:nth-child(2){left:17%;animation-delay:-1.1s}.g4-title-card-confetti i:nth-child(3){left:29%;animation-delay:-.7s}.g4-title-card-confetti i:nth-child(4){left:41%;animation-delay:-1.7s}.g4-title-card-confetti i:nth-child(5){left:52%;animation-delay:-.2s}.g4-title-card-confetti i:nth-child(6){left:63%;animation-delay:-1.3s}.g4-title-card-confetti i:nth-child(7){left:73%;animation-delay:-.8s}.g4-title-card-confetti i:nth-child(8){left:84%;animation-delay:-1.9s}.g4-title-card-confetti i:nth-child(9){left:12%;animation-delay:-2s}.g4-title-card-confetti i:nth-child(10){left:36%;animation-delay:-1.4s}.g4-title-card-confetti i:nth-child(11){left:68%;animation-delay:-.5s}.g4-title-card-confetti i:nth-child(12){left:91%;animation-delay:-1.6s}
-@keyframes g4-title-reveal-overlay-life{0%{opacity:0}12%,84%{opacity:1}100%{opacity:0}}
-@keyframes g4-title-reveal-medal-in{from{opacity:0;transform:translate(-50%,-50%) scale(.25) rotate(-25deg)}to{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0)}}
-@keyframes g4-title-reveal-title-in{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}
-@keyframes g4-title-reveal-rays-in{from{opacity:0;transform:translate(-50%,-50%) scale(.5)}to{opacity:.28;transform:translate(-50%,-50%) scale(1)}}
-@keyframes g4-title-reveal-rays-spin{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}
-@keyframes g4-title-reveal-confetti-fall{to{transform:translateY(470px) rotate(560deg)}}
-@keyframes g4-title-card-confetti-fall{to{transform:translateY(230px) rotate(460deg)}}
-@keyframes g4-title-card-bit-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-@media(max-width:639.98px){.lesson-root-preview .stage-header{padding-top:52px}.screen-type{display:none}.stage{width:min(390px,100%)}.stage-header{padding-top:6px}.stage-chrome{min-height:46px}.chrome-title{max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px}.chrome-actions{gap:4px}.screen-count{padding:4px 6px;font-size:9px}.audio-indicator{height:46px;padding:1px 3px}.audio-indicator button{width:44px;height:44px}.stage-content{grid-template-rows:minmax(0,1fr) 38px;padding-top:5px;padding-bottom:2px}.caption-slot{height:38px;min-height:38px;padding-top:3px}.caption{height:35px;padding:6px 9px;font-size:10px}.stage-nav{min-height:58px}.btn-white-accent,.btn-ghost{min-width:108px;min-height:48px;padding:0 10px;font-size:12px}.stack{gap:7px}.heading{height:56px;gap:8px}.heading h1{font-size:clamp(20px,6vw,24px)}.heading .g1-char{width:48px;height:60px}.model-card,.question,.test-model,.reflection-card{padding:8px;border-radius:15px}.model-card{grid-template-columns:minmax(126px,.86fr) minmax(156px,1.14fr);gap:7px}.hook-stack{grid-template-rows:auto minmax(0,.78fr) minmax(0,1.22fr)}.hook-question{grid-template-rows:auto auto minmax(52px,1fr)}.hook-question .options{grid-template-columns:repeat(3,minmax(0,1fr))}.hook-question .option{grid-template-columns:1fr;justify-items:center;align-content:center;text-align:center}.hook-question .option>b{display:none}.question h2{font-size:14px;line-height:1.16}.options{grid-template-columns:1fr;gap:5px}.option{min-height:44px;padding:5px 6px;border-radius:11px;grid-template-columns:24px 1fr;gap:5px;font-size:11px;line-height:1.15}.option>b{width:24px;height:24px}.feedback{padding:6px 7px;grid-template-columns:20px 1fr;gap:5px;font-size:10px}.proof{padding:5px 7px;font-size:9px}.test-layout{grid-template-columns:minmax(118px,.78fr) minmax(170px,1.22fr);gap:7px}.test-model{padding:6px}.test-model .reveal-grid{display:none}.question-feedback-slot{min-height:84px}.hook-feedback-slot{min-height:52px}.conversion-visual{height:100%;min-height:0;padding:6px;border-radius:13px;gap:6px}.guided-panel{grid-template-rows:8px minmax(58px,1fr) 46px;gap:7px}.guided-frame{min-height:58px;padding:8px;border-radius:13px;grid-template-columns:29px 1fr;gap:7px;font-size:11px}.guided-frame>b{width:29px;height:29px}.guided-action{min-height:46px}.step-button{min-width:124px}.guided-complete{padding:8px;font-size:10px}.summary-complete{grid-template-columns:1fr;grid-template-rows:88px minmax(0,1fr);gap:7px}.summary-complete .g4-title-card-stage{min-height:88px}.reflection-card h2{font-size:14px}.reflection-options{gap:5px}.preview-language{top:7px;left:50%;right:auto;transform:translateX(-50%)}
-  .g4-title-reveal-card{min-height:100dvh;padding:24px 18px}
-  .g4-title-reveal-medal{width:88px;height:88px;border-width:5px;font-size:40px}
-  .g4-title-reveal-card h2{top:calc(50% + 62px);font-size:29px}
-  .g4-title-card-stage{min-height:88px;padding:9px 59px 8px 51px;border-radius:14px}
-  .g4-title-card-medal{left:8px;width:34px;height:34px;font-size:14px}
-  .g4-title-card-bit{width:57px;height:71px}
-  .g4-title-card-stage h2{font-size:14px}
-}
-@media(max-height:700px){.stage-header{padding-top:4px}.stage-chrome{min-height:44px}.stage-content{grid-template-rows:minmax(0,1fr) 34px}.caption-slot{height:34px;min-height:34px}.caption{height:31px;padding:5px 8px}.stage-nav{min-height:56px}.heading{height:52px}.heading .g1-char{width:44px;height:55px}.stack{gap:6px}.model-card,.question,.test-model,.reflection-card{padding:7px}.question-feedback-slot{min-height:78px}.hook-feedback-slot{min-height:48px}.guided-panel{grid-template-rows:7px minmax(52px,1fr) 44px;gap:5px}.guided-action{min-height:44px}.step-button{min-height:44px}.summary-complete{grid-template-rows:82px minmax(0,1fr)}}
-.summary-complete>.title-claim-card{grid-column:auto}
-@media(max-width:639.98px){.summary-complete{grid-template-rows:minmax(0,1fr) 88px}.title-claim-card{height:88px;padding:6px 7px;grid-template-columns:30px minmax(0,1fr) auto;place-items:center;align-content:center;gap:6px;text-align:left}.title-claim-card>span{font-size:28px}.title-claim-card h2{font-size:13px;line-height:1.1}.title-claim-card .g4-title-claim{min-width:96px;min-height:44px;padding:0 7px}}
-@media(max-height:700px){.summary-complete{grid-template-rows:minmax(0,1fr) 82px}}
-@media(max-width:639.98px) and (max-height:700px){.title-claim-card{height:82px}}
-@media(prefers-reduced-motion:reduce){.lesson-root *{animation:none!important;transition:none!important}
-  .g4-title-reveal-overlay,.g4-title-reveal-overlay *,.g4-title-card-stage,.g4-title-card-stage *{animation:none!important;transition:none!important}
-  .g4-title-reveal-confetti,.g4-title-card-confetti{display:none!important}
-  .g4-title-reveal-rays{opacity:.28!important;transform:translate(-50%,-50%)!important}
-  .g4-title-reveal-medal{opacity:1!important;transform:translate(-50%,-50%)!important}
-  .g4-title-reveal-card h2{opacity:1!important;transform:translateX(-50%)!important}
-  .g4-title-card-stage{transform:none!important}
-}
-`;
-
-const STYLES = `${G4_TITLE_STYLES}${TOPIC_STYLES}
-.feedback-bit{width:25px;height:31px}.proof-label{margin-right:7px;color:${T.lime}}.title-claim-card{grid-column:1/-1;height:100%;display:grid;place-items:center;align-content:center;gap:12px;border-radius:20px;background:#fff;text-align:center;overflow:hidden}.title-claim-card>span{font-size:48px;color:#FFCE49}
-.stage-hook .hook-card{position:relative;isolation:isolate;overflow:hidden;border:1px solid rgba(144,228,235,.12);border-radius:24px;background:radial-gradient(circle at 87% 24%,rgba(121,211,218,.16),transparent 24%),radial-gradient(circle at 9% 88%,rgba(149,201,61,.11),transparent 25%),linear-gradient(145deg,rgba(22,143,163,.25),transparent 48%),linear-gradient(135deg,#153B50,#0B2232 72%);box-shadow:0 22px 50px -30px rgba(14,33,44,.75)}
-html:has(.lesson-root),body:has(.lesson-root),#root:has(.lesson-root),.lesson-page:has(.lesson-root),.lesson-frame:has(.lesson-root){width:100%;height:100%;min-height:0!important;margin:0;overflow:hidden!important;overscroll-behavior:none}.lesson-root,.lesson-root *{box-sizing:border-box}.lesson-root h1,.lesson-root h2,.lesson-root p{margin:0}.lesson-root button{font:inherit}.lesson-root{position:fixed;inset:0;width:100%;height:100dvh;min-height:0;overflow:hidden;color:${T.ink};background:radial-gradient(circle at 88% 9%,rgba(22,143,163,.11),transparent 25%),linear-gradient(145deg,#F7F8F4,#EEF3F1);font-family:'Manrope',system-ui,sans-serif}.stage{width:min(936px,100%);height:100dvh;margin:0 auto;display:grid;grid-template-rows:auto minmax(0,1fr) auto;overflow:hidden;background:rgba(245,245,240,.92);box-shadow:0 0 50px -34px rgba(${T.shadowBase},.45)}.stage-header{min-height:0;padding-top:9px;background:rgba(245,245,240,.96);backdrop-filter:blur(10px);z-index:5}.progress-track{height:7px;border-radius:999px;overflow:hidden;background:#DDE5E3}.progress-fill{height:100%;border-radius:inherit;background:linear-gradient(90deg,${T.cyan},${T.lime});transition:width .45s ease}.progress-bar{box-shadow:0 0 15px rgba(22,143,163,.34)}.stage-chrome{min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:12px}.chrome-title,.chrome-actions{display:flex;align-items:center;gap:9px}.chrome-title{color:${T.navy};font-size:12px;font-weight:900}.status-dot{width:9px;height:9px;border-radius:50%;background:${T.accent};box-shadow:0 0 0 5px rgba(255,91,53,.1)}.screen-type,.screen-count{padding:5px 9px;border-radius:999px;color:${T.cyan};background:${T.cyanSoft};font-size:10px;font-weight:900}.screen-count{color:${T.ink2};background:#FFF}.audio-indicator{height:46px;padding:3px 6px;border-radius:13px;display:flex;align-items:center;gap:4px;background:#FFF;box-shadow:0 9px 20px -17px rgba(${T.shadowBase},.6)}.audio-indicator button{width:44px;height:44px;border:0;border-radius:9px;background:transparent;cursor:pointer}.audio-wave{height:20px;display:flex;align-items:center;gap:2px}.audio-wave i{width:3px;height:6px;border-radius:4px;background:${T.cyan};transition:.25s}.audio-wave.playing i:nth-child(1){height:12px}.audio-wave.playing i:nth-child(2){height:18px}.audio-wave.playing i:nth-child(3){height:9px}
-.stage-content{min-height:0;padding-top:7px;padding-bottom:4px;display:grid;grid-template-rows:minmax(0,1fr) 40px;overflow:hidden}.stage-body{min-height:0;overflow:hidden}.caption-slot{height:40px;min-height:40px;padding-top:4px;overflow:hidden}.stage-nav{min-height:62px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(245,245,240,.95)}.btn-white-accent,.btn-ghost{min-width:128px;min-height:50px;padding:0 18px;border:0;border-radius:15px;cursor:pointer;font-weight:900}.btn-white-accent{color:${T.accent};background:#fff;box-shadow:0 12px 24px -17px rgba(255,91,53,.8)}.btn-white-accent:hover:not(:disabled){color:#fff;background:${T.accent}}.btn-ghost{color:${T.ink2};background:transparent}.btn-ghost:hover{background:#fff}.stack{height:100%;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr);gap:10px;overflow:hidden;animation:page-in .45s cubic-bezier(.16,1,.3,1) both}.heading{height:68px;min-height:0;display:flex;align-items:center;justify-content:space-between;gap:16px}.heading.heading-solo{justify-content:flex-start}.heading>div>span{color:${T.cyan};font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.heading h1{margin-top:4px!important;font:750 clamp(25px,4vw,38px)/1.06 'Source Serif 4',Georgia,serif}.heading .g1-char{width:62px;height:76px;flex:0 0 auto;filter:drop-shadow(0 9px 11px rgba(23,59,82,.2))}.model-card,.question,.test-model{min-height:0;padding:14px;overflow:hidden;border-radius:22px;background:rgba(255,255,255,.9);box-shadow:0 18px 34px -28px rgba(${T.shadowBase},.48)}.model-card{height:100%;display:grid;grid-template-columns:minmax(250px,.85fr) minmax(300px,1.15fr);align-items:stretch;gap:14px}.hook-card{background:linear-gradient(135deg,${T.cyanSoft},#FFF)}.summary-card{background:linear-gradient(135deg,#FFF,${T.successSoft})}.reveal-grid{min-height:0;display:grid;align-content:center;gap:7px;overflow:hidden}.reveal-card{min-height:48px;padding:9px 12px;border-radius:14px;display:grid;grid-template-columns:30px 1fr;align-items:center;gap:9px;opacity:.12;transform:translateY(7px);background:#F8F8F4;transition:.38s ease}.reveal-card.show{opacity:1;transform:none}.reveal-card>b{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;color:#FFF;background:${T.cyan};font:900 10px 'JetBrains Mono',monospace}.reveal-card:last-child.show{background:${T.cyanSoft}}.question{height:100%;display:grid;grid-template-rows:auto auto minmax(92px,1fr);align-content:start;gap:9px}.question h2{font:720 clamp(17px,2.5vw,22px)/1.25 'Source Serif 4',Georgia,serif}.options{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.option{min-height:50px;padding:8px;border:0;border-radius:16px;display:grid;grid-template-columns:28px 1fr;align-items:center;gap:8px;color:${T.ink};background:#F8F8F4;text-align:left;cursor:pointer;transition:.25s}.option:hover:not(:disabled){transform:translateY(-2px)}.option>b{width:27px;height:27px;border-radius:9px;display:grid;place-items:center;color:${T.cyan};background:${T.cyanSoft};font:900 11px 'JetBrains Mono',monospace}.option.picked{background:${T.accentSoft};box-shadow:inset 0 0 0 2px rgba(255,91,53,.27)}.option.right{background:${T.successSoft};box-shadow:inset 0 0 0 2px rgba(34,122,83,.25)}.option.bad{background:${T.warnSoft};box-shadow:inset 0 0 0 2px rgba(169,111,19,.25)}.feedback{padding:8px 10px;border-radius:13px;display:grid;grid-template-columns:25px 1fr;align-items:start;gap:7px;font-size:12px;line-height:1.22}.feedback.correct{background:${T.successSoft};box-shadow:inset 4px 0 ${T.success}}.feedback.wrong{background:${T.warnSoft};box-shadow:inset 4px 0 ${T.warn}}.feedback.neutral{background:${T.cyanSoft};box-shadow:inset 4px 0 ${T.cyan}}.proof{padding:7px 10px;border-radius:11px;overflow:hidden;color:#FFF;background:${T.navy};text-align:center;font:900 15px 'JetBrains Mono',monospace}.test-layout{height:100%;min-height:0;display:grid;grid-template-columns:.86fr 1.14fr;gap:10px;overflow:hidden}.test-model{display:grid;grid-template-rows:minmax(0,1fr) auto;align-content:stretch;gap:8px}.caption{height:36px;margin:0;padding:7px 11px;border-radius:12px;overflow:hidden;color:#fff;background:rgba(23,59,82,.94);font-size:11px;line-height:1.2;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}.feedback-slot{min-height:0;overflow:hidden}.feedback-stack{height:100%;display:grid;align-content:start;gap:6px;overflow:hidden}.question-feedback-slot{min-height:92px}.hook-feedback-slot{min-height:58px}.guided-panel{min-height:0;display:grid;grid-template-rows:10px minmax(72px,1fr) 50px;gap:10px;overflow:hidden}.guided-progress{display:flex;align-items:center;gap:6px}.guided-progress i{height:6px;flex:1;border-radius:999px;background:#DDE5E3}.guided-progress i.active{background:${T.cyan}}.guided-frame{min-height:72px;padding:12px;border-radius:16px;display:grid;grid-template-columns:34px 1fr;align-items:center;gap:10px;overflow:hidden;background:#F8F8F4;font-weight:850}.guided-frame>b{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;color:#FFF;background:${T.cyan};font:900 12px 'JetBrains Mono',monospace}.guided-action{display:flex;align-items:center;justify-content:flex-end;min-height:50px}.step-button{min-width:150px}.guided-complete{padding:10px 12px;border-radius:12px;color:${T.success};background:${T.successSoft};font-size:12px;font-weight:900}.summary-complete{height:100%;min-height:0;display:grid;grid-template-columns:.9fr 1.1fr;gap:10px;overflow:hidden}.summary-complete .g4-title-card-stage{height:100%;min-height:0}.reflection-card{min-height:0;padding:14px;border-radius:20px;display:grid;grid-template-rows:auto minmax(0,1fr);gap:9px;overflow:hidden;background:#FFF;box-shadow:0 18px 34px -28px rgba(${T.shadowBase},.48)}.reflection-card h2{font:720 18px/1.22 'Source Serif 4',Georgia,serif}.reflection-options{min-height:0;display:grid;grid-template-rows:repeat(3,minmax(44px,1fr));gap:7px;overflow:hidden}
-.conversion-visual{min-height:210px;padding:14px;border-radius:20px;display:grid;place-items:center;gap:12px;background:linear-gradient(145deg,${T.cyanSoft},#FFF)}.relation-cards{width:100%;display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.relation-cards span{padding:12px 8px;border-radius:13px;opacity:.18;background:#FFF;text-align:center;font:900 12px 'JetBrains Mono',monospace;transition:.35s}.relation-cards span.active{opacity:1;color:#FFF;background:${T.cyan}}.console-screen{padding:13px 24px;border-radius:14px;color:#FFF;background:${T.navy};font:900 25px 'JetBrains Mono',monospace}.cross{position:absolute;color:${T.accent};font-size:84px;font-weight:900;opacity:0;transform:scale(.6) rotate(-15deg);transition:.4s}.cross.show{opacity:.85;transform:scale(1) rotate(-15deg)}.console{position:relative}.tape-line{width:260px;height:28px;padding:4px;border-radius:10px;background:#FFF}.tape-line i{height:100%;display:block;border-radius:7px;background:${T.cyan};transition:.5s}.tape strong{font:900 18px 'JetBrains Mono',monospace}.area-grid>div{width:150px;height:150px;padding:3px;display:grid;grid-template-columns:repeat(10,1fr);gap:2px;border:3px solid ${T.navy};border-radius:12px;background:#FFF}.area-grid i{border-radius:2px;background:#DDE7E6;transition:.35s}.area-grid i.active{background:${T.cyan}}.area-grid strong{font:900 14px 'JetBrains Mono',monospace}.algorithm{align-content:center}.algorithm span{width:min(380px,100%);padding:10px 14px;border-radius:12px;opacity:.16;background:#FFF;text-align:center;font:900 13px 'JetBrains Mono',monospace;transition:.35s}.algorithm span.active{opacity:1}.algorithm span:last-child.active{color:#FFF;background:${T.success}}.manifest{grid-template-columns:repeat(2,1fr)}.manifest span{padding:20px 12px;border-radius:15px;opacity:.2;background:#FFF;text-align:center;font-weight:900;transition:.35s}.manifest span.active{opacity:1;color:#FFF;background:${T.navy}}.direction>div{display:flex;align-items:center;gap:14px}.direction b{padding:15px;border-radius:13px;background:#FFF}.direction span{color:${T.accent};font-size:30px}.direction small{font-weight:900}.preview-language{position:fixed;top:9px;right:9px;z-index:30;display:flex;gap:3px;padding:3px;border-radius:999px;background:rgba(255,255,255,.94)}.preview-language button{min-width:44px;min-height:44px;padding:4px 9px;border:0;border-radius:999px;background:transparent;cursor:pointer;font-size:10px;font-weight:900}.preview-language .preview-active{color:#FFF;background:${T.accent}}button:focus-visible,input:focus-visible{outline:3px solid rgba(22,143,163,.48);outline-offset:3px}@keyframes page-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
-@media(max-width:639.98px){.lesson-root-preview .stage-header{padding-top:52px}.screen-type{display:none}.stage{width:min(390px,100%)}.stage-header{padding-top:6px}.stage-chrome{min-height:46px}.chrome-title{max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px}.chrome-actions{gap:4px}.screen-count{padding:4px 6px;font-size:9px}.audio-indicator{height:46px;padding:1px 3px}.audio-indicator button{width:44px;height:44px}.stage-content{grid-template-rows:minmax(0,1fr) 38px;padding-top:5px;padding-bottom:2px}.caption-slot{height:38px;min-height:38px;padding-top:3px}.caption{height:35px;padding:6px 9px;font-size:10px}.stage-nav{min-height:58px}.btn-white-accent,.btn-ghost{min-width:108px;min-height:48px;padding:0 10px;font-size:12px}.stack{gap:7px}.heading{height:56px;gap:8px}.heading h1{font-size:clamp(20px,6vw,24px)}.heading .g1-char{width:48px;height:60px}.model-card,.question,.test-model,.reflection-card{padding:8px;border-radius:15px}.model-card{grid-template-columns:minmax(126px,.86fr) minmax(156px,1.14fr);gap:7px}.hook-stack{grid-template-rows:auto minmax(0,.78fr) minmax(0,1.22fr)}.hook-question{grid-template-rows:auto auto minmax(52px,1fr)}.hook-question .options{grid-template-columns:repeat(3,minmax(0,1fr))}.hook-question .option{grid-template-columns:1fr;justify-items:center;align-content:center;text-align:center}.hook-question .option>b{display:none}.question h2{font-size:14px;line-height:1.16}.options{grid-template-columns:1fr;gap:5px}.option{min-height:44px;padding:5px 6px;border-radius:11px;grid-template-columns:24px 1fr;gap:5px;font-size:11px;line-height:1.15}.option>b{width:24px;height:24px}.feedback{padding:6px 7px;grid-template-columns:20px 1fr;gap:5px;font-size:10px}.proof{padding:5px 7px;font-size:9px}.test-layout{grid-template-columns:minmax(118px,.78fr) minmax(170px,1.22fr);gap:7px}.test-model{padding:6px}.test-model .reveal-grid{display:none}.question-feedback-slot{min-height:84px}.hook-feedback-slot{min-height:52px}.conversion-visual{height:100%;min-height:0;padding:6px;border-radius:13px;gap:6px}.guided-panel{grid-template-rows:8px minmax(58px,1fr) 46px;gap:7px}.guided-frame{min-height:58px;padding:8px;border-radius:13px;grid-template-columns:29px 1fr;gap:7px;font-size:11px}.guided-frame>b{width:29px;height:29px}.guided-action{min-height:46px}.step-button{min-width:124px}.guided-complete{padding:8px;font-size:10px}.summary-complete{grid-template-columns:1fr;grid-template-rows:88px minmax(0,1fr);gap:7px}.summary-complete .g4-title-card-stage{min-height:88px}.reflection-card h2{font-size:14px}.reflection-options{gap:5px}.preview-language{top:7px;left:50%;right:auto;transform:translateX(-50%)}}
-@media(max-height:700px){.stage-header{padding-top:4px}.stage-chrome{min-height:44px}.stage-content{grid-template-rows:minmax(0,1fr) 34px}.caption-slot{height:34px;min-height:34px}.caption{height:31px;padding:5px 8px}.stage-nav{min-height:56px}.heading{height:52px}.heading .g1-char{width:44px;height:55px}.stack{gap:6px}.model-card,.question,.test-model,.reflection-card{padding:7px}.question-feedback-slot{min-height:78px}.hook-feedback-slot{min-height:48px}.guided-panel{grid-template-rows:7px minmax(52px,1fr) 44px;gap:5px}.guided-action{min-height:44px}.step-button{min-height:44px}.summary-complete{grid-template-rows:82px minmax(0,1fr)}}
-@media(prefers-reduced-motion:reduce){.lesson-root *{animation:none!important;transition:none!important}}
-.lesson-frame .preview-language{display:none!important}
-.lesson-root{font-family:'Manrope',system-ui,sans-serif}.lesson-root h1,.lesson-root [data-g4-role="hook-title"]{font-family:'Source Serif 4',Georgia,serif!important;font-size:clamp(26px,4.2vw,36px)!important;line-height:1.06;text-align:left}.lesson-root .question h2,.lesson-root [data-g4-role="hook-question"]{font-family:'Manrope',system-ui,sans-serif!important;font-size:clamp(17px,2.5vw,21px)!important;line-height:1.25;text-align:left}.lesson-root .lead{font-family:'Manrope',system-ui,sans-serif;font-size:clamp(14px,1.8vw,16px);line-height:1.55}.lesson-root .body-copy{font-family:'Manrope',system-ui,sans-serif;font-size:clamp(15px,2vw,18px);line-height:1.5}.lesson-root .screen-count,.lesson-root [class*="formula"],.lesson-root [class*="equation"],.lesson-root .proof-label{font-family:'JetBrains Mono',monospace!important}
-.stage-hook .hook-stack{height:100%;grid-template-rows:auto minmax(206px,1fr) auto;gap:10px}.stage-hook .hook-intro{width:min(760px,100%);margin:0 auto;display:grid;gap:5px;text-align:left}.stage-hook [data-g4-role="hook-topic"]{color:${T.cyan};font:900 11px/1.2 'Manrope',system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase}.stage-hook [data-g4-role="hook-scene"]{width:min(760px,100%);min-height:206px;margin:0 auto;padding:0;border:0;border-radius:24px;overflow:hidden;background:transparent;box-shadow:none}.stage-hook [data-g4-role="visual-frame"]{position:relative;isolation:isolate;width:100%;height:100%;min-height:206px;overflow:hidden;border:1px solid rgba(144,228,235,.12);border-radius:24px;background:radial-gradient(circle at 87% 24%,rgba(121,211,218,.16),transparent 24%),radial-gradient(circle at 9% 88%,rgba(149,201,61,.11),transparent 25%),linear-gradient(145deg,rgba(22,143,163,.25),transparent 48%),linear-gradient(135deg,#153B50,#0B2232 72%);box-shadow:0 22px 50px -30px rgba(14,33,44,.75)}.stage-hook .hook-visual-content{position:relative;z-index:1;width:100%;height:100%;min-width:0;min-height:206px;padding:12px 154px 12px 12px;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:center;gap:12px;overflow:hidden}.stage-hook .hook-visual-content>*{min-width:0;max-width:100%;max-height:182px;overflow:hidden}.stage-hook .hook-visual-content svg,.stage-hook .hook-visual-content img{display:block;max-width:100%;max-height:100%;object-fit:contain}.stage-hook [data-g4-role="hook-bit"]{position:absolute;z-index:2;width:88px;height:110px;right:42px;bottom:-4px;overflow:hidden}.stage-hook [data-g4-role="hook-bit"] .g1-char{width:100%;height:100%}.stage-hook .hook-answers{height:auto;min-height:0;padding:10px 14px;grid-template-rows:auto minmax(0,1fr);gap:8px;overflow:hidden}
-.lesson-root .topic-visual,.lesson-root .conversion-visual,.lesson-root .model-card,.lesson-root .test-model{max-width:100%;overflow:hidden}.lesson-root .topic-visual>svg,.lesson-root .conversion-visual>svg{display:block;max-width:100%;max-height:100%;object-fit:contain}.lesson-root [data-g4-role~="feedback-frame"],.lesson-root .question-feedback-slot .feedback{min-height:88px;padding:8px 15px 8px 9px;border-radius:18px;display:grid;grid-template-columns:62px minmax(0,1fr);align-items:center;gap:13px;overflow:hidden;font-family:'Manrope',system-ui,sans-serif;font-size:14px;line-height:1.42}.lesson-root [data-g4-feedback="wrong"],.lesson-root [data-g4-feedback="retry"],.lesson-root .feedback.wrong{color:#A96F13;background:linear-gradient(135deg,#FFF,#FFF5D9);box-shadow:inset 4px 0 #A96F13}.lesson-root [data-g4-feedback="correct"],.lesson-root [data-g4-feedback="solution"],.lesson-root .feedback.correct{color:#227A53;background:linear-gradient(135deg,#FFF,#E7F3EC);box-shadow:inset 4px 0 #227A53}.lesson-root [data-g4-feedback="solution"]{min-height:72px;border-radius:15px;grid-template-columns:51px minmax(0,1fr)}.lesson-root [data-g4-role="feedback-bit"],.lesson-root .feedback>.feedback-bit{width:62px;height:76px;min-width:0;max-width:100%;overflow:hidden}.lesson-root [data-g4-role="feedback-bit"] .feedback-bit{width:100%;height:100%}.lesson-root [data-g4-feedback="solution"]>[data-g4-role="feedback-bit"],.lesson-root [data-g4-feedback="solution"]>.feedback-bit{width:51px;height:64px}.lesson-root [data-g4-role="feedback-bit"] svg{display:block;max-width:100%;max-height:100%}.lesson-root [data-g4-role="feedback-bit"]>svg{display:block;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important}
-@media(max-width:639.98px){.lesson-root h1,.lesson-root [data-g4-role="hook-title"]{font-size:25px!important}.stage-hook .hook-stack{grid-template-rows:auto minmax(164px,1fr) auto}.stage-hook [data-g4-role="hook-scene"],.stage-hook [data-g4-role="visual-frame"]{min-height:164px;border-radius:18px}.stage-hook .hook-visual-content{min-height:164px;padding:9px 88px 9px 9px;grid-template-columns:minmax(0,.65fr) minmax(82px,.35fr);grid-template-rows:minmax(0,1fr);align-items:stretch;gap:6px}.stage-hook .hook-visual-content>*{height:146px;max-height:146px;overflow:hidden}.stage-hook .hook-model{position:relative;min-width:0;min-height:0}.stage-hook .hook-model>.topic-visual,.stage-hook .hook-model>.conversion-visual{position:absolute;inset:0 auto auto 0;min-height:0;max-width:none;padding:4px;transform-origin:top left}.stage-hook .hook-model>.topic-visual{width:142.858%;height:142.858%;transform:scale(.7)}.stage-hook .hook-model>.conversion-visual{width:166.667%;height:166.667%;transform:scale(.6)}.stage-hook .hook-model>.topic-visual svg,.stage-hook .hook-model>.conversion-visual svg{max-height:100%}.stage-hook .reveal-grid{height:146px;min-height:0;max-height:none;align-content:center;gap:0;overflow:hidden}.stage-hook .reveal-card{display:none;min-height:0;padding:5px 6px;border-radius:10px;grid-template-columns:1fr;align-content:center;gap:4px;font-size:9px;line-height:1.18;overflow:hidden}.stage-hook .reveal-card[data-current="true"]{display:grid}.stage-hook .reveal-card>b{width:21px;height:21px;border-radius:7px;font-size:8px}.stage-hook .reveal-card>span{overflow-wrap:anywhere}.stage-hook [data-g4-role="hook-bit"]{width:68px;height:85px;right:12px;bottom:-7px}.lesson-root [data-g4-role~="feedback-frame"],.lesson-root .question-feedback-slot .feedback{grid-template-columns:54px minmax(0,1fr)}.lesson-root [data-g4-role="feedback-bit"],.lesson-root .feedback>.feedback-bit{width:54px;height:68px}.lesson-root [data-g4-feedback="solution"]{min-height:68px;border-radius:15px;grid-template-columns:47px minmax(0,1fr)}.lesson-root [data-g4-feedback="solution"]>[data-g4-role="feedback-bit"],.lesson-root [data-g4-feedback="solution"]>.feedback-bit{width:47px;height:59px}.stage-hook .hook-stack:has([data-g4-feedback]){height:auto!important;min-height:0;grid-template-rows:auto!important;align-content:start!important;gap:0;overflow:visible;transform:none!important;animation:none!important}.stage-hook .hook-stack:has([data-g4-feedback]) .hook-intro,.stage-hook .hook-stack:has([data-g4-feedback]) [data-g4-role="hook-scene"]{display:none}.stage-hook .hook-stack:has([data-g4-feedback]) .hook-answers{position:static;display:grid;height:auto;min-height:0;padding:8px;grid-template-rows:auto auto;align-content:start;gap:8px;overflow:visible;transform:none}.stage-hook .hook-stack:has([data-g4-feedback]) .hook-feedback-slot{min-height:88px;overflow:visible}.stage-hook .hook-stack:has([data-g4-feedback]) [data-g4-role~="feedback-frame"]{width:100%;min-height:88px}.stage-question .question-stack:has([data-g4-feedback]){height:auto!important;min-height:0;grid-template-rows:auto!important;align-content:start!important;overflow:visible;transform:none!important;animation:none!important}.stage-question:has([data-g4-feedback]) .stage-body{overflow:visible}.stage-question .question-stack:has([data-g4-feedback]) .heading,.stage-question .question-stack:has([data-g4-feedback]) .test-model{display:none}.stage-question .question-stack:has([data-g4-feedback]) .test-layout{display:block;height:auto;min-height:0;overflow:visible}.stage-question .question-stack:has([data-g4-feedback]) .question{display:grid;height:auto;min-height:0;padding:4px;grid-template-rows:auto auto auto;align-content:start;gap:4px;overflow:visible;transform:none}.stage-question .question-stack:has([data-g4-feedback]) .question-feedback-slot{min-height:88px;overflow:visible}.stage-question .heading{display:none}.stage-question .question-stack{grid-template-rows:minmax(0,1fr)}.stage-question .test-layout{height:100%;grid-template-columns:1fr;grid-template-rows:92px minmax(0,1fr);gap:4px}.stage-question .test-model{padding:3px;min-height:0}.stage-question .test-model>.canonical-visual-frame{height:100%;min-height:0}.stage-question .question{min-height:0;padding:4px;grid-template-rows:auto 42px auto;align-content:start;gap:3px}.stage-question .question h2{font-size:12px!important;line-height:1.12}.stage-question .options{grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}.stage-question .option{min-height:42px;padding:4px;grid-template-columns:1fr;justify-items:center;text-align:center;font-size:9px;line-height:1.1}.stage-question .option>b{display:none}.stage-question .feedback-slot{min-height:68px;overflow:visible}.stage-question .feedback-stack{height:auto;overflow:visible}.stage-question .question-feedback-slot [data-g4-role~="feedback-frame"]{min-height:88px;padding:8px 9px}.stage-question .proof{display:none}}
-/* Etalon layout adapters: answer feedback replaces the model after selection,
-   while the unanswered hook keeps the canonical title/scene/card order. */
-.lesson-root .caption{margin-top:0;max-height:100%;overflow:hidden}
-.stage-hook .reveal-grid{overflow:visible}
-.stage-hook .reveal-card{min-height:0;padding:5px 7px;grid-template-columns:26px minmax(0,1fr);gap:7px;font-size:10px;line-height:1.15}
-.stage-hook .reveal-card>b{width:25px;height:25px}
-.stage-hook .reveal-card>span{overflow-wrap:anywhere}
-.question-stack:has([data-g4-feedback]){height:auto!important;min-height:0;grid-template-rows:auto!important;align-content:start!important;overflow:visible;transform:none!important;animation:none!important}
-.stage:has(.question-stack [data-g4-feedback]) .stage-content{min-height:0}
-.stage:has(.question-stack [data-g4-feedback]) .stage-body{height:auto;min-height:0;overflow:visible}
-.question-stack:has([data-g4-feedback]) .heading,.question-stack:has([data-g4-feedback]) .test-model{display:none}
-.question-stack:has([data-g4-feedback]) .test-layout{display:block;height:auto;min-height:0;overflow:visible}
-.question-stack:has([data-g4-feedback]) .question{display:grid;height:auto;min-height:0;grid-template-rows:auto auto auto;align-content:start;overflow:visible;transform:none}
-.question-stack:has([data-g4-feedback]) .question-feedback-slot,.question-stack:has([data-g4-feedback]) .feedback-stack{height:auto;min-height:88px;overflow:visible;transform:none!important}
-@media(max-width:639.98px){
-  .lesson-root .stage-content{grid-template-rows:minmax(0,1fr) 40px;padding-top:3px;padding-bottom:0}
-  .stage-hook .hook-stack:not(:has([data-g4-feedback])){height:auto;grid-template-rows:auto 164px auto;align-content:start;gap:5px;overflow:visible}
-  .stage-hook .hook-stack:not(:has([data-g4-feedback])) [data-g4-role="hook-scene"],.stage-hook .hook-stack:not(:has([data-g4-feedback])) [data-g4-role="visual-frame"]{height:164px}
-  .stage-hook .hook-answers{height:auto;padding:5px 7px;grid-template-rows:auto auto;gap:4px;overflow:visible}
-  .stage-hook .hook-answers .options{gap:4px}
-  .stage-hook .hook-answers .option{min-height:42px;padding:5px 6px;font-size:11px;line-height:1.15}
-  .stage-hook .hook-answers .option span{overflow-wrap:anywhere}
-  .stage-hook .hook-feedback-slot:empty{display:none;min-height:0}
-  .stage-hook .hook-visual-content{grid-template-columns:minmax(0,.55fr) minmax(105px,.45fr)}
-  .lesson-root .caption-slot{height:40px;min-height:40px}
-  .lesson-root .caption{height:auto;min-height:31px;max-height:40px;margin:0;font-size:9px;line-height:1.15;overflow:visible}
-  .stage:has(.question-stack) .heading{display:none}
-  .stage:has(.question-stack) .question-stack{height:100%;grid-template-rows:minmax(0,1fr)}
-  .stage:has(.question-stack) .test-layout{height:100%;grid-template-columns:1fr;grid-template-rows:92px minmax(0,1fr);gap:4px}
-  .stage:has(.question-stack) .test-model{padding:3px;min-height:0}
-  .stage:has(.question-stack) .test-model>.canonical-visual-frame{height:100%;min-height:0}
-  .stage:has(.question-stack) .question{min-height:0;padding:4px;grid-template-rows:auto 42px auto;align-content:start;gap:3px}
-  .stage:has(.question-stack) .question h2{font-family:'Manrope',system-ui,sans-serif!important;font-size:12px!important;line-height:1.12}
-  .stage:has(.question-stack) .options{grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
-  .stage:has(.question-stack) .option{min-height:42px;padding:4px;grid-template-columns:1fr;justify-items:center;text-align:center;font-size:9px;line-height:1.1}
-  .stage:has(.question-stack) .option>b{display:none}
-  .question-stack:has([data-g4-feedback]) .test-layout{display:block;height:auto;min-height:0;overflow:visible}
-  .question-stack:has([data-g4-feedback]) .question{height:auto;padding:4px;grid-template-rows:auto auto auto;gap:4px;overflow:visible}
-  .question-stack:has([data-g4-feedback]) .question-feedback-slot,.question-stack:has([data-g4-feedback]) .feedback-stack{height:auto;min-height:88px;overflow:visible}
-  .question-stack:has([data-g4-feedback]) .question-feedback-slot [data-g4-role~="feedback-frame"]{min-height:88px;padding:8px 9px}
-  .stage-summary .final-reflection h2{font-family:'Manrope',system-ui,sans-serif!important}
-}
-@media(min-width:640px){
-  .g4-title-reveal-overlay .g4-title-reveal-card h2{font-size:58px}
-}
-`;
