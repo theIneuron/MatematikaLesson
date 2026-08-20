@@ -121,7 +121,7 @@ const PICK_ONLY = ['Probe', 'ProbeChain']
 // `EquationBalance` -- B2 blokining asbobi. Unda o'quvchi to'rttadan
 // tanlamaydi: u AMALNI tanlaydi va yechimni qadamma-qadam yig'adi, xato amal
 // esa qator qo'shmaydi. Shuning uchun u «javobni yig'adi» ro'yxatida.
-const HANDS_ON = ['SlotFill', 'Transform', 'AuditRows', 'StepOrder', 'BracketGap', 'RuleBuilder', 'SubstituteRows', 'NumberLineTracks', 'EquationBalance']
+const HANDS_ON = ['SlotFill', 'Transform', 'AuditRows', 'StepOrder', 'BracketGap', 'RuleBuilder', 'SubstituteRows', 'NumberLineTracks', 'EquationBalance', 'FactorTape', 'DistanceLine']
 const FORBIDDEN = ['Options', 'Feedback', 'useSfx', 'useAnswerFx']
 
 // Darslikka havolalar. §3.4: ekranda ham, ovozda ham bo'lmaydi.

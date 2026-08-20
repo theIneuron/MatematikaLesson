@@ -4005,6 +4005,48 @@ sup.g7-idx { vertical-align: .46em; }
    (1-darsning yakunidagi naqsh).
    ============================================================ */
 /* ============================================================
+   MULJITELLAR LENTASI (FactorTape, B3 bloki). Yozuv bosilganda lenta
+   ochiladi: har element ketma-ket chiqadi, chunki bir vaqtda chiqsa
+   o'quvchi SANOQNI ko'rmaydi -- lentaning butun ma'nosi esa sanoqda.
+   DIQQAT: bu izohda TESKARI APOSTROF bo'lishi mumkin emas.
+   ============================================================ */
+.g7-ft-head { width: 100%; display: flex; justify-content: center; }
+.g7-ft-src {
+  position: relative; display: inline-flex; align-items: center; gap: 8px;
+  font-family: inherit; color: ${T.ink};
+  font-weight: 800; font-size: var(--g7-num);
+  padding: 6px 18px; border-radius: 12px;
+  background: ${T.paper}; border: 1px solid rgba(24, 34, 36, 0.2);
+  cursor: pointer;
+}
+.g7-ft-src.is-open { cursor: default; background: none; border-color: transparent; }
+.g7-ft {
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  width: 100%;
+}
+.g7-ft-tape {
+  display: inline-flex; flex-wrap: wrap; justify-content: center;
+  align-items: center; gap: 2px;
+  font-weight: 800; font-size: clamp(16px, 2.2vw, 21px);
+}
+.g7-ft-cell {
+  display: inline-flex; align-items: center; gap: 2px;
+  animation: g7-ft-in .3s ease both;
+}
+.g7-ft-join { color: ${T.ink3}; padding-inline: 5px; }
+/* Lentaga KIRMAGAN qism: u alohida turadi va rangi ham boshqa. */
+.g7-ft-out {
+  font-weight: 800; font-size: clamp(16px, 2.2vw, 21px); color: ${T.tip};
+}
+.g7-ft-cnt {
+  font-family: 'Manrope', sans-serif; font-size: 12px; letter-spacing: .1em;
+  text-transform: uppercase; font-weight: 700; color: ${T.graph};
+}
+.g7-ft-cnt.is-sum { color: ${T.stage1}; }
+@keyframes g7-ft-in { 0% { opacity: 0; transform: translateY(-6px); } 100% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .g7-ft-cell { animation-duration: .01ms; } }
+
+/* ============================================================
    KATTALIKLAR JADVALI (QuantityCard, 11-dars). Masalaning tuzilishi:
    chapda kattalik nomi, o'ngda uning ifodasi. Hali topilmagani savol
    belgisi bilan turadi -- natija polosasi birinchi soniyadan ko'rinadi.

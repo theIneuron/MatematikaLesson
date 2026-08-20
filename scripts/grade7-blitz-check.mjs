@@ -72,6 +72,14 @@ const LESSONS = {
     ring: false,
     readySel: '.g7-readyline',
   },
+  'dars13-daraja': {
+    // DIQQAT: `Fx` ustki ko'rsatkichni <sup> qiladi, innerText da u
+    // oddiy raqam bo'ladi -- shuning uchun `2x3`, `2x³` emas.
+    right: ['−8a3', '2x3', '−9', '9'],
+    noGap: /Пробелов нет/i,
+    ring: false,
+    readySel: '.g7-readyline',
+  },
   'dars06-oxshash-hadlar': {
     right: ['9a', '6b', 'Нет, буквы разные', 'Складывают'],
     noGap: /Пробелов нет/i,

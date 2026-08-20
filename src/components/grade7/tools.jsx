@@ -68,6 +68,8 @@ export const UI = {
   ruleNext: L('Keyin nima keladi?', 'Что идёт дальше?', 'What comes next?'),
   ruleHere: L("Qoida shu yerda yig'iladi", 'Здесь собирается правило', 'The rule is built here'),
   step: L('qadam', 'шаг', 'step'),
+  ftMul: L('Muljitellar:', 'Множителей:', 'Factors:'),
+  ftSum: L("Qo'shiluvchilar:", 'Слагаемых:', 'Terms:'),
   dlMiss: L(
     "Bu nuqtagacha masofa",
     'До этой точки расстояние',
@@ -82,13 +84,15 @@ export const UI = {
   // BuildValue o'lchagichi. «Hozir» -- o'quvchi yig'gan yozuvning qiymati,
   // «kerak» -- topshiriqning maqsadi. Ikkalasi YONMA-YON turadi.
   bvTarget: L('Kerak', 'Нужно', 'Target'),
-  bvNow: L('Hozir', 'Сейчас', 'Now'),
+  bvYours: L('Sizda chiqdi', 'У тебя вышло', 'You got'),
+  bvIsRight: L('Javob', 'Ответ', 'Answer'),
+  bvHere: L('Shu yerga', 'Сюда', 'Here'),
   bvUndo: L('Bitta orqaga', 'На шаг назад', 'One step back'),
   bvLeft: L('qoldi', 'осталось', 'left'),
   bvEmpty: L(
-    "Plitkalarni bosib yozuv yig'ing",
-    'Собери запись, нажимая плитки',
-    'Build the expression by tapping tiles',
+    "Kartalarni bosib yozuv yig'ing",
+    'Собери запись, нажимая карточки',
+    'Build the expression by tapping cards',
   ),
 }
 
@@ -381,7 +385,7 @@ export function RuleGate({ probe, rule, swap, onSolved, onStep, disabled, audio 
 // SlotFill -- bo'sh uyalarni to'ldirish: belgilar yoki bo'laklar.
 // Tekshiruv SON QO'YIB bajariladi.
 // ============================================================
-export function SlotFill({ template, parts, answer, checkNote, wrongs, onSolved, onStep, prompt, promptCap, tightAsk, wide, disabled, audio }) {
+export function SlotFill({ template, parts, answer, checkNote, wrongs, onSolved, onStep, prompt, promptCap, tightAsk, wide, noReset, disabled, audio }) {
   const t = useT()
   const fx = useAnswerFx(audio)
   const [filled, setFilled] = useState(() => answer.map(() => null))
@@ -504,7 +508,12 @@ export function SlotFill({ template, parts, answer, checkNote, wrongs, onSolved,
             <Btn mark="check" tone="accent" ready={complete && !disabled} onClick={check} disabled={!complete || disabled}>
               {t(UI.check)}
             </Btn>
-            <Btn tone="ghost" onClick={reset}>{t(UI.again)}</Btn>
+            {/* `noReset` -- amaliyotda «Qaytadan» YO'Q (metodist qarori
+                2026-08-20: u kerak emas). Uyani bosib tarkibini almashtirish
+                mumkin, ya'ni tugmasiz ham hech qayerda qotib qolinmaydi.
+                Nazariy darslarga tegilmadi: 1-12 darslar shu ko'rinishda
+                topshirilgan. */}
+            {noReset ? null : <Btn tone="ghost" onClick={reset}>{t(UI.again)}</Btn>}
           </div>
         ) : null}
       </Slot>
@@ -2382,6 +2391,127 @@ export function EquationBalance({ start, actions, done, onSolved, onStep, disabl
 }
 
 // ============================================================================
+// FactorTape -- B3 BLOKINING ASBOBI: MULJITELLAR LENTASI.
+//
+// Darslik darajani MULJITELLAR KO'PAYTMASI orqali ta'riflaydi (26-bet):
+// a karra a karra ... karra a teng a ning n-darajasi. Va shu yerda ikkinchi
+// juftlik turadi: bir xil sonlar YIG'INDISI ko'paytirishga aylanadi
+// (a qo'shuv a qo'shuv a teng 3a), bir xil sonlar KO'PAYTMASI esa darajaga.
+//
+// BLOKNING ASOSIY XATOSI shu ikki qavatning aralashib ketishi: a kvadrat
+// qo'shuv a kvadrat ni o'quvchi a to'rtinchi daraja deb yozadi. Lenta
+// ularni JISMONAN ajratadi: yig'indi lentasi KOEFFITSIYENTNI o'stiradi,
+// ko'paytma lentasi esa KO'RSATKICHNI. Ularni bitta lentaga qo'shib
+// bo'lmaydi, chunki asbob qo'shmaydi.
+//
+// LENTA ICHIDA va LENTA TASHQARISIDA. `outside` -- lentaga KIRMAYDIGAN
+// qism: 2a kubda ikkilik tashqarida, (2a) kubda esa har muljitel ichida.
+// Aynan shu farq «2a³ va (2a)³ bir xil» xatosini yopadi.
+//
+// ASBOB SANAYDI, javob bermaydi: xato javobda u lentadagi elementlar
+// sonini takrorlaydi, natijani esa aytmaydi (§8.1).
+// ============================================================================
+export function FactorTape({
+  expr, item, count, join = '·', outside, options, answer, wrongs, note,
+  onSolved, onStep, disabled, audio,
+}) {
+  const t = useT()
+  const fx = useAnswerFx(audio)
+  const [open, setOpen] = useState(false)
+  const [picked, setPicked] = useState(null)
+  const [wrong, setWrong] = useState([])
+  const [hint, setHint] = useState(null)
+  const [tags, setTags] = useState([])
+  const isSum = join === '+'
+
+  const reveal = () => {
+    if (open || disabled) return
+    fx.tap()
+    setOpen(true)
+    if (onStep) onStep('open')
+  }
+
+  const pick = (o) => {
+    if (picked || disabled) return
+    if (o.id === answer) {
+      fx.right()
+      setPicked(o.id)
+      setHint(note || null)
+      if (onSolved) onSolved({ correct: true, attempts: wrong.length + 1, tags })
+      return
+    }
+    const w = (wrongs || []).find((x) => x.key === o.id) || (wrongs || []).find((x) => x.key === '*')
+    setWrong((prev) => (prev.indexOf(o.id) === -1 ? prev.concat(o.id) : prev))
+    setHint(w ? w.hint : null)
+    if (w && w.tag) setTags((prev) => (prev.indexOf(w.tag) === -1 ? prev.concat(w.tag) : prev))
+    fx.wrong(w ? w.hint : null)
+  }
+
+  const cells = []
+  for (let i = 0; i < count; i += 1) cells.push(i)
+
+  return (
+    <>
+      <Slot mh={44}>
+        {/* O'ram: Slot ichida element o'zi markazga kelmaydi. */}
+        <div className="g7-ft-head">
+        {/* HAQIQIY <button>, div EMAS. Sabab ikkitasi va ikkalasi ham
+            jiddiy: klaviatura bilan o'tish, va tekshiruv skripti tugmalarni
+            izlaydi -- div ni ko'rmaydi. Aynan shu xato `DistanceLine` da
+            ham bo'lgan (10-dars, 2026-08-17). */}
+        {open ? (
+          <span className="g7-ft-src is-open"><Fx>{expr}</Fx></span>
+        ) : (
+          <button type="button" className="g7-ft-src" onClick={reveal} disabled={disabled}>
+            <Fx>{expr}</Fx>
+            {!disabled ? <TapMark /> : null}
+          </button>
+        )}
+        </div>
+      </Slot>
+
+      {/* LENTA. Tashqaridagi qism qavsdan TASHQARIDA turadi va shu bilan
+          «lentaga kirmadi» degani ko'rinadi. */}
+      <Slot mh={78}>
+        {open ? (
+          <div className="g7-ft">
+            {outside ? <span className="g7-ft-out"><Fx>{outside}</Fx></span> : null}
+            <span className="g7-ft-tape">
+              {cells.map((i) => (
+                <span key={i} className="g7-ft-cell" style={{ animationDelay: (i * 90) + 'ms' }}>
+                  {i ? <span className="g7-ft-join">{join}</span> : null}
+                  <Fx>{item}</Fx>
+                </span>
+              ))}
+            </span>
+            <span className={'g7-ft-cnt' + (isSum ? ' is-sum' : '')}>
+              {t(isSum ? UI.ftSum : UI.ftMul)} {count}
+            </span>
+          </div>
+        ) : null}
+      </Slot>
+
+      <Slot mh={54}>
+        {open ? (
+          <Options
+            items={options.map((o) => ({ id: o.id, label: t(o.label) }))}
+            picked={picked}
+            wrong={wrong}
+            onPick={pick}
+            disabled={disabled}
+            cols={4}
+          />
+        ) : null}
+      </Slot>
+
+      <Slot mh={58}>
+        <Feedback show={!!hint} ok={!!picked}>{hint ? t(hint) : null}</Feedback>
+      </Slot>
+    </>
+  )
+}
+
+// ============================================================================
 // QuantityCard -- KATTALIKLAR JADVALI (11-dars). KO'RSATUVCHI asbob:
 // u savol bermaydi va javobni tekshirmaydi, u masalaning TUZILISHINI ushlab
 // turadi. Interaktiv qism yonida turadi (Probe, SlotFill).
@@ -3446,18 +3576,59 @@ const bvTone = (it) => {
   return T.ink
 }
 
+// ============================================================================
+// BuildValue -- O'QUVCHI YOZUVNI O'ZI YIG'ADI (amaliyot 5-tipi).
+//
+// EKRANNING TARTIBI (metodist qarori 2026-08-20):
+//   1. SAVOL yuqorida;
+//   2. BO'SH MAYDON -- yozuv shu yerda yig'iladi;
+//   3. KARTALAR pastda: sonlar, amal belgilari VA QAVSLAR. Hammasini
+//      o'quvchi o'zi qo'yadi.
+// Yon ustundagi o'lchagich OLIB TASHLANDI.
+//
+// QIYMAT FAQAT «TEKSHIRISH» DAN KEYIN KO'RINADI. Jonli o'lchagich topshiriqni
+// «sonni tutib olish» ga aylantirardi: kartalarni aylantirib, son maqsadga
+// tenglashishini kutish yetardi -- o'ylash kerak emasdi (etalon §8.1, asbob
+// NAZORATCHI, oracle emas). To'g'ri javobda javob ko'rsatiladi, xatoda esa
+// O'QUVCHI YIG'GAN yozuvning qiymati.
+//
+// KARTA ISTALGAN JOYGA QO'YILADI. Bu eng muhim qism va u ikkinchi urinishda
+// to'g'ri qilindi. Ilgari yozuv faqat OXIRIDAN yig'ilardi, ya'ni «(7 + 3) · 2»
+// uchun qavsni YETTIDAN OLDIN bosish kerak edi. Odam esa avval «7 + 3» ni
+// yozadi, keyin uni qavsga olmoqchi bo'ladi -- va olib bo'lmasdi, hammasini
+// o'chirish kerak edi. Metodist aynan shu yerda «javob topilmaydi» dedi.
+// Endi yozuvda TIRQISHLAR bor: tirqishni bosib joyni tanlaysiz, keyin kartani
+// bosasiz -- u shu yerga tushadi.
+//
+//   target      -- kerakli qiymat
+//   tiles       -- [{ id, label, kind: 'num' | 'op' | 'open' | 'close' }]
+//   useAll      -- hamma karta ishlatilishi shart
+//   needBracket -- qavssiz yozuv qabul qilinmaydi
+//   wrongs      -- [{ value, bracket?, hint, tag }] razbor AYNAN shu yo'lga
+//   hints       -- urinishlar bo'yicha o'sadigan zaxira yordam (§8.4)
+//   okNote      -- to'g'ri javobdan keyingi izoh: qaysi qoida ishlagani
+// ============================================================================
+// `given`     -- yozuv ustida turadigan berilgan satrlar: [{ text, bad }].
+//               `bad: true` -- chuqur satr (chet kishining xato qadami).
+// `answerSeq`  -- javob QIYMAT emas, YOZUVNING O'ZI: karta yorliqlari massivi.
+//               «Xato satrni tuzatib yozing» janri shunday tekshiriladi:
+//               90 − 4 · 2 va 90 − 8 qiymati bir xil (82), lekin KEYINGI
+//               qator faqat birinchisi. Qiymat bo'yicha tekshirish ikkinchisini
+//               ham qabul qilardi, ya'ni qadam tashlab ketilishini sezmasdi.
 export function BuildValue({
   target, tiles, needBracket, useAll, prompt, promptCap, hints, wrongs,
-  bracketHint, okNote, onSolved, onStep, disabled, audio,
+  bracketHint, okNote, given, answerSeq, onSolved, onStep, disabled, audio,
 }) {
   const t = useT()
   const lang = useLang()
   const fx = useAnswerFx(audio)
   const [seq, setSeq] = useState([])
+  const [pos, setPos] = useState(0)      // karta QO'YILADIGAN joy
   const [tries, setTries] = useState(0)
   const [hint, setHint] = useState(null)
   const [solved, setSolved] = useState(false)
   const [shake, setShake] = useState(0)
+  const [shown, setShown] = useState(null)
 
   const byId = useMemo(() => {
     const map = {}
@@ -3467,39 +3638,38 @@ export function BuildValue({
 
   const items = seq.map((id) => byId[id])
   const value = evalSeq(items)
-  const hasBracket = items.some((x) => x && x.kind === 'open')
+  const hasBr = items.some((x) => x && x.kind === 'open')
   const left = tiles.length - seq.length
-  // HAMMA PLITKA ISHLATILADI (`useAll`). Bu shunchaki qattiqroq shart emas --
-  // u BOSHI BERK YO'LNI yo'q qiladi. Metodist 2026-08-20 da « ( 7 · 3 ) »
-  // yig'di: qavs ko'paytirishga tushdi, qo'lda «2» va «+» qoldi, va yigirmaga
-  // yo'l yo'q edi. Ilgari «Tekshirish» shu holatda ochiq turardi, javob esa
-  // yigirma bir edi -- ekran «javob topilmaydi» deb ko'rinardi. Endi yozuv
-  // TUGALLANISHI shart, ya'ni o'quvchi «(7 · 3) + 2» ni yozib yigirma uchni
-  // ko'radi va razborni oladi -- to'xtab qolmaydi.
   const complete = !useAll || left === 0
-  const ready = value !== null && complete && !solved
+  // `answerSeq` rejimida yozuv hisoblanmasligi ham mumkin (masalan yarim
+  // qator), lekin tekshirishga ruxsat beriladi: javob qiymat emas, YOZUV.
+  const ready = (answerSeq ? seq.length > 0 : value !== null) && complete && !solved
 
   const put = (id) => {
     if (solved || disabled) return
     fx.tap()
-    setSeq((prev) => prev.concat(id))
+    setSeq((prev) => prev.slice(0, pos).concat(id, prev.slice(pos)))
+    setPos((p) => p + 1)
     setHint(null)
+    setShown(null)
   }
+  // «Bitta orqaga» -- kursordan OLDINGI belgini o'chiradi (klaviaturadagi
+  // backspace kabi), oxirgisini emas: kursor o'rtada turgan bo'lishi mumkin.
   const undo = () => {
-    if (solved || disabled || !seq.length) return
+    if (solved || disabled || pos === 0) return
     fx.tap()
-    setSeq((prev) => prev.slice(0, -1))
+    setSeq((prev) => prev.slice(0, pos - 1).concat(prev.slice(pos)))
+    setPos((p) => Math.max(0, p - 1))
     setHint(null)
+    setShown(null)
   }
-  const clear = () => {
-    if (solved || disabled || !seq.length) return
-    setSeq([])
-    setHint(null)
-  }
+  const seqLabels = items.map((x) => (x ? x.label : ''))
+  const seqOk = !!answerSeq && seqLabels.join('|') === answerSeq.join('|')
 
   const check = () => {
     if (!ready) return
-    if (value === target && (!needBracket || hasBracket)) {
+    setShown(answerSeq ? null : value)
+    if (answerSeq ? seqOk : (value === target && (!needBracket || hasBr))) {
       setSolved(true)
       fx.right()
       if (onStep) onStep('ok')
@@ -3509,123 +3679,136 @@ export function BuildValue({
     const n = tries + 1
     setTries(n)
     setShake((s) => s + 1)
-    // RAZBOR AYNAN SHU YOZUVGA (etalon §8.3). Ilgari bu yerda faqat urinishlar
-    // bo'yicha o'sadigan umumiy maslahat bor edi, va u ko'pincha o'quvchi
-    // yurgan yo'lga TEGISHLI EMAS edi: « ( 7 · 3 ) » yig'ganga «ko'paytirish
-    // ikki sondan faqat bittasini oladi» deb javob berardi. Endi qiymat
-    // bo'yicha o'z razbori bor: yigirma bir -- bu qavs ko'paytirishga
-    // tushgani, va bunday qavs ORTIQCHA.
-    const byValue = (wrongs || []).find((x) => x.value === value)
+    // Razbor QAVSGA HAM qaraydi: bir xil qiymat qavssiz ham, ortiqcha qavs
+    // bilan ham chiqadi, sabab esa har xil. `bracket: true|false` shuni
+    // ajratadi; ko'rsatilmasa, ikkisiga ham to'g'ri keladi.
+    const line = seqLabels.join(' ')
+    const byValue = (wrongs || []).find((x) => (
+      (x.line !== undefined && x.line === line)
+      || (x.line === undefined && x.value === value && (x.bracket === undefined || x.bracket === hasBr))
+    ))
     const list = hints || []
-    const h = (needBracket && !hasBracket && bracketHint)
+    const h = (needBracket && !hasBr && bracketHint)
       ? bracketHint
       : (byValue ? byValue.hint : (list[Math.min(n - 1, list.length - 1)] || null))
     setHint(h)
     fx.wrong(h)
   }
 
-  const meterVal = value === null ? '—' : fmtNum(value, lang)
+  // Tirqish: karta shu yerga tushadi. Yozuv bo'sh bo'lsa ham bittasi turadi.
+  const slot = (i) => (
+    <button
+      key={'s' + i}
+      type="button"
+      className={'g7-bv-slot' + (pos === i ? ' is-at' : '')}
+      onClick={() => { if (!solved && !disabled) { fx.tap(); setPos(i) } }}
+      disabled={solved || disabled}
+      aria-label={t(UI.bvHere)}
+      data-slot={i}
+    />
+  )
 
   return (
     <>
       <Ask kind="task" tight cap={promptCap ? t(promptCap) : undefined}>{prompt ? t(prompt) : null}</Ask>
 
-      <div className="g7-panel g7-panel-paper" style={{ display: 'flex', gap: 14, alignItems: 'stretch' }}>
-        {/* YOZUV. Balandligi BOSHIDAN band: yozuv o'sganda panel sakramaydi. */}
-        <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 78 }}>
-          <div
-            key={'sh' + shake}
-            className="g7-expr g7-expr-mid"
-            style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: 7,
-              justifyContent: 'center',
-              fontFamily: MATH_FONT,
-              ...(shake ? { animation: 'g7-shake .3s ease' } : null),
-            }}
-          >
-            {items.length === 0 ? (
-              <span style={{ fontFamily: "'Manrope', sans-serif", fontSize: 15, fontWeight: 600, color: T.ink3 }}>
-                {t(UI.bvEmpty)}
-              </span>
-            ) : items.map((it, i) => {
-              // OXIRGI BELGI -- TUGMA. Qo'l YOZUVNING ICHIDA ishlaydi (sinf
-              // qoidasi): fikridan qaytish uchun pastdagi tugmani izlash
-              // kerak emas, yozuvning oxiriga tegish yetarli.
-              const last = i === items.length - 1 && !solved
-              return last ? (
-                <button
-                  key={i}
-                  type="button"
-                  className="g7-pop g7-bv-last"
-                  disabled={disabled}
-                  onClick={undo}
-                  title={t(UI.bvUndo)}
-                  style={{
-                    font: 'inherit', color: bvTone(it), fontWeight: 800,
-                    background: 'none', border: 0, padding: '0 2px', cursor: 'pointer',
-                    borderBottom: '2px dashed ' + T.line, lineHeight: 1.05,
-                  }}
-                >
-                  {it.label}
-                </button>
-              ) : (
-                <span key={i} className="g7-pop" style={{ color: bvTone(it), fontWeight: 800 }}>{it.label}</span>
-              )
-            })}
-          </div>
+      {/* BERILGAN SATRLAR. Chet kishining yechimi: birinchi qator -- asl
+          yozuv, keyingisi -- xato qadam. Ular O'QILADI, bosilmaydi. */}
+      {given && given.length ? (
+        <div className="g7-panel g7-panel-quiet" style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          {given.map((row, i) => (
+            <div
+              key={i}
+              className="g7-expr g7-expr-row"
+              style={{ fontFamily: MATH_FONT, color: row.bad ? T.tip : T.ink2, fontWeight: row.bad ? 800 : 700 }}
+            >
+              <Fx>{typeof row.text === 'string' ? row.text : t(row.text)}</Fx>
+            </div>
+          ))}
         </div>
+      ) : null}
 
-        {/* O'LCHAGICH. Yuqorida MAQSAD, pastda o'quvchi yozuvining HOZIRGI
-            qiymati. Son har plitkada qayta tug'iladi (g7-snap), shuning
-            uchun uning O'ZGARGANI ko'rinadi. */}
+      {/* BO'SH MAYDON. Balandligi boshidan band: yozuv o'sganda maydon
+          sakramaydi, va yechilgan holat ham shu joyga sig'adi (§6.1). */}
+      <div
+        className="g7-panel g7-panel-paper g7-bv-field"
+        style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, minHeight: 104 }}
+      >
         <div
+          key={'sh' + shake}
+          className="g7-expr g7-expr-mid"
           style={{
-            flex: '0 0 128px',
-            borderLeft: '1px solid ' + T.line,
-            paddingLeft: 13,
             display: 'flex',
-            flexDirection: 'column',
+            flexWrap: 'wrap',
+            alignItems: 'center',
             justifyContent: 'center',
-            gap: 4,
+            fontFamily: MATH_FONT,
+            ...(shake ? { animation: 'g7-shake .3s ease' } : null),
           }}
         >
-          <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: T.ink3 }}>
-            {t(UI.bvTarget)}
-          </span>
-          <b style={{ fontFamily: MATH_FONT, fontSize: 'var(--g7-num)', fontWeight: 800, color: T.graph, lineHeight: 1 }}>
-            {fmtNum(target, lang)}
-          </b>
-          <span style={{ height: 1, background: T.line, margin: '5px 0' }} />
-          <span style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: T.ink3 }}>
-            {t(UI.bvNow)}
-          </span>
-          <b
-            key={'v' + meterVal}
-            className={value === null ? '' : 'g7-snap'}
-            style={{
-              fontFamily: MATH_FONT,
-              fontSize: 'var(--g7-num)',
-              fontWeight: 800,
-              lineHeight: 1,
-              color: solved ? T.ok : (value === null ? T.ink3 : T.ink),
-            }}
-          >
-            {meterVal}
-          </b>
-          {/* QOLGAN PLITKALAR. Ular sanalmasa, o'quvchi yozuvi TUGAGANINI
-              bilmaydi va «Tekshirish» nega yopiq turganini tushunmaydi. */}
-          {useAll && !solved ? (
-            <span style={{ marginTop: 4, fontSize: 11.5, fontWeight: 700, color: left ? T.tip : T.ok }}>
-              {t(UI.bvLeft)} {left}
-            </span>
+          {items.length === 0 ? (
+            <>
+              {slot(0)}
+              {/* `white-space: normal` MAJBURIY: `.g7-expr` da nowrap turadi va
+                  bu proza satri 390px da jimgina kesilardi. */}
+              <span
+                style={{
+                  fontFamily: "'Manrope', sans-serif", fontSize: 15, fontWeight: 600,
+                  color: T.ink3, whiteSpace: 'normal', textAlign: 'center', maxWidth: '100%',
+                }}
+              >
+                {t(UI.bvEmpty)}
+              </span>
+            </>
+          ) : (
+            <>
+              {items.map((it, i) => (
+                <React.Fragment key={i}>
+                  {slot(i)}
+                  {/* Belgining O'ZI ham nishon: bosilsa, kursor uning oldiga
+                      ko'chadi. Tirqish tor, belgi esa katta -- barmoq bilan
+                      shunisi qulay. */}
+                  <button
+                    type="button"
+                    className="g7-pop g7-bv-tok"
+                    style={{ color: bvTone(it), fontWeight: 800 }}
+                    disabled={solved || disabled}
+                    onClick={() => { fx.tap(); setPos(i) }}
+                  >
+                    {it.label}
+                  </button>
+                </React.Fragment>
+              ))}
+              {slot(items.length)}
+            </>
+          )}
+        </div>
+
+        {/* NATIJA SATRI. Tekshirishdan KEYIN paydo bo'ladi va joyi boshidan
+            band. To'g'ri javobda -- javob, xatoda -- O'QUVCHI YIG'GAN son. */}
+        <div style={{ minHeight: 30, display: 'flex', alignItems: 'center', gap: 8 }}>
+          {shown !== null ? (
+            <>
+              <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '.1em', textTransform: 'uppercase', color: T.ink3 }}>
+                {solved ? t(UI.bvIsRight) : t(UI.bvYours)}
+              </span>
+              <b
+                key={'v' + shown}
+                className="g7-snap"
+                style={{
+                  fontFamily: MATH_FONT, fontSize: 'var(--g7-num)', fontWeight: 800,
+                  lineHeight: 1, color: solved ? T.ok : T.tip,
+                }}
+              >
+                {fmtNum(shown, lang)}
+              </b>
+            </>
           ) : null}
         </div>
       </div>
 
-      {/* Yechilgach plitkalar va tugmalar YO'QOLADI, o'rniga izoh keladi
-          (§6.1: yangi qadam avvalgisini almashtiradi, ustiga qo'shilmaydi). */}
+      {/* KARTALAR PASTDA. Yechilgach ular va tugmalar yo'qoladi, o'rniga izoh
+          keladi (§6.1: yangi qadam avvalgisini almashtiradi). */}
       {!solved ? (
         <>
           <div className="g7-options g7-options-dense" style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
@@ -3645,16 +3828,177 @@ export function BuildValue({
               )
             })}
           </div>
-          {/* «Bitta orqaga» ODDIY tugma, xira yozuv emas. Boshi berk yo'ldan
-              chiqish YAQQOL ko'rinishi kerak -- metodist aynan shu holatda
-              «javob topilmaydi» dedi (2026-08-20). */}
-          <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Btn tone="soft" onClick={undo} disabled={disabled || !seq.length}>{t(UI.bvUndo)}</Btn>
-            <Btn tone="ghost" onClick={clear} disabled={disabled || !seq.length}>{t(UI.again)}</Btn>
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
+            {useAll ? (
+              <span style={{ fontSize: 11.5, fontWeight: 700, color: left ? T.tip : T.ok }}>
+                {t(UI.bvLeft)} {left}
+              </span>
+            ) : null}
+            {/* «Qaytadan» tugmasi YO'Q (metodist qarori 2026-08-20): u kerak
+                emas, «Bitta orqaga» kursordan oldingi belgini oladi va
+                yozuvni bosqichma-bosqich tozalash uchun yetarli. */}
+            <Btn tone="soft" onClick={undo} disabled={disabled || pos === 0}>{t(UI.bvUndo)}</Btn>
             <Btn onClick={check} disabled={!ready || disabled} ready={ready} mark="check">{t(UI.check)}</Btn>
           </div>
         </>
       ) : null}
+
+      <Slot mh={58}>
+        {solved && okNote ? <Feedback show ok>{t(okNote)}</Feedback> : null}
+        {!solved && hint ? <Feedback show ok={false}>{t(hint)}</Feedback> : null}
+      </Slot>
+    </>
+  )
+}
+
+// ============================================================================
+// SortZones -- YOZUVLARNI ZONALARGA AJRATISH.
+//
+// Nega kerak. «Belgini tanish» janri boshqa sinflarda `choice` bilan
+// beriladi: to'rt variant, bittasi to'g'ri. 7-sinfda bu yaramaydi (etalon
+// §1.1). Bu asbob o'sha janrni boshqa yo'l bilan beradi: ekranda ALTI yozuv
+// va uchta zona, va o'quvchi HAR BIRINI joylashtiradi. Bitta yozuvni tanish
+// emas, oltitasini hisoblash kerak.
+//
+// BOSISH BILAN ISHLAYDI, tortish bilan emas (3-sinf kanoni §3.6: telefonda
+// barmoq zonadan chetga tushadi va tortish bilan topshiriq o'tolmaydigan
+// bo'lib qoladi). Naqsh: kartani bos -- tanlanadi; zonani bos -- tushadi.
+// Zonadagi kartani bosish: agar qo'lda karta bo'lsa, u shu zonaga tushadi;
+// bo'sh bo'lsa -- bosilgan karta qo'lga qaytadi.
+//
+// HAMMASI YOKI HECH NARSA (amaliyot qoidasi): yarim to'g'ri javob butunlay
+// noto'g'ri hisoblanadi, xato joylashganlar belgilanadi.
+//
+//   zones: [{ id, label }]              -- uchtadan ko'p emas (390px)
+//   items: [{ id, text, zone }]         -- oltitadan ko'p emas
+//   wrongs: [{ key?, hint, tag }]       -- `key` -- xato joylashganlar id lari
+// ============================================================================
+export function SortZones({ zones, items, prompt, promptCap, wrongs, okNote, onSolved, onStep, disabled, audio }) {
+  const t = useT()
+  const fx = useAnswerFx(audio)
+  const [place, setPlace] = useState({})   // itemId -> zoneId
+  const [picked, setPicked] = useState(null)
+  const [checked, setChecked] = useState(false)
+  const [tries, setTries] = useState(0)
+  const [hint, setHint] = useState(null)
+  const [solved, setSolved] = useState(false)
+
+  const pool = items.filter((it) => !place[it.id])
+  const all = items.every((it) => place[it.id])
+  const wrongIds = items.filter((it) => place[it.id] && place[it.id] !== it.zone).map((it) => it.id)
+
+  const tapItem = (id, e) => {
+    if (e && e.stopPropagation) e.stopPropagation()
+    if (solved || disabled) return
+    fx.tap()
+    setHint(null)
+    setChecked(false)
+    // Zonadagi kartani bosish: qo'lda karta bo'lsa -- u shu zonaga tushadi.
+    if (place[id] && picked) {
+      const zone = place[id]
+      setPlace((prev) => ({ ...prev, [picked]: zone }))
+      setPicked(null)
+      return
+    }
+    if (place[id]) {
+      setPlace((prev) => { const next = { ...prev }; delete next[id]; return next })
+      setPicked(null)
+      return
+    }
+    setPicked(picked === id ? null : id)
+  }
+
+  const tapZone = (zoneId) => {
+    if (solved || disabled || !picked) return
+    fx.tap()
+    setHint(null)
+    setChecked(false)
+    setPlace((prev) => ({ ...prev, [picked]: zoneId }))
+    setPicked(null)
+  }
+
+  const check = () => {
+    if (!all || solved || disabled) return
+    setChecked(true)
+    if (!wrongIds.length) {
+      setSolved(true)
+      fx.right()
+      if (onStep) onStep('ok')
+      if (onSolved) onSolved({ correct: true, attempts: tries + 1, tags: [] })
+      return
+    }
+    const n = tries + 1
+    setTries(n)
+    const key = wrongIds.slice().sort().join(',')
+    const list = wrongs || []
+    const exact = list.find((x) => x.key === key)
+    const any = list.find((x) => x.key === undefined || x.key === '*')
+    const h = (exact && exact.hint) || (any && any.hint) || null
+    setHint(h)
+    fx.wrong(h)
+  }
+
+  const chip = (it, inZone) => {
+    const bad = checked && wrongIds.indexOf(it.id) !== -1
+    const good = checked && place[it.id] && !bad
+    return (
+      <button
+        key={it.id}
+        type="button"
+        className={'g7-sz-chip' + (picked === it.id ? ' is-picked' : '') + (bad ? ' is-bad' : '') + (good ? ' is-good' : '')}
+        disabled={solved || disabled}
+        onClick={(e) => tapItem(it.id, e)}
+        data-item={it.id}
+      >
+        <Fx>{typeof it.text === 'string' ? it.text : t(it.text)}</Fx>
+      </button>
+    )
+  }
+
+  return (
+    <>
+      <Ask kind="task" tight cap={promptCap ? t(promptCap) : undefined}>{prompt ? t(prompt) : null}</Ask>
+
+      <div className="g7-sz-zones">
+        {zones.map((z) => (
+          <div key={z.id} className="g7-sz-zone">
+            <span className="g7-sz-cap">{t(z.label)}</span>
+            {/* Zonaning ichi -- tushirish maydoni. Balandligi boshidan band:
+                kartalar kelganda zona o'smaydi va ekran sakramaydi. */}
+            {/* Zona -- DIV, tugma emas: uning ichida kartalar turadi, va
+                tugma ichidagi tugma yaroqsiz HTML (React 2026-08-20 da
+                aynan shundan ogohlantirdi). Bosish DIV da, kartalar esa
+                o'z bosishini yuqoriga o'tkazmaydi. */}
+            <div
+              className={'g7-sz-drop' + (picked ? ' is-open' : '')}
+              role={picked ? 'button' : undefined}
+              tabIndex={picked ? 0 : undefined}
+              onClick={() => tapZone(z.id)}
+              onKeyDown={(e) => { if (picked && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); tapZone(z.id) } }}
+              data-zone={z.id}
+            >
+              <span className="g7-sz-in">
+                {items.filter((it) => place[it.id] === z.id).map((it) => chip(it, true))}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* KARTALAR PASTDA -- amaliyotning umumiy shakli. */}
+      <Slot mh={54}>
+        {pool.length ? (
+          <div className="g7-sz-pool">{pool.map((it) => chip(it, false))}</div>
+        ) : null}
+      </Slot>
+
+      <Slot mh={solved ? 0 : 46}>
+        {!solved ? (
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <Btn onClick={check} disabled={!all || disabled} ready={all} mark="check">{t(UI.check)}</Btn>
+          </div>
+        ) : null}
+      </Slot>
 
       <Slot mh={58}>
         {solved && okNote ? <Feedback show ok>{t(okNote)}</Feedback> : null}

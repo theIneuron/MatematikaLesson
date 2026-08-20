@@ -107,6 +107,17 @@ export const grade7Nazariy = [
     desc: "Jami ma'lum bo'lsa, ikkinchisi 40 ayirish x. Aralashma va harakat. 15 slayd, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade7/Dars12.jsx')),
   },
+  {
+    // B3 BLOKINING BIRINCHI DARSI. Asbob: `FactorTape` -- muljitellar
+    // lentasi. Daraja darslikda MULJITELLAR KO'PAYTMASI orqali ta'riflangan
+    // (26-bet), lenta shu ta'rifni ekranga chiqaradi.
+    // QIYINLIK DARAJASI: metodist qarori 2026-08-20 -- misollar harfli,
+    // ishora va koeffitsiyent bilan; 2 karra 2 karra 2 kabi misollar yo'q.
+    slug: 'dars13-daraja',
+    title: "Dars 13. Natural ko'rsatkichli daraja",
+    desc: "Ko'rsatkich muljitellarni sanaydi. Yig'indi koeffitsiyent beradi, ko'paytma ko'rsatkich. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade7/Dars13.jsx')),
+  },
 ]
 
 // 7-sinf AMALIY mashg'ulotlari. Har nazariy darsga 10 tekshiriladigan
