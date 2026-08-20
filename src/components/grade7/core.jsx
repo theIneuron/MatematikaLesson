@@ -792,6 +792,14 @@ export function Fx({ children, stage }) {
       out.push(<span key={out.length} className={STAGE_CLS[ch]}>{ch}</span>)
       continue
     }
+    // MODUL CHIZIG'I. Yonidagi harfga yopishib qolsa, u bosh «I» harfiga
+    // o'xshab ketadi: |x − 3| yozuvi «Ix − 3I» bo'lib o'qilardi (surat
+    // 2026-08-17). Shuning uchun chiziq atrofida ozgina joy bo'shatiladi.
+    if (ch === '|') {
+      flush()
+      out.push(<span key={out.length} className="g7-fxbar">{ch}</span>)
+      continue
+    }
     if (on && ch >= '0' && ch <= '9') {
       // Son -- matematik shriftda. Ketma-ket raqamlar bitta bo'lakka
       // yig'iladi, aks holda har raqam alohida span bo'lib, oraliqlar
@@ -997,12 +1005,18 @@ export const Tag = ({ children, tone = 'quiet', style }) => (
   <span className={'g7-tag g7-tag-' + tone} style={style}>{children}</span>
 )
 
-export const Btn = ({ children, onClick, disabled, tone = 'solid', ready, style, title }) => (
+// `mark` -- tekshiruv skriptlari uchun BELGI (`data-check` kabi). Skript
+// tugmani MATNI bo'yicha izlashi mumkin emas: matn uch tilda boshqacha, va
+// aynan shuning uchun `grade7-noscroll.mjs` walkeri «Tekshirish» tugmasini
+// bosmasdan, variantlarni aylantirib yurgan. Natijada YECHILGAN holat
+// hech qachon o'lchanmagan (11-dars, 6-ekran: 101 px oshib ketgan).
+export const Btn = ({ children, onClick, disabled, tone = 'solid', ready, style, title, mark }) => (
   <button
     type="button"
     className={'g7-btn g7-btn-' + tone + (ready && !disabled ? ' g7-btn-ready' : '')}
     onClick={onClick}
     disabled={disabled}
+    {...(mark ? { [`data-${mark}`]: '1' } : null)}
     style={style}
     title={title}
   >
@@ -1091,10 +1105,15 @@ export const Options = ({ items, picked, wrong, onPick, disabled, cols = 2, minH
 }
 
 // Javob berilgan savol shu qatorga yig'iladi.
-export const DoneRow = ({ children }) => (
+// `prose` -- satr YOZUV emas, GAP bo'lganda. Yozuv monoshiriftda turadi, gap
+// esa turmaydi: proza monoshiriftda taqiqlangan (§6.2). Tarozining «ikki
+// qadam bajarildi» satri aynan gap edi va monoshiriftda chiqib turgandi.
+export const DoneRow = ({ children, prose }) => (
   <div className="g7-done">
     <span className="g7-done-tick">{'✓'}</span>
-    <span className="g7-done-text"><Fx>{children}</Fx></span>
+    <span className={'g7-done-text' + (prose ? ' is-prose' : '')}>
+      {prose ? children : <Fx>{children}</Fx>}
+    </span>
   </div>
 )
 
@@ -2150,6 +2169,7 @@ sup.g7-idx { vertical-align: .46em; }
 }
 .g7-done-tick { color: ${T.ok}; font-weight: 800; flex-shrink: 0; }
 .g7-done-text { font-family: ${MATH_FONT}; min-width: 0; white-space: normal; overflow-wrap: anywhere; }
+.g7-done-text.is-prose { font-family: 'Manrope', sans-serif; }
 
 /* FIDBEK -- 5-sinf tuzilishi (metodist 2026-08-10: «посмотри как это сделано
    для 5 класса»). U yerda ikki qator: birinchisi HOLAT (kichik, katta harf,
@@ -2158,7 +2178,11 @@ sup.g7-idx { vertical-align: .46em; }
    yorliqda, matn esa Manrope, 5-sinfdagi 15/1.5 shkalasida. */
 .g7-fb {
   display: flex; flex-direction: column; gap: 5px;
-  padding: clamp(11px, 1.6vw, 16px) clamp(13px, 1.8vw, 18px);
+  /* Ichki bo'shliq 2026-08-17 da ozgina kichraytirildi. Sabab: tekshiruv
+     walkeri tuzatilgach ma'lum bo'ldi -- razbor va xulosa birga chiqqan
+     yechilgan holat uch darsda budjetdan 3-8 px oshib turgan. Matn, shrift
+     va rang o'zgarmadi, faqat atrofdagi bo'shliq. */
+  padding: clamp(9px, 1.3vw, 13px) clamp(13px, 1.8vw, 18px);
   border-radius: 12px;
   border-left: 4px solid transparent;
   opacity: 0;
@@ -2195,7 +2219,16 @@ sup.g7-idx { vertical-align: .46em; }
 }
 @media (prefers-reduced-motion: reduce) { .g7-fb-star { animation: none; } }
 /* Layfxak ekranning ENG PASTIDA: zahira slotlarning o'rnini egallaydi. */
-.g7-fb-bottom { margin-top: auto; }
+/* PASTDAGI PLASHKA (mukofot va bonus) ekranga YECHILGANDAN keyin qo'shiladi,
+   ya'ni u eng tor joyga tushadi. 2026-08-17 da tekshiruv walkeri tuzatilgach
+   ma'lum bo'ldi: yechilgan holat hech qachon o'lchanmagan va yetti darsda
+   ekran budjetdan oshib turgan. Shuning uchun pastdagi plashka IXCHAM:
+   ichki bo'shliq kichrayadi, matn esa o'zgarmaydi. */
+.g7-fb-bottom {
+  margin-top: auto;
+  padding: clamp(8px, 1vw, 11px) clamp(12px, 1.6vw, 16px);
+  gap: 3px;
+}
 .g7-fb-tip .g7-fb-cap { color: ${T.tip}; }
 .g7-fb-body {
   min-width: 0;
@@ -3623,8 +3656,10 @@ sup.g7-idx { vertical-align: .46em; }
 /* Yakunda bitta kartochka qolganda u butun ustunni egallamaydi. */
 .g7-sumcards-one { grid-template-columns: minmax(0, 1fr); }
 .g7-sumcard {
-  display: flex; flex-direction: column; gap: 5px; min-width: 0;
-  padding: 8px clamp(9px, 1.2vw, 13px); border-radius: 12px;
+  /* Yakun kartochkasi 2026-08-17 da ozgina ixchamlashdi: 6, 7, 8 va
+     11-darslarda yakun 2 px oshib turgan (walker tuzatilgach ko'rindi). */
+  display: flex; flex-direction: column; gap: 4px; min-width: 0;
+  padding: 7px clamp(9px, 1.2vw, 13px); border-radius: 12px;
   background: ${T.paperSolid}; box-shadow: inset 0 0 0 1px ${T.line};
 }
 .g7-sumcard-h {
@@ -3641,7 +3676,7 @@ sup.g7-idx { vertical-align: .46em; }
 .g7-sumcard-note {
   margin: 0; min-width: 0; overflow-wrap: anywhere;
   font-family: 'Manrope', sans-serif;
-  font-size: clamp(13px, 1.55vw, 15px); line-height: 1.38; color: ${T.ink2};
+  font-size: clamp(13px, 1.55vw, 15px); line-height: 1.32; color: ${T.ink2};
 }
 /* Faol qator: amal belgisi TUGMA. Yozuvning o'zi bosiladigan yuzaga aylanadi,
    chipslar qatori endi umuman yo'q. */
@@ -3950,9 +3985,308 @@ sup.g7-idx { vertical-align: .46em; }
   .g7-so-row { font-size: clamp(18px, 5vw, 24px); }
   .g7-so-op { min-width: 46px; min-height: 54px; }
   .g7-rb-chip { min-height: 46px; }
+  /* Almashtirish jadvalining qatori 390 da GORIZONTAL chiqib ketardi:
+     g7-expr da white-space nowrap turadi, va uzun qo'yish (masalan
+     4 karra 2 qo'shuv 8 qo'shuv 3 karra 2) chetdan 20px oshib KESILARDI
+     (o'lchov 2026-08-16, 6-dars 7-ekran). Tor ekranda qator o'ralishi
+     mumkin: grid katagi uchun bu xavfsiz, uning eni minmax nol dan boshlanadi.
+     Skroll baribir yo'q, kontent balandlikka ketadi, kenglikka emas.
+     DIQQAT: bu izohda TESKARI APOSTROF bo'lishi mumkin emas. */
+  .g7-sub-row { white-space: normal; }
   /* Yonma-yon turgan ikki kartochka 390 da yozuvni uch qatorga yorardi (§6.2) */
   .g7-tv-row { flex-direction: column; gap: 6px; }
   .g7-tv { width: 100%; flex: 0 0 auto; flex-direction: row; justify-content: space-between; }
   .g7-tv-val { font-size: clamp(22px, 7vw, 30px); }
 }
+
+/* ============================================================
+   YO'L SAHNASI (RideScene, 2-dars). Sahnaning O'ZI bosiladi -- tugma
+   uchun alohida qator yo'q, va bosish bitta piksel ham olmaydi
+   (1-darsning yakunidagi naqsh).
+   ============================================================ */
+/* ============================================================
+   KATTALIKLAR JADVALI (QuantityCard, 11-dars). Masalaning tuzilishi:
+   chapda kattalik nomi, o'ngda uning ifodasi. Hali topilmagani savol
+   belgisi bilan turadi -- natija polosasi birinchi soniyadan ko'rinadi.
+   DIQQAT: bu izohda TESKARI APOSTROF bo'lishi mumkin emas.
+   ============================================================ */
+.g7-qc {
+  display: flex; flex-direction: column; gap: 3px;
+  width: 100%; max-width: 560px; margin-inline: auto;
+}
+.g7-qc-cap {
+  font-family: 'Manrope', sans-serif; font-size: 11px; letter-spacing: .18em;
+  text-transform: uppercase; color: ${T.ink3}; text-align: center;
+}
+.g7-qc-row {
+  display: grid; grid-template-columns: minmax(0,1fr) 96px;
+  align-items: center; gap: 10px;
+  padding: 4px 12px; border-radius: 11px;
+  background: ${T.paper}; border: 1px solid ${T.line};
+  transition: border-color .3s ease, background .3s ease;
+}
+.g7-qc-row.is-mark { border-color: ${T.accent}; background: ${T.accentSoft}; }
+/* Javob turgan qator: yashil, chunki sinfda yashil «to'g'ri va yakun»
+   degan ma'noni bildiradi. To'q sariq esa «hozir shu bilan ishlayapmiz». */
+.g7-qc-row.is-answer { border-color: ${T.ok}; background: ${T.okSoft}; }
+.g7-qc-row.is-answer .g7-qc-val { color: ${T.ok}; }
+.g7-qc-name {
+  font-family: 'Manrope', sans-serif; font-size: 14px; color: ${T.ink};
+  min-width: 0; overflow-wrap: anywhere;
+}
+.g7-qc-val {
+  text-align: center; font-weight: 800; font-size: clamp(14px, 1.8vw, 17px);
+}
+.g7-qc-wait { color: ${T.ink3}; font-weight: 700; }
+@media (max-width: 390px) {
+  .g7-qc-row { grid-template-columns: minmax(0,1fr) 72px; padding: 6px 10px; }
+  .g7-qc-name { font-size: 14px; }
+  /* TELEFONDA IKKI TOR JOY. Ular 2026-08-17 da, tekshiruv walkeri
+     tuzatilgach ko'rindi -- ilgari yechilgan holat o'lchanmagani uchun
+     jim turgan.
+     1) QOIDA EKRANI: qoida kartochkasi, bo'laklar va belgilar ustma-ust
+        kelib, 2, 8 va 10-darslarda 15-39 px oshib ketardi.
+     2) BLITS: uzun variant matni tor ekranda uch satrga chiqib, 9 va
+        10-darslarda 5-44 px oshib ketardi.
+     Matn ham, shrift ham o'zgarmaydi -- faqat atrofdagi bo'shliq. */
+  .g7-rule { padding: 10px 12px; gap: 4px; }
+  .g7-opt { padding: 8px 12px; min-height: 46px; gap: 9px; }
+  /* TELEFONDA BELGILAR LENTASI YASHIRINADI. U qoidani belgilar bilan
+     TAKRORLAYDI, ya'ni mnemonika -- foydali, lekin qoidaning o'zidan
+     muhim emas. Tor ekranda qoida, bo'laklar, lenta va eslatma birga
+     sig'masdi va bir necha darsda 15-46 px oshib ketardi. Piksel-piksel
+     tanlash bu yerda ishlamaydi: walker har safar boshqacha yuradi va
+     to'lib ketgan ekran ham har safar boshqa bo'ladi -- zapas kerak. */
+  .g7-stairs { display: none; }
+  /* Eslatma polosasi ham telefonда yashiriladi: uch punkt tor ekranda
+     ikki-uch satrga cho'ziladi. U qoidani ESLATADI, o'rgatmaydi -- shuning
+     uchun tanlov aniq: qoida qoladi, eslatma ketadi. */
+  .g7-helpstrip { display: none; }
+}
+
+/* ============================================================
+   MASOFA O'QI (DistanceLine, 10-dars). Modul -- masofa, shuning uchun
+   asbobda MASOFA chiziladi: markazdan nuqtagacha ustki qavs va uning
+   ustida son. Javob emas, o'lchov.
+   DIQQAT: bu izohda TESKARI APOSTROF bo'lishi mumkin emas.
+   ============================================================ */
+.g7-dl { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.g7-dl-zones { position: absolute; inset: 0; }
+.g7-dl-svg { width: 100%; max-width: 620px; height: auto; display: block; }
+.g7-dl-axis { stroke: ${T.ink}; stroke-width: 2; }
+.g7-dl-tick { stroke: ${T.ink3}; stroke-width: 1.5; }
+.g7-dl-num {
+  font-family: ${MATH_FONT}; font-size: 13px; fill: ${T.ink2}; font-weight: 700;
+}
+.g7-dl-center { fill: ${T.accent}; }
+.g7-dl-hit { fill: ${T.ok}; animation: g7-dl-pop .3s cubic-bezier(.22,.61,.36,1) both; }
+.g7-dl-miss { fill: none; stroke: ${T.tip}; stroke-width: 2.5; }
+.g7-dl-span {
+  fill: none; stroke: ${T.ok}; stroke-width: 2;
+  animation: g7-dl-draw .34s ease both;
+}
+.g7-dl-span.is-miss { stroke: ${T.tip}; stroke-dasharray: 5 4; }
+.g7-dl-span-num {
+  font-family: ${MATH_FONT}; font-size: 16px; font-weight: 800; fill: ${T.ok};
+}
+.g7-dl-span-num.is-miss { fill: ${T.tip}; }
+.g7-dl-zone {
+  position: absolute; width: 30px; height: 30px; padding: 0;
+  transform: translate(-50%, -50%);
+  border: none; border-radius: 50%; background: transparent; cursor: pointer;
+}
+.g7-dl-zone:disabled { cursor: default; pointer-events: none; }
+.g7-dl-zone:hover:not(:disabled) { background: rgba(231, 90, 44, 0.12); }
+.g7-dl-zone:focus-visible { outline: 2px solid ${T.accent}; outline-offset: 1px; }
+.g7-dl-cnt {
+  font-family: 'Manrope', sans-serif; font-size: 11px; letter-spacing: .18em;
+  text-transform: uppercase; color: ${T.ink3};
+}
+@keyframes g7-dl-pop { 0% { r: 0; opacity: 0; } 100% { opacity: 1; } }
+@keyframes g7-dl-draw { 0% { opacity: 0; } 100% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .g7-dl-hit, .g7-dl-span { animation-duration: .01ms; }
+}
+
+/* ============================================================
+   TENGLAMA TAROZISI (EquationBalance, B2 bloki). Ikkala tomon YONMA-YON
+   turadi va amal ikkalasida bir vaqtda ko'rinadi: bitta tomonga qo'llash
+   ko'rinishda ham, mexanikada ham mumkin emas.
+   DIQQAT: bu izohda TESKARI APOSTROF bo'lishi mumkin emas.
+   ============================================================ */
+.g7-eqb { display: flex; flex-direction: column; gap: 4px; }
+.g7-eqb-row {
+  display: grid; align-items: center; column-gap: 10px; row-gap: 1px;
+  grid-template-columns: minmax(0,1fr) 34px minmax(0,1fr);
+  opacity: .5; transition: opacity .3s ease;
+}
+.g7-eqb-row.is-live { opacity: 1; }
+/* Tovoq: tenglamaning bir tomoni. Ikkitasi yonma-yon turadi. */
+.g7-eqb-plate {
+  text-align: center; font-weight: 800; font-size: clamp(15px, 2.1vw, 19px);
+  padding: 5px 10px; border-radius: 12px;
+  background: ${T.paper}; border: 1px solid ${T.line};
+}
+.g7-eqb-row.is-live .g7-eqb-plate {
+  font-size: var(--g7-num); padding: 9px 14px;
+  border-color: rgba(24, 34, 36, 0.2); box-shadow: 0 1px 0 ${T.line};
+}
+.g7-eqb-eq { text-align: center; color: ${T.ink3}; font-weight: 700; }
+/* Kelajakdagi qator: chegarasi punktir, ichi bo'sh. U javobni aytmaydi --
+   faqat yana bitta qadam borligini ko'rsatadi. */
+.g7-eqb-row.is-ghost { opacity: 1; }
+.g7-eqb-row.is-ghost .g7-eqb-plate {
+  background: none; border-style: dashed; border-color: ${T.line};
+  min-height: 32px;
+}
+.g7-eqb-row.is-ghost .g7-eqb-eq { color: ${T.line}; }
+.g7-eqb-acts {
+  display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+}
+.g7-eqb-act {
+  font-family: ${MATH_FONT}; font-size: clamp(15px, 2vw, 18px); font-weight: 800;
+  color: ${T.ink}; background: ${T.paper};
+  border: 1px solid rgba(24, 34, 36, 0.2); border-radius: 12px;
+  padding: 8px 18px; min-width: 62px; cursor: pointer;
+  transition: background .18s ease, border-color .18s ease, transform .12s ease;
+}
+.g7-eqb-act:hover:not(:disabled) { background: ${T.paperSolid}; border-color: ${T.ink3}; }
+.g7-eqb-act:active:not(:disabled) { transform: translateY(1px); }
+.g7-eqb-act:disabled { opacity: .45; cursor: default; }
+.g7-eqb-cnt {
+  margin-top: 6px; text-align: center;
+  font-family: 'Manrope', sans-serif; font-size: 11px; letter-spacing: .18em;
+  text-transform: uppercase; color: ${T.ink3};
+}
+/* Amal IKKALA tovoq tagida: bir xil yozuv, bir xil vaqtda. */
+.g7-eqb-op {
+  grid-row: 2; text-align: center;
+  color: ${T.accent}; font-weight: 800; font-size: 15px; white-space: nowrap;
+  animation: g7-eqb-fly .42s ease both;
+}
+.g7-eqb-op-l { grid-column: 1; }
+.g7-eqb-op-r { grid-column: 3; }
+@keyframes g7-eqb-fly {
+  0% { opacity: 0; transform: translateY(-7px); }
+  60% { opacity: 1; transform: translateY(1px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+/* Yechimlar to'plami tablichkasi */
+/* Modul chizig'i harfdan BALANDROQ bo'lishi kerak -- matematik yozuvda
+   shunday. Bir xil balandlikda u bosh «I» harfiga qo'shilib ketadi va
+   |x − 3| yozuvi «Ix − 3I» bo'lib o'qiladi (surat 2026-08-17). Faqat
+   joy bo'shatish yetmadi, balandlik ham kerak. */
+/* Uch va undan ko'p qiymat qatori yig'ilganda jadval IXCHAM shriftga
+   o'tadi: aks holda u savol va razbor bilan birga budjetdan oshib ketadi. */
+.g7-kept-tight { font-size: 0.86em; }
+.g7-fxbar {
+  display: inline-block; padding-inline: 3px;
+  transform: scaleY(1.3); font-weight: 500;
+}
+.g7-eqb-lone {
+  text-align: center; font-weight: 800; font-size: var(--g7-num);
+  padding: 6px 0 2px;
+}
+.g7-set { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.g7-set-cap {
+  font-family: 'Manrope', sans-serif; font-size: 11px; letter-spacing: .18em;
+  text-transform: uppercase; color: ${T.ink3};
+}
+.g7-set-row { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.g7-set-cell {
+  font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 700;
+  padding: 5px 12px; border-radius: 999px;
+  background: ${T.paper}; color: ${T.ink3}; border: 1px solid ${T.line};
+  transition: background .4s ease, color .4s ease, border-color .4s ease;
+}
+.g7-set-cell.is-on { background: ${T.okSoft}; color: ${T.ok}; border-color: ${T.ok}; }
+/* Javob kelmaguncha tablichka TURADI, lekin so'nik: natija polosasi
+   birinchi soniyadan ko'rinadi, javobni esa oldindan aytmaydi. */
+.g7-set-cell.is-wait { opacity: .5; }
+@media (prefers-reduced-motion: reduce) { .g7-eqb-op { animation-duration: .01ms; } }
+
+/* ============================================================
+   QAVS DARVOZASI (BracketGate, 5-dars). Naqsh 1-darsникi bilan BIR XIL:
+   manba, undan ikki kabel, ikkita tablo, ular orasida halqa. Shuning uchun
+   bu yerda YANGI keyframe yozilmaydi -- g7-hk-* dagi harakat qayta
+   ishlatiladi, va sinf bitta qo'l yozuvida qoladi.
+   DIQQAT: bu izohda TESKARI APOSTROF bo'lishi mumkin emas.
+   ============================================================ */
+.g7-gt-gate { animation: g7-hk-rise .5s cubic-bezier(.22,.9,.3,1.06) both; }
+.g7-gt-outer { font-family: ${MATH_FONT}; font-weight: 800; font-size: 30px; fill: ${T.ink}; }
+.g7-gt-badge { fill: ${T.accentSoft}; stroke: ${T.accent}; stroke-width: 2.2; }
+.g7-gt-badgetxt { font-family: ${MATH_FONT}; font-weight: 800; font-size: 26px; fill: ${T.accent}; }
+.g7-gt-box { fill: ${T.paperSolid}; stroke: ${T.line}; stroke-width: 1.4; }
+.g7-gt-par { font-family: ${MATH_FONT}; font-weight: 700; font-size: 38px; fill: ${T.graph}; }
+.g7-gt-in {
+  font-family: ${MATH_FONT}; font-weight: 800; font-size: 25px; fill: ${T.ink};
+  animation: g7-hk-drop .38s cubic-bezier(.33,0,.2,1) both;
+}
+.g7-gt-in.is-s1 { fill: ${T.stage1}; }
+.g7-gt-in.is-s2 { fill: ${T.stage2}; }
+.g7-gt-wire {
+  fill: none; stroke: ${T.graph}; stroke-width: 2.4; stroke-linecap: round;
+  stroke-dasharray: 120; stroke-dashoffset: 120;
+  animation: g7-hk-draw .5s ease-out both;
+}
+.g7-gt-pulse {
+  fill: none; stroke: ${T.accent}; stroke-width: 3.4; stroke-linecap: round;
+  stroke-dasharray: 8 112;
+  animation: g7-hk-run 1.9s linear infinite;
+}
+.g7-gt-board { animation: g7-hk-rise .52s cubic-bezier(.22,.9,.3,1.06) both; filter: drop-shadow(0 8px 12px rgba(24,34,36,.14)); }
+.g7-gt-plate { fill: ${T.paperSolid}; stroke: ${T.line}; stroke-width: 1; transition: fill .45s ease, stroke .45s ease; }
+.g7-gt-lcd { fill: ${T.dark}; }
+.g7-gt-board.is-fixed .g7-gt-plate { fill: ${T.okSoft}; stroke: ${T.ok}; }
+.g7-gt-board.is-fixable { cursor: pointer; }
+.g7-gt-tok {
+  font-family: ${MATH_FONT}; font-weight: 800; font-size: 21px; fill: ${T.ink};
+  animation: g7-hk-drop .34s cubic-bezier(.33,0,.2,1) both;
+}
+.g7-gt-tok.is-s1 { fill: ${T.stage1}; }
+.g7-gt-tok.is-s2 { fill: ${T.stage2}; }
+.g7-gt-num { animation: g7-hk-pop .5s cubic-bezier(.22,.9,.3,1.2) both; }
+/* Bosish nishoni element ICHIDA va besh marta chaqnaydi: pulsatsiya
+   cheksiz emas (metodist qoidasi). */
+.g7-gt-tap {
+  fill: none; stroke: ${T.accent}; stroke-width: 2.6;
+  animation: g7-hk-tapbeat 1.5s ease-in-out 5;
+}
+.g7-gt-ne { animation: g7-hk-pop .46s cubic-bezier(.22,.9,.3,1.2) both; }
+.g7-gt-ring {
+  fill: ${T.paperSolid}; stroke: ${T.accent}; stroke-width: 2.4;
+  transform-box: fill-box; transform-origin: center;
+  animation: g7-hk-breathe 2.4s ease-in-out 5;
+}
+.g7-gt-ne.is-fixed .g7-gt-ring { stroke: ${T.ok}; animation: none; }
+.g7-gt-netxt { font-family: ${MATH_FONT}; font-weight: 800; font-size: 20px; fill: ${T.accent}; }
+.g7-gt-ne.is-fixed .g7-gt-netxt { fill: ${T.ok}; }
+@media (prefers-reduced-motion: reduce) {
+  .g7-gt-gate, .g7-gt-in, .g7-gt-wire, .g7-gt-board, .g7-gt-tok,
+  .g7-gt-num, .g7-gt-ne, .g7-gt-tap, .g7-gt-pulse, .g7-gt-ring { animation-duration: .01ms; }
+}
+
+/* Sahna O'LCHAMI budjetdan hisoblanadi, xohishdan emas. Bazaviy g7-scene
+   noutbukda 310px kenglik beradi -- unda sonlar o'n piksellik bo'lib
+   ko'rinmaydi. g7-scene-hero esa 835px beradi va to'rtinchi variantni
+   ekrandan itarib chiqaradi (surat 2026-08-15). O'rta pog'ona:
+   1366x615 da balandlik 150px, kenglik 547px.
+   DIQQAT: bu izohda TESKARI APOSTROF bo'lishi mumkin emas -- u shablon
+   satrini shu yerda yopadi va butun faylni buzadi (START_GRADE7.md §8). */
+.g7-ride-mid { width: min(100%, calc(clamp(110px, calc(100dvh - 465px), 210px) * 620 / 170)); }
+.g7-ride-tap {
+  display: block; border: 0; font: inherit; color: inherit;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.g7-ride-tap[disabled] { cursor: default; }
+/* Belgi oxirgi safarning USTIDA turadi, ya'ni aynan bosish kerak bo'lgan
+   joyda. Ichkarisi nol o'lchamli, shuning uchun TapMark aynan shu nuqtaga
+   markazlashadi. */
+.g7-ride-hand { position: absolute; top: 56%; width: 0; height: 0; }
+.g7-ride-hand .g7-tapmark { top: 0; }
+/* Yangi safar PAYDO BO'LADI, sakramaydi: SVG guruhida faqat shaffoflik
+   o'zgaradi (transform-box tuzog'iga tushmaslik uchun). */
+.g7-ride-run { animation: g7-ridein .42s ease both; }
+@keyframes g7-ridein { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .g7-ride-run { animation-duration: .01ms; } }
 `

@@ -527,9 +527,9 @@ const S4 = {
   bonus: {
     title: L('Bitta yozuv, ikki qiymat', 'Одна запись, два значения', 'One expression, two values'),
     text: L(
-      "O'sha sonlar, o'sha belgilar. Farqni faqat QAVS qildi: u yozuvni o'zgartiradi, demak qiymatni ham.",
-      'Те же числа, те же знаки. Разницу сделала только скобка: она меняет запись, а значит и значение.',
-      'The same numbers, the same signs. Only the bracket made the difference: it changes the expression, so it changes the value.',
+      "Sonlar bir xil, belgilar ham. Farqni QAVS qildi: u yozuvni, demak qiymatni ham o'zgartiradi.",
+      'Числа те же, знаки те же. Разницу сделала СКОБКА: она меняет запись, а значит и значение.',
+      'Same numbers, same signs. The BRACKET made the difference: it changes the expression, so the value.',
     ),
   },
   method: L('1-usul — qavs bilan', 'Способ 1 — скобкой', 'Way 1 — with a bracket'),
@@ -582,7 +582,7 @@ const S4 = {
     A('mount', "Oddiy kalkulyator sakkizni berdi. Bu son qayerdan kelganini ko'ramiz.", 'Обычный калькулятор дал восемь. Посмотрим, откуда это число берётся.', 'The basic calculator gave eight. Let us see where that number comes from.'),
     A('mount', "Yozuvga qavs qo'ying. Shunday qo'yingki, qiymat aynan sakkiz bo'lsin.", 'Поставь в запись скобку. Так, чтобы значение стало ровно восемь.', 'Place a bracket in the expression. Place it so the value comes out as exactly eight.'),
     A('ok1', "Mana javob. Sakkiz bu qavsli yozuvning qiymati. Oddiy kalkulyator xato qilmagan, u boshqa yozuvni o'qigan.", 'Вот и ответ. Восемь это значение записи со скобкой. Обычный калькулятор не ошибся, он прочитал другую запись.', 'There it is. Eight is the value of the expression with the bracket. The basic calculator did not make a mistake, it read a different expression.'),
-    A('ok1', "Darslikning o'n ikkinchi betida shunday ikkita yozuv yonma-yon turibdi, ular orasida teng emas belgisi bor.", 'В учебнике на странице двенадцать две такие записи стоят рядом, и между ними стоит знак не равно.', 'In the textbook on page twelve two such expressions stand side by side with a not-equal sign between them.'),
+    A('ok1', "Bu ikki yozuvni yonma-yon qo'ying va ular orasiga teng emas belgisini qo'ying. Sonlar bir xil, qiymatlar esa har xil.", 'Поставь эти две записи рядом и между ними знак не равно. Числа одни и те же, а значения разные.', 'Put these two expressions side by side with a not-equal sign between them. The same numbers, different values.'),
     A('ok1', "Endi teskari topshiriq. Qavsni shunday qo'ying, qiymat o'zgarmasin.", 'Теперь обратное задание. Поставь скобку так, чтобы значение не изменилось.', 'Now the opposite task. Place a bracket so the value does not change.'),
     A('ok2', "Mana. Qoida bo'yicha allaqachon birinchi bajariladigan amal atrofidagi qavs ORTIQCHA. Qoida uni o'zi almashtiradi.", 'Вот так. Скобка вокруг того, что по правилу и так идёт первым, лишняя. Правило само её заменяет.', 'There. A bracket around what the rule already does first is redundant. The rule replaces it.'),
   ],
@@ -630,7 +630,7 @@ const S5 = {
     ),
   },
   method: L('2-usul — bosqichlar bilan', 'Способ 2 — по ступеням', 'Way 2 — by stages'),
-  eyebrow: L('DARSLIK TILI BILAN', 'СЛОВАМИ УЧЕБНИКА', "IN THE TEXTBOOK'S WORDS"),
+  eyebrow: L('ANIQ NOMLAR', 'ТОЧНЫЕ НАЗВАНИЯ', 'THE PROPER NAMES'),
   title: L('Amallar bosqichlari', 'Ступени действий', 'Stages of operations'),
   start: '40 : 8 + 3 · 2 − 5',
   steps: [
@@ -675,7 +675,7 @@ const S5 = {
   // ekranni o'stirardi (§9.6).
   chips: ['40 : 8 → 5', '3 · 2 → 6', '5 + 6 → 11', '11 − 5 → 6'],
   audio: [
-    A('mount', "Endi narsalarni darslik ataganidek ataymiz. Qo'shish va ayirish birinchi bosqich amallari, ko'paytirish va bo'lish ikkinchi bosqich amallari. Darajaga ko'tarish uchinchi bosqich, u bilan keyinroq uchrashamiz.", 'Теперь назовём вещи так, как их называет учебник. Сложение и вычитание это действия первой ступени, умножение и деление это действия второй ступени. Возведение в степень это третья ступень, с ней мы встретимся позже.', 'Now let us name things the way the textbook does. Addition and subtraction are first-stage operations, multiplication and division are second-stage. Raising to a power is the third stage, and we will meet it later.'),
+    A('mount', "Endi narsalarni aniq nomlari bilan ataymiz. Qo'shish va ayirish birinchi bosqich amallari, ko'paytirish va bo'lish ikkinchi bosqich amallari. Darajaga ko'tarish uchinchi bosqich, u bilan keyinroq uchrashamiz.", 'Теперь назовём вещи их точными именами. Сложение и вычитание это действия первой ступени, умножение и деление это действия второй ступени. Возведение в степень это третья ступень, с ней мы встретимся позже.', 'Now let us call things by their proper names. Addition and subtraction are first-stage operations, multiplication and division are second-stage. Raising to a power is the third stage, and we will meet it later.'),
     A('mount', "Ikkinchi bosqich oldin ketadi. Qarang, olti va uch bir-biriga yaqinlashadi.", 'Вторая ступень идёт раньше. Смотри, шесть и три сближаются.', 'The second stage goes first. Watch, the six and the three move together.'),
     A('mount', "Ular bitta songa aylandi. Ikki. Qolgan ikki amal bitta bosqichda.", 'Они стали одним числом. Два. Оставшиеся два действия на одной ступени.', 'They became one number. Two. The two remaining operations are on the same stage.'),
     A('mount', "Bitta bosqich ichida kattalik yo'q, faqat yozilish tartibi bor. Chapdan o'ngga.", 'Внутри одной ступени старшинства нет, есть только порядок записи. Слева направо.', 'Inside one stage nothing outranks anything, there is only the written order. Left to right.'),
@@ -857,7 +857,7 @@ const S7 = {
     A('mount', "Yana bitta holat qoldi, va u eng aldamchisi. Bu yerda ikkala amal ham birinchi bosqichda.", 'Остался ещё один случай, и он самый обманчивый. Здесь оба действия на первой ступени.', 'One case is left, and it is the most deceptive one. Here both operations are first-stage.'),
     A('mount', "Ular orasida kattalik yo'q. Tartibni qo'ying va ikkala sonni ko'ring.", 'Старшинства между ними нет. Расставь порядок и посмотри на оба числа.', 'Neither outranks the other. Set the order and look at both numbers.'),
     A('done', "Bitta bosqich ichida kattalik yo'q. Faqat yozilish tartibi bor.", 'Внутри одной ступени старшинства нет вообще. Есть только порядок записи.', 'Inside one stage nothing outranks anything. There is only the written order.'),
-    A('done', "Darslikning birinchi qoidasi aynan shu haqda.", 'Первое правило учебника ровно об этом.', "The textbook's first rule says exactly this."),
+    A('done', "Ikki amal bitta bosqichda turganda har doim shunday bo'ladi.", 'Так бывает всегда, когда два действия стоят на одной ступени.', 'That is always how it goes when two operations sit on the same stage.'),
   ],
 }
 
@@ -1452,7 +1452,7 @@ const S13 = {
     A('ok1', "Bo'ldi. Bitta qavs sakkizni ikkiga aylantirdi. Endi qiymat qirq sakkiz bo'lishi kerak.", 'Готово. Одна скобка превратила восемь в двойку. Теперь значение должно быть сорок восемь.', 'Done. A single bracket turned eight into two. Now the value has to be forty-eight.'),
     A('ok2', "O'sha sonlar, qavs esa qiymatni sakkizdan qirq sakkizga ko'chirdi.", 'Те же числа, а скобка перевела значение с восьми на сорок восемь.', 'The same numbers, and the bracket moved the value from eight to forty-eight.'),
     A('ok2', "Oxirgisi. Bu yerda qavs ichida qavs bor. Ichkarisi allaqachon ishlagan va bitta songa aylangan. Endi tashqarisini qo'ying.", 'Последнее. Здесь внутри скобки стоит ещё одна. Внутренняя уже сработала и стала одним числом. Теперь поставь внешнюю.', 'The last one. Here one bracket sits inside another. The inner one has already acted and become a single number. Now place the outer one.'),
-    A('ok3', "Eng ichkaridagi birinchi ishlaydi. Darslikning to'rtinchi qoidasi aynan shu haqda.", 'Самая внутренняя срабатывает первой. Об этом четвёртое правило учебника.', 'The innermost one acts first. That is what the textbook fourth rule says.'),
+    A('ok3', "Eng ichkaridagi birinchi ishlaydi. Qavs nechta bo'lsa ham shunday.", 'Самая внутренняя срабатывает первой. Так при любом числе вложенных скобок.', 'The innermost one acts first. That holds for any number of nested brackets.'),
   ],
 }
 

@@ -51,6 +51,15 @@ const VIEWPORTS = [
   { name: 'telefon-360x690', w: 360, h: 690 },
 ]
 
+// TEZ REJIM: `GRADE7_FAST=1` bo'lsa faqat noutbuk va ikki til o'lchanadi.
+// Sabab amaliy: to'liq o'lchov 3400 dan ortiq o'lcham oladi va 2-4 daqiqa
+// ketadi, tuzatish esa ketma-ket bir necha marta qilinadi. Tez rejim
+// ITERATSIYA uchun, TOPSHIRISHDAN OLDIN esa to'liq prognon majburiy --
+// telefon o'lchamlari faqat unda ko'rinadi.
+const FAST = process.env.GRADE7_FAST === '1'
+const VP_LIST = FAST ? VIEWPORTS.filter((v) => v.name.startsWith('noutbuk')) : VIEWPORTS
+const LANG_LIST = FAST ? ['uz', 'ru'] : null
+
 await mkdir(OUT, { recursive: true })
 const browser = await chromium.launch({ headless: true })
 const problems = []
@@ -140,16 +149,30 @@ async function walkSlide(page, tag, lang) {
   for (let i = 0; i < MAX_STEPS_PER_SLIDE; i += 1) {
     await measure(page, `${tag} qadam ${i}`)
     if (i === 0) await checkNoCyrillic(page, tag, lang)
-    const clicked = await page.evaluate(() => {
+    const clicked = await page.evaluate((step) => {
       const content = document.querySelector('.stage-content')
       if (!content) return false
       // `data-control` -- ovoz/qayta o'ynatish kabi BOSHQARUV tugmalari:
       // ular javob emas, ularni bosaverish darsni oldinga surmaydi.
+      // TEKSHIRUV TUGMASI BIRINCHI. Ilgari walker shunchaki birinchi faol
+      // tugmani bosardi, ya'ni SlotFill da variantlarni aylantirib yurardi va
+      // «Tekshirish» ga hech qachon yetmasdi. Shu sababli YECHILGAN holat --
+      // razbor, mukofot izohi va to'ldirilgan jadval bilan -- umuman
+      // o'lchanmagan. 11-darsning 6-ekrani shu holatda 101 px oshib ketgan,
+      // tekshiruv esa «toza» deb turgan.
+      const check = content.querySelector('button[data-check]:not([disabled])')
+      if (check) { check.click(); return true }
       const nodes = Array.from(content.querySelectorAll('button')).filter((b) => !b.disabled && !b.hasAttribute('data-control'))
       if (!nodes.length) return false
-      nodes[0].click()
+      // VARIANTLAR AYLANTIRILADI, birinchisi qayta-qayta bosilmaydi. Ilgari
+      // walker har safar `nodes[0]` ni bosardi: SlotFill da bu «birinchi
+      // bo'lakni tanla -> tekshir -> xato -> yana birinchi bo'lak» degan
+      // aylanma edi, ya'ni TO'G'RI javob holati hech qachon ochilmasdi.
+      // Javobni skript BILMAYDI va bilmasligi kerak (uni DOM ga yozib
+      // qo'yish javobni oshkor qilardi) -- shuning uchun oddiy perebor.
+      nodes[step % nodes.length].click()
       return true
-    })
+    }, i)
     if (!clicked) {
       // Kiritish maydoni bor bo'lsa -- javobni yozamiz va tekshiramiz.
       const typed = await page.evaluate((val) => {
@@ -222,11 +245,29 @@ async function run(vp, lang) {
   const page = await browser.newPage({ viewport: { width: vp.w, height: vp.h } })
   const consoleErrors = []
   page.on('console', (msg) => {
-    if (msg.type() === 'error' && !msg.text().includes('ERR_NETWORK_ACCESS_DENIED')) {
+    // «Failed to load resource ... 404» manzilsiz keladi va o'zi hech nima
+    // aytmaydi. Manzilni quyidagi `response` kuzatuvchisi yozadi, shuning
+    // uchun bu takror xabar tashlab yuboriladi.
+    if (msg.type() === 'error'
+      && !msg.text().includes('ERR_NETWORK_ACCESS_DENIED')
+      && !msg.text().includes('Failed to load resource')) {
       consoleErrors.push(msg.text())
     }
   })
   page.on('pageerror', (err) => consoleErrors.push('pageerror: ' + err.message))
+  // MANZILSIZ 404 -- foydasiz xabar. Konsol «Failed to load resource 404»
+  // deydi va nima yuklanmaganini AYTMAYDI, keyin esa har safar qaytadan
+  // tekshirishga to'g'ri keladi (10-sinfda aynan shu tuzoq bor edi).
+  // Endi manzil yozib boriladi va tashqi shrift ichki fayldan darrov
+  // ajraladi.
+  page.on('response', (res) => {
+    if (res.status() !== 404) return
+    // TASHQI SHRIFT dars nuqsoni EMAS. Lokal previewda Google Fonts dan
+    // yuklanadi, headless brauzer esa ba'zi woff2 variantlarini olmaydi.
+    // Productionda shriftlarni LMS beradi. Boshqa har qanday 404 -- nuqson.
+    if (/fonts\.(gstatic|googleapis)\.com/.test(res.url())) return
+    consoleErrors.push('404: ' + res.url())
+  })
 
   answerIdx = 0
   await page.goto(`${BASE}?lang=${lang}`, { waitUntil: 'domcontentloaded', timeout: 60000 })
@@ -307,8 +348,8 @@ async function run(vp, lang) {
   await page.close()
 }
 
-const LANGS = (process.env.GRADE7_LANGS || 'uz,ru,en').split(',')
-for (const vp of VIEWPORTS) {
+const LANGS = (process.env.GRADE7_LANGS || (LANG_LIST ? LANG_LIST.join(',') : 'uz,ru,en')).split(',')
+for (const vp of VP_LIST) {
   for (const lang of LANGS) {
     await run(vp, lang)
   }

@@ -15,11 +15,11 @@ import path from 'node:path'
 const DIR = 'src/components/grade7'
 const problems = []
 
-// Metodist 2026-08-05 da rad etgan prototip. O'chirilgan edi, lekin ish
-// daraxtida qaytib paydo bo'ldi va yana git da kuzatilmoqda. Ro'yxatga
-// (`src/lessons/grade7.js`) ULANMAGAN, ya'ni saytda ko'rinmaydi.
-// Tekshiruvdan CHIQARILDI, lekin jimgina emas -- pastda ogohlantirish chiqadi.
-const SKIP = new Set(['Dars01.jsx'])
+// 2026-08-13: `Dars01.jsx` endi ro'yxatdan chiqarilmaydi. Ilgari bu yerda
+// metodist 2026-08-05 da rad etgan prototip turardi; u NOLDAN qayta yozildi
+// (DARS01_SKELET.md, DARS01_KONTENT.md) va `src/lessons/grade7.js` ga ulandi,
+// ya'ni saytda ko'rinadi -- demak tekshiruvdan chiqarib bo'lmaydi.
+const SKIP = new Set([])
 
 const BAD_CHARS = [
   ['‘', 'tipografik apostrof U+2018'],
@@ -34,14 +34,54 @@ const BAD_CHARS = [
 // matematik belgilar so'z bilan aytilishi kerak.
 const AUDIO_BAD = ['=', '<', '>', '%', '$', '^', '×', '÷', '≠', '—', '«', '»', '"']
 
-const all = (await readdir(DIR)).filter((f) => f.endsWith('.jsx'))
+// PAPKALAR ICHIGA HAM KIRAMIZ. 2026-08-20 da amaliyot `practice/darsNN/`
+// papkalariga yotdi (1, 2 va 5-sinflardagi joylashuv), va bir qavatli
+// `readdir` ularni KO'RMAY qolardi: o'n ikkita yangi fayl uch til, apostrof
+// va ovoz tekshiruvidan JIMGINA tushib qolgan bo'lardi.
+const listJsx = async (dir, prefix = '') => {
+  const out = []
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const rel = prefix ? prefix + '/' + entry.name : entry.name
+    if (entry.isDirectory()) {
+      out.push(...await listJsx(path.join(dir, entry.name), rel))
+    } else if (entry.name.endsWith('.jsx')) {
+      out.push(rel)
+    }
+  }
+  return out
+}
+
+const all = await listJsx(DIR)
 const skipped = all.filter((f) => SKIP.has(f))
 const files = all.filter((f) => !SKIP.has(f))
+
+// STYLES ichida TESKARI APOSTROF. `export const STYLES = ` ... ` ` -- shablon
+// satri. Uning ichidagi izohga teskari apostrof yozilsa shablon O'SHA YERDA
+// yopiladi va butun fayl parse bo'lmaydi. Xato JIM: dars sahifasi 500 beradi,
+// tekshiruvlar esa «o'lchanadigan narsa yo'q» deb toza rapor qiladi.
+// 2026-08-13 da bu KETMA-KET UCH MARTA takrorlandi, shuning uchun endi
+// tekshiruv ushlaydi.
+const stylesBacktick = (text) => {
+  const start = text.indexOf('export const STYLES = `')
+  if (start === -1) return null
+  const from = start + 'export const STYLES = `'.length
+  const end = text.indexOf('\n`', from)
+  const body = text.slice(from, end === -1 ? text.length : end)
+  const idx = body.indexOf('`')
+  if (idx === -1) return null
+  const line = text.slice(0, from + idx).split(/\r?\n/).length
+  return line
+}
 
 for (const file of files) {
   const full = path.join(DIR, file)
   const text = await readFile(full, 'utf8')
   const lines = text.split(/\r?\n/)
+
+  const btLine = stylesBacktick(text)
+  if (btLine) {
+    problems.push(`${file}:${btLine} -- STYLES ICHIDA teskari apostrof: shablon satri shu yerda yopiladi va fayl buziladi`)
+  }
 
   // 1. Tipografik belgilar
   for (const [ch, label] of BAD_CHARS) {

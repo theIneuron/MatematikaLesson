@@ -28,6 +28,70 @@ const LESSONS = {
     ring: false,
     readySel: '.g7-readyline',   // aynan TAYYORLIK satri, boshqa izohlar emas
   },
+  'dars02-ozgaruvchili-ifodalar': {
+    // 4a da a teng 3 -- 12; 10 ayirish 2a da a teng 4 -- 2; 6 bo'lish a da
+    // qo'yib bo'lmaydigan son -- 0; oxirgisi so'z bilan.
+    right: ['12', '2', '0', 'Сколько чисел поставим вместо буквы'],
+    noGap: /Пробелов нет/i,
+    ring: false,
+    readySel: '.g7-readyline',
+  },
+  'dars07-tenglama-ildizi': {
+    right: ['6', '7', 'Ни одного', 'Найти все корни или показать, что их нет'],
+    noGap: /Пробелов нет/i,
+    ring: false,
+    readySel: '.g7-readyline',
+  },
+  'dars08-chiziqli-tenglama': {
+    right: ['12', '3', 'Все числа', 'Сразу к обеим частям'],
+    noGap: /Пробелов нет/i,
+    ring: false,
+    readySel: '.g7-readyline',
+  },
+  'dars09-tenglamalarni-yechish': {
+    right: ['5', '+7', 'Все числа', 'Уничтожают в обеих частях'],
+    noGap: /Пробелов нет/i,
+    ring: false,
+    readySel: '.g7-readyline',
+  },
+  'dars10-modulli-tenglama': {
+    right: ['8 и −8', '6', 'Ни одного', 'По обе стороны от центра есть точки'],
+    noGap: /Пробелов нет/i,
+    ring: false,
+    readySel: '.g7-readyline',
+  },
+  'dars11-masala-tenglama': {
+    right: ['6x', 'Меньшую', 'Из связи в условии', '36'],
+    noGap: /Пробелов нет/i,
+    ring: false,
+    readySel: '.g7-readyline',
+  },
+  'dars12-masala-tuzish': {
+    right: ['25 − x', '6 000 − 300x', 'Одна', '18'],
+    noGap: /Пробелов нет/i,
+    ring: false,
+    readySel: '.g7-readyline',
+  },
+  'dars06-oxshash-hadlar': {
+    right: ['9a', '6b', 'Нет, буквы разные', 'Складывают'],
+    noGap: /Пробелов нет/i,
+    ring: false,
+    readySel: '.g7-readyline',
+  },
+  'dars05-qavslarni-ochish': {
+    right: ['4', '14', '−3', 'Меняет знак каждого слагаемого внутри'],
+    noGap: /Пробелов нет/i,
+    ring: false,
+    readySel: '.g7-readyline',
+  },
+  'dars03-amallar-xossalari': {
+    // 25 karra 37 karra 4; ayirishdagi qavs; 4 karra qavs 10 qo'shuv 3;
+    // oxirgisi so'z bilan.
+    right: ['3700', 'Нет, 12 и 18', '52', 'Отправляет множитель к каждому слагаемому'],
+    noGap: /Пробелов нет/i,
+    ring: false,
+    readySel: '.g7-readyline',
+  },
 }
 
 const PORT = process.env.GRADE7_PORT || '5299'
@@ -87,7 +151,13 @@ for (const want of RIGHT) {
     await page.waitForTimeout(300)
     clicked = await page.evaluate((label) => {
       const opts = Array.from(document.querySelectorAll('.stage-content .g7-opt'))
-      const hit = opts.find((b) => (b.innerText || '').replace(/\s+/g, ' ').includes(label))
+      const txt = (b) => (b.innerText || '').replace(/\s+/g, ' ').trim()
+      // AVVAL aniq moslik. `includes` bilan «2» degan javob «32» variantini
+      // bosib yuborardi -- variantlar har kirishda aralashadi (§8.3), ya'ni
+      // qaysi biri oldin turishi oldindan ma'lum emas. Variant matni oldida
+      // harf belgisi turadi, shuning uchun oxiriga qarab solishtiramiz.
+      const hit = opts.find((b) => txt(b) === label || txt(b).endsWith(' ' + label))
+        || opts.find((b) => txt(b).includes(label))
       if (!hit || hit.disabled) return false
       hit.click()
       return true
