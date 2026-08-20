@@ -4034,6 +4034,13 @@ sup.g7-idx { vertical-align: .46em; }
   animation: g7-ft-in .3s ease both;
 }
 .g7-ft-join { color: ${T.ink3}; padding-inline: 5px; }
+/* Guruh chegarasi: oraliq kengayadi, shunda ko'rsatkichlarning qo'shilishi
+   yoki ko'payishi KO'RINADI, aytilmaydi. */
+.g7-ft-cell.is-edge { margin-left: 16px; }
+/* Bo'lishda qisqargan muljitellar: o'chirilgan, lekin JOYIDA qoladi --
+   nima ketganini ko'rish kerak. */
+.g7-ft-cell.is-gone { opacity: .4; }
+.g7-ft-cell.is-gone .g7-ft-val { text-decoration: line-through; }
 /* Lentaga KIRMAGAN qism: u alohida turadi va rangi ham boshqa. */
 .g7-ft-out {
   font-weight: 800; font-size: clamp(16px, 2.2vw, 21px); color: ${T.tip};

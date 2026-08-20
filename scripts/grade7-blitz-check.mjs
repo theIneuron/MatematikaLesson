@@ -80,6 +80,13 @@ const LESSONS = {
     ring: false,
     readySel: '.g7-readyline',
   },
+  'dars14-daraja-xossalari': {
+    // innerText da ustki ko'rsatkich oddiy raqam bo'ladi.
+    right: ['a15', 'b20', 'x7', '(ab)4'],
+    noGap: /Пробелов нет/i,
+    ring: false,
+    readySel: '.g7-readyline',
+  },
   'dars06-oxshash-hadlar': {
     right: ['9a', '6b', 'Нет, буквы разные', 'Складывают'],
     noGap: /Пробелов нет/i,

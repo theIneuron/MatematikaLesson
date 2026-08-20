@@ -2411,8 +2411,15 @@ export function EquationBalance({ start, actions, done, onSolved, onStep, disabl
 // ASBOB SANAYDI, javob bermaydi: xato javobda u lentadagi elementlar
 // sonini takrorlaydi, natijani esa aytmaydi (§8.1).
 // ============================================================================
+// KENGAYTIRISH (14-dars): `groups` va `cross`.
+//   groups -- lentani GURUHLARGA bo'ladi: a³ karra a⁴ da uchta va to'rtta,
+//            (a³)⁴ da esa to'rtta guruh uchtadan. Ko'rsatkichlar nega
+//            qo'shiladi va nega ko'paytiriladi -- shu bo'linishda ko'rinadi.
+//   cross  -- oxiridan nechta element O'CHIRILADI: bo'lish shunday ishlaydi,
+//            umumiy muljitellar qisqaradi.
 export function FactorTape({
   expr, item, count, join = '·', outside, options, answer, wrongs, note,
+  groups, cross = 0,
   onSolved, onStep, disabled, audio,
 }) {
   const t = useT()
@@ -2477,15 +2484,35 @@ export function FactorTape({
           <div className="g7-ft">
             {outside ? <span className="g7-ft-out"><Fx>{outside}</Fx></span> : null}
             <span className="g7-ft-tape">
-              {cells.map((i) => (
-                <span key={i} className="g7-ft-cell" style={{ animationDelay: (i * 90) + 'ms' }}>
-                  {i ? <span className="g7-ft-join">{join}</span> : null}
-                  <Fx>{item}</Fx>
-                </span>
-              ))}
+              {cells.map((i) => {
+                let edge = false
+                if (groups && groups.length) {
+                  let acc = 0
+                  for (let g = 0; g < groups.length - 1; g += 1) {
+                    acc += groups[g]
+                    if (acc === i) edge = true
+                  }
+                }
+                const gone = cross > 0 && i >= count - cross
+                return (
+                  <span
+                    key={i}
+                    className={'g7-ft-cell' + (edge ? ' is-edge' : '') + (gone ? ' is-gone' : '')}
+                    style={{ animationDelay: (i * 90) + 'ms' }}
+                  >
+                    {i ? <span className="g7-ft-join">{join}</span> : null}
+                    {/* Element ALOHIDA o'ramda: o'chirish chizig'i faqat
+                        unga tushadi. Aks holda chiziq ajratgichni ham
+                        kesib o'tadi va ko'paytirish nuqtasi MINUSGA
+                        o'xshab qoladi (surat 2026-08-20). */}
+                    <span className="g7-ft-val"><Fx>{item}</Fx></span>
+                  </span>
+                )
+              })}
             </span>
             <span className={'g7-ft-cnt' + (isSum ? ' is-sum' : '')}>
               {t(isSum ? UI.ftSum : UI.ftMul)} {count}
+              {cross > 0 ? ' − ' + cross + ' = ' + (count - cross) : ''}
             </span>
           </div>
         ) : null}

@@ -118,6 +118,15 @@ export const grade7Nazariy = [
     desc: "Ko'rsatkich muljitellarni sanaydi. Yig'indi koeffitsiyent beradi, ko'paytma ko'rsatkich. 15 slayd, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade7/Dars13.jsx')),
   },
+  {
+    // XOSSALAR YOD OLINMAYDI, ULAR SANALADI. Lenta guruhlarga bo'linadi
+    // (yonma-yon -- qo'shish, takror -- ko'paytirish) va qisqaradi
+    // (bo'lish). Uchta xossaning uchtasi ham sanoqdan chiqadi.
+    slug: 'dars14-daraja-xossalari',
+    title: 'Dars 14. Daraja xossalari',
+    desc: "Ko'paytirishda qo'shiladi, bo'lishda ayiriladi, darajaning darajasida ko'paytiriladi. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade7/Dars14.jsx')),
+  },
 ]
 
 // 7-sinf AMALIY mashg'ulotlari. Har nazariy darsga 10 tekshiriladigan
@@ -145,5 +154,16 @@ export const grade7Amaliy = [
     title: 'Dars 1. Amaliyot: sonli ifodalar',
     desc: "10 topshiriq: amallar tartibi, bir bosqich ichida chapdan o'ngga, qavs, birinchi xato qator va qiymatdan yozuvga qaytish. Olti xil mexanika, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade7/practice/dars01/Dars01Practice.jsx')),
+  },
+  {
+    // 5-SINF AMALIYOTINING NUSXASI, matematikasi 7-sinfga o'tkazilmoqda
+    // (metodist topshirigi 2026-08-20). Fayllar
+    // `src/components/grade5/practice/dars01/` dan ko'chirildi; 5-sinfning
+    // O'ZIGA tegilmadi. Tuzilma, uslub va jsx-question kontrakti o'sha-o'sha,
+    // o'zgaradigani -- matematika va uch til.
+    slug: 'dars01-amaliyot-5sinf-nusxa',
+    title: "Dars 1. Amaliyot: nusxa (7-sinfga o'tkazilmoqda)",
+    desc: "5-sinf amaliyotining tuzilishi, matematikasi 7-sinfning: sonli ifodalar.",
+    Component: lazy(() => import('../components/grade7/practice/g5-dars01/Dars01Practice.jsx')),
   },
 ]
