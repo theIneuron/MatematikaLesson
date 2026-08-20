@@ -206,4 +206,10 @@ export const grade7Amaliy = [
     desc: "10 topshiriq: qulay tartib, yumaloq juftlik, bo'lib ko'paytirish, yarim yo'lda qolgan taqsimot va o'rin almashtirish qayerda ishlaydi. Yetti xil mexanika, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade7/practice/dars03/Dars03Practice.jsx')),
   },
+  {
+    slug: 'dars05-amaliyot-qavslarni-ochish',
+    title: 'Dars 5. Amaliyot: qavslarni ochish',
+    desc: "10 topshiriq: minusli qavs, ishora qayerda o'zgaradi, uchta qavs, a − b − c ga teng yozuvlar va qavs oldida belgi emas, ko'paytuvchi turgan holat. Yetti xil mexanika, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade7/practice/dars05/Dars05Practice.jsx')),
+  },
 ]
