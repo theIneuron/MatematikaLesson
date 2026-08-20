@@ -7,6 +7,14 @@ import vm from 'node:vm';
 const ROOT = globalThis.nodeRepl?.cwd ?? process.cwd();
 const GRADE4_DIR = path.join(ROOT, 'src/components/grade4');
 const FRAME_VECTOR = [3, 4, 4, 4, 4, 4, 4, 5, 2, 2, 2, 2, 2, 3, 5];
+// Metodist qarori 2026-08-19: 21-30 darslar qaytadan quriladi (tushuntirish ->
+// misol ritmi, bosib ochiladigan qadamlar, etalon yakuniy slaydi). Ularda eski
+// 15 slaydli qolip va avtomatik frame vektori amal qilmaydi, shuning uchun
+// qolipga bogliq tekshiruvlar otkazib yuboriladi; ornida qolipdan mustaqil
+// tekshiruv ishlaydi va toliq kontraktni grade4-etalon-contract-audit.mjs
+// tekshiradi. Qolgan hamma tekshiruv (ovoz tozaligi, skroll, a11y, importlar)
+// bu darslarga ham baravar qollanadi.
+const REBUILT_LESSONS = new Set([22]);
 const QUESTION_SCREENS = [8, 9, 10, 11, 12, 13];
 const scoredScreensFor = (lesson) => lesson >= 28
   ? [8, 9, 10, 12, 13]
@@ -117,6 +125,44 @@ function expectedOptionCount(lesson, screen) {
   return 3;
 }
 
+// Qolipdan mustaqil tekshiruv: variantli har bir blokda har bir variantga
+// korinadigan izoh va TTS-toza izoh bolishi shart, correctIndex esa haqiqiy
+// variantga ishora qilishi kerak. Xuk (bashorat) bloki chetlab otiladi: unda
+// togri javob yoq, bitta neytral izoh bor.
+function validateRebuiltContent(lesson, content) {
+  if (!content || content.__parseError) {
+    fail(lesson, "CONTENT parse bolmadi" + (content?.__parseError ? ": " + content.__parseError : ""));
+    return;
+  }
+  const screens = Object.entries(content).filter(([key]) => /^s\d+$/.test(key));
+  if (!screens.length) fail(lesson, "CONTENT ekranlari topilmadi");
+  const blocks = [];
+  for (const [key, item] of screens) {
+    const neutralBlock = item?.neutral !== undefined && item?.correctIndex === undefined;
+    if (Array.isArray(item?.options) && !neutralBlock) blocks.push([key, item]);
+    for (const [nestedKey, nested] of Object.entries(item ?? {})) {
+      if (!Array.isArray(nested)) continue;
+      nested.forEach((entry, index) => {
+        if (entry && Array.isArray(entry.options)) blocks.push([key + "." + nestedKey + "[" + index + "]", entry]);
+      });
+    }
+  }
+  for (const [at, item] of blocks) {
+    const count = item.options.length;
+    if (count < 3) fail(lesson, at + ": variantlar " + count + " ta, kamida uchta kerak");
+    if (!Number.isInteger(item.correctIndex) || item.correctIndex < 0 || item.correctIndex >= count) {
+      fail(lesson, at + ": correctIndex notogri");
+    }
+    if (!Array.isArray(item.feedback) || item.feedback.length !== count) {
+      fail(lesson, at + ": har variant uchun korinadigan izoh yoq");
+    }
+    if (!Array.isArray(item.feedbackAudio) || item.feedbackAudio.length !== count) {
+      fail(lesson, at + ": har variant uchun TTS-toza feedbackAudio yoq");
+    }
+  }
+  validateSpoken(lesson, content);
+}
+
 function validateContent(lesson, content) {
   if (!content || content.__parseError) {
     fail(lesson, `CONTENT parse bo'lmadi${content?.__parseError ? `: ${content.__parseError}` : ''}`);
@@ -175,27 +221,42 @@ for (const [lessonText, slug] of Object.entries(EXPECTED)) {
     continue;
   }
 
+  const rebuilt = REBUILT_LESSONS.has(lesson);
   const frames = extractLiteral(source, 'FRAME_COUNTS', '[', ']');
-  if (!Array.isArray(frames) || frames.join(',') !== FRAME_VECTOR.join(',')) {
+  if (!Array.isArray(frames) || (!rebuilt && frames.join(',') !== FRAME_VECTOR.join(','))) {
     fail(lesson, `FRAME_COUNTS noto'g'ri: ${JSON.stringify(frames)}`);
   } else {
     note(lesson, `${frames.length} slayd, ${frames.reduce((sum, value) => sum + value, 0)} avtomatik frame`);
   }
 
   const total = Number(source.match(/const TOTAL_SCREENS\s*=\s*(\d+)/)?.[1] ?? frames?.length);
-  if (total !== 15) fail(lesson, `TOTAL_SCREENS ${total}, kutilgan 15`);
-  validateContent(lesson, extractLiteral(source, 'CONTENT'));
+  if (rebuilt) {
+    // Qayta qurilgan darsda slayd soni 13-17 orasida (4-sinf etaloni), lekin
+    // FRAME_COUNTS, SCREEN_META va SCREENS uzunliklari bir-biriga mos kelishi shart.
+    if (!Number.isInteger(total) || total < 13 || total > 17) fail(lesson, `TOTAL_SCREENS ${total}, kutilgan 13-17`);
+    if (Array.isArray(frames) && frames.length !== total) fail(lesson, `FRAME_COUNTS uzunligi ${frames.length}, TOTAL_SCREENS ${total}`);
+    validateRebuiltContent(lesson, extractLiteral(source, 'CONTENT'));
+  } else {
+    if (total !== 15) fail(lesson, `TOTAL_SCREENS ${total}, kutilgan 15`);
+    validateContent(lesson, extractLiteral(source, 'CONTENT'));
+  }
 
   const screenMetaRaw = extractBalanced(source, 'const SCREEN_META =', '[', ']');
   const metaRows = screenMetaRaw?.match(/\{\s*id:\s*['"]s\d+['"][\s\S]*?\}/g) ?? [];
-  if (metaRows.length !== 15) fail(lesson, `SCREEN_META qatorlari ${metaRows.length}, kutilgan 15`);
-  const scored = metaRows.map((row, index) => (/scored:\s*true/.test(row) ? index : null)).filter((value) => value !== null);
-  const expectedScored = scoredScreensFor(lesson);
-  if (scored.join(',') !== expectedScored.join(',')) fail(lesson, `scored slaydlar [${scored}], kutilgan [${expectedScored}]`);
+  if (rebuilt) {
+    if (metaRows.length !== total) fail(lesson, `SCREEN_META qatorlari ${metaRows.length}, TOTAL_SCREENS ${total}`);
+  } else {
+    if (metaRows.length !== 15) fail(lesson, `SCREEN_META qatorlari ${metaRows.length}, kutilgan 15`);
+    const scored = metaRows.map((row, index) => (/scored:\s*true/.test(row) ? index : null)).filter((value) => value !== null);
+    const expectedScored = scoredScreensFor(lesson);
+    if (scored.join(',') !== expectedScored.join(',')) fail(lesson, `scored slaydlar [${scored}], kutilgan [${expectedScored}]`);
+  }
 
   const screensRaw = extractBalanced(source, 'const SCREENS', '[', ']');
   const screenComponents = screensRaw?.match(/Screen\d+/g) ?? [];
-  if (screenComponents.length !== 15) fail(lesson, `SCREENS komponentlari ${screenComponents.length}, kutilgan 15`);
+  if (screenComponents.length !== (rebuilt ? total : 15)) {
+    fail(lesson, `SCREENS komponentlari ${screenComponents.length}, kutilgan ${rebuilt ? total : 15}`);
+  }
 
   if (!source.includes(`slug: '${slug}'`)) fail(lesson, `LESSON_META slug ${slug} emas`);
   if (/[‘’ʻʼ]/.test(source)) fail(lesson, "ASCII bo'lmagan apostrof topildi");
@@ -243,5 +304,5 @@ if (failures.length) {
   failures.forEach((message) => console.error(`  - ${message}`));
   process.exitCode = 1;
 } else {
-  console.log('\nGrade4 Dars22-30 audit: 135 slayd va 450 frame bo\'yicha barcha deterministik tekshiruvlar o\'tdi.');
+  console.log('\nGrade4 Dars22-30 audit: barcha deterministik tekshiruvlar o\'tdi.');
 }

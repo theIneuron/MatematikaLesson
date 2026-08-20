@@ -27,6 +27,10 @@ const sharedFinaleSource = await readFile(
 );
 // Dars04 slide 1 deliberately stretches the main scene to the answer-frame width.
 const FULL_WIDTH_HOOK_LESSONS = new Set([4]);
+// Metodist qarori 2026-08-19: 21-30 darslarning yakuniy slaydi etalon Dars01
+// tuzilishida quriladi - yakuniy savol, qoida royxati va mukofot paneli.
+// Bu darslar uchun uch-xulosa qolipi emas, etalon tuzilishi tekshiriladi.
+const REBUILT_ETALON_FINAL = new Set([21, 22]);
 const has = (source, pattern) => pattern.test(source);
 const count = (source, pattern) => (source.match(pattern) || []).length;
 const award = (checks) => checks.reduce((score, check) => score + (check.pass ? check.points : 0), 0);
@@ -506,6 +510,30 @@ for (const lesson of lessons) {
   const standardFinalComposition = finalReflectionRemoved
     && !reflectionUi
     && (localFinalComposition || sharedFinalComposition);
+  const etalonFinal = REBUILT_ETALON_FINAL.has(lesson);
+  const etalonFinalComposition = [
+    /className=["']screen-stack summary-stack["']/,
+    /className=["']final-mission-heading["']/,
+    /summary-action-layout summary-final-layout/,
+    /summary-card reflection-card final-question-card/,
+    /className=["']summary-question-kicker["']/,
+    /data-g4-role=["']reflection-options["']/,
+    /className=\{`reflection-option /,
+    /summary-rules-disclosure/,
+    /summary-rules-panel/,
+    /className=["']summary-rule-items["']/,
+    /reward-stage reward-stage-compact/,
+    /reward-kicker/,
+    /reward-score/,
+  ].every((pattern) => pattern.test(source));
+  // Unvon faqat yakuniy savoldan keyin ochiladi va tanlov Back dan keyin saqlanadi.
+  const etalonReflectionGate = /\[reflection, setReflection\]\s*=\s*useState\(storedAnswer\?\.reflection/.test(source)
+    && /const solved = reflection === c.correctIndex;/.test(source)
+    && /if \(solved \|\| wrongSet\.has\(sourceIndex\) \|\| !\(audio\.muted \|\| audio\.completed\)\) return;/.test(source)
+    && /reflection: sourceIndex,/.test(source)
+    && /solved \? ['"]reward-unlocked['"] : ['"]reward-locked['"]/.test(source)
+    && /if \(!solved \|\| finished/.test(source)
+    && /nextDisabled=\{!solved \|\| finished/.test(source);
   const rankOverlay = /className=["'{][^\n>]*rank-boost-overlay/.test(finaleSource)
     && /data-g4-role=["'{][^\n>]*rank-overlay/.test(finaleSource)
     && /rank-boost-(?:card|medal|confetti)/.test(finaleSource);
@@ -642,11 +670,11 @@ for (const lesson of lessons) {
   ];
 
   const motionFinalChecks = [
-    { points: 2, pass: claimState && claimButton && (reflectionUi || finalReflectionRemoved) },
-    { points: 2, pass: gatedReveal && rankOverlay && persistentTitle },
-    { points: 2, pass: claimBeforeFinish && (finalReflectionRemoved
+    { points: 2, pass: etalonFinal ? (etalonFinalComposition && etalonReflectionGate) : (claimState && claimButton && (reflectionUi || finalReflectionRemoved)) },
+    { points: 2, pass: etalonFinal ? (gatedReveal && rankOverlay && /data-g4-role=["']title-card["']/.test(source)) : (gatedReveal && rankOverlay && persistentTitle) },
+    { points: 2, pass: etalonFinal ? etalonReflectionGate : (claimBeforeFinish && (finalReflectionRemoved
       ? !reflectionUi && finalStateClaimGate
-      : (reflectionGate || solvedReflectionAlias) && reflectionBeforeClaim) },
+      : (reflectionGate || solvedReflectionAlias) && reflectionBeforeClaim)) },
     { points: 2, pass: revealDuration && persistentHappyReward },
     { points: 2, pass: reducedMotion && reducedRevealDuration },
   ];
@@ -801,12 +829,15 @@ for (const lesson of lessons) {
     ['four mechanics', interactionChecks[4].pass],
     ['activity-gated Continue', activityGate.pass],
     ['matching connector', interactionChecks[5].pass],
-    ['click-gated rank boost', motionFinalChecks.slice(0, 3).every((item) => item.pass)],
-    ['standard three-takeaway/proof/bridge final', lesson > 10 || standardFinalComposition],
-    [finalReflectionRemoved ? 'explicit no-reflection final gate' : 'reflection-before-title dual gate',
-      finalReflectionRemoved ? !reflectionUi && finalStateClaimGate : reflectionBeforeClaim],
-    [finalReflectionRemoved ? 'no-reflection final policy marker' : 'pre-claim reflection Back persistence',
-      finalReflectionRemoved || preClaimReflectionPersistence],
+    ['click-gated rank boost', etalonFinal
+      ? (etalonReflectionGate && gatedReveal && rankOverlay && /data-g4-role=["']title-card["']/.test(source))
+      : motionFinalChecks.slice(0, 3).every((item) => item.pass)],
+    [etalonFinal ? 'etalon final composition' : 'standard three-takeaway/proof/bridge final',
+      etalonFinal ? etalonFinalComposition : (lesson > 10 || standardFinalComposition)],
+    [etalonFinal ? 'etalon reflection unlock gate' : (finalReflectionRemoved ? 'explicit no-reflection final gate' : 'reflection-before-title dual gate'),
+      etalonFinal ? etalonReflectionGate : (finalReflectionRemoved ? !reflectionUi && finalStateClaimGate : reflectionBeforeClaim)],
+    [etalonFinal ? 'etalon reflection Back persistence' : (finalReflectionRemoved ? 'no-reflection final policy marker' : 'pre-claim reflection Back persistence'),
+      etalonFinal ? etalonReflectionGate : (finalReflectionRemoved || preClaimReflectionPersistence)],
     ['finite/reduced motion', visualChecks[3].pass && motionFinalChecks.slice(3).every((item) => item.pass)],
     ['fixed viewport root', visualChecks[0].pass],
     ['no scroll', visualChecks[1].pass],
