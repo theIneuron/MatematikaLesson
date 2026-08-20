@@ -16,7 +16,6 @@ const T = {
   uz: {
     eyebrow: 'Qiymatni topish', title: 'Qiymatni yozish',
     setup: 'Yozuvning qiymatini hisoblab, javobni raqam bilan kiriting:',
-    words: '12,5 · 40 − 1800 : (−9)',
     label: 'Qiymatni yozing:',
     live: 'Sizning javobingiz:',
     correct: "To'g'ri. Avval ikkinchi bosqich: 12,5 · 40 = 500 va 1800 : (−9) = −200. So'ng 500 − (−200) = 700.",
@@ -25,7 +24,6 @@ const T = {
   ru: {
     eyebrow: 'Найти значение', title: 'Записать значение',
     setup: 'Посчитай значение записи и введи ответ цифрами:',
-    words: '40 : 5 + 3 · 2',
     label: 'Запиши значение:',
     live: 'Твой ответ:',
     correct: 'Верно. Сначала вторая ступень: 12,5 · 40 = 500 и 1800 : (−9) = −200. Затем 500 − (−200) = 700.',
@@ -34,7 +32,6 @@ const T = {
   en: {
     eyebrow: 'Find the value', title: 'Write the value',
     setup: 'Work out the value of the record and type the answer in digits:',
-    words: '40 : 5 + 3 · 2',
     label: 'Write the value:',
     live: 'Your answer:',
     correct: 'Correct. Second stage first: 12,5 · 40 = 500 and 1800 : (−9) = −200. Then 500 − (−200) = 700.',
@@ -69,11 +66,11 @@ export default function D01_05(props) {
     setFeedback({ correct }); setChecked(true);
     if (correct) playCorrect?.(); else playWrong?.();
     onSubmit?.({
-      questionText: t.setup + ' ' + t.words, options: [],
+      questionText: t.setup + ' ' + DATA.expr, options: [],
       studentAnswer: { value: v }, correctAnswer: { value: TARGET },
       correct, meta: { tag: DATA.tag, level: DATA.level },
     });
-  }, [val, playCorrect, playWrong, onSubmit, t.setup, t.words]);
+  }, [val, playCorrect, playWrong, onSubmit, t.setup]);
   const checkRef = useRef(check); checkRef.current = check;
   useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
 
@@ -106,7 +103,7 @@ export default function D01_05(props) {
       `}</style>
       <div className="pq-eyebrow a">{t.eyebrow}</div>
       <p className="pq-setup a a2">{t.setup}</p>
-      <p className="pq-words a a3">{t.words}</p>
+      <p className="pq-words a a3">{DATA.expr}</p>
       <label className="pq-label" htmlFor="pq05-in">{t.label}</label>
       <input id="pq05-in" className="pq-input" value={val} onChange={(e) => setVal(cleanInt(e.target.value))} inputMode="numeric" pattern="[0-9]*" disabled={isReview || checked} placeholder="0" />
       {/* Kiritilgan sonni pastda QAYTA ko'rsatish takror bo'lardi: u

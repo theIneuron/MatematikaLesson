@@ -56,6 +56,8 @@ const UI = {
 
 export default function PracticeHost({ Question, lang: langProp = 'uz', onLangChange, onReset, title, showLanguageSwitch = true }) {
   const [lang, setLang] = useState(langProp);
+  // Platforma tilni almashtirsa, amaliyot ham almashadi.
+  useEffect(() => { setLang(langProp); }, [langProp]);
   const [ready, setReady] = useState(false);
   const [result, setResult] = useState(null);
   const [qKey, setQKey] = useState(0);
@@ -122,6 +124,7 @@ export default function PracticeHost({ Question, lang: langProp = 'uz', onLangCh
 
   return (
     <div ref={rootRef} style={{ display: 'flex', flexDirection: 'column', minHeight: '78vh', maxWidth: 680, margin: '0 auto', width: '100%' }}>
+      {(title || showLanguageSwitch) && (
       <div style={{
         display: 'flex', alignItems: 'center', gap: 8, padding: '4px 12px',
         borderBottom: '1px solid #eef0f4', fontFamily: "'Manrope', system-ui, sans-serif",
@@ -136,6 +139,7 @@ export default function PracticeHost({ Question, lang: langProp = 'uz', onLangCh
           </>
         )}
       </div>
+      )}
 
       <div style={{ flex: 1, padding: '10px 12px 28px' }}>
         <Question

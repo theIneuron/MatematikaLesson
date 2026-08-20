@@ -33,12 +33,14 @@ const ROWS = [
   { tail: '−60 + 35 · (−6)', done: '−60 + (−210)' },
   { tail: '−60 + (−210)', done: '−270' },
 ];
+// Variantlar uch tilda BIR XIL: bu matn emas, yozuvning bo'laklari.
+// (Nusxada ru va en da 5-sinfning variantlari qolib ketgan edi.)
+const OPTS = ['−1440 : 24', '24 + 35', '35 · (−6)'];
 const T = {
   uz: {
     eyebrow: 'Amallar tartibi',
     setup: 'Yozuvda uchta amal bor, lekin ular bir vaqtda bajarilmaydi:',
     ask: 'Qaysi amal BIRINCHI bajariladi?',
-    opts: ['−1440 : 24', '24 + 35', '35 · (−6)'],
     stage: 'ikkinchi bosqich',
     correct: "To'g'ri. Bo'lish va ko'paytirish ikkinchi bosqich, chapdagisi oldin: −1440 : 24 = −60. Keyin 35 · (−6) = −210, oxirida −60 + (−210) = −270.",
     wrongMsg: "Maslahat: qo'shish birinchi bosqich, u oxirida turadi. Ikkinchi bosqichda ikki amal bor -- ular orasida yozuvdagi O'RIN hal qiladi.",
@@ -47,7 +49,6 @@ const T = {
     eyebrow: 'Порядок действий',
     setup: 'В записи три действия, но выполняются они не одновременно:',
     ask: 'Какое действие выполняется ПЕРВЫМ?',
-    opts: ['48 : 8', '8 + 5', '5 · 2'],
     stage: 'вторая ступень',
     correct: 'Верно. Деление и умножение — вторая ступень, левое идёт раньше: −1440 : 24 = −60. Затем 35 · (−6) = −210, и в конце −60 + (−210) = −270.',
     wrongMsg: 'Подсказка: сложение — первая ступень, оно стоит последним. На второй ступени два действия, и между ними решает МЕСТО в записи.',
@@ -56,7 +57,6 @@ const T = {
     eyebrow: 'Order of operations',
     setup: 'There are three operations in the record, but they do not run at once:',
     ask: 'Which operation runs FIRST?',
-    opts: ['48 : 8', '8 + 5', '5 · 2'],
     stage: 'second stage',
     correct: 'Correct. Division and multiplication are the second stage, and the left one goes first: −1440 : 24 = −60. Then 35 · (−6) = −210, and finally −60 + (−210) = −270.',
     wrongMsg: 'Hint: addition is the first stage, it comes last. The second stage has two operations, and POSITION in the record decides between them.',
@@ -117,9 +117,9 @@ export default function D01_02(props) {
       timers.current.push(setTimeout(() => setStage(4), 3950)); // yoyish tugagach — bosqich nomi
     }
     onSubmit?.({
-      questionText: t.ask, options: t.opts.map((l, i) => ({ id: String(i), label: l })),
-      studentAnswer: { idx: picked, label: t.opts[picked] },
-      correctAnswer: { idx: 0, label: t.opts[0] },
+      questionText: t.ask, options: OPTS.map((l, i) => ({ id: String(i), label: l })),
+      studentAnswer: { idx: picked, label: OPTS[picked] },
+      correctAnswer: { idx: 0, label: OPTS[0] },
       correct, meta: { tag: 'first_step', level: '🟢', expr: EXPR },
     });
   }, [picked, t, playCorrect, playWrong, onSubmit]);
@@ -161,7 +161,7 @@ export default function D01_02(props) {
       </div>
 
       <p style={S.ask}>{t.ask}</p>
-      {t.opts.map((o, i) => (
+      {OPTS.map((o, i) => (
         <button key={i} type="button" style={optStyle(i)} disabled={isReview || checked} onClick={() => setPicked(i)}>{o}</button>
       ))}
       {fb && <HFB ok={fb.correct} text={fb.correct ? t.correct : t.wrongMsg} />}

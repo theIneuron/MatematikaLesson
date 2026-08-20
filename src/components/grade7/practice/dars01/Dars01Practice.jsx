@@ -23,20 +23,32 @@ import D01_10 from './D01_10.jsx';
 // Sonlar 7-sinf darajasida: manfiy sonlar, o'nli va oddiy kasrlar, uch-to'rt xonali sonlar.
 // 03, 04, 08 -- harfli ifodalar (metodist topshirigi 2026-08-20, ikkinchi tur).
 // Qiyinlik: 2 oson (01,02) · 4 o'rta (03–06) · 4 qiyin (07–10). Aldov (trap) variantlar bilan.
+// Sarlavha uch tilda: chip nomlari ham (metodist 2026-08-20 -- sayt RU ga
+// o'tganda amaliyot ham RU bo'lishi kerak, chip qatori esa sarlavhaning qismi).
+const HEAD = {
+  uz: "Dars 1 amaliyoti — 10 topshiriq (sonli ifodalar)",
+  ru: 'Практика урока 1 — 10 заданий (числовые выражения)',
+  en: 'Lesson 1 practice — 10 tasks (numeric expressions)',
+};
+
 const ITEMS = [
-  { id: '01', label: "1 · Tartib", C: D01_01 }, // uchta o'qishdan to'g'risini tanlash 🟢 read_order
-  { id: '02', label: "2 · Birinchi amal", C: D01_02 },// birinchi bajariladigan amalni tanlash 🟢 first_step
-  { id: '03', label: "3 · Yig'indi", C: D01_03 },// harfli ifodalarni qo'shish 🟡 add_expressions
-  { id: '04', label: "4 · Ochish", C: D01_04 }, // qavs ochilganda ishora 🟡 open_bracket_signs
-  { id: '05', label: "5 · Qiymat", C: D01_05 }, // qiymatni hisoblab yozish 🟡 write_value
-  { id: '06', label: "6 · Tuzatish", C: D01_06 },// xato qatorni topib tuzatish 🟡 fix_line
-  { id: '07', label: "7 · Zanjir", C: D01_07 }, // oraliq qiymatlar zanjiri 🔴 value_chain
-  { id: '08', label: "8 · Harflar", C: D01_08 },// harf o'rniga son, qiymati 12 🔴 substitute_value
-  { id: '09', label: "9 · Yig'ish", C: D01_09 },// kartalardan yozuv yig'ish 🔴 build_value
-  { id: '10', label: "10 · Ishora", C: D01_10 },// qiymat ishorasi bo'yicha zonalarga 🔴 sort_by_sign
+  { id: '01', label: { uz: "Tartib", ru: 'Порядок', en: 'Order' }, C: D01_01 },     // uchta o'qishdan to'g'risini tanlash 🟢 read_order
+  { id: '02', label: { uz: "Birinchi amal", ru: 'Первое действие', en: 'First step' }, C: D01_02 },// birinchi bajariladigan amalni tanlash 🟢 first_step
+  { id: '03', label: { uz: "Yig'indi", ru: 'Сумма', en: 'Sum' }, C: D01_03 },       // harfli ifodalarni qo'shish 🟡 add_expressions
+  { id: '04', label: { uz: "Ochish", ru: 'Знаки', en: 'Signs' }, C: D01_04 },       // qavs ochilganda ishora 🟡 open_bracket_signs
+  { id: '05', label: { uz: "Qiymat", ru: 'Значение', en: 'Value' }, C: D01_05 },    // qiymatni hisoblab yozish 🟡 write_value
+  { id: '06', label: { uz: "Tuzatish", ru: 'Ошибка', en: 'Fix' }, C: D01_06 },      // xato qatorni topib tuzatish 🟡 fix_line
+  { id: '07', label: { uz: "Zanjir", ru: 'Цепочка', en: 'Chain' }, C: D01_07 },     // oraliq qiymatlar zanjiri 🔴 value_chain
+  { id: '08', label: { uz: "Harflar", ru: 'Буквы', en: 'Letters' }, C: D01_08 },    // harf o'rniga son, qiymati 12 🔴 substitute_value
+  { id: '09', label: { uz: "Yig'ish", ru: 'Сборка', en: 'Assemble' }, C: D01_09 },  // kartalardan yozuv yig'ish 🔴 build_value
+  { id: '10', label: { uz: "Ishora", ru: 'Знак', en: 'Sign' }, C: D01_10 },         // qiymat ishorasi bo'yicha zonalarga 🔴 sort_by_sign
 ];
 
-export default function Dars01Practice() {
+// Til PLATFORMADAN keladi: LessonPage `lang` propini beradi (uz|ru|en).
+// O'z almashtirgichimiz YO'Q: sayt qobig'ida allaqachon UZ/RU/EN turadi, va
+// ikkita almashtirgich bir-biri bilan kelishmasdi -- yuqoridagisi bosilsa
+// topshiriq o'zbekchada qolardi (metodist 2026-08-20).
+export default function Dars01Practice({ lang = 'uz' }) {
   usePracticeZoom();
   const [idx, setIdx] = useState(0);
   const q = ITEMS[idx] || ITEMS[0];
@@ -60,16 +72,16 @@ export default function Dars01Practice() {
         flexShrink: 0, display: 'flex', flexWrap: 'wrap', gap: 7, alignItems: 'center',
         padding: '56px 12px 10px', borderBottom: '1px solid #eef0f4',
       }}>
-        <strong style={{ fontSize: 14, color: '#1f2430', width: '100%' }}>Dars 1 amaliyoti — 10 topshiriq (sonli ifodalar)</strong>
+        <strong style={{ fontSize: 14, color: '#1f2430', width: '100%' }}>{HEAD[lang] || HEAD.uz}</strong>
         {ITEMS.map((item, i) => (
           <button key={item.id} type="button" style={chip(i === idx)} onClick={() => setIdx(i)}>
-            {item.label}
+            {i + 1} · {item.label[lang] || item.label.uz}
           </button>
         ))}
       </div>
 
       <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
-        <PracticeHost key={q.id} Question={q.C} />
+        <PracticeHost key={q.id + '-' + lang} Question={q.C} lang={lang} showLanguageSwitch={false} title={null} />
       </div>
     </div>
   );
