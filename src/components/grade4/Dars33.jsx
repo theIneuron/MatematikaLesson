@@ -30,7 +30,7 @@ const T = {
   warn: '#A96F13', warnSoft: '#FFF5D9', shadowBase: '58, 53, 48',
 };
 // Har ekrandagi ovoz segmentlari soni.
-const FRAME_COUNTS = [4, 3, 2, 3, 2, 3, 2, 2, 3, 2, 3, 2, 3, 2, 2, 5];
+const FRAME_COUNTS = [4, 3, 2, 3, 2, 3, 2, 2, 3, 2, 3, 2, 3, 2, 2, 6];
 const TOTAL_SCREENS = FRAME_COUNTS.length;
 
 const SCREEN_META = [
@@ -89,7 +89,7 @@ const LESSON_META = {
     en: 'Types of angles',
   },
   skillTags: ['angle-opening', 'right-angle-reference', 'angle-classification', 'degree-reading'],
-  finalReflectionRequired: false,
+  finalReflectionRequired: true,
 };
 
 const CONTENT = {
@@ -755,13 +755,29 @@ const CONTENT = {
 
   s15: {
     eyebrow: { uz: "Yakun", ru: "Итог", en: "Summary" },
-    title: { uz: "Loyiha tasdiqlandi", ru: "Проект утверждён", en: "The plan is approved" },
+    title: { uz: "Unvongacha bitta savol", ru: "Один вопрос до звания", en: "One question before your title" },
     rewardTitle: { uz: "Burchak nazoratchisi", ru: "Контролёр углов", en: "Angle controller" },
-    lead: {
-      uz: "Bugungi usul bitta xaritaga yig'ildi.",
-      ru: "Сегодняшний способ собрался в одну карту.",
-      en: "Today's method now fits on one map.",
-    },
+    question: { uz: "Burchakning kattaligini nima belgilaydi?", ru: "Что определяет величину угла?", en: "What decides the size of an angle?" },
+    stem: { uz: "Burchaklarni solishtirganda men...", ru: "Сравнивая углы, я...", en: "When I compare angles, I..." },
+    correctIndex: 0,
+    options: [
+      { uz: "tomonlarning ochilishiga qarayman", ru: "смотрю на раскрытие сторон", en: "look at how far the sides open" },
+      { uz: "tomonlarning uzunligini o'lchayman", ru: "измеряю длину сторон", en: "measure the length of the sides" },
+      { uz: "chizmaning kattaligiga qarayman", ru: "смотрю на размер чертежа", en: "look at the size of the drawing" },
+    ],
+    feedback: [
+      { uz: "To'g'ri. Burchakni faqat ochilish o'lchaydi.", ru: "Верно. Угол измеряет только раскрытие.", en: "Right. Only the opening measures an angle." },
+      { uz: "Tomonni uzaytirish ochilishni o'zgartirmaydi, demak burchak ham o'zgarmaydi.", ru: "Удлинение стороны не меняет раскрытие, значит и угол.", en: "Making a side longer does not change the opening, so the angle stays." },
+      { uz: "Chizmani kattalashtirish burchakni kattalashtirmaydi.", ru: "Увеличение чертежа не увеличивает угол.", en: "Enlarging the drawing does not enlarge the angle." },
+    ],
+    feedbackAudio: [
+      { uz: "To'g'ri. Burchakni faqat ochilish o'lchaydi.", ru: "Верно. Угол измеряет только раскрытие.", en: "Right. Only the opening measures an angle." },
+      { uz: "Tomonni uzaytirsangiz ochilish o'zgarmaydi. Demak burchak ham o'zgarmaydi.", ru: "Если удлинить сторону, раскрытие не изменится. Значит и угол не изменится.", en: "If you lengthen a side the opening stays the same. So the angle stays the same." },
+      { uz: "Chizmani kattalashtirish burchakni kattalashtirmaydi.", ru: "Увеличение чертежа не увеличивает угол.", en: "Enlarging the drawing does not enlarge the angle." },
+    ],
+    proof: { uz: "120° > 35°, tomon uzunligi ahamiyatsiz", ru: "120° > 35°, длина сторон роли не играет", en: "120° > 35°, the length of the sides does not matter" },
+    resolution: { uz: "Tomonni uzaytirsangiz ham ochilish o'zgarmaydi, demak burchak ham o'zgarmaydi.", ru: "Даже если удлинить сторону, раскрытие не меняется, значит не меняется и угол.", en: "Even if you make a side longer, the opening stays the same, so the angle stays the same." },
+    lead: { uz: "Usulni tanlang va burchakni nima o'lchashini tushunganingizni ko'rsating.", ru: "Выбери способ и покажи, что понимаешь, что измеряет угол.", en: "Choose the method and show that you understand what an angle measures." },
     frames: [
       { uz: "Burchakni ochilish o'lchaydi, tomon uzunligi emas", ru: "Угол измеряет раскрытие, а не длина сторон", en: "The opening measures an angle, not the length of the sides" },
       { uz: "Har bir burchak 90° bilan solishtiriladi", ru: "Каждый угол сравнивают с 90°", en: "Every angle is compared with 90°" },
@@ -777,6 +793,7 @@ const CONTENT = {
           "Har bir burchak to'g'ri burchak bilan solishtiriladi va shundan turi kelib chiqadi.",
           "Boshlang'ich savol ham yopildi. B chorrahaning burchagi kattaroq ekan.",
           "Keyingi missiyada transportir kutmoqda. Berilgan burchakni qanday yasaymiz.",
+          "Unvongacha bitta savol qoldi. Uchta javobdan to'g'risini tanlang.",
         ],
         ru: [
           "Проект утверждён. Сегодня главной темой были виды углов.",
@@ -784,6 +801,7 @@ const CONTENT = {
           "Каждый угол сравнивают с прямым, и отсюда получается его вид.",
           "Стартовый вопрос тоже закрыт. У перекрёстка B угол оказался больше.",
           "В следующей миссии ждёт транспортир. Как построить заданный угол.",
+          "До звания остался один вопрос. Выбери верный ответ из трёх.",
         ],
         en: [
           "The plan is approved. Today you learned to tell the types of angles apart.",
@@ -791,6 +809,7 @@ const CONTENT = {
           "Every angle is compared with the right angle and that gives its type.",
           "The starting question is closed too. Junction B turned out to have the bigger angle.",
           "The next mission holds the protractor. How do we construct a given angle.",
+          "One question is left before your title. Choose the correct answer out of three.",
         ],
       },
     },
@@ -985,18 +1004,61 @@ const BitSVG = ({ state = 'present', className = '' }) => {
 };
 const AudioIndicator = ({ audio }) => { const t = useT(); const muteLabel = t(audio.muted ? bi("Ovozni yoqish", 'Включить звук', 'Turn sound on') : bi("Ovozni o'chirish", 'Выключить звук', 'Turn sound off')); const replayLabel = t(bi('Qayta eshitish', 'Повторить', 'Replay')); return <div className="audio-indicator"><button type="button" onClick={audio.toggleMute} aria-label={muteLabel} title={muteLabel}>{audio.muted ? '🔇' : '🔊'}</button><span className={audio.isPlaying ? 'audio-wave playing' : 'audio-wave'}><i/><i/><i/></span>{!audio.muted && <button type="button" onClick={audio.replay} aria-label={replayLabel} title={replayLabel}>↻</button>}</div>; };
 const ScreenTypeLabel = ({ type }) => { const t = useT(); const labels = { hook: bi('Taxmin', 'Гипотеза', "Estimate"), exploration: bi('Tadqiqot', 'Исследование', "Explore"), model: bi('Model', 'Модель', 'Model'), rule: bi('Qoida', 'Правило', "Rule"), strategy: bi('Strategiya', 'Стратегия', 'Strategy'), error: bi('Xatoni tuzatish', 'Исправление ошибки', 'Error repair'), test: bi('Mashq', 'Задание', "Task"), case: bi('Vaziyat', 'Ситуация', "Situation"), summary: bi('Yakun', 'Итог', "Summary") }; return <span className="screen-type">{t(labels[type])}</span>; };
-const Stage = ({ screen, audio, onPrev, onNext, canAdvance = true, canFinish = true, finish = false, children }) => { const t = useT(); const mobile = useIsMobile(); const meta = SCREEN_META[screen]; const c = CONTENT[`s${screen}`]; const pad = mobile ? 12 : 24; const ready = canUseGrade4TheoryContinue(canAdvance && canFinish && isAudioReady(audio), finish); return <main className={`stage stage-${meta.type}`}><header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}><div className="progress-track" aria-label={`${screen + 1} / ${TOTAL_SCREENS}`}><div className="progress-fill progress-bar" style={{ width: `${(screen + 1) / TOTAL_SCREENS * 100}%` }}/></div><div className="stage-chrome"><div className="chrome-title"><span className="status-dot"/><span>{t(c.eyebrow)}</span></div><div className="chrome-actions"><ScreenTypeLabel type={meta.type}/>{audio && <AudioIndicator audio={audio}/>}<span className="screen-count">{String(screen + 1).padStart(2, '0')} / {TOTAL_SCREENS}</span></div></div></header><section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}><div className="stage-body">{children}</div></section><footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{screen === 0 ? <span/> : <button type="button" className="btn-ghost" onClick={onPrev}>← {t(bi('Orqaga', 'Назад', "Back"))}</button>}<button type="button" className="btn-white-accent" disabled={!ready} aria-disabled={!ready} onClick={onNext}>{finish ? t(bi('Darsni yakunlash', 'Завершить урок', "Finish lesson")) : t(bi('Davom etish', 'Продолжить', "Continue"))} →</button></footer></main>; };
+const Stage = ({ screen, audio, onPrev, onNext, canAdvance = true, canFinish = true, finish = false, nextDisabled = false, children }) => { const t = useT(); const mobile = useIsMobile(); const meta = SCREEN_META[screen]; const c = CONTENT[`s${screen}`]; const pad = mobile ? 12 : 24; const ready = !nextDisabled && canUseGrade4TheoryContinue(canAdvance && canFinish && isAudioReady(audio), finish); return <main className={`stage stage-${meta.type}`}><header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}><div className="progress-track" aria-label={`${screen + 1} / ${TOTAL_SCREENS}`}><div className="progress-fill progress-bar" style={{ width: `${(screen + 1) / TOTAL_SCREENS * 100}%` }}/></div><div className="stage-chrome"><div className="chrome-title"><span className="status-dot"/><span>{t(c.eyebrow)}</span></div><div className="chrome-actions"><ScreenTypeLabel type={meta.type}/>{audio && <AudioIndicator audio={audio}/>}<span className="screen-count">{String(screen + 1).padStart(2, '0')} / {TOTAL_SCREENS}</span></div></div></header><section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}><div className="stage-body">{children}</div></section><footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{screen === 0 ? <span/> : <button type="button" className="btn-ghost" onClick={onPrev}>← {t(bi('Orqaga', 'Назад', "Back"))}</button>}<button type="button" className="btn-white-accent" disabled={!ready} aria-disabled={!ready} onClick={onNext}>{finish ? t(bi('Darsni yakunlash', 'Завершить урок', "Finish lesson")) : t(bi('Davom etish', 'Продолжить', "Continue"))} →</button></footer></main>; };
 const Heading = ({ c, state = 'present', showBit = false, hook = false }) => { const t = useT(); return <div className={'heading ' + (showBit && !hook ? '' : 'heading-solo')}><div><span data-g4-role={hook ? 'hook-topic' : undefined}>{t(c.eyebrow)}</span><h1 data-g4-role={hook ? 'hook-title' : undefined}>{t(c.title)}</h1></div>{showBit && !hook && <BitSVG state={state}/>}</div>; };
 
-const G4TitleReveal = ({ active, title, onComplete }) => {
+function G4TitleReveal({ active, title, onComplete }) {
   const t = useT();
-  useEffect(() => { if (!active) return undefined; const timer = window.setTimeout(() => onComplete?.(), window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 80 : 3900); return () => window.clearTimeout(timer); }, [active, onComplete]);
-  if (!active || typeof document === 'undefined') return null;
-  return createPortal(<div className="rank-boost-overlay g4-title-reveal-overlay" data-g4-role="rank-overlay" role="status" aria-live="assertive" aria-atomic="true" aria-label={`${t(bi('Unvon olindi', 'Звание получено', 'Title earned'))}: ${t(title)}`}><div className="rank-boost-card g4-title-reveal-card"><div className="rank-boost-rays g4-title-reveal-rays" aria-hidden="true"/><div className="rank-boost-confetti g4-title-reveal-confetti" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <i key={index} style={{ '--g4-title-i': index, '--g4-title-delay': `${(index % 7) * -0.21}s` }}/>)}</div><div className="rank-boost-medal g4-title-reveal-medal" aria-hidden="true">★</div><h2>{t(title)}</h2></div></div>, document.body);
-};
-const G4TitleCard = ({ title, answers = [] }) => {
-  const t = useT(); const scored = SCREEN_META.map((item, index) => item.scored ? index : null).filter((index) => index !== null); const firstTry = scored.filter((index) => answers[index]?.firstTry === true).length;
-  return <aside className="g4-title-card-stage" data-g4-role="title-card" role="status" aria-live="polite" aria-atomic="true"><div className="g4-title-card-confetti" data-g4-role="reward-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index}/>)}</div><div className="g4-title-card-bit" data-g4-role="reward-bit"><BitSVG state="happy"/></div><div className="g4-title-card-medal" data-g4-role="reward-medal" aria-hidden="true">★</div><span className="g4-title-card-kicker">{t(bi('UNVON OLINDI', 'ЗВАНИЕ ПОЛУЧЕНО', 'TITLE EARNED'))}</span><h2>{t(title)}</h2><div className="g4-title-card-score"><strong>{firstTry}/{scored.length}</strong><span>{t(bi('birinchi urinishda', 'с первой попытки', 'on the first attempt'))}</span></div></aside>;
+  const [visible, setVisible] = useState(false);
+  const wasActiveRef = useRef(active);
+  const onCompleteRef = useRef(onComplete);
+  useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
+  useEffect(() => {
+    const wasActive = wasActiveRef.current;
+    wasActiveRef.current = active;
+    if (!active || wasActive || typeof window === 'undefined') return undefined;
+    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const frame = window.requestAnimationFrame(() => setVisible(true));
+    const timer = window.setTimeout(() => { setVisible(false); onCompleteRef.current?.(); }, reduced ? 120 : 3900);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(timer);
+    };
+  }, [active]);
+  if (!visible || typeof document === 'undefined') return null;
+  return createPortal(
+    <div className="rank-boost-overlay g4-title-reveal-overlay" data-g4-role="rank-overlay" role="status" aria-live="assertive" aria-atomic="true">
+      <div className="rank-boost-card g4-title-reveal-card">
+        <div className="rank-boost-rays g4-title-reveal-rays" aria-hidden="true" />
+        <div className="rank-boost-confetti g4-title-reveal-confetti" aria-hidden="true">
+          {Array.from({ length: 18 }, (_, index) => <i key={index} />)}
+        </div>
+        <div className="rank-boost-medal g4-title-reveal-medal" aria-hidden="true">★</div>
+        <h2 className="g4-title-reveal-title">{t(title)}</h2>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+const G4TitleCard = ({ title, solved, firstTry, total }) => {
+  const t = useT();
+  return (
+    <div className={`reward-stage reward-stage-compact ${solved ? 'reward-unlocked' : 'reward-locked'}`} data-g4-role="title-card">
+      {solved && (
+        <div className="reward-confetti" data-g4-role="reward-confetti" aria-hidden="true">
+          {Array.from({ length: 12 }, (_, index) => <i key={index} />)}
+        </div>
+      )}
+      <div className="reward-bit" data-g4-role="reward-bit"><BitSVG state={solved ? 'happy' : 'present'} /></div>
+      <div className="reward-medal" data-g4-role="reward-medal" aria-hidden="true">{solved ? '★' : '○'}</div>
+      <span className="reward-kicker">{t(solved ? REWARD_EARNED : REWARD_WAIT)}</span>
+      <h2>{t(solved ? title : REWARD_OPEN)}</h2>
+      <div className="reward-score">
+        <strong>{firstTry}/{total}</strong>
+        <span>{t(FIRST_TRY_LABEL)}</span>
+      </div>
+    </div>
+  );
 };
 
 const TOPIC_STYLES = `
@@ -1471,7 +1533,423 @@ const TOPIC_STYLES = `
   .finale-mastery>span>p{font-size:11px;line-height:1.22}
   .finale-mastery>span{min-height:0}
   .finale-proof>b,.finale-bridge>b{font-size:8px}
+}/* --- Yakuniy ekran: Dars01 etaloni (Dars21 dan ko'chirildi) --------------- */
+/* --- Yakuniy slayd (etalon Dars01 tuzilishi) ---------------------------- */
+.option-answer-dismiss{animation: answer-option-dismiss .46s cubic-bezier(.4,0,.7,1) var(--answer-exit-delay, 0ms) both;}
+.option-answer-confirm{animation: answer-option-confirm .62s cubic-bezier(.16,1,.3,1) .08s both;}
+.summary-stack{gap: 12px;}
+.reward-stage{position: relative;
+  width: min(840px, 100%);
+  min-height: 154px;
+  margin: 0 auto;
+  padding: 16px 145px 15px 108px;
+  border-radius: 25px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  overflow: hidden;
+  color: #FFFFFF;
+  background:
+    radial-gradient(circle at 82% 20%, rgba(255,194,60,.26), transparent 30%),
+    linear-gradient(135deg, #173B52, #0E6978);
+  box-shadow: 0 24px 50px -30px rgba(14,33,44,.8);
+  transition: transform .5s ease, box-shadow .5s ease;}
+.reward-locked{filter: saturate(.72);}
+.reward-unlocked{transform: translateY(-2px);
+  box-shadow: 0 28px 58px -27px rgba(22,143,163,.8);}
+.reward-bit{position: absolute;
+  right: 24px;
+  bottom: 7px;
+  width: 92px;
+  height: 115px;}
+.reward-bit .g1-char{width: 100%; height: 100%;}
+.reward-unlocked .reward-bit{animation: g4bitfloat 2.8s ease-in-out 4;}
+.reward-medal{position: absolute;
+  left: 24px;
+  top: 50%;
+  width: 66px;
+  height: 66px;
+  border: 4px solid rgba(255,255,255,.58);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #5A3A00;
+  background: linear-gradient(145deg, #FFE284, #FFC23C);
+  box-shadow: 0 0 0 8px rgba(255,255,255,.08), 0 15px 30px -15px rgba(0,0,0,.6);
+  font-size: 30px;}
+.reward-kicker{color: #A8EAF0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .13em;}
+.reward-stage h1{max-width: 590px;
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: clamp(21px, 3vw, 30px);
+  line-height: 1.05;}
+.reward-stage > p{max-width: 580px;
+  color: rgba(255,255,255,.78);
+  font-size: 12px;
+  line-height: 1.4;}
+.reward-score{align-self: flex-start;
+  margin-top: 5px;
+  padding: 5px 9px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(255,255,255,.10);}
+.reward-score strong{color: #FFE284; font-family: 'JetBrains Mono', monospace;}
+.reward-score span{color: rgba(255,255,255,.72); font-size: 9px;}
+.reward-confetti{position: absolute; inset: 0; pointer-events: none;}
+.reward-confetti i{position: absolute;
+  top: -16px;
+  width: 7px;
+  height: 12px;
+  border-radius: 2px;
+  animation: reward-confetti 2.4s linear 3;}
+.reward-confetti i:nth-child(4n+1){background: #FFC23C;}
+.reward-confetti i:nth-child(4n+2){background: #FF5B35;}
+.reward-confetti i:nth-child(4n+3){background: #77E1EA;}
+.reward-confetti i:nth-child(4n){background: #95C93D;}
+.reward-confetti i:nth-child(1){left: 8%; animation-delay: -.3s;}
+.reward-confetti i:nth-child(2){left: 17%; animation-delay: -1.1s;}
+.reward-confetti i:nth-child(3){left: 29%; animation-delay: -.7s;}
+.reward-confetti i:nth-child(4){left: 41%; animation-delay: -1.7s;}
+.reward-confetti i:nth-child(5){left: 52%; animation-delay: -.2s;}
+.reward-confetti i:nth-child(6){left: 63%; animation-delay: -1.3s;}
+.reward-confetti i:nth-child(7){left: 73%; animation-delay: -.8s;}
+.reward-confetti i:nth-child(8){left: 84%; animation-delay: -1.9s;}
+.reward-confetti i:nth-child(9){left: 12%; animation-delay: -2s;}
+.reward-confetti i:nth-child(10){left: 36%; animation-delay: -1.4s;}
+.reward-confetti i:nth-child(11){left: 68%; animation-delay: -.5s;}
+.reward-confetti i:nth-child(12){left: 91%; animation-delay: -1.6s;}
+.summary-action-layout{min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  align-items: stretch;}
+.summary-rule-items{display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-auto-rows: 1fr;
+  gap: 6px;}
+.summary-rule-items > span{min-width: 0;
+  padding: 7px;
+  border: 1px solid rgba(22,143,163,.11);
+  border-radius: 11px;
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  align-items: center;
+  gap: 6px;
+  color: ${T.ink2};
+  background: rgba(255,255,255,.82);}
+.reflection-card > .summary-question-kicker,
+.reflection-card > .summary-question,
+.reflection-card > .summary-question-stem,
+.reflection-card > .reflection-options,
+.reflection-card > .reflection-resolution,
+.reflection-card > .feedback{flex-shrink: 0;}
+.reflection-resolution{display: grid;
+  gap: 7px;}
+.summary-card h2{margin-bottom: 8px; font-size: 14px;}
+.summary-card ul{padding-left: 17px; display: grid; gap: 5px; color: ${T.ink2}; font-size: 12px; line-height: 1.35;}
+.summary-question-kicker{margin-bottom: 4px;
+  color: ${T.accent};
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: .1em;}
+.summary-card .summary-question{margin-bottom: 4px;
+  color: ${T.navy};
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 15px;
+  line-height: 1.18;}
+.summary-question-stem{margin-bottom: 7px !important;
+  color: ${T.ink2};
+  font-size: 10px;
+  line-height: 1.3;}
+.reflection-options{max-height: 180px;
+  display: grid;
+  gap: 6px;
+  overflow: hidden;
+  opacity: 1;
+  transition:
+    max-height .75s cubic-bezier(.22,.8,.3,1) .48s,
+    opacity .28s ease .52s,
+    margin .75s cubic-bezier(.22,.8,.3,1) .48s;}
+.reflection-options-solved{max-height: 0;
+  margin-block: 0;
+  opacity: 0;
+  pointer-events: none;}
+.reflection-option{min-height: 34px;
+  padding: 7px 9px;
+  border: 0;
+  border-radius: 10px;
+  color: ${T.ink};
+  background: #F4F7F5;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;}
+.reflection-option > span{width: 21px;
+  height: 21px;
+  flex: 0 0 21px;
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+  color: ${T.cyan};
+  background: ${T.cyanSoft};
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 900;}
+.reflection-wrong{color: ${T.warn}; background: ${T.warnSoft};}
+.reflection-card .feedback-card{min-height: 62px;
+  padding: 5px 10px 5px 6px;}
+.reflection-card .g4-bit-reaction-figure{width: 44px;
+  height: 54px;
+  flex-basis: 44px;}
+.reflection-card .g4-bit-reaction-copy{font-size: 14px;}
+.final-mission-heading{width: min(840px, 100%);
+  margin: 0 auto;
+  padding: 12px 16px;
+  border: 1px solid rgba(255,91,53,.17);
+  border-radius: 17px;
+  background:
+    linear-gradient(100deg, rgba(255,91,53,.09), transparent 48%),
+    rgba(255,255,255,.9);
+  box-shadow: 0 13px 28px -24px rgba(255,91,53,.72);}
+.final-mission-heading > span{display: flex;
+  align-items: center;
+  gap: 7px;
+  color: ${T.accent};
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .12em;}
+.final-mission-heading > span i{font-size: 8px;
+  animation: final-marker-pulse 1.5s ease-in-out 3;}
+.final-mission-heading h1{margin-top: 3px;
+  color: ${T.navy};
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: clamp(21px, 3vw, 28px);
+  line-height: 1.08;}
+.final-mission-heading p{margin-top: 3px;
+  color: ${T.ink2};
+  font-size: 11px;
+  line-height: 1.32;}
+.summary-final-layout{width: min(840px, 100%);
+  margin: 0 auto;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;}
+.summary-card{min-width: 0;
+  height: 100%;
+  padding: 13px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255,255,255,.92);
+  box-shadow: 0 12px 26px -21px rgba(${T.shadowBase},.5);}
+.reflection-card > .summary-question-kicker,
+.reflection-card > .summary-question,
+.reflection-card > .summary-question-stem,
+.reflection-card > .reflection-options,
+.reflection-card > .reflection-resolution,
+.reflection-card > .feedback{flex-shrink: 0;}
+.final-question-card{height: auto;
+  border: 2px solid rgba(255,91,53,.22);
+  box-shadow:
+    inset 0 4px 0 rgba(255,91,53,.88),
+    0 18px 38px -28px rgba(255,91,53,.7);}
+.final-question-card .summary-question-kicker{min-height: 25px;
+  margin-bottom: 8px;
+  padding: 4px 6px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #FFFFFF;
+  background: linear-gradient(90deg, ${T.accent}, #FF7658);}
+.final-question-card .summary-question-kicker > b{margin-left: auto;
+  padding: 3px 6px;
+  border-radius: 999px;
+  color: #7D250F;
+  background: rgba(255,255,255,.76);
+  font-size: 7px;
+  letter-spacing: .08em;}
+.final-question-card .summary-question{font-size: clamp(17px, 2.4vw, 22px);
+  line-height: 1.18;}
+.summary-support-column{min-width: 0;
+  display: grid;
+  gap: 9px;}
+.summary-rules-disclosure{min-width: 0;
+  border: 1px solid rgba(22,143,163,.2);
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(255,255,255,.94);
+  box-shadow: 0 14px 30px -24px rgba(22,143,163,.72);}
+.summary-rules-toggle{width: 100%;
+  min-height: 64px;
+  padding: 8px 10px;
+  border: 0;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 9px;
+  color: ${T.ink};
+  background:
+    linear-gradient(135deg, rgba(230,247,250,.8), transparent 62%),
+    #FFFFFF;
+  cursor: pointer;
+  text-align: left;}
+.summary-rules-toggle > span{min-width: 55px;
+  padding: 7px 8px;
+  border-radius: 10px;
+  color: #FFFFFF;
+  background: ${T.cyan};
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 900;
+  text-align: center;}
+.summary-rules-toggle > div{min-width: 0; display: grid; gap: 2px;}
+.summary-rules-toggle strong{font-size: 13px; line-height: 1.2;}
+.summary-rules-toggle small{color: ${T.cyan}; font-size: 9px; font-weight: 800;}
+.summary-rules-toggle > i{color: ${T.cyan};
+  font-size: 24px;
+  font-style: normal;
+  transform: rotate(0);
+  transition: transform .55s cubic-bezier(.16,1,.3,1);}
+.summary-rules-open .summary-rules-toggle > i{transform: rotate(180deg);}
+.summary-rules-panel{max-height: 0;
+  padding: 0 9px;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-7px);
+  transition:
+    max-height .65s cubic-bezier(.22,.8,.3,1),
+    padding .65s cubic-bezier(.22,.8,.3,1),
+    opacity .4s ease,
+    transform .55s ease;}
+.summary-rules-open .summary-rules-panel{max-height: 260px;
+  padding: 0 9px 9px;
+  opacity: 1;
+  transform: translateY(0);}
+.summary-rules-panel .summary-rule-items > span{padding: 6px;
+  grid-template-columns: 20px 1fr;
+  gap: 5px;}
+.summary-rules-panel .summary-rule-items > span > i{width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: ${T.cyan};
+  background: ${T.cyanSoft};
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  font-style: normal;}
+.summary-rules-panel .summary-rule-items p{font-size: 9px; line-height: 1.22;}
+.reward-stage-compact{width: 100%;
+  min-height: 116px;
+  margin: 0;
+  padding: 12px 82px 11px 67px;
+  border-radius: 17px;
+  gap: 4px;}
+.reward-stage-compact .reward-medal{left: 11px;
+  width: 44px;
+  height: 44px;
+  border-width: 3px;
+  font-size: 19px;}
+.reward-stage-compact .reward-bit{right: 3px;
+  bottom: 2px;
+  width: 72px;
+  height: 90px;}
+.reward-stage-compact h2{font-family: 'Source Serif 4', Georgia, serif;
+  font-size: clamp(16px, 2.2vw, 21px);
+  line-height: 1.05;}
+/* --- Yakuniy savol ramkasi: etalon o'lchamlari (override qatlamidan ustun) --- */
+.lesson-root .final-question-card .summary-question{font-size: clamp(17px, 2.4vw, 22px); line-height: 1.18;}
+.lesson-root .reflection-card .reflection-option{font-size: 11px; font-weight: 700;}
+.lesson-root .reflection-card .reflection-option > span{font-size: 9px;}
+/* Javob berilmaganda izoh sloti joy egallamaydi: etalonda ham balandligi nol. */
+.lesson-root .reflection-card > .feedback:not(.open){min-height: 0 !important; height: 0; padding: 0 !important; overflow: hidden;}
+@media (max-width: 639.98px){
+  .lesson-root .final-question-card .summary-question{font-size: 13px; line-height: 1.18;}
+  .lesson-root .reflection-card .reflection-option{font-size: 8.5px;}
+  .lesson-root .reflection-card .reflection-option > span{font-size: 7px;}
 }
+@keyframes answer-option-dismiss{from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(-8px) scale(.96); }}
+@keyframes answer-option-confirm{0% { transform: translateY(0) scale(1); box-shadow: 0 10px 24px -17px rgba(${T.shadowBase},.44); }
+  45% { transform: translateY(-7px) scale(1.025); box-shadow: 0 0 0 6px rgba(34,122,83,.10); }
+  100% { transform: translateY(-3px) scale(1); box-shadow: 0 12px 26px -17px rgba(34,122,83,.45); }}
+@keyframes reward-confetti{to { transform: translateY(230px) rotate(460deg); }}
+@keyframes final-marker-pulse{50% { opacity: .45; transform: scale(.8); }}
+/* Qoida paneli ochilganda ham ekrandan chiqib ketmaydi */
+.summary-rules-open .summary-rules-panel{max-height:170px}
+.summary-rule-items>span>p{font-size:12px;line-height:1.3}
+@media(max-width:639.98px){
+  .summary-rules-open .summary-rules-panel{max-height:130px}
+}
+/* --- Shrift rollari: etalon Dars01 bo'yicha ------------------------------- */
+/* Sarlavha — Source Serif 4. Matn va javob variantlari — Manrope.
+   Yorliq, son va o'lchov — JetBrains Mono. Bitta chip ichida ikkita shrift
+   aralashmaydi: yorliq ham, qiymat ham Mono bo'ladi. */
+.lesson-root .tri-reads>b,
+.lesson-root .switch-reads>b,
+.lesson-root .scale-zone,
+.lesson-root .junction-cell,
+.lesson-root .form-row>i,
+.lesson-root .bin-card>span,
+.lesson-root .prop-col>b,
+.lesson-root .prop-col>em,
+.lesson-root .prop-row>i,
+.lesson-root .prop-row>u,
+.lesson-root .nest-outer>span,
+.lesson-root .nest-inner>span,
+.lesson-root .nest-outside>span,
+.lesson-root .cable-card>span,
+.lesson-root .order-card>span,
+.lesson-root .plan-card>span,
+.lesson-root .desk-cards>.cable-card>span,
+.lesson-root .desk-cards>.order-card>span{font-family:'JetBrains Mono',monospace;letter-spacing:.01em}
+/* Javob variantlari to'liq asosiy matn shriftida — ichida son bo'lsa ham */
+.lesson-root .option,
+.lesson-root .option>span,
+.lesson-root .option em,
+.lesson-root .option strong,
+.lesson-root .reflection-option,
+.lesson-root .tile,
+.lesson-root .band,
+.lesson-root .route-card,
+.lesson-root .repair-row>span,
+.lesson-root .rule-slot>span,
+.lesson-root .rule-bank-list button,
+.lesson-root .step-list>li>span{font-family:'Manrope',system-ui,sans-serif}
+/* Yechim ramkasidagi qiymat ikkinchi qatorga tushadi, blokni kengaytirmaydi */
+.lesson-root .split-done{grid-template-columns:51px minmax(0,1fr);row-gap:1px}
+.lesson-root .split-done>strong{grid-column:2;white-space:normal;font-size:14px;line-height:1.2}
+/* Telefonda qadamlar ro'yxati ixcham: uzun inglizcha matnda ham ekranga sig'adi */
+@media(max-width:639.98px){
+  .lesson-root .split-steps{padding:7px}
+  .lesson-root .step-list{gap:4px}
+  .lesson-root .step-list>li{min-height:32px;padding:4px 7px}
+  .lesson-root .step-list>li>span{font-size:13px;line-height:1.22}
+}
+/* Qolgan chiplar: yorliq ham qiymat bilan bitta shriftda */
+.lesson-root .plot-reads>b,
+.lesson-root .grid-reads>b,
+.lesson-root .twin-card>b,
+.lesson-root .twin-card>span,
+.lesson-root .tool-card>span,
+.lesson-root .plot-row>i,
+.lesson-root .plot-figure>span{font-family:'JetBrains Mono',monospace;letter-spacing:.01em}
+/* Telefonda variant tugmalari ixchamroq: uzun matnda ham ekranga sig'adi */
+@media(max-width:639.98px){
+  .lesson-root .option{min-height:44px;padding:8px 10px}
+}
+
 `;
 
 // ---------------------------------------------------------------------------
@@ -2300,98 +2778,166 @@ function RouteCompareScreen({ screen, onPrev, onNext }) {
 }
 
 const FINAL_STAGE = bi('YAKUNIY BOSQICH', 'ФИНАЛЬНЫЙ ЭТАП', 'FINAL STAGE');
-const PROOF_LABEL = bi("BOSHLANG'ICH MISSIYA YECHIMI", 'РЕШЕНИЕ СТАРТОВОЙ МИССИИ', 'STARTING MISSION SOLVED');
-const BRIDGE_LABEL = bi('KEYINGI MISSIYA', 'СЛЕДУЮЩАЯ МИССИЯ', 'NEXT MISSION');
+
+
+const FINAL_QUESTION = bi('YAKUNIY SAVOL', 'ФИНАЛЬНЫЙ ВОПРОС', 'FINAL QUESTION');
+const ONE_STEP = bi('1 QADAM', '1 ШАГ', '1 STEP');
+const RULES_LABEL = bi('Bugungi qoida', 'Правило урока', 'The lesson rule');
+const RULES_SHOW = bi('Eslab olish uchun bosing', 'Нажми, чтобы вспомнить', 'Press to remember');
+const RULES_HIDE = bi('Qoidalarni yopish', 'Скрыть правила', 'Hide the rules');
 const REWARD_WAIT = bi('MUKOFOT KUTILMOQDA', 'НАГРАДА ЖДЁТ', 'THE REWARD AWAITS');
+const REWARD_EARNED = bi('UNVON OLINDI', 'ЗВАНИЕ ПОЛУЧЕНО', 'TITLE EARNED');
 const REWARD_OPEN = bi('Unvonni oching', 'Открой звание', 'Unlock your title');
 const FIRST_TRY_LABEL = bi('birinchi urinishda', 'с первой попытки', 'on the first attempt');
-const CLAIM_LABEL = bi('Unvonni olish', 'Получить звание', 'Claim title');
-const PENDING_LABEL = bi('Avval yakuniy xulosani tinglang', 'Сначала дослушайте итог', 'Listen to the summary first');
 
-function FinaleScreen({ screen, answers, onAnswer, onPrev, finishLesson, finalState, onFinalState }) {
+// ---------------------------------------------------------------------------
+// YAKUNIY EKRAN — Dars01 etaloni: yakuniy savol, qoidani eslash, ochiladigan
+// mukofot. Unvon faqat to'g'ri javobdan keyin ochiladi.
+// ---------------------------------------------------------------------------
+function FinaleScreen({ screen, c: cProp, answers, storedAnswer, onAnswer, onPrev, finishLesson }) {
   const t = useT();
-  const c = CONTENT.s15;
-  const storedAnswer = finalState;
+  const c = cProp ?? CONTENT.s15;
   const audio = useNarration(c.audio, screen);
-  const reduced = usePrefersReducedMotion();
-  const visible = audio.frame + 1;
-  const [titleClaimed, setTitleClaimed] = useState(storedAnswer?.titleClaimed === true);
+  /* eslint-disable react-hooks/exhaustive-deps -- CONTENT modul konstantasi: tartib bir marta hisoblanadi */
+  const order = useMemo(
+    () => buildOptionOrder(c.options.length, c.correctIndex, LESSON_META.lessonId, 9),
+    [],
+  );
+  /* eslint-enable react-hooks/exhaustive-deps */
+  const [reflection, setReflection] = useState(storedAnswer?.reflection ?? null);
+  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const attempts = useRef(storedAnswer?.attempts ?? 0);
+  const [rulesOpen, setRulesOpen] = useState(false);
   const [revealRequested, setRevealRequested] = useState(false);
-  const canClaimTitle = audio.completed || audio.muted;
-  const scored = SCREEN_META.map((meta, index) => (meta.scored ? index : null)).filter((index) => index !== null);
-  const firstTryCorrect = scored.filter((index) => answers[index]?.firstTry === true).length;
-  useEffect(() => {
-    if (!revealRequested) return undefined;
-    const timer = window.setTimeout(() => setRevealRequested(false), reduced ? 350 : 4300);
-    return () => window.clearTimeout(timer);
-  }, [reduced, revealRequested]);
-  const claimTitle = () => {
-    if (!canClaimTitle || titleClaimed) return;
-    setTitleClaimed(true);
-    setRevealRequested(true);
-    onFinalState((previous) => ({ ...previous, titleClaimed: true }));
+  const [finished, setFinished] = useState(false);
+  const solved = reflection === c.correctIndex;
+  const scored = SCREEN_META
+    .map((meta, index) => (meta.scored ? { index, units: meta.scoreUnits ?? 1 } : null))
+    .filter(Boolean);
+  const totalUnits = scored.reduce((sum, item) => sum + item.units, 0);
+  const firstTryUnits = scored.reduce((sum, item) => {
+    const answer = answers?.[item.index];
+    if (!answer) return sum;
+    if (typeof answer.firstTryCount === 'number') return sum + Math.min(answer.firstTryCount, item.units);
+    return sum + (answer.firstTry === true ? item.units : 0);
+  }, 0);
+
+  const chooseReflection = (sourceIndex) => {
+    if (solved || wrongSet.has(sourceIndex) || !(audio.muted || audio.completed)) return;
+    setReflection(sourceIndex);
+    const ok = sourceIndex === c.correctIndex;
+    if (!ok) setWrongSet((previous) => new Set([...previous, sourceIndex]));
+    attempts.current += 1;
+    playSfx(ok ? 'correct' : 'wrong');
+    audio.pushOneOff(t(c.feedbackAudio[sourceIndex]));
+    if (ok) setRevealRequested(true);
     onAnswer({
-      screenIdx: screen, stage: null, question: t(CLAIM_LABEL),
-      options: [t(c.rewardTitle)], correctIndex: 0, correctAnswer: t(c.rewardTitle),
-      studentAnswerIndex: 0, studentAnswer: t(c.rewardTitle),
-      correct: true, firstTry: true, attempts: 1, solved: true, titleClaimed: true,
+      screenIdx: screen,
+      stage: SCREEN_META[screen].scope,
+      question: t(c.question),
+      options: order.map((index) => t(c.options[index])),
+      correctIndex: order.indexOf(c.correctIndex),
+      correctAnswer: t(c.options[c.correctIndex]),
+      studentAnswerIndex: order.indexOf(sourceIndex),
+      studentAnswer: t(c.options[sourceIndex]),
+      correct: ok,
+      firstTry: ok && attempts.current === 1,
+      attempts: attempts.current,
+      solved: ok,
+      reflection: sourceIndex,
     });
   };
+
+  const finish = () => {
+    if (!solved || finished || revealRequested) return;
+    setFinished(true);
+    finishLesson();
+  };
+
   return (
     <Stage
-      screen={screen} audio={titleClaimed ? { ...audio, completed: true } : audio}
-      onPrev={onPrev} onNext={titleClaimed ? finishLesson : undefined}
-      canAdvance canFinish={titleClaimed} finish
+      screen={screen} audio={audio} onPrev={onPrev} onNext={finish}
+      nextDisabled={!solved || finished || revealRequested} canFinish={solved} finish
     >
-      <div className="screen-stack finale-screen">
-        <div className="finale-heading">
-          <span><i aria-hidden="true">◆</i>{t(FINAL_STAGE)}</span>
+      <div className="screen-stack summary-stack">
+        <G4TitleReveal active={revealRequested} title={c.rewardTitle} onComplete={() => setRevealRequested(false)} />
+        <div className="final-mission-heading">
+          <span><i aria-hidden="true">◆</i> {t(FINAL_STAGE)}</span>
           <h1>{t(c.title)}</h1>
           <p>{t(c.lead)}</p>
         </div>
-        <div className="finale-body">
-          <div className="finale-column">
-            <div className="finale-mastery">
-              {c.frames.slice(0, 3).map((item, index) => (
-                <span key={index} className={index < visible ? 'is-open' : ''}><i>{index + 1}</i><p>{t(item)}</p></span>
+        <div className="summary-action-layout summary-final-layout">
+          <div className="summary-card reflection-card final-question-card">
+            <span className="summary-question-kicker">
+              <i aria-hidden="true">◇</i>
+              {t(FINAL_QUESTION)}
+              <b>{t(ONE_STEP)}</b>
+            </span>
+            <h2 className="summary-question">{t(c.question)}</h2>
+            <p className="summary-question-stem">{t(c.stem)}</p>
+            <div className={`reflection-options ${solved ? 'reflection-options-solved' : ''}`} data-g4-role="reflection-options">
+              {order.map((sourceIndex, displayIndex) => (
+                <button
+                  type="button"
+                  key={t(c.options[sourceIndex])}
+                  data-g4-role="answer-card"
+                  data-g4-source-index={sourceIndex}
+                  data-g4-correct={sourceIndex === c.correctIndex ? 'true' : 'false'}
+                  className={`reflection-option ${wrongSet.has(sourceIndex) ? 'reflection-wrong' : ''} ${solved && sourceIndex === c.correctIndex ? 'option-answer-confirm' : ''} ${solved && sourceIndex !== c.correctIndex ? 'option-answer-dismiss' : ''}`}
+                  disabled={solved || wrongSet.has(sourceIndex)}
+                  onClick={() => chooseReflection(sourceIndex)}
+                >
+                  <span>{String.fromCharCode(65 + displayIndex)}</span>
+                  {t(c.options[sourceIndex])}
+                </button>
               ))}
             </div>
-            <div className={`finale-proof ${visible >= 4 ? 'is-open' : ''}`}>
-              <b>{t(PROOF_LABEL)}</b>
-              <span>{t(c.frames[3])}</span>
-            </div>
-            <div className={`finale-bridge ${visible >= 5 ? 'is-open' : ''}`}>
-              <i aria-hidden="true">→</i>
-              <b>{t(BRIDGE_LABEL)}</b>
-              <span>{t(c.frames[4])}</span>
-            </div>
-          </div>
-          <div className="finale-actions" data-g4-final-reflection="none">
-            {titleClaimed
-              ? <G4TitleCard title={c.rewardTitle} answers={answers} />
-              : (
-                <div className="reward-stage reward-stage-compact reward-locked">
-                  <div className="reward-bit" data-g4-role="reward-bit"><BitSVG state="present" /></div>
-                  <div className="reward-medal" data-g4-role="reward-medal" aria-hidden="true">🔒</div>
-                  <span className="reward-kicker">{t(REWARD_WAIT)}</span>
-                  <h2>{t(REWARD_OPEN)}</h2>
-                  <div className="reward-score"><strong>{firstTryCorrect}/{scored.length}</strong><span>{t(FIRST_TRY_LABEL)}</span></div>
+            <div className="feedback-slot question-feedback-slot">
+              {solved && (
+                <div className="feedback open correct" data-g4-role="feedback-frame bit-answer-comment" data-g4-feedback={'solution'}>
+                  <span className="feedback-bit" data-g4-role="feedback-bit"><BitSVG state="nod" /></span>
+                  <p data-g4-role="bit-answer-comment">
+                    <b className="proof-label">{t(SOLUTION_LABEL)}</b>
+                    <em className="solution-formula">{t(c.proof)}</em>
+                    <span className="solution-text">{t(c.resolution)}</span>
+                  </p>
                 </div>
               )}
-            {!titleClaimed && (
-              <button type="button" className="g4-title-claim" disabled={!canClaimTitle} onClick={claimTitle}>
-                {t(CLAIM_LABEL)}
+              {reflection !== null && !solved && (
+                <div className="feedback open wrong" data-g4-role="feedback-frame" data-g4-feedback={'wrong'}>
+                  <p>{t(c.feedback[reflection])}</p>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="summary-support-column">
+            <div className={`summary-rules-disclosure ${rulesOpen ? 'summary-rules-open' : ''}`}>
+              <button type="button" className="summary-rules-toggle" aria-expanded={rulesOpen} onClick={() => setRulesOpen((open) => !open)}>
+                <span aria-hidden="true">3 &rarr; |</span>
+                <div>
+                  <strong>{t(RULES_LABEL)}</strong>
+                  <small>{t(rulesOpen ? RULES_HIDE : RULES_SHOW)}</small>
+                </div>
+                <i aria-hidden="true">&#8964;</i>
               </button>
-            )}
-            {!titleClaimed && !canClaimTitle && <small className="finale-pending">{t(PENDING_LABEL)}</small>}
+              <div className="summary-rules-panel" aria-hidden={!rulesOpen}>
+                <div className="summary-rule-items">
+                  {c.frames.slice(0, 3).map((item, index) => (
+                    <span key={t(item)}>
+                      <i>{index + 1}</i>
+                      <p>{t(item)}</p>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <G4TitleCard title={c.rewardTitle} solved={solved} firstTry={firstTryUnits} total={totalUnits} />
           </div>
         </div>
-        {titleClaimed && <G4TitleReveal active={revealRequested} title={c.rewardTitle} />}
       </div>
     </Stage>
   );
 }
-
 const Screen0 = (props) => <HookScreen {...props} />;
 const Screen1 = (props) => <AngleOpenScreen {...props} />;
 const Screen2 = (props) => <ChoiceScreen {...props} visual={<AngleCard c={CONTENT.s2} />} />;
