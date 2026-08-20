@@ -1,1760 +1,1482 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
+// ============================================================================
+// 4-SINF · Dars 47 · Tengsizliklarni tanlash usulida yechish
+//
+// Manba: N. U. Bikbayeva, "Matematika. 4-sinf", o'zbek nashri:
+//   44-bet "Tengsizliklar" — ta'rif dosloven ("katta", "kichik", "katta yoki
+//     teng", "kichik yoki teng" belgisi bilan birlashtirilgan ikki ifoda
+//     tengsizlik deb ataladi), 3 + x < 5 va son o'qi;
+//   44-bet 1.3 — 6 - x > 4, 5 · x < 35, 36 : x > 4;
+//   45-bet 6-topshiriq — x <= 548 ga mos uchta qiymat son o'qida;
+//   5-bet va 8-bet — a · 9 < 54, 200 - a > 198, 7 · y > 35, 208 - x < 35.
+// Syujet: boshqaruv markazining SHART DARVOZASI (SYUJET_4SINF.md, 6-blok).
+// 46-darsdan ko'prik: taqsimlash tugadi, endi shartlar tekshiriladi.
+//
+// YADRO. Tengsizlikni tanlash usuli bilan yechamiz: harf o'rniga sonlarni
+// qo'yib ko'ramiz va qaysilarida yozuv rost bo'lishini topamiz. Qat'iy belgi
+// chegara qiymatini ICHIGA OLMAYDI, qat'iy bo'lmagani esa oladi.
+//
+// RITM: qisqa tushuntirish -> misol -> yana tushuntirish -> misol.
+// Baholanadigan olti ekran: s2, s4, s6, s8, s10, s13.
+// ============================================================================
+import {
+  BitSVG, Caption, ChoiceScreen, FitSvg, KIT_STYLES, NumPadScreen, Plate, RecordRow,
+  RevealScreen, RuleRows, StepList, SummaryScreen, T, TheoryLessonRoot,
+  assertScreenTypeLabels, useT,
+} from './kit/index.js';
 
-// 4-sinf · Dars 47 · Tengsizliklarni tizimli tanlash bilan yechish
-// 15 ekran · 50 asosiy audio beat · barcha interaction ixtiyoriy, navigatsiya ochiq.
-const T = {
-  bg: '#F5F5F0', ink: '#12212C', ink2: '#50616D', ink3: '#87949D', paper: '#FFFFFF',
-  accent: '#FF5B35', accentSoft: '#FFF0EA', cyan: '#168FA3', cyanSoft: '#E5F5F6',
-  navy: '#173B52', lime: '#95C93D', success: '#227A53', successSoft: '#E7F3EC',
-  warn: '#A96F13', warnSoft: '#FFF5D9', shadowBase: '58, 53, 48',
+const LESSON_META = {
+  lessonId: 'ineq-4-47-v2',
+  slug: 'dars47-tengsizliklarni-tanlash-usuli',
+  lessonTitle: {
+    uz: '47-dars. Tengsizliklarni tanlash usulida yechish',
+    ru: 'Урок 47. Решение неравенств подбором',
+    en: 'Lesson 47. Solving inequalities by systematic trial',
+  },
+  skillTags: ['inequality_meaning', 'trial_method', 'boundary_value', 'strict_sign', 'number_line'],
 };
-const FRAME_COUNTS = [3, 4, 4, 4, 4, 4, 4, 5, 2, 2, 2, 2, 2, 3, 5];
-const TOTAL_SCREENS = FRAME_COUNTS.length;
-const LESSON_META = { lessonId: "inequality-4-47-v1", slug: "dars47-tengsizliklarni-tanlash-usuli", lessonTitle: {"uz":"Tengsizliklarni tanlash usulida yechish","ru":"Решение неравенств подбором","en":"Solving inequalities by systematic trial"}, skillTags: ["inequalities","systematic-trial","solution-set","boundary"] };
+
 const SCREEN_META = [
-  { id: 's0', type: 'hook', template: 'hypothesis-choice', goal: 'diagnose-prior-model', mechanic: 'hypothesis-choice', active: true, assessed: false, scored: false, scope: 'hook', misconceptions: ['guess-without-model', 'use-irrelevant-operation'], resetOnReturn: true },
-  { id: 's1', type: 'exploration', template: 'guided-situation', goal: 'inspect-problem-situation', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: [] },
-  { id: 's2', type: 'exploration', template: 'guided-first-model', goal: 'build-first-mathematical-model', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: ['confuse-model-elements'] },
-  { id: 's3', type: 'exploration', template: 'guided-experiment', goal: 'experiment-with-model', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: [] },
-  { id: 's4', type: 'exploration', template: 'guided-second-model', goal: 'connect-second-representation', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: ['disconnect-representations'] },
-  { id: 's5', type: 'exploration', template: 'guided-discovery', goal: 'discover-pattern', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: [] },
-  { id: 's6', type: 'rule', template: 'guided-rule', goal: 'formulate-rule-after-discovery', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: ['memorise-without-meaning'] },
-  { id: 's7', type: 'rule', template: 'worked-example', goal: 'apply-rule-together', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: [] },
-  { id: 's8', type: 'test', template: 'choice-retry', goal: 'guided-application', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'module-mikro', misconceptions: ['choose-by-surface-feature', 'skip-check'] },
-  { id: 's9', type: 'test', template: 'guided-choice-retry', goal: 'strengthen-application', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'module-mikro', misconceptions: ['reverse-relation', 'calculation-slip'] },
-  { id: 's10', type: 'test', template: 'independent-choice-retry', goal: 'independent-application', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'module-mikro', misconceptions: ['use-wrong-operation', 'ignore-unit'] },
-  { id: 's11', type: 'strategy', template: 'strategy-choice', goal: 'choose-efficient-strategy', mechanic: 'choice-retry', active: true, assessed: false, scored: false, scope: 'module-mikro', misconceptions: ['one-strategy-for-all', 'choose-without-reason'] },
-  { id: 's12', type: 'error', template: 'error-repair', goal: 'analyse-and-repair-error', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'module-mikro', misconceptions: ['accept-plausible-error', 'repair-result-only'] },
-  { id: 's13', type: 'case', template: 'life-transfer', goal: 'transfer-to-life-situation', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'final', misconceptions: ['ignore-context', 'answer-without-check'] },
-  { id: 's14', type: 'summary', template: 'guided-reflection', goal: 'reflect-and-bridge-forward', mechanic: 'guided-reveal-and-reflection', active: true, assessed: false, scored: false, scope: null, misconceptions: [] },
+  { id: 's0', type: 'hook', scored: false, scope: 'hook' },
+  { id: 's1', type: 'exploration', scored: false, scope: null },
+  { id: 's2', type: 'practice', scored: true, scope: 'module-mikro' },
+  { id: 's3', type: 'exploration', scored: false, scope: null },
+  { id: 's4', type: 'practice', scored: true, scope: 'module-mikro' },
+  { id: 's5', type: 'exploration', scored: false, scope: null },
+  { id: 's6', type: 'practice', scored: true, scope: 'module-mikro' },
+  { id: 's7', type: 'exploration', scored: false, scope: null },
+  { id: 's8', type: 'practice', scored: true, scope: 'module-mikro' },
+  { id: 's9', type: 'exploration', scored: false, scope: null },
+  { id: 's10', type: 'practice', scored: true, scope: 'module-mikro' },
+  { id: 's11', type: 'rule', scored: false, scope: null },
+  { id: 's12', type: 'strategy', scored: false, scope: null },
+  { id: 's13', type: 'error-analysis', scored: true, scope: 'module-mikro' },
+  { id: 's14', type: 'life-case', scored: false, scope: 'final' },
+  { id: 's15', type: 'summary', scored: false, scope: null },
 ];
-const bi = (uz, ru, en) => ({ uz, ru, en });
-const LESSON_REWARD_TITLE = bi('Tengsizlik tadqiqotchisi', 'Исследователь неравенств', 'Inequality explorer');
-const SOLUTION_LABEL = bi('YECHIM', 'РЕШЕНИЕ', 'SOLUTION');
-const HOOK_CORRECT_INDEX = 1;
-const HOOK_RETRY_LABEL = bi("Bu taxmin modelga mos kelmadi. Boshqa variantni tekshiring.", 'Эта гипотеза не соответствует модели. Проверьте другой вариант.', 'This estimate does not match the model. Check another option.');
-const REFLECTION = {
-  question: bi('Bu darsda yechimni tekshirish uchun qaysi usulni tanlaysiz?', 'Какой способ вы выберете, чтобы проверить решение в этом уроке?', 'Which method will you choose to check a solution in this lesson?'),
-  options: [
-    bi('Model bilan tekshirish', 'Проверить с помощью модели', 'Check with a model'),
-    bi('Boshqa usul bilan tekshirish', 'Проверить другим способом', 'Check with another method'),
-    bi('Yechimni izohlash', 'Объяснить решение', 'Explain the solution'),
-  ],
-};
+
+const TOTAL_SCREENS = SCREEN_META.length;
+assertScreenTypeLabels(SCREEN_META, LESSON_META.lessonId);
+
+const FRAME_COUNTS = [4, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 3, 3, 3, 3, 3];
+
 const CONTENT = {
-  "s0": {
-    "eyebrow": {
-      "uz": "Lumo kirish kodi",
-      "ru": "Код доступа Лумо",
-      "en": "Lumo access code"
+  s0: {
+    eyebrow: { uz: 'Shart darvozasi', ru: 'Ворота условия', en: 'The condition gate' },
+    title: {
+      uz: 'Darvoza ochilmadi',
+      ru: 'Ворота не открылись',
+      en: 'The gate did not open',
     },
-    "title": {
-      "uz": "Bitta emas, bir nechta yechim",
-      "ru": "Не одно, а несколько решений",
-      "en": "More than one solution"
+    question: {
+      uz: 'Nega 7 ta quti darvozadan o\'tmadi?',
+      ru: 'Почему 7 коробок не прошли через ворота?',
+      en: 'Why did 7 boxes not pass the gate?',
     },
-    "scene": "inequality-hook",
-    "closedSet": true,
-    "frames": [
-      {
-        "uz": "3x + 4 < 20",
-        "ru": "3x + 4 < 20",
-        "en": "3x + 4 < 20"
-      },
-      {
-        "uz": "x — 0 dan 9 gacha raqam",
-        "ru": "x — цифра от 0 до 9",
-        "en": "x is a digit from 0 to 9"
-      },
-      {
-        "uz": "Nechta qiymat mos?",
-        "ru": "Сколько значений подходит?",
-        "en": "How many values work?"
-      }
+    options: [
+      { uz: '35 ning o\'zi 35 dan kichik emas', ru: 'Само 35 не меньше 35', en: '35 itself is not less than 35' },
+      { uz: '7 juda kichik son', ru: '7 слишком маленькое число', en: '7 is too small a number' },
+      { uz: 'Ko\'paytirish o\'rniga qo\'shish kerak', ru: 'Вместо умножения нужно сложение', en: 'Addition is needed instead of multiplication' },
+      { uz: 'Darvoza buzilgan', ru: 'Ворота сломаны', en: 'The gate is broken' },
     ],
-    "question": {
-      "uz": "Nechta qiymat mos?",
-      "ru": "Сколько значений подходит?",
-      "en": "How many values work?"
+    correctIndex: 0,
+    correctText: {
+      uz: "To'g'ri. Yetti quti aynan o'ttiz besh kilogramm beradi, shart esa qat'iy kichik talab qiladi.",
+      ru: 'Верно. Семь коробок дают ровно тридцать пять килограммов, а условие требует строго меньше.',
+      en: 'Correct. Seven boxes give exactly thirty five kilograms, but the condition demands strictly less.',
     },
-    "options": [
+    wrong: [
+      null,
       {
-        "uz": "5 ta",
-        "ru": "5 значений",
-        "en": "5 values"
+        uz: "Yetti kichik son emas: aynan u chegaraga yetkazdi. Muammo chegarada.",
+        ru: 'Семь не маленькое число: именно оно довело до границы. Дело в границе.',
+        en: 'Seven is not small: it is exactly what reached the limit. The trouble is at the limit.',
       },
       {
-        "uz": "6 ta",
-        "ru": "6 значений",
-        "en": "6 values"
+        uz: "Har qutida besh kilogramm, qutilar soni esa iks. Bu ko'paytirish.",
+        ru: 'В каждой коробке пять килограммов, а коробок икс. Это умножение.',
+        en: 'Each box holds five kilograms and there are x boxes. That is multiplication.',
       },
       {
-        "uz": "7 ta",
-        "ru": "7 значений",
-        "en": "7 values"
-      }
+        uz: "Darvoza ishlayapti: u shartni aynan bajaryapti. Xato shartni o'qishda.",
+        ru: 'Ворота работают: они точно выполняют условие. Ошибка в чтении условия.',
+        en: 'The gate works: it follows the condition exactly. The error is in reading the condition.',
+      },
     ],
-    "neutral": {
-      "uz": "Taxmin saqlandi. Qiymatlarni tartib bilan tekshirib, chegarani topamiz.",
-      "ru": "Гипотеза сохранена. Проверим значения по порядку и найдём границу.",
-      "en": "Estimate saved. We will test values in order and find the boundary."
-    },
-    "audio": {
-      "intro": {
-        "uz": [
-          "Uch karra x qo'shuv to'rt yigirmadan kichik",
-          "x noldan to'qqizgacha bo'lgan raqam",
-          "Nechta qiymat mos kelishini toping"
+    audio: {
+      intro: {
+        uz: [
+          "Salom, do'stim! Taqsimlash tugadi va yuklar shart darvozasiga keldi.",
+          "Darvoza faqat yengil aravalarni o'tkazadi. Har qutining massasi besh kilogramm.",
+          "Shart shunday: besh ko'paytiriladi iks, natija o'ttiz beshdan kichik bo'lsin.",
+          "Bit yetti quti yukladi va darvoza ochilmadi. Nega? Javobni tanlang.",
         ],
-        "ru": [
-          "Три умножить на икс плюс четыре меньше двадцати",
-          "Икс является цифрой от нуля до девяти",
-          "Найдите, сколько значений подходит"
+        ru: [
+          'Привет, друг! Распределение закончено, и грузы подошли к воротам условия.',
+          'Ворота пропускают только лёгкие тележки. Масса каждой коробки пять килограммов.',
+          'Условие такое: пять умножить на икс, результат должен быть меньше тридцати пяти.',
+          'Bit погрузил семь коробок, и ворота не открылись. Почему? Выбери ответ.',
         ],
-        "en": [
-          "Three times x plus four is less than twenty",
-          "x is a digit from zero to nine",
-          "Find how many values work"
-        ]
-      }
-    }
-  },
-  "s1": {
-    "eyebrow": {
-      "uz": "Taqqoslash",
-      "ru": "Сравнение",
-      "en": "Comparison"
-    },
-    "title": {
-      "uz": "Tenglik va tengsizlik",
-      "ru": "Равенство и неравенство",
-      "en": "Equality and inequality"
-    },
-    "scene": "inequality-compare",
-    "frames": [
-      {
-        "uz": "3 + 4 = 7",
-        "ru": "3 + 4 = 7",
-        "en": "3 + 4 = 7"
-      },
-      {
-        "uz": "3 + 4 < 10",
-        "ru": "3 + 4 < 10",
-        "en": "3 + 4 < 10"
-      },
-      {
-        "uz": "Rost",
-        "ru": "Истина",
-        "en": "True"
-      },
-      {
-        "uz": "3 + 4 < 6 — yolg'on",
-        "ru": "3 + 4 < 6 — ложь",
-        "en": "3 + 4 < 6 is false"
-      }
-    ],
-    "audio": {
-      "uz": [
-        "uch qo'shuv to'rt teng yetti",
-        "uch qo'shuv to'rt o'ndan kichik",
-        "Rost",
-        "uch qo'shuv to'rt oltidan kichik degan gap yolg'on"
-      ],
-      "ru": [
-        "три плюс четыре равно семь",
-        "три плюс четыре меньше десяти",
-        "Истина",
-        "Утверждение три плюс четыре меньше шести ложно"
-      ],
-      "en": [
-        "three plus four equals seven",
-        "three plus four is less than ten",
-        "True",
-        "The statement that three plus four is less than six is false"
-      ]
-    }
-  },
-  "s2": {
-    "eyebrow": {
-      "uz": "Tizimli jadval",
-      "ru": "Систематическая таблица",
-      "en": "Systematic table"
-    },
-    "title": {
-      "uz": "Tartibli tekshiruv",
-      "ru": "Проверяем по порядку",
-      "en": "Check in order"
-    },
-    "scene": "inequality-table",
-    "frames": [
-      {
-        "uz": "x = 0",
-        "ru": "x = 0",
-        "en": "x = 0"
-      },
-      {
-        "uz": "x = 1",
-        "ru": "x = 1",
-        "en": "x = 1"
-      },
-      {
-        "uz": "x = 2",
-        "ru": "x = 2",
-        "en": "x = 2"
-      },
-      {
-        "uz": "Qiymatlar jadvalga yoziladi",
-        "ru": "Значения записываются в таблицу",
-        "en": "Values are entered in the table"
-      }
-    ],
-    "audio": {
-      "uz": [
-        "x teng nol",
-        "x teng bir",
-        "x teng ikki",
-        "Qiymatlar jadvalga yoziladi"
-      ],
-      "ru": [
-        "x равно ноль",
-        "x равно один",
-        "x равно два",
-        "Значения записываются в таблицу"
-      ],
-      "en": [
-        "x equals zero",
-        "x equals one",
-        "x equals two",
-        "Values are entered in the table"
-      ]
-    }
-  },
-  "s3": {
-    "eyebrow": {
-      "uz": "Chegara",
-      "ru": "Граница",
-      "en": "Boundary"
-    },
-    "title": {
-      "uz": "Chegarani topamiz",
-      "ru": "Находим границу",
-      "en": "Finding the boundary"
-    },
-    "scene": "inequality-boundary",
-    "frames": [
-      {
-        "uz": "x = 5 → 19 < 20 rost",
-        "ru": "x = 5 → 19 < 20, истина",
-        "en": "x = 5 → 19 < 20, true"
-      },
-      {
-        "uz": "x = 6 → 22 < 20 yolg'on",
-        "ru": "x = 6 → 22 < 20, ложь",
-        "en": "x = 6 → 22 < 20, false"
-      },
-      {
-        "uz": "Chegara 5 va 6 orasida",
-        "ru": "Граница между 5 и 6",
-        "en": "The boundary is between 5 and 6"
-      },
-      {
-        "uz": "{0,1,2,3,4,5}",
-        "ru": "{0,1,2,3,4,5}",
-        "en": "{0,1,2,3,4,5}"
-      }
-    ],
-    "audio": {
-      "uz": [
-        "x beshga teng bo'lganda o'n to'qqiz yigirmadan kichik, bu rost",
-        "x oltiga teng bo'lganda yigirma ikki yigirmadan kichik emas, bu yolg'on",
-        "Chegara besh va olti orasida",
-        "Yechimlar nol, bir, ikki, uch, to'rt va besh"
-      ],
-      "ru": [
-        "При икс, равном пяти, девятнадцать меньше двадцати, это истина",
-        "При икс, равном шести, двадцать два не меньше двадцати, это ложь",
-        "Граница между пятью и шестью",
-        "Решения: ноль, один, два, три, четыре и пять"
-      ],
-      "en": [
-        "When x equals five, nineteen is less than twenty, so the statement is true",
-        "When x equals six, twenty two is not less than twenty, so the statement is false",
-        "The boundary is between five and six",
-        "The solutions are zero, one, two, three, four and five"
-      ]
-    }
-  },
-  "s4": {
-    "eyebrow": {
-      "uz": "Yechimlar to'plami",
-      "ru": "Множество решений",
-      "en": "Solution set"
-    },
-    "title": {
-      "uz": "Yechimlar to'plami",
-      "ru": "Множество решений",
-      "en": "Solution set"
-    },
-    "scene": "inequality-set",
-    "frames": [
-      {
-        "uz": "Sonlar nuri",
-        "ru": "Числовой луч",
-        "en": "Number line"
-      },
-      {
-        "uz": "0–5 yashil",
-        "ru": "0–5 зелёные",
-        "en": "0–5 are green"
-      },
-      {
-        "uz": "6–9 korall",
-        "ru": "6–9 коралловые",
-        "en": "6–9 are coral"
-      },
-      {
-        "uz": "{0,1,2,3,4,5}",
-        "ru": "{0,1,2,3,4,5}",
-        "en": "{0,1,2,3,4,5}"
-      }
-    ],
-    "audio": {
-      "uz": [
-        "Sonlar nuri",
-        "Noldan beshgacha bo'lgan nuqtalar yashil",
-        "Oltidan to'qqizgacha bo'lgan nuqtalar korall",
-        "Yechimlar nol, bir, ikki, uch, to'rt va besh"
-      ],
-      "ru": [
-        "Числовой луч",
-        "Точки от нуля до пяти зелёные",
-        "Точки от шести до девяти коралловые",
-        "Решения: ноль, один, два, три, четыре и пять"
-      ],
-      "en": [
-        "Number line",
-        "The points from zero to five are green",
-        "The points from six to nine are coral",
-        "The solutions are zero, one, two, three, four and five"
-      ]
-    }
-  },
-  "s5": {
-    "eyebrow": {
-      "uz": "O'zgarish qonuni",
-      "ru": "Закон изменения",
-      "en": "Pattern of change"
-    },
-    "title": {
-      "uz": "Nega keyingilari mos emas?",
-      "ru": "Почему следующие не подходят?",
-      "en": "Why do later values fail?"
-    },
-    "scene": "inequality-growth",
-    "frames": [
-      {
-        "uz": "x oshadi",
-        "ru": "x увеличивается",
-        "en": "x increases"
-      },
-      {
-        "uz": "3x + 4 oshadi",
-        "ru": "3x + 4 увеличивается",
-        "en": "3x + 4 increases"
-      },
-      {
-        "uz": "6 da chegara buziladi",
-        "ru": "При 6 граница нарушается",
-        "en": "At 6 the boundary is crossed"
-      },
-      {
-        "uz": "Kattaroq qiymatlar ham mos emas",
-        "ru": "Большие значения тоже не подходят",
-        "en": "Larger values do not work either"
-      }
-    ],
-    "audio": {
-      "uz": [
-        "x oshadi",
-        "Uch karra x qo'shuv to'rt ham oshadi",
-        "x oltiga teng bo'lganda chegara buziladi",
-        "Kattaroq qiymatlar ham mos emas"
-      ],
-      "ru": [
-        "x увеличивается",
-        "Три умножить на икс плюс четыре тоже увеличивается",
-        "При икс, равном шести, граница нарушается",
-        "Большие значения тоже не подходят"
-      ],
-      "en": [
-        "x increases",
-        "Three times x plus four also increases",
-        "At six the boundary is crossed",
-        "Larger values do not work either"
-      ]
-    }
-  },
-  "s6": {
-    "eyebrow": {
-      "uz": "Belgilar",
-      "ru": "Знаки",
-      "en": "Signs"
-    },
-    "title": {
-      "uz": "Qat'iy va noqat'iy chegara",
-      "ru": "Строгая и нестрогая граница",
-      "en": "Strict and inclusive boundaries"
-    },
-    "scene": "inequality-signs",
-    "frames": [
-      {
-        "uz": "< belgida tenglik kirmaydi",
-        "ru": "При < равенство не входит",
-        "en": "With <, equality is excluded"
-      },
-      {
-        "uz": "≤ belgida tenglik kiradi",
-        "ru": "При ≤ равенство входит",
-        "en": "With ≤, equality is included"
-      },
-      {
-        "uz": "> belgida tenglik kirmaydi",
-        "ru": "При > равенство не входит",
-        "en": "With >, equality is excluded"
-      },
-      {
-        "uz": "≥ belgida tenglik kiradi",
-        "ru": "При ≥ равенство входит",
-        "en": "With ≥, equality is included"
-      }
-    ],
-    "audio": {
-      "uz": [
-        "Kichik belgisi tenglikni kiritmaydi",
-        "Kichik yoki teng belgisi tenglikni kiritadi",
-        "Katta belgisi tenglikni kiritmaydi",
-        "Katta yoki teng belgisi tenglikni kiritadi"
-      ],
-      "ru": [
-        "Знак меньше не включает равенство",
-        "Знак меньше или равно включает равенство",
-        "Знак больше не включает равенство",
-        "Знак больше или равно включает равенство"
-      ],
-      "en": [
-        "The less-than sign excludes equality",
-        "The less-than-or-equal-to sign includes equality",
-        "The greater-than sign excludes equality",
-        "The greater-than-or-equal-to sign includes equality"
-      ]
-    }
-  },
-  "s7": {
-    "eyebrow": {
-      "uz": "Algoritm",
-      "ru": "Алгоритм",
-      "en": "Algorithm"
-    },
-    "title": {
-      "uz": "Tanlash algoritmi",
-      "ru": "Алгоритм подбора",
-      "en": "Systematic trial algorithm"
-    },
-    "scene": "inequality-algorithm",
-    "frames": [
-      {
-        "uz": "Sohani belgilang",
-        "ru": "Задайте область значений",
-        "en": "Set the domain"
-      },
-      {
-        "uz": "Qiymatlarni tartib bilan qo'ying",
-        "ru": "Подставляйте значения по порядку",
-        "en": "Substitute values in order"
-      },
-      {
-        "uz": "Rost yoki yolg'onligini tekshiring",
-        "ru": "Проверяйте, истина или ложь",
-        "en": "Check whether each result is true or false"
-      },
-      {
-        "uz": "Chegarani toping",
-        "ru": "Найдите границу",
-        "en": "Find the boundary"
-      },
-      {
-        "uz": "Yechimlar: {0,1,2,3,4,5}; jami 6 ta",
-        "ru": "Решения: {0,1,2,3,4,5}; всего 6",
-        "en": "Solutions: {0,1,2,3,4,5}; 6 altogether"
-      }
-    ],
-    "audio": {
-      "uz": [
-        "Sohani belgilang",
-        "Qiymatlarni tartib bilan qo'ying",
-        "Rost yoki yolg'onligini tekshiring",
-        "Chegarani toping",
-        "Kirishdagi tengsizlikning yechimlari nol, bir, ikki, uch, to'rt va besh; jami oltita qiymat"
-      ],
-      "ru": [
-        "Задайте область значений",
-        "Подставляйте значения по порядку",
-        "Проверяйте истина или ложь",
-        "Найдите границу",
-        "Решения неравенства из начала урока: ноль, один, два, три, четыре и пять; всего шесть значений"
-      ],
-      "en": [
-        "Set the domain",
-        "Substitute values in order",
-        "Check whether each result is true or false",
-        "Find the boundary",
-        "The opening inequality has the solutions zero, one, two, three, four and five: six values altogether"
-      ]
-    }
-  },
-  "s8": {
-    "eyebrow": {
-      "uz": "Mashq 1/6",
-      "ru": "Задание 1/6",
-      "en": "Task 1/6"
-    },
-    "title": {
-      "uz": "2x+1<10",
-      "ru": "2x+1<10",
-      "en": "2x+1<10"
-    },
-    "scene": "inequality-test-2x",
-    "closedSet": true,
-    "frames": [
-      {
-        "uz": "2x + 1 < 10",
-        "ru": "2x + 1 < 10",
-        "en": "2x + 1 < 10"
-      },
-      {
-        "uz": "x = 0 dan 9 gacha",
-        "ru": "x от 0 до 9",
-        "en": "x is from 0 to 9"
-      }
-    ],
-    "question": {
-      "uz": "Yechimlar to'plami qaysi?",
-      "ru": "Каково множество решений?",
-      "en": "Which is the solution set?"
-    },
-    "options": [
-      {
-        "uz": "{0,1,2,3}",
-        "ru": "{0,1,2,3}",
-        "en": "{0,1,2,3}"
-      },
-      {
-        "uz": "{0,1,2,3,4}",
-        "ru": "{0,1,2,3,4}",
-        "en": "{0,1,2,3,4}"
-      },
-      {
-        "uz": "{0,1,2,3,4,5}",
-        "ru": "{0,1,2,3,4,5}",
-        "en": "{0,1,2,3,4,5}"
-      }
-    ],
-    "correctIndex": 1,
-    "proof": {
-      "uz": "x = 0, 1, 2, 3, 4",
-      "ru": "x = 0, 1, 2, 3, 4",
-      "en": "x = 0, 1, 2, 3, 4"
-    },
-    "feedbackAudio": [
-      {
-        "uz": "Yana bir qarang: bu to'plam oxirgi rost chegara qiymatini tashlab ketgan.",
-        "ru": "Посмотрите ещё раз: в этом множестве пропущено последнее истинное граничное значение.",
-        "en": "Look again: this set leaves out the last true boundary value."
-      },
-      {
-        "uz": "To'g'ri. Chegaragacha bo'lgan barcha rost qiymatlar yozildi.",
-        "ru": "Верно. Записаны все истинные значения до границы.",
-        "en": "Correct. Every true value up to the boundary is included."
-      },
-      {
-        "uz": "Yana bir qarang: bu to'plam birinchi yolg'on chegara qiymatini ham kiritgan.",
-        "ru": "Посмотрите ещё раз: в это множество включено первое ложное граничное значение.",
-        "en": "Look again: this set includes the first false boundary value."
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "Ikki karra x qo'shuv bir o'ndan kichik",
-          "Birinchi tengsizlikda x noldan to'qqizgacha tekshiriladi"
+        en: [
+          'Hello, friend! The sharing is over and the loads have reached the condition gate.',
+          'The gate lets through only light carts. Each box weighs five kilograms.',
+          'The condition is this: five multiplied by x must be less than thirty five.',
+          'Bit loaded seven boxes and the gate stayed shut. Why? Choose an answer.',
         ],
-        "ru": [
-          "Два умножить на икс плюс один меньше десяти",
-          "В первом неравенстве x проверяют от нуля до девяти"
-        ],
-        "en": [
-          "Two times x plus one is less than ten",
-          "For the first inequality, x is checked from zero to nine"
-        ]
       },
-      "on_correct": {
-        "uz": "To'g'ri. Chegaragacha bo'lgan barcha rost qiymatlar yozildi.",
-        "ru": "Верно. Записаны все истинные значения до границы.",
-        "en": "Correct. Every true value up to the boundary is included."
-      },
-      "on_wrong": [
-        {
-          "uz": "Yana bir qarang: bu to'plam oxirgi rost chegara qiymatini tashlab ketgan.",
-          "ru": "Посмотрите ещё раз: в этом множестве пропущено последнее истинное граничное значение.",
-          "en": "Look again: this set leaves out the last true boundary value."
-        },
-        {
-          "uz": "To'g'ri. Chegaragacha bo'lgan barcha rost qiymatlar yozildi.",
-          "ru": "Верно. Записаны все истинные значения до границы.",
-          "en": "Correct. Every true value up to the boundary is included."
-        },
-        {
-          "uz": "Yana bir qarang: bu to'plam birinchi yolg'on chegara qiymatini ham kiritgan.",
-          "ru": "Посмотрите ещё раз: в это множество включено первое ложное граничное значение.",
-          "en": "Look again: this set includes the first false boundary value."
-        }
-      ]
-    }
+    },
   },
-  "s9": {
-    "eyebrow": {
-      "uz": "Mashq 2/6",
-      "ru": "Задание 2/6",
-      "en": "Task 2/6"
+
+  s1: {
+    eyebrow: { uz: 'Tengsizlik nima', ru: 'Что такое неравенство', en: 'What an inequality is' },
+    title: {
+      uz: 'Ikki ifoda va belgi',
+      ru: 'Два выражения и знак',
+      en: 'Two expressions and a sign',
     },
-    "title": {
-      "uz": "x+6≤10",
-      "ru": "x+6≤10",
-      "en": "x+6≤10"
+    lead: {
+      uz: "Katta, kichik, katta yoki teng, kichik yoki teng belgisi bilan birlashtirilgan ikki ifoda tengsizlik deb ataladi.",
+      ru: 'Два выражения, соединённые знаком больше, меньше, больше или равно, меньше или равно, называют неравенством.',
+      en: 'Two expressions joined by greater, less, greater or equal, less or equal are called an inequality.',
     },
-    "scene": "inequality-test-inclusive",
-    "closedSet": true,
-    "frames": [
-      {
-        "uz": "x + 6 ≤ 10",
-        "ru": "x + 6 ≤ 10",
-        "en": "x + 6 ≤ 10"
-      },
-      {
-        "uz": "x = 0 dan 9 gacha",
-        "ru": "x от 0 до 9",
-        "en": "x is from 0 to 9"
-      }
-    ],
-    "question": {
-      "uz": "Yechimlar to'plami qaysi?",
-      "ru": "Каково множество решений?",
-      "en": "Which is the solution set?"
+    note: {
+      uz: "Tenglamada tenglik belgisi, tengsizlikda esa taqqoslash belgisi turadi.",
+      ru: 'В уравнении стоит знак равенства, а в неравенстве — знак сравнения.',
+      en: 'An equation carries the equals sign, an inequality carries a comparison sign.',
     },
-    "options": [
-      {
-        "uz": "{0,1,2,3}",
-        "ru": "{0,1,2,3}",
-        "en": "{0,1,2,3}"
-      },
-      {
-        "uz": "{0,1,2,3,4}",
-        "ru": "{0,1,2,3,4}",
-        "en": "{0,1,2,3,4}"
-      },
-      {
-        "uz": "{4,5,6,7,8,9}",
-        "ru": "{4,5,6,7,8,9}",
-        "en": "{4,5,6,7,8,9}"
-      }
-    ],
-    "correctIndex": 1,
-    "proof": {
-      "uz": "x = 0, 1, 2, 3, 4",
-      "ru": "x = 0, 1, 2, 3, 4",
-      "en": "x = 0, 1, 2, 3, 4"
-    },
-    "feedbackAudio": [
-      {
-        "uz": "Yana bir qarang: noqat'iy belgi tenglik bo'lgan chegara qiymatini ham kiritadi.",
-        "ru": "Посмотрите ещё раз: нестрогий знак включает граничное значение, при котором есть равенство.",
-        "en": "Look again: an inclusive sign includes the boundary value where equality holds."
-      },
-      {
-        "uz": "To'g'ri. Chegara qiymati tenglik bilan birga yechimga kiritildi.",
-        "ru": "Верно. Граничное значение включено в решение вместе с равенством.",
-        "en": "Correct. The boundary value is included because equality is allowed."
-      },
-      {
-        "uz": "Yana bir qarang: bu to'plam kichik mos qiymatlarni tashlab, noto'g'ri tomonni tanlagan.",
-        "ru": "Посмотрите ещё раз: это множество пропускает меньшие подходящие значения и выбирает неверную сторону.",
-        "en": "Look again: this set omits the smaller valid values and chooses the wrong side."
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "x qo'shuv olti o'ndan kichik yoki teng",
-          "Noqat'iy tengsizlikda x noldan to'qqizgacha tekshiriladi"
+    audio: {
+      intro: {
+        uz: [
+          "Darvoza shartini yaqindan ko'ramiz. Chapda besh ko'paytiriladi iks, o'ngda o'ttiz besh.",
+          "O'rtada tenglik emas, kichik belgisi turibdi.",
+          "Darslik shunday ta'rif beradi: taqqoslash belgisi bilan birlashtirilgan ikki ifoda tengsizlik deb ataladi.",
+          "Belgilar to'rtta: katta, kichik, katta yoki teng, kichik yoki teng.",
         ],
-        "ru": [
-          "икс плюс шесть меньше или равно десяти",
-          "В нестрогом неравенстве x проверяют от нуля до девяти"
+        ru: [
+          'Рассмотрим условие ворот поближе. Слева пять умножить на икс, справа тридцать пять.',
+          'Посередине стоит не равенство, а знак меньше.',
+          'Учебник даёт такое определение: два выражения, соединённые знаком сравнения, называют неравенством.',
+          'Знаков четыре: больше, меньше, больше или равно, меньше или равно.',
         ],
-        "en": [
-          "x plus six is less than or equal to ten",
-          "For the inclusive inequality, x is checked from zero to nine"
-        ]
+        en: [
+          'Let us look at the gate condition closely. On the left five multiplied by x, on the right thirty five.',
+          'In the middle stands not an equals sign but a less than sign.',
+          'The textbook gives this definition: two expressions joined by a comparison sign are called an inequality.',
+          'There are four signs: greater, less, greater or equal, less or equal.',
+        ],
       },
-      "on_correct": {
-        "uz": "To'g'ri. Chegara qiymati tenglik bilan birga yechimga kiritildi.",
-        "ru": "Верно. Граничное значение включено в решение вместе с равенством.",
-        "en": "Correct. The boundary value is included because equality is allowed."
-      },
-      "on_wrong": [
-        {
-          "uz": "Yana bir qarang: noqat'iy belgi tenglik bo'lgan chegara qiymatini ham kiritadi.",
-          "ru": "Посмотрите ещё раз: нестрогий знак включает граничное значение, при котором есть равенство.",
-          "en": "Look again: an inclusive sign includes the boundary value where equality holds."
-        },
-        {
-          "uz": "To'g'ri. Chegara qiymati tenglik bilan birga yechimga kiritildi.",
-          "ru": "Верно. Граничное значение включено в решение вместе с равенством.",
-          "en": "Correct. The boundary value is included because equality is allowed."
-        },
-        {
-          "uz": "Yana bir qarang: bu to'plam kichik mos qiymatlarni tashlab, noto'g'ri tomonni tanlagan.",
-          "ru": "Посмотрите ещё раз: это множество пропускает меньшие подходящие значения и выбирает неверную сторону.",
-          "en": "Look again: this set omits the smaller valid values and chooses the wrong side."
-        }
-      ]
-    }
+    },
   },
-  "s10": {
-    "eyebrow": {
-      "uz": "Mashq 3/6",
-      "ru": "Задание 3/6",
-      "en": "Task 3/6"
+
+  s2: {
+    eyebrow: { uz: 'Qaysi yozuv', ru: 'Какая запись', en: 'Which record' },
+    title: {
+      uz: 'Qaysi biri tengsizlik?',
+      ru: 'Что из этого неравенство?',
+      en: 'Which one is an inequality?',
     },
-    "title": {
-      "uz": "18-2x>8",
-      "ru": "18−2x>8",
-      "en": "18−2x>8"
+    question: {
+      uz: 'Darvoza panelida to\'rt yozuv bor. Qaysi biri tengsizlik?',
+      ru: 'На панели ворот четыре записи. Какая из них неравенство?',
+      en: 'There are four records on the gate panel. Which one is an inequality?',
     },
-    "scene": "inequality-test-decreasing",
-    "closedSet": true,
-    "frames": [
-      {
-        "uz": "18 − 2x > 8",
-        "ru": "18 − 2x > 8",
-        "en": "18 − 2x > 8"
-      },
-      {
-        "uz": "x = 0 dan 9 gacha",
-        "ru": "x от 0 до 9",
-        "en": "x is from 0 to 9"
-      }
+    options: [
+      { uz: '5 · x < 35', ru: '5 · x < 35', en: '5 · x < 35' },
+      { uz: '5 · x = 35', ru: '5 · x = 35', en: '5 · x = 35' },
+      { uz: '5 · x', ru: '5 · x', en: '5 · x' },
+      { uz: '35', ru: '35', en: '35' },
     ],
-    "question": {
-      "uz": "Yechimlar to'plami qaysi?",
-      "ru": "Каково множество решений?",
-      "en": "Which is the solution set?"
+    correctIndex: 0,
+    correctText: {
+      uz: "To'g'ri. Ikki ifoda va orasida taqqoslash belgisi: bu tengsizlik.",
+      ru: 'Верно. Два выражения и знак сравнения между ними: это неравенство.',
+      en: 'Correct. Two expressions with a comparison sign between them: that is an inequality.',
     },
-    "options": [
+    wrong: [
+      null,
       {
-        "uz": "{0,1,2,3,4}",
-        "ru": "{0,1,2,3,4}",
-        "en": "{0,1,2,3,4}"
+        uz: "Bu tenglama: o'rtada tenglik belgisi turibdi, taqqoslash emas.",
+        ru: 'Это уравнение: посередине знак равенства, а не сравнения.',
+        en: 'That is an equation: the equals sign stands in the middle, not a comparison.',
       },
       {
-        "uz": "{0,1,2,3,4,5}",
-        "ru": "{0,1,2,3,4,5}",
-        "en": "{0,1,2,3,4,5}"
+        uz: "Bu bitta ifoda. Tengsizlik uchun ikkinchi ifoda va belgi kerak.",
+        ru: 'Это одно выражение. Для неравенства нужно второе выражение и знак.',
+        en: 'That is a single expression. An inequality needs a second expression and a sign.',
       },
       {
-        "uz": "{5,6,7,8,9}",
-        "ru": "{5,6,7,8,9}",
-        "en": "{5,6,7,8,9}"
-      }
+        uz: "Bu shunchaki son. Bu yerda taqqoslanadigan narsa yo'q.",
+        ru: 'Это просто число. Здесь нечего сравнивать.',
+        en: 'That is just a number. There is nothing to compare here.',
+      },
     ],
-    "correctIndex": 0,
-    "proof": {
-      "uz": "x = 0, 1, 2, 3, 4",
-      "ru": "x = 0, 1, 2, 3, 4",
-      "en": "x = 0, 1, 2, 3, 4"
-    },
-    "feedbackAudio": [
-      {
-        "uz": "To'g'ri. Qat'iy chegara tenglikni kiritmaydi va undan oldingi qiymatlar qoladi.",
-        "ru": "Верно. Строгая граница не включает равенство, поэтому остаются предыдущие значения.",
-        "en": "Correct. The strict boundary excludes equality, leaving the earlier values."
-      },
-      {
-        "uz": "Yana bir qarang: qat'iy katta belgida tenglik hosil qilgan chegara qiymati yechim emas.",
-        "ru": "Посмотрите ещё раз: при строгом знаке больше граничное значение с равенством не является решением.",
-        "en": "Look again: with a strict greater-than sign, the equality boundary is not a solution."
-      },
-      {
-        "uz": "Yana bir qarang: ifoda kamayganda yechimlar chegaraning boshqa tomonida qoladi.",
-        "ru": "Посмотрите ещё раз: когда выражение уменьшается, решения остаются по другую сторону границы.",
-        "en": "Look again: as the expression decreases, the solutions lie on the other side of the boundary."
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "O'n sakkizdan ikki karra x ayirilsa, natija sakkizdan katta",
-          "Kamayuvchi ifodada x noldan to'qqizgacha tekshiriladi"
+    audio: {
+      intro: {
+        uz: [
+          "Darvoza panelida to'rtta yozuv chiqdi.",
+          "Tengsizlik uchun ikkita shart kerak: ikkita ifoda va taqqoslash belgisi.",
+          "Qaysi biri tengsizlik? Javobni tanlang.",
         ],
-        "ru": [
-          "Восемнадцать минус два умножить на икс больше восьми",
-          "В убывающем выражении x проверяют от нуля до девяти"
+        ru: [
+          'На панели ворот появились четыре записи.',
+          'Для неравенства нужны два признака: два выражения и знак сравнения.',
+          'Какая из них неравенство? Выбери ответ.',
         ],
-        "en": [
-          "Eighteen minus two times x is greater than eight",
-          "For the decreasing expression, x is checked from zero to nine"
-        ]
+        en: [
+          'Four records appeared on the gate panel.',
+          'An inequality needs two things: two expressions and a comparison sign.',
+          'Which one is an inequality? Choose an answer.',
+        ],
       },
-      "on_correct": {
-        "uz": "To'g'ri. Qat'iy chegara tenglikni kiritmaydi va undan oldingi qiymatlar qoladi.",
-        "ru": "Верно. Строгая граница не включает равенство, поэтому остаются предыдущие значения.",
-        "en": "Correct. The strict boundary excludes equality, leaving the earlier values."
-      },
-      "on_wrong": [
-        {
-          "uz": "To'g'ri. Qat'iy chegara tenglikni kiritmaydi va undan oldingi qiymatlar qoladi.",
-          "ru": "Верно. Строгая граница не включает равенство, поэтому остаются предыдущие значения.",
-          "en": "Correct. The strict boundary excludes equality, leaving the earlier values."
-        },
-        {
-          "uz": "Yana bir qarang: qat'iy katta belgida tenglik hosil qilgan chegara qiymati yechim emas.",
-          "ru": "Посмотрите ещё раз: при строгом знаке больше граничное значение с равенством не является решением.",
-          "en": "Look again: with a strict greater-than sign, the equality boundary is not a solution."
-        },
-        {
-          "uz": "Yana bir qarang: ifoda kamayganda yechimlar chegaraning boshqa tomonida qoladi.",
-          "ru": "Посмотрите ещё раз: когда выражение уменьшается, решения остаются по другую сторону границы.",
-          "en": "Look again: as the expression decreases, the solutions lie on the other side of the boundary."
-        }
-      ]
-    }
+    },
   },
-  "s11": {
-    "eyebrow": {
-      "uz": "Mashq 4/6",
-      "ru": "Задание 4/6",
-      "en": "Task 4/6"
+
+  s3: {
+    eyebrow: { uz: 'Tanlash usuli', ru: 'Способ подбора', en: 'The trial method' },
+    title: {
+      uz: 'Sonlarni qo\'yib ko\'ramiz',
+      ru: 'Подставляем числа',
+      en: 'We try numbers in turn',
     },
-    "title": {
-      "uz": "Chegara qiymati",
-      "ru": "Граничное значение",
-      "en": "Boundary value"
+    lead: {
+      uz: "Harf o'rniga sonlarni navbat bilan qo'yamiz va qaysilarida yozuv rost bo'lishini belgilaymiz.",
+      ru: 'Вместо буквы по очереди подставляем числа и отмечаем, при каких запись верна.',
+      en: 'We put numbers in place of the letter one by one and mark those that make the record true.',
     },
-    "scene": "inequality-test-boundary",
-    "closedSet": true,
-    "frames": [
-      {
-        "uz": "4x > 16",
-        "ru": "4x > 16",
-        "en": "4x > 16"
-      },
-      {
-        "uz": "x = 4",
-        "ru": "x = 4",
-        "en": "x = 4"
-      }
-    ],
-    "question": {
-      "uz": "x = 4 yechimmi?",
-      "ru": "Является ли x = 4 решением?",
-      "en": "Is x = 4 a solution?"
+    note: {
+      uz: 'Darslik shu usulni son o\'qi bilan ko\'rsatadi.',
+      ru: 'Учебник показывает этот способ на числовой оси.',
+      en: 'The textbook shows this method on a number line.',
     },
-    "options": [
-      {
-        "uz": "Yechim",
-        "ru": "Решение",
-        "en": "A solution"
-      },
-      {
-        "uz": "Yechim emas",
-        "ru": "Не является решением",
-        "en": "Not a solution"
-      },
-      {
-        "uz": "Tekshirib bo'lmaydi",
-        "ru": "Нельзя проверить",
-        "en": "Cannot be checked"
-      }
-    ],
-    "correctIndex": 1,
-    "proof": {
-      "uz": "4 × 4 = 16; 16 > 16 yolg'on",
-      "ru": "4 × 4 = 16; 16 > 16 — ложь",
-      "en": "4 × 4 = 16; 16 > 16 is false"
-    },
-    "feedbackAudio": [
-      {
-        "uz": "Yana bir qarang: qat'iy katta belgi tenglik holatini qabul qilmaydi.",
-        "ru": "Посмотрите ещё раз: строгий знак больше не принимает случай равенства.",
-        "en": "Look again: a strict greater-than sign does not accept equality."
-      },
-      {
-        "uz": "To'g'ri. O'rniga qo'yilganda tenglik chiqadi, qat'iy tengsizlik esa yolg'on bo'ladi.",
-        "ru": "Верно. После подстановки получается равенство, поэтому строгое неравенство ложно.",
-        "en": "Correct. Substitution gives equality, so the strict inequality is false."
-      },
-      {
-        "uz": "Yana bir qarang: berilgan qiymatni o'rniga qo'yish tekshiruv uchun yetarli.",
-        "ru": "Посмотрите ещё раз: данного значения достаточно, чтобы выполнить подстановку и проверку.",
-        "en": "Look again: the given value is enough for substitution and checking."
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "To'rt karra x o'n oltidan katta",
-          "x teng to'rt"
+    audio: {
+      intro: {
+        uz: [
+          "Darslikdagi soddaroq shartni olamiz: uch qo'shuv iks kichik besh.",
+          "Iks o'rniga nolni qo'yamiz: uch kichik besh. Bu rost.",
+          "Endi birni qo'yamiz: to'rt kichik besh. Bu ham rost.",
+          "Ikkini qo'ysak, besh kichik besh bo'ladi. Bu yolg'on. Demak nol va bir mos keladi.",
         ],
-        "ru": [
-          "Четыре умножить на икс больше шестнадцати",
-          "x равно четыре"
+        ru: [
+          'Возьмём условие попроще из учебника: три плюс икс меньше пяти.',
+          'Подставим вместо икса ноль: три меньше пяти. Это верно.',
+          'Теперь подставим один: четыре меньше пяти. Тоже верно.',
+          'Если подставить два, выйдет пять меньше пяти. Это ложь. Значит подходят ноль и один.',
         ],
-        "en": [
-          "Four times x is greater than sixteen",
-          "x equals four"
-        ]
+        en: [
+          'Let us take a simpler condition from the textbook: three plus x is less than five.',
+          'Put zero in place of x: three is less than five. That is true.',
+          'Now put one: four is less than five. True as well.',
+          'Put two and we get five is less than five. That is false. So zero and one fit.',
+        ],
       },
-      "on_correct": {
-        "uz": "To'g'ri. O'rniga qo'yilganda tenglik chiqadi, qat'iy tengsizlik esa yolg'on bo'ladi.",
-        "ru": "Верно. После подстановки получается равенство, поэтому строгое неравенство ложно.",
-        "en": "Correct. Substitution gives equality, so the strict inequality is false."
-      },
-      "on_wrong": [
-        {
-          "uz": "Yana bir qarang: qat'iy katta belgi tenglik holatini qabul qilmaydi.",
-          "ru": "Посмотрите ещё раз: строгий знак больше не принимает случай равенства.",
-          "en": "Look again: a strict greater-than sign does not accept equality."
-        },
-        {
-          "uz": "To'g'ri. O'rniga qo'yilganda tenglik chiqadi, qat'iy tengsizlik esa yolg'on bo'ladi.",
-          "ru": "Верно. После подстановки получается равенство, поэтому строгое неравенство ложно.",
-          "en": "Correct. Substitution gives equality, so the strict inequality is false."
-        },
-        {
-          "uz": "Yana bir qarang: berilgan qiymatni o'rniga qo'yish tekshiruv uchun yetarli.",
-          "ru": "Посмотрите ещё раз: данного значения достаточно, чтобы выполнить подстановку и проверку.",
-          "en": "Look again: the given value is enough for substitution and checking."
-        }
-      ]
-    }
+    },
   },
-  "s12": {
-    "eyebrow": {
-      "uz": "Mashq 5/6",
-      "ru": "Задание 5/6",
-      "en": "Task 5/6"
+
+  s4: {
+    eyebrow: { uz: 'Qaysi sonlar', ru: 'Какие числа', en: 'Which numbers' },
+    title: {
+      uz: 'Qaysi sonlar mos keladi?',
+      ru: 'Какие числа подходят?',
+      en: 'Which numbers fit?',
     },
-    "title": {
-      "uz": "Bit bitta yechimda to'xtadi",
-      "ru": "Бит остановился на одном решении",
-      "en": "Bit stopped after one solution"
+    question: {
+      uz: '6 - x > 4 tengsizligiga qaysi sonlar mos keladi?',
+      ru: 'Какие числа подходят к неравенству 6 - x > 4?',
+      en: 'Which numbers fit the inequality 6 - x > 4?',
     },
-    "scene": "inequality-error",
-    "closedSet": true,
-    "frames": [
-      {
-        "uz": "Bit x = 2 da to'xtadi",
-        "ru": "Бит остановился на x = 2",
-        "en": "Bit stopped at x = 2"
-      },
-      {
-        "uz": "Barcha mos qiymatlar kerak",
-        "ru": "Нужны все подходящие значения",
-        "en": "All matching values are required"
-      }
+    options: [
+      { uz: '0 va 1', ru: '0 и 1', en: '0 and 1' },
+      { uz: '0, 1 va 2', ru: '0, 1 и 2', en: '0, 1 and 2' },
+      { uz: '2 va 3', ru: '2 и 3', en: '2 and 3' },
+      { uz: 'faqat 0', ru: 'только 0', en: 'only 0' },
     ],
-    "question": {
-      "uz": "Bit yana nima qilishi kerak?",
-      "ru": "Что Бит должен сделать дальше?",
-      "en": "What should Bit do next?"
+    correctIndex: 0,
+    correctText: {
+      uz: "To'g'ri. Nolda olti katta to'rt, birda besh katta to'rt. Ikkida esa to'rt katta to'rt bo'lmaydi.",
+      ru: 'Верно. При нуле шесть больше четырёх, при единице пять больше четырёх. А при двойке четыре больше четырёх не бывает.',
+      en: 'Correct. At zero six is greater than four, at one five is greater than four. At two, four is not greater than four.',
     },
-    "options": [
+    wrong: [
+      null,
       {
-        "uz": "Barcha qiymatlarni tekshirish",
-        "ru": "Проверить все значения",
-        "en": "Check every value"
+        uz: "Ikkini qo'ysak, chapda to'rt qoladi. To'rt to'rtdan katta emas.",
+        ru: 'Если подставить два, слева останется четыре. Четыре не больше четырёх.',
+        en: 'Putting two leaves four on the left. Four is not greater than four.',
       },
       {
-        "uz": "Faqat x = 2 ni yozish",
-        "ru": "Записать только x = 2",
-        "en": "Write only x = 2"
+        uz: "Uchda chapda uch qoladi, bu to'rtdan kichik. Ikkisi ham mos kelmaydi.",
+        ru: 'При тройке слева останется три, это меньше четырёх. Оба не подходят.',
+        en: 'At three the left side is three, which is less than four. Neither fits.',
       },
       {
-        "uz": "Tekshirishni to'xtatish",
-        "ru": "Остановить проверку",
-        "en": "Stop checking"
-      }
+        uz: "Bir ham mos keladi: besh to'rtdan katta. Uni tushirib qoldirmang.",
+        ru: 'Единица тоже подходит: пять больше четырёх. Её нельзя пропускать.',
+        en: 'One fits as well: five is greater than four. Do not leave it out.',
+      },
     ],
-    "correctIndex": 0,
-    "proof": {
-      "uz": "0 dan 9 gacha barcha qiymatlar tekshiriladi",
-      "ru": "Проверяются все значения от 0 до 9",
-      "en": "Every value from 0 to 9 is checked"
-    },
-    "feedbackAudio": [
-      {
-        "uz": "To'g'ri. Soha boshidan chegaragacha bo'lgan barcha rost qiymatlar yozildi.",
-        "ru": "Верно. Записаны все истинные значения от начала области до границы.",
-        "en": "Correct. Every true value from the start of the domain to the boundary is listed."
-      },
-      {
-        "uz": "Yana bir qarang: bitta rost qiymat barcha yechimlar to'plami bo'la olmaydi.",
-        "ru": "Посмотрите ещё раз: одно истинное значение не является полным множеством решений.",
-        "en": "Look again: one true value is not the complete solution set."
-      },
-      {
-        "uz": "Yana bir qarang: tekshirishni erta to'xtatish keyingi mos qiymatlarni o'tkazib yuboradi; butun sohani tekshiring.",
-        "ru": "Посмотрите ещё раз: ранняя остановка пропустит следующие подходящие значения; проверьте всю область.",
-        "en": "Look again: stopping early misses later valid values; check the whole domain."
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "Bit x ikkiga teng bo'lganda to'xtadi",
-          "Barcha mos qiymatlar kerak"
+    audio: {
+      intro: {
+        uz: [
+          "Darvoza yangi shart berdi: olti minus iks katta to'rt.",
+          "Sonlarni navbat bilan qo'yib ko'ring: nol, bir, ikki, uch.",
+          "Qaysi sonlar mos keladi? Javobni tanlang.",
         ],
-        "ru": [
-          "Бит остановился, когда икс был равен двум",
-          "Нужны все подходящие значения"
+        ru: [
+          'Ворота дали новое условие: шесть минус икс больше четырёх.',
+          'Подставляй числа по очереди: ноль, один, два, три.',
+          'Какие числа подходят? Выбери ответ.',
         ],
-        "en": [
-          "Bit stopped when x was equal to two",
-          "All matching values are required"
-        ]
+        en: [
+          'The gate gave a new condition: six minus x is greater than four.',
+          'Try the numbers in turn: zero, one, two, three.',
+          'Which numbers fit? Choose an answer.',
+        ],
       },
-      "on_correct": {
-        "uz": "To'g'ri. Soha boshidan chegaragacha bo'lgan barcha rost qiymatlar yozildi.",
-        "ru": "Верно. Записаны все истинные значения от начала области до границы.",
-        "en": "Correct. Every true value from the start of the domain to the boundary is listed."
-      },
-      "on_wrong": [
-        {
-          "uz": "To'g'ri. Soha boshidan chegaragacha bo'lgan barcha rost qiymatlar yozildi.",
-          "ru": "Верно. Записаны все истинные значения от начала области до границы.",
-          "en": "Correct. Every true value from the start of the domain to the boundary is listed."
-        },
-        {
-          "uz": "Yana bir qarang: bitta rost qiymat barcha yechimlar to'plami bo'la olmaydi.",
-          "ru": "Посмотрите ещё раз: одно истинное значение не является полным множеством решений.",
-          "en": "Look again: one true value is not the complete solution set."
-        },
-        {
-          "uz": "Yana bir qarang: tekshirishni erta to'xtatish keyingi mos qiymatlarni o'tkazib yuboradi; butun sohani tekshiring.",
-          "ru": "Посмотрите ещё раз: ранняя остановка пропустит следующие подходящие значения; проверьте всю область.",
-          "en": "Look again: stopping early misses later valid values; check the whole domain."
-        }
-      ]
-    }
+    },
   },
-  "s13": {
-    "eyebrow": {
-      "uz": "Mashq 6/6",
-      "ru": "Задание 6/6",
-      "en": "Task 6/6"
+
+  s5: {
+    eyebrow: { uz: 'Chegara', ru: 'Граница', en: 'The boundary' },
+    title: {
+      uz: 'Eng katta mos qiymat',
+      ru: 'Наибольшее подходящее значение',
+      en: 'The largest value that fits',
     },
-    "title": {
-      "uz": "Ikki shartli kod",
-      "ru": "Код с двумя условиями",
-      "en": "Two-condition code"
+    lead: {
+      uz: "Sonlarni oshirib borsak, bir joyda yozuv yolg'onga aylanadi. O'sha joy chegara.",
+      ru: 'Если увеличивать числа, в какой-то момент запись становится ложной. Это место и есть граница.',
+      en: 'As the numbers grow, at some point the record turns false. That point is the boundary.',
     },
-    "scene": "inequality-case",
-    "closedSet": true,
-    "frames": [
-      {
-        "uz": "2x + 1 < 12",
-        "ru": "2x + 1 < 12",
-        "en": "2x + 1 < 12"
-      },
-      {
-        "uz": "x > 2",
-        "ru": "x > 2",
-        "en": "x > 2"
-      },
-      {
-        "uz": "x = 0 dan 9 gacha",
-        "ru": "x от 0 до 9",
-        "en": "x is from 0 to 9"
-      }
-    ],
-    "question": {
-      "uz": "Ikkala shartga mos qiymatlar qaysi?",
-      "ru": "Какие значения подходят обоим условиям?",
-      "en": "Which values satisfy both conditions?"
+    note: {
+      uz: "Qat'iy belgi chegara qiymatini ichiga olmaydi.",
+      ru: 'Строгий знак не включает граничное значение.',
+      en: 'A strict sign does not include the boundary value.',
     },
-    "options": [
-      {
-        "uz": "{3,4,5}",
-        "ru": "{3,4,5}",
-        "en": "{3,4,5}"
-      },
-      {
-        "uz": "{0,1,2}",
-        "ru": "{0,1,2}",
-        "en": "{0,1,2}"
-      },
-      {
-        "uz": "{6,7,8,9}",
-        "ru": "{6,7,8,9}",
-        "en": "{6,7,8,9}"
-      }
-    ],
-    "correctIndex": 0,
-    "proof": {
-      "uz": "Ikkala shartga 3, 4, 5 mos",
-      "ru": "Обоим условиям подходят 3, 4, 5",
-      "en": "The values 3, 4 and 5 satisfy both conditions"
-    },
-    "feedbackAudio": [
-      {
-        "uz": "To'g'ri. Har bir qiymat ikkala shartni ham rost qiladi.",
-        "ru": "Верно. Каждое значение делает истинными оба условия.",
-        "en": "Correct. Each value makes both conditions true."
-      },
-      {
-        "uz": "Yana bir qarang: bu qiymatlar ikkinchi shartga mos emas, chunki chegaradan katta bo'lishi kerak.",
-        "ru": "Посмотрите ещё раз: эти значения не подходят второму условию, потому что должны быть больше границы.",
-        "en": "Look again: these values fail the second condition because they must be above the boundary."
-      },
-      {
-        "uz": "Yana bir qarang: bu qiymatlar birinchi tengsizlikning yuqori chegarasidan o'tib ketadi.",
-        "ru": "Посмотрите ещё раз: эти значения выходят за верхнюю границу первого неравенства.",
-        "en": "Look again: these values exceed the upper boundary of the first inequality."
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "Ikki karra x qo'shuv bir o'n ikkidan kichik",
-          "x ikkidan katta",
-          "Ikki shartli kodda x noldan to'qqizgacha tekshiriladi"
+    audio: {
+      intro: {
+        uz: [
+          "Darvoza shartiga qaytamiz: besh ko'paytiriladi iks, kichik o'ttiz besh.",
+          "Beshni qo'yamiz: yigirma besh kichik o'ttiz besh. Rost.",
+          "Oltini qo'yamiz: o'ttiz kichik o'ttiz besh. Bu ham rost.",
+          "Yettida esa o'ttiz besh chiqadi va yozuv yolg'on bo'ladi. Demak eng katta mos qiymat olti.",
         ],
-        "ru": [
-          "Два умножить на икс плюс один меньше двенадцати",
-          "икс больше двух",
-          "В коде с двумя условиями x проверяют от нуля до девяти"
+        ru: [
+          'Вернёмся к условию ворот: пять умножить на икс меньше тридцати пяти.',
+          'Подставим пять: двадцать пять меньше тридцати пяти. Верно.',
+          'Подставим шесть: тридцать меньше тридцати пяти. Тоже верно.',
+          'А при семи выйдет тридцать пять, и запись станет ложной. Значит наибольшее подходящее значение шесть.',
         ],
-        "en": [
-          "Two times x plus one is less than twelve",
-          "x is greater than two",
-          "For the two-condition code, x is checked from zero to nine"
-        ]
+        en: [
+          'Back to the gate condition: five multiplied by x is less than thirty five.',
+          'Put five: twenty five is less than thirty five. True.',
+          'Put six: thirty is less than thirty five. True as well.',
+          'At seven we get thirty five and the record turns false. So the largest value that fits is six.',
+        ],
       },
-      "on_correct": {
-        "uz": "To'g'ri. Har bir qiymat ikkala shartni ham rost qiladi.",
-        "ru": "Верно. Каждое значение делает истинными оба условия.",
-        "en": "Correct. Each value makes both conditions true."
-      },
-      "on_wrong": [
-        {
-          "uz": "To'g'ri. Har bir qiymat ikkala shartni ham rost qiladi.",
-          "ru": "Верно. Каждое значение делает истинными оба условия.",
-          "en": "Correct. Each value makes both conditions true."
-        },
-        {
-          "uz": "Yana bir qarang: bu qiymatlar ikkinchi shartga mos emas, chunki chegaradan katta bo'lishi kerak.",
-          "ru": "Посмотрите ещё раз: эти значения не подходят второму условию, потому что должны быть больше границы.",
-          "en": "Look again: these values fail the second condition because they must be above the boundary."
-        },
-        {
-          "uz": "Yana bir qarang: bu qiymatlar birinchi tengsizlikning yuqori chegarasidan o'tib ketadi.",
-          "ru": "Посмотрите ещё раз: эти значения выходят за верхнюю границу первого неравенства.",
-          "en": "Look again: these values exceed the upper boundary of the first inequality."
-        }
-      ]
-    }
+    },
   },
-  "s14": {
-    "eyebrow": {
-      "uz": "Yakun",
-      "ru": "Итог",
-      "en": "Summary"
+
+  s6: {
+    eyebrow: { uz: 'Terib javob bering', ru: 'Набери ответ', en: 'Type the answer' },
+    title: {
+      uz: 'Eng katta qiymatni toping',
+      ru: 'Найди наибольшее значение',
+      en: 'Find the largest value',
     },
-    "title": {
-      "uz": "Tengsizlik navigatori",
-      "ru": "Навигатор неравенств",
-      "en": "Inequality navigator"
+    question: {
+      uz: 'a · 9 < 54. a ning eng katta qiymati qanday?',
+      ru: 'a · 9 < 54. Каково наибольшее значение a?',
+      en: 'a · 9 < 54. What is the largest value of a?',
     },
-    "scene": "inequality-final",
-    "frames": [
-      {
-        "uz": "Sohani belgilang",
-        "ru": "Задайте область значений",
-        "en": "Set the domain"
+    answer: 5,
+    correctText: {
+      uz: "To'g'ri. Beshda qirq besh chiqadi va shart bajariladi. Oltida esa ellik to'rt bo'ladi.",
+      ru: 'Верно. При пяти выйдет сорок пять и условие выполнено. А при шести будет пятьдесят четыре.',
+      en: 'Correct. At five we get forty five and the condition holds. At six it becomes fifty four.',
+    },
+    wrong: {
+      uz: "Hali emas. Sonlarni oshirib boring va yozuv qaysi joyda yolg'on bo'lishini toping.",
+      ru: 'Пока нет. Увеличивай числа и найди место, где запись становится ложной.',
+      en: 'Not yet. Increase the numbers and find where the record turns false.',
+    },
+    hintAfter: {
+      uz: "Oltida to'qqiz marta olti ellik to'rt bo'ladi, bu esa ellik to'rtdan kichik emas.",
+      ru: 'При шести девять раз по шесть будет пятьдесят четыре, а это не меньше пятидесяти четырёх.',
+      en: 'At six, nine times six is fifty four, and that is not less than fifty four.',
+    },
+    audio: {
+      intro: {
+        uz: [
+          "Darvoza uchinchi shartni berdi: a ko'paytiriladi to'qqizga, kichik ellik to'rt.",
+          "Chegarani izlang: qaysi sondan keyin yozuv yolg'on bo'ladi.",
+          "a ning eng katta qiymati qanday? Javobni tering va tasdiqlang.",
+        ],
+        ru: [
+          'Ворота дали третье условие: a умножить на девять меньше пятидесяти четырёх.',
+          'Ищи границу: после какого числа запись становится ложной.',
+          'Каково наибольшее значение a? Набери ответ и подтверди.',
+        ],
+        en: [
+          'The gate gave a third condition: a multiplied by nine is less than fifty four.',
+          'Look for the boundary: after which number the record turns false.',
+          'What is the largest value of a? Type the answer and confirm.',
+        ],
       },
-      {
-        "uz": "Qiymatlarni o'rniga qo'ying",
-        "ru": "Подставляйте значения",
-        "en": "Substitute the values"
+    },
+  },
+
+  s7: {
+    eyebrow: { uz: 'Ikki xil belgi', ru: 'Два вида знака', en: 'Two kinds of sign' },
+    title: {
+      uz: 'Chegara ichidami yoki tashqarida?',
+      ru: 'Граница внутри или снаружи?',
+      en: 'Is the boundary inside or outside?',
+    },
+    lead: {
+      uz: "Kichik yoki teng belgisi chegara qiymatini ham qabul qiladi.",
+      ru: 'Знак меньше или равно принимает и само граничное значение.',
+      en: 'The less or equal sign accepts the boundary value as well.',
+    },
+    note: {
+      uz: "Belgining ostidagi chiziqcha aynan shuni bildiradi.",
+      ru: 'Чёрточка под знаком именно это и означает.',
+      en: 'The small line under the sign means exactly that.',
+    },
+    audio: {
+      intro: {
+        uz: [
+          "Darslik yana bir shart beradi: iks kichik yoki teng besh yuz qirq sakkiz.",
+          "Besh yuz qirq yettini qo'yamiz: u besh yuz qirq sakkizdan kichik. Rost.",
+          "Endi besh yuz qirq sakkizning o'zini qo'yamiz. Teng bo'lgani uchun bu ham rost.",
+          "Besh yuz qirq to'qqizda esa yozuv yolg'on. Demak chegara ichkarida qoldi.",
+        ],
+        ru: [
+          'Учебник даёт ещё одно условие: икс меньше или равно пятистам сорока восьми.',
+          'Подставим пятьсот сорок семь: он меньше пятисот сорока восьми. Верно.',
+          'Теперь подставим само пятьсот сорок восемь. Раз есть равенство, это тоже верно.',
+          'А при пятистах сорока девяти запись ложна. Значит граница осталась внутри.',
+        ],
+        en: [
+          'The textbook gives one more condition: x is less than or equal to five hundred and forty eight.',
+          'Put five hundred and forty seven: it is less than five hundred and forty eight. True.',
+          'Now put five hundred and forty eight itself. Since equality counts, this is true as well.',
+          'At five hundred and forty nine the record is false. So the boundary stayed inside.',
+        ],
       },
-      {
-        "uz": "Chegarani toping",
-        "ru": "Найдите границу",
-        "en": "Find the boundary"
-      },
-      {
-        "uz": "Barcha yechimlarni yozing",
-        "ru": "Запишите все решения",
-        "en": "Write all solutions"
-      },
-      {
-        "uz": "Keyingi mavzu: qulay qo'shish",
-        "ru": "Следующая тема: удобное сложение",
-        "en": "Next topic: efficient addition"
-      }
+    },
+  },
+
+  s8: {
+    eyebrow: { uz: 'Chegarani sinang', ru: 'Проверь границу', en: 'Test the boundary' },
+    title: {
+      uz: 'Chegara qiymati mosmi?',
+      ru: 'Подходит ли граничное значение?',
+      en: 'Does the boundary value fit?',
+    },
+    question: {
+      uz: 'x <= 548. Qaysi son bu shartga mos keladi?',
+      ru: 'x <= 548. Какое число подходит под это условие?',
+      en: 'x <= 548. Which number fits this condition?',
+    },
+    options: [
+      { uz: '548', ru: '548', en: '548' },
+      { uz: '549', ru: '549', en: '549' },
+      { uz: '600', ru: '600', en: '600' },
+      { uz: '1000', ru: '1000', en: '1000' },
     ],
-    "audio": {
-      "uz": [
-        "Sohani belgilang",
-        "Qiymatlarni o'rniga qo'ying",
-        "Chegarani toping",
-        "Barcha yechimlarni yozing",
-        "Keyingi mavzu qulay qo'shish"
-      ],
-      "ru": [
-        "Задайте область значений",
-        "Подставляйте значения",
-        "Найдите границу",
-        "Запишите все решения",
-        "Следующая тема удобное сложение"
-      ],
-      "en": [
-        "Set the domain",
-        "Substitute the values",
-        "Find the boundary",
-        "Write all solutions",
-        "Next topic efficient addition"
-      ]
-    }
-  }
+    correctIndex: 0,
+    correctText: {
+      uz: "To'g'ri. Belgi kichik yoki teng, shuning uchun chegara qiymatining o'zi ham mos keladi.",
+      ru: 'Верно. Знак меньше или равно, поэтому само граничное значение тоже подходит.',
+      en: 'Correct. The sign is less or equal, so the boundary value itself fits too.',
+    },
+    wrong: [
+      null,
+      {
+        uz: "Besh yuz qirq to'qqiz chegaradan bitta katta. U shartdan chiqib ketadi.",
+        ru: 'Пятьсот сорок девять на единицу больше границы. Оно выходит за условие.',
+        en: 'Five hundred and forty nine is one more than the boundary. It falls outside.',
+      },
+      {
+        uz: "Olti yuz chegaradan ancha katta, shuning uchun mos kelmaydi.",
+        ru: 'Шестьсот заметно больше границы, поэтому не подходит.',
+        en: 'Six hundred is well above the boundary, so it does not fit.',
+      },
+      {
+        uz: "Bir ming chegaradan juda uzoq. Shart faqat chegaragacha ruxsat beradi.",
+        ru: 'Тысяча слишком далеко от границы. Условие разрешает только до неё.',
+        en: 'One thousand is far past the boundary. The condition allows only up to it.',
+      },
+    ],
+    audio: {
+      intro: {
+        uz: [
+          "Darvoza yangi shart qo'ydi: iks kichik yoki teng besh yuz qirq sakkiz.",
+          "Belgining ostidagi chiziqchaga e'tibor bering.",
+          "Qaysi son bu shartga mos keladi? Javobni tanlang.",
+        ],
+        ru: [
+          'Ворота выставили новое условие: икс меньше или равно пятистам сорока восьми.',
+          'Обрати внимание на чёрточку под знаком.',
+          'Какое число подходит под это условие? Выбери ответ.',
+        ],
+        en: [
+          'The gate set a new condition: x is less than or equal to five hundred and forty eight.',
+          'Pay attention to the small line under the sign.',
+          'Which number fits this condition? Choose an answer.',
+        ],
+      },
+    },
+  },
+
+  s9: {
+    eyebrow: { uz: 'Katta tomon', ru: 'Сторона больше', en: 'The greater side' },
+    title: {
+      uz: 'Shart katta tomonga qarasa',
+      ru: 'Когда условие смотрит в сторону больше',
+      en: 'When the condition points to greater',
+    },
+    lead: {
+      uz: "Katta belgisida esa chegaradan yuqoridagi sonlar mos keladi.",
+      ru: 'При знаке больше подходят числа выше границы.',
+      en: 'With a greater than sign the numbers above the boundary fit.',
+    },
+    note: {
+      uz: 'Usul o\'zgarmaydi: qo\'yamiz, hisoblaymiz, hukm chiqaramiz.',
+      ru: 'Способ не меняется: подставляем, считаем, выносим вердикт.',
+      en: 'The method stays the same: substitute, calculate, judge.',
+    },
+    audio: {
+      intro: {
+        uz: [
+          "Darslikda yana bir shart bor: yetti ko'paytiriladi igrek, katta o'ttiz besh.",
+          "Beshni qo'yamiz: o'ttiz besh chiqadi, lekin u o'ttiz beshdan katta emas. Yolg'on.",
+          "Oltini qo'yamiz: qirq ikki chiqadi. Bu o'ttiz beshdan katta, demak rost.",
+          "Bu safar mos sonlar chegaradan yuqorida yotadi.",
+        ],
+        ru: [
+          'В учебнике есть ещё условие: семь умножить на игрек больше тридцати пяти.',
+          'Подставим пять: выйдет тридцать пять, но он не больше тридцати пяти. Ложь.',
+          'Подставим шесть: выйдет сорок два. Это больше тридцати пяти, значит верно.',
+          'На этот раз подходящие числа лежат выше границы.',
+        ],
+        en: [
+          'The textbook has one more condition: seven multiplied by y is greater than thirty five.',
+          'Put five: we get thirty five, but it is not greater than thirty five. False.',
+          'Put six: we get forty two. That is greater than thirty five, so it is true.',
+          'This time the fitting numbers lie above the boundary.',
+        ],
+      },
+    },
+  },
+
+  s10: {
+    eyebrow: { uz: 'Mos sonni tanlang', ru: 'Выбери подходящее', en: 'Choose what fits' },
+    title: {
+      uz: 'Qaysi son shartni bajaradi?',
+      ru: 'Какое число выполняет условие?',
+      en: 'Which number satisfies the condition?',
+    },
+    question: {
+      uz: '7 · y > 35. Qaysi son mos keladi?',
+      ru: '7 · y > 35. Какое число подходит?',
+      en: '7 · y > 35. Which number fits?',
+    },
+    options: [
+      { uz: '6', ru: '6', en: '6' },
+      { uz: '5', ru: '5', en: '5' },
+      { uz: '4', ru: '4', en: '4' },
+      { uz: '3', ru: '3', en: '3' },
+    ],
+    correctIndex: 0,
+    correctText: {
+      uz: "To'g'ri. Yetti marta olti qirq ikki, bu o'ttiz beshdan katta.",
+      ru: 'Верно. Семь раз по шесть — сорок два, это больше тридцати пяти.',
+      en: 'Correct. Seven times six is forty two, which is greater than thirty five.',
+    },
+    wrong: [
+      null,
+      {
+        uz: "Beshda aynan o'ttiz besh chiqadi. Qat'iy katta belgisi tenglikni qabul qilmaydi.",
+        ru: 'При пяти выходит ровно тридцать пять. Строгий знак больше равенство не принимает.',
+        en: 'At five we get exactly thirty five. A strict greater sign does not accept equality.',
+      },
+      {
+        uz: "To'rtda yigirma sakkiz chiqadi, bu o'ttiz beshdan kichik.",
+        ru: 'При четырёх выйдет двадцать восемь, это меньше тридцати пяти.',
+        en: 'At four we get twenty eight, which is less than thirty five.',
+      },
+      {
+        uz: "Uchda yigirma bir chiqadi, chegaradan ancha uzoq.",
+        ru: 'При тройке выйдет двадцать один, это далеко от границы.',
+        en: 'At three we get twenty one, far from the boundary.',
+      },
+    ],
+    audio: {
+      intro: {
+        uz: [
+          "Darvoza oxirgi shartni berdi: yetti ko'paytiriladi igrek, katta o'ttiz besh.",
+          "Har sonni qo'yib ko'ring va hisoblang.",
+          "Qaysi son mos keladi? Javobni tanlang.",
+        ],
+        ru: [
+          'Ворота дали последнее условие: семь умножить на игрек больше тридцати пяти.',
+          'Подставь каждое число и посчитай.',
+          'Какое число подходит? Выбери ответ.',
+        ],
+        en: [
+          'The gate gave a last condition: seven multiplied by y is greater than thirty five.',
+          'Try each number and work it out.',
+          'Which number fits? Choose an answer.',
+        ],
+      },
+    },
+  },
+
+  s11: {
+    eyebrow: { uz: 'Yodda tuting', ru: 'Запомни', en: 'Keep in mind' },
+    title: {
+      uz: 'Tanlash usulining tartibi',
+      ru: 'Порядок способа подбора',
+      en: 'The order of the trial method',
+    },
+    lead: {
+      uz: 'Har tengsizlikda shu uch qadam ishlaydi.',
+      ru: 'В любом неравенстве работают эти три шага.',
+      en: 'These three steps work in any inequality.',
+    },
+    audio: {
+      intro: {
+        uz: [
+          "Qoidani yig'amiz. Birinchi qadam: harf o'rniga son qo'yib, ikki tomonni hisoblaymiz.",
+          "Ikkinchi qadam: yozuv rostmi yoki yolg'onmi deb hukm chiqaramiz.",
+          "Uchinchi qadam: chegarani sinaymiz. Qat'iy belgi chegarani ichiga olmaydi, qat'iy bo'lmagani esa oladi.",
+        ],
+        ru: [
+          'Соберём правило. Первый шаг: подставляем число вместо буквы и считаем обе стороны.',
+          'Второй шаг: выносим вердикт, верна запись или ложна.',
+          'Третий шаг: проверяем границу. Строгий знак её не включает, нестрогий включает.',
+        ],
+        en: [
+          'Let us put the rule together. Step one: put a number in place of the letter and work out both sides.',
+          'Step two: judge whether the record is true or false.',
+          'Step three: test the boundary. A strict sign excludes it, a non strict sign includes it.',
+        ],
+      },
+    },
+  },
+
+  s12: {
+    eyebrow: { uz: 'Qaysi yo\'l tez?', ru: 'Какой путь быстрее?', en: 'Which way is quicker?' },
+    title: {
+      uz: 'Hammasini sinash shartmi?',
+      ru: 'Нужно ли перебирать всё?',
+      en: 'Must we try everything?',
+    },
+    question: {
+      uz: 'x < 5. Mos sonlarni qanday topgan qulay?',
+      ru: 'x < 5. Как удобнее найти подходящие числа?',
+      en: 'x < 5. What is the convenient way to find the fitting numbers?',
+    },
+    options: [
+      { uz: 'Chegarani topib, undan pastini olish', ru: 'Найти границу и взять всё ниже неё', en: 'Find the boundary and take everything below it' },
+      { uz: 'Barcha sonlarni birma-bir sinash', ru: 'Перебрать все числа подряд', en: 'Try every number in turn' },
+      { uz: 'Faqat bitta sonni sinash', ru: 'Проверить только одно число', en: 'Test only one number' },
+    ],
+    correctIndex: 0,
+    correctText: {
+      uz: "To'g'ri. Chegara topilgach, qolganini sinash shart emas: pastdagi hamma son mos keladi.",
+      ru: 'Верно. Когда граница найдена, остальное перебирать не нужно: все числа ниже подходят.',
+      en: 'Correct. Once the boundary is found there is no need to try the rest: every number below fits.',
+    },
+    wrong: [
+      null,
+      {
+        uz: "Birma-bir sinash to'g'ri javob beradi, lekin uzoq. Chegara ishni qisqartiradi.",
+        ru: 'Перебор даст верный ответ, но это долго. Граница сокращает работу.',
+        en: 'Trying each number gives the right answer, but it is slow. The boundary shortens the work.',
+      },
+      {
+        uz: "Bitta son butun javobni bermaydi: mos sonlar bir nechta bo'ladi.",
+        ru: 'Одно число не даст всего ответа: подходящих чисел несколько.',
+        en: 'One number does not give the whole answer: several numbers fit.',
+      },
+    ],
+    audio: {
+      intro: {
+        uz: [
+          "Darvozada navbat uzun, vaqt esa kam.",
+          "Shart oddiy: iks kichik besh.",
+          "Mos sonlarni qanday topgan qulay? Javobni tanlang.",
+        ],
+        ru: [
+          'У ворот длинная очередь, а времени мало.',
+          'Условие простое: икс меньше пяти.',
+          'Как удобнее найти подходящие числа? Выбери ответ.',
+        ],
+        en: [
+          'The queue at the gate is long and time is short.',
+          'The condition is simple: x is less than five.',
+          'What is the convenient way to find the fitting numbers? Choose an answer.',
+        ],
+      },
+    },
+  },
+
+  s13: {
+    eyebrow: { uz: "Bitning yozuvi", ru: 'Запись Bit', en: 'Bit record' },
+    title: {
+      uz: 'Bit chegarada adashdi',
+      ru: 'Bit ошибся на границе',
+      en: 'Bit went wrong at the boundary',
+    },
+    question: {
+      uz: 'Bit 5 · x < 35 ni yechdi. Xato qayerda?',
+      ru: 'Bit решал 5 · x < 35. Где ошибка?',
+      en: 'Bit solved 5 · x < 35. Where is the error?',
+    },
+    steps: [
+      { uz: '5 · 6 = 30, 30 < 35 rost', ru: '5 · 6 = 30, 30 < 35 верно', en: '5 · 6 = 30, 30 < 35 true' },
+      { uz: '5 · 7 = 35', ru: '5 · 7 = 35', en: '5 · 7 = 35' },
+      { uz: '35 < 35 rost', ru: '35 < 35 верно', en: '35 < 35 true' },
+      { uz: 'Javob: eng kattasi 7', ru: 'Ответ: наибольшее 7', en: 'Answer: the largest is 7' },
+    ],
+    options: [
+      { uz: 'Son o\'ziga qat\'iy kichik bo\'la olmaydi', ru: 'Число не может быть строго меньше себя', en: 'A number cannot be strictly less than itself' },
+      { uz: 'Ko\'paytirish noto\'g\'ri bajarilgan', ru: 'Умножение выполнено неверно', en: 'The multiplication was done wrongly' },
+      { uz: 'Birinchi qator noto\'g\'ri', ru: 'Первая строка неверна', en: 'The first line is wrong' },
+      { uz: 'Xato yo\'q', ru: 'Ошибки нет', en: 'There is no error' },
+    ],
+    correctIndex: 0,
+    correctText: {
+      uz: "To'g'ri. O'ttiz besh o'ttiz beshdan kichik emas, u unga teng. Eng katta mos qiymat olti.",
+      ru: 'Верно. Тридцать пять не меньше тридцати пяти, оно ему равно. Наибольшее подходящее значение шесть.',
+      en: 'Correct. Thirty five is not less than thirty five, it equals it. The largest fitting value is six.',
+    },
+    wrong: [
+      null,
+      {
+        uz: "Ko'paytirish to'g'ri: besh marta yetti o'ttiz besh. Xato hukmda.",
+        ru: 'Умножение верно: пять раз по семь — тридцать пять. Ошибка в вердикте.',
+        en: 'The multiplication is right: five times seven is thirty five. The error is in the verdict.',
+      },
+      {
+        uz: "Birinchi qator to'g'ri: o'ttiz o'ttiz beshdan kichik.",
+        ru: 'Первая строка верна: тридцать меньше тридцати пяти.',
+        en: 'The first line is right: thirty is less than thirty five.',
+      },
+      {
+        uz: "Darvoza aynan shu sababli ochilmagan edi. Uchinchi qator yolg'on.",
+        ru: 'Именно поэтому ворота и не открылись. Третья строка ложна.',
+        en: 'That is exactly why the gate stayed shut. The third line is false.',
+      },
+    ],
+    audio: {
+      intro: {
+        uz: [
+          "Bit tanlash usuli bilan ishladi va javobni darvozaga yubordi.",
+          "Uning to'rt qatori ekranda.",
+          "Xato qayerda? Javobni tanlang.",
+        ],
+        ru: [
+          'Bit работал способом подбора и отправил ответ на ворота.',
+          'Его четыре строки на экране.',
+          'Где ошибка? Выбери ответ.',
+        ],
+        en: [
+          'Bit worked by the trial method and sent the answer to the gate.',
+          'His four lines are on the screen.',
+          'Where is the error? Choose an answer.',
+        ],
+      },
+    },
+  },
+
+  s14: {
+    eyebrow: { uz: 'Shahar qarori', ru: 'Решение города', en: 'The city decision' },
+    title: {
+      uz: 'Darvozani nechta quti ochadi?',
+      ru: 'Сколько коробок откроет ворота?',
+      en: 'How many boxes open the gate?',
+    },
+    question: {
+      uz: '5 · x < 35. Qaysi yuklama darvozadan o\'tadi?',
+      ru: '5 · x < 35. Какая загрузка пройдёт через ворота?',
+      en: '5 · x < 35. Which load passes the gate?',
+    },
+    options: [
+      { uz: '6 ta quti', ru: '6 коробок', en: '6 boxes' },
+      { uz: '7 ta quti', ru: '7 коробок', en: '7 boxes' },
+      { uz: '8 ta quti', ru: '8 коробок', en: '8 boxes' },
+    ],
+    correctIndex: 0,
+    correctText: {
+      uz: "To'g'ri. Olti quti o'ttiz kilogramm beradi, bu chegaradan past: darvoza ochildi.",
+      ru: 'Верно. Шесть коробок дают тридцать килограммов, это ниже границы: ворота открылись.',
+      en: 'Correct. Six boxes give thirty kilograms, below the limit: the gate opened.',
+    },
+    wrong: [
+      null,
+      {
+        uz: "Yetti quti aynan chegaraga olib boradi. Qat'iy belgi buni o'tkazmaydi.",
+        ru: 'Семь коробок дают ровно границу. Строгий знак это не пропускает.',
+        en: 'Seven boxes land exactly on the limit. A strict sign does not let that through.',
+      },
+      {
+        uz: "Sakkiz quti qirq kilogramm beradi, bu chegaradan ham katta.",
+        ru: 'Восемь коробок дают сорок килограммов, это больше границы.',
+        en: 'Eight boxes give forty kilograms, above the limit.',
+      },
+    ],
+    audio: {
+      intro: {
+        uz: [
+          "Darvoza oldida uchta arava turibdi. Har qutida besh kilogramm.",
+          "Shart o'zgarmagan: besh ko'paytiriladi iks, kichik o'ttiz besh.",
+          "Qaysi yuklama o'tadi? Javobni tanlang.",
+        ],
+        ru: [
+          'Перед воротами три тележки. В каждой коробке пять килограммов.',
+          'Условие прежнее: пять умножить на икс меньше тридцати пяти.',
+          'Какая загрузка пройдёт? Выбери ответ.',
+        ],
+        en: [
+          'Three carts stand before the gate. Each box weighs five kilograms.',
+          'The condition is unchanged: five multiplied by x is less than thirty five.',
+          'Which load passes? Choose an answer.',
+        ],
+      },
+    },
+  },
+
+  s15: {
+    eyebrow: { uz: 'Mukofot', ru: 'Награда', en: 'Reward' },
+    stageLabel: { uz: 'YAKUNIY BOSQICH', ru: 'ФИНАЛЬНЫЙ ЭТАП', en: 'FINAL STAGE' },
+    headTitle: {
+      uz: 'Unvongacha bitta savol',
+      ru: 'Один вопрос до звания',
+      en: 'One question before your title',
+    },
+    headLead: {
+      uz: "Qoidani tanlang va chegarani tushunganingizni ko'rsating.",
+      ru: 'Выбери правило и покажи, что понимаешь границу.',
+      en: 'Choose the rule and show that you understand the boundary.',
+    },
+    questionKicker: { uz: 'YAKUNIY SAVOL', ru: 'ФИНАЛЬНЫЙ ВОПРОС', en: 'FINAL QUESTION' },
+    stepLabel: { uz: '1 QADAM', ru: '1 ШАГ', en: '1 STEP' },
+    reflectionQuestion: {
+      uz: 'Qat\'iy kichik belgisi chegarani oladimi?',
+      ru: 'Включает ли строгий знак меньше границу?',
+      en: 'Does a strict less than sign include the boundary?',
+    },
+    reflectionStart: {
+      uz: 'Bitta javobni tanlang.',
+      ru: 'Выбери один ответ.',
+      en: 'Choose one answer.',
+    },
+    reflectionOptions: [
+      { uz: "Yo'q, chegara qiymati mos kelmaydi", ru: 'Нет, граничное значение не подходит', en: 'No, the boundary value does not fit' },
+      { uz: 'Ha, chegara ham mos keladi', ru: 'Да, граница тоже подходит', en: 'Yes, the boundary fits too' },
+      { uz: 'Bu songa bog\'liq', ru: 'Это зависит от числа', en: 'It depends on the number' },
+    ],
+    reflectionCorrectIndex: 0,
+    reflectionCorrect: {
+      uz: "Shunday. Chegarani faqat ostida chiziqchasi bor belgi qabul qiladi.",
+      ru: 'Именно так. Границу принимает только знак с чёрточкой снизу.',
+      en: 'Exactly. Only the sign with the line beneath it accepts the boundary.',
+    },
+    reflectionWrong: {
+      uz: "Hali emas. Darvozani eslang: yetti quti aynan chegaraga tushdi va o'tmadi.",
+      ru: 'Пока нет. Вспомни ворота: семь коробок попали ровно на границу и не прошли.',
+      en: 'Not yet. Remember the gate: seven boxes landed exactly on the limit and did not pass.',
+    },
+    rewardAnnounce: { uz: 'Unvon olindi:', ru: 'Звание получено:', en: 'Title earned:' },
+    mainLabel: { uz: 'Darsning to\'rt qoidasi', ru: 'Четыре правила урока', en: 'The four rules of the lesson' },
+    main: [
+      { uz: 'Tengsizlik: ikki ifoda va taqqoslash belgisi.', ru: 'Неравенство: два выражения и знак сравнения.', en: 'An inequality: two expressions and a comparison sign.' },
+      { uz: "Tanlash usuli: son qo'yamiz, hisoblaymiz, hukm chiqaramiz.", ru: 'Способ подбора: подставляем число, считаем, выносим вердикт.', en: 'The trial method: put a number, calculate, judge.' },
+      { uz: "Qat'iy belgi chegarani ichiga olmaydi.", ru: 'Строгий знак границу не включает.', en: 'A strict sign does not include the boundary.' },
+      { uz: "Chegara topilgach, qolganini sinash shart emas.", ru: 'Когда граница найдена, остальное перебирать не нужно.', en: 'Once the boundary is found, the rest need not be tried.' },
+    ],
+    awards: [
+      {
+        min: 6,
+        title: { uz: 'Shart ustasi', ru: 'Мастер условий', en: 'Master of conditions' },
+        text: { uz: 'Barcha oltita vazifa birinchi urinishda yechildi.', ru: 'Все шесть заданий решены с первой попытки.', en: 'All six tasks were solved on the first attempt.' },
+      },
+      {
+        min: 4,
+        title: { uz: 'Chegara nazoratchisi', ru: 'Контролёр границы', en: 'Boundary inspector' },
+        text: { uz: "Siz qat'iy va qat'iy bo'lmagan belgini ishonchli ajratasiz.", ru: 'Ты уверенно различаешь строгий и нестрогий знак.', en: 'You tell a strict sign from a non strict one with confidence.' },
+      },
+      {
+        min: 0,
+        title: { uz: 'Darvoza xodimi', ru: 'Сотрудник ворот', en: 'Gate clerk' },
+        text: { uz: "Asos qo'yildi. Qoidani takrorlab, natijani yaxshilashga harakat qiling.", ru: 'Основа заложена. Повтори правило и попробуй улучшить результат.', en: 'The base is laid. Repeat the rule and try to improve the result.' },
+      },
+    ],
+    nextLabel: { uz: 'Keyingi missiya', ru: 'Следующая миссия', en: 'Next mission' },
+    nextText: {
+      uz: "Darvoza ochildi. Endi markaz hisobni tezlashtiradi: qo'shish xossalari ishga tushadi.",
+      ru: 'Ворота открыты. Теперь центр ускоряет расчёт: в дело идут свойства сложения.',
+      en: 'The gate is open. Now the centre speeds up the calculation: the properties of addition come into play.',
+    },
+    audio: {
+      intro: {
+        uz: [
+          "Shart darvozasi ochildi va yuklar o'tdi.",
+          "Endi bitta savol qoldi. Qoidani tanlang va unvonni oling.",
+          "Qat'iy kichik belgisi chegarani oladimi? Javobni tanlang.",
+        ],
+        ru: [
+          'Ворота условия открылись, и грузы прошли.',
+          'Остался один вопрос. Выбери правило и получи звание.',
+          'Включает ли строгий знак меньше границу? Выбери ответ.',
+        ],
+        en: [
+          'The condition gate opened and the loads went through.',
+          'One question is left. Choose the rule and claim your title.',
+          'Does a strict less than sign include the boundary? Choose an answer.',
+        ],
+      },
+    },
+  },
 };
 
-let runtimeConfig = { ttsApiBase: '', voiceGender: 'f', correctSoundUrl: '', wrongSoundUrl: '', previewMode: false };
-const configureLesson = (next) => { runtimeConfig = { ...runtimeConfig, ...next }; };
-const normalizeLang = (value) => ['uz', 'ru', 'en'].includes(value) ? value : 'uz';
-const LangContext = createContext('uz');
-const useLang = () => useContext(LangContext);
-const useT = () => { const lang = useLang(); return useCallback((value) => { if (value == null) return ''; if (React.isValidElement(value)) return value; if (typeof value === 'string' || typeof value === 'number') return String(value); return value[lang] ?? value.uz ?? ''; }, [lang]); };
-function useIsMobile(breakpoint = 640) { const [mobile, setMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < breakpoint : false); useEffect(() => { if (typeof window === 'undefined') return undefined; const update = () => setMobile(window.innerWidth < breakpoint); window.addEventListener('resize', update); return () => window.removeEventListener('resize', update); }, [breakpoint]); return mobile; }
-function usePrefersReducedMotion() { const [reduced, setReduced] = useState(typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches); useEffect(() => { if (typeof window === 'undefined' || !window.matchMedia) return undefined; const media = window.matchMedia('(prefers-reduced-motion: reduce)'); const update = () => setReduced(media.matches); media.addEventListener?.('change', update); return () => media.removeEventListener?.('change', update); }, []); return reduced; }
-const buildTtsUrl = (base, text, gender) => base + '/api/tts?text=' + encodeURIComponent(String(text).slice(0, 1000)) + '&g=' + (gender === 'm' ? 'm' : 'f');
-class AudioEngine {
-  constructor() { this.queue = []; this.index = 0; this.audio = null; this.previewUtterance = null; this.timer = null; this.lang = 'uz'; this.muted = false; this.listener = null; }
-  emit(extra = {}) { this.listener?.({ muted: this.muted, ...extra }); }
-  setLang(lang) { this.lang = lang; }
-  stop() { if (this.timer && typeof window !== 'undefined') window.clearTimeout(this.timer); this.timer = null; if (this.audio) { this.audio.onended = null; this.audio.onerror = null; this.audio.pause(); this.audio.removeAttribute('src'); } if (this.previewUtterance) { this.previewUtterance.onstart = null; this.previewUtterance.onend = null; this.previewUtterance.onerror = null; } if (typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.cancel(); this.previewUtterance = null; }
-  load(queue) { this.stop(); this.queue = queue; this.index = 0; this.emit({ isPlaying: false, completed: false, currentSegment: null }); }
-  start() { if (!this.queue.length) { this.emit({ completed: true }); return; } this.play(); }
-  timed(item) { const ms = Math.max(1500, Math.min(6500, String(item.text).split(/\s+/).length * 330)); this.emit({ isPlaying: true, completed: false, currentSegment: item.id, visualOnly: true }); this.timer = window.setTimeout(() => { this.emit({ isPlaying: false, currentSegment: null }); this.index += 1; this.play(); }, ms); }
-  play() { const item = this.queue[this.index]; if (!item) { this.emit({ isPlaying: false, completed: true, currentSegment: null, visualOnly: this.muted || !runtimeConfig.ttsApiBase }); return; } if (this.muted || !runtimeConfig.ttsApiBase) { if (!this.muted && runtimeConfig.previewMode && typeof window !== 'undefined' && window.speechSynthesis) { try { window.speechSynthesis.cancel(); const utterance = new SpeechSynthesisUtterance(String(item.text)); utterance.lang = { uz: 'uz-UZ', ru: 'ru-RU', en: 'en-GB' }[this.lang] || 'uz-UZ'; utterance.rate = 0.94; utterance.onstart = () => this.emit({ isPlaying: true, completed: false, currentSegment: item.id, visualOnly: false }); utterance.onend = () => { this.emit({ isPlaying: false, currentSegment: null }); this.index += 1; this.play(); }; utterance.onerror = () => this.timed(item); this.previewUtterance = utterance; this.timer = window.setTimeout(() => { try { window.speechSynthesis.speak(utterance); } catch { this.timed(item); } }, 50); return; } catch { /* deterministic timer fallback */ } } this.timed(item); return; } if (!this.audio) { this.audio = new Audio(); this.audio.crossOrigin = 'anonymous'; } this.audio.onended = () => { this.index += 1; this.play(); }; this.audio.onerror = () => this.timed(item); this.audio.src = buildTtsUrl(runtimeConfig.ttsApiBase, item.text, runtimeConfig.voiceGender); this.audio.play().then(() => this.emit({ isPlaying: true, completed: false, currentSegment: item.id, visualOnly: false })).catch(() => this.timed(item)); }
-  toggleMute() { this.muted = !this.muted; this.stop(); this.emit({ isPlaying: false, completed: this.muted, currentSegment: null, muted: this.muted, visualOnly: true }); }
-  pushOneOff(text) { if (!text) return; this.stop(); this.queue = [{ id: 'feedback-' + Date.now(), text }]; this.index = 0; this.play(); }
-}
-let audioEngineInstance = null;
-const getAudioEngine = () => { if (!audioEngineInstance) audioEngineInstance = new AudioEngine(); return audioEngineInstance; };
-function useAudio(segments) { const lang = useLang(); const stableKey = useMemo(() => JSON.stringify(segments), [segments]); const stableSegments = useMemo(() => JSON.parse(stableKey), [stableKey]); const [state, setState] = useState({ isPlaying: false, completed: false, currentSegment: null, muted: false, visualOnly: false }); useEffect(() => { const engine = getAudioEngine(); engine.setLang(lang); engine.listener = (next) => setState((previous) => ({ ...previous, ...next })); engine.load(stableSegments); const timer = window.setTimeout(() => engine.start(), 120); return () => { window.clearTimeout(timer); engine.stop(); }; }, [lang, stableSegments]); return { ...state, replay: () => { const engine = getAudioEngine(); engine.load(stableSegments); engine.start(); }, toggleMute: () => getAudioEngine().toggleMute(), pushOneOff: (text) => getAudioEngine().pushOneOff(text) }; }
-function useNarration(value, screen) { const lang = useLang(); const reduced = usePrefersReducedMotion(); const segments = useMemo(() => { const source = value?.intro ?? value; const texts = source?.[lang] ?? source?.uz ?? []; return (Array.isArray(texts) ? texts : [texts]).filter(Boolean).map((text, index) => ({ id: 's' + screen + '-beat-' + index, text })); }, [lang, screen, value]); const audio = useAudio(segments); const active = segments.findIndex((segment) => segment.id === audio.currentSegment); const finalFrame = Math.max(0, FRAME_COUNTS[screen] - 1); const feedbackPlaying = audio.currentSegment?.startsWith('feedback-') === true; const frame = reduced || feedbackPlaying || audio.completed ? finalFrame : active >= 0 ? active : 0; return { ...audio, frame, caption: active >= 0 ? segments[active].text : '' }; }
-function useGuidedNarration(value, screen, step) { const lang = useLang(); const texts = useMemo(() => { const source = value?.intro ?? value; const localized = source?.[lang] ?? source?.uz ?? []; return (Array.isArray(localized) ? localized : [localized]).filter(Boolean); }, [lang, value]); const intro = useMemo(() => texts.length ? [{ id: 's' + screen + '-beat-0', text: texts[0] }] : [], [screen, texts]); const audio = useAudio(intro); const speakStep = useCallback((index) => { const text = texts[index]; if (text) audio.pushOneOff(text); }, [audio, texts]); return { ...audio, frame: step, caption: texts[step] ?? '', speakStep }; }
-const isAudioReady = (audio) => !audio || audio.muted || audio.visualOnly || audio.completed;
-const playSfx = (kind) => { const url = kind === 'correct' ? runtimeConfig.correctSoundUrl : runtimeConfig.wrongSoundUrl; if (!url || typeof window === 'undefined') return; try { new Audio(url).play().catch(() => {}); } catch { /* optional */ } };
+// ---------------------------------------------------------------------------
+// CHIZMALAR
+//
+// Darsning tayanchi — SON O'QI: har sinalgan qiymat o'z nuqtasiga tushadi va
+// rost yoki yolg'on rangi bilan belgilanadi. Chegara alohida ko'rinadi.
+// ---------------------------------------------------------------------------
 
-const BitSVG = ({ state = 'present', className = '' }) => {
-  const isWave = state === 'wave';
-  const isHappy = state === 'happy' || isWave || state === 'idea' || state === 'nod';
-  const isThinking = state === 'hint' || state === 'think';
-  const isAwkward = state === 'awkward';
-
+// s0, s14: shart darvozasi (to'q sahna).
+const GateConsole = ({ open }) => {
+  const t = useT();
+  const boxes = open ? 6 : 7;
   return (
-  <svg className={`g1-char g1-char-bit g1-char-state-${state} ${className}`} data-g4-role={className.includes('feedback-bit') ? 'feedback-bit' : undefined} viewBox="0 0 120 150" aria-hidden="true">
-    <defs>
-      <linearGradient id="g4bbody" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stopColor="#E2ECF2" />
-        <stop offset="100%" stopColor="#B6C7D2" />
-      </linearGradient>
-      <linearGradient id="g4bhead" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stopColor="#EBF2F6" />
-        <stop offset="100%" stopColor="#C4D3DC" />
-      </linearGradient>
-    </defs>
-    <ellipse cx="60" cy="140" rx="30" ry="5" fill="rgba(58,53,48,0.13)" />
-    <g className="g1-bit-ant">
-      <path d="M60 30 V14" stroke="#9FB3BF" strokeWidth="4" strokeLinecap="round" />
-      <circle cx="60" cy="11" r="6" fill="#FF4F28" />
-      <circle cx="58" cy="9" r="2" fill="#FFB9A6" />
-    </g>
-    <rect x="44" y="118" width="12" height="16" rx="5" fill="#9FB3BF" />
-    <rect x="64" y="118" width="12" height="16" rx="5" fill="#9FB3BF" />
-    <rect x="34" y="60" width="52" height="62" rx="18" fill="url(#g4bbody)" stroke="#A9BCC8" strokeWidth="2" />
-    <rect x="44" y="104" width="32" height="10" rx="5" fill="#A9BCC8" opacity="0.5" />
-    {(state === 'happy' || isWave) && (
-      <g className={isWave ? 'bit-double-wave' : ''}>
-        <g className="bit-wave-left">
-          <path d="M36 74 C 26 66 22 56 22 48" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-          <circle cx="22" cy="47" r="5" fill="#B6C7D2" />
-        </g>
-        <g className="bit-wave-right">
-          <path d="M84 74 C 94 66 98 56 98 48" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-          <circle cx="98" cy="47" r="5" fill="#B6C7D2" />
-        </g>
-      </g>
-    )}
-    {state === 'present' && (
-      <g>
-        <path d="M36 76 C 28 84 26 94 30 102" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="30" cy="103" r="5" fill="#B6C7D2" />
-        <g className="g1-bit-wave">
-          <path d="M84 74 C 96 66 100 54 98 44" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-          <circle cx="98" cy="43" r="5" fill="#B6C7D2" />
-        </g>
-      </g>
-    )}
-    {isThinking && (
-      <g>
-        <path d="M36 76 C 28 84 26 94 30 102" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="30" cy="103" r="5" fill="#B6C7D2" />
-        <g className="bit-think-hand">
-          <path d="M84 76 C 92 74 92 66 84 61" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-          <circle cx="83" cy="60" r="5" fill="#B6C7D2" />
-        </g>
-      </g>
-    )}
-    {isAwkward && (
-      <g className="bit-awkward-hands">
-        <path d="M36 76 C 39 88 46 96 54 99" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="54" cy="99" r="5" fill="#B6C7D2" />
-        <path d="M84 76 C 81 88 74 96 66 99" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="66" cy="99" r="5" fill="#B6C7D2" />
-      </g>
-    )}
-    {state === 'point' && (
-      <g>
-        <path d="M36 76 C 28 84 26 94 30 102" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="30" cy="103" r="5" fill="#B6C7D2" />
-        <g className="bit-point-arm">
-          <path d="M84 76 C 94 72 101 67 108 62" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-          <circle cx="109" cy="61" r="5" fill="#B6C7D2" />
-        </g>
-      </g>
-    )}
-    {state === 'idea' && (
-      <g>
-        <path d="M36 76 C 29 82 27 91 30 101" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="30" cy="102" r="5" fill="#B6C7D2" />
-        <path d="M84 76 C 92 68 95 58 94 50" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="94" cy="49" r="5" fill="#B6C7D2" />
-      </g>
-    )}
-    {state === 'focus' && (
-      <g className="bit-focus-hands">
-        <path d="M36 77 C 41 88 47 93 53 94" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="53" cy="94" r="5" fill="#B6C7D2" />
-        <path d="M84 77 C 79 88 73 93 67 94" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="67" cy="94" r="5" fill="#B6C7D2" />
-      </g>
-    )}
-    {state === 'nod' && (
-      <g>
-        <path d="M36 76 C 28 84 26 94 30 102" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="30" cy="103" r="5" fill="#B6C7D2" />
-        <g className="bit-nod-hand">
-          <path d="M84 75 C 93 70 99 62 99 54" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-          <circle cx="99" cy="53" r="5" fill="#B6C7D2" />
-        </g>
-      </g>
-    )}
-    <rect x="28" y="28" width="64" height="46" rx="16" fill="url(#g4bhead)" stroke="#A9BCC8" strokeWidth="2" />
-    <rect x="36" y="36" width="48" height="30" rx="10" fill="#16242C" />
-    <path d="M40 40 h18 a4 4 0 0 1 -4 8 h-14 Z" fill="rgba(255,255,255,0.08)" />
-    <g className="g1-eyes" fill="#5BD6F2">
-      {isAwkward
-        ? <><ellipse cx="50" cy="53" rx="4.8" ry="3.2" /><ellipse cx="70" cy="53" rx="4.8" ry="3.2" /></>
-        : isThinking
-        ? <><circle cx="50" cy="50" r="4.5" /><circle cx="70" cy="49" r="5.5" /></>
-        : <><circle cx="50" cy="50" r="5" /><circle cx="70" cy="50" r="5" /></>}
-    </g>
-    {isHappy && <path d="M50 58 Q60 65 70 58" stroke="#5BD6F2" strokeWidth="2.6" fill="none" strokeLinecap="round" />}
-    {(state === 'present' || state === 'point' || state === 'focus') && <path d="M52 58 h16" stroke="#5BD6F2" strokeWidth="2.6" strokeLinecap="round" />}
-    {isThinking && <circle cx="60" cy="59" r="2.4" fill="#5BD6F2" />}
-    {isAwkward && (
-      <g className="bit-awkward-face">
-        <path d="M53 62 Q60 57 67 62" stroke="#5BD6F2" strokeWidth="2.4" fill="none" strokeLinecap="round" />
-        <circle cx="43" cy="59" r="4" fill="#FF9B8A" opacity=".5" />
-        <circle cx="77" cy="59" r="4" fill="#FF9B8A" opacity=".5" />
-      </g>
-    )}
-    {isThinking && (
-      <g>
-        <circle cx="99" cy="38" r="9" fill="#FFC23C" />
-        <text x="99" y="42.5" textAnchor="middle" fontSize="12" fontWeight="800" fill="#5A3A00">?</text>
-      </g>
-    )}
-    {state === 'point' && (
-      <g className="bit-point-target">
-        <circle cx="110" cy="61" r="8" fill="none" stroke="#FF5B35" strokeWidth="2" />
-        <circle cx="110" cy="61" r="2" fill="#FF5B35" />
-      </g>
-    )}
-    {state === 'idea' && (
-      <g className="bit-idea-bulb">
-        <circle cx="99" cy="36" r="9" fill="#FFC23C" />
-        <path d="M95 36 Q99 31 103 36 M97 42 h4" stroke="#7A5200" strokeWidth="1.6" fill="none" strokeLinecap="round" />
-      </g>
-    )}
-    {state === 'focus' && (
-      <g className="bit-focus-scan">
-        <path d="M43 45 h34" stroke="#95C93D" strokeWidth="2" strokeLinecap="round" />
-        <circle cx="80" cy="45" r="3" fill="#95C93D" />
-      </g>
-    )}
-    {state === 'nod' && (
-      <g className="bit-nod-check">
-        <circle cx="99" cy="38" r="9" fill="#95C93D" />
-        <path d="M95 38 l3 3 6-7" stroke="#FFFFFF" strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-      </g>
-    )}
-  </svg>
+    <FitSvg viewBox="0 0 900 300">
+      <defs>
+        <linearGradient id="d47panel" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#123246" />
+          <stop offset="100%" stopColor="#0A2233" />
+        </linearGradient>
+      </defs>
+      <rect x="40" y="24" width="820" height="252" rx="20" fill="url(#d47panel)" stroke="rgba(144,228,235,.28)" strokeWidth="2" />
+      <text x="72" y="60" fill="#9DE3E7" fontSize="14" fontWeight="800" letterSpacing="3" fontFamily="JetBrains Mono, monospace">
+        {t({ uz: 'SHART DARVOZASI', ru: 'ВОРОТА УСЛОВИЯ', en: 'CONDITION GATE' })}
+      </text>
+
+      {/* arava va qutilar */}
+      {Array.from({ length: boxes }, (_, index) => (
+        <rect
+          key={index}
+          x={92 + index * 56}
+          y="96"
+          width="46"
+          height="46"
+          rx="8"
+          fill="rgba(149,201,61,.24)"
+          stroke={T.lime}
+          strokeWidth="1.8"
+        />
+      ))}
+      <text x={92 + (boxes * 56) / 2 - 28} y="168" textAnchor="middle" fill="#9DE3E7" fontSize="13" fontWeight="750" fontFamily="Manrope, sans-serif">
+        {t({ uz: 'har qutida 5 kg', ru: 'в каждой коробке 5 кг', en: '5 kg in each box' })}
+      </text>
+
+      {/* darvoza */}
+      <rect
+        x="596"
+        y="80"
+        width="18"
+        height="150"
+        rx="6"
+        fill={open ? 'rgba(149,201,61,.5)' : 'rgba(255,179,155,.6)'}
+      />
+      <rect
+        x="640"
+        y="90"
+        width="190"
+        height="72"
+        rx="14"
+        fill="rgba(121,211,218,.12)"
+        stroke="rgba(144,228,235,.4)"
+        strokeWidth="1.6"
+      />
+      <text x="735" y="118" textAnchor="middle" fill="#9DE3E7" fontSize="12" fontWeight="750" fontFamily="Manrope, sans-serif">
+        {t({ uz: 'shart', ru: 'условие', en: 'condition' })}
+      </text>
+      <text x="735" y="146" textAnchor="middle" fill="#EAF9FB" fontSize="22" fontWeight="800" fontFamily="JetBrains Mono, monospace">
+        5 · x &lt; 35
+      </text>
+
+      <rect
+        x="640"
+        y="176"
+        width="190"
+        height="58"
+        rx="14"
+        fill={open ? 'rgba(149,201,61,.18)' : 'rgba(255,91,53,.16)'}
+        stroke={open ? 'rgba(149,201,61,.5)' : '#FFB39B'}
+        strokeWidth="1.8"
+      />
+      <text x="735" y="199" textAnchor="middle" fill={open ? T.lime : '#FFB39B'} fontSize="12" fontWeight="750" fontFamily="Manrope, sans-serif">
+        {open
+          ? t({ uz: 'darvoza ochiq', ru: 'ворота открыты', en: 'the gate is open' })
+          : t({ uz: 'darvoza yopiq', ru: 'ворота закрыты', en: 'the gate is shut' })}
+      </text>
+      <text x="735" y="222" textAnchor="middle" fill="#EAF9FB" fontSize="18" fontWeight="800" fontFamily="JetBrains Mono, monospace">
+        {open ? '5 · 6 = 30' : '5 · 7 = 35'}
+      </text>
+    </FitSvg>
   );
 };
-const AudioIndicator = ({ audio }) => { const t = useT(); const muteLabel = audio.muted ? bi("Ovozni yoqish", 'Включить звук', 'Turn sound on') : bi("Ovozni o'chirish", 'Выключить звук', 'Turn sound off'); return <div className="audio-indicator audio-controls"><button type="button" data-audio-control="mute" onClick={audio.toggleMute} aria-label={t(muteLabel)}>{audio.muted ? '🔇' : '🔊'}</button><span className={audio.isPlaying ? 'audio-wave playing' : 'audio-wave'}><i/><i/><i/></span>{!audio.muted && <button type="button" onClick={audio.replay} aria-label={t(bi('Qayta eshittirish', 'Повторить', 'Replay'))}>↻</button>}</div>; };
-const ScreenTypeLabel = ({ type }) => { const t = useT(); const labels = { hook: bi('Taxmin', 'Гипотеза', "Estimate"), exploration: bi('Tadqiqot', 'Исследование', "Explore"), rule: bi('Qoida', 'Правило', "Rule"), test: bi('Mashq', 'Задание', "Task"), case: bi('Vaziyat', 'Ситуация', "Situation"), summary: bi('Yakun', 'Итог', "Summary") }; return <span className="screen-type">{t(labels[type])}</span>; };
-const Stage = ({ screen, audio, onPrev, onNext, canAdvance = true, canFinish = true, finish = false, children }) => { const t = useT(); const mobile = useIsMobile(); const meta = SCREEN_META[screen]; const c = CONTENT[`s${screen}`]; const pad = mobile ? 12 : 24; const ready = canAdvance && canFinish && isAudioReady(audio); const showCaption = Boolean(audio?.caption && (audio.muted || audio.visualOnly)); return <main className={`stage stage-${meta.type}`}><header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}><div className="progress-track" aria-label={`${screen + 1} / ${TOTAL_SCREENS}`}><div className="progress-fill progress-bar" style={{ width: `${(screen + 1) / TOTAL_SCREENS * 100}%` }}/></div><div className="stage-chrome"><div className="chrome-title"><span className="status-dot"/><span>{t(c.eyebrow)}</span></div><div className="chrome-actions"><ScreenTypeLabel type={meta.type}/>{audio && <AudioIndicator audio={audio}/>}<span className="screen-count">{String(screen + 1).padStart(2, '0')} / {TOTAL_SCREENS}</span></div></div></header><section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}><div className="stage-body">{children}</div><div className="caption-slot" aria-live="polite">{showCaption ? <div className="caption">{audio.caption}</div> : <span aria-hidden="true"/>}</div></section><footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{screen === 0 ? <span/> : <button type="button" className="btn-ghost" onClick={onPrev}>← {t(bi('Orqaga', 'Назад', 'Back'))}</button>}<button type="button" className="btn-white-accent" disabled={!ready} aria-disabled={!ready} onClick={onNext}>{finish ? t(bi('Darsni yakunlash', 'Завершить урок', 'Finish lesson')) : t(bi('Davom etish', 'Продолжить', 'Continue'))} →</button></footer></main>; };
-const Heading = ({ c, state = 'present', showBit = false }) => { const t = useT(); return <div className={'heading ' + (showBit ? '' : 'heading-solo')}><div><span>{t(c.eyebrow)}</span><h1>{t(c.title)}</h1></div>{showBit && <BitSVG state={state}/>}</div>; };
 
-const G4TitleReveal = ({ active, title, onComplete }) => {
+// s3..s10: son o'qi. `marks` — { value, verdict } ro'yxati.
+// verdict: 'true' | 'false' | 'open' (hali sinalmagan)
+const TrialLine = ({ from, to, marks, frame = 9, label, boundary = null }) => {
   const t = useT();
-  useEffect(() => { if (!active) return undefined; const timer = window.setTimeout(() => onComplete?.(), window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 80 : 3900); return () => window.clearTimeout(timer); }, [active, onComplete]);
-  if (!active || typeof document === 'undefined') return null;
-  return createPortal(<div className="g4-title-reveal-overlay rank-boost-overlay" data-g4-role="rank-overlay" role="status" aria-live="assertive" aria-atomic="true" aria-label={`${t(bi('Unvon olindi', 'Звание получено', 'Title earned'))}: ${t(title)}`}><div className="g4-title-reveal-card rank-boost-card"><div className="g4-title-reveal-rays" aria-hidden="true"/><div className="g4-title-reveal-confetti rank-boost-confetti" data-g4-role="reward-confetti" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <i key={index} style={{ '--g4-title-i': index, '--g4-title-delay': `${(index % 7) * -0.21}s` }}/>)}</div><div className="g4-title-reveal-medal rank-boost-medal" data-g4-role="reward-medal" aria-hidden="true">★</div><h2>{t(title)}</h2></div></div>, document.body);
-};
-const G4TitleCard = ({ title, answers = [], canFinish = false }) => {
-  const t = useT(); const scored = SCREEN_META.map((item, index) => item.scored ? index : null).filter((index) => index !== null); const firstTry = scored.filter((index) => answers[index]?.firstTry === true).length;
-  return <aside className="g4-title-card-stage" data-g4-role="title-card" data-can-finish={canFinish ? 'true' : 'false'} role="status" aria-live="polite" aria-atomic="true"><div className="g4-title-card-confetti" data-g4-role="reward-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index}/>)}</div><div className="g4-title-card-bit" data-g4-role="reward-bit"><BitSVG state="happy"/></div><div className="g4-title-card-medal" data-g4-role="reward-medal" aria-hidden="true">★</div><span className="g4-title-card-kicker">{t(bi('UNVON OLINDI', 'ЗВАНИЕ ПОЛУЧЕНО', 'TITLE EARNED'))}</span><h2>{t(title)}</h2><div className="g4-title-card-score"><strong>{firstTry}/{scored.length}</strong><span>{t(bi('birinchi urinishda', 'с первой попытки', 'on the first attempt'))}</span></div></aside>;
+  const x0 = 70;
+  const x1 = 600;
+  const span = to - from;
+  const at = (value) => x0 + ((value - from) / span) * (x1 - x0);
+  return (
+    <FitSvg viewBox="0 0 660 200">
+      <line x1={x0 - 14} y1={96} x2={x1 + 14} y2={96} stroke={T.ink3} strokeWidth="2.2" />
+      <path d={`M${x1 + 14} 96 l-12 -6 v12 Z`} fill={T.ink3} />
+      {Array.from({ length: span + 1 }, (_, index) => {
+        const value = from + index;
+        return (
+          <g key={value}>
+            <line x1={at(value)} y1={90} x2={at(value)} y2={102} stroke={T.ink3} strokeWidth="1.6" />
+            <text x={at(value)} y={124} textAnchor="middle" fill={T.ink3} fontSize="13" fontWeight="750" fontFamily="JetBrains Mono, monospace">
+              {value}
+            </text>
+          </g>
+        );
+      })}
+      {marks.map((mark, index) => {
+        if (frame < index + 1) return null;
+        const tone = mark.verdict === 'true' ? T.success : mark.verdict === 'false' ? T.accent : T.ink3;
+        const fill = mark.verdict === 'true' ? T.successSoft : mark.verdict === 'false' ? T.accentSoft : '#FBFDF7';
+        return (
+          <g key={mark.value}>
+            <circle cx={at(mark.value)} cy={96} r="11" fill={fill} stroke={tone} strokeWidth="2.6" />
+            <text x={at(mark.value)} y={64} textAnchor="middle" fill={tone} fontSize="15" fontWeight="800" fontFamily="Manrope, sans-serif">
+              {mark.verdict === 'true' ? 'R' : mark.verdict === 'false' ? 'Y' : '?'}
+            </text>
+          </g>
+        );
+      })}
+      {boundary !== null && frame >= marks.length + 1 && (
+        <g>
+          <line x1={at(boundary)} y1={54} x2={at(boundary)} y2={140} stroke={T.accent} strokeWidth="2" strokeDasharray="6 5" />
+          <Caption x={at(boundary)} y={158} text={t({ uz: 'chegara', ru: 'граница', en: 'boundary' })} tone={T.accent} />
+        </g>
+      )}
+      {label && <Caption x={330} y={186} text={label} tone={T.ink2} />}
+    </FitSvg>
+  );
 };
 
-
-const RelationCards = ({ items = [], frame = 0 }) => <div className="relation-cards">{items.map((item, index) => <span className={index <= frame ? 'active' : ''} key={index}>{item}</span>)}</div>;
-function ConversionVisual({ c, frame, revealed = false }) { const visual = <ConversionVisualContent c={c} frame={frame} revealed={revealed}/>; const sceneName = String(c?.scene ?? ''); return /(^|-)hook($|-)/.test(sceneName) ? visual : <div className="canonical-visual-frame" data-g4-role="visual-frame" data-g4-scene={sceneName} style={{ position: 'relative', isolation: 'isolate', minWidth: 0, maxWidth: '100%', height: '100%', overflow: 'hidden' }}>{visual}</div>; }
-function ConversionVisualContent({ c, frame, revealed = false }) {
+// s1, s2: tengsizlik plitalari.
+const IneqPlates = ({ left, sign, right, frame = 9 }) => {
   const t = useT();
-  const kind = String(c.scene || 'review').split('-')[0];
-  const items = (c.frames || []).map((item) => t(item));
-  const shown = Math.min(items.length, frame + 1);
-  if (kind === 'route') {
-    const shift = Math.min(36, frame * 12);
-    return <div className="conversion-visual" aria-label={t(c.title)}>
-      <div style={{ width: '92%', height: 62, position: 'relative', display: 'grid', alignItems: 'center' }}>
-        <div style={{ height: 8, borderRadius: 99, background: '#D7E5E4' }}/>
-        <i style={{ position: 'absolute', left: `${8 + shift}%`, width: 25, height: 25, borderRadius: '50%', background: T.cyan, boxShadow: '0 0 0 7px rgba(22,143,163,.12)', transition: 'left .8s ease' }}/>
-        <i style={{ position: 'absolute', right: `${8 + shift}%`, width: 25, height: 25, borderRadius: '50%', background: T.accent, boxShadow: '0 0 0 7px rgba(255,91,53,.12)', transition: 'right .8s ease' }}/>
-        <b style={{ position: 'absolute', left: '50%', top: 2, transform: 'translateX(-50%)', color: T.navy, font: "900 12px 'JetBrains Mono',monospace" }}>S</b>
-      </div>
-      <RelationCards items={items.slice(0, 4)} frame={frame}/>
-    </div>;
-  }
-  if (kind === 'fraction') {
-    const active = Math.min(8, shown * 2);
-    return <div className="conversion-visual" aria-label={t(c.title)}>
-      <div style={{ width: '92%', display: 'grid', gridTemplateColumns: 'repeat(8,1fr)', gap: 4 }}>
-        {Array.from({ length: 8 }, (_, index) => <i key={index} style={{ height: 54, borderRadius: 8, background: index < active ? T.cyan : '#DCE8E7', transform: index < active ? 'scaleY(1)' : 'scaleY(.72)', transformOrigin: 'bottom', transition: 'all .45s ease' }}/>)}
-      </div>
-      <RelationCards items={items.slice(0, 4)} frame={frame}/>
-    </div>;
-  }
-  if (kind === 'inequality') {
-    const scene = String(c.scene || 'inequality-hook');
-    if (scene === 'inequality-compare' || scene === 'inequality-signs') {
-      return <div className="conversion-visual" aria-label={t(c.title)}>
-        <div style={{ width: '100%', display: 'grid', gridTemplateColumns: 'repeat(2,minmax(0,1fr))', gap: 9 }}>
-          {items.map((item, index) => <span key={index} style={{ minHeight: 54, padding: 9, borderRadius: 14, display: 'grid', placeItems: 'center', opacity: index <= frame ? 1 : .18, color: index === frame ? '#FFF' : T.navy, background: index === frame ? T.cyan : '#FFF', textAlign: 'center', font: "900 13px 'JetBrains Mono',monospace", transition: 'all .4s ease' }}>{item}</span>)}
+  return (
+    <FitSvg viewBox="0 0 620 170">
+      <Plate x={54} y={40} w={190} h={72} text={left} kind="known" lit={frame >= 1} size={24} />
+      <Plate x={244} y={40} w={72} h={72} text={sign} kind="sign" size={30} />
+      <Plate x={316} y={40} w={190} h={72} text={right} kind="known" lit={frame >= 1} size={24} />
+      {frame >= 2 && (
+        <g>
+          <Caption x={149} y={132} text={t({ uz: 'birinchi ifoda', ru: 'первое выражение', en: 'first expression' })} />
+          <Caption x={280} y={132} text={t({ uz: 'belgi', ru: 'знак', en: 'sign' })} tone={T.accent} />
+          <Caption x={411} y={132} text={t({ uz: 'ikkinchi ifoda', ru: 'второе выражение', en: 'second expression' })} />
+        </g>
+      )}
+      {frame >= 3 && (
+        <g>
+          <rect x={196} y={146} width={228} height={24} rx="12" fill={T.accentSoft} />
+          <text x={310} y={163} textAnchor="middle" fill={T.accent} fontSize="12" fontWeight="800" letterSpacing="2" fontFamily="Manrope, sans-serif">
+            {t({ uz: 'TENGSIZLIK', ru: 'НЕРАВЕНСТВО', en: 'INEQUALITY' })}
+          </text>
+        </g>
+      )}
+    </FitSvg>
+  );
+};
+
+// QOIDA kartasi: umumiy `RuleRows` bloki, mazmuni darsniki.
+const RuleCard = ({ frame }) => {
+  const t = useT();
+  return (
+    <RuleRows
+      frame={frame}
+      rows={[
+        {
+          tone: T.cyan,
+          head: t({ uz: 'Son qo\'ying', ru: 'Подставьте число', en: 'Put a number' }),
+          body: t({ uz: "harf o'rniga son qo'yib, ikki tomonni hisoblang", ru: 'подставьте число вместо буквы и посчитайте обе стороны', en: 'put a number in place of the letter and work out both sides' }),
+          formula: null,
+        },
+        {
+          tone: T.accent,
+          head: t({ uz: 'Hukm chiqaring', ru: 'Вынесите вердикт', en: 'Give the verdict' }),
+          body: t({ uz: "yozuv rostmi yoki yolg'onmi", ru: 'запись верна или ложна', en: 'is the record true or false' }),
+          formula: null,
+        },
+        {
+          tone: T.success,
+          head: t({ uz: 'Chegarani sinang', ru: 'Проверьте границу', en: 'Test the boundary' }),
+          body: t({ uz: "qat'iy belgi chegarani olmaydi, chiziqchali belgi oladi", ru: 'строгий знак границу не берёт, знак с чёрточкой берёт', en: 'a strict sign excludes it, a sign with a line includes it' }),
+          formula: null,
+        },
+      ]}
+    />
+  );
+};
+
+// ---------------------------------------------------------------------------
+// EKRANLAR
+// ---------------------------------------------------------------------------
+const Screen0 = (props) => (
+  <ChoiceScreen
+    {...props}
+    plain
+    ratio="30 / 11"
+    ordinal={3}
+    figure={({ solved }) => (
+      <div className="hero-scene">
+        <div className="hero-head">
+          <span>LUMO CITY · BOSHQARUV MARKAZI · SHART DARVOZASI</span>
+          <span className={solved ? 'hero-state' : 'hero-state hero-state-alert'}>
+            {solved ? 'OCHILDI' : 'SHART'}
+          </span>
         </div>
-      </div>;
-    }
-    if (scene === 'inequality-table') {
-      return <div className="conversion-visual" aria-label={t(c.title)}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
-          {[0, 1, 2].map((value, index) => <span key={value} style={{ width: 58, height: 58, borderRadius: 16, display: 'grid', placeItems: 'center', opacity: index <= frame ? 1 : .2, color: index === frame ? '#FFF' : T.navy, background: index === frame ? T.cyan : '#FFF', font: "900 14px 'JetBrains Mono',monospace", transition: 'all .4s ease' }}>x={value}</span>)}
+        <div className="hero-body">
+          <GateConsole open={solved} />
         </div>
-        <RelationCards items={items.slice(0, 4)} frame={frame}/>
-      </div>;
-    }
-    const solvedTheory = ['inequality-boundary', 'inequality-set', 'inequality-growth', 'inequality-algorithm'].includes(scene);
-    const revealSet = solvedTheory && (scene === 'inequality-set' ? frame >= 1 : scene === 'inequality-algorithm' ? frame >= 4 : frame >= 3);
-    const exactSolutions = {
-      'inequality-test-2x': [0, 1, 2, 3, 4],
-      'inequality-test-inclusive': [0, 1, 2, 3, 4],
-      'inequality-test-decreasing': [0, 1, 2, 3, 4],
-      'inequality-case': [3, 4, 5],
-    };
-    const exactSet = exactSolutions[scene] || null;
-    const focusFour = scene === 'inequality-test-boundary';
-    const focusTwo = scene === 'inequality-error';
-    return <div className="conversion-visual" aria-label={t(c.title)}>
-      <div style={{ width: '94%', position: 'relative', display: 'grid', gridTemplateColumns: 'repeat(10,1fr)', gap: 5 }}>
-        <div style={{ position: 'absolute', left: 0, right: 0, top: 16, height: 4, borderRadius: 9, background: '#C9DBDA' }}/>
-        {Array.from({ length: 10 }, (_, index) => {
-          let valid = exactSet ? revealed && exactSet.includes(index) : revealSet && index <= 5;
-          let invalid = exactSet ? revealed && !exactSet.includes(index) : (revealSet && index >= 6) || (focusFour && revealed && index === 4);
-          if (scene === 'inequality-boundary') {
-            valid = frame >= 3 ? index <= 5 : index === 5;
-            invalid = frame >= 3 ? index >= 6 : frame >= 1 && index === 6;
-          } else if (scene === 'inequality-set') {
-            valid = frame >= 1 && index <= 5;
-            invalid = frame >= 2 && index >= 6;
-          }
-          const focused = focusFour && index === 4 || focusTwo && index === 2;
-          const colour = valid ? T.success : invalid ? T.accent : focused ? '#FFC23C' : '#FFF';
-          return <span key={index} style={{ zIndex: 1, display: 'grid', gap: 5, justifyItems: 'center', color: T.navy, font: "900 11px 'JetBrains Mono',monospace" }}><i style={{ width: 20, height: 20, border: '2px solid rgba(23,59,82,.14)', borderRadius: '50%', background: colour, boxShadow: focused ? '0 0 0 7px rgba(255,194,60,.18)' : '0 4px 10px -6px rgba(23,59,82,.6)', transition: 'all .4s ease' }}/>{index}</span>;
-        })}
+        <div className="d47-hero-bit" aria-hidden="true"><BitSVG state={solved ? 'nod' : 'awkward'} /></div>
       </div>
-      <RelationCards items={items.slice(0, 4)} frame={frame}/>
-    </div>;
-  }
-  if (kind === 'addition') {
-    return <div className="conversion-visual" aria-label={t(c.title)}>
-      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-        {items.slice(0, 4).map((item, index) => <span key={index} style={{ minWidth: 78, padding: '13px 10px', borderRadius: 14, opacity: index < shown ? 1 : .18, transform: index < shown ? 'translateY(0)' : 'translateY(8px)', color: index === shown - 1 ? '#FFF' : T.navy, background: index === shown - 1 ? T.cyan : '#FFF', textAlign: 'center', font: "900 13px 'JetBrains Mono',monospace", transition: 'all .4s ease' }}>{item}</span>)}
-      </div>
-    </div>;
-  }
-  if (kind === 'logic') {
-    return <div className="conversion-visual" aria-label={t(c.title)}>
-      <div style={{ width: '100%', display: 'grid', gridTemplateColumns: 'repeat(2,minmax(0,1fr))', gap: 9 }}>
-        {items.slice(0, 4).map((item, index) => <span key={index} style={{ minHeight: 58, padding: 10, borderRadius: 14, display: 'grid', placeItems: 'center', opacity: index < shown ? 1 : .16, color: index === shown - 1 ? '#FFF' : T.ink, background: index === shown - 1 ? T.navy : '#FFF', textAlign: 'center', fontWeight: 850, transition: 'all .4s ease' }}>{item}</span>)}
-      </div>
-    </div>;
-  }
-  if (kind === 'chart') {
-    const heights = [38, 66, 52, 82];
-    return <div className="conversion-visual" aria-label={t(c.title)}>
-      <div style={{ width: '88%', height: 132, padding: '8px 10px 0', borderLeft: '3px solid #173B52', borderBottom: '3px solid #173B52', display: 'flex', alignItems: 'end', justifyContent: 'space-around', gap: 10 }}>
-        {heights.map((height, index) => <i key={index} style={{ width: '17%', height: index < shown ? `${height}%` : '8%', borderRadius: '9px 9px 0 0', background: index === shown - 1 ? T.accent : T.cyan, transition: 'height .65s cubic-bezier(.16,1,.3,1),background .35s ease' }}/>)}
-      </div>
-      <RelationCards items={items.slice(0, 4)} frame={frame}/>
-    </div>;
-  }
-  return <div className="conversion-visual" aria-label={t(c.title)}>
-    <div style={{ width: '100%', display: 'grid', gridTemplateColumns: 'repeat(2,minmax(0,1fr))', gap: 9 }}>
-      {items.slice(0, 4).map((item, index) => <span key={index} style={{ padding: 13, borderRadius: 14, opacity: index < shown ? 1 : .16, transform: index < shown ? 'scale(1)' : 'scale(.94)', color: index === shown - 1 ? '#FFF' : T.navy, background: index === shown - 1 ? T.cyan : '#FFF', textAlign: 'center', fontWeight: 850, transition: 'all .4s ease' }}>{item}</span>)}
-    </div>
-  </div>;
-}
-const RevealFrames = ({ frames, frame }) => { const t = useT(); const currentFrame = Math.max(0, Math.min(frame, frames.length - 1)); return <div className="reveal-grid">{frames.map((item, index) => <div className={index <= frame ? 'reveal-card show' : 'reveal-card'} data-current={index === currentFrame ? 'true' : undefined} key={index}><b>{index + 1}</b><span>{t(item)}</span></div>)}</div>; };
-const GuidedFramePanel = ({ frames, step, onAdvance, audioReady }) => { const t = useT(); const complete = step >= frames.length - 1; return <div className="guided-panel" aria-live="polite"><div className="guided-progress" aria-label={`${step + 1} / ${frames.length}`}>{frames.map((_, index) => <i className={index <= step ? 'active' : ''} key={index}/>)}</div><div className="guided-frame"><b>{step + 1}</b><span>{t(frames[step])}</span></div><div className="guided-action">{complete ? <span className="guided-complete">✓ {t(bi('Bosqichlar tugadi', 'Шаги завершены', 'Steps complete'))}</span> : <button type="button" className="btn-white-accent step-button" disabled={!audioReady} onClick={onAdvance}>{t(bi('Keyingi qadam', 'Следующий шаг', 'Next step'))} →</button>}</div></div>; };
-function HookScreen({ screen, storedAnswer, onAnswer, onPrev, onNext }) { const t = useT(); const c = CONTENT.s0; const audio = useNarration(c.audio, screen); const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null); const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0); const [wrongChoices, setWrongChoices] = useState(storedAnswer?.wrongChoices ?? []); const answerReady = isAudioReady(audio); const correct = picked === HOOK_CORRECT_INDEX; const choose = (index) => { if (!answerReady || correct || wrongChoices.includes(index)) return; const ok = index === HOOK_CORRECT_INDEX; const nextAttempts = attempts + 1; const nextWrongChoices = ok ? wrongChoices : [...wrongChoices, index]; setPicked(index); setAttempts(nextAttempts); setWrongChoices(nextWrongChoices); audio.pushOneOff(t(ok ? c.neutral : HOOK_RETRY_LABEL)); onAnswer({ stage: SCREEN_META[screen].scope, screenIdx: screen, question: t(c.question), options: c.options.map((option) => t(option)), correctIndex: HOOK_CORRECT_INDEX, correctAnswer: t(c.options[HOOK_CORRECT_INDEX]), studentAnswerIndex: index, studentAnswer: t(c.options[index]), correct: ok, firstTry: storedAnswer?.firstTry === false ? false : nextAttempts === 1 && ok, attempts: nextAttempts, wrongChoices: nextWrongChoices }); }; return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={correct}><div className="stack hook-stack" data-g4-screen="hook"><header className="hook-intro"><span data-g4-role="hook-topic">{t(c.eyebrow)}</span><h1 data-g4-role="hook-title">{t(c.title)}</h1><h2 data-g4-role="hook-question">{t(c.question)}</h2></header><section className="hook-card" data-g4-role="hook-scene"><div className="hook-visual-frame" data-g4-role="visual-frame"><div className="hook-visual-content"><div className="hook-model"><ConversionVisual c={c} frame={audio.frame} revealed={false}/></div><RevealFrames frames={c.frames} frame={audio.frame}/></div><div className="hook-bit" data-g4-role="hook-bit"><BitSVG state="think"/></div></div></section><section className="question hook-question hook-answers" aria-live="polite"><div className="options">{c.options.map((option, index) => { const cls = correct && index === HOOK_CORRECT_INDEX ? 'right' : wrongChoices.includes(index) ? 'bad' : ''; return <button type="button" data-g4-role="answer-card" className={'option ' + cls} disabled={!answerReady || correct || wrongChoices.includes(index)} onClick={() => choose(index)} key={index}><b>{String.fromCharCode(65 + index)}</b><span>{t(option)}</span></button>; })}</div><div className="feedback-slot hook-feedback-slot">{picked !== null && <div className={'feedback open ' + (correct ? 'correct' : 'wrong')} data-g4-role={correct ? 'feedback-frame bit-answer-comment' : 'feedback-frame'} data-g4-feedback={correct ? 'solution' : 'wrong'}><div className="feedback-bit-wrap" data-g4-role="feedback-bit"><BitSVG className="feedback-bit" state={correct ? 'nod' : 'awkward'}/></div><p>{correct && <b className="proof-label">{t(SOLUTION_LABEL)}: </b>}{t(correct ? c.neutral : HOOK_RETRY_LABEL)}</p></div>}</div></section></div></Stage>; }
-function InfoScreen({ screen, onPrev, onNext }) { const c = CONTENT[`s${screen}`]; const [step, setStep] = useState(0); const audio = useGuidedNarration(c.audio, screen, step); const complete = step >= c.frames.length - 1; const audioReady = isAudioReady(audio); const advance = () => { if (complete || !audioReady) return; const nextStep = step + 1; setStep(nextStep); audio.speakStep(nextStep); }; const cycle = ['focus', 'point', 'idea']; const bitState = screen === 7 ? 'happy' : cycle[(screen - 1) % cycle.length]; return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={complete}><div className="stack info-stack"><Heading c={c} state={bitState} showBit/><section className="model-card guided-card"><ConversionVisual c={c} frame={step} revealed={false}/><GuidedFramePanel frames={c.frames} step={step} onAdvance={advance} audioReady={audioReady}/></section></div></Stage>; }
-function QuestionScreen({ screen, storedAnswer, onAnswer, onPrev, onNext }) { const t = useT(); const c = CONTENT[`s${screen}`]; const audio = useNarration(c.audio, screen); const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null); const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0); const [wrongChoices, setWrongChoices] = useState(storedAnswer?.wrongChoices ?? []); const revealed = picked !== null; const correct = picked === c.correctIndex; const strategyChoice = SCREEN_META[screen].type === 'strategy'; const activityComplete = strategyChoice ? picked !== null : correct; const canAnswer = isAudioReady(audio); const baseBitState = screen === 12 ? 'awkward' : screen === 13 ? 'point' : 'focus'; const bitState = revealed ? (activityComplete ? 'happy' : 'awkward') : baseBitState; const choose = (index) => { if (!canAnswer || activityComplete || wrongChoices.includes(index)) return; const ok = index === c.correctIndex; const nextAttempts = attempts + 1; const nextWrongChoices = ok || strategyChoice ? wrongChoices : [...wrongChoices, index]; setPicked(index); setAttempts(nextAttempts); setWrongChoices(nextWrongChoices); playSfx(ok || strategyChoice ? 'correct' : 'wrong'); audio.pushOneOff(t(ok || strategyChoice ? c.audio.on_correct : c.feedbackAudio[index])); onAnswer({ stage: SCREEN_META[screen].scope, screenIdx: screen, question: t(c.question), options: c.options.map((option) => t(option)), correctIndex: c.correctIndex, correctAnswer: t(c.options[c.correctIndex]), studentAnswerIndex: index, studentAnswer: t(c.options[index]), correct: strategyChoice || ok, firstTry: strategyChoice ? true : storedAnswer?.firstTry === false ? false : nextAttempts === 1 && ok, attempts: nextAttempts, wrongChoices: nextWrongChoices }); }; const showProof = activityComplete || (!correct && wrongChoices.length >= 2); return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={activityComplete}><div className="stack question-stack"><Heading c={c} state={bitState} showBit/><section className="test-layout"><div className="test-model"><ConversionVisual c={c} frame={audio.frame} revealed={revealed}/><RevealFrames frames={c.frames} frame={audio.frame}/></div><div className="question" aria-live="polite"><h2>{t(c.question)}</h2><div className="options">{c.options.map((option, index) => { const cls = index === c.correctIndex && correct ? 'right' : wrongChoices.includes(index) ? 'bad' : strategyChoice && picked === index ? 'picked' : ''; return <button type="button" className={'option ' + cls} disabled={!canAnswer || activityComplete || wrongChoices.includes(index)} onClick={() => choose(index)} key={index}><b>{String.fromCharCode(65 + index)}</b><span>{t(option)}</span></button>; })}</div><div className="feedback-slot question-feedback-slot">{revealed && <div className="feedback-stack"><div className={'feedback open ' + (activityComplete ? 'correct' : 'wrong')} data-g4-role={activityComplete ? 'feedback-frame bit-answer-comment' : 'feedback-frame'} data-g4-feedback={activityComplete ? 'solution' : 'wrong'}><span className="feedback-bit-wrap" data-g4-role="feedback-bit"><BitSVG state={activityComplete ? 'nod' : 'awkward'}/></span><p>{activityComplete && <b className="proof-label">{t(SOLUTION_LABEL)}: </b>}{t(activityComplete ? c.audio.on_correct : c.audio.on_wrong[picked])}</p></div>{showProof && <div className="proof"><b className="proof-label">{t(SOLUTION_LABEL)}</b><span>{t(c.proof)}</span></div>}</div>}</div></div></section></div></Stage>; }
-const Screen0 = (props) => <HookScreen {...props}/>;
-const Screen1 = (props) => <InfoScreen {...props}/>;
-const Screen2 = (props) => <InfoScreen {...props}/>;
-const Screen3 = (props) => <InfoScreen {...props}/>;
-const Screen4 = (props) => <InfoScreen {...props}/>;
-const Screen5 = (props) => <InfoScreen {...props}/>;
-const Screen6 = (props) => <InfoScreen {...props}/>;
-const Screen7 = (props) => <InfoScreen {...props}/>;
-const Screen8 = (props) => <QuestionScreen {...props}/>;
-const Screen9 = (props) => <QuestionScreen {...props}/>;
-const Screen10 = (props) => <QuestionScreen {...props}/>;
-const Screen11 = (props) => <QuestionScreen {...props}/>;
-const Screen12 = (props) => <QuestionScreen {...props}/>;
-const Screen13 = (props) => <QuestionScreen {...props}/>;
-function Screen14({ screen, answers, onPrev, finishLesson, finalState, onFinalState }) {
-  const t = useT(); const c = CONTENT.s14; const [step, setStep] = useState(finalState.step); const [reflectionChoice, setReflectionChoice] = useState(finalState.reflection); const [titleState, setTitleState] = useState(finalState.titleClaimed ? 'claimed' : 'unclaimed'); const audio = useGuidedNarration(c.audio, screen, step); const complete = step >= c.frames.length - 1; const audioReady = isAudioReady(audio);
-  const advance = () => { if (complete || !audioReady) return; const nextStep = step + 1; setStep(nextStep); onFinalState((previous) => ({ ...previous, step: nextStep })); audio.speakStep(nextStep); };
-  const persistReflection = (index) => { setReflectionChoice(index); onFinalState((previous) => ({ ...previous, reflection: index })); };
-  const claimTitle = () => { if (!complete || reflectionChoice === null || !audioReady || titleState !== 'unclaimed') return; setTitleState('revealing'); };
-  const completeReveal = useCallback(() => { setTitleState('claimed'); onFinalState((previous) => ({ ...previous, titleClaimed: true })); }, [onFinalState]);
-  const finish = () => { if (reflectionChoice === null || titleState !== 'claimed') return; finishLesson(); };
-  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={finish} canAdvance={complete && reflectionChoice !== null} canFinish={titleState === 'claimed'} finish><div className="stack summary-stack"><Heading c={c} state={titleState === 'claimed' ? 'happy' : 'idea'} showBit/>{!complete ? <section className="model-card summary-card guided-card"><ConversionVisual c={c} frame={step} revealed={false}/><GuidedFramePanel frames={c.frames} step={step} onAdvance={advance} audioReady={audioReady}/></section> : <div className="summary-complete"><section className="reflection-card final-reflection" data-g4-role="reflection" aria-live="polite"><h2>{t(REFLECTION.question)}</h2><div className="reflection-options">{REFLECTION.options.map((option, index) => <button type="button" className={'option ' + (reflectionChoice === index ? 'picked' : '')} disabled={!audioReady || titleState === 'revealing'} onClick={() => persistReflection(index)} key={index}><b>{String.fromCharCode(65 + index)}</b><span>{t(option)}</span></button>)}</div></section><G4TitleReveal active={titleState === 'revealing'} title={LESSON_REWARD_TITLE} onComplete={completeReveal}/>{titleState !== 'claimed' ? <section className="title-claim-card"><span>★</span><h2>{t(LESSON_REWARD_TITLE)}</h2><button type="button" data-g4-role="title-claim" className="btn-white-accent g4-title-claim" disabled={reflectionChoice === null || !audioReady || titleState !== 'unclaimed'} onClick={claimTitle}>{t(bi('Unvonni olish', 'Получить звание', 'Claim title'))}</button></section> : null}{titleState === 'claimed' && <G4TitleCard title={LESSON_REWARD_TITLE} answers={answers} canFinish={titleState === 'claimed'}/>}</div>}</div></Stage>;
-}
+    )}
+  />
+);
+const Screen1 = (props) => <RevealScreen {...props} ratio="62 / 17" figure={({ frame }) => <IneqPlates left="5 · x" sign="<" right="35" frame={frame} />} />;
+const Screen2 = (props) => (
+  <ChoiceScreen
+    {...props}
+    ordinal={1}
+    ratio="76 / 21"
+    figure={({ solved, picked }) => (
+      <RecordRow
+        records={['5 · x < 35', '5 · x = 35', '5 · x', '35']}
+        picked={picked}
+        solved={solved}
+        correctIndex={0}
+        width={780}
+        cardW={174}
+        cardH={84}
+        gap={16}
+        top={30}
+        size={18}
+      />
+    )}
+  />
+);
+const Screen3 = (props) => {
+  const t = useT();
+  return (
+    <RevealScreen
+      {...props}
+      ratio="66 / 20"
+      figure={({ frame }) => (
+        <TrialLine
+          from={0}
+          to={4}
+          frame={frame}
+          boundary={2}
+          marks={[
+            { value: 0, verdict: 'true' },
+            { value: 1, verdict: 'true' },
+            { value: 2, verdict: 'false' },
+          ]}
+          label={t({ uz: '3 + x < 5', ru: '3 + x < 5', en: '3 + x < 5' })}
+        />
+      )}
+    />
+  );
+};
+const Screen4 = (props) => {
+  const t = useT();
+  return (
+    <ChoiceScreen
+      {...props}
+      ordinal={1}
+      ratio="66 / 20"
+      figure={({ solved }) => (
+        <TrialLine
+          from={0}
+          to={4}
+          frame={solved ? 9 : 0}
+          boundary={solved ? 2 : null}
+          marks={[
+            { value: 0, verdict: 'true' },
+            { value: 1, verdict: 'true' },
+            { value: 2, verdict: 'false' },
+            { value: 3, verdict: 'false' },
+          ]}
+          label={t({ uz: '6 - x > 4', ru: '6 - x > 4', en: '6 - x > 4' })}
+        />
+      )}
+    />
+  );
+};
+const Screen5 = (props) => {
+  const t = useT();
+  return (
+    <RevealScreen
+      {...props}
+      ratio="66 / 20"
+      figure={({ frame }) => (
+        <TrialLine
+          from={4}
+          to={8}
+          frame={frame}
+          boundary={7}
+          marks={[
+            { value: 5, verdict: 'true' },
+            { value: 6, verdict: 'true' },
+            { value: 7, verdict: 'false' },
+          ]}
+          label={t({ uz: '5 · x < 35', ru: '5 · x < 35', en: '5 · x < 35' })}
+        />
+      )}
+    />
+  );
+};
+const Screen6 = (props) => {
+  const t = useT();
+  return (
+    <NumPadScreen
+      {...props}
+      ratio="66 / 20"
+      figure={({ solved }) => (
+        <TrialLine
+          from={3}
+          to={7}
+          frame={solved ? 9 : 0}
+          boundary={solved ? 6 : null}
+          marks={[
+            { value: 4, verdict: 'true' },
+            { value: 5, verdict: 'true' },
+            { value: 6, verdict: 'false' },
+          ]}
+          label={t({ uz: 'a · 9 < 54', ru: 'a · 9 < 54', en: 'a · 9 < 54' })}
+        />
+      )}
+    />
+  );
+};
+const Screen7 = (props) => {
+  const t = useT();
+  return (
+    <RevealScreen
+      {...props}
+      ratio="66 / 20"
+      figure={({ frame }) => (
+        <TrialLine
+          from={546}
+          to={550}
+          frame={frame}
+          boundary={549}
+          marks={[
+            { value: 547, verdict: 'true' },
+            { value: 548, verdict: 'true' },
+            { value: 549, verdict: 'false' },
+          ]}
+          label={t({ uz: 'x <= 548', ru: 'x <= 548', en: 'x <= 548' })}
+        />
+      )}
+    />
+  );
+};
+const Screen8 = (props) => {
+  const t = useT();
+  return (
+    <ChoiceScreen
+      {...props}
+      ordinal={2}
+      ratio="66 / 20"
+      figure={({ solved }) => (
+        <TrialLine
+          from={546}
+          to={550}
+          frame={solved ? 9 : 0}
+          boundary={solved ? 549 : null}
+          marks={[
+            { value: 547, verdict: 'true' },
+            { value: 548, verdict: 'true' },
+            { value: 549, verdict: 'false' },
+          ]}
+          label={t({ uz: 'x <= 548', ru: 'x <= 548', en: 'x <= 548' })}
+        />
+      )}
+    />
+  );
+};
+const Screen9 = (props) => {
+  const t = useT();
+  return (
+    <RevealScreen
+      {...props}
+      ratio="66 / 20"
+      figure={({ frame }) => (
+        <TrialLine
+          from={3}
+          to={7}
+          frame={frame}
+          boundary={5}
+          marks={[
+            { value: 4, verdict: 'false' },
+            { value: 5, verdict: 'false' },
+            { value: 6, verdict: 'true' },
+          ]}
+          label={t({ uz: '7 · y > 35', ru: '7 · y > 35', en: '7 · y > 35' })}
+        />
+      )}
+    />
+  );
+};
+const Screen10 = (props) => {
+  const t = useT();
+  return (
+    <ChoiceScreen
+      {...props}
+      ordinal={4}
+      ratio="66 / 20"
+      figure={({ solved }) => (
+        <TrialLine
+          from={2}
+          to={7}
+          frame={solved ? 9 : 0}
+          boundary={solved ? 5 : null}
+          marks={[
+            { value: 3, verdict: 'false' },
+            { value: 4, verdict: 'false' },
+            { value: 5, verdict: 'false' },
+            { value: 6, verdict: 'true' },
+          ]}
+          label={t({ uz: '7 · y > 35', ru: '7 · y > 35', en: '7 · y > 35' })}
+        />
+      )}
+    />
+  );
+};
+const Screen11 = (props) => <RevealScreen {...props} plain ratio="auto" figure={({ frame }) => <RuleCard frame={frame} />} />;
+const Screen12 = (props) => {
+  const t = useT();
+  return (
+    <ChoiceScreen
+      {...props}
+      ordinal={5}
+      ratio="66 / 20"
+      figure={({ solved }) => (
+        <TrialLine
+          from={0}
+          to={6}
+          frame={solved ? 9 : 1}
+          boundary={solved ? 5 : null}
+          marks={[
+            { value: 0, verdict: 'true' },
+            { value: 1, verdict: 'true' },
+            { value: 2, verdict: 'true' },
+            { value: 3, verdict: 'true' },
+            { value: 4, verdict: 'true' },
+            { value: 5, verdict: 'false' },
+          ]}
+          label={t({ uz: 'x < 5', ru: 'x < 5', en: 'x < 5' })}
+        />
+      )}
+    />
+  );
+};
+const Screen13 = (props) => {
+  const t = useT();
+  return (
+    <ChoiceScreen
+      {...props}
+      plain
+      ratio="auto"
+      ordinal={6}
+      figure={({ solved, picked }) => (
+        <StepList
+          steps={CONTENT.s13.steps.map((step) => t(step))}
+          badIndex={2}
+          revealBad={solved}
+          badLabel={t({ uz: 'xato shu yerda', ru: 'ошибка здесь', en: 'the error is here' })}
+          showHint={picked !== null && !solved}
+          hint={t({
+            uz: 'Uchinchi qatorni diqqat bilan o\'qing: bir son o\'zidan kichik bo\'la oladimi?',
+            ru: 'Прочитай третью строку внимательно: может ли число быть меньше самого себя?',
+            en: 'Read the third line carefully: can a number be less than itself?',
+          })}
+        />
+      )}
+    />
+  );
+};
+const Screen14 = (props) => (
+  <ChoiceScreen
+    {...props}
+    ordinal={7}
+    ratio="72 / 21"
+    figure={({ solved, picked }) => (
+      <RecordRow
+        records={['6 · 5 = 30', '7 · 5 = 35', '8 · 5 = 40']}
+        picked={picked}
+        solved={solved}
+        correctIndex={0}
+        width={720}
+        cardW={210}
+        cardH={92}
+        gap={24}
+        top={34}
+        size={19}
+      />
+    )}
+  />
+);
+const Screen15 = (props) => <SummaryScreen {...props} />;
 
-const SCREENS = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14];
-export default function Grade4Dars47({ studentName, lang: langProp, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished, previewMode }) { const showPreviewControls = langProp === undefined || langProp === null; const preview = previewMode ?? showPreviewControls; const initialLang = normalizeLang(langProp); const [previewLang, setPreviewLang] = useState(initialLang); const lang = showPreviewControls ? normalizeLang(previewLang) : normalizeLang(langProp); configureLesson({ ttsApiBase: ttsApiBase || '', voiceGender: voiceGender || 'f', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', previewMode: preview }); const [current, setCurrent] = useState(0); const [answers, setAnswers] = useState([]); const [finalState, setFinalState] = useState({ step: 0, reflection: null, titleClaimed: false }); const [startedAt] = useState(() => Date.now()); const finished = useRef(false); const recordAnswer = useCallback((answer) => setAnswers((previous) => { const next = [...previous]; const old = previous[answer.screenIdx]; next[answer.screenIdx] = { ...answer, firstTry: old ? old.firstTry : answer.firstTry }; return next; }), []); const finishLesson = useCallback(() => { if (finished.current) return; finished.current = true; const scored = SCREEN_META.map((meta, index) => meta.scored ? index : null).filter((index) => index !== null); const firstTryCorrect = scored.filter((index) => answers[index]?.firstTry === true).length; const payload = { lessonId: LESSON_META.lessonId, lessonTitle: LESSON_META.lessonTitle[lang], studentName: studentName || null, durationSec: Math.floor((Date.now() - startedAt) / 1000), totalQuestions: scored.length, correctAnswers: firstTryCorrect, scorePercent: Math.round(firstTryCorrect / scored.length * 100), finalScore: firstTryCorrect, finalTotal: scored.length, passed: firstTryCorrect / scored.length >= 0.6, firstTryStats: { total: scored.length, firstTryCorrect }, attemptsTotal: scored.reduce((sum, index) => sum + (answers[index]?.attempts ?? 0), 0), skillTags: LESSON_META.skillTags, answers: answers.filter(Boolean) }; if (onFinished) onFinished(payload); else console.log('[Grade4 Dars47 preview]', payload); }, [answers, lang, onFinished, startedAt, studentName]); const Current = SCREENS[current]; return <LangContext.Provider value={lang}><style>{STYLES}</style><div className={'lesson-root ' + (preview ? 'lesson-root-preview' : '')}>{showPreviewControls && <div className="preview-language" aria-label={bi("Ko'rish tili", 'Язык предпросмотра', 'Preview language')[lang]}>{['uz', 'ru', 'en'].map((code) => <button type="button" key={code} className={previewLang === code ? 'preview-active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}<Current key={current} finalState={finalState} onFinalState={setFinalState} screen={current} storedAnswer={answers[current]} answers={answers} onAnswer={recordAnswer} onPrev={() => setCurrent((value) => Math.max(0, value - 1))} onNext={() => setCurrent((value) => Math.min(TOTAL_SCREENS - 1, value + 1))} finishLesson={finishLesson}/></div></LangContext.Provider>; }
+const SCREENS = [
+  Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7,
+  Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14, Screen15,
+];
 
-const G4_TITLE_STYLES = `
-.g4-title-reveal-overlay{
-  position:fixed;inset:0;z-index:120;padding:0;display:grid;place-items:center;overflow:hidden;overscroll-behavior:contain;pointer-events:none;
-  background:rgba(8,13,24,.64);backdrop-filter:blur(2px) saturate(.78);animation:g4-title-reveal-overlay-life 3.8s ease both
+const LESSON_STYLES = `
+.d47-hero-bit {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 60px;
+  height: 75px;
+  transform: translateY(-50%);
+  pointer-events: none;
 }
-.g4-title-reveal-card{
-  position:relative;isolation:isolate;width:100%;min-height:100dvh;padding:36px 24px;border:0;border-radius:0;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;overflow:hidden;color:#FFF;text-align:center;
-  background:radial-gradient(circle at 50% 50%,rgba(255,214,80,.17),transparent 31%)
-}
-.g4-title-reveal-card::after{
-  content:"";position:absolute;z-index:0;top:50%;left:50%;width:min(440px,82vw);height:min(440px,82vw);border-radius:50%;
-  background:radial-gradient(circle,rgba(255,222,105,.17),transparent 68%);transform:translate(-50%,-50%);pointer-events:none
-}
-.g4-title-reveal-rays{
-  position:absolute;z-index:0;top:50%;left:50%;width:160vmax;height:160vmax;border-radius:50%;opacity:.28;
-  background:repeating-conic-gradient(from -4deg,rgba(255,218,91,.88) 0 8deg,transparent 8deg 20deg);
-  transform:translate(-50%,-50%);
-  animation:g4-title-reveal-rays-in .8s cubic-bezier(.16,1,.3,1) both,g4-title-reveal-rays-spin 26s linear .8s 1 both
-}
-.g4-title-reveal-medal{
-  position:absolute;top:50%;left:50%;z-index:2;width:112px;height:112px;margin:0;border:6px solid rgba(255,255,255,.72);border-radius:50%;
-  display:grid;place-items:center;color:#653C00;background:linear-gradient(145deg,#FFF2A0,#FFC13B);
-  box-shadow:0 0 0 13px rgba(255,255,255,.09),0 0 54px 10px rgba(255,204,63,.38),0 22px 38px -18px rgba(0,0,0,.7);
-  font-size:52px;transform:translate(-50%,-50%);animation:g4-title-reveal-medal-in 1s cubic-bezier(.16,1,.3,1) .15s both
-}
-.g4-title-reveal-card h2{
-  position:absolute;top:calc(50% + 82px);left:50%;z-index:2;width:min(680px,calc(100vw - 48px));margin:0;
-  font-family:'Source Serif 4',Georgia,serif;font-size:clamp(34px,5vw,58px);line-height:1.02;text-shadow:0 4px 24px rgba(0,0,0,.72);
-  transform:translateX(-50%);animation:g4-title-reveal-title-in .7s ease .52s both
-}
-.g4-title-reveal-confetti{position:absolute;inset:0;pointer-events:none}
-.g4-title-reveal-confetti i{
-  position:absolute;top:-20px;left:calc(3% + var(--g4-title-i) * 5.35%);width:8px;height:14px;border-radius:2px;background:#FFE284;
-  animation:g4-title-reveal-confetti-fall 2.4s linear var(--g4-title-delay) 2 both
-}
-.g4-title-reveal-confetti i:nth-child(3n+2){background:#FF7050}.g4-title-reveal-confetti i:nth-child(3n){background:#77E1EA}
-.g4-title-card-stage{
-  position:relative;width:100%;min-height:116px;margin:0;padding:12px 82px 11px 67px;border-radius:17px;
-  display:flex;flex-direction:column;justify-content:center;gap:4px;overflow:hidden;color:#FFF;
-  background:radial-gradient(circle at 82% 20%,rgba(255,194,60,.26),transparent 30%),linear-gradient(135deg,#173B52,#0E6978);
-  box-shadow:0 28px 58px -27px rgba(22,143,163,.8);transform:translateY(-2px)
-}
-.g4-title-card-bit{position:absolute;right:3px;bottom:2px;width:72px;height:90px;animation:g4-title-card-bit-float 2.8s ease-in-out 1 both}
-.g4-title-card-bit .g1-char{width:100%;height:100%}
-.g4-title-card-medal{
-  position:absolute;left:11px;top:50%;width:44px;height:44px;border:3px solid rgba(255,255,255,.58);border-radius:50%;
-  display:grid;place-items:center;transform:translateY(-50%);color:#5A3A00;background:linear-gradient(145deg,#FFE284,#FFC23C);
-  box-shadow:0 0 0 8px rgba(255,255,255,.08),0 15px 30px -15px rgba(0,0,0,.6);font-size:19px
-}
-.g4-title-card-kicker{color:#A8EAF0;font:900 10px 'JetBrains Mono',monospace;letter-spacing:.13em}
-.g4-title-card-stage h2{max-width:590px;margin:0;font:750 clamp(16px,2.2vw,21px)/1.05 'Source Serif 4',Georgia,serif}
-.g4-title-card-score{
-  align-self:flex-start;margin-top:5px;padding:5px 9px;border-radius:10px;display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.10)
-}
-.g4-title-card-score strong{color:#FFE284;font-family:'JetBrains Mono',monospace}.g4-title-card-score span{color:rgba(255,255,255,.72);font-size:9px}
-.g4-title-card-confetti{position:absolute;inset:0;pointer-events:none}
-.g4-title-card-confetti i{position:absolute;top:-16px;width:7px;height:12px;border-radius:2px;animation:g4-title-card-confetti-fall 2.4s linear 2 both}
-.g4-title-card-confetti i:nth-child(4n+1){background:#FFC23C}.g4-title-card-confetti i:nth-child(4n+2){background:#FF5B35}.g4-title-card-confetti i:nth-child(4n+3){background:#77E1EA}.g4-title-card-confetti i:nth-child(4n){background:#95C93D}
-.g4-title-card-confetti i:nth-child(1){left:8%;animation-delay:-.3s}.g4-title-card-confetti i:nth-child(2){left:17%;animation-delay:-1.1s}.g4-title-card-confetti i:nth-child(3){left:29%;animation-delay:-.7s}.g4-title-card-confetti i:nth-child(4){left:41%;animation-delay:-1.7s}.g4-title-card-confetti i:nth-child(5){left:52%;animation-delay:-.2s}.g4-title-card-confetti i:nth-child(6){left:63%;animation-delay:-1.3s}.g4-title-card-confetti i:nth-child(7){left:73%;animation-delay:-.8s}.g4-title-card-confetti i:nth-child(8){left:84%;animation-delay:-1.9s}.g4-title-card-confetti i:nth-child(9){left:12%;animation-delay:-2s}.g4-title-card-confetti i:nth-child(10){left:36%;animation-delay:-1.4s}.g4-title-card-confetti i:nth-child(11){left:68%;animation-delay:-.5s}.g4-title-card-confetti i:nth-child(12){left:91%;animation-delay:-1.6s}
-@keyframes g4-title-reveal-overlay-life{0%{opacity:0}12%,84%{opacity:1}100%{opacity:0}}
-@keyframes g4-title-reveal-medal-in{from{opacity:0;transform:translate(-50%,-50%) scale(.25) rotate(-25deg)}to{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0)}}
-@keyframes g4-title-reveal-title-in{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}
-@keyframes g4-title-reveal-rays-in{from{opacity:0;transform:translate(-50%,-50%) scale(.5)}to{opacity:.28;transform:translate(-50%,-50%) scale(1)}}
-@keyframes g4-title-reveal-rays-spin{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}
-@keyframes g4-title-reveal-confetti-fall{to{transform:translateY(470px) rotate(560deg)}}
-@keyframes g4-title-card-confetti-fall{to{transform:translateY(230px) rotate(460deg)}}
-@keyframes g4-title-card-bit-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-@media(max-width:639.98px){
-  .g4-title-reveal-card{min-height:100dvh;padding:24px 18px}
-  .g4-title-reveal-medal{width:88px;height:88px;border-width:5px;font-size:40px}
-  .g4-title-reveal-card h2{top:calc(50% + 62px);font-size:29px}
-  .g4-title-card-stage{min-height:88px;padding:9px 59px 8px 51px;border-radius:14px}
-  .g4-title-card-medal{left:8px;width:34px;height:34px;font-size:14px}
-  .g4-title-card-bit{width:57px;height:71px}
-  .g4-title-card-stage h2{font-size:14px}
-}
-
-/* Dars01 contract retrofit: fixed viewport, reserved feedback/caption slots, no internal scroll. */
-.hook-question .option{font-size:14px}
-.lesson-frame .preview-language{display:none!important}
-.lesson-root{height:100dvh;min-height:0;overflow:hidden}
-.stage{width:min(936px,100%);height:100dvh;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr) auto;overflow:hidden}
-.stage-header{min-height:0;padding-top:9px}.stage-chrome{min-height:48px}
-.stage-content{min-height:0;padding-top:7px;padding-bottom:4px;display:grid;grid-template-rows:minmax(0,1fr) 40px;overflow:hidden}.stage-body{min-height:0;overflow:hidden}.caption-slot{height:40px;min-height:40px;padding-top:4px;overflow:hidden}.caption{position:static;height:36px;margin:0;padding:7px 11px;border-radius:12px;overflow:hidden;color:#fff;background:rgba(23,59,82,.94);font-size:11px;line-height:1.2;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}.stage-nav{min-height:62px}
-.btn-white-accent,.btn-ghost{min-width:128px;min-height:50px}.btn-white-accent:hover:not(:disabled){color:#fff;background:${T.accent}}.btn-white-accent:disabled,.btn-ghost:disabled,.option:disabled{cursor:not-allowed;opacity:.48;transform:none}
-.stack{height:100%;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr);gap:10px;overflow:hidden}.hook-stack{grid-template-rows:auto minmax(0,.82fr) minmax(0,1.18fr)}.heading{height:68px;min-height:0;overflow:hidden}.heading>div{min-width:0}.heading h1{font-size:clamp(24px,4vw,36px)}.heading .g1-char{width:62px;height:76px}
-.model-card,.question,.test-model{min-height:0;padding:14px;border-radius:20px;overflow:hidden}.model-card{height:100%;grid-template-columns:minmax(250px,.9fr) minmax(300px,1.1fr);align-items:stretch;gap:14px}.topic-visual,.conversion-visual{width:100%;height:100%;min-height:0;padding:8px;border-radius:18px;display:grid;place-items:center;overflow:hidden;background:linear-gradient(145deg,${T.cyanSoft},#FFF)}.topic-visual svg{width:100%;height:100%;min-height:0;max-height:220px}
-.reveal-grid{min-height:0;align-content:center;gap:7px;overflow:hidden}.reveal-card{min-height:44px;padding:7px 10px}
-.question{height:100%;grid-template-rows:auto auto minmax(92px,1fr);align-content:start;gap:9px}.question h2{font-size:clamp(16px,2.5vw,21px);line-height:1.22}.options{gap:8px}.option{min-height:50px;padding:8px;border-radius:14px}
-.feedback-slot{min-height:0;overflow:hidden}.feedback-stack{height:100%;display:grid;align-content:start;gap:6px;overflow:hidden}.feedback{padding:8px 10px;border-radius:13px;grid-template-columns:25px 1fr;align-items:start;gap:7px;font-size:12px;line-height:1.22}.feedback-bit{width:25px!important;height:31px!important}.proof{padding:7px 10px;border-radius:11px;overflow:hidden;font-size:12px;line-height:1.2}.proof-label{margin-right:7px;color:${T.lime}}
-.test-layout{height:100%;min-height:0;grid-template-columns:.86fr 1.14fr;gap:10px;overflow:hidden}.test-model{grid-template-rows:minmax(0,1fr) auto;align-content:stretch;gap:8px}.question-feedback-slot{min-height:92px}.hook-feedback-slot{min-height:58px}
-.guided-panel{min-height:0;display:grid;grid-template-rows:10px minmax(72px,1fr) 50px;gap:10px;overflow:hidden}.guided-progress{display:flex;align-items:center;gap:6px}.guided-progress i{height:6px;flex:1;border-radius:999px;background:#DDE5E3}.guided-progress i.active{background:${T.cyan}}.guided-frame{min-height:72px;padding:12px;border-radius:16px;display:grid;grid-template-columns:34px 1fr;align-items:center;gap:10px;overflow:hidden;background:#F8F8F4;font-weight:850}.guided-frame>b{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;color:#fff;background:${T.cyan};font:900 12px 'JetBrains Mono',monospace}.guided-action{display:flex;align-items:center;justify-content:flex-end;min-height:50px}.step-button{min-width:150px}.guided-complete{padding:10px 12px;border-radius:12px;color:${T.success};background:${T.successSoft};font-size:12px;font-weight:900}
-.summary-complete{height:100%;min-height:0;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:10px;overflow:hidden}.reflection-card{min-height:0;padding:14px;border-radius:20px;display:grid;grid-template-rows:auto minmax(0,1fr);gap:9px;overflow:hidden;background:#fff}.reflection-card h2{font:720 18px/1.22 'Source Serif 4',Georgia,serif}.reflection-options{min-height:0;display:grid;grid-template-rows:repeat(3,minmax(44px,1fr));gap:7px;overflow:hidden}
-.title-claim-card,.g4-title-card{height:100%;min-height:0;padding:14px;border-radius:20px;background:#fff;overflow:hidden}.title-claim-card{display:grid;place-items:center;align-content:center;gap:9px;text-align:center}.title-claim-card>span{font-size:42px;color:#FFCE49}.g4-title-card{display:grid;grid-template-columns:58px 1fr;align-items:center;gap:10px}.g4-title-card-medal{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;color:#fff;background:${T.accent};font-size:27px}.g4-title-card span,.g4-title-card p{font-size:11px;font-weight:800}.g4-title-card h2{font:720 20px/1.1 'Source Serif 4',Georgia,serif}
-@media(max-width:639.98px){.lesson-root-preview .stage-header{padding-top:52px}.screen-type{display:none}.stage{width:min(390px,100%)}.stage-header{padding-top:6px}.stage-chrome{min-height:46px}.chrome-title{max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px}.chrome-actions{gap:4px}.screen-count{padding:4px 6px;font-size:9px}.audio-indicator{height:46px;padding:1px 3px}.audio-indicator button{width:44px;height:44px}.stage-content{grid-template-rows:minmax(0,1fr) 38px;padding-top:5px;padding-bottom:2px}.caption-slot{height:38px;min-height:38px;padding-top:3px}.caption{height:35px;padding:6px 9px;font-size:10px}.stage-nav{min-height:58px}.btn-white-accent,.btn-ghost{min-width:108px;min-height:48px;padding:0 10px;font-size:12px}.stack{gap:7px}.heading{height:56px;gap:8px}.heading h1{font-size:clamp(20px,6vw,24px)}.heading .g1-char{width:48px;height:60px}.model-card,.question,.test-model,.reflection-card{padding:8px;border-radius:15px}.model-card{grid-template-columns:minmax(126px,.86fr) minmax(156px,1.14fr);gap:7px}.hook-stack{grid-template-rows:auto minmax(0,.78fr) minmax(0,1.22fr)}.hook-question{grid-template-rows:auto auto minmax(52px,1fr)}.hook-question .options{grid-template-columns:repeat(3,minmax(0,1fr))}.hook-question .option{grid-template-columns:1fr;justify-items:center;align-content:center;text-align:center}.hook-question .option>b{display:none}.question h2{font-size:14px;line-height:1.16}.options{grid-template-columns:1fr;gap:5px}.option{min-height:44px;padding:5px 6px;border-radius:11px;grid-template-columns:24px 1fr;gap:5px;font-size:11px;line-height:1.15}.option>b{width:24px;height:24px}.feedback{padding:6px 7px;grid-template-columns:20px 1fr;gap:5px;font-size:10px}.proof{padding:5px 7px;font-size:9px}.test-layout{grid-template-columns:minmax(118px,.78fr) minmax(170px,1.22fr);gap:7px}.test-model{padding:6px}.test-model .reveal-grid{display:none}.question-feedback-slot{min-height:84px}.hook-feedback-slot{min-height:52px}.topic-visual,.conversion-visual{height:100%;min-height:0;padding:5px;border-radius:13px}.topic-visual svg{max-height:160px}.guided-panel{grid-template-rows:8px minmax(58px,1fr) 46px;gap:7px}.guided-frame{min-height:58px;padding:8px;border-radius:13px;grid-template-columns:29px 1fr;gap:7px;font-size:11px}.guided-frame>b{width:29px;height:29px}.guided-action{min-height:46px}.step-button{min-width:124px}.guided-complete{padding:8px;font-size:10px}.summary-complete{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) 92px;gap:7px}.reflection-card h2{font-size:14px}.reflection-options{gap:5px}.title-claim-card,.g4-title-card{height:92px;padding:8px;border-radius:15px}.title-claim-card{grid-template-columns:32px 1fr auto;gap:7px;text-align:left}.title-claim-card>span{font-size:28px}.title-claim-card h2{font-size:14px}.g4-title-card{grid-template-columns:46px 1fr}.g4-title-card-medal{width:44px;height:44px}.preview-language{top:7px;left:50%;right:auto;transform:translateX(-50%)}}
-@media(max-height:700px){.stage-header{padding-top:4px}.stage-chrome{min-height:44px}.stage-content{grid-template-rows:minmax(0,1fr) 34px}.caption-slot{height:34px;min-height:34px}.caption{height:31px;padding:5px 8px}.stage-nav{min-height:56px}.heading{height:52px}.heading .g1-char{width:44px;height:55px}.stack{gap:6px}.model-card,.question,.test-model,.reflection-card{padding:7px}.question-feedback-slot{min-height:78px}.hook-feedback-slot{min-height:48px}.guided-panel{grid-template-rows:7px minmax(52px,1fr) 44px;gap:5px}.guided-action{min-height:44px}.step-button{min-height:44px}.summary-complete{grid-template-rows:minmax(0,1fr) 82px}.title-claim-card,.g4-title-card{height:82px}}
-.summary-complete .reflection-card{grid-column:1;grid-row:1/-1}.summary-complete .title-claim-card,.summary-complete .g4-title-card{grid-column:2;grid-row:1/-1}.summary-complete .title-claim-card{display:grid!important;visibility:visible!important;opacity:1!important;min-height:82px}.summary-complete .g4-title-claim{display:inline-flex!important;visibility:visible!important;opacity:1!important;align-items:center;justify-content:center}
-@media(max-width:639.98px){.summary-complete .reflection-card{grid-column:1;grid-row:1}.summary-complete .title-claim-card,.summary-complete .g4-title-card{grid-column:1;grid-row:2}}
-@media(prefers-reduced-motion:reduce){.lesson-root *{animation:none!important;transition:none!important}
-
-  .g4-title-reveal-overlay,.g4-title-reveal-overlay *,.g4-title-card-stage,.g4-title-card-stage *{animation:none!important;transition:none!important}
-  .g4-title-reveal-confetti,.g4-title-card-confetti{display:none!important}
-  .g4-title-reveal-rays{opacity:.28!important;transform:translate(-50%,-50%)!important}
-  .g4-title-reveal-medal{opacity:1!important;transform:translate(-50%,-50%)!important}
-  .g4-title-reveal-card h2{opacity:1!important;transform:translateX(-50%)!important}
-  .g4-title-card-stage{transform:none!important}
-}
+.d47-hero-bit svg { width: 100%; height: 100%; }
 `;
 
-const STYLES = `${G4_TITLE_STYLES}
-.stage-hook .hook-card{position:relative;isolation:isolate;overflow:hidden;border:1px solid rgba(144,228,235,.12);border-radius:24px;background:radial-gradient(circle at 87% 24%,rgba(121,211,218,.16),transparent 24%),radial-gradient(circle at 9% 88%,rgba(149,201,61,.11),transparent 25%),linear-gradient(145deg,rgba(22,143,163,.25),transparent 48%),linear-gradient(135deg,#153B50,#0B2232 72%);box-shadow:0 22px 50px -30px rgba(14,33,44,.75)}
-html:has(.lesson-root),body:has(.lesson-root),#root:has(.lesson-root),.lesson-page:has(.lesson-root),.lesson-frame:has(.lesson-root){width:100%;height:100%;min-height:0!important;margin:0;overflow:hidden!important;overscroll-behavior:none}.lesson-root,.lesson-root *{box-sizing:border-box}.lesson-root h1,.lesson-root h2,.lesson-root p{margin:0}.lesson-root button{font:inherit}.lesson-root{position:fixed;inset:0;width:100%;min-height:100dvh;color:${T.ink};background:radial-gradient(circle at 88% 9%,rgba(22,143,163,.11),transparent 25%),linear-gradient(145deg,#F7F8F4,#EEF3F1);font-family:'Manrope',system-ui,sans-serif}.stage{width:min(936px,100%);height:100dvh;margin:0 auto;display:flex;flex-direction:column;background:rgba(245,245,240,.92);box-shadow:0 0 50px -34px rgba(${T.shadowBase},.45)}.stage-header{flex:0 0 auto;padding-top:14px;background:rgba(245,245,240,.96);backdrop-filter:blur(10px);z-index:5}.progress-track{height:7px;border-radius:999px;overflow:hidden;background:#DDE5E3}.progress-fill{height:100%;border-radius:inherit;background:linear-gradient(90deg,${T.cyan},${T.lime});transition:width .45s ease}.progress-bar{box-shadow:0 0 15px rgba(22,143,163,.34)}.stage-chrome{min-height:54px;display:flex;align-items:center;justify-content:space-between;gap:12px}.chrome-title,.chrome-actions{display:flex;align-items:center;gap:9px}.chrome-title{color:${T.navy};font-size:12px;font-weight:900}.status-dot{width:9px;height:9px;border-radius:50%;background:${T.accent};box-shadow:0 0 0 5px rgba(255,91,53,.1)}.screen-type,.screen-count{padding:5px 9px;border-radius:999px;color:${T.cyan};background:${T.cyanSoft};font-size:10px;font-weight:900}.screen-count{color:${T.ink2};background:#FFF}.audio-indicator{height:38px;padding:3px 6px;border-radius:13px;display:flex;align-items:center;gap:4px;background:#FFF;box-shadow:0 9px 20px -17px rgba(${T.shadowBase},.6)}.audio-indicator button{width:31px;height:31px;border:0;border-radius:9px;background:transparent;cursor:pointer}.audio-wave{height:20px;display:flex;align-items:center;gap:2px}.audio-wave i{width:3px;height:6px;border-radius:4px;background:${T.cyan};transition:.25s}.audio-wave.playing i:nth-child(1){height:12px}.audio-wave.playing i:nth-child(2){height:18px}.audio-wave.playing i:nth-child(3){height:9px}
-.stage-content{flex:1 1 auto;min-height:0;padding-top:10px;padding-bottom:16px;overflow-y:hidden}.stage-nav{flex:0 0 auto;min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(245,245,240,.95)}.btn-white-accent,.btn-ghost{min-width:128px;min-height:50px;padding:0 18px;border:0;border-radius:15px;cursor:pointer;font-weight:900}.btn-white-accent{color:${T.accent};background:#fff;box-shadow:0 12px 24px -17px rgba(255,91,53,.8)}.btn-white-accent:hover{color:#fff;background:${T.accent}}.btn-ghost{color:${T.ink2};background:transparent}.btn-ghost:hover{background:#fff}.stack{display:grid;gap:14px;animation:page-in .45s cubic-bezier(.16,1,.3,1) both}.heading{min-height:78px;display:flex;align-items:center;justify-content:space-between;gap:16px}.heading.heading-solo{justify-content:flex-start}.heading>div>span{color:${T.cyan};font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.heading h1{margin-top:4px!important;font:750 clamp(25px,4vw,38px)/1.06 'Source Serif 4',Georgia,serif}.heading .g1-char{width:78px;height:98px;flex:0 0 auto;filter:drop-shadow(0 9px 11px rgba(23,59,82,.2))}.model-card,.question,.test-model{padding:18px;border-radius:22px;background:rgba(255,255,255,.9);box-shadow:0 18px 34px -28px rgba(${T.shadowBase},.48)}.model-card{display:grid;grid-template-columns:minmax(250px,.85fr) minmax(300px,1.15fr);align-items:center;gap:18px}.hook-card{background:linear-gradient(135deg,${T.cyanSoft},#FFF)}.summary-card{background:linear-gradient(135deg,#FFF,${T.successSoft})}.reveal-grid{display:grid;gap:8px}.reveal-card{min-height:48px;padding:9px 12px;border-radius:14px;display:grid;grid-template-columns:30px 1fr;align-items:center;gap:9px;opacity:.12;transform:translateY(7px);background:#F8F8F4;transition:.38s ease}.reveal-card.show{opacity:1;transform:none}.reveal-card>b{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;color:#FFF;background:${T.cyan};font:900 10px 'JetBrains Mono',monospace}.reveal-card:last-child.show{background:${T.cyanSoft}}.question{display:grid;gap:13px}.question h2{font:720 clamp(17px,2.5vw,22px)/1.25 'Source Serif 4',Georgia,serif}.options{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.option{min-height:58px;padding:10px;border:0;border-radius:16px;display:grid;grid-template-columns:28px 1fr;align-items:center;gap:8px;color:${T.ink};background:#F8F8F4;text-align:left;cursor:pointer;transition:.25s}.option:hover{transform:translateY(-2px)}.option>b{width:27px;height:27px;border-radius:9px;display:grid;place-items:center;color:${T.cyan};background:${T.cyanSoft};font:900 11px 'JetBrains Mono',monospace}.option.picked{background:${T.accentSoft};box-shadow:inset 0 0 0 2px rgba(255,91,53,.27)}.option.right{background:${T.successSoft};box-shadow:inset 0 0 0 2px rgba(34,122,83,.25)}.option.bad{background:${T.warnSoft};box-shadow:inset 0 0 0 2px rgba(169,111,19,.25)}.feedback{padding:12px 14px;border-radius:15px;display:grid;grid-template-columns:28px 1fr;gap:9px}.feedback.correct{background:${T.successSoft};box-shadow:inset 4px 0 ${T.success}}.feedback.wrong{background:${T.warnSoft};box-shadow:inset 4px 0 ${T.warn}}.feedback.neutral{background:${T.cyanSoft};box-shadow:inset 4px 0 ${T.cyan}}.proof{padding:11px 14px;border-radius:13px;color:#FFF;background:${T.navy};text-align:center;font:900 15px 'JetBrains Mono',monospace}.test-layout{display:grid;grid-template-columns:.85fr 1.15fr;gap:14px}.test-model{display:grid;align-content:center;gap:12px}.caption{position:static;bottom:4px;margin-top:12px;padding:9px 13px;border-radius:13px;color:#fff;background:rgba(23,59,82,.94);font-size:12px;z-index:3}
-.conversion-visual{min-height:210px;padding:14px;border-radius:20px;display:grid;place-items:center;gap:12px;background:linear-gradient(145deg,${T.cyanSoft},#FFF)}.relation-cards{width:100%;display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.relation-cards span{padding:12px 8px;border-radius:13px;opacity:.18;background:#FFF;text-align:center;font:900 12px 'JetBrains Mono',monospace;transition:.35s}.relation-cards span.active{opacity:1;color:#FFF;background:${T.cyan}}.console-screen{padding:13px 24px;border-radius:14px;color:#FFF;background:${T.navy};font:900 25px 'JetBrains Mono',monospace}.cross{position:absolute;color:${T.accent};font-size:84px;font-weight:900;opacity:0;transform:scale(.6) rotate(-15deg);transition:.4s}.cross.show{opacity:.85;transform:scale(1) rotate(-15deg)}.console{position:relative}.tape-line{width:260px;height:28px;padding:4px;border-radius:10px;background:#FFF}.tape-line i{height:100%;display:block;border-radius:7px;background:${T.cyan};transition:.5s}.tape strong{font:900 18px 'JetBrains Mono',monospace}.area-grid>div{width:150px;height:150px;padding:3px;display:grid;grid-template-columns:repeat(10,1fr);gap:2px;border:3px solid ${T.navy};border-radius:12px;background:#FFF}.area-grid i{border-radius:2px;background:#DDE7E6;transition:.35s}.area-grid i.active{background:${T.cyan}}.area-grid strong{font:900 14px 'JetBrains Mono',monospace}.algorithm{align-content:center}.algorithm span{width:min(380px,100%);padding:10px 14px;border-radius:12px;opacity:.16;background:#FFF;text-align:center;font:900 13px 'JetBrains Mono',monospace;transition:.35s}.algorithm span.active{opacity:1}.algorithm span:last-child.active{color:#FFF;background:${T.success}}.manifest{grid-template-columns:repeat(2,1fr)}.manifest span{padding:20px 12px;border-radius:15px;opacity:.2;background:#FFF;text-align:center;font-weight:900;transition:.35s}.manifest span.active{opacity:1;color:#FFF;background:${T.navy}}.direction>div{display:flex;align-items:center;gap:14px}.direction b{padding:15px;border-radius:13px;background:#FFF}.direction span{color:${T.accent};font-size:30px}.direction small{font-weight:900}.preview-language{position:fixed;top:9px;right:9px;z-index:30;display:flex;gap:3px;padding:3px;border-radius:999px;background:rgba(255,255,255,.94)}.preview-language button{min-width:44px;min-height:44px;padding:4px 9px;border:0;border-radius:999px;background:transparent;cursor:pointer;font-size:10px;font-weight:900}.preview-language .preview-active{color:#FFF;background:${T.accent}}button:focus-visible,input:focus-visible{outline:3px solid rgba(22,143,163,.48);outline-offset:3px}@keyframes page-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
-@media(max-width:639.98px){.stage-header{padding-top:58px}.screen-type{display:none}.stage{width:min(390px,100%)}.heading h1{font-size:26px}.heading .g1-char{width:65px;height:80px}.model-card,.test-layout{grid-template-columns:1fr}.model-card,.question,.test-model{padding:13px;border-radius:18px}.options{grid-template-columns:1fr}.option{min-height:52px}.stage-nav{min-height:68px}.btn-white-accent,.btn-ghost{min-width:112px;padding:0 12px}.conversion-visual{min-height:170px}.reveal-card{min-height:43px}.test-model .reveal-grid{display:none}}
-@media(prefers-reduced-motion:reduce){.lesson-root *{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
-.lesson-root{font-family:'Manrope',system-ui,sans-serif}.lesson-root h1,.lesson-root [data-g4-role="hook-title"]{font-family:'Source Serif 4',Georgia,serif!important;font-size:clamp(26px,4.2vw,36px)!important;line-height:1.06;text-align:left}.lesson-root .question h2,.lesson-root [data-g4-role="hook-question"]{font-family:'Manrope',system-ui,sans-serif!important;font-size:clamp(17px,2.5vw,21px)!important;line-height:1.25;text-align:left}.lesson-root .lead{font-family:'Manrope',system-ui,sans-serif;font-size:clamp(14px,1.8vw,16px);line-height:1.55}.lesson-root .body-copy{font-family:'Manrope',system-ui,sans-serif;font-size:clamp(15px,2vw,18px);line-height:1.5}.lesson-root .screen-count,.lesson-root [class*="formula"],.lesson-root [class*="equation"],.lesson-root .proof-label{font-family:'JetBrains Mono',monospace!important}
-.stage-hook .hook-stack{height:100%;grid-template-rows:auto minmax(206px,1fr) auto;gap:10px}.stage-hook .hook-intro{width:min(760px,100%);margin:0 auto;display:grid;gap:5px;text-align:left}.stage-hook [data-g4-role="hook-topic"]{color:${T.cyan};font:900 11px/1.2 'Manrope',system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase}.stage-hook [data-g4-role="hook-scene"]{width:min(760px,100%);min-height:206px;margin:0 auto;padding:0;border:0;border-radius:24px;overflow:hidden;background:transparent;box-shadow:none}.stage-hook [data-g4-role="visual-frame"]{position:relative;isolation:isolate;width:100%;height:100%;min-height:206px;overflow:hidden;border:1px solid rgba(144,228,235,.12);border-radius:24px;background:radial-gradient(circle at 87% 24%,rgba(121,211,218,.16),transparent 24%),radial-gradient(circle at 9% 88%,rgba(149,201,61,.11),transparent 25%),linear-gradient(145deg,rgba(22,143,163,.25),transparent 48%),linear-gradient(135deg,#153B50,#0B2232 72%);box-shadow:0 22px 50px -30px rgba(14,33,44,.75)}.stage-hook .hook-visual-content{position:relative;z-index:1;width:100%;height:100%;min-width:0;min-height:206px;padding:12px 154px 12px 12px;display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:center;gap:12px;overflow:hidden}.stage-hook .hook-visual-content>*{min-width:0;max-width:100%;max-height:182px;overflow:hidden}.stage-hook .hook-model{position:relative;min-width:0;height:182px;overflow:hidden}.stage-hook .hook-model>.conversion-visual{position:absolute;inset:0 auto auto 0;width:142.858%;height:142.858%;max-width:none;min-height:0;transform:scale(.7);transform-origin:top left}.stage-hook .hook-visual-content svg,.stage-hook .hook-visual-content img{display:block;max-width:100%;max-height:100%;object-fit:contain}.stage-hook [data-g4-role="hook-bit"]{position:absolute;z-index:2;width:88px;height:110px;right:42px;bottom:-4px;overflow:hidden}.stage-hook [data-g4-role="hook-bit"] .g1-char{width:100%;height:100%}.stage-hook .hook-answers{height:auto;min-height:0;padding:10px 14px;grid-template-rows:auto minmax(0,1fr);gap:8px;overflow:hidden}
-.lesson-root .topic-visual,.lesson-root .conversion-visual,.lesson-root .model-card,.lesson-root .test-model{max-width:100%;overflow:hidden}.lesson-root .topic-visual>svg,.lesson-root .conversion-visual>svg{display:block;max-width:100%;max-height:100%;object-fit:contain}.lesson-root [data-g4-role~="feedback-frame"],.lesson-root .question-feedback-slot .feedback{min-height:88px;padding:8px 15px 8px 9px;border-radius:18px;display:grid;grid-template-columns:62px minmax(0,1fr);align-items:center;gap:13px;overflow:hidden;font-family:'Manrope',system-ui,sans-serif;font-size:14px;line-height:1.42}.lesson-root [data-g4-feedback="wrong"],.lesson-root [data-g4-feedback="retry"],.lesson-root .feedback.wrong{color:#A96F13;background:linear-gradient(135deg,#FFF,#FFF5D9);box-shadow:inset 4px 0 #A96F13}.lesson-root [data-g4-feedback="correct"],.lesson-root [data-g4-feedback="solution"],.lesson-root .feedback.correct{color:#227A53;background:linear-gradient(135deg,#FFF,#E7F3EC);box-shadow:inset 4px 0 #227A53}.lesson-root [data-g4-feedback="solution"]{min-height:72px;border-radius:15px;grid-template-columns:51px minmax(0,1fr)}.lesson-root [data-g4-role="feedback-bit"],.lesson-root .feedback>.feedback-bit{width:62px;height:76px;min-width:0;max-width:100%;overflow:hidden}.lesson-root [data-g4-role="feedback-bit"] .feedback-bit{width:100%;height:100%}.lesson-root [data-g4-feedback="solution"]>[data-g4-role="feedback-bit"],.lesson-root [data-g4-feedback="solution"]>.feedback-bit{width:51px;height:64px}.lesson-root [data-g4-role="feedback-bit"] svg{display:block;max-width:100%;max-height:100%}.lesson-root [data-g4-role="feedback-bit"]>svg{display:block;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important}
-@media(max-width:639.98px){.lesson-root h1,.lesson-root [data-g4-role="hook-title"]{font-size:25px!important}.stage-hook .hook-stack{grid-template-rows:auto minmax(164px,1fr) auto}.stage-hook [data-g4-role="hook-scene"],.stage-hook [data-g4-role="visual-frame"]{min-height:164px;border-radius:18px}.stage-hook .hook-visual-content{min-height:164px;padding:9px 88px 9px 9px;grid-template-columns:minmax(0,.65fr) minmax(82px,.35fr);grid-template-rows:minmax(0,1fr);align-items:stretch;gap:6px}.stage-hook .hook-visual-content>*{height:146px;max-height:146px;overflow:hidden}.stage-hook .hook-model{position:relative;min-width:0;min-height:0}.stage-hook .hook-model>.topic-visual,.stage-hook .hook-model>.conversion-visual{position:absolute;inset:0 auto auto 0;min-height:0;max-width:none;padding:4px;transform-origin:top left}.stage-hook .hook-model>.topic-visual{width:142.858%;height:142.858%;transform:scale(.7)}.stage-hook .hook-model>.conversion-visual{width:200%;height:200%;transform:scale(.5)}.stage-hook .hook-model>.topic-visual svg,.stage-hook .hook-model>.conversion-visual svg{max-height:100%}.stage-hook .reveal-grid{height:146px;min-height:0;max-height:none;align-content:center;gap:0;overflow:hidden}.stage-hook .reveal-card{display:none;min-height:0;padding:5px 6px;border-radius:10px;grid-template-columns:1fr;align-content:center;gap:4px;font-size:9px;line-height:1.18;overflow:hidden}.stage-hook .reveal-card[data-current="true"]{display:grid}.stage-hook .reveal-card>b{width:21px;height:21px;border-radius:7px;font-size:8px}.stage-hook .reveal-card>span{overflow-wrap:anywhere}.stage-hook [data-g4-role="hook-bit"]{width:68px;height:85px;right:12px;bottom:-7px}.lesson-root [data-g4-role~="feedback-frame"],.lesson-root .question-feedback-slot .feedback{grid-template-columns:54px minmax(0,1fr)}.lesson-root [data-g4-role="feedback-bit"],.lesson-root .feedback>.feedback-bit{width:54px;height:68px}.lesson-root [data-g4-feedback="solution"]{min-height:68px;border-radius:15px;grid-template-columns:47px minmax(0,1fr)}.lesson-root [data-g4-feedback="solution"]>[data-g4-role="feedback-bit"],.lesson-root [data-g4-feedback="solution"]>.feedback-bit{width:47px;height:59px}.stage-hook .hook-stack:has([data-g4-feedback]){height:auto!important;min-height:0;grid-template-rows:auto!important;align-content:start!important;gap:0;overflow:visible;transform:none!important;animation:none!important}.stage-hook .hook-stack:has([data-g4-feedback]) .hook-intro,.stage-hook .hook-stack:has([data-g4-feedback]) [data-g4-role="hook-scene"]{display:none}.stage-hook .hook-stack:has([data-g4-feedback]) .hook-answers{position:static;display:grid;height:auto;min-height:0;padding:8px;grid-template-rows:auto auto;align-content:start;gap:8px;overflow:visible;transform:none}.stage-hook .hook-stack:has([data-g4-feedback]) .hook-feedback-slot{min-height:88px;overflow:visible}.stage-hook .hook-stack:has([data-g4-feedback]) [data-g4-role~="feedback-frame"]{width:100%;min-height:88px}.stage-question .question-stack:has([data-g4-feedback]){height:auto!important;min-height:0;grid-template-rows:auto!important;align-content:start!important;overflow:visible;transform:none!important;animation:none!important}.stage-question:has([data-g4-feedback]) .stage-body{overflow:visible}.stage-question .question-stack:has([data-g4-feedback]) .heading,.stage-question .question-stack:has([data-g4-feedback]) .test-model{display:none}.stage-question .question-stack:has([data-g4-feedback]) .test-layout{display:block;height:auto;min-height:0;overflow:visible}.stage-question .question-stack:has([data-g4-feedback]) .question{display:grid;height:auto;min-height:0;padding:4px;grid-template-rows:auto auto auto;align-content:start;gap:4px;overflow:visible;transform:none}.stage-question .question-stack:has([data-g4-feedback]) .question-feedback-slot{min-height:88px;overflow:visible}.stage-question .heading{display:none}.stage-question .question-stack{grid-template-rows:minmax(0,1fr)}.stage-question .test-layout{height:100%;grid-template-columns:1fr;grid-template-rows:92px minmax(0,1fr);gap:4px}.stage-question .test-model{padding:3px;min-height:0}.stage-question .test-model>.canonical-visual-frame{height:100%;min-height:0}.stage-question .question{min-height:0;padding:4px;grid-template-rows:auto 42px auto;align-content:start;gap:3px}.stage-question .question h2{font-size:12px!important;line-height:1.12}.stage-question .options{grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}.stage-question .option{min-height:42px;padding:4px;grid-template-columns:1fr;justify-items:center;text-align:center;font-size:9px;line-height:1.1}.stage-question .option>b{display:none}.stage-question .feedback-slot{min-height:68px;overflow:visible}.stage-question .feedback-stack{height:auto;overflow:visible}.stage-question .question-feedback-slot [data-g4-role~="feedback-frame"]{min-height:88px;padding:8px 9px}.stage-question .proof{display:none}}
-/* Etalon layout adapters: answer feedback replaces the model after selection,
-   while the unanswered hook keeps the canonical title/scene/card order. */
-.lesson-root .caption{margin-top:0;max-height:100%;overflow:hidden}
-.stage-hook .reveal-grid{overflow:visible}
-.stage-hook .reveal-card{min-height:0;padding:5px 7px;grid-template-columns:26px minmax(0,1fr);gap:7px;font-size:10px;line-height:1.15}
-.stage-hook .reveal-card>b{width:25px;height:25px}
-.stage-hook .reveal-card>span{overflow-wrap:anywhere}
-.question-stack:has([data-g4-feedback]){height:auto!important;min-height:0;grid-template-rows:auto!important;align-content:start!important;overflow:visible;transform:none!important;animation:none!important}
-.stage:has(.question-stack [data-g4-feedback]) .stage-content{min-height:0}
-.stage:has(.question-stack [data-g4-feedback]) .stage-body{height:auto;min-height:0;overflow:visible}
-.question-stack:has([data-g4-feedback]) .heading,.question-stack:has([data-g4-feedback]) .test-model{display:none}
-.question-stack:has([data-g4-feedback]) .test-layout{display:block;height:auto;min-height:0;overflow:visible}
-.question-stack:has([data-g4-feedback]) .question{display:grid;height:auto;min-height:0;grid-template-rows:auto auto auto;align-content:start;overflow:visible;transform:none}
-.question-stack:has([data-g4-feedback]) .question-feedback-slot,.question-stack:has([data-g4-feedback]) .feedback-stack{height:auto;min-height:88px;overflow:visible;transform:none!important}
-@media(max-width:639.98px){
-  .stage-hook .hook-stack:not(:has([data-g4-feedback])){height:auto;grid-template-rows:auto 164px auto;align-content:start;gap:5px;overflow:visible}
-  .stage-hook .hook-stack:not(:has([data-g4-feedback])) [data-g4-role="hook-scene"],.stage-hook .hook-stack:not(:has([data-g4-feedback])) [data-g4-role="visual-frame"]{height:164px}
-  .stage-hook .hook-answers{height:auto;padding:5px 7px;grid-template-rows:auto auto;gap:4px;overflow:visible}
-  .stage-hook .hook-answers .options{gap:4px}
-  .stage-hook .hook-answers .option{min-height:42px;padding:5px 6px;font-size:11px;line-height:1.15}
-  .stage-hook .hook-answers .option span{overflow-wrap:anywhere}
-  .stage-hook .hook-feedback-slot:empty{display:none;min-height:0}
-  .stage-hook .hook-visual-content{grid-template-columns:minmax(0,.55fr) minmax(105px,.45fr)}
-  .lesson-root .caption-slot{height:40px;min-height:40px}
-  .lesson-root .caption{height:auto;min-height:31px;max-height:40px;margin:0;font-size:9px;line-height:1.15;overflow:visible}
-  .stage:has(.question-stack) .heading{display:none}
-  .stage:has(.question-stack) .question-stack{height:100%;grid-template-rows:minmax(0,1fr)}
-  .stage:has(.question-stack) .test-layout{height:100%;grid-template-columns:1fr;grid-template-rows:92px minmax(0,1fr);gap:4px}
-  .stage:has(.question-stack) .test-model{padding:3px;min-height:0}
-  .stage:has(.question-stack) .test-model>.canonical-visual-frame{height:100%;min-height:0}
-  .stage:has(.question-stack) .question{min-height:0;padding:4px;grid-template-rows:auto 42px auto;align-content:start;gap:3px}
-  .stage:has(.question-stack) .question h2{font-family:'Manrope',system-ui,sans-serif!important;font-size:12px!important;line-height:1.12}
-  .stage:has(.question-stack) .options{grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
-  .stage:has(.question-stack) .option{min-height:42px;padding:4px;grid-template-columns:1fr;justify-items:center;text-align:center;font-size:9px;line-height:1.1}
-  .stage:has(.question-stack) .option>b{display:none}
-  .question-stack:has([data-g4-feedback]) .test-layout{display:block;height:auto;min-height:0;overflow:visible}
-  .question-stack:has([data-g4-feedback]) .question{height:auto;padding:4px;grid-template-rows:auto auto auto;gap:4px;overflow:visible}
-  .question-stack:has([data-g4-feedback]) .question-feedback-slot,.question-stack:has([data-g4-feedback]) .feedback-stack{height:auto;min-height:88px;overflow:visible}
-  .question-stack:has([data-g4-feedback]) .question-feedback-slot [data-g4-role~="feedback-frame"]{min-height:88px;padding:8px 9px}
-  .stage-summary .final-reflection h2{font-family:'Manrope',system-ui,sans-serif!important}
+export default function Grade4Dars47(props) {
+  return (
+    <TheoryLessonRoot
+      {...props}
+      lessonMeta={LESSON_META}
+      screenMeta={SCREEN_META}
+      totalScreens={TOTAL_SCREENS}
+      frameCounts={FRAME_COUNTS}
+      content={CONTENT}
+      screens={SCREENS}
+      styles={KIT_STYLES + LESSON_STYLES}
+    />
+  );
 }
-.lesson-root aside[data-g4-role~="title-card"]>[data-g4-role~="reward-medal"]{width:44px!important;height:44px!important}
-@media(max-width:639.98px){.lesson-root aside[data-g4-role~="title-card"]>[data-g4-role~="reward-medal"]{width:34px!important;height:34px!important}}
-.lesson-root .canonical-visual-frame>.topic-visual,.lesson-root .canonical-visual-frame>.conversion-visual{width:100%;height:100%;min-height:0;max-width:100%;overflow:hidden}
-@media(max-width:639.98px){
-  .lesson-root .canonical-visual-frame>.topic-visual,.lesson-root .canonical-visual-frame>.conversion-visual{position:absolute;inset:0 auto auto 0;width:200%;height:200%;max-width:none;min-height:0;padding:5px;transform:scale(.49);transform-origin:top left}
-  .lesson-root .canonical-visual-frame>.conversion-visual{row-gap:8px}
-  .lesson-root .canonical-visual-frame .relation-cards{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;max-width:calc(100% - 8px);margin-inline:auto}
-  .lesson-root .canonical-visual-frame .relation-cards span{padding-block:6px}
-  .stage-hook .hook-visual-content{grid-template-columns:minmax(110px,1fr) minmax(105px,1fr)}
-  .stage-hook .hook-model>.conversion-visual{width:222.222%;height:222.222%;transform:scale(.45)}
-}
-@media(min-width:640px){
-  .g4-title-reveal-overlay .g4-title-reveal-card h2{font-size:58px}
-}
-`;

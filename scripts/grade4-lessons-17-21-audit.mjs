@@ -12,8 +12,16 @@ const EXPECTED = {
   18: { screens: 16, frames: [3, 4, 4, 4, 4, 4, 4, 4, 5, 2, 2, 2, 2, 2, 3, 5], scored: [9, 10, 11, 12, 13, 14], slug: 'dars18-kasr-tushunchasi', badge: ['Kasrlar tadqiqotchisi', 'Исследователь дробей'] },
   19: { screens: 16, frames: [3, 4, 4, 4, 4, 4, 4, 4, 5, 2, 2, 2, 2, 2, 3, 5], scored: [9, 10, 11, 12, 13, 14], slug: 'dars19-kasrlarni-taqqoslash', badge: ['Taqqoslash eksperti', 'Эксперт сравнения'] },
   20: { screens: 15, frames: [3, 4, 4, 4, 4, 4, 4, 5, 2, 2, 2, 2, 2, 3, 5], scored: [8, 9, 10, 11, 12, 13], slug: 'dars20-kasrlarni-qoshish', badge: ["Kasrlar yig'indisi ustasi", 'Мастер суммы дробей'] },
-  21: { screens: 15, frames: [3, 4, 4, 4, 4, 4, 4, 5, 2, 2, 2, 2, 2, 3, 5], scored: [8, 9, 10, 11, 12, 13], slug: 'dars21-kasrlarni-ayirish', badge: ['Kasrlar ayirmasi ustasi', 'Мастер разности дробей'] },
+  // Dars21 metodist qaroriga ko'ra 2026-08-19 da qaytadan qurildi (21-30 blokining
+  // pilot darsi): tushuntirish -> misol ritmi, bosib ochiladigan qadamlar, och ko'k
+  // ramkalar. Shuning uchun spec eski 15 ekranlik qolipdan yangisiga ko'chirildi.
+  21: { screens: 16, frames: [3, 2, 3, 2, 3, 3, 3, 2, 3, 3, 3, 3, 3, 3, 3, 5], scored: [5, 9, 10, 12, 13, 14], slug: 'dars21-kasrlarni-ayirish', badge: ['Taqsimot muhandisi', 'Инженер распределения'] },
 };
+
+// Bosib ochiladigan qadam UI si eski 17-20 darslarda taqiqlangan (ular ovoz bilan
+// sinxron ochiladi). Qaytadan qurilgan darslarda esa qadamni bola boshqaradi -
+// ovoz o'chirilganda tushuntirish yo'qolib qolmasligi uchun (metodist 2026-08-19).
+const REBUILT_LESSONS = new Set(['21']);
 
 const failures = [];
 const notes = [];
@@ -191,10 +199,26 @@ for (const [lesson, spec] of Object.entries(EXPECTED)) {
   if (!/["']en-GB["']/.test(source)) fail(lesson, 'Web Speech uchun en-GB locale topilmadi');
   if (/\blang\s*===\s*["'](?:uz|ru)["']\s*\?/.test(source)) fail(lesson, 'binary locale conditional qolgan');
   for (const badge of spec.badge) if (!source.includes(badge)) fail(lesson, `final badge topilmadi: ${badge}`);
-  if (/useTapSteps|phase-dots|phaseDots|Keyingi qadam|Следующий шаг/.test(source)) fail(lesson, 'majburiy qadam/phase UI topildi');
+  if (!REBUILT_LESSONS.has(lesson) && /useTapSteps|phase-dots|phaseDots|Keyingi qadam|Следующий шаг/.test(source)) fail(lesson, 'majburiy qadam/phase UI topildi');
   if (/\bdraggable=|onDragStart=/.test(source)) fail(lesson, 'tap alternativisiz majburiy drag topildi');
   if (/<img\b|https?:\/\/[^'"`)]+\.(?:png|jpe?g|webp|gif)/i.test(source)) fail(lesson, 'tashqi raster rasm topildi');
-  if (/from\s+['"]\.\//.test(source)) fail(lesson, 'LMS single-file kontraktini buzuvchi relative import topildi');
+  // Umumiy 4-sinf modullari ruxsat etilgan (metodist qarori 2026-08-18):
+  // ular LMS uchun build vaqtida bitta bundle ga yigiladi, har darsga
+  // nusxalash esa CLAUDE.md 5-bandini buzardi. Boshqa relative import - xato.
+  const SHARED_GRADE4_MODULES = new Set([
+    './theoryNavigation.js',
+    './Grade4Finale.jsx',
+    './mobileZoom.js',
+    './modelSteps.jsx',
+    './supportHint.jsx',
+    './grade4GeometryFrameStyles.js',
+  ]);
+  const foreignImports = [...source.matchAll(/from\s+['"](\.[^'"]+)['"]/g)]
+    .map((match) => match[1])
+    .filter((specifier) => !SHARED_GRADE4_MODULES.has(specifier));
+  if (foreignImports.length) {
+    fail(lesson, 'LMS single-file kontraktini buzuvchi relative import topildi: ' + foreignImports.join(', '));
+  }
   if (/\bFREE_NAV\b/.test(source)) fail(lesson, 'FREE_NAV orqali javobsiz o\u2018tish kontrakti qolgan');
   if (/\boverflow(?:-[xy])?\s*:\s*(?:auto|scroll)\b/i.test(source) || /\boverflow(?:X|Y)?\s*:\s*["'](?:auto|scroll)["']/i.test(source)) fail(lesson, 'scroll beruvchi overflow qoidasi qolgan');
   if (/\b(?:scrollTo|scrollIntoView)(?:\?\.)?\s*\(/.test(source)) fail(lesson, 'scrollTo/scrollIntoView chaqiruvi qolgan');
@@ -215,7 +239,9 @@ for (const [lesson, spec] of Object.entries(EXPECTED)) {
   if (lesson === '18' && /qisqartirish|сокращени[ея]|aralash son|смешанн(?:ое|ые) чис/i.test(source)) fail(lesson, 'dars chegarasidan tashqari kasr mavzusi topildi');
   if (lesson === '19' && /umumiy maxraj|общ(?:ий|его) знаменател|ko'ndalang ko'paytir|крест-накрест/i.test(source)) fail(lesson, 'taqiqlangan umumiy maxraj/ko‘ndalang usul topildi');
   if (lesson === '20' && !/7\/10/.test(source)) fail(lesson, 'qisqartirilmaydigan 7/10 natija topilmadi');
-  if (lesson === '21' && (!/4\/10/.test(source) || !/5\/12/.test(source))) fail(lesson, 'qisqartirilmaydigan 4/10 yoki 5/12 natija topilmadi');
+  // 4-sinfda natija qisqartirilmaydi. Qayta qurilgan 21-darsda buni 6/16 va 6/14
+  // natijalari ko'rsatadi (ilgari 4/10 va 5/12 edi).
+  if (lesson === '21' && (!/6\/16/.test(source) || !/6\/14/.test(source))) fail(lesson, 'qisqartirilmaydigan 6/16 yoki 6/14 natija topilmadi');
 }
 
 const dars16 = await readFile(path.join(GRADE4_DIR, 'Dars16.jsx'), 'utf8');
