@@ -1243,8 +1243,12 @@ const FeedbackBlock = ({ show, isCorrect, wrongClass, children }) => {
 };
 
 // Stage — progress + chrome вынесены в отдельный stage-header (sticky, flex-shrink: 0)
-const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState }) => {
-  const t = useT();
+// Надпись над слайдом («BU NIMAGA KERAK», «MASHQ», «УРОК ПРОЙДЕН») убрана по
+// решению методиста 2026-08-20: она ничего не объясняла, а кнопка сайта
+// «← Darslar ro'yxati» наезжала на неё, и ребёнок видел обрубок «...RAK».
+// Проп `eyebrow` уроки по-прежнему передают, слой его молча не рисует: данные
+// остаются на месте, вернуть подпись — одна строка.
+const Stage = ({ children, screen, totalScreens, navContent, audioState }) => {
   const isMobile = useIsMobile();
   const padH = isMobile ? 12 : 'clamp(16px, 4vw, 48px)';
   return (
@@ -1254,10 +1258,6 @@ const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState
           <div className="progress-bar" style={{ width: `${((screen + 1) / totalScreens) * 100}%` }}/>
         </div>
         <div className="chrome">
-          <div className="chrome-left eyebrow">
-            <span className="dot"/>
-            <span>{t(eyebrow)}</span>
-          </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
             {audioState && <AudioIndicator audioState={audioState}/>}
             <div className="mono small" style={{ color: T.ink, fontWeight: 700, fontSize: 14 }}>
@@ -3023,9 +3023,7 @@ const BASE_STYLES = `html, body { margin: 0; padding: 0; }
 @media (max-width: 639.98px) {
   .stage-nav { padding-bottom: 24px; }
 }
-.chrome { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0; }
-.chrome-left { display: flex; align-items: center; gap: 10px; color: #5A5A60; }
-.dot { width: 7px; height: 7px; border-radius: 50%; background: #FF4F28; box-shadow: 0 0 8px rgba(255, 79, 40, 0.55); }
+.chrome { display: flex; align-items: center; justify-content: flex-end; margin-bottom: 0; }
 .progress-track { height: 6px; background: rgba(167, 166, 162, 0.25); width: 100%; margin-bottom: 12px; border-radius: 99px; overflow: visible; }
 .progress-bar { height: 100%; background: #FF4F28; transition: width 0.75s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 99px; box-shadow: 0 0 10px rgba(255, 79, 40, 0.55), 0 0 3px rgba(255, 79, 40, 0.40); }
 .frame { background: #FFFFFF; border-radius: 16px; padding: clamp(17px, 3.4vw, 30px); border: none; box-shadow: 0 8px 22px -6px rgba(58, 53, 48, 0.14); }
