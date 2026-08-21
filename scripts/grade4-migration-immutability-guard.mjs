@@ -16,37 +16,43 @@ const DARS01_BASELINE_SHA256 = '758c2075df9568ca63081b0dc99417e9745c7632dc02dcb3
 // moslashtirishda ikki tomon ramkalari teng, variantli savollarda xato
 // javobdan keyin variantlar qayta aralashadi va to'g'ri javob bir o'rinda
 // qotib qolmaydi. Guard keyingi tasodifiy o'zgarishlardan himoya qiladi.
+// Rebaselined 2026-08-21 (ikkinchi marta): metodist juftlashtirishdagi ikki
+// nosozlikni tuzatishni so'radi — juftlikning ikki tomoni bir xil rang oladi
+// va hammasini juftlagandan keyin ham qayta juftlash mumkin (tupik yo'q).
+// Shu bilan birga o'ng ustun to'g'ri javob qarshisida turmaydi va past
+// ekranda topshiriq skrollga ketmaydi. Guard keyingi tasodifiy
+// o'zgarishlardan himoya qiladi.
 const PRACTICE_BASELINE_SHA256 = {
-  'Dars01Practice.jsx': '8a9bc2c3984b32c0516d66bccb45f49a0353abbccf484dbc8e282b872f92d0e5',
-  'Dars02Practice.jsx': '8eeb0c0bfd3430b940b0c2c540362a943cb893cfb89f24e7441b6fc8baeb5aab',
-  'Dars03Practice.jsx': 'af4d5344deeb307b8d99ccefd00b59093e277af2b3d018379bcb901e0fae5181',
-  'Dars04Practice.jsx': '0262a4a85c870d0207ff92b7f02e10210074f85246b521666be8119c88e9986e',
-  'Dars05Practice.jsx': '33c5df29ecb926628a414dd2bbf0d8abb7842f75f8b2c7c01a8c47c0cb73c13f',
-  'Dars06Practice.jsx': 'dc08e3df414ad86cb30874f0f96acb844ead76ba622f167399a1c5255fbbe116',
-  'Dars07Practice.jsx': '8c8340bdccfefe97e8f2f8f3240762ae55d7e9d901deed2f6d310a11b2dfdb0f',
-  'Dars08Practice.jsx': '4d60dd2cf01cbf49b73ff7c60643af9dc768fce1b6de80f033b168d1ff82f968',
-  'Dars09Practice.jsx': '1ad2c217b4872226a96fdb9cdeaa80ba92ee29ef3ae59fe9e5b3d0324fd15f67',
-  'Dars10Practice.jsx': '10888cf13fb195447dc9207f39318725bbae085572dcaf948b46c852cb356d7c',
-  'Dars11Practice.jsx': 'c24484da56bcb31a8d8ad20f78517ea6615d7195eb756f445020568780295345',
-  'Dars12Practice.jsx': '2abe8e30ae6d4e60fca161775e27662867671b721becc22af3808f488fdf1533',
-  'Dars13Practice.jsx': '2a65eab4c7140edbc24a83188f06b95de56f7d0690e6321433be02ea3644cfb9',
-  'Dars14Practice.jsx': '60c972b8ccc2d367c36d1d57b34a4e312032ebcc78f88745f0aa82978766d9ba',
-  'Dars15Practice.jsx': 'fbecce11f4874287cebf18805f33d17179506be050a71193529571123025eb5a',
-  'Dars16Practice.jsx': 'b0a5cc585b943ccdb214e26aa2027d3b8ba9c62496aeb143535f7a7a32bb050d',
-  'Dars17Practice.jsx': 'e67f73b6ec28cb5320f2faae88427e44839ede613ec5f809c903a1205e604b5d',
-  'Dars18Practice.jsx': 'a30b7ce737b1a10c13cf7db77e4b5dcd9172462ce003d662cc020757a153db99',
-  'Dars19Practice.jsx': '64efbb6d0870381af87aad520f0ccdf76035217f3b422c9cc82ededb282b54c4',
-  'Dars20Practice.jsx': '4c2aa0d0351424425165cea7557fa82c1b6bcb5949725c613274269172273c60',
-  'Dars21Practice.jsx': 'f1c8d7e5dfef227da8f1646dc65283297ccf5db7a413e3d13675dfbebd31e45f',
-  'Dars22Practice.jsx': '9544c56e1b7e39484fac5e6854753bc72522e4b95bd1898217bbefb63897367c',
-  'Dars23Practice.jsx': '457da8b9080140e933bfc7dcd13bd0a7470585afcbc5165e224caca1ecdea5be',
-  'Dars24Practice.jsx': '530bd76592c057ca4cb062a474143943ec3f69d3085032aca30d57e18c8bc864',
-  'Dars25Practice.jsx': 'bdf72c4ce763441e9967617ebdb611428879cd1ee407aee18b97a39660372c4a',
-  'Dars26Practice.jsx': 'cdcb0931659e77a1485bd51e3e80644d410edaf07b46609db3d2b672c8b3c413',
-  'Dars27Practice.jsx': '1c271167bac0e8d437e84c9ab2973a1a6fa6f90384dadd464bedc11293efdc79',
-  'Dars28Practice.jsx': '7049fe4875fa0cf001675f38e420a98a4e2d7d24ea589dda79cba573c7b9157f',
-  'Dars29Practice.jsx': '71e3c649c0a4cfb6c9876843e91c755f1333beeaa039647bf0756fc3726c9fa6',
-  'Dars30Practice.jsx': '9d3f6249643c470fb8ac9cadad7f068024f79ac7bef65f31b454923dc3f9dcdf',
+  'Dars01Practice.jsx': 'afde26e02e4c74bac0a2e7872abe27d146dc23e3edc634aec83895d4d5f5fb64',
+  'Dars02Practice.jsx': '7b5779df801380d6e305a836ee60bf89f46212e1eb6000958c3c0c0c9f413f6e',
+  'Dars03Practice.jsx': 'b84bcfe998198463a8eeb4d002448c176de0125d13a3835a313301608ac5a08e',
+  'Dars04Practice.jsx': 'a7c3ddfa8af39be98d10b27ae0db638e77154032fe2b6cf3842fa4637b693ff2',
+  'Dars05Practice.jsx': '51b18e072f25097ca52d55047509dd160dd69d948bd55c3bf31e0fd13dc83961',
+  'Dars06Practice.jsx': 'da7bd90502da2cfe7ca61c1f2aba81d2f733a233f473a76b45f663c7962d03f6',
+  'Dars07Practice.jsx': '4be313e0feab72cb72c1dbf6933fec3a5328783ed36130a45e5fec0e0bf08a53',
+  'Dars08Practice.jsx': '9ea466e54cd5ab007ba95e2dd048245506a6c24904ab2e866631425ccf97e09e',
+  'Dars09Practice.jsx': 'c5a34d4bbaddd5cf521eaf9c1d2a6226ee07f71caba3307e0227cbc59a6a56b3',
+  'Dars10Practice.jsx': '108e1b03586ead70673d6b5ae1ec1bf77c302ff0c803304c683d81a59c84dde7',
+  'Dars11Practice.jsx': 'bf1c7000f50a2d191ed1e1cbfc30fd52f6255403a0edb558188cd697a1206c6e',
+  'Dars12Practice.jsx': '3d4fc01dc3fadea69964b23529cfec45dc42a7ba93342589b326e9e90ddaa4c8',
+  'Dars13Practice.jsx': 'c7c35842c2aa4128836838a2f2cc530fcbd0e56a57d44449ef6ef1812b6b3d03',
+  'Dars14Practice.jsx': '60714bd878c8fd98c1615d876b74fb81e2f709da8aefe694d66bcd6c827d63f8',
+  'Dars15Practice.jsx': '89d66a9d9f03826a8835f86766c45512d9fe11d6d4653920d688189dd9218c88',
+  'Dars16Practice.jsx': '96ce3d726f0d639ddf973fd7c20c3eb13aafa5692acaa93f8d2ed84350cd644b',
+  'Dars17Practice.jsx': '1551e61a5146f9206f7150f37456d3dd08481712f70e90ac34a72bb8dd8c4bd7',
+  'Dars18Practice.jsx': 'e978d548296227e2787c61cc412815da348303435287c992abc16dd66601dd66',
+  'Dars19Practice.jsx': '9f8aeb6bc266ded06932e185acc4792b93980c525ef7ab4c79530f7b9d493ef6',
+  'Dars20Practice.jsx': 'fdfc28e763c580b3003b8c3b93f2322cb58d0efdbb95d79840cce74839d22f74',
+  'Dars21Practice.jsx': 'ae3f31286b430b3fa55e536438be630d2c2801228dda67301a336a9327603c28',
+  'Dars22Practice.jsx': '69176c62c1e9ff8942ed598d6438d9ffba413827490bfd5b458f5ee16f14f9d9',
+  'Dars23Practice.jsx': '6e00aa5d7a177b77891da491621e5a0a3558b50d8054840539894280ffc2f096',
+  'Dars24Practice.jsx': '3e5dcb825ca23811b29baacc889857f18ccedbf209a84bc815dd1d4d7da6b026',
+  'Dars25Practice.jsx': 'bb1f91caef7353144ca7dfe589033b7cfd2eb0ed5cb5c047e55dbf60f20b39a0',
+  'Dars26Practice.jsx': '25831dcfb0847a00a665982d270a122beab3ce9033f00a65a3bf6bfc777fc37a',
+  'Dars27Practice.jsx': 'c5116b02418b99edb365a1f837f95097f82b95c2c31b87d638fdc28139c77f4e',
+  'Dars28Practice.jsx': '118bb7830c00465b60f2bbaa50b19e45bd1584749dc2a4aea5bfc235e27db8df',
+  'Dars29Practice.jsx': '3a1d88302d48e0aae02a863d1ba3b0312c0e084f12c17ca0268d2a172de1f21c',
+  'Dars30Practice.jsx': '321f34b29df285daa818a48b104b61ca1a66e9cf2d762e8a55b5882412b4b525',
 };
 
 const sha256 = (value) => createHash('sha256').update(value).digest('hex');

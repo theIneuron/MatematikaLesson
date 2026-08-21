@@ -131,6 +131,12 @@ function buildTaskFile(lessonSource, lesson, task) {
   const rootClass = /className=[{`"']*((?:g4p|p4)-root)\b/.exec(lessonSource)?.[1];
   if (!rootClass) throw new Error("ildiz sinfi topilmadi (p4-root/g4p-root)");
 
+  // 22-24 darslarning komponenti `index` va `runSeed` proplarini kutadi:
+  // ularsiz sarlavhada «NaN/10» chiqadi. Prop ro'yxati fayldan o'qiladi va
+  // faqat kutilgani uzatiladi.
+  const taskProps = /\bfunction (?:PracticeTask|Task)\(\{([^}]*)\}/.exec(lessonSource)?.[1] || '';
+  const wants = (prop) => new RegExp(`\\b${prop}\\b`).test(taskProps);
+
   const name = `D${pad(lesson)}_${pad(task)}`;
   const header = [
     `/* 4-sinf ${lesson}-dars amaliyoti, ${task}-topshiriq: LMS uchun avtonom fayl.`,
@@ -150,6 +156,8 @@ function buildTaskFile(lessonSource, lesson, task) {
     `      <style>{${styleName}}</style>`,
     `      <${taskName}`,
     `        task={TASKS[${task - 1}]}`,
+    ...(wants('index') ? [`        index={${task - 1}}`] : []),
+    ...(wants('runSeed') ? ['        runSeed={0}'] : []),
     '        lang={lang}',
     '        platform',
     '        mode={mode}',
