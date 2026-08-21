@@ -158,7 +158,7 @@ export default function PracticeHost({ Question, lang: langProp = 'uz', onLangCh
       </div>
 
       <div style={{
-        position: 'sticky', bottom: 0, padding: '9px 12px', background: 'linear-gradient(rgba(255,255,255,0),#fff 28%)',
+        position: 'sticky', bottom: 0, padding: '9px 12px', background: 'linear-gradient(rgba(255,247,237,0),#fff7ed 28%)',
         display: 'flex', gap: 10, alignItems: 'center', justifyContent: 'center',
       }}>
         {result && (

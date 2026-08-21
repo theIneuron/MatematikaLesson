@@ -53,7 +53,7 @@ export default function Dars03Practice({ lang = 'uz' }) {
     <div className="pq-fixroot" style={{ fontFamily: "'Manrope', system-ui, sans-serif" }}>
       {/* MOBIL_DESKTOP_MOSLASH.md naqshi: fixed root — body-skroll yo'q, tugma joyida. */}
       <style>{`
-        .pq-fixroot{position:fixed;inset:0;overflow:hidden;background:#fff;display:flex;flex-direction:column;zoom:var(--pqz,1);}
+        .pq-fixroot{position:fixed;inset:0;overflow:hidden;background:#fff7ed;display:flex;flex-direction:column;zoom:var(--pqz,1);}
         @media (max-width:639.98px){.pq-fixroot{width:390px;}}
       `}</style>
       <div style={{

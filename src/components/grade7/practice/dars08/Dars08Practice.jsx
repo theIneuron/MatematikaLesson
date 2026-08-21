@@ -57,7 +57,7 @@ export default function Dars08Practice({ lang = 'uz' }) {
       {/* MOBIL_DESKTOP_MOSLASH.md naqshi: fixed root — body-skroll yo'q, tugma joyida;
           <640px da layout 390px etalon + zoom bilan real ekranga masshtablanadi. */}
       <style>{`
-        .pq-fixroot{position:fixed;inset:0;overflow:hidden;background:#fff;display:flex;flex-direction:column;zoom:var(--pqz,1);}
+        .pq-fixroot{position:fixed;inset:0;overflow:hidden;background:#fff7ed;display:flex;flex-direction:column;zoom:var(--pqz,1);}
         @media (max-width:639.98px){.pq-fixroot{width:390px;}}
       `}</style>
       <div style={{

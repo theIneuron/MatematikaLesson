@@ -31,7 +31,7 @@
 // BALANDLIK: 1366x615 da ishchi maydon 487px, tepada til qatori, pastda
 // tugma. Topshiriq 363px dan oshmasligi kerak -- uslublar shu hisobda
 // ixcham qilingan (`practice/PracticeHost.jsx` dagi izohga qarang).
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Frac, Row } from './frac.jsx';
 
 export { Frac, Row };
@@ -142,6 +142,22 @@ export function Choice({ data, lang = 'uz', mode = 'answer', initialAnswer = nul
   const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa?.idx != null) setPicked(sa.idx); } });
   useEffect(() => { onReady?.(picked != null && !A.checked); }, [picked, A.checked, onReady]);
 
+  // AMALIYOT_GLOBAL_STANDART.md 5-band: variantlar har ochilganda
+  // aralashtiriladi, to'g'ri javob doimiy joyda turmaydi. Aralashtirish faqat
+  // KO'RSATISH tartibini o'zgartiradi: `data-opt`, `picked` va razbor shartlari
+  // (`s.picked === 1`) ma'lumotdagi ASL raqamda qoladi, ya'ni topshiriq
+  // fayllarini va tekshiruvlarni o'zgartirish kerak emas.
+  const order = useMemo(() => {
+    const idx = (data.opts || []).map((_, i) => i);
+    if (data.noShuffle) return idx;
+    for (let i = idx.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const t = idx[i]; idx[i] = idx[j]; idx[j] = t;
+    }
+    return idx;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
+
   const check = useCallback(() => {
     const correct = picked === data.correct;
     A.setFb({ correct, why: correct ? null : pickWhy(data, { picked }, lang) });
@@ -166,7 +182,8 @@ export function Choice({ data, lang = 'uz', mode = 'answer', initialAnswer = nul
       <Given data={data} lang={lang} />
       <p style={S.ask}>{tr(data.ask, lang)}</p>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(' + (data.optCols || 1) + ', minmax(0, 1fr))', gap: 7 }}>
-        {data.opts.map((o, i) => {
+        {order.map((i) => {
+          const o = data.opts[i];
           const active = picked === i;
           const short = (data.optCols || 1) > 1;
           let bg = '#fff'; let bd = '#d6dae3'; let col = C.soft;
