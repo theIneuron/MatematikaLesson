@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { canUseGrade4TheoryContinue } from './theoryNavigation.js';
+import { WRONG_FLASH_CSS, useWrongFlash } from './wrongAnswerFlash.js';
 import { Grade4Finale, useGrade4TitleClaim } from './Grade4Finale.jsx';
 
 // 4-sinf, 8-dars: Ko'p xonali sonlarni qo'shish va ayirish.
@@ -1303,6 +1304,7 @@ function ChoiceScreen({ screen, c, choiceOrdinal = 0, storedAnswer, onAnswer, on
   const [picked, setPicked] = useState(restored ? c.correctIndex : null);
   const [solved, setSolved] = useState(restored);
   const [wrong, setWrong] = useState(() => new Set(resetOnReturn ? [] : (storedAnswer?.wrongChoices ?? [])));
+  const [wrongFlash, flashWrong] = useWrongFlash();
   const attempts = useRef(resetOnReturn ? 0 : (storedAnswer?.attempts ?? 0));
   const firstTry = useRef(resetOnReturn ? null : (storedAnswer?.firstTry ?? null));
   const firstPicked = useRef(resetOnReturn ? null : (storedAnswer?.studentAnswerIndex ?? null));
@@ -1312,7 +1314,7 @@ function ChoiceScreen({ screen, c, choiceOrdinal = 0, storedAnswer, onAnswer, on
   const optionOrder = buildOptionOrder(c.options.length, c.correctIndex, LESSON_META.lessonId, choiceOrdinal);
 
   const choose = (index) => {
-    if (!canAnswer || solved || wrong.has(index)) return;
+    if (!canAnswer || solved) return;
     const correct = index === c.correctIndex;
     attempts.current += 1;
     if (firstTry.current === null) {
@@ -1322,6 +1324,7 @@ function ChoiceScreen({ screen, c, choiceOrdinal = 0, storedAnswer, onAnswer, on
     setPicked(index);
     if (!correct) {
       setWrong((previous) => new Set([...previous, index]));
+      flashWrong(index);
       playSfx('wrong');
       pushFeedbackAudio(audio, t, lang, false, c.wrongAudio?.[index] ?? c.wrong?.[index] ?? c.audio?.on_wrong ?? c.wrongText);
       return;
@@ -1353,8 +1356,9 @@ function ChoiceScreen({ screen, c, choiceOrdinal = 0, storedAnswer, onAnswer, on
           {optionOrder.map((sourceIndex, displayIndex) => (
             <button
               type="button"
-              className={`option ${wrong.has(sourceIndex) ? 'option-wrong' : ''} ${solved && sourceIndex === c.correctIndex ? 'option-correct' : ''}`}
-              disabled={!canAnswer || solved || wrong.has(sourceIndex)}
+              data-g4-wrong-flash={wrongFlash === sourceIndex ? 'true' : undefined}
+              className={`option ${solved && sourceIndex === c.correctIndex ? 'option-correct' : ''}`}
+              disabled={!canAnswer || solved || wrongFlash !== null}
               onClick={() => choose(sourceIndex)}
               data-g4-role={screen === 0 ? 'answer-card' : undefined}
               data-g4-branch="choice"
@@ -1395,7 +1399,7 @@ function GuidedChoiceStepsScreen({ screen, c, choiceOrdinal, storedAnswer, onAns
   const [choiceSolved, setChoiceSolved] = useState(restored);
   const [activeStep, setActiveStep] = useState(restored ? steps.length - 1 : -1);
   const [revealed, setRevealed] = useState(() => new Set(restored ? steps.map((_, index) => index) : []));
-  const [wrong, setWrong] = useState(() => new Set());
+  const [wrongFlash, flashWrong] = useWrongFlash();
   const attempts = useRef(storedAnswer?.attempts ?? 0);
   const firstTry = useRef(storedAnswer?.firstTry ?? null);
   const firstPicked = useRef(storedAnswer?.studentAnswerIndex ?? null);
@@ -1407,7 +1411,7 @@ function GuidedChoiceStepsScreen({ screen, c, choiceOrdinal, storedAnswer, onAns
   const optionOrder = buildOptionOrder(c.options.length, c.correctIndex, LESSON_META.lessonId, choiceOrdinal);
 
   const choose = (index) => {
-    if (!canAnswer || choiceSolved || wrong.has(index)) return;
+    if (!canAnswer || choiceSolved) return;
     const correct = index === c.correctIndex;
     attempts.current += 1;
     if (firstTry.current === null) {
@@ -1417,7 +1421,7 @@ function GuidedChoiceStepsScreen({ screen, c, choiceOrdinal, storedAnswer, onAns
     setPicked(index);
     if (!correct) {
       const detail = c.wrong?.[index] ?? c.wrongText;
-      setWrong((previous) => new Set([...previous, index]));
+      flashWrong(index);
       playSfx('wrong');
       pushFeedbackAudio(audio, t, lang, false, c.wrongAudio?.[index] ?? detail);
       return;
@@ -1461,7 +1465,7 @@ function GuidedChoiceStepsScreen({ screen, c, choiceOrdinal, storedAnswer, onAns
         <h2 className="question-title">{t(c.question)}</h2>
         <div className="answer-stage answer-choice-persist">
           <div className="answer-layer answer-options-layer">
-            <div className="options-grid options-three">{optionOrder.map((sourceIndex, displayIndex) => <button type="button" className={`option ${wrong.has(sourceIndex) ? 'option-wrong' : ''} ${choiceSolved && sourceIndex === c.correctIndex ? 'option-correct' : ''}`} disabled={!canAnswer || choiceSolved || wrong.has(sourceIndex)} onClick={() => choose(sourceIndex)} data-g4-branch="choice" data-g4-source-index={sourceIndex} data-g4-correct={sourceIndex === c.correctIndex ? 'true' : 'false'} key={sourceIndex}><span className="option-letter">{String.fromCharCode(65 + displayIndex)}</span><span>{t(c.options[sourceIndex])}</span></button>)}</div>
+            <div className="options-grid options-three">{optionOrder.map((sourceIndex, displayIndex) => <button type="button" data-g4-wrong-flash={wrongFlash === sourceIndex ? 'true' : undefined} className={`option ${choiceSolved && sourceIndex === c.correctIndex ? 'option-correct' : ''}`} disabled={!canAnswer || choiceSolved || wrongFlash !== null} onClick={() => choose(sourceIndex)} data-g4-branch="choice" data-g4-source-index={sourceIndex} data-g4-correct={sourceIndex === c.correctIndex ? 'true' : 'false'} key={sourceIndex}><span className="option-letter">{String.fromCharCode(65 + displayIndex)}</span><span>{t(c.options[sourceIndex])}</span></button>)}</div>
           </div>
         </div>
         {!choiceSolved && <FeedbackBlock show={Boolean(wrongMessage)} correct={false}><p>{wrongMessage}</p></FeedbackBlock>}
@@ -1487,7 +1491,7 @@ function ReasoningRoundsScreen({ screen, c, ordinalBase, storedAnswer, onAnswer,
   const [round, setRound] = useState(restored ? c.rounds.length - 1 : 0);
   const [roundSolved, setRoundSolved] = useState(restored);
   const [completed, setCompleted] = useState(restored);
-  const [wrong, setWrong] = useState(() => new Set());
+  const [wrongFlash, flashWrong] = useWrongFlash();
   const [message, setMessage] = useState('');
   const firstTry = useRef(storedAnswer?.subResults ?? Array(c.rounds.length).fill(null));
   const attempts = useRef(storedAnswer?.attemptsByRound ?? Array(c.rounds.length).fill(0));
@@ -1498,14 +1502,14 @@ function ReasoningRoundsScreen({ screen, c, ordinalBase, storedAnswer, onAnswer,
   const optionOrder = buildOptionOrder(current.options.length, current.correctIndex, LESSON_META.lessonId, ordinalBase + round);
 
   const choose = (index) => {
-    if (!canAnswer || roundSolved || wrong.has(index)) return;
+    if (!canAnswer || roundSolved) return;
     attempts.current[round] += 1;
     const correct = index === current.correctIndex;
     if (firstTry.current[round] === null) firstTry.current[round] = correct;
     if (!correct) {
       const wrongText = current.wrong?.[index] ?? current.wrongText ?? c.wrong?.[round] ?? c.wrongText;
       const wrongNarration = current.wrongAudio?.[index] ?? wrongText;
-      setWrong((previous) => new Set([...previous, index]));
+      flashWrong(index);
       setMessage(t(wrongText));
       playSfx('wrong');
       pushFeedbackAudio(audio, t, lang, false, wrongNarration);
@@ -1536,7 +1540,6 @@ function ReasoningRoundsScreen({ screen, c, ordinalBase, storedAnswer, onAnswer,
     if (!roundSolved || completed) return;
     setRound((value) => value + 1);
     setRoundSolved(false);
-    setWrong(new Set());
     setMessage('');
   };
   const proof = current.proof ?? current.bitWork ?? `${current.expression ?? t(current.question)} = ${t(current.options[current.correctIndex])}`;
@@ -1550,7 +1553,7 @@ function ReasoningRoundsScreen({ screen, c, ordinalBase, storedAnswer, onAnswer,
         <h2 className="question-title">{t(current.question ?? current.expression)}</h2>
         <div className="answer-stage answer-choice-persist">
           <div className="answer-layer answer-options-layer">
-            <div className="options-grid options-three">{optionOrder.map((sourceIndex, displayIndex) => <button type="button" className={`option ${wrong.has(sourceIndex) ? 'option-wrong' : ''} ${roundSolved && sourceIndex === current.correctIndex ? 'option-correct' : ''}`} disabled={!canAnswer || roundSolved || wrong.has(sourceIndex)} onClick={() => choose(sourceIndex)} data-g4-branch="choice" data-g4-source-index={sourceIndex} data-g4-correct={sourceIndex === current.correctIndex ? 'true' : 'false'} key={sourceIndex}><span className="option-letter">{String.fromCharCode(65 + displayIndex)}</span><span>{t(current.options[sourceIndex])}</span></button>)}</div>
+            <div className="options-grid options-three">{optionOrder.map((sourceIndex, displayIndex) => <button type="button" data-g4-wrong-flash={wrongFlash === sourceIndex ? 'true' : undefined} className={`option ${roundSolved && sourceIndex === current.correctIndex ? 'option-correct' : ''}`} disabled={!canAnswer || roundSolved || wrongFlash !== null} onClick={() => choose(sourceIndex)} data-g4-branch="choice" data-g4-source-index={sourceIndex} data-g4-correct={sourceIndex === current.correctIndex ? 'true' : 'false'} key={sourceIndex}><span className="option-letter">{String.fromCharCode(65 + displayIndex)}</span><span>{t(current.options[sourceIndex])}</span></button>)}</div>
           </div>
           <div className={`answer-layer answer-proof-layer ${roundSolved ? 'answer-layer-visible' : ''}`}>
             {roundSolved && <BitAnswerComment formula={proof} label={t(current.correctText ?? c.correctText)}>{completed && <span className="sr-only" data-qa-round-complete="true">complete</span>}{completed && c.solution?.steps && <ul className="solution-steps">{c.solution.steps.map((step, index) => <li key={index}>{t(step)}</li>)}</ul>}{!completed && <button type="button" className="btn btn-secondary" data-qa-round-next="true" disabled={!audio.muted && audio.isPlaying} onClick={nextRound}>{B('Keyingi qadam', 'Следующий шаг', 'Next step')[lang]} →</button>}</BitAnswerComment>}
@@ -1705,6 +1708,7 @@ function MissingDigitScreen({ screen, c, storedAnswer, onAnswer, onNext, onPrev 
   const [picked, setPicked] = useState(restored ? c.answer : restoredPicked);
   const [solved, setSolved] = useState(restored);
   const [wrong, setWrong] = useState(() => new Set(storedAnswer?.wrongChoices ?? []));
+  const [wrongFlash, flashWrong] = useWrongFlash();
   const attempts = useRef(storedAnswer?.attempts ?? 0);
   const firstTry = useRef(storedAnswer?.firstTry ?? null);
   const firstPicked = useRef(restoredPicked);
@@ -1712,7 +1716,7 @@ function MissingDigitScreen({ screen, c, storedAnswer, onAnswer, onNext, onPrev 
   const canAnswer = useCanAnswer(audio);
   const canAdvance = useAdvanceGate(solved, audio);
   const choose = (digit) => {
-    if (!canAnswer || solved || wrong.has(digit)) return;
+    if (!canAnswer || solved) return;
     const correct = digit === c.answer;
     attempts.current += 1;
     if (firstTry.current === null) {
@@ -1723,6 +1727,7 @@ function MissingDigitScreen({ screen, c, storedAnswer, onAnswer, onNext, onPrev 
     if (!correct) {
       const wrongChoices = [...wrong, digit];
       setWrong(new Set(wrongChoices));
+      flashWrong(digit);
       playSfx('wrong');
       pushFeedbackAudio(audio, t, lang, false, c.audio?.on_wrong ?? c.wrongText);
       onAnswer(makeAnswer({
@@ -1768,8 +1773,9 @@ function MissingDigitScreen({ screen, c, storedAnswer, onAnswer, onNext, onPrev 
               {digits.map((digit) => (
                 <button
                   type="button"
-                  className={`${wrong.has(digit) ? 'digit-choice-wrong' : ''} ${solved && digit === c.answer ? 'digit-choice-correct' : ''}`}
-                  disabled={!canAnswer || solved || wrong.has(digit)}
+                  data-g4-wrong-flash={wrongFlash === digit ? 'true' : undefined}
+                  className={`${solved && digit === c.answer ? 'digit-choice-correct' : ''}`}
+                  disabled={!canAnswer || solved || wrongFlash !== null}
                   aria-pressed={picked === digit}
                   data-qa-missing-digit={digit}
                   data-qa-correct={digit === c.answer ? 'true' : 'false'}
@@ -1800,6 +1806,7 @@ function RapidTestConsoleScreen({ screen, c, ordinalBase, storedAnswer, onAnswer
   const [completed, setCompleted] = useState(restored);
   const wrongByRound = useRef(initialWrongByRound);
   const [wrong, setWrong] = useState(() => new Set(initialWrongByRound[initialRound] ?? []));
+  const [wrongFlash, flashWrong] = useWrongFlash();
   const [numeric, setNumeric] = useState(storedAnswer?.numeric ?? (restored ? String(c.rounds.at(-1)?.answer ?? '') : ''));
   const [message, setMessage] = useState(() => storedAnswer?.feedback ? t(storedAnswer.feedback) : '');
   const firstTry = useRef(storedAnswer?.subResults ?? Array(c.rounds.length).fill(null));
@@ -1865,12 +1872,13 @@ function RapidTestConsoleScreen({ screen, c, ordinalBase, storedAnswer, onAnswer
     } else persist({ roundSolvedValue: true, feedback: null, studentAnswer });
   };
   const choose = (index) => {
-    if (!canAnswer || roundSolved || wrong.has(index)) return;
+    if (!canAnswer || roundSolved) return;
     const correct = index === current.correctIndex;
     if (!correct) {
       const nextWrong = [...new Set([...wrong, index])];
       wrongByRound.current[round] = nextWrong;
       setWrong(new Set(nextWrong));
+      flashWrong(index);
     }
     mark(correct, t(current.options[index]), current.wrong?.[index], current.wrongAudio?.[index]);
   };
@@ -1900,7 +1908,7 @@ function RapidTestConsoleScreen({ screen, c, ordinalBase, storedAnswer, onAnswer
           {current.id === 'zeroChain' ? <ZeroChainModel solved={roundSolved} /> : <div className="rapid-proof">{current.expression ?? current.id}</div>}
           <div className={`answer-stage ${current.kind === 'choice' ? 'answer-choice-persist' : ''}`}>
             <div className={`answer-layer answer-options-layer ${roundSolved && current.kind !== 'choice' ? 'answer-layer-hidden' : ''}`}>
-              {current.kind === 'choice' ? <div className="options-grid options-three">{optionOrder.map((sourceIndex, displayIndex) => <button type="button" className={`option ${wrong.has(sourceIndex) ? 'option-wrong' : ''} ${roundSolved && sourceIndex === current.correctIndex ? 'option-correct' : ''}`} disabled={!canAnswer || roundSolved || wrong.has(sourceIndex)} onClick={() => choose(sourceIndex)} data-g4-branch="choice" data-g4-source-index={sourceIndex} data-g4-correct={sourceIndex === current.correctIndex ? 'true' : 'false'} data-qa-rapid-option={sourceIndex} key={sourceIndex}><span className="option-letter">{String.fromCharCode(65 + displayIndex)}</span><span>{t(current.options[sourceIndex])}</span></button>)}</div> : <div className="numeric-row"><input type="text" inputMode="numeric" value={numeric} onChange={(event) => { setNumeric(event.target.value.replace(/[^0-9 ]/g, '')); setMessage(''); }} aria-label={t(current.prompt)} data-qa-answer={runtimeConfig.previewMode ? String(current.answer) : undefined} /><button type="button" className="btn btn-white-accent" disabled={!numeric.trim()} onClick={submitNumber}>{B('Tekshirish', 'Проверить', 'Check')[lang]}</button></div>}
+              {current.kind === 'choice' ? <div className="options-grid options-three">{optionOrder.map((sourceIndex, displayIndex) => <button type="button" data-g4-wrong-flash={wrongFlash === sourceIndex ? 'true' : undefined} className={`option ${roundSolved && sourceIndex === current.correctIndex ? 'option-correct' : ''}`} disabled={!canAnswer || roundSolved || wrongFlash !== null} onClick={() => choose(sourceIndex)} data-g4-branch="choice" data-g4-source-index={sourceIndex} data-g4-correct={sourceIndex === current.correctIndex ? 'true' : 'false'} data-qa-rapid-option={sourceIndex} key={sourceIndex}><span className="option-letter">{String.fromCharCode(65 + displayIndex)}</span><span>{t(current.options[sourceIndex])}</span></button>)}</div> : <div className="numeric-row"><input type="text" inputMode="numeric" value={numeric} onChange={(event) => { setNumeric(event.target.value.replace(/[^0-9 ]/g, '')); setMessage(''); }} aria-label={t(current.prompt)} data-qa-answer={runtimeConfig.previewMode ? String(current.answer) : undefined} /><button type="button" className="btn btn-white-accent" disabled={!numeric.trim()} onClick={submitNumber}>{B('Tekshirish', 'Проверить', 'Check')[lang]}</button></div>}
             </div>
             <div className={`answer-layer answer-proof-layer ${roundSolved ? 'answer-layer-visible' : ''}`}>{roundSolved && <BitAnswerComment formula={proof} label={t(c.correctText)}>{completed && <><ul className="solution-steps">{c.solution.steps.map((step, index) => <li key={index}>{t(step)}</li>)}</ul><strong className="rapid-complete" data-qa-rapid-complete="true">{t(c.completeText)}</strong></>}{!completed && <button type="button" className="btn btn-secondary" data-qa-rapid-next="true" disabled={!audio.muted && audio.isPlaying} onClick={nextRound}>{B('Keyingi mikrotest', 'Следующий микротест', 'Next micro-check')[lang]} →</button>}</BitAnswerComment>}</div>
           </div>
@@ -1912,7 +1920,7 @@ function RapidTestConsoleScreen({ screen, c, ordinalBase, storedAnswer, onAnswer
 }
 
 const TITLE_STYLES = `
-.g4-title-reveal-overlay{position:fixed;inset:0;z-index:120;display:grid;place-items:center;overflow:hidden;background:rgba(8,13,24,.78);animation:title-life 3.2s ease both}.g4-title-reveal-card{position:relative;width:100%;min-height:100dvh;display:grid;place-items:center;color:#fff;text-align:center;background:radial-gradient(circle,rgba(255,214,80,.2),transparent 34%)}.g4-title-reveal-rays{position:absolute;width:150vmax;height:150vmax;border-radius:50%;opacity:.28;background:repeating-conic-gradient(rgba(255,218,91,.88) 0 8deg,transparent 8deg 20deg);animation:title-rays 3.2s linear 1}.g4-title-reveal-medal{z-index:2;width:112px;height:112px;border:6px solid rgba(255,255,255,.72);border-radius:50%;display:grid;place-items:center;color:#653C00;background:linear-gradient(145deg,#FFF2A0,#FFC13B);font-size:52px;box-shadow:0 0 54px rgba(255,204,63,.5);animation:title-medal-in .9s cubic-bezier(.16,1,.3,1) both}.g4-title-reveal-card h2{position:absolute;top:calc(50% + 82px);z-index:2;width:min(680px,calc(100vw - 48px));font:750 clamp(30px,5vw,58px)/1.05 'Source Serif 4',serif;text-shadow:0 4px 24px #000;animation:title-copy-in .7s ease .35s both}.g4-title-card-stage{position:relative;min-height:116px;padding:14px 88px 14px 70px;border-radius:18px;color:#fff;background:linear-gradient(135deg,#173B52,#0E6978);overflow:hidden}.g4-title-card-bit{position:absolute;right:4px;bottom:0;width:72px;height:90px}.g4-title-card-bit .g1-char{position:static;width:100%;height:100%}.g4-title-card-medal{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:#5A3A00;background:#FFC23C}.g4-title-card-stage h2{font:750 clamp(17px,2.3vw,22px)/1.1 'Source Serif 4',serif}.g4-title-card-stage strong{color:#FFE284}.g4-title-claim{min-height:64px;width:100%;border:0;border-radius:16px;color:#fff;background:linear-gradient(135deg,#0E6978,#173B52);font-weight:850;cursor:pointer}@keyframes title-life{0%{opacity:0}12%,84%{opacity:1}100%{opacity:0}}@keyframes title-rays{to{transform:rotate(360deg)}}@keyframes title-medal-in{from{opacity:0;transform:scale(.35) rotate(-18deg)}to{opacity:1;transform:scale(1) rotate(0)}}@keyframes title-copy-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}@media(max-width:639.98px){.g4-title-reveal-medal{width:88px;height:88px;font-size:40px}.g4-title-reveal-card h2{top:calc(50% + 62px);font-size:29px}.g4-title-card-stage{height:88px;min-height:88px;padding:9px 59px 8px 51px;border-radius:14px;box-sizing:border-box}.g4-title-card-stage>span{display:block;font-size:9px;line-height:1.1}.g4-title-card-stage h2{margin:1px 0;font-size:14px;line-height:1.05}.g4-title-card-stage>strong{display:block;font-size:9px;line-height:1.1;white-space:nowrap}.g4-title-card-bit{width:57px;height:71px}.g4-title-card-medal{left:8px;width:34px;height:34px}}@media(prefers-reduced-motion:reduce){.g4-title-reveal-overlay,.g4-title-reveal-rays,.g4-title-reveal-medal,.g4-title-reveal-card h2{animation:none!important}.g4-title-reveal-rays,.g4-title-reveal-confetti{display:none!important}}
+.g4-title-reveal-overlay{position:fixed;inset:0;z-index:120;display:grid;place-items:center;overflow:hidden;background:rgba(8,13,24,.78);animation:title-life 3.2s ease both}.g4-title-reveal-card{position:relative;width:100%;min-height:100dvh;display:grid;place-items:center;color:#fff;text-align:center;background:radial-gradient(circle,rgba(255,214,80,.2),transparent 34%)}.g4-title-reveal-rays{position:absolute;width:150vmax;height:150vmax;border-radius:50%;opacity:.28;background:repeating-conic-gradient(rgba(255,218,91,.88) 0 8deg,transparent 8deg 20deg);animation:title-rays 3.2s linear 1}.g4-title-reveal-medal{z-index:2;width:112px;height:112px;border:6px solid rgba(255,255,255,.72);border-radius:50%;display:grid;place-items:center;color:#653C00;background:linear-gradient(145deg,#FFF2A0,#FFC13B);font-size:52px;box-shadow:0 0 54px rgba(255,204,63,.5);animation:title-medal-in .9s cubic-bezier(.16,1,.3,1) both}.g4-title-reveal-card h2{position:absolute;top:calc(50% + 82px);z-index:2;width:min(680px,calc(100vw - 48px));font:750 clamp(30px,5vw,58px)/1.05 'Source Serif 4',serif;text-shadow:0 4px 24px #000;animation:title-copy-in .7s ease .35s both}.g4-title-card-stage{position:relative;min-height:116px;padding:14px 88px 14px 70px;border-radius:18px;color:#fff;background:linear-gradient(135deg,#173B52,#0E6978);overflow:hidden;display:flex;flex-direction:column;justify-content:center;gap:3px}.g4-title-card-bit{position:absolute;right:4px;bottom:0;width:72px;height:90px}.g4-title-card-bit .g1-char{position:static;width:100%;height:100%}.g4-title-card-medal{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:#5A3A00;background:#FFC23C}.g4-title-card-stage h2{font:750 clamp(17px,2.3vw,22px)/1.1 'Source Serif 4',serif}.g4-title-card-stage strong{color:#FFE284}.g4-title-claim{min-height:64px;width:100%;border:0;border-radius:16px;color:#fff;background:linear-gradient(135deg,#0E6978,#173B52);font-weight:850;cursor:pointer}@keyframes title-life{0%{opacity:0}12%,84%{opacity:1}100%{opacity:0}}@keyframes title-rays{to{transform:rotate(360deg)}}@keyframes title-medal-in{from{opacity:0;transform:scale(.35) rotate(-18deg)}to{opacity:1;transform:scale(1) rotate(0)}}@keyframes title-copy-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}@media(max-width:639.98px){.g4-title-reveal-medal{width:88px;height:88px;font-size:40px}.g4-title-reveal-card h2{top:calc(50% + 62px);font-size:29px}.g4-title-card-stage{height:88px;min-height:88px;padding:9px 59px 8px 51px;border-radius:14px;box-sizing:border-box}.g4-title-card-stage>span{display:block;font-size:9px;line-height:1.1}.g4-title-card-stage h2{margin:1px 0;font-size:14px;line-height:1.05}.g4-title-card-stage>strong{display:block;font-size:9px;line-height:1.1;white-space:nowrap}.g4-title-card-bit{width:57px;height:71px}.g4-title-card-medal{left:8px;width:34px;height:34px}}@media(prefers-reduced-motion:reduce){.g4-title-reveal-overlay,.g4-title-reveal-rays,.g4-title-reveal-medal,.g4-title-reveal-card h2{animation:none!important}.g4-title-reveal-rays,.g4-title-reveal-confetti{display:none!important}}
 `;
 
 function TitleReveal({ active, title, lang, onDone }) {
@@ -2091,6 +2099,7 @@ export default function Grade4Dars08({
 }
 
 const STYLES = `
+${WRONG_FLASH_CSS}
 html:has(.d8-root),body:has(.d8-root),#root:has(.d8-root),.lesson-page:has(.d8-root),.lesson-frame:has(.d8-root){width:100%;height:100%;min-height:0!important;overflow:hidden!important;overscroll-behavior:none}html,body{margin:0;padding:0}.d8-root,.d8-root *{box-sizing:border-box}.d8-root{position:fixed;inset:0;overflow:clip;overscroll-behavior:none;contain:strict;isolation:isolate;font-family:'Manrope',system-ui,sans-serif;color:${T.ink};background:radial-gradient(circle at 12% 12%,rgba(22,143,163,.12),transparent 30%),radial-gradient(circle at 88% 80%,rgba(255,91,53,.10),transparent 32%),linear-gradient(145deg,#F7F8F4 0%,#EEF3F1 100%);-webkit-font-smoothing:antialiased}.d8-root h1,.d8-root h2,.d8-root h3,.d8-root p,.d8-root ul{margin:0;padding:0}.d8-root button{font:inherit}.preview-language{position:fixed;top:8px;right:8px;z-index:40;display:flex;gap:3px;padding:3px;border-radius:999px;background:#fff;box-shadow:0 8px 20px -14px rgba(${T.shadowBase},.6)}.preview-language button{padding:4px 9px;border:0;border-radius:999px;background:transparent;font-size:10px;font-weight:900}.preview-language .preview-active{color:#fff;background:${T.accent}}
 .stage{width:min(936px,100%);height:100dvh;margin:0 auto;display:flex;flex-direction:column}.stage-header{flex:0 0 auto;padding-top:6px;padding-bottom:4px;background:rgba(245,245,240,.96);z-index:3}.progress-track{height:6px;margin-bottom:4px;border-radius:999px;overflow:hidden;background:rgba(135,148,157,.22)}.progress-bar{height:100%;border-radius:inherit;background:linear-gradient(90deg,${T.cyan},${T.accent});box-shadow:0 0 12px rgba(255,91,53,.42);transition:width .55s ease}.stage-chrome,.chrome-title,.chrome-actions,.audio-controls{display:flex;align-items:center}.stage-chrome{justify-content:space-between;gap:12px}.chrome-title,.chrome-actions,.audio-controls{gap:8px}.chrome-title{min-width:0;color:${T.ink2};font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.chrome-title>span:last-child{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.status-dot{width:8px;height:8px;flex:0 0 auto;border-radius:50%;background:${T.accent};box-shadow:0 0 10px rgba(255,91,53,.65)}.screen-type{padding:4px 8px;border-radius:999px;color:${T.cyan};background:${T.cyanSoft};font-size:10px;font-weight:800}.screen-count{font:700 12px/1 'JetBrains Mono',monospace}.icon-btn{width:44px;height:44px;padding:0;border:0;border-radius:10px;color:${T.ink2};background:#fff;cursor:pointer;box-shadow:0 4px 12px -7px rgba(${T.shadowBase},.3)}
 .stage-content{flex:1 1 auto;min-height:0;position:relative;padding-top:8px;padding-bottom:8px;overflow:clip;display:flex;flex-direction:column;justify-content:flex-start}.stage-nav{flex:0 0 auto;min-height:68px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:9px;padding-bottom:max(9px,env(safe-area-inset-bottom));background:rgba(245,245,240,.98);box-shadow:0 -12px 28px -25px rgba(${T.shadowBase},.45);z-index:3}.btn{min-height:46px;padding:0 19px;border:0;border-radius:13px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:800;cursor:pointer;transition:transform .5s ease,background .5s ease,box-shadow .5s ease,opacity .5s ease}.btn:disabled{cursor:not-allowed;opacity:.42}.btn-ghost{color:${T.ink};background:transparent}.btn-white-accent{margin-left:auto;color:${T.accent};background:${T.paper};box-shadow:0 8px 22px -6px rgba(255,91,53,.3),0 0 0 1px rgba(255,91,53,.12)}.btn-ready{color:#fff;background:${T.accent}}.btn-secondary{min-height:39px;padding:0 13px;color:${T.cyan};background:${T.cyanSoft}}.screen-stack{width:100%;max-height:100%;display:flex;flex-direction:column;gap:9px}.screen-heading .eyebrow{color:${T.cyan};font-size:10px;font-weight:900;letter-spacing:.13em;text-transform:uppercase}.screen-heading h1{margin-top:3px;color:${T.navy};font:700 clamp(21px,3.1vw,31px)/1.08 'Source Serif 4',serif}.screen-heading p{margin-top:4px;color:${T.ink2};font-size:12px;line-height:1.35}.question-title{color:${T.navy};font:700 clamp(15px,2vw,19px)/1.25 'Source Serif 4',serif}

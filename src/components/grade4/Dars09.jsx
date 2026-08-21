@@ -10,6 +10,7 @@ import React, {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { canUseGrade4TheoryContinue } from './theoryNavigation.js';
+import { WRONG_FLASH_CSS, WRONG_FLASH_MS, useWrongFlash } from './wrongAnswerFlash.js';
 import { Grade4Finale, useGrade4TitleClaim } from './Grade4Finale.jsx';
 
 const selectLocale = (lang, values) => values[lang] ?? values.uz;
@@ -1433,9 +1434,8 @@ const Stage = ({ screen, audio, onPrev, onNext, finish = false, activityDone = t
       <section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>
         <div className="stage-fit">{children}</div>
       </section>
-      {audio?.caption && (audio.muted || audio.visualOnly) && (
-        <div className="audio-caption" role="status">{audio.caption}</div>
-      )}
+      {/* Metodist qarori (2026-08-21): ekran ostidagi to'q rangli subtitr olib
+          tashlandi — u ekran matnini takrorlab, sahnani bosib turardi. */}
       <footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>
         <NavBack onClick={onPrev} hidden={screen === 0} />
         <NavNext onClick={onNext} finish={finish} disabled={!activityDone || !(audio?.muted || audio?.completed)} />
@@ -1444,7 +1444,10 @@ const Stage = ({ screen, audio, onPrev, onNext, finish = false, activityDone = t
   );
 };
 
-const OptionGrid = ({ options, order = null, picked, correctIndex = null, solved = false, showWrong = false, onPick, disabled = false, dataRole = null, branch = false }) => {
+// Metodist qarori (2026-08-21): xato variant qizil bo'lib qolmaydi — qisqa vaqt
+// yonib, neytral holatiga qaytadi va yana tanlash mumkin. Faqat to'g'ri javob
+// variantlarni qulflaydi.
+const OptionGrid = ({ options, order = null, picked, correctIndex = null, solved = false, wrongFlash = null, onPick, disabled = false, dataRole = null, branch = false }) => {
   const t = useT();
   const optionOrder = order ?? options.map((_, index) => index);
   return (
@@ -1452,7 +1455,6 @@ const OptionGrid = ({ options, order = null, picked, correctIndex = null, solved
       {optionOrder.map((sourceIndex, displayIndex) => {
         const option = options[sourceIndex];
         const isCorrect = solved && sourceIndex === correctIndex;
-        const isWrong = picked === sourceIndex && (solved || showWrong) && sourceIndex !== correctIndex;
         return (
           <button
             type="button"
@@ -1460,10 +1462,12 @@ const OptionGrid = ({ options, order = null, picked, correctIndex = null, solved
             data-g4-branch={branch ? 'choice' : undefined}
             data-g4-source-index={branch ? sourceIndex : undefined}
             data-g4-correct={branch ? (sourceIndex === correctIndex ? 'true' : 'false') : undefined}
+            data-g4-wrong-flash={wrongFlash === sourceIndex ? 'true' : undefined}
             key={`${sourceIndex}-${t(option)}`}
-            className={`option ${picked === sourceIndex ? 'option-picked' : ''} ${isCorrect ? 'option-correct' : ''} ${isWrong ? 'option-wrong' : ''}`}
+            className={`option ${picked === sourceIndex && (solved || correctIndex === null) ? 'option-picked' : ''} ${isCorrect ? 'option-correct' : ''}`}
             onClick={() => onPick(sourceIndex)}
-            disabled={disabled}
+            // Flash davomida hamma variant band: bola xato izohini eshitib ulgursin.
+            disabled={disabled || wrongFlash !== null}
             aria-pressed={picked === sourceIndex}
           >
             <b>{String.fromCharCode(65 + displayIndex)}</b>
@@ -1514,10 +1518,12 @@ function Screen0({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
   const audio = useNarration(c.audio, screen);
   const picked = storedAnswer?.studentAnswerIndex ?? null;
   const ready = audio.completed || audio.muted;
+  const [wrongFlash, flashWrong] = useWrongFlash();
   const optionOrder = buildOptionOrder(c.options.length, 1, LESSON_META.lessonId, 0);
 
   const pick = (index) => {
     if (!ready || picked === 1) return;
+    if (index !== 1) flashWrong(index);
     playSfx(index === 1 ? 'correct' : 'wrong');
     audio.pushOneOff(t(c.wrong[index]));
     onAnswer({
@@ -1562,7 +1568,7 @@ function Screen0({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
           <span className="hook-bit" data-g4-role="hook-bit"><BitSVG state={picked === null ? 'think' : picked === 1 ? 'nod' : 'awkward'} /></span>
         </section>
         <section className="question-card">
-          <OptionGrid options={c.options} order={optionOrder} picked={picked} correctIndex={1} solved={picked === 1} showWrong onPick={pick} disabled={!ready || picked === 1} dataRole="answer-card" branch />
+          <OptionGrid options={c.options} order={optionOrder} picked={picked} correctIndex={1} solved={picked === 1} wrongFlash={wrongFlash} onPick={pick} disabled={!ready || picked === 1} dataRole="answer-card" branch />
           <FeedbackBlock visible={picked !== null} correct={picked === 1}>
             {picked !== null ? t(c.wrong[picked]) : ''}
           </FeedbackBlock>
@@ -1852,6 +1858,7 @@ function ScoredChoice({
   );
   const attemptsRef = useRef(storedAnswer?.attempts ?? 0);
   const firstTryRef = useRef(storedAnswer?.firstTry ?? true);
+  const [wrongFlash, flashWrong] = useWrongFlash();
   const optionOrder = buildOptionOrder(options.length, correctIndex, LESSON_META.lessonId, choiceOrdinal);
 
   const pick = (index) => {
@@ -1859,7 +1866,7 @@ function ScoredChoice({
     const attempts = attemptsRef.current + 1;
     attemptsRef.current = attempts;
     const correct = index === correctIndex;
-    if (!correct) firstTryRef.current = false;
+    if (!correct) { firstTryRef.current = false; flashWrong(index); }
     setPicked(index);
     setFeedbackIndex(index);
     setSolved(correct);
@@ -1894,7 +1901,7 @@ function ScoredChoice({
             picked={picked}
             correctIndex={correctIndex}
             solved={solved}
-            showWrong={feedbackIndex !== null && !solved}
+            wrongFlash={wrongFlash}
             onPick={pick}
             disabled={solved}
             branch
@@ -2113,7 +2120,13 @@ function Screen10({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
   const initial = storedAnswer?.correct ? target : [null, null, null, null];
   const [digits, setDigits] = useState(initial);
   const [active, setActive] = useState(() => initial.every(Boolean) ? null : 3);
-  const [wrongIndex, setWrongIndex] = useState(null);
+  // Metodist qarori (2026-08-21): xato raqam avval bo'sh katakka yozilsin, katak
+  // qizil bo'lib yonsin, so'ng raqam o'chib ketsin.
+  const [wrongEntry, setWrongEntry] = useState(null);
+  const wrongTimerRef = useRef(null);
+  useEffect(() => () => {
+    if (wrongTimerRef.current !== null) window.clearTimeout(wrongTimerRef.current);
+  }, []);
   const [message, setMessage] = useState(storedAnswer?.correct
     ? { uz: "To'g'ri. Oraliq natija 2 400.", ru: 'Верно. Промежуточный результат равен 2 400.', en: 'Correct. The partial product is 2 400.' }
     : null);
@@ -2138,7 +2151,12 @@ function Screen10({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
     attemptsRef.current += 1;
     if (digit !== target[active]) {
       firstTryRef.current = false;
-      setWrongIndex(active);
+      if (wrongTimerRef.current !== null) window.clearTimeout(wrongTimerRef.current);
+      setWrongEntry({ index: active, digit });
+      wrongTimerRef.current = window.setTimeout(() => {
+        wrongTimerRef.current = null;
+        setWrongEntry(null);
+      }, WRONG_FLASH_MS);
       setMessage(hints[active]);
       playSfx('wrong');
       audio.pushOneOff(t(hintsAudio[active]));
@@ -2161,7 +2179,11 @@ function Screen10({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
     const next = [...digits];
     next[active] = digit;
     setDigits(next);
-    setWrongIndex(null);
+    if (wrongTimerRef.current !== null) {
+      window.clearTimeout(wrongTimerRef.current);
+      wrongTimerRef.current = null;
+    }
+    setWrongEntry(null);
     setMessage(null);
     const nextActive = [3, 2, 1, 0].find((index) => next[index] === null) ?? null;
     setActive(nextActive);
@@ -2204,18 +2226,18 @@ function Screen10({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
               <button
                 type="button"
                 key={index}
-                className={`${active === index ? 'active' : ''} ${digit !== null ? 'locked' : ''} ${wrongIndex === index ? 'wrong' : ''}`}
+                className={`${active === index ? 'active' : ''} ${digit !== null ? 'locked' : ''} ${wrongEntry?.index === index ? 'wrong' : ''}`}
                 onClick={() => digit === null && setActive(index)}
                 disabled={digit !== null}
                 aria-label={`${index + 1}: ${digit ?? t({ uz: "bo'sh", ru: 'пусто', en: 'empty' })}`}
               >
-                {digit ?? ''}
+                {digit ?? (wrongEntry?.index === index ? wrongEntry.digit : '')}
               </button>
             ))}
           </div>
           <div className="keypad" aria-label={t({ uz: 'Raqamlar paneli', ru: 'Цифровая панель', en: 'Number keypad' })}>
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((digit) => (
-              <button type="button" key={digit} onClick={() => enterDigit(String(digit))} disabled={solved}>{digit}</button>
+              <button type="button" key={digit} onClick={() => enterDigit(String(digit))} disabled={solved || wrongEntry !== null}>{digit}</button>
             ))}
           </div>
         </section>
@@ -2287,13 +2309,24 @@ function Screen12({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
     [matches, solved],
   );
 
+  // Metodist qarori (2026-08-21): tuzilgan juftlikni o'zgartirish mumkin bo'lishi
+  // kerak. Chap kartani bosish juftlikni bo'shatadi, band o'ng karta esa yangi
+  // chap kartaga o'tadi.
   const chooseRight = (rightIndex) => {
     if (activeLeft === null || solved) return;
-    if (matches.includes(rightIndex)) return;
-    const next = [...matches];
+    const next = matches.map((value) => (value === rightIndex ? null : value));
     next[activeLeft] = rightIndex;
     setMatches(next);
     setActiveLeft(null);
+    setMessage(null);
+  };
+
+  const releaseLeft = (leftIndex) => {
+    if (solved) return;
+    const next = [...matches];
+    next[leftIndex] = null;
+    setMatches(next);
+    setActiveLeft(leftIndex);
     setMessage(null);
   };
 
@@ -2340,9 +2373,12 @@ function Screen12({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
                 key={item}
                 data-match-left={index}
                 className={`${activeLeft === index ? 'selected' : ''} ${matches[index] !== null ? 'matched' : ''}`}
-                onClick={() => { if (matches[index] === null) { setActiveLeft(index); setMessage(null); } }}
+                onClick={() => {
+                  if (matches[index] === null) { setActiveLeft(index); setMessage(null); }
+                  else releaseLeft(index);
+                }}
                 aria-pressed={activeLeft === index}
-                disabled={matches[index] !== null || solved}
+                disabled={solved}
               >
                 <span>{item}</span>
               </button>
@@ -2363,9 +2399,12 @@ function Screen12({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
                   key={item}
                   data-match-right={rightIndex}
                   className={used ? 'matched' : ''}
-                  onClick={() => chooseRight(rightIndex)}
+                  onClick={() => {
+                    if (activeLeft !== null) chooseRight(rightIndex);
+                    else if (used) releaseLeft(matches.indexOf(rightIndex));
+                  }}
                   aria-pressed={used}
-                  disabled={used || solved}
+                  disabled={solved}
                 >
                   {item}
                 </button>
@@ -2464,7 +2503,7 @@ function Screen13({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
               }}
               onKeyDown={(event) => event.key === 'Enter' && submit()}
             />
-            <button type="button" className="btn btn-white-accent" disabled={!value || solved} onClick={submit}>
+            <button type="button" className={`btn btn-white-accent ${value && !solved ? 'btn-ready' : ''}`} disabled={!value || solved} onClick={submit}>
               {t({ uz: 'Tekshirish', ru: 'Проверить' , en: "Check"})}
             </button>
           </div>
@@ -2690,6 +2729,7 @@ export default function Grade4Dars09({
 }
 
 const STYLES = `
+${WRONG_FLASH_CSS}
   .lesson-page:has(.lesson-root),
   .lesson-frame:has(.lesson-root) {
     width: 100%;
@@ -2903,15 +2943,36 @@ const STYLES = `
     color: white;
   }
 
+  /* Dars01 etaloni bo'yicha tayyor tugma to'ldirilgan bo'ladi. Bu darsda
+     .btn-ready qoidasi yo'q edi — tugma tekis ko'rinardi. */
+  .btn-white-accent.btn-ready:not(:disabled) {
+    background: ${T.accent};
+    color: white;
+    box-shadow: 0 13px 28px -14px rgba(255, 91, 53, .68);
+  }
+
   .btn:disabled,
   button:disabled {
     cursor: default;
     opacity: .54;
   }
 
+  /* Ustun min-content dan kichik bo'la olishi kerak: aks holda ichidagi
+     <input> ning tug'ma kengligi butun qatorni cho'zib, 390 px da o'ng chetdan
+     10 px chiqib ketardi (13-slayd, ombor vazifasi). */
   .screen-stack {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 14px;
+  }
+
+  .screen-stack > * {
+    min-width: 0;
+  }
+
+  .answer-input {
+    min-width: 0;
+    width: 100%;
   }
 
   .page-title {
@@ -3396,22 +3457,6 @@ const STYLES = `
     color: ${T.warn};
   }
 
-  .audio-caption {
-    position: relative;
-    flex: 0 0 auto;
-    z-index: 4;
-    width: min(680px, calc(100% - 96px));
-    margin: 3px auto;
-    padding: 6px 11px;
-    border-radius: 12px;
-    background: rgba(23, 59, 82, .94);
-    color: white;
-    text-align: center;
-    font-size: 10px;
-    line-height: 1.25;
-    box-shadow: 0 12px 28px -18px rgba(23, 59, 82, .8);
-  }
-
   .hook-scene {
     min-height: 238px;
     padding: 22px;
@@ -3419,7 +3464,7 @@ const STYLES = `
     position: relative;
     overflow: hidden;
     display: grid;
-    grid-template-columns: minmax(200px, .85fr) minmax(320px, 1.55fr) 100px;
+    grid-template-columns: minmax(216px, .85fr) minmax(320px, 1.55fr) 100px;
     align-items: center;
     gap: 18px;
     color: white;
@@ -3440,9 +3485,12 @@ const STYLES = `
     color: #7DE1EE;
   }
 
+  /* Metodist qarori (2026-08-21): ko'paytirilayotgan to'rt xonali son bir qatorda
+     turishi kerak — "3 × 2 408" ichidagi bo'sh joyda qatorga bo'linmasin. */
   .hook-copy strong {
     display: block;
-    font: 950 clamp(25px, 4vw, 40px)/1 'JetBrains Mono', monospace;
+    white-space: nowrap;
+    font: 950 clamp(22px, 3.1vw, 34px)/1.05 'JetBrains Mono', monospace;
   }
 
   .hook-copy p {
@@ -4374,8 +4422,9 @@ const STYLES = `
   }
 
   .digit-slots button.wrong {
-    background: ${T.warnSoft};
-    color: ${T.warn};
+    background: #FDECEA;
+    color: #C1392B;
+    box-shadow: inset 0 0 0 3px rgba(193, 57, 43, .45);
     animation: shake .38s ease both;
   }
 
@@ -4961,7 +5010,6 @@ const STYLES = `
     .stage-screen-4 .stage-fit { zoom: .75; }
     .stage-screen-8 .stage-fit { zoom: .9; }
     .stage-screen-15 .stage-fit { zoom: .78; }
-    .audio-caption { width: calc(100% - 28px); }
     .lesson-root {
       min-height: 100dvh;
     }
@@ -5136,7 +5184,7 @@ const STYLES = `
     }
 
     .hook-copy strong {
-      font-size: 22px;
+      font-size: 19px;
     }
 
     .hook-copy p {

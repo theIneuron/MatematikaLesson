@@ -96,12 +96,17 @@ export const FeedbackBlock = ({ show, correct, showBit = true, children }) => {
 // DOM markerlari (`data-g4-source-index`, `data-g4-correct`) javob pozitsiyasi
 // auditi uchun shart: ular bo'lmasa to'g'ri javob har doim bir joyda turgani
 // mashinada tekshirilmaydi.
+//
+// Xato javob DOIMIY qizil bo'lib qolmaydi: `flashKey` bergan variant qisqa
+// vaqt qizarib, so'ng neytral holatiga qaytadi va uni yana tanlash mumkin
+// bo'ladi (metodist qarori 2026-08-21, `wrongAnswerFlash.js`). Variantlarni
+// faqat TO'G'RI javob qulflaydi; qulflangach to'g'ri javob yashil bo'ladi,
+// qolganlari xiralashadi.
 export const Options = ({
-  items, picked, wrongSet, solved, correctIndex, disabled, onPick, stack = false, order = null,
+  items, picked, flashKey = null, solved, correctIndex, disabled, onPick, stack = false, order = null,
 }) => (
   <div className={`options ${stack || items.length > 4 ? 'options-stack' : ''} ${!stack && items.length === 4 ? 'options-two' : ''}`}>
     {items.map((item, index) => {
-      const isWrong = wrongSet.has(index);
       const isRight = solved && index === correctIndex;
       const sourceIndex = order ? order[index] : index;
       const displayIndex = index;
@@ -109,13 +114,19 @@ export const Options = ({
         <button
           type="button"
           key={index}
-          className={`option ${isWrong ? 'option-wrong' : ''} ${isRight ? 'option-right' : ''}`}
+          className={`option ${isRight ? 'option-right' : ''}`}
           data-g4-branch="choice"
           data-g4-source-index={sourceIndex}
           data-g4-display-index={displayIndex}
           data-g4-correct={index === correctIndex ? 'true' : 'false'}
-          disabled={disabled || isWrong || solved}
-          aria-pressed={picked === index}
+          data-g4-wrong-flash={flashKey === index ? 'true' : undefined}
+          data-g4-answer-dim={solved && index !== correctIndex ? 'true' : undefined}
+          // Flash davomida hamma variant band: bola xato izohini eshitib
+          // ulgursin. Flash tugagach o'sha variant yana bosiladi.
+          disabled={disabled || solved || flashKey !== null}
+          // Faqat yechilgan javob "tanlangan" bo'lib qoladi: xato tanlov flash
+          // tugagach neytral holatga qaytadi va aria ham shuni aytadi.
+          aria-pressed={solved && picked === index}
           onClick={() => onPick(index)}
         >
           <span className="option-key">{String.fromCharCode(65 + index)}</span>

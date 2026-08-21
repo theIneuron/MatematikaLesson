@@ -255,7 +255,7 @@ export const LevelFigure = ({ bars, level = null, target = null, settled = false
 // Katta belgilar sonlar bilan imzolanadi, ular orasidagi kichik belgilar esa
 // bo'linmalar. Bir bo'linma qiymati = katta belgilar farqi : bo'linmalar soni.
 //
-//   interactive — { target, picked, wrongSet, disabled, onPick }: bola belgini
+//   interactive — { target, picked, flashValue, disabled, onPick }: bola belgini
 //                 bosib javob beradi, tayyor variantdan tanlamaydi.
 // ---------------------------------------------------------------------------
 export const ScaleFigure = ({
@@ -364,7 +364,10 @@ export const ScaleFigure = ({
       {interactive && values.map((value) => {
         const { p } = tick(value);
         const right = Math.abs(value - interactive.target) < 1e-9;
-        const bad = Boolean(interactive.wrongSet?.has(value));
+        // Xato belgi doimiy qizil qolmaydi: `flashValue` faqat qisqa vaqt
+        // to'ldiriladi va so'ng null bo'ladi (metodist qarori 2026-08-21).
+        const bad = interactive.flashValue !== null && interactive.flashValue !== undefined
+          && Math.abs(value - interactive.flashValue) < 1e-9;
         const chosen = interactive.picked !== null && Math.abs(value - interactive.picked) < 1e-9;
         return (
           <g key={`hit-${value}`}>

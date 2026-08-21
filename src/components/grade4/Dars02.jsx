@@ -10,6 +10,7 @@ import React, {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { canUseGrade4TheoryContinue } from './theoryNavigation.js';
+import { WRONG_FLASH_CSS, useWrongFlash } from './wrongAnswerFlash.js';
 
 const G4_TITLE_STYLES = `
 .g4-title-reveal-overlay {
@@ -2385,6 +2386,7 @@ const ChoiceScreen = ({ screen, contentKey, choiceOrdinal, storedAnswer, onAnswe
   const [solved, setSolved] = useState(restored);
   const [attempts, setAttempts] = useState(restorableAnswer?.attempts ?? 0);
   const [wrongIndices, setWrongIndices] = useState(() => new Set(restorableAnswer?.wrongIndices ?? []));
+  const [wrongFlash, flashWrong] = useWrongFlash();
   const segments = useMemo(
     () => localizedSegments(c.audio?.intro ?? c.audio, lang, `s${screen}`),
     [c.audio, lang, screen],
@@ -2397,7 +2399,7 @@ const ChoiceScreen = ({ screen, contentKey, choiceOrdinal, storedAnswer, onAnswe
   const optionOrder = buildOptionOrder(c.options.length, c.correctIndex, LESSON_META.lessonId, choiceOrdinal);
 
   const choose = (index) => {
-    if (!canAnswer || solved || wrongIndices.has(index)) return;
+    if (!canAnswer || solved) return;
     const nextAttempts = attempts + 1;
     const correct = index === c.correctIndex;
     setPicked(index);
@@ -2406,6 +2408,7 @@ const ChoiceScreen = ({ screen, contentKey, choiceOrdinal, storedAnswer, onAnswe
       const nextWrong = new Set(wrongIndices);
       nextWrong.add(index);
       setWrongIndices(nextWrong);
+      flashWrong(index);
       playSfx('wrong');
       audio.pushOneOff(t(c.audio?.on_wrong?.[index] ?? c.wrong?.[index]));
       onAnswer({
@@ -2491,7 +2494,6 @@ const ChoiceScreen = ({ screen, contentKey, choiceOrdinal, storedAnswer, onAnswe
           <div className="options-grid">
             {optionOrder.map((sourceIndex, displayIndex) => {
               const option = c.options[sourceIndex];
-              const isWrong = wrongIndices.has(sourceIndex);
               const isCorrect = solved && sourceIndex === c.correctIndex;
               return (
                 <button
@@ -2500,9 +2502,10 @@ const ChoiceScreen = ({ screen, contentKey, choiceOrdinal, storedAnswer, onAnswe
                   data-g4-branch="choice"
                   data-g4-source-index={sourceIndex}
                   data-g4-correct={sourceIndex === c.correctIndex ? 'true' : 'false'}
-                  className={`option ${isWrong ? 'option-picked-wrong' : ''} ${isCorrect ? 'option-correct' : ''} ${solved && !isCorrect ? 'option-dismissed' : ''}`}
+                  data-g4-wrong-flash={wrongFlash === sourceIndex ? 'true' : undefined}
+                  className={`option ${isCorrect ? 'option-correct' : ''} ${solved && !isCorrect ? 'option-dismissed' : ''}`}
                   key={`${t(option)}-${sourceIndex}`}
-                  disabled={!canAnswer || solved || isWrong}
+                  disabled={!canAnswer || solved || wrongFlash !== null}
                   onClick={() => choose(sourceIndex)}
                 >
                   <span className="option-letter">{String.fromCharCode(65 + displayIndex)}</span>
@@ -3174,7 +3177,7 @@ const SpokenNumberBuilderScreen = ({ screen, storedAnswer, onAnswer, onNext, onP
             </div>
             {!solved && (
               <div className="builder-action-row">
-                <button type="button" className="btn btn-white-accent" data-qa-build-check="true" disabled={!canAnswer || available.length > 0} onClick={check}>
+                <button type="button" className={`btn btn-white-accent ${canAnswer && available.length === 0 ? 'btn-ready' : ''}`} data-qa-build-check="true" disabled={!canAnswer || available.length > 0} onClick={check}>
                   {lang === 'en' ? 'Check' : lang === 'ru' ? 'Проверить' : 'Tekshirish'}
                 </button>
               </div>
@@ -3281,11 +3284,10 @@ const ReadingMatchingScreen = ({ screen, storedAnswer, onAnswer, onNext, onPrev 
   const canAdvance = useAdvanceGate(solved, audio);
   const correctAnswer = c.pairs.map((pair) => `${pair.number} — ${t(pair.reading)}`).join('; ');
 
-  const match = (rightId, leftId = selected) => {
-    if (!canAnswer || solved || !leftId || pairs[leftId] || Object.values(pairs).includes(rightId)) return;
-    const nextPairs = { ...pairs, [leftId]: rightId };
+  // Juftliklarni yozadi va yangi holatni hisobotga ham uzatadi.
+  const commitPairs = (nextPairs, nextSelected = null) => {
     setPairs(nextPairs);
-    setSelected(null);
+    setSelected(nextSelected);
     setLastCorrect(null);
     setFeedback(null);
     onAnswer({
@@ -3303,6 +3305,35 @@ const ReadingMatchingScreen = ({ screen, storedAnswer, onAnswer, onNext, onPrev 
       solved: false,
       pairs: nextPairs,
     });
+  };
+
+  const match = (rightId, leftId = selected) => {
+    if (!canAnswer || solved || !leftId) return;
+    // Metodist qarori (2026-08-21): tanlovni o'zgartirish mumkin bo'lishi kerak.
+    // Shu sababli chap karta band bo'lsa ham yangi juftlik uning o'rnini oladi,
+    // o'ng karta band bo'lsa esa avvalgi juftligi bo'shatiladi.
+    const nextPairs = Object.fromEntries(
+      Object.entries(pairs).filter(([left, right]) => left !== leftId && right !== rightId),
+    );
+    nextPairs[leftId] = rightId;
+    commitPairs(nextPairs);
+  };
+
+  // Juftlikni bo'shatish: chap kartani bosganda u yana tanlangan holatga o'tadi.
+  const unmatchLeft = (leftId) => {
+    if (!canAnswer || solved || !pairs[leftId]) return;
+    const nextPairs = { ...pairs };
+    delete nextPairs[leftId];
+    commitPairs(nextPairs, leftId);
+  };
+
+  const unmatchRight = (rightId) => {
+    if (!canAnswer || solved) return;
+    const owner = Object.keys(pairs).find((left) => pairs[left] === rightId);
+    if (!owner) return;
+    const nextPairs = { ...pairs };
+    delete nextPairs[owner];
+    commitPairs(nextPairs, owner);
   };
 
   const check = () => {
@@ -3386,14 +3417,17 @@ const ReadingMatchingScreen = ({ screen, storedAnswer, onAnswer, onNext, onPrev 
             {c.pairs.map((pair) => (
               <button
                 type="button"
-                draggable={canAnswer && !solved && !pairs[pair.id]}
+                draggable={canAnswer && !solved}
                 data-match-left={pair.id}
                 className={`reading-match-card reading-number-card ${selected === pair.id ? 'reading-match-selected' : ''} ${pairs[pair.id] ? (solved ? 'reading-match-done' : 'reading-match-paired') : ''}`}
                 key={pair.id}
                 aria-pressed={selected === pair.id || Boolean(pairs[pair.id])}
                 onDragStart={(event) => event.dataTransfer.setData('text/plain', pair.id)}
-                onClick={() => !pairs[pair.id] && setSelected(selected === pair.id ? null : pair.id)}
-                disabled={!canAnswer || Boolean(pairs[pair.id])}
+                onClick={() => {
+                  if (pairs[pair.id]) unmatchLeft(pair.id);
+                  else setSelected(selected === pair.id ? null : pair.id);
+                }}
+                disabled={!canAnswer || solved}
               >
                 {pair.number}
               </button>
@@ -3412,8 +3446,11 @@ const ReadingMatchingScreen = ({ screen, storedAnswer, onAnswer, onNext, onPrev 
                   key={id}
                   onDragOver={(event) => event.preventDefault()}
                   onDrop={(event) => match(id, event.dataTransfer.getData('text/plain'))}
-                  onClick={() => match(id)}
-                  disabled={!canAnswer || used}
+                  onClick={() => {
+                    if (selected) match(id);
+                    else if (used) unmatchRight(id);
+                  }}
+                  disabled={!canAnswer || solved}
                 >
                   {t(pair.reading)}
                 </button>
@@ -3944,6 +3981,7 @@ export default function Grade4Dars02({ studentName, lang: langProp, ttsApiBase, 
 }
 
 const STYLES = `
+${WRONG_FLASH_CSS}
 html:has(.lesson-root),
 body:has(.lesson-root),
 #root:has(.lesson-root),

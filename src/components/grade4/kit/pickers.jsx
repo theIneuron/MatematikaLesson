@@ -12,6 +12,7 @@ import { canUseGrade4TheoryContinue } from '../theoryNavigation.js';
 import {
   playSfx, useCanAnswer, useLesson, useNarration, useT,
 } from '../theoryShell/runtime.js';
+import { useWrongFlash } from '../wrongAnswerFlash.js';
 import { FeedbackBlock, ModelCard, Stage } from './ui.jsx';
 import { explanationDone } from './gate.js';
 import { makeAnswer } from './answer.js';
@@ -39,12 +40,12 @@ export function LevelPick({ screen, storedAnswer, onAnswer, onPrev, onNext }) {
 
   const [picked, setPicked] = useState(storedAnswer?.solved ? c.correctLevel : null);
   const [solved, setSolved] = useState(Boolean(storedAnswer?.solved));
-  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const [flashKey, flashWrong] = useWrongFlash();
   const firstTry = useRef(storedAnswer?.firstTry ?? null);
   const attempts = useRef(storedAnswer?.attempts ?? 0);
 
   const pick = (value) => {
-    if (!canAnswer || solved || wrongSet.has(value)) return;
+    if (!canAnswer || solved || flashKey !== null) return;
     const right = value === c.correctLevel;
     attempts.current += 1;
     if (firstTry.current === null) firstTry.current = right;
@@ -53,7 +54,7 @@ export function LevelPick({ screen, storedAnswer, onAnswer, onPrev, onNext }) {
     const note = right ? c.correctText : (value > c.correctLevel ? c.tooHigh : c.tooLow);
     audio.pushOneOff(t(note));
     if (right) setSolved(true);
-    else setWrongSet((prev) => new Set([...prev, value]));
+    else flashWrong(value);
     onAnswer(makeAnswer({
       screen,
       meta,
@@ -89,11 +90,15 @@ export function LevelPick({ screen, storedAnswer, onAnswer, onPrev, onNext }) {
               <button
                 type="button"
                 key={value}
-                className={`level-tick ${solved && value === c.correctLevel ? 'level-tick-done' : ''} ${wrongSet.has(value) ? 'level-tick-bad' : ''} ${!solved && picked === value ? 'level-tick-active' : ''}`}
+                // Xato tanlovdan keyin belgi neytral bo'ladi; chizmada esa
+                // tanlangan balandlik qoladi — izoh shuni tushuntiradi.
+                className={`level-tick ${solved && value === c.correctLevel ? 'level-tick-done' : ''}`}
                 data-g4-branch="level"
                 data-g4-source-index={value}
                 data-g4-correct={value === c.correctLevel ? 'true' : 'false'}
-                disabled={!canAnswer || solved || wrongSet.has(value)}
+                data-g4-wrong-flash={flashKey === value ? 'true' : undefined}
+                data-g4-answer-dim={solved && value !== c.correctLevel ? 'true' : undefined}
+                disabled={!canAnswer || solved || flashKey !== null}
                 onClick={() => pick(value)}
               >
                 {value}
@@ -141,6 +146,7 @@ export function FormulaBuild({ screen, storedAnswer, onAnswer, onPrev, onNext, f
   const [step, setStep] = useState(storedAnswer?.solved ? c.target.length : 0);
   const [usedPool, setUsedPool] = useState(() => (storedAnswer?.solved ? new Set(c.pool.map((_, i) => i)) : new Set()));
   const [lastWrong, setLastWrong] = useState(false);
+  const [flashKey, flashWrong] = useWrongFlash();
   const firstTry = useRef(storedAnswer?.firstTry ?? null);
   const attempts = useRef(storedAnswer?.attempts ?? 0);
   const solved = step >= c.target.length;
@@ -148,13 +154,14 @@ export function FormulaBuild({ screen, storedAnswer, onAnswer, onPrev, onNext, f
   const need = solved ? null : c.target[step];
 
   const tap = (index) => {
-    if (!canAnswer || solved || usedPool.has(index)) return;
+    if (!canAnswer || solved || usedPool.has(index) || flashKey !== null) return;
     const right = c.pool[index] === need;
     attempts.current += 1;
     if (firstTry.current === null) firstTry.current = right;
     playSfx(right ? 'correct' : 'wrong');
     if (!right) {
       setLastWrong(true);
+      flashWrong(index);
       audio.pushOneOff(t(c.wrongText));
       return;
     }
@@ -214,7 +221,8 @@ export function FormulaBuild({ screen, storedAnswer, onAnswer, onPrev, onNext, f
                 data-g4-branch="token"
                 data-g4-source-index={index}
                 data-g4-correct={index === nextRightIndex ? 'true' : 'false'}
-                disabled={!canAnswer || solved || usedPool.has(index)}
+                data-g4-wrong-flash={flashKey === index ? 'true' : undefined}
+                disabled={!canAnswer || solved || usedPool.has(index) || flashKey !== null}
                 onClick={() => tap(index)}
               >
                 {token}
@@ -255,12 +263,12 @@ export function ScaleRead({ screen, storedAnswer, onAnswer, onPrev, onNext }) {
   const step = c.scale.majorEvery / c.scale.minorPerMajor;
   const [picked, setPicked] = useState(storedAnswer?.solved ? c.target : null);
   const [solved, setSolved] = useState(Boolean(storedAnswer?.solved));
-  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const [flashKey, flashWrong] = useWrongFlash();
   const firstTry = useRef(storedAnswer?.firstTry ?? null);
   const attempts = useRef(storedAnswer?.attempts ?? 0);
 
   const pick = (value) => {
-    if (!canAnswer || solved || wrongSet.has(value)) return;
+    if (!canAnswer || solved || flashKey !== null) return;
     const right = value === c.target;
     attempts.current += 1;
     if (firstTry.current === null) firstTry.current = right;
@@ -269,7 +277,7 @@ export function ScaleRead({ screen, storedAnswer, onAnswer, onPrev, onNext }) {
     const note = right ? c.correctText : (Math.abs(value - c.target) <= step ? c.wrongNear : c.wrongFar);
     audio.pushOneOff(t(note));
     if (right) setSolved(true);
-    else setWrongSet((prev) => new Set([...prev, value]));
+    else flashWrong(value);
     onAnswer(makeAnswer({
       screen,
       meta,
@@ -326,9 +334,11 @@ export function ScaleRead({ screen, storedAnswer, onAnswer, onPrev, onNext }) {
           caption={c.caption ? t(c.caption) : null}
           interactive={{
             target: c.target,
-            picked,
-            wrongSet,
-            disabled: !canAnswer || solved,
+            // Yechilmagan holatda shkalada hech qanday belgi qolmaydi: xato
+            // tanlov faqat `flashValue` orqali qisqa vaqt qizarib ko'rinadi.
+            picked: solved ? c.target : null,
+            flashValue: flashKey,
+            disabled: !canAnswer || solved || flashKey !== null,
             onPick: pick,
           }}
         />

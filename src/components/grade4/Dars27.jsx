@@ -1,5 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { WRONG_FLASH_CSS, useWrongFlash } from './wrongAnswerFlash.js';
+import { EMPTY_FEEDBACK_CSS } from './grade4LayoutFixStyles.js';
 
 // 4-SINF · 27-DARS · Massa birliklari (mass-4-27-v2)
 // ---------------------------------------------------------------------------
@@ -1252,7 +1254,12 @@ const FeedbackBlock = ({ show, correct, children, proof = null }) => {
     const first = requestAnimationFrame(() => { second = requestAnimationFrame(() => setOpen(true)); });
     return () => { cancelAnimationFrame(first); cancelAnimationFrame(second); };
   }, [show]);
-  return <div data-g4-role={show ? (correct ? 'feedback-frame bit-answer-comment' : 'feedback-frame') : undefined} data-g4-feedback={show ? (correct ? 'solution' : 'wrong') : undefined} role={show ? 'status' : undefined} aria-hidden={!show} className={`feedback feedback-slot ${correct ? 'correct' : 'wrong'} ${open ? 'open' : ''}`}><span className="feedback-bit" data-g4-role="feedback-bit"><BitSVG state={correct ? 'nod' : 'awkward'}/></span><p data-g4-role={show && correct ? 'bit-answer-comment' : undefined}>{show && correct && <b className="proof-label">{t({ uz: 'YECHIM', ru: 'РЕШЕНИЕ', en: 'SOLUTION' })}</b>}<span>{show ? children : ''}</span>{show && proof && <strong className="feedback-proof">{proof}</strong>}</p></div>;
+  // Javob berilmagan holatda blok BO'SH chiziladi: ilgari u Bit rasmi bilan
+  // to'liq chizilib, min-height 76px orqali savol ramkasi ichida 75 px
+  // ko'rinmas oq joy band qilardi (metodist qarori 2026-08-21). Uslub
+  // grade4LayoutFixStyles.js da — kitdagi xatti-harakat bilan bir xil.
+  if (!show) return <div className="feedback feedback-slot feedback-empty" aria-hidden="true"/>;
+  return <div data-g4-role={correct ? 'feedback-frame bit-answer-comment' : 'feedback-frame'} data-g4-feedback={correct ? 'solution' : 'wrong'} role="status" className={`feedback feedback-slot ${correct ? 'correct' : 'wrong'} ${open ? 'open' : ''}`}><span className="feedback-bit" data-g4-role="feedback-bit"><BitSVG state={correct ? 'nod' : 'awkward'}/></span><p data-g4-role={correct ? 'bit-answer-comment' : undefined}>{correct && <b className="proof-label">{t({ uz: 'YECHIM', ru: 'РЕШЕНИЕ', en: 'SOLUTION' })}</b>}<span>{children}</span>{proof && <strong className="feedback-proof">{proof}</strong>}</p></div>;
 };
 
 const Stage = ({ screen, audio, onPrev, onNext, nextDisabled: originalNextDisabled = false, finish = false, children }) => {
@@ -1281,13 +1288,15 @@ const FactCard = ({ show, text }) => {
 // so'zma-so'z takrorlar edi va ekranda bir xil matn ikki marta turardi.
 const Heading = ({ c, bit, hook = false, kicker = null }) => { const t = useT(); return <div className="heading"><div><span data-g4-role={hook ? 'hook-topic' : undefined}>{t(kicker ?? TOPIC_KICKER)}</span><h1 data-g4-role={hook ? 'hook-title' : undefined}>{t(c.title)}</h1></div>{bit && !hook && <BitSVG state={bit}/>}</div>; };
 
-// wrongSet - allaqachon tanlangan noto'g'ri variantlar. Ular joyida qoladi
-// (keep-visible), lekin xiralashadi va qayta bosilmaydi: bola bir xil xatoni
-// takrorlab urinmaydi, to'g'ri javobga yo'naltiriladi.
-const Options = ({ values, picked, onPick, correctIndex, solved, neutral = false, disabled = false, order = null, wrongSet = null }) => {
+// flashKey - HOZIR qizarib turgan xato variant (indeks yoki null). Xato
+// javob doimiy qizil qolmaydi: qisqa vaqt qizaradi, so'ng neytral holatiga
+// qaytadi va bola aynan o'sha variantni yana tanlashi mumkin. Variantlarni
+// faqat TO'G'RI javob qulflaydi (metodist qarori 2026-08-21,
+// wrongAnswerFlash.js). Qulflangach to'g'risi yashil, qolganlari xiralashadi.
+const Options = ({ values, picked, onPick, correctIndex, solved, neutral = false, disabled = false, order = null, flashKey = null }) => {
   const t = useT();
   const sourceOrder = order ?? values.map((_, index) => index);
-  return <div className="options">{sourceOrder.map((sourceIndex, displayIndex) => { const value = values[sourceIndex]; const isWrong = !neutral && (wrongSet ? wrongSet.has(sourceIndex) : picked === sourceIndex && picked !== correctIndex); return <button type="button" data-g4-role="answer-card" data-g4-source-index={order ? sourceIndex : undefined} data-g4-correct={order ? (sourceIndex === correctIndex ? 'true' : 'false') : undefined} key={sourceIndex + '-' + t(value)} className={'option ' + (picked === sourceIndex ? 'picked ' : '') + (!neutral && solved && sourceIndex === correctIndex ? 'right ' : '') + (isWrong ? 'bad' : '')} disabled={disabled || (!neutral && solved) || isWrong} onClick={() => onPick(sourceIndex)}><b>{String.fromCharCode(65 + displayIndex)}</b><span>{t(value)}</span></button>; })}</div>;
+  return <div className="options">{sourceOrder.map((sourceIndex, displayIndex) => { const value = values[sourceIndex]; const flashing = !neutral && flashKey === sourceIndex; return <button type="button" data-g4-role="answer-card" data-g4-source-index={order ? sourceIndex : undefined} data-g4-correct={order ? (sourceIndex === correctIndex ? 'true' : 'false') : undefined} data-g4-wrong-flash={flashing ? 'true' : undefined} data-g4-answer-dim={!neutral && solved && sourceIndex !== correctIndex ? 'true' : undefined} key={sourceIndex + '-' + t(value)} className={'option ' + ((neutral ? picked === sourceIndex : solved && picked === sourceIndex) ? 'picked ' : '') + (!neutral && solved && sourceIndex === correctIndex ? 'right ' : '')} disabled={disabled || (!neutral && solved) || (!neutral && flashKey !== null)} onClick={() => onPick(sourceIndex)}><b>{String.fromCharCode(65 + displayIndex)}</b><span>{t(value)}</span></button>; })}</div>;
 };
 
 
@@ -2064,7 +2073,7 @@ function Screen11({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
   const [index, setIndex] = useState(storedAnswer?.roundIndex ?? 0);
   const [picked, setPicked] = useState(null);
   const [solvedRound, setSolvedRound] = useState(false);
-  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const [flashKey, flashWrong, clearFlash] = useWrongFlash();
   const [correctCount, setCorrectCount] = useState(storedAnswer?.correctCount ?? 0);
   const [firstTryCount, setFirstTryCount] = useState(storedAnswer?.firstTryCount ?? 0);
   const attempts = useRef(0);
@@ -2078,10 +2087,10 @@ function Screen11({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
   const roundOrders = [roundOrder0, roundOrder1, roundOrder2];
   const order = roundOrders[Math.min(index, total - 1)];
   const pick = (option) => {
-    if (!ready || solvedRound || wrongSet.has(option)) return;
+    if (!ready || solvedRound || flashKey !== null) return;
     attempts.current += 1;
     const ok = option === round.correctIndex;
-    if (!ok) setWrongSet((previous) => new Set([...previous, option]));
+    if (!ok) flashWrong(option);
     setPicked(option);
     playSfx(ok ? 'correct' : 'wrong');
     audio.pushOneOff(t(round.feedbackAudio[option]));
@@ -2105,7 +2114,7 @@ function Screen11({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
     setIndex((value) => value + 1);
     setPicked(null);
     setSolvedRound(false);
-    setWrongSet(new Set());
+    clearFlash();
     attempts.current = 0;
   };
   return (
@@ -2115,7 +2124,7 @@ function Screen11({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
         <span className="round-meter">{t({ uz: 'Savol', ru: 'Вопрос', en: 'Question' })} {Math.min(index + 1, total)} / {total}</span>
         <section className="question round-question">
           <h2 className="mono">{t(round.question)}</h2>
-          <Options values={round.options} picked={picked} onPick={pick} correctIndex={round.correctIndex} solved={solvedRound} disabled={!ready} order={order} wrongSet={wrongSet} />
+          <Options values={round.options} picked={picked} onPick={pick} correctIndex={round.correctIndex} solved={solvedRound} disabled={!ready} order={order} flashKey={flashKey} />
           <FeedbackBlock show={picked !== null} correct={solvedRound} proof={solvedRound ? t(round.proof) : null}>
             {picked === null ? '' : t(round.feedback[picked])}
           </FeedbackBlock>
@@ -2190,7 +2199,7 @@ function Screen13({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
   const [index, setIndex] = useState(storedAnswer?.itemIndex ?? 0);
   const [picked, setPicked] = useState(null);
   const [solvedItem, setSolvedItem] = useState(false);
-  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const [flashKey, flashWrong, clearFlash] = useWrongFlash();
   const [value, setValue] = useState('');
   const [padState, setPadState] = useState(null);
   const [correctCount, setCorrectCount] = useState(storedAnswer?.correctCount ?? 0);
@@ -2227,10 +2236,10 @@ function Screen13({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
     register(ok, value, String(item.answer));
   };
   const pickOption = (option) => {
-    if (!ready || solvedItem || wrongSet.has(option)) return;
+    if (!ready || solvedItem || flashKey !== null) return;
     attempts.current += 1;
     const ok = option === item.correctIndex;
-    if (!ok) setWrongSet((previous) => new Set([...previous, option]));
+    if (!ok) flashWrong(option);
     setPicked(option);
     playSfx(ok ? 'correct' : 'wrong');
     // Har bir variantning o'z izohi aytiladi; umumiy on_wrong faqat zaxira.
@@ -2242,7 +2251,7 @@ function Screen13({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
     setIndex((current) => current + 1);
     setPicked(null);
     setSolvedItem(false);
-    setWrongSet(new Set());
+    clearFlash();
     setValue('');
     setPadState(null);
     attempts.current = 0;
@@ -2266,7 +2275,7 @@ function Screen13({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
                 unit={UNIT_KG}
               />
             )
-            : <Options values={item.options} picked={picked} onPick={pickOption} correctIndex={item.correctIndex} solved={solvedItem} disabled={!ready} order={order} wrongSet={wrongSet} />}
+            : <Options values={item.options} picked={picked} onPick={pickOption} correctIndex={item.correctIndex} solved={solvedItem} disabled={!ready} order={order} flashKey={flashKey} />}
           <FeedbackBlock show={item.kind === 'num' ? padState !== null : picked !== null} correct={solvedItem} proof={solvedItem ? t(item.proof) : null}>
             {item.kind === 'num'
               ? (solvedItem || padState === null ? '' : t(item.hint))
@@ -2295,14 +2304,14 @@ function ChoiceBody({ screen, c, ordinal, storedAnswer, onAnswer, onNext, onPrev
   );
   const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null);
   const [solved, setSolved] = useState(storedAnswer?.correct === true);
-  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const [flashKey, flashWrong] = useWrongFlash();
   const attempts = useRef(storedAnswer?.attempts ?? 0);
   const clean = useRef(storedAnswer?.firstTry ?? true);
   const pick = (index) => {
-    if (!ready || solved || wrongSet.has(index)) return;
+    if (!ready || solved || flashKey !== null) return;
     attempts.current += 1;
     const ok = index === c.correctIndex;
-    if (!ok) { clean.current = false; setWrongSet((previous) => new Set([...previous, index])); }
+    if (!ok) { clean.current = false; flashWrong(index); }
     setPicked(index);
     setSolved(ok);
     playSfx(ok ? 'correct' : 'wrong');
@@ -2322,7 +2331,7 @@ function ChoiceBody({ screen, c, ordinal, storedAnswer, onAnswer, onNext, onPrev
         {model && <section className={'model-card' + (compact ? ' compact' : '')} data-g4-role="visual-frame">{model}</section>}
         <section className="question">
           <h2>{t(c.question)}</h2>
-          <Options values={c.options} picked={picked} onPick={pick} correctIndex={c.correctIndex} solved={solved} disabled={!ready} order={order} wrongSet={wrongSet} />
+          <Options values={c.options} picked={picked} onPick={pick} correctIndex={c.correctIndex} solved={solved} disabled={!ready} order={order} flashKey={flashKey} />
           <FeedbackBlock show={picked !== null} correct={solved} proof={solved && c.proof ? t(c.proof) : null}>
             {picked === null ? '' : t(c.feedback[picked])}
           </FeedbackBlock>
@@ -2411,7 +2420,7 @@ const EtalonFinalScreen = ({ screen, c, answers, storedAnswer, onAnswer, onPrev,
   );
   /* eslint-enable react-hooks/exhaustive-deps */
   const [reflection, setReflection] = useState(storedAnswer?.reflection ?? null);
-  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const [flashKey, flashWrong] = useWrongFlash();
   const attempts = useRef(storedAnswer?.attempts ?? 0);
   const [rulesOpen, setRulesOpen] = useState(false);
   const [revealRequested, setRevealRequested] = useState(false);
@@ -2429,10 +2438,10 @@ const EtalonFinalScreen = ({ screen, c, answers, storedAnswer, onAnswer, onPrev,
   }, 0);
 
   const chooseReflection = (sourceIndex) => {
-    if (solved || wrongSet.has(sourceIndex) || !(audio.muted || audio.completed)) return;
+    if (solved || flashKey !== null || !(audio.muted || audio.completed)) return;
     setReflection(sourceIndex);
     const ok = sourceIndex === c.correctIndex;
-    if (!ok) setWrongSet((previous) => new Set([...previous, sourceIndex]));
+    if (!ok) flashWrong(sourceIndex);
     attempts.current += 1;
     playSfx(ok ? 'correct' : 'wrong');
     audio.pushOneOff(t(c.feedbackAudio[sourceIndex]));
@@ -2486,8 +2495,9 @@ const EtalonFinalScreen = ({ screen, c, answers, storedAnswer, onAnswer, onPrev,
                   data-g4-role="answer-card"
                   data-g4-source-index={sourceIndex}
                   data-g4-correct={sourceIndex === c.correctIndex ? 'true' : 'false'}
-                  className={`reflection-option ${wrongSet.has(sourceIndex) ? 'reflection-wrong' : ''} ${solved && sourceIndex === c.correctIndex ? 'option-answer-confirm' : ''} ${solved && sourceIndex !== c.correctIndex ? 'option-answer-dismiss' : ''}`}
-                  disabled={solved || wrongSet.has(sourceIndex)}
+                  className={`reflection-option ${solved && sourceIndex === c.correctIndex ? 'option-answer-confirm' : ''} ${solved && sourceIndex !== c.correctIndex ? 'option-answer-dismiss' : ''}`}
+                  data-g4-wrong-flash={flashKey === sourceIndex ? 'true' : undefined}
+                  disabled={solved || flashKey !== null}
                   onClick={() => chooseReflection(sourceIndex)}
                 >
                   <span>{String.fromCharCode(65 + displayIndex)}</span>
@@ -2601,7 +2611,7 @@ export default function Grade4Dars27({ studentName, lang: langProp, ttsApiBase, 
   const Current = SCREENS[current];
   return (
     <LangContext.Provider value={lang}>
-      <style>{STYLES + G4_ETALON_OVERRIDES + LESSON_STYLES}</style>
+      <style>{STYLES + G4_ETALON_OVERRIDES + LESSON_STYLES + WRONG_FLASH_CSS + EMPTY_FEEDBACK_CSS}</style>
       <div className={'lesson-root ' + (preview ? 'lesson-root-preview' : '')}>
         {showPreviewControls && (
           <div className="preview-language" aria-label={LANGUAGE_LABELS[lang]}>

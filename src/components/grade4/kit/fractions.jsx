@@ -13,6 +13,7 @@ import {
   playSfx, useCanAnswer, useLesson, useNarration, useT,
 } from '../theoryShell/runtime.js';
 import { T } from '../theoryShell/palette.js';
+import { useWrongFlash } from '../wrongAnswerFlash.js';
 import { FeedbackBlock, FitSvg, ModelCard, Stage } from './ui.jsx';
 import { explanationDone } from './gate.js';
 import { makeAnswer } from './answer.js';
@@ -39,8 +40,8 @@ export function FractionEntry({ screen, storedAnswer, onAnswer, onPrev, onNext, 
 
   const [den, setDen] = useState(storedAnswer?.solved ? c.den : null);
   const [num, setNum] = useState(storedAnswer?.solved ? c.num : null);
-  const [badDen, setBadDen] = useState(() => new Set());
-  const [badNum, setBadNum] = useState(() => new Set());
+  const [flashDen, flashWrongDen] = useWrongFlash();
+  const [flashNum, flashWrongNum] = useWrongFlash();
   const [note, setNote] = useState(null);
   const firstTry = useRef(storedAnswer?.firstTry ?? null);
   const attempts = useRef(storedAnswer?.attempts ?? 0);
@@ -63,23 +64,23 @@ export function FractionEntry({ screen, storedAnswer, onAnswer, onPrev, onNext, 
   };
 
   const pickDen = (value) => {
-    if (!canAnswer || solved || den !== null || badDen.has(value)) return;
+    if (!canAnswer || solved || den !== null || flashDen !== null) return;
     attempts.current += 1;
     const right = value === c.den;
     if (!right && firstTry.current === null) firstTry.current = false;
     playSfx(right ? 'correct' : 'wrong');
     if (right) { setDen(value); setNote(c.denDone); audio.pushOneOff(t(c.denDone)); }
-    else { setBadDen((prev) => new Set([...prev, value])); setNote(c.wrongDen); audio.pushOneOff(t(c.wrongDen)); }
+    else { flashWrongDen(value); setNote(c.wrongDen); audio.pushOneOff(t(c.wrongDen)); }
   };
 
   const pickNum = (value) => {
-    if (!canAnswer || solved || den === null || badNum.has(value)) return;
+    if (!canAnswer || solved || den === null || flashNum !== null) return;
     attempts.current += 1;
     const right = value === c.num;
     playSfx(right ? 'correct' : 'wrong');
     if (!right) {
       if (firstTry.current === null) firstTry.current = false;
-      setBadNum((prev) => new Set([...prev, value]));
+      flashWrongNum(value);
       setNote(c.wrongNum);
       audio.pushOneOff(t(c.wrongNum));
       return;
@@ -121,11 +122,13 @@ export function FractionEntry({ screen, storedAnswer, onAnswer, onPrev, onNext, 
                     <button
                       type="button"
                       key={value}
-                      className={`tile ${den === value ? 'tile-done' : ''} ${badDen.has(value) ? 'tile-bad' : ''}`}
+                      className={`tile ${den === value ? 'tile-done' : ''}`}
                       data-g4-branch="den"
                       data-g4-source-index={value}
                       data-g4-correct={stage === 'den' && value === c.den ? 'true' : 'false'}
-                      disabled={!canAnswer || den !== null || badDen.has(value)}
+                      data-g4-wrong-flash={flashDen === value ? 'true' : undefined}
+                      data-g4-answer-dim={den !== null && value !== c.den ? 'true' : undefined}
+                      disabled={!canAnswer || den !== null || flashDen !== null}
                       onClick={() => pickDen(value)}
                     >
                       {value}
@@ -140,11 +143,13 @@ export function FractionEntry({ screen, storedAnswer, onAnswer, onPrev, onNext, 
                     <button
                       type="button"
                       key={value}
-                      className={`tile ${num === value ? 'tile-done' : ''} ${badNum.has(value) ? 'tile-bad' : ''}`}
+                      className={`tile ${num === value ? 'tile-done' : ''}`}
                       data-g4-branch="num"
                       data-g4-source-index={value}
                       data-g4-correct={stage === 'num' && value === c.num ? 'true' : 'false'}
-                      disabled={!canAnswer || den === null || solved || badNum.has(value)}
+                      data-g4-wrong-flash={flashNum === value ? 'true' : undefined}
+                      data-g4-answer-dim={solved && value !== c.num ? 'true' : undefined}
+                      disabled={!canAnswer || den === null || solved || flashNum !== null}
                       onClick={() => pickNum(value)}
                     >
                       {value}
@@ -185,18 +190,19 @@ export function OrderStrip({ screen, storedAnswer, onAnswer, onPrev, onNext, fig
 
   const [step, setStep] = useState(storedAnswer?.solved ? c.order.length : 0);
   const [lastWrong, setLastWrong] = useState(false);
+  const [flashKey, flashWrong] = useWrongFlash();
   const firstTry = useRef(storedAnswer?.firstTry ?? null);
   const attempts = useRef(storedAnswer?.attempts ?? 0);
   const solved = step >= c.order.length;
   const placed = c.order.slice(0, step);
 
   const tap = (index) => {
-    if (!canAnswer || solved || placed.includes(index)) return;
+    if (!canAnswer || solved || placed.includes(index) || flashKey !== null) return;
     attempts.current += 1;
     const right = index === c.order[step];
     if (firstTry.current === null) firstTry.current = right;
     playSfx(right ? 'correct' : 'wrong');
-    if (!right) { setLastWrong(true); audio.pushOneOff(t(c.wrongText)); return; }
+    if (!right) { setLastWrong(true); flashWrong(index); audio.pushOneOff(t(c.wrongText)); return; }
     setLastWrong(false);
     const next = step + 1;
     setStep(next);
@@ -249,7 +255,8 @@ export function OrderStrip({ screen, storedAnswer, onAnswer, onPrev, onNext, fig
                 data-g4-branch="order"
                 data-g4-source-index={index}
                 data-g4-correct={!solved && index === c.order[step] ? 'true' : 'false'}
-                disabled={!canAnswer || solved || placed.includes(index)}
+                data-g4-wrong-flash={flashKey === index ? 'true' : undefined}
+                disabled={!canAnswer || solved || placed.includes(index) || flashKey !== null}
                 onClick={() => tap(index)}
               >
                 <FitSvg viewBox="0 0 72 76">

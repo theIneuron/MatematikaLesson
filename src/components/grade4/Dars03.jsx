@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { canUseGrade4TheoryContinue } from './theoryNavigation.js';
+import { WRONG_FLASH_CSS, useWrongFlash } from './wrongAnswerFlash.js';
 
 const G4_TITLE_STYLES = `
 .g4-title-reveal-overlay {
@@ -4057,7 +4058,7 @@ const ExpandedFormBuilderScreen = ({ screen, onAnswer, onNext, onPrev }) => {
             </div>
             {!solved && (
               <div className="expanded-builder-actions">
-                <button type="button" className="btn btn-white-accent" data-qa-build-check="true" disabled={!canAnswer || available.length > 0} onClick={check}>
+                <button type="button" className={`btn btn-white-accent ${canAnswer && available.length === 0 ? 'btn-ready' : ''}`} data-qa-build-check="true" disabled={!canAnswer || available.length > 0} onClick={check}>
                   {lang === 'en' ? 'Check' : lang === 'ru' ? 'Проверить' : 'Tekshirish'}
                 </button>
               </div>
@@ -4927,6 +4928,7 @@ const ChoiceScreen = ({ screen, contentKey, choiceOrdinal, shuffleOptions = true
   const [wrongIndices, setWrongIndices] = useState(() => new Set(restorableAnswer?.wrongIndices ?? []));
   const [pendingWrongIndex, setPendingWrongIndex] = useState(null);
   const [wrongResetArmed, setWrongResetArmed] = useState(false);
+  const [wrongFlash, flashWrong] = useWrongFlash();
   const segments = useMemo(
     () => localizedSegments(c.audio?.intro ?? c.audio, lang, `s${screen}`),
     [c.audio, lang, screen],
@@ -4968,6 +4970,7 @@ const ChoiceScreen = ({ screen, contentKey, choiceOrdinal, shuffleOptions = true
       setWrongIndices(nextWrong);
       setPendingWrongIndex(index);
       setWrongResetArmed(false);
+      flashWrong(index);
       playSfx('wrong');
       audio.pushOneOff(t(c.audio?.on_wrong?.[index] ?? c.wrong?.[index]));
       onAnswer({
@@ -5054,7 +5057,6 @@ const ChoiceScreen = ({ screen, contentKey, choiceOrdinal, shuffleOptions = true
           <div className="options-grid">
             {optionOrder.map((sourceIndex, displayIndex) => {
               const option = c.options[sourceIndex];
-              const isWrong = pendingWrongIndex === sourceIndex && picked === sourceIndex;
               const isCorrect = solved && sourceIndex === c.correctIndex;
               return (
                 <button
@@ -5063,7 +5065,8 @@ const ChoiceScreen = ({ screen, contentKey, choiceOrdinal, shuffleOptions = true
                   data-g4-branch={shuffleOptions ? 'choice' : undefined}
                   data-g4-source-index={shuffleOptions ? sourceIndex : undefined}
                   data-g4-correct={shuffleOptions ? (sourceIndex === c.correctIndex ? 'true' : 'false') : undefined}
-                  className={`option ${!solved && isWrong ? 'option-picked-wrong' : ''} ${isCorrect ? 'option-correct' : ''}`}
+                  data-g4-wrong-flash={!solved && wrongFlash === sourceIndex ? 'true' : undefined}
+                  className={`option ${isCorrect ? 'option-correct' : ''}`}
                   key={`${t(option)}-${sourceIndex}`}
                   disabled={!canAnswer || solved || pendingWrongIndex !== null}
                   onClick={() => choose(sourceIndex)}
@@ -5374,6 +5377,7 @@ export default function Grade4Dars03({ studentName, lang: langProp, ttsApiBase, 
 }
 
 const STYLES = `
+${WRONG_FLASH_CSS}
 html:has(.lesson-root),
 body:has(.lesson-root),
 #root:has(.lesson-root),

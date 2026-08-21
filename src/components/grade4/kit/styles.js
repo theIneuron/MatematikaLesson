@@ -11,6 +11,7 @@
 //   2) TO'Q SAHNA faqat birinchi ekranda (ETALON, Dars01 bilan bir xil
 //      gradient va radius). Qolgan ekranlar — yorug' kartochka.
 import { T } from '../theoryShell/palette.js';
+import { WRONG_FLASH_CSS } from '../wrongAnswerFlash.js';
 import { SUMMARY_STYLES } from './summaryStyles.js';
 
 export const KIT_STYLES = `
@@ -431,12 +432,8 @@ html, body { margin: 0; padding: 0; }
   font-size: 13px;
   font-weight: 800;
 }
-.option-wrong {
-  background: #FFF6F3;
-  box-shadow: inset 0 0 0 1.5px rgba(255,91,53,.55);
-  opacity: .72;
-}
-.option-wrong .option-key { background: ${T.accentSoft}; color: ${T.accent}; }
+/* Xato javobning DOIMIY qizil holati yo'q: u data-g4-wrong-flash atributi
+   orqali qisqa vaqt ko'rinadi (wrongAnswerFlash.js, qaror 2026-08-21). */
 .option-right {
   background: ${T.successSoft};
   box-shadow: inset 0 0 0 1.5px rgba(34,122,83,.5);
@@ -592,7 +589,6 @@ html, body { margin: 0; padding: 0; }
 }
 .slot-active { box-shadow: inset 0 0 0 2px ${T.cyan}; background: ${T.cyanSoft}; }
 .slot-done { background: ${T.successSoft}; box-shadow: inset 0 0 0 2px rgba(34,122,83,.45); color: ${T.success}; }
-.slot-bad { background: #FFF6F3; box-shadow: inset 0 0 0 2px rgba(255,91,53,.5); color: ${T.accent}; }
 
 .hint-line {
   color: ${T.ink2};
@@ -631,7 +627,6 @@ html, body { margin: 0; padding: 0; }
 .span-cell:hover:not(:disabled) { box-shadow: inset 0 0 0 2px rgba(22,143,163,.45); }
 .span-active { background: ${T.cyanSoft}; box-shadow: inset 0 0 0 2px ${T.cyan}; }
 .span-done { background: ${T.successSoft}; box-shadow: inset 0 0 0 2px rgba(34,122,83,.5); color: ${T.success}; }
-.span-bad { background: #FFF6F3; box-shadow: inset 0 0 0 2px rgba(255,91,53,.5); color: ${T.accent}; opacity: .8; }
 .span-tail {
   margin-left: 4px;
   font-family: 'JetBrains Mono', monospace;
@@ -717,7 +712,6 @@ html, body { margin: 0; padding: 0; }
   transition: box-shadow .16s, background .16s;
 }
 .chip:hover:not(:disabled) { box-shadow: inset 0 0 0 2px rgba(22,143,163,.45); }
-.chip-bad { background: #FFF6F3; box-shadow: inset 0 0 0 2px rgba(255,91,53,.5); color: ${T.accent}; opacity: .8; }
 .chip-done { background: ${T.successSoft}; box-shadow: inset 0 0 0 2px rgba(34,122,83,.5); color: ${T.success}; }
 
 .value-table {
@@ -793,7 +787,6 @@ html, body { margin: 0; padding: 0; }
 .level-tick:hover:not(:disabled) { box-shadow: inset 0 0 0 2px rgba(22,143,163,.45); }
 .level-tick:disabled { cursor: default; }
 .level-tick-active { background: rgba(255,91,53,.12); box-shadow: inset 0 0 0 2px ${T.accent}; color: ${T.accent}; }
-.level-tick-bad { background: #FFF6F3; box-shadow: inset 0 0 0 2px rgba(255,91,53,.5); color: ${T.accent}; opacity: .75; }
 .level-tick-done { background: ${T.successSoft}; box-shadow: inset 0 0 0 2px rgba(34,122,83,.5); color: ${T.success}; }
 .level-unit {
   margin-left: 4px;
@@ -985,7 +978,6 @@ html, body { margin: 0; padding: 0; }
 .tile:hover:not(:disabled) { box-shadow: inset 0 0 0 2px rgba(22,143,163,.45); }
 .tile:disabled { cursor: default; }
 .tile-done { background: ${T.successSoft}; box-shadow: inset 0 0 0 2px rgba(34,122,83,.5); color: ${T.success}; }
-.tile-bad { background: #FFF6F3; box-shadow: inset 0 0 0 2px rgba(255,91,53,.5); color: ${T.accent}; opacity: .8; }
 
 /* 19-dars: kasrlarni kichikdan kattaga tizish. */
 .order-line {
@@ -1077,6 +1069,10 @@ html, body { margin: 0; padding: 0; }
 `
 // Yakuniy ekran uslublari etalondan keladi (summaryStyles.js).
 + SUMMARY_STYLES
+
+// Xato javob ko'rsatkichi va to'g'ri javobdan keyingi xiralashish — umumiy
+// modulda (wrongAnswerFlash.js), 1-10 darslar bilan bir xil.
++ WRONG_FLASH_CSS
 
 // Past ekranlar uchun ixchamlashtirish. SUMMARY_STYLES dan KEYIN turadi,
 // shuning uchun bir xil solishtirmali og'irlikda ustun keladi.
