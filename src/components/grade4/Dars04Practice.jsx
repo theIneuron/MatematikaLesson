@@ -4,6 +4,7 @@
 // ============================================================================
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { PRACTICE_FIX_CSS } from './grade4PracticeFixStyles.js';
 
 const T = {
   bg: '#F5F5F0', paper: '#FFFFFF', ink: '#12212C', ink2: '#50616D', ink3: '#87949D',
@@ -218,7 +219,10 @@ const Feedback = ({ ok, text, rule, lang, feedbackRef }) => (
 );
 
 function Task({ task, lang, onSolved }) {
-  const options = useMemo(() => task.kind === 'mc' ? shuffle(task.options) : [], [task]);
+  // Xato javobdan keyin variantlar qayta aralashadi (metodist qarori 2026-08-21).
+  const [wrongRound, setWrongRound] = useState(0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- wrongRound ataylab yangi tartib beradi
+  const options = useMemo(() => task.kind === 'mc' ? shuffle(task.options) : [], [task, wrongRound]);
   const rightPairs = useMemo(() => task.kind === 'match' ? shuffle(task.pairs) : [], [task]);
   const orderItems = useMemo(() => task.kind === 'order' ? shuffle(task.items) : [], [task]);
   const [picked, setPicked] = useState(null);
@@ -231,13 +235,16 @@ function Task({ task, lang, onSolved }) {
   const [attempts, setAttempts] = useState(0);
   const feedbackRef = useRef(null);
 
-  const solved = checked && (
-    (task.kind === 'mc' && options[picked]?.correct === true)
+  // Javobning to'g'riligi `checked` dan ALOHIDA hisoblanadi: tekshirishda
+  // xato bo'lsa variantlar qayta aralashtiriladi.
+  const answerCorrect = (
+    (task.kind === 'mc' && picked?.correct === true)
     || (task.kind === 'gap' && gap === task.correctGap)
     || (task.kind === 'numpad' && typed === task.answer)
     || (task.kind === 'match' && task.pairs.every((pair, i) => pairs[i] === pair.id))
     || (task.kind === 'order' && task.answer.every((id, i) => order[i] === id))
   );
+  const solved = checked && answerCorrect;
   const canCheck = (task.kind === 'mc' && picked !== null)
     || (task.kind === 'gap' && gap !== null)
     || (task.kind === 'numpad' && typed !== '')
@@ -263,7 +270,7 @@ function Task({ task, lang, onSolved }) {
   }, [checked]);
 
   const wrongText = (() => {
-    if (task.kind === 'mc') return options[picked]?.wrong;
+    if (task.kind === 'mc') return picked?.wrong;
     if (task.kind === 'gap') return task.gapWrong?.[gap];
     if (task.kind === 'numpad') return task.hints[Math.min(Math.max(attempts - 1, 0), task.hints.length - 1)];
     return task.wrongText;
@@ -296,9 +303,9 @@ function Task({ task, lang, onSolved }) {
         <button
           key={`${task.id}-${i}`}
           type="button"
-          className={`p4-option ${picked === i ? (checked ? (option.correct ? 'is-ok' : 'is-no') : 'is-on') : ''}`}
+          className={`p4-option ${picked === option ? (checked ? (option.correct ? 'is-ok' : 'is-no') : 'is-on') : ''}`}
           disabled={solved}
-          onClick={() => { setPicked(i); setChecked(false); }}
+          onClick={() => { setPicked(option); setChecked(false); }}
         ><span className="p4-letter">{'ABCD'[i]}</span><span>{tx(option.text, lang)}</span></button>
       ))}</div>}
 
@@ -336,7 +343,7 @@ function Task({ task, lang, onSolved }) {
       {checked && <Feedback feedbackRef={feedbackRef} ok={solved} text={tx(solved ? task.correctText : wrongText, lang)} rule={task.rule} lang={lang} />}
 
       <div className="p4-actions">
-        {!solved && <button type="button" className="p4-btn" disabled={!canCheck} onClick={() => { setChecked(true); setAttempts((n) => n + 1); }}>{tx(UI.check, lang)}</button>}
+        {!solved && <button type="button" className="p4-btn" disabled={!canCheck} onClick={() => { setChecked(true); setAttempts((n) => n + 1); if (!answerCorrect) setWrongRound((old) => old + 1); }}>{tx(UI.check, lang)}</button>}
         {checked && !solved && <button type="button" className="p4-btn p4-btn-ghost" onClick={retry}>{tx(UI.retry, lang)}</button>}
         {solved && <button type="button" className="p4-btn p4-btn-ready" onClick={() => onSolved(attempts === 1)}>{tx(UI.next, lang)}</button>}
       </div>
@@ -371,7 +378,7 @@ export default function Grade4Dars04Practice({ lang: langProp, onFinished }) {
 
   return (
     <div className="p4-root">
-      <style>{STYLES}</style>
+      <style>{STYLES + PRACTICE_FIX_CSS}</style>
       {preview && <div className="p4-lang">{SUPPORTED_LANGS.map((code) => <button key={code} type="button" className={code === lang ? 'is-active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}
       <header className="p4-head">
         <div className="p4-progress"><div className="p4-progress-bar" style={{ width: `${percent}%` }} /></div>

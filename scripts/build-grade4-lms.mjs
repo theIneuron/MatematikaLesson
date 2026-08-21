@@ -1,11 +1,12 @@
 // ============================================================================
-// 4-sinf nazariy darslarini LMS uchun avtonom fayllarga yig'adi.
+// 4-sinf darslarini LMS uchun avtonom fayllarga yig'adi: nazariy ham, amaliyot ham.
 //
 // SABAB. LMS darsni BITTA fayl sifatida o'qiydi va faqat tashqi paketlarni
 // ko'taradi. src/components/grade4 ichidagi darslar esa `./kit/index.js`,
 // `../theoryShell/...`, `./wrongAnswerFlash.js` kabi lokal modullarga tayanadi —
-// shu holatda LMS ularni ochmaydi. Bu skript har bir darsni o'z bog'liqliklari
-// bilan birga bitta faylga qo'yadi.
+// shu holatda LMS ularni ochmaydi. Amaliyot darslari avval avtonom yozilgan edi,
+// lekin ular ham `./grade4PracticeFixStyles.js` ga o'tdi, ya'ni bir xil holatga
+// tushdi. Bu skript har bir darsni o'z bog'liqliklari bilan bitta faylga qo'yadi.
 //
 // SHAKL. Chiqish fayli 6-sinfning `lms-grade6-standalone` fayllari bilan bir xil
 // shaklda: bitta modul, ichida darsning o'z kodi va kerakli kit/theoryShell
@@ -17,9 +18,11 @@
 // SHA-guard (Dars01) buzilmaydi.
 //
 // Ishlatish:
-//   node scripts/build-grade4-lms.mjs            # 1-51
-//   node scripts/build-grade4-lms.mjs 15 41-51   # tanlab
-//   node scripts/build-grade4-lms.mjs --check    # tayyor fayllarni tekshirish
+//   node scripts/build-grade4-lms.mjs                       # nazariy 1-51
+//   node scripts/build-grade4-lms.mjs 15 41-51              # tanlab
+//   node scripts/build-grade4-lms.mjs --practice            # amaliyot 1-51
+//   node scripts/build-grade4-lms.mjs --all                 # ikkisi ham
+//   node scripts/build-grade4-lms.mjs --check               # tayyor fayllarni tekshirish
 // ============================================================================
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -45,7 +48,15 @@ const ALLOWED_IMPORTS = new Set([
   'react-dom/client',
 ]);
 
-const lessonFileName = (lessonNumber) => `Dars${String(lessonNumber).padStart(2, '0')}.jsx`;
+const lessonNo = (lessonNumber) => String(lessonNumber).padStart(2, '0');
+
+// Ikki tur bir xil qoida bo'yicha yig'iladi, faqat fayl nomi va sarlavha boshqa.
+const KINDS = {
+  theory: { label: 'nazariy', fileName: (n) => `Dars${lessonNo(n)}.jsx` },
+  practice: { label: 'amaliyot', fileName: (n) => `Dars${lessonNo(n)}Practice.jsx` },
+};
+
+const lessonFileName = (kind, lessonNumber) => KINDS[kind].fileName(lessonNumber);
 
 // Klassik JSX `React.createElement` yozadi, lekin kit ustida qurilgan darslar
 // (Dars11-20, 30, 41-51) React ni nomma-nom import qilmaydi: ular faqat
@@ -70,8 +81,12 @@ function makeReactImportPlugin() {
   };
 }
 
-function parseSelection(args) {
-  if (args.includes('--check')) return { checkOnly: true, lessons: [] };
+function parseSelection(argv) {
+  if (argv.includes('--check')) return { checkOnly: true, kinds: [], lessons: [] };
+  const kinds = argv.includes('--all')
+    ? ['theory', 'practice']
+    : argv.includes('--practice') ? ['practice'] : ['theory'];
+  const args = argv.filter((value) => !value.startsWith('--'));
   const selections = args.length ? args : [`${FIRST_LESSON}-${LAST_LESSON}`];
   const selected = new Set();
   for (const value of selections) {
@@ -84,7 +99,7 @@ function parseSelection(args) {
     }
     for (let lesson = start; lesson <= end; lesson += 1) selected.add(lesson);
   }
-  return { checkOnly: false, lessons: [...selected].sort((a, b) => a - b) };
+  return { checkOnly: false, kinds, lessons: [...selected].sort((a, b) => a - b) };
 }
 
 function hasDefaultExport(ast) {
@@ -122,8 +137,8 @@ function normalizeBuildOutputs(result) {
   return builds.flatMap((item) => item?.output || []);
 }
 
-async function bundleLesson(lessonNumber) {
-  const fileName = lessonFileName(lessonNumber);
+async function bundleLesson(kind, lessonNumber) {
+  const fileName = lessonFileName(kind, lessonNumber);
   const entry = path.join(sourceDir, fileName);
   await fs.access(entry);
 
@@ -154,36 +169,44 @@ async function bundleLesson(lessonNumber) {
   const chunk = normalizeBuildOutputs(result).find((item) => item.type === 'chunk' && item.isEntry);
   if (!chunk) throw new Error(`${fileName} uchun bundle yaratilmadi.`);
 
-  const banner = `/* 4-sinf ${lessonNumber}-dars: LMS uchun avtonom fayl.
-   Avtomatik yaratilgan: node scripts/build-grade4-lms.mjs ${lessonNumber}
+  const flag = kind === 'practice' ? '--practice ' : '';
+  const banner = `/* 4-sinf ${lessonNumber}-dars, ${KINDS[kind].label}: LMS uchun avtonom fayl.
+   Avtomatik yaratilgan: node scripts/build-grade4-lms.mjs ${flag}${lessonNumber}
    Manba: src/components/grade4/${fileName} — o'zgartirilmagan. */\n`;
   const code = `${banner}${chunk.code.trimEnd()}\n`;
   const imports = validateCode(code, fileName);
 
   await fs.mkdir(outputDir, { recursive: true });
   await fs.writeFile(path.join(outputDir, fileName), code, 'utf8');
-  return { lessonNumber, bytes: Buffer.byteLength(code), imports };
+  return { fileName, bytes: Buffer.byteLength(code), imports };
 }
 
+// Papkada nima bo'lsa, o'shani tekshiradi: shunda tur qo'shilganda ham
+// tekshiruv ro'yxatni qo'lda yangilashni talab qilmaydi.
 async function validateExistingFiles() {
+  const entries = (await fs.readdir(outputDir))
+    .filter((name) => /^Dars\d{2}(Practice)?\.jsx$/.test(name))
+    .sort();
+  if (!entries.length) throw new Error(`${outputDir}: tekshiriladigan fayl yo'q.`);
   const rows = [];
-  for (let lessonNumber = FIRST_LESSON; lessonNumber <= LAST_LESSON; lessonNumber += 1) {
-    const fileName = lessonFileName(lessonNumber);
+  for (const fileName of entries) {
     const code = await fs.readFile(path.join(outputDir, fileName), 'utf8');
     const imports = validateCode(code, fileName);
-    rows.push({ lessonNumber, bytes: Buffer.byteLength(code), imports });
+    rows.push({ fileName, bytes: Buffer.byteLength(code), imports });
   }
   return rows;
 }
 
 async function writeReadme() {
-  const readme = `# 4-sinf LMS standalone nazariy darslari
+  const readme = `# 4-sinf LMS standalone darslari
 
-Bu papkadagi \`Dars01.jsx\`–\`Dars${LAST_LESSON}.jsx\` fayllari LMS ga bittadan
-yuklash uchun yig'ilgan.
+Bu papkadagi fayllar LMS ga bittadan yuklash uchun yig'ilgan:
 
-- Har bir faylda darsning o'z kodi, kerakli \`kit/\` va \`theoryShell/\` qismlari
-  hamda barcha uslublar ichkarida.
+- \`Dars01.jsx\`–\`Dars${LAST_LESSON}.jsx\` — nazariy darslar;
+- \`Dars01Practice.jsx\`–\`Dars${LAST_LESSON}Practice.jsx\` — amaliyot darslari.
+
+- Har bir faylda darsning o'z kodi, kerakli \`kit/\`, \`theoryShell/\` va uslub
+  modullari hamda barcha CSS ichkarida.
 - \`./...\` yoki \`../...\` ko'rinishidagi lokal importlar yo'q.
 - Tashqariga faqat \`react\` va \`react-dom\` qoladi.
 - \`src/components/grade4\` manba fayllari o'zgartirilmaydi.
@@ -193,8 +216,10 @@ Papka \`.gitignore\` da: fayllar kerak bo'lganda qayta yaratiladi.
 Qayta yaratish:
 
 \`\`\`powershell
-npm run lms:grade4
-npm run lms:grade4:check
+npm run lms:grade4            # nazariy
+npm run lms:grade4:practice   # amaliyot
+npm run lms:grade4:all        # ikkisi ham
+npm run lms:grade4:check      # papkadagi hamma faylning shakli
 \`\`\`
 `;
   await fs.mkdir(outputDir, { recursive: true });
@@ -205,7 +230,7 @@ function printRows(rows) {
   for (const row of rows) {
     const imports = row.imports.length ? row.imports.join(', ') : 'none';
     const kb = (row.bytes / 1024).toFixed(0);
-    console.log(`${lessonFileName(row.lessonNumber)}\t${kb} KB\timports: ${imports}`);
+    console.log(`${row.fileName}\t${kb} KB\timports: ${imports}`);
   }
 }
 
@@ -216,7 +241,9 @@ if (selection.checkOnly) {
   console.log(`OK: ${rows.length} ta LMS fayli tekshirildi.`);
 } else {
   const rows = [];
-  for (const lessonNumber of selection.lessons) rows.push(await bundleLesson(lessonNumber));
+  for (const kind of selection.kinds) {
+    for (const lessonNumber of selection.lessons) rows.push(await bundleLesson(kind, lessonNumber));
+  }
   await writeReadme();
   printRows(rows);
   console.log(`OK: ${rows.length} ta LMS fayli yaratildi: ${outputDir}`);

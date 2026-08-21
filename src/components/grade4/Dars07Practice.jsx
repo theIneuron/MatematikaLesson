@@ -11,6 +11,7 @@
 // ============================================================================
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { PRACTICE_FIX_CSS } from './grade4PracticeFixStyles.js';
 
 const T = {
   bg: '#F5F5F0',
@@ -544,7 +545,10 @@ function SortTask({ task, lang, assignments, setAssignments, active, setActive, 
 }
 
 function Task({ task, lang, isLast, onSolved }) {
-  const options = useMemo(() => task.kind === 'mc' ? shuffle(task.options) : [], [task]);
+  // Xato javobdan keyin variantlar qayta aralashadi (metodist qarori 2026-08-21).
+  const [wrongRound, setWrongRound] = useState(0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- wrongRound ataylab yangi tartib beradi
+  const options = useMemo(() => task.kind === 'mc' ? shuffle(task.options) : [], [task, wrongRound]);
   const [picked, setPicked] = useState(null);
   const [typed, setTyped] = useState('');
   const [pairs, setPairs] = useState({});
@@ -561,13 +565,16 @@ function Task({ task, lang, isLast, onSolved }) {
   const sequence = task.kind === 'construct'
     ? slots.map((id) => task.cards.find((card) => card.id === id)?.symbol || '').join('')
     : '';
-  const solved = checked && (
-    (task.kind === 'mc' && options[picked]?.correct === true)
+  // Javobning to'g'riligi `checked` dan ALOHIDA hisoblanadi: tekshirishda
+  // xato bo'lsa variantlar qayta aralashtiriladi.
+  const answerCorrect = (
+    (task.kind === 'mc' && picked?.correct === true)
     || (task.kind === 'numpad' && typed === task.answer)
     || (task.kind === 'match' && task.pairs.every((pair, index) => pairs[index] === pair.id))
     || (task.kind === 'construct' && sequence === task.answer.join(''))
     || (task.kind === 'sort' && task.items.every((item) => assignments[item.id] === item.bin))
   );
+  const solved = checked && answerCorrect;
   const canCheck = (task.kind === 'mc' && picked !== null)
     || (task.kind === 'numpad' && typed !== '')
     || (task.kind === 'match' && Object.keys(pairs).length === task.pairs.length)
@@ -598,7 +605,7 @@ function Task({ task, lang, isLast, onSolved }) {
   }, [checked]);
 
   const wrongText = (() => {
-    if (task.kind === 'mc') return options[picked]?.wrong;
+    if (task.kind === 'mc') return picked?.wrong;
     if (task.kind === 'numpad') {
       return task.wrongByAnswer?.[typed]
         || task.hints[Math.min(Math.max(attempts - 1, 0), task.hints.length - 1)];
@@ -638,10 +645,10 @@ function Task({ task, lang, isLast, onSolved }) {
             <button
               key={`${task.id}-${index}`}
               type="button"
-              className={`p4-option ${picked === index ? (checked ? (option.correct ? 'is-ok' : 'is-no') : 'is-on') : ''}`}
+              className={`p4-option ${picked === option ? (checked ? (option.correct ? 'is-ok' : 'is-no') : 'is-on') : ''}`}
               disabled={solved}
-              aria-pressed={picked === index}
-              onClick={() => markChanged(() => setPicked(index))}
+              aria-pressed={picked === option}
+              onClick={() => markChanged(() => setPicked(option))}
             >
               <span className="p4-letter">{'ABCD'[index]}</span>
               <span>{tx(option.text, lang)}</span>
@@ -712,7 +719,7 @@ function Task({ task, lang, isLast, onSolved }) {
             type="button"
             className="p4-btn"
             disabled={!canCheck}
-            onClick={() => { setChecked(true); setAttempts((count) => count + 1); }}
+            onClick={() => { setChecked(true); setAttempts((count) => count + 1); if (!answerCorrect) setWrongRound((old) => old + 1); }}
           >{tx(UI.check, lang)}</button>
         )}
         {checked && !solved && (
@@ -779,7 +786,7 @@ export default function Grade4Dars07Practice({ lang: langProp, onFinished }) {
 
   return (
     <div className="p4-root">
-      <style>{STYLES}</style>
+      <style>{STYLES + PRACTICE_FIX_CSS}</style>
       {preview && (
         <div className="p4-lang" role="group" aria-label={tx(UI.language, lang)}>
           {SUPPORTED_LANGS.map((code) => (

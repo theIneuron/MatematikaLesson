@@ -4,6 +4,7 @@
 // ============================================================================
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { PRACTICE_FIX_CSS } from './grade4PracticeFixStyles.js';
 
 const T = {
   bg: '#F5F5F0',
@@ -262,8 +263,9 @@ function TaskVisual({ visual, lang }) {
   </div>;
 }
 
-function ChoiceInput({ task, lang, runSeed, pickedId, setPickedId, checked, correct, locked }) {
-  const options = useMemo(() => shuffle(task.options, `${task.id}:${runSeed}`), [task.options, task.id, runSeed]);
+function ChoiceInput({ task, lang, runSeed, wrongRound, pickedId, setPickedId, checked, correct, locked }) {
+  // Urug'ga `wrongRound` kiradi: har xato javobdan keyin tartib boshqa bo'ladi.
+  const options = useMemo(() => shuffle(task.options, `${task.id}:${runSeed}:${wrongRound}`), [task.options, task.id, runSeed, wrongRound]);
   return <div className="p4-options" role="group" aria-label={tx(task.prompt, lang)}>
     {options.map((item, index) => {
       const state = checked && pickedId === item.id ? (correct ? 'ok' : 'no') : (pickedId === item.id ? 'on' : '');
@@ -346,6 +348,8 @@ function PracticeTask({ task, index, lang, runSeed, onSolved }) {
   const [checked, setChecked] = useState(false);
   const [solved, setSolved] = useState(false);
   const [attempts, setAttempts] = useState(0);
+  // Xato javobdan keyin variantlar qayta aralashadi (metodist qarori 2026-08-21).
+  const [wrongRound, setWrongRound] = useState(0);
   const advancedRef = useRef(false);
   const feedbackRef = useRef(null);
 
@@ -377,7 +381,7 @@ function PracticeTask({ task, index, lang, runSeed, onSolved }) {
     const nextAttempts = attempts + 1;
     const correct = responseCorrect();
     setAttempts(nextAttempts); setChecked(true);
-    if (correct) setSolved(true);
+    if (correct) setSolved(true); else setWrongRound((old) => old + 1);
   };
 
   const answerSnapshot = () => {
@@ -408,7 +412,7 @@ function PracticeTask({ task, index, lang, runSeed, onSolved }) {
     <h2 id={`p4-task-${task.id}`}>{tx(task.prompt, lang)}</h2>
     <p className="p4-setup">{tx(task.setup, lang)}</p>
     <TaskVisual visual={task.visual} lang={lang} />
-    {(task.kind === 'mc' || task.kind === 'card') && <ChoiceInput task={task} lang={lang} runSeed={runSeed} pickedId={pickedId} setPickedId={(value) => { setPickedId(value); setChecked(false); }} checked={checked} correct={solved} locked={solved} />}
+    {(task.kind === 'mc' || task.kind === 'card') && <ChoiceInput task={task} lang={lang} runSeed={runSeed} wrongRound={wrongRound} pickedId={pickedId} setPickedId={(value) => { setPickedId(value); setChecked(false); }} checked={checked} correct={solved} locked={solved} />}
     {(task.kind === 'numpad' || task.kind === 'missing') && <NumberInput task={task} lang={lang} typed={typed} setTyped={(value) => { setTyped(value); setChecked(false); }} locked={solved} />}
     {task.kind === 'match' && <MatchInput task={task} lang={lang} runSeed={runSeed} pairs={pairs} setPairs={(value) => { setPairs(value); setChecked(false); }} activeLeft={activeLeft} setActiveLeft={setActiveLeft} locked={solved} />}
     {task.kind === 'order' && <OrderInput task={task} lang={lang} runSeed={runSeed} placed={placed} setPlaced={(value) => { setPlaced(value); setChecked(false); }} activeStep={activeStep} setActiveStep={setActiveStep} locked={solved} />}
@@ -485,7 +489,7 @@ export default function Grade4Dars22Practice({ studentName, lang: langProp, onFi
   };
 
   return <div className="p4-root">
-    <style>{CSS}</style>
+    <style>{CSS + PRACTICE_FIX_CSS}</style>
     <main className="p4-main">
       <header className="p4-header">
         <div><span className="p4-kicker">4 · 22</span><h1>{tx(UI.title, lang)}</h1></div>

@@ -21,9 +21,12 @@
     "guard:grade4:kit": "node scripts/grade4-kit-lesson-guard.mjs",
     "audit:grade4:practice-31-40": "node scripts/grade4-practice-31-40-layout.mjs --check && node scripts/grade4-practice-31-40-audit.mjs",
     "lms:grade4": "node scripts/build-grade4-lms.mjs",
+    "lms:grade4:practice": "node scripts/build-grade4-lms.mjs --practice",
+    "lms:grade4:all": "node scripts/build-grade4-lms.mjs --all",
     "lms:grade4:check": "node scripts/build-grade4-lms.mjs --check",
     "audit:grade4:answer-lock": "node scripts/grade4-answer-lock-audit.mjs",
-    "audit:grade4:frames": "node scripts/grade4-frame-gap-audit.mjs"
+    "audit:grade4:frames": "node scripts/grade4-frame-gap-audit.mjs",
+    "audit:grade4:rule-rows": "node scripts/grade4-rule-rows-audit.mjs"
   },
   "dependencies": {
     "framer-motion": "^12.42.2",

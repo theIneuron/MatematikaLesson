@@ -7,8 +7,10 @@
 // React ostida chinakam render qilinadi va konsol xatolari yig'iladi.
 //
 // Ishlatish:
-//   node scripts/grade4-lms-render-check.mjs            # 1-51, uz
+//   node scripts/grade4-lms-render-check.mjs                  # nazariy 1-51, uz
 //   node scripts/grade4-lms-render-check.mjs 15 41-51
+//   node scripts/grade4-lms-render-check.mjs --practice       # amaliyot 1-51
+//   node scripts/grade4-lms-render-check.mjs --all            # ikkisi ham
 //   GRADE4_LMS_LANGS=uz,ru,en node scripts/grade4-lms-render-check.mjs 15
 // ============================================================================
 import fs from 'node:fs/promises';
@@ -29,9 +31,13 @@ const LAST_LESSON = 51;
 const LANGS = (process.env.GRADE4_LMS_LANGS || 'uz').split(',').map((v) => v.trim()).filter(Boolean);
 const PORT = Number(process.env.GRADE4_LMS_PORT || 5311);
 
-const lessonName = (n) => `Dars${String(n).padStart(2, '0')}`;
+const lessonName = (n, kind) => `Dars${String(n).padStart(2, '0')}${kind === 'practice' ? 'Practice' : ''}`;
 
-function parseSelection(args) {
+function parseSelection(argv) {
+  const kinds = argv.includes('--all')
+    ? ['theory', 'practice']
+    : argv.includes('--practice') ? ['practice'] : ['theory'];
+  const args = argv.filter((value) => !value.startsWith('--'));
   const selections = args.length ? args : [`${FIRST_LESSON}-${LAST_LESSON}`];
   const selected = new Set();
   for (const value of selections) {
@@ -44,7 +50,7 @@ function parseSelection(args) {
     }
     for (let lesson = start; lesson <= end; lesson += 1) selected.add(lesson);
   }
-  return [...selected].sort((a, b) => a - b);
+  return { kinds, lessons: [...selected].sort((a, b) => a - b) };
 }
 
 // Sinov sahifasi: LMS bergan proplar bilan bitta standalone faylni mount qiladi.
@@ -157,7 +163,7 @@ async function checkLesson(page, dars, lang) {
   return problems;
 }
 
-const lessons = parseSelection(process.argv.slice(2));
+const { kinds, lessons } = parseSelection(process.argv.slice(2));
 await writeProbe();
 
 const server = await createServer({
@@ -174,17 +180,21 @@ const context = await browser.newContext({ viewport: { width: 1366, height: 768 
 const page = await context.newPage();
 
 let failed = 0;
+let total = 0;
 try {
-  for (const lessonNumber of lessons) {
-    const dars = lessonName(lessonNumber);
-    for (const lang of LANGS) {
-      const problems = await checkLesson(page, dars, lang);
-      if (problems.length) {
-        failed += 1;
-        console.log(`FAIL ${dars} [${lang}]`);
-        for (const problem of problems.slice(0, 6)) console.log(`     ${problem}`);
-      } else {
-        console.log(`ok   ${dars} [${lang}]`);
+  for (const kind of kinds) {
+    for (const lessonNumber of lessons) {
+      const dars = lessonName(lessonNumber, kind);
+      for (const lang of LANGS) {
+        total += 1;
+        const problems = await checkLesson(page, dars, lang);
+        if (problems.length) {
+          failed += 1;
+          console.log(`FAIL ${dars} [${lang}]`);
+          for (const problem of problems.slice(0, 6)) console.log(`     ${problem}`);
+        } else {
+          console.log(`ok   ${dars} [${lang}]`);
+        }
       }
     }
   }
@@ -194,7 +204,7 @@ try {
 }
 
 if (failed) {
-  console.log(`\nXATO: ${failed} ta sinov muvaffaqiyatsiz.`);
+  console.log(`\nXATO: ${failed} ta sinov muvaffaqiyatsiz (${total} tadan).`);
   process.exit(1);
 }
-console.log(`\nOK: ${lessons.length * LANGS.length} ta sinov o'tdi.`);
+console.log(`\nOK: ${total} ta sinov o'tdi.`);

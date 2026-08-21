@@ -4,6 +4,7 @@
 // ============================================================================
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { PRACTICE_FIX_CSS } from './grade4PracticeFixStyles.js';
 
 const T = {
   bg: '#F5F5F0', paper: '#FFFFFF', ink: '#12212C', ink2: '#50616D', ink3: '#87949D',
@@ -454,7 +455,7 @@ export default function Grade4Dars08Practice({ lang: langProp, onFinished }) {
 
   return (
     <div className="p4-root">
-      <style>{STYLES}</style>
+      <style>{STYLES + PRACTICE_FIX_CSS}</style>
       {preview && <div className="p4-lang" role="group" aria-label={tx(UI.language, lang)}>{SUPPORTED_LANGS.map((code) => <button key={code} type="button" className={code === lang ? 'is-active' : ''} aria-pressed={code === lang} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}
       <header className="p4-head">
         <div className="p4-progress" role="progressbar" aria-label={tx(LESSON_META.lessonTitle, lang)} aria-valuemin="0" aria-valuemax="10" aria-valuenow={finished ? 10 : index}><div className="p4-progress-bar" style={{ width: `${percent}%` }} /></div>

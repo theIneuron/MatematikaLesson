@@ -2,6 +2,7 @@
 // 10 topshiriq, UZ/RU/EN, ovozsiz, solve-to-advance.
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { PRACTICE_FIX_CSS } from './grade4PracticeFixStyles.js';
 
 const T = {
   bg: '#F5F5F0',
@@ -276,7 +277,10 @@ function Task({ task, lang, isLast, runId, onSolved }) {
   const advancedRef = useRef(false);
   const feedbackRef = useRef(null);
   const scrollTimerRef = useRef(null);
-  const options = useMemo(() => shuffle(task.options || [], runId), [task, runId]);
+  // Xato javobdan keyin variantlar qayta aralashadi (metodist qarori 2026-08-21).
+  const [wrongRound, setWrongRound] = useState(0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- wrongRound ataylab yangi tartib beradi
+  const options = useMemo(() => shuffle(task.options || [], runId), [task, runId, wrongRound]);
   const rightCards = useMemo(() => shuffle(task.right || [], runId), [task, runId]);
   const orderCards = useMemo(() => shuffle(task.cards || [], runId), [task, runId]);
 
@@ -320,7 +324,7 @@ function Task({ task, lang, isLast, runId, onSolved }) {
     checkingRef.current = true;
     const nextAttempts = attempts + 1;
     setAttempts(nextAttempts); setChecked(true);
-    if (answerCorrect()) setSolved(true);
+    if (answerCorrect()) setSolved(true); else setWrongRound((old) => old + 1);
   };
   const setAnswer = (setter, value) => { checkingRef.current = false; setter(value); setChecked(false); };
   const pickedOption = task.kind === 'mc' ? task.options.find((item) => item.id === picked) : null;
@@ -392,7 +396,7 @@ export default function Grade4Dars25Practice({ lang: langProp, onFinished }) {
     setIndex(0); setAnswers([]); setFirstTry(0); setFinished(false);
   };
 
-  return <div className="p4-root"><style>{STYLES}</style>
+  return <div className="p4-root"><style>{STYLES + PRACTICE_FIX_CSS}</style>
     {preview && <div className="p4-lang" role="group" aria-label={tx(UI.language, lang)}>{SUPPORTED_LANGS.map((code) => <button type="button" key={code} aria-pressed={lang === code} className={lang === code ? 'is-active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}
     <header className="p4-head"><div className="p4-progress" role="progressbar" aria-label={tx(UI.title, lang)} aria-valuemin="0" aria-valuemax="10" aria-valuenow={finished ? 10 : index}><div className="p4-progress-bar" style={{ width: `${percent}%` }}/></div><div className="p4-head-row"><span className="p4-title">{tx(UI.title, lang)}</span><span className="p4-counter">{finished ? 10 : index + 1} / 10</span></div></header>
     <main className="p4-main">{finished ? <section className="p4-done" aria-live="polite"><h2>{tx(UI.done, lang)}</h2><p className="p4-score"><b>{firstTry}</b><span>/ 10</span></p><p className="p4-note">{tx(UI.firstTry, lang)}</p><p className="p4-complete">{tx(UI.allSolved, lang)}</p><button type="button" className="p4-btn p4-btn-ready" onClick={restart}>{tx(UI.again, lang)}</button></section> : <Task key={`${runId}-${task.id}`} task={task} lang={lang} isLast={index === 9} runId={runId} onSolved={onSolved}/>}</main>

@@ -4,6 +4,7 @@
 // ============================================================================
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { PRACTICE_FIX_CSS } from './grade4PracticeFixStyles.js';
 
 const b = (ru, uz, en) => ({ ru, uz, en });
 const option = (id, ru, uz, en, correct = false, wrongRu = '', wrongUz = '', wrongEn = '') => ({
@@ -239,8 +240,10 @@ function Task({ task, lang, isLast, onSolved, shuffleSeed }) {
   const [activeLeft, setActiveLeft] = useState(null); const [placed, setPlaced] = useState({}); const [activeStep, setActiveStep] = useState(null);
   const [attempts, setAttempts] = useState(0); const [checked, setChecked] = useState(false); const [solved, setSolved] = useState(false); const [advancing, setAdvancing] = useState(false);
   const checkingRef = useRef(false); const advancedRef = useRef(false);
+  // Xato javobdan keyin variantlar qayta aralashadi (metodist qarori 2026-08-21).
+  const [wrongRound, setWrongRound] = useState(0);
   // eslint-disable-next-line react-hooks/exhaustive-deps -- restart/task keys intentionally trigger a fresh shuffle
-  const options = useMemo(() => shuffle(task.options || []), [shuffleSeed, task.id, task.options]);
+  const options = useMemo(() => shuffle(task.options || []), [shuffleSeed, task.id, task.options, wrongRound]);
   // eslint-disable-next-line react-hooks/exhaustive-deps -- restart/task keys intentionally trigger a fresh shuffle
   const rightCards = useMemo(() => shuffle(task.right || []), [shuffleSeed, task.id, task.right]);
   // eslint-disable-next-line react-hooks/exhaustive-deps -- restart/task keys intentionally trigger a fresh shuffle
@@ -254,7 +257,7 @@ function Task({ task, lang, isLast, onSolved, shuffleSeed }) {
   };
   const clearResponse = () => { checkingRef.current = false; setChecked(false); setPickedId(null); setTyped(''); setPairs({}); setActiveLeft(null); setPlaced({}); setActiveStep(null); };
   const setResponse = (setter, value) => { checkingRef.current = false; setter(value); setChecked(false); };
-  const check = () => { if (!answerReady || solved || checked || checkingRef.current) return; checkingRef.current = true; setAttempts((old) => old + 1); setChecked(true); if (answerCorrect()) setSolved(true); };
+  const check = () => { if (!answerReady || solved || checked || checkingRef.current) return; checkingRef.current = true; setAttempts((old) => old + 1); setChecked(true); if (answerCorrect()) setSolved(true); else setWrongRound((old) => old + 1); };
   const pickedOption = task.kind === 'mc' ? task.options.find((item) => item.id === pickedId) : null;
   const studentAnswer = task.kind === 'mc' ? { optionId: pickedId, text: pickedOption?.text } : task.kind === 'numpad' || task.kind === 'missing' ? { value: typed } : task.kind === 'match' ? { pairs } : { order: task.steps.map((step) => placed[step.id]) };
   const correctAnswer = task.kind === 'mc' ? (() => { const item = task.options.find((candidate) => candidate.correct); return { optionId: item.id, text: item.text }; })() : task.kind === 'numpad' || task.kind === 'missing' ? { value: task.answer } : task.kind === 'match' ? { pairs: Object.fromEntries(task.pairs.map((pair) => [pair.id, pair.correctRight])) } : { order: task.cards.slice().sort((a, c) => a.order - c.order).map((card) => card.id) };
@@ -285,7 +288,7 @@ export default function Grade4Dars28Practice({ studentName, lang: langProp, onFi
       durationSec: startedAtRef.current ? Math.max(0, Math.floor((Date.now() - startedAtRef.current) / 1000)) : 0, skillTags: [...new Set(TASKS.map((item) => item.skillTag))], levelBreakdown, lessonMeta: LESSON_META, screenMeta: SCREEN_META, answers: nextAnswers });
   };
   const restart = () => { finishedRef.current = false; startedAtRef.current = Date.now(); setIndex(0); setAnswers([]); setFirstTry(0); setFinished(false); setRunId((old) => old + 1); };
-  return <div className="p4-root"><style>{STYLES}</style>{preview && <div className="p4-lang" role="group" aria-label={tx(UI.language, lang)}>{SUPPORTED_LANGS.map((code) => <button type="button" key={code} aria-pressed={lang === code} className={lang === code ? 'is-active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}<header><div className="p4-progress" role="progressbar" aria-label={tx(UI.title, lang)} aria-valuemin="0" aria-valuemax="10" aria-valuenow={finished ? 10 : index}><i style={{ width: `${percent}%` }}/></div><div><span className="p4-title">{tx(UI.title, lang)}</span><b className="p4-counter">{finished ? 10 : index + 1} / 10</b></div></header><main>{finished ? <section className="p4-done" aria-live="polite"><h2>{tx(UI.done, lang)}</h2><strong>{firstTry}<small>/ 10</small></strong><p>{tx(UI.firstTry, lang)}</p><p>{tx(UI.allSolved, lang)}</p><button type="button" className="p4-btn p4-btn-ready" onClick={restart}>{tx(UI.again, lang)}</button></section> : <Task key={`${runId}-${task.id}`} task={task} lang={lang} isLast={index === 9} onSolved={onSolved} shuffleSeed={`${LESSON_META.lessonId}:${runId}`}/>}</main></div>;
+  return <div className="p4-root"><style>{STYLES + PRACTICE_FIX_CSS}</style>{preview && <div className="p4-lang" role="group" aria-label={tx(UI.language, lang)}>{SUPPORTED_LANGS.map((code) => <button type="button" key={code} aria-pressed={lang === code} className={lang === code ? 'is-active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}<header><div className="p4-progress" role="progressbar" aria-label={tx(UI.title, lang)} aria-valuemin="0" aria-valuemax="10" aria-valuenow={finished ? 10 : index}><i style={{ width: `${percent}%` }}/></div><div><span className="p4-title">{tx(UI.title, lang)}</span><b className="p4-counter">{finished ? 10 : index + 1} / 10</b></div></header><main>{finished ? <section className="p4-done" aria-live="polite"><h2>{tx(UI.done, lang)}</h2><strong>{firstTry}<small>/ 10</small></strong><p>{tx(UI.firstTry, lang)}</p><p>{tx(UI.allSolved, lang)}</p><button type="button" className="p4-btn p4-btn-ready" onClick={restart}>{tx(UI.again, lang)}</button></section> : <Task key={`${runId}-${task.id}`} task={task} lang={lang} isLast={index === 9} onSolved={onSolved} shuffleSeed={`${LESSON_META.lessonId}:${runId}`}/>}</main></div>;
 }
 
 const STYLES = `

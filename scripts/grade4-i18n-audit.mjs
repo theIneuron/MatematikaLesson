@@ -405,9 +405,14 @@ function inspectAst(file, source, ast, practice) {
 }
 
 const requested = new Set(process.argv.slice(2).map((value) => value.replace(/\.jsx$/, '')));
+// Amaliyot qamrovi 30 ta bilan qotib qolmaydi: kurs 51 darsdan iborat, shuning
+// uchun har qanday DarsNNPractice (NN = 01..51) tekshiruvga KIRADI. Ilgari
+// ro'yxat 30 ta bilan chegaralangan edi va yangi amaliyot fayli «scope
+// tashqarisidagi fayl» deb xato beribgina qolmay, i18n tekshiruvidan ham
+// tushib qolardi — ya'ni eng kerakli joyda tekshirilmasdan o'tardi.
 const targetNames = new Set([
   ...Array.from({ length: 51 }, (_, index) => `Dars${String(index + 1).padStart(2, '0')}.jsx`),
-  ...Array.from({ length: 30 }, (_, index) => `Dars${String(index + 1).padStart(2, '0')}Practice.jsx`),
+  ...Array.from({ length: 51 }, (_, index) => `Dars${String(index + 1).padStart(2, '0')}Practice.jsx`),
 ]);
 const discoveredEntries = (await readdir(GRADE4_DIR))
   .filter((name) => /^Dars\d{2}(?:Practice)?\.jsx$/.test(name))
@@ -421,9 +426,11 @@ const entries = requested.size === 0
 const theory = allEntries.filter((name) => !name.includes('Practice'));
 const practice = allEntries.filter((name) => name.includes('Practice'));
 if (requested.size === 0 && unexpectedEntries.length) failures.push(`Inventory — scope tashqarisidagi fayllar: ${unexpectedEntries.join(', ')}`);
-if (requested.size === 0 && allEntries.length !== 81) failures.push(`Inventory — jami ${allEntries.length}, kutilgan 81`);
 if (requested.size === 0 && theory.length !== 51) failures.push(`Inventory — theory ${theory.length}, kutilgan 51`);
-if (requested.size === 0 && practice.length !== 30) failures.push(`Inventory — practice ${practice.length}, kutilgan 30`);
+// Amaliyot soni o'sib boradi, lekin kamayib ketmasligi kerak: 30 ta ko'rikdan
+// o'tgan bank baza, undan yuqorisi — yangi bloklar.
+if (requested.size === 0 && practice.length < 30) failures.push(`Inventory — practice ${practice.length}, kamida 30 bo'lishi kerak`);
+if (requested.size === 0 && allEntries.length !== theory.length + practice.length) failures.push(`Inventory — jami ${allEntries.length}, theory va practice yig'indisiga teng emas`);
 if (requested.size > 0 && entries.length !== requested.size) failures.push(`Inventory — so'ralgan ${requested.size} fayldan ${entries.length} tasi topildi`);
 
 for (const file of entries) {

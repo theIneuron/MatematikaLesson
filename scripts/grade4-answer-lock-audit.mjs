@@ -14,6 +14,7 @@
 // Ishlatish:
 //   npx vite preview --port 4173 --strictPort
 //   node scripts/grade4-answer-lock-audit.mjs [11 12 ...]
+//   LANG_G4=ru node scripts/grade4-answer-lock-audit.mjs   # rus tilida
 import process from 'node:process';
 import { writeFileSync } from 'node:fs';
 import { chromium } from 'playwright';
@@ -23,6 +24,11 @@ const JOBS = Number(process.env.JOBS || 4);
 const OUT = process.env.OUT || '.tmp-answer-lock.json';
 // `WRONG_FLASH_MS` = 1400; ustiga zapas qo'shamiz.
 const FLASH_WAIT = Number(process.env.FLASH_WAIT || 2100);
+// Til platformadan '?lang=' bilan keladi. Mexanika tildan mustaqil, lekin
+// variant tartibi va matnlar tilga bog'liq — shuning uchun uchala tilda ham
+// yugurtirish mumkin: LANG_G4=ru node scripts/grade4-answer-lock-audit.mjs
+// (nomi LANG_G4, chunki LANG tizim o'zgaruvchisi va allaqachon to'ldirilgan)
+const LANG = process.env.LANG_G4 || '';
 
 const SLUGS = {
   11: 'dars11-kop-xonali-sonni-uch-xonali-songa-kopaytirish',
@@ -86,7 +92,7 @@ const auditLesson = async (lesson) => {
   let tested = 0;
 
   try {
-    await page.goto(`${BASE}/4-sinf/matematika/nazariy/${slug}`, { waitUntil: 'load' });
+    await page.goto(`${BASE}/4-sinf/matematika/nazariy/${slug}${LANG ? `?lang=${LANG}` : ''}`, { waitUntil: 'load' });
     await page.waitForSelector('.stage', { timeout: 40000 });
     await page.waitForTimeout(500);
     const mute = page.locator('.audio-controls button, .audio-indicator button').first();
@@ -187,7 +193,7 @@ const auditLesson = async (lesson) => {
 
   report.push({ lesson, tested, problems, consoleErrors: errors.slice(0, 4) });
   const tag = problems.length ? `${problems.length} MUAMMO` : 'toza';
-  console.log(`Dars ${String(lesson).padStart(2, '0')}: ${tested} ekran sinaldi — ${tag}${errors.length ? `, ${errors.length} konsol xatosi` : ''}`);
+  console.log(`${LANG ? LANG.toUpperCase() + ' ' : ''}Dars ${String(lesson).padStart(2, '0')}: ${tested} ekran sinaldi — ${tag}${errors.length ? `, ${errors.length} konsol xatosi` : ''}`);
 };
 
 const queue = [...lessons];

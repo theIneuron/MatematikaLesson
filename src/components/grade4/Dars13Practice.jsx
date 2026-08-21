@@ -5,6 +5,7 @@
 // ============================================================================
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { PRACTICE_FIX_CSS } from './grade4PracticeFixStyles.js';
 
 const T = {
   bg: '#F5F5F0', paper: '#FFFFFF', ink: '#12212C', ink2: '#50616D', ink3: '#87949D',
@@ -406,7 +407,10 @@ function Feedback({ task, solved, attempts, wrongText, lang, feedbackRef }) {
 function Task({ task, taskIndex, lang, onSolved }) {
   const isChoice = task.kind === 'mc' || task.kind === 'digit' || task.kind === 'missing';
   const isAssign = task.kind === 'slots' || task.kind === 'order';
-  const options = useMemo(() => isChoice ? shuffle(task.options) : [], [isChoice, task]);
+  // Xato javobdan keyin variantlar qayta aralashadi (metodist qarori 2026-08-21).
+  const [wrongRound, setWrongRound] = useState(0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- wrongRound ataylab yangi tartib beradi
+  const options = useMemo(() => isChoice ? shuffle(task.options) : [], [isChoice, task, wrongRound]);
   const cards = useMemo(() => isAssign ? shuffle(task.cards) : [], [isAssign, task]);
   const rightCards = useMemo(() => task.kind === 'match' ? shuffle(task.right) : [], [task]);
   const [picked, setPicked] = useState(null);
@@ -423,7 +427,7 @@ function Task({ task, taskIndex, lang, onSolved }) {
   const feedbackRef = useRef(null);
 
   const isCorrect = isChoice
-    ? options[picked]?.correct === true
+    ? picked?.correct === true
     : task.kind === 'numpad'
       ? typed === task.answer
       : task.kind === 'match'
@@ -437,7 +441,7 @@ function Task({ task, taskIndex, lang, onSolved }) {
         ? task.pairs.every((pair) => pairs[pair.id])
         : task.slots.every((slot) => placed[slot.id]);
   const wrongText = isChoice
-    ? options[picked]?.wrong
+    ? picked?.wrong
     : task.kind === 'numpad'
       ? (task.wrongByValue?.[typed] ?? task.wrongText)
       : task.kind === 'match'
@@ -466,7 +470,7 @@ function Task({ task, taskIndex, lang, onSolved }) {
     const nextAttempts = attempts + 1;
     setAttempts(nextAttempts);
     setChecked(true);
-    if (isCorrect) setSolved(true);
+    if (isCorrect) setSolved(true); else setWrongRound((old) => old + 1);
   };
   const answerDetails = () => {
     if (isChoice) return {
@@ -474,7 +478,7 @@ function Task({ task, taskIndex, lang, onSolved }) {
       correctIndex: options.findIndex((option) => option.correct),
       correctAnswer: tx(options.find((option) => option.correct)?.text, lang),
       studentAnswerIndex: picked,
-      studentAnswer: tx(options[picked]?.text, lang),
+      studentAnswer: tx(picked?.text, lang),
     };
     if (task.kind === 'numpad') return { options: null, correctIndex: null, correctAnswer: task.answer, studentAnswerIndex: null, studentAnswer: typed };
     if (task.kind === 'match') return {
@@ -505,7 +509,7 @@ function Task({ task, taskIndex, lang, onSolved }) {
       <h1 id={`g4p-task-${task.id}`} className="g4p-question">{tx(task.prompt, lang)}</h1>
 
       {isChoice && <div className={`g4p-options ${task.kind === 'digit' || task.layout === 'digits' ? 'is-digits' : ''}`}>{options.map((option, index) => (
-        <button key={option.id} type="button" className={`${picked === index ? 'is-selected' : ''} ${checked && picked === index ? (option.correct ? 'is-ok' : 'is-no') : ''}`} aria-pressed={picked === index} disabled={solved} onClick={() => { setPicked(index); clearFeedback(); }}><span className="g4p-letter">{'ABCD'[index]}</span><span>{tx(option.text, lang)}</span></button>
+        <button key={option.id} type="button" className={`${picked === option ? 'is-selected' : ''} ${checked && picked === option ? (option.correct ? 'is-ok' : 'is-no') : ''}`} aria-pressed={picked === option} disabled={solved} onClick={() => { setPicked(option); clearFeedback(); }}><span className="g4p-letter">{'ABCD'[index]}</span><span>{tx(option.text, lang)}</span></button>
       ))}</div>}
       {task.kind === 'numpad' && <NumPad value={typed} max={task.maxLen} disabled={solved} lang={lang} onChange={(value) => { setTyped(value); clearFeedback(); }} />}
       {isAssign && <AssignBoard task={task} cards={cards} placed={placed} setPlaced={(updater) => { setPlaced(updater); clearFeedback(); }} activeSlot={activeSlot} setActiveSlot={(slot) => { setActiveSlot(slot); clearFeedback(); }} checked={checked} solved={solved} lang={lang} />}
@@ -570,7 +574,7 @@ export default function Grade4Dars13Practice({ lang: langProp, onFinished }) {
 
   return (
     <div className={`g4p-root ${preview ? 'is-preview' : ''}`}>
-      <style>{STYLES}</style>
+      <style>{STYLES + PRACTICE_FIX_CSS}</style>
       {preview && <div className="g4p-lang" role="group" aria-label={tx(UI.language, lang)}>{SUPPORTED_LANGS.map((code) => <button key={code} type="button" className={lang === code ? 'is-active' : ''} aria-pressed={lang === code} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}
       <header className="g4p-head">
         <div className="g4p-progress" role="progressbar" aria-label={tx(LESSON.title, lang)} aria-valuemin="0" aria-valuemax="10" aria-valuenow={showResult ? 10 : index}><span style={{ width: `${progress}%` }} /></div>

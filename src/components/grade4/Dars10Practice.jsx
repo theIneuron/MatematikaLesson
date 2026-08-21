@@ -6,6 +6,7 @@
 // ============================================================================
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { PRACTICE_FIX_CSS } from './grade4PracticeFixStyles.js';
 
 const T = {
   bg: '#F5F5F0', paper: '#FFFFFF', ink: '#12212C', ink2: '#50616D', ink3: '#87949D',
@@ -212,7 +213,10 @@ const NumPad = ({ value, onChange, max, disabled, lang }) => (
 );
 
 function Task({ task, lang, isLast, onSolved }) {
-  const options = useMemo(() => task.kind === 'mc' ? shuffle(task.options) : [], [task]);
+  // Xato javobdan keyin variantlar qayta aralashadi (metodist qarori 2026-08-21).
+  const [wrongRound, setWrongRound] = useState(0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- wrongRound ataylab yangi tartib beradi
+  const options = useMemo(() => task.kind === 'mc' ? shuffle(task.options) : [], [task, wrongRound]);
   const rightCards = useMemo(() => task.kind === 'match' ? shuffle(task.right) : [], [task]);
   const slotCards = useMemo(() => task.kind === 'slots' ? shuffle(task.cards) : [], [task]);
   const [picked, setPicked] = useState(null);
@@ -227,13 +231,16 @@ function Task({ task, lang, isLast, onSolved }) {
   const advancedRef = useRef(false);
   const feedbackRef = useRef(null);
 
-  const solved = checked && (
-    (task.kind === 'mc' && options[picked]?.correct === true)
+  // Javobning to'g'riligi `checked` dan ALOHIDA hisoblanadi: tekshirishda
+  // xato bo'lsa variantlar qayta aralashtiriladi.
+  const answerCorrect = (
+    (task.kind === 'mc' && picked?.correct === true)
     || (task.kind === 'place' && task.choices[picked]?.correct === true)
     || (task.kind === 'numpad' && typed === task.answer)
     || (task.kind === 'match' && task.pairs.every((pair) => pairs[pair.id] === pair.correctRight))
     || (task.kind === 'slots' && task.slots.every((slot) => placed[slot.id] === slot.correct))
   );
+  const solved = checked && answerCorrect;
 
   const canCheck = (task.kind === 'mc' && picked !== null)
     || (task.kind === 'place' && picked !== null)
@@ -242,7 +249,7 @@ function Task({ task, lang, isLast, onSolved }) {
     || (task.kind === 'slots' && task.slots.every((slot) => placed[slot.id]));
 
   const wrongText = (() => {
-    if (task.kind === 'mc') return options[picked]?.wrong;
+    if (task.kind === 'mc') return picked?.wrong;
     if (task.kind === 'place') return task.choices[picked]?.wrong;
     if (task.kind === 'numpad') return task.wrongAnswers?.[typed] ?? task.wrongText;
     if (task.kind === 'match') return task.pairs.find((pair) => pairs[pair.id] !== pair.correctRight)?.wrong;
@@ -262,7 +269,7 @@ function Task({ task, lang, isLast, onSolved }) {
     return () => { cancelAnimationFrame(raf); clearTimeout(timeout); };
   }, [checked]);
 
-  const select = (index) => { if (!solved) { setPicked(index); setChecked(false); } };
+  const select = (value) => { if (!solved) { setPicked(value); setChecked(false); } };
   const retry = () => {
     setChecked(false);
     setPicked(null);
@@ -307,13 +314,13 @@ function Task({ task, lang, isLast, onSolved }) {
       <h2 id={`task-${task.id}`} className="p4-ask">{tx(task.prompt, lang)}</h2>
 
       {task.kind === 'mc' && <div className="p4-options">{options.map((option, index) => (
-        <button key={`${task.id}-${index}`} type="button" className={`p4-option ${picked === index ? (checked ? (option.correct ? 'is-ok' : 'is-no') : 'is-on') : ''}`} aria-pressed={picked === index} disabled={solved} onClick={() => select(index)}>
+        <button key={`${task.id}-${index}`} type="button" className={`p4-option ${picked === option ? (checked ? (option.correct ? 'is-ok' : 'is-no') : 'is-on') : ''}`} aria-pressed={picked === option} disabled={solved} onClick={() => select(option)}>
           <span className="p4-letter">{'ABCD'[index]}</span><span>{tx(option.text, lang)}</span>
         </button>
       ))}</div>}
 
-      {task.kind === 'place' && <div className="p4-place" role="group" aria-label={tx(UI.placeHint, lang)}>{task.choices.map((choice, index) => (
-        <button key={choice.shift} type="button" className={`p4-place-row ${picked === index ? (checked ? (choice.correct ? 'is-ok' : 'is-no') : 'is-on') : ''}`} aria-pressed={picked === index} disabled={solved} onClick={() => select(index)}>
+      {task.kind === 'place' && <div className="p4-place" role="group" aria-label={tx(UI.placeHint, lang)}>{task.choices.map((choice) => (
+        <button key={choice.shift} type="button" className={`p4-place-row ${picked === choice ? (checked ? (choice.correct ? 'is-ok' : 'is-no') : 'is-on') : ''}`} aria-pressed={picked === choice} disabled={solved} onClick={() => select(choice)}>
           <span>{choice.shift} {{ uz: 'xona', ru: choice.shift === 1 ? 'разряд' : 'разряда', en: 'place' }[lang]}</span><b>{choice.value}</b>
         </button>
       ))}</div>}
@@ -351,7 +358,7 @@ function Task({ task, lang, isLast, onSolved }) {
       {checked && <Feedback feedbackRef={feedbackRef} ok={solved} text={tx(solved ? task.correctText : wrongText, lang)} rule={task.rule} lang={lang} />}
 
       <div className="p4-actions">
-        {!solved && <button type="button" className="p4-btn" disabled={!canCheck} onClick={() => { setChecked(true); setAttempts((old) => old + 1); }}>{tx(UI.check, lang)}</button>}
+        {!solved && <button type="button" className="p4-btn" disabled={!canCheck} onClick={() => { setChecked(true); setAttempts((old) => old + 1); if (!answerCorrect) setWrongRound((old) => old + 1); }}>{tx(UI.check, lang)}</button>}
         {checked && !solved && <button type="button" className="p4-btn p4-btn-ghost" onClick={retry}>{tx(UI.retry, lang)}</button>}
         {solved && <button
           type="button"
@@ -409,7 +416,7 @@ export default function Grade4Dars10Practice({ lang: langProp, onFinished }) {
 
   return (
     <div className="p4-root">
-      <style>{STYLES}</style>
+      <style>{STYLES + PRACTICE_FIX_CSS}</style>
       {preview && <div className="p4-lang" role="group" aria-label={tx({ uz: "Ko'rib chiqish tili", ru: 'Язык предпросмотра', en: 'Preview language' }, lang)}>{SUPPORTED_LANGS.map((code) => (
         <button key={code} type="button" className={code === lang ? 'is-active' : ''} aria-pressed={code === lang} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>
       ))}</div>}

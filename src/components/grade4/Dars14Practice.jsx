@@ -6,6 +6,7 @@
 // ============================================================================
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { PRACTICE_FIX_CSS } from './grade4PracticeFixStyles.js';
 
 const T = {
   bg: '#F5F5F0',
@@ -478,7 +479,10 @@ function Feedback({ ok, text, rule, lang, feedbackRef }) {
 }
 
 function Task({ task, screenMeta, lang, isLast, onSolved }) {
-  const options = useMemo(() => task.kind === 'mc' ? shuffle(task.options) : [], [task]);
+  // Xato javobdan keyin variantlar qayta aralashadi (metodist qarori 2026-08-21).
+  const [wrongRound, setWrongRound] = useState(0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- wrongRound ataylab yangi tartib beradi
+  const options = useMemo(() => task.kind === 'mc' ? shuffle(task.options) : [], [task, wrongRound]);
   const missingChoices = useMemo(() => task.kind === 'missing' ? shuffle(task.choices) : [], [task]);
   const rightCards = useMemo(() => task.kind === 'match' ? shuffle(task.right) : [], [task]);
   const [picked, setPicked] = useState(null);
@@ -493,11 +497,14 @@ function Task({ task, screenMeta, lang, isLast, onSolved }) {
   const feedbackRef = useRef(null);
 
   const choiceList = task.kind === 'mc' ? options : missingChoices;
-  const solved = checked && (
+  // Javobning to'g'riligi `checked` dan ALOHIDA hisoblanadi: tekshirishda
+  // xato bo'lsa variantlar qayta aralashtiriladi.
+  const answerCorrect = (
     ((task.kind === 'mc' || task.kind === 'missing') && choiceList[picked]?.correct === true)
     || (task.kind === 'numpad' && typed === task.answer)
     || (task.kind === 'match' && task.pairs.every((pair) => pairs[pair.id] === pair.correctRight))
   );
+  const solved = checked && answerCorrect;
 
   const canCheck = ((task.kind === 'mc' || task.kind === 'missing') && picked !== null)
     || (task.kind === 'numpad' && typed !== '')
@@ -532,10 +539,10 @@ function Task({ task, screenMeta, lang, isLast, onSolved }) {
     };
   }, [checked]);
 
-  const select = (index) => {
+  const select = (value) => {
     if (solved) return;
     checkingRef.current = false;
-    setPicked(index);
+    setPicked(value);
     setChecked(false);
   };
 
@@ -561,6 +568,7 @@ function Task({ task, screenMeta, lang, isLast, onSolved }) {
     checkingRef.current = true;
     setAttempts((current) => current + 1);
     setChecked(true);
+    if (!answerCorrect) setWrongRound((old) => old + 1);
   };
 
   const buildAnswer = () => {
@@ -618,13 +626,13 @@ function Task({ task, screenMeta, lang, isLast, onSolved }) {
       <h2 id={`p4-question-${task.id}`} className="p4-ask">{tx(task.prompt, lang)}</h2>
 
       {task.kind === 'mc' && <div className={`p4-options ${task.wideOptions ? 'is-wide' : ''}`}>{options.map((option, index) => (
-        <button key={`${task.id}-${tx(option.text, 'uz')}`} type="button" className={`p4-option ${picked === index ? (checked ? (option.correct ? 'is-ok' : 'is-no') : 'is-on') : ''}`} aria-pressed={picked === index} disabled={solved} onClick={() => select(index)}>
+        <button key={`${task.id}-${tx(option.text, 'uz')}`} type="button" className={`p4-option ${picked === option ? (checked ? (option.correct ? 'is-ok' : 'is-no') : 'is-on') : ''}`} aria-pressed={picked === option} disabled={solved} onClick={() => select(option)}>
           <span className="p4-letter">{'ABCD'[index]}</span><span>{tx(option.text, lang)}</span>
         </button>
       ))}</div>}
 
-      {task.kind === 'missing' && <div className="p4-missing" role="group" aria-label={tx(task.prompt, lang)}>{missingChoices.map((choice, index) => (
-        <button key={tx(choice.text, 'uz')} type="button" className={`p4-missing-card ${picked === index ? (checked ? (choice.correct ? 'is-ok' : 'is-no') : 'is-on') : ''}`} aria-pressed={picked === index} disabled={solved} onClick={() => select(index)}>{tx(choice.text, lang)}</button>
+      {task.kind === 'missing' && <div className="p4-missing" role="group" aria-label={tx(task.prompt, lang)}>{missingChoices.map((choice) => (
+        <button key={tx(choice.text, 'uz')} type="button" className={`p4-missing-card ${picked === choice ? (checked ? (choice.correct ? 'is-ok' : 'is-no') : 'is-on') : ''}`} aria-pressed={picked === choice} disabled={solved} onClick={() => select(choice)}>{tx(choice.text, lang)}</button>
       ))}</div>}
 
       {task.kind === 'match' && <div className="p4-match">
@@ -731,7 +739,7 @@ export default function Grade4Dars14Practice({ lang: langProp, onFinished }) {
 
   return (
     <div className="p4-root">
-      <style>{STYLES}</style>
+      <style>{STYLES + PRACTICE_FIX_CSS}</style>
       {preview && <div className="p4-lang" role="group" aria-label={tx(UI.language, lang)}>{SUPPORTED_LANGS.map((code) => (
         <button key={code} type="button" className={code === lang ? 'is-active' : ''} aria-pressed={code === lang} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>
       ))}</div>}

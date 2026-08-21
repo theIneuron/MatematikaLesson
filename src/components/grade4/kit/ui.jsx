@@ -96,46 +96,67 @@ export const FeedbackBlock = ({ show, correct, showBit = true, children }) => {
 // DOM markerlari (`data-g4-source-index`, `data-g4-correct`) javob pozitsiyasi
 // auditi uchun shart: ular bo'lmasa to'g'ri javob har doim bir joyda turgani
 // mashinada tekshirilmaydi.
-//
 // Xato javob DOIMIY qizil bo'lib qolmaydi: `flashKey` bergan variant qisqa
 // vaqt qizarib, so'ng neytral holatiga qaytadi va uni yana tanlash mumkin
 // bo'ladi (metodist qarori 2026-08-21, `wrongAnswerFlash.js`). Variantlarni
 // faqat TO'G'RI javob qulflaydi; qulflangach to'g'ri javob yashil bo'ladi,
 // qolganlari xiralashadi.
+//
+// Qisqa variantlar butun kenglikka cho'zilmaydi. "33", "2", "332" kabi uchta
+// son uch teng ustunga cho'zilganda ekranda javob tugmasi emas, uchta bo'sh oq
+// lavha ko'rinardi (metodist qarori 2026-08-21, Dars13 7-slayd). Endi ular
+// mazmuni bo'yicha o'lchanadi va markazga yig'iladi.
+const SHORT_OPTION_CHARS = 9;
+const isShortOption = (item) => String(item).trim().length <= SHORT_OPTION_CHARS;
+// Sof son: faqat raqam, bo'sh joy, kasr chizig'i va arifmetik belgilar. Harf
+// qatnashsa — bu so'z yoki birlik va u Manrope da qoladi: bitta chip ichida
+// ikki shrift aralashmasligi kerak.
+const isPlainNumber = (item) => /^[\d\s./:+\-−×÷=]+$/.test(String(item).trim());
+
 export const Options = ({
   items, picked, flashKey = null, solved, correctIndex, disabled, onPick, stack = false, order = null,
-}) => (
-  <div className={`options ${stack || items.length > 4 ? 'options-stack' : ''} ${!stack && items.length === 4 ? 'options-two' : ''}`}>
-    {items.map((item, index) => {
-      const isRight = solved && index === correctIndex;
-      const sourceIndex = order ? order[index] : index;
-      const displayIndex = index;
-      return (
-        <button
-          type="button"
-          key={index}
-          className={`option ${isRight ? 'option-right' : ''}`}
-          data-g4-branch="choice"
-          data-g4-source-index={sourceIndex}
-          data-g4-display-index={displayIndex}
-          data-g4-correct={index === correctIndex ? 'true' : 'false'}
-          data-g4-wrong-flash={flashKey === index ? 'true' : undefined}
-          data-g4-answer-dim={solved && index !== correctIndex ? 'true' : undefined}
-          // Flash davomida hamma variant band: bola xato izohini eshitib
-          // ulgursin. Flash tugagach o'sha variant yana bosiladi.
-          disabled={disabled || solved || flashKey !== null}
-          // Faqat yechilgan javob "tanlangan" bo'lib qoladi: xato tanlov flash
-          // tugagach neytral holatga qaytadi va aria ham shuni aytadi.
-          aria-pressed={solved && picked === index}
-          onClick={() => onPick(index)}
-        >
-          <span className="option-key">{String.fromCharCode(65 + index)}</span>
-          <span>{item}</span>
-        </button>
-      );
-    })}
-  </div>
-);
+}) => {
+  const compact = !stack && items.length <= 4 && items.every(isShortOption);
+  const numeric = compact && items.every(isPlainNumber);
+  const layout = [
+    stack || items.length > 4 ? 'options-stack' : '',
+    !stack && !compact && items.length === 4 ? 'options-two' : '',
+    compact ? 'options-compact' : '',
+    numeric ? 'options-numeric' : '',
+  ].filter(Boolean).join(' ');
+  return (
+    <div className={`options ${layout}`}>
+      {items.map((item, index) => {
+        const isRight = solved && index === correctIndex;
+        const sourceIndex = order ? order[index] : index;
+        const displayIndex = index;
+        return (
+          <button
+            type="button"
+            key={index}
+            className={`option ${isRight ? 'option-right' : ''}`}
+            data-g4-branch="choice"
+            data-g4-source-index={sourceIndex}
+            data-g4-display-index={displayIndex}
+            data-g4-correct={index === correctIndex ? 'true' : 'false'}
+            data-g4-wrong-flash={flashKey === index ? 'true' : undefined}
+            data-g4-answer-dim={solved && index !== correctIndex ? 'true' : undefined}
+            // Flash davomida hamma variant band: bola xato izohini eshitib
+            // ulgursin. Flash tugagach o'sha variant yana bosiladi.
+            disabled={disabled || solved || flashKey !== null}
+            // Faqat yechilgan javob "tanlangan" bo'lib qoladi: xato tanlov
+            // flash tugagach neytral holatga qaytadi va aria ham shuni aytadi.
+            aria-pressed={solved && picked === index}
+            onClick={() => onPick(index)}
+          >
+            <span className="option-key">{String.fromCharCode(65 + index)}</span>
+            <span>{item}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+};
 
 // Asosiy karkas. `hero` — faqat birinchi ekranda ishlatiladigan to'q sahna.
 export const Stage = ({

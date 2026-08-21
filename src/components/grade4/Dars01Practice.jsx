@@ -21,6 +21,7 @@
 // ============================================================================
 
 import { useMemo, useRef, useState } from 'react';
+import { PRACTICE_FIX_CSS } from './grade4PracticeFixStyles.js';
 
 const T = {
   bg: '#F5F5F0',
@@ -823,7 +824,7 @@ export default function Grade4Dars01Practice({ lang: langProp, onFinished }) {
 
   return (
     <div className="p4-root">
-      <style>{STYLES}</style>
+      <style>{STYLES + PRACTICE_FIX_CSS}</style>
       {preview && (
         <div className="p4-lang">
           {SUPPORTED_LANGS.map((l) => (

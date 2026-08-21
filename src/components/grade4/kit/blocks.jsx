@@ -162,7 +162,10 @@ export const BarModel = ({
 export const RuleRows = ({ rows, frame = 99 }) => (
   <div className="kit-rule">
     {rows.map((row, index) => (
-      <div key={row.head} className={`kit-rule-row ${frame >= index + 1 ? 'is-open' : ''}`}>
+      // Qator `index` ovozning `index`-segmentida ochiladi: segment 0 aynan
+      // birinchi qadamni ta'riflaydi. Ilgari shart `frame >= index + 1` edi va
+      // oxirgi qator hech qachon ochilmasdi (2026-08-21 auditi).
+      <div key={row.head} className={`kit-rule-row ${frame >= index ? 'is-open' : ''}`}>
         <span className="kit-rule-num" style={{ background: row.tone ?? T.cyan }}>{index + 1}</span>
         <div>
           <strong style={{ color: row.tone ?? T.cyan }}>{row.head}</strong>

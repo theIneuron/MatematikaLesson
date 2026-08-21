@@ -58,18 +58,23 @@ const practiceFiles = (await readdir(GRADE4_DIR))
   .filter((file) => /^Dars\d{2}Practice\.jsx$/.test(file))
   .sort();
 
+// Guard vazifasi — ko'rikdan o'tgan migratsiya fayllarini jimgina o'zgarishdan
+// SAQLASH. Yangi amaliyot faylining paydo bo'lishi buzilish emas: aks holda
+// 31-40 va 41 bloklarini yozish umuman mumkin bo'lmaydi. Shuning uchun:
+//   - baselinedagi fayl yo'qolsa yoki o'zgarsa — buzilish;
+//   - baseline tashqarisidagi yangi fayl — faqat xabar, tekshiruvni yiqitmaydi.
 const expectedPracticeFiles = Object.keys(PRACTICE_BASELINE_SHA256).sort();
-if (practiceFiles.join('\n') !== expectedPracticeFiles.join('\n')) {
-  failures.push(
-    `Practice fayllari ro'yxati o'zgargan: ${practiceFiles.length} ta; `
-    + `baseline bo'yicha ${expectedPracticeFiles.length} ta`,
-  );
+const missingBaselineFiles = expectedPracticeFiles.filter((file) => !practiceFiles.includes(file));
+if (missingBaselineFiles.length) {
+  failures.push(`Baselinedagi Practice fayllari yo'qolgan: ${missingBaselineFiles.join(', ')}`);
 }
+const newPracticeFiles = practiceFiles.filter((file) => !(file in PRACTICE_BASELINE_SHA256));
 
 for (const file of practiceFiles) {
+  if (!(file in PRACTICE_BASELINE_SHA256)) continue;
   const hash = sha256(await readFile(path.join(GRADE4_DIR, file)));
   if (hash !== PRACTICE_BASELINE_SHA256[file]) {
-    failures.push(`${file}: ${hash}; kutilgan ${PRACTICE_BASELINE_SHA256[file] ?? 'fayl baseline ro\'yxatida yo\'q'}`);
+    failures.push(`${file}: ${hash}; kutilgan ${PRACTICE_BASELINE_SHA256[file]}`);
   }
 }
 
@@ -81,5 +86,8 @@ if (failures.length) {
 
 console.log(
   `Grade 4 migration immutability guard o'tdi: Dars01 SHA-256 ${dars01Hash}; `
-  + `${practiceFiles.length} ta Practice fayli turn-start baseline bilan bir xil.`,
+  + `${expectedPracticeFiles.length} ta baseline Practice fayli o'zgarmagan.`,
 );
+if (newPracticeFiles.length) {
+  console.log(`  Baseline tashqarisidagi yangi Practice fayllari: ${newPracticeFiles.join(', ')}.`);
+}
