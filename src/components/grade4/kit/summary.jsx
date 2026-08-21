@@ -51,7 +51,7 @@ export function SummaryScreen({ screen, answers, onAnswer, onPrev, finishLesson 
   }, [showRankBoost]);
 
   const choose = (index) => {
-    if (solved || flashKey !== null) return;
+    if (solved) return;
     const right = order[index] === c.reflectionCorrectIndex;
     setPicked(index);
     playSfx(right ? 'correct' : 'wrong');
@@ -142,7 +142,7 @@ export function SummaryScreen({ screen, answers, onAnswer, onPrev, finishLesson 
                   data-g4-correct={index === correctIndex ? 'true' : 'false'}
                   data-g4-wrong-flash={flashKey === index ? 'true' : undefined}
                   data-g4-answer-dim={solved && index !== correctIndex ? 'true' : undefined}
-                  disabled={solved || flashKey !== null}
+                  disabled={solved}
                   onClick={() => choose(index)}
                 >
                   <span>{String.fromCharCode(65 + index)}</span>

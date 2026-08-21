@@ -11,7 +11,6 @@
 // ============================================================================
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { PRACTICE_FIX_CSS } from './grade4PracticeFixStyles.js';
 
 const T = {
   bg: '#F5F5F0',
@@ -786,7 +785,7 @@ export default function Grade4Dars07Practice({ lang: langProp, onFinished }) {
 
   return (
     <div className="p4-root">
-      <style>{STYLES + PRACTICE_FIX_CSS}</style>
+      <style>{STYLES}</style>
       {preview && (
         <div className="p4-lang" role="group" aria-label={tx(UI.language, lang)}>
           {SUPPORTED_LANGS.map((code) => (
@@ -855,4 +854,14 @@ const STYLES = `
 @keyframes p4-rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:520px){.p4-options{grid-template-columns:1fr}.p4-match-cols{gap:8px}.p4-match-item{font-size:12px;padding:7px}.p4-sort-bins{grid-template-columns:1fr}.p4-slot,.p4-symbol-card{width:50px;min-height:52px}}
 @media(prefers-reduced-motion:reduce){.p4-root *,.p4-root *::before,.p4-root *::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+
+/* PRACTICE-FIX boshlanishi — metodist qarori 2026-08-21.
+   1) Tekshirish tugmasi o'ngda (2-dars etaloni).
+   2) Moslashtirishda ikki tomondagi kartochkalar bir xil o'lchamda: ustun grid
+      bo'ladi va qatorlari 1fr, shuning uchun juftlar qator bo'yicha tekislanadi.
+   Bu blok har darsda takrorlanadi ATAYLAB: LMS avtonom fayl talab qiladi. */
+.p4-actions, .g4p-actions { justify-content: flex-end; }
+.p4-match-cols, .g4p-match-cols { align-items: stretch; }
+.p4-match-col, .g4p-match-col { display: grid; grid-auto-rows: 1fr; align-content: stretch; }
+/* PRACTICE-FIX tugashi */
 `;

@@ -75,7 +75,7 @@ export function ChoiceScreen({
   const attempts = useRef(storedAnswer?.attempts ?? 0);
 
   const pick = (index) => {
-    if (!canAnswer || solved || flashKey !== null) return;
+    if (!canAnswer || solved) return;
     const source = order[index];
     const right = source === c.correctIndex;
     attempts.current += 1;
@@ -171,7 +171,7 @@ export function SlotScreen({
   const attempts = useRef(storedAnswer?.attempts ?? 0);
 
   const pick = (index) => {
-    if (!canAnswer || solved || flashKey !== null) return;
+    if (!canAnswer || solved) return;
     const right = index === c.correctSlot;
     attempts.current += 1;
     if (firstTry.current === null) firstTry.current = right;
@@ -228,7 +228,7 @@ export function SlotScreen({
                   className={`slot ${state}`}
                   data-g4-wrong-flash={flashKey === index ? 'true' : undefined}
                   data-g4-answer-dim={solved && index !== c.correctSlot ? 'true' : undefined}
-                  disabled={!canAnswer || solved || flashKey !== null}
+                  disabled={!canAnswer || solved}
                   onClick={() => pick(index)}
                 >
                   <span>{t(slot.label)}</span>

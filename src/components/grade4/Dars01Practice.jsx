@@ -21,7 +21,6 @@
 // ============================================================================
 
 import { useMemo, useRef, useState } from 'react';
-import { PRACTICE_FIX_CSS } from './grade4PracticeFixStyles.js';
 
 const T = {
   bg: '#F5F5F0',
@@ -67,6 +66,16 @@ const UI = {
 };
 const SUPPORTED_LANGS = ['uz', 'ru', 'en'];
 const normalizeLang = (value) => (SUPPORTED_LANGS.includes(value) ? value : 'uz');
+// Variantlar har ochilishda aralashadi: to'g'ri javob bir o'rinda qotib
+// qolmasin (metodist qarori 2026-08-21).
+const shuffle = (items) => {
+  const out = [...items];
+  for (let i = out.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+};
 const tx = (node, lang) => (node && typeof node === 'object' ? node[normalizeLang(lang)] : node);
 
 // ---------------------------------------------------------------------------
@@ -602,15 +611,21 @@ function Task({ task, lang, onSolved }) {
   const [activeLeft, setActiveLeft] = useState(null);
   const [checked, setChecked] = useState(false);
   const [attempts, setAttempts] = useState(0);
+  // Xato javobdan keyin variantlar qayta aralashadi.
+  const [wrongRound, setWrongRound] = useState(0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- wrongRound ataylab yangi tartib beradi
+  const mcOptions = useMemo(() => (task.kind === 'mc' ? shuffle(task.options.map((text, index) => ({ text, index }))) : []), [task, wrongRound]);
 
-  const solvedNow = (() => {
-    if (!checked) return false;
-    if (task.kind === 'mc') return picked === task.correct;
+  // Javobning to'g'riligi `checked` dan ALOHIDA: xato bo'lsa variantlar
+  // qayta aralashtiriladi.
+  const answerCorrect = (() => {
+    if (task.kind === 'mc') return picked?.index === task.correct;
     if (task.kind === 'gap') return gap === task.correctGap;
     if (task.kind === 'numpad') return Number(typed) === task.answer;
     if (task.kind === 'match') return task.answer.every((r, i) => pairs[i] === r);
     return false;
   })();
+  const solvedNow = checked && answerCorrect;
 
   const canCheck = (() => {
     if (task.kind === 'mc') return picked !== null;
@@ -621,7 +636,7 @@ function Task({ task, lang, onSolved }) {
   })();
 
   const wrongText = (() => {
-    if (task.kind === 'mc') return task.wrong[picked];
+    if (task.kind === 'mc') return task.wrong[picked?.index];
     if (task.kind === 'gap') return task.gapWrong?.[gap] || task.correctText;
     if (task.kind === 'numpad') return task.hints[Math.min(attempts, task.hints.length) - 1] || task.hints[0];
     if (task.kind === 'match') return task.wrongText;
@@ -632,6 +647,7 @@ function Task({ task, lang, onSolved }) {
     if (!canCheck || solvedNow) return;
     setChecked(true);
     setAttempts((n) => n + 1);
+    if (!answerCorrect) setWrongRound((old) => old + 1);
   };
 
   const retry = () => {
@@ -684,18 +700,18 @@ function Task({ task, lang, onSolved }) {
 
       {task.kind === 'mc' && (
         <div className="p4-options">
-          {task.options.map((o, i) => {
-            const state = checked && picked === i ? (i === task.correct ? 'ok' : 'no') : (picked === i ? 'on' : '');
+          {mcOptions.map((item, i) => {
+            const state = checked && picked === item ? (item.index === task.correct ? 'ok' : 'no') : (picked === item ? 'on' : '');
             return (
               <button
                 key={i}
                 type="button"
                 className={`p4-option ${state ? `is-${state}` : ''}`}
                 disabled={solvedNow}
-                onClick={() => { setPicked(i); setChecked(false); }}
+                onClick={() => { setPicked(item); setChecked(false); }}
               >
                 <span className="p4-letter">{'ABCD'[i]}</span>
-                <span>{tx(o, lang)}</span>
+                <span>{tx(item.text, lang)}</span>
               </button>
             );
           })}
@@ -824,7 +840,7 @@ export default function Grade4Dars01Practice({ lang: langProp, onFinished }) {
 
   return (
     <div className="p4-root">
-      <style>{STYLES + PRACTICE_FIX_CSS}</style>
+      <style>{STYLES}</style>
       {preview && (
         <div className="p4-lang">
           {SUPPORTED_LANGS.map((l) => (
@@ -982,4 +998,14 @@ const STYLES = `
 @media (prefers-reduced-motion: reduce) {
   .p4-root *, .p4-root *::before { transition: none !important; animation: none !important; }
 }
+
+/* PRACTICE-FIX boshlanishi — metodist qarori 2026-08-21.
+   1) Tekshirish tugmasi o'ngda (2-dars etaloni).
+   2) Moslashtirishda ikki tomondagi kartochkalar bir xil o'lchamda: ustun grid
+      bo'ladi va qatorlari 1fr, shuning uchun juftlar qator bo'yicha tekislanadi.
+   Bu blok har darsda takrorlanadi ATAYLAB: LMS avtonom fayl talab qiladi. */
+.p4-actions, .g4p-actions { justify-content: flex-end; }
+.p4-match-cols, .g4p-match-cols { align-items: stretch; }
+.p4-match-col, .g4p-match-col { display: grid; grid-auto-rows: 1fr; align-content: stretch; }
+/* PRACTICE-FIX tugashi */
 `;

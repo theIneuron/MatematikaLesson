@@ -41,7 +41,7 @@ export function SpanSelect({ screen, storedAnswer, onAnswer, onPrev, onNext, fig
   const attempts = useRef(storedAnswer?.attempts ?? 0);
 
   const pick = (index) => {
-    if (!canAnswer || solved || flashKey !== null) return;
+    if (!canAnswer || solved) return;
     const right = index === c.correctEnd;
     attempts.current += 1;
     if (firstTry.current === null) firstTry.current = right;
@@ -95,7 +95,7 @@ export function SpanSelect({ screen, storedAnswer, onAnswer, onPrev, onNext, fig
                   data-g4-source-index={index}
                   data-g4-correct={index === c.correctEnd ? 'true' : 'false'}
                   data-g4-wrong-flash={flashKey === index ? 'true' : undefined}
-                  disabled={!canAnswer || solved || flashKey !== null}
+                  disabled={!canAnswer || solved}
                   onClick={() => pick(index)}
                 >
                   {digit}
@@ -236,7 +236,7 @@ export function TableFill({ screen, storedAnswer, onAnswer, onPrev, onNext, figu
   const attempts = useRef(storedAnswer?.attempts ?? 0);
 
   const pick = (index) => {
-    if (!canAnswer || solved || flashKey !== null) return;
+    if (!canAnswer || solved) return;
     const right = index === c.correctChip;
     attempts.current += 1;
     if (firstTry.current === null) firstTry.current = right;
@@ -283,7 +283,7 @@ export function TableFill({ screen, storedAnswer, onAnswer, onPrev, onNext, figu
                 data-g4-correct={index === c.correctChip ? 'true' : 'false'}
                 data-g4-wrong-flash={flashKey === index ? 'true' : undefined}
                 data-g4-answer-dim={solved && index !== c.correctChip ? 'true' : undefined}
-                disabled={!canAnswer || solved || flashKey !== null}
+                disabled={!canAnswer || solved}
                 onClick={() => pick(index)}
               >
                 {t(chip)}

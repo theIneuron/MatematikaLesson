@@ -64,7 +64,7 @@ export function FractionEntry({ screen, storedAnswer, onAnswer, onPrev, onNext, 
   };
 
   const pickDen = (value) => {
-    if (!canAnswer || solved || den !== null || flashDen !== null) return;
+    if (!canAnswer || solved || den !== null) return;
     attempts.current += 1;
     const right = value === c.den;
     if (!right && firstTry.current === null) firstTry.current = false;
@@ -74,7 +74,7 @@ export function FractionEntry({ screen, storedAnswer, onAnswer, onPrev, onNext, 
   };
 
   const pickNum = (value) => {
-    if (!canAnswer || solved || den === null || flashNum !== null) return;
+    if (!canAnswer || solved || den === null) return;
     attempts.current += 1;
     const right = value === c.num;
     playSfx(right ? 'correct' : 'wrong');
@@ -128,7 +128,7 @@ export function FractionEntry({ screen, storedAnswer, onAnswer, onPrev, onNext, 
                       data-g4-correct={stage === 'den' && value === c.den ? 'true' : 'false'}
                       data-g4-wrong-flash={flashDen === value ? 'true' : undefined}
                       data-g4-answer-dim={den !== null && value !== c.den ? 'true' : undefined}
-                      disabled={!canAnswer || den !== null || flashDen !== null}
+                      disabled={!canAnswer || den !== null}
                       onClick={() => pickDen(value)}
                     >
                       {value}
@@ -149,7 +149,7 @@ export function FractionEntry({ screen, storedAnswer, onAnswer, onPrev, onNext, 
                       data-g4-correct={stage === 'num' && value === c.num ? 'true' : 'false'}
                       data-g4-wrong-flash={flashNum === value ? 'true' : undefined}
                       data-g4-answer-dim={solved && value !== c.num ? 'true' : undefined}
-                      disabled={!canAnswer || den === null || solved || flashNum !== null}
+                      disabled={!canAnswer || den === null || solved}
                       onClick={() => pickNum(value)}
                     >
                       {value}
@@ -197,7 +197,7 @@ export function OrderStrip({ screen, storedAnswer, onAnswer, onPrev, onNext, fig
   const placed = c.order.slice(0, step);
 
   const tap = (index) => {
-    if (!canAnswer || solved || placed.includes(index) || flashKey !== null) return;
+    if (!canAnswer || solved || placed.includes(index)) return;
     attempts.current += 1;
     const right = index === c.order[step];
     if (firstTry.current === null) firstTry.current = right;
@@ -256,7 +256,7 @@ export function OrderStrip({ screen, storedAnswer, onAnswer, onPrev, onNext, fig
                 data-g4-source-index={index}
                 data-g4-correct={!solved && index === c.order[step] ? 'true' : 'false'}
                 data-g4-wrong-flash={flashKey === index ? 'true' : undefined}
-                disabled={!canAnswer || solved || placed.includes(index) || flashKey !== null}
+                disabled={!canAnswer || solved || placed.includes(index)}
                 onClick={() => tap(index)}
               >
                 <FitSvg viewBox="0 0 72 76">

@@ -4,7 +4,6 @@
 // ============================================================================
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { PRACTICE_FIX_CSS } from './grade4PracticeFixStyles.js';
 
 const T = {
   bg: '#F5F5F0', paper: '#FFFFFF', ink: '#12212C', ink2: '#50616D', ink3: '#87949D',
@@ -299,7 +298,10 @@ const Feedback = ({ ok, text, rule, lang, feedbackRef }) => (
 );
 
 function Task({ task, lang, last, onSolved }) {
-  const choices = useMemo(() => task.kind === 'mc' ? shuffle(task.options) : (task.options || []), [task]);
+  // Xato javobdan keyin variantlar qayta aralashadi (metodist qarori 2026-08-21).
+  const [wrongRound, setWrongRound] = useState(0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- wrongRound ataylab yangi tartib beradi
+  const choices = useMemo(() => task.kind === 'mc' ? shuffle(task.options) : (task.options || []), [task, wrongRound]);
   const rightPairs = useMemo(() => task.kind === 'match' ? shuffle(task.pairs) : [], [task]);
   const [picked, setPicked] = useState(null);
   const [typed, setTyped] = useState('');
@@ -311,13 +313,17 @@ function Task({ task, lang, last, onSolved }) {
   const advancedRef = useRef(false);
   const feedbackRef = useRef(null);
 
-  const pickedChoice = picked === null ? null : choices[picked];
-  const solved = checked && (
+  // Tanlov INDEKS emas, variant OBYEKTI: aralashtirilganda havola saqlanadi.
+  const pickedChoice = picked;
+  // Javobning to'g'riligi `checked` dan ALOHIDA hisoblanadi: tekshirishda
+  // xato bo'lsa variantlar qayta aralashtiriladi.
+  const answerCorrect = (
     ((task.kind === 'mc' || task.kind === 'place') && pickedChoice?.correct === true)
     || (task.kind === 'digit' && String(picked) === task.answer)
     || (task.kind === 'numpad' && typed === task.answer)
     || (task.kind === 'match' && task.pairs.every((pair, i) => pairs[i] === pair.id))
   );
+  const solved = checked && answerCorrect;
   const canCheck = ((task.kind === 'mc' || task.kind === 'place' || task.kind === 'digit') && picked !== null)
     || (task.kind === 'numpad' && typed !== '')
     || (task.kind === 'match' && Object.keys(pairs).length === task.pairs.length);
@@ -358,16 +364,16 @@ function Task({ task, lang, last, onSolved }) {
       <h2 className="p4-ask">{tx(task.prompt, lang)}</h2>
 
       {task.kind === 'mc' && <div className="p4-options">{choices.map((option, i) => (
-        <button key={`${task.id}-${i}`} type="button" className={`p4-option ${picked === i ? (checked ? (option.correct ? 'is-ok' : 'is-no') : 'is-on') : ''}`} disabled={solved} aria-pressed={picked === i} onClick={() => { setPicked(i); setChecked(false); }}>
+        <button key={`${task.id}-${i}`} type="button" className={`p4-option ${picked === option ? (checked ? (option.correct ? 'is-ok' : 'is-no') : 'is-on') : ''}`} disabled={solved} aria-pressed={picked === option} onClick={() => { setPicked(option); setChecked(false); }}>
           <span className="p4-letter">{'ABCD'[i]}</span><span>{tx(option.text, lang)}</span>
         </button>
       ))}</div>}
 
       {task.kind === 'place' && <div className="p4-place" role="group" aria-label={tx(UI.placeHint, lang)}>
         <div className="p4-place-row p4-place-number" aria-hidden="true">{task.digits.map((digit, i) => <span key={`${digit}-${i}`}>{digit}</span>)}</div>
-        <div className="p4-place-row">{choices.map((option, i) => (
-          <button key={option.id} type="button" className={`p4-place-slot ${picked === i ? (checked ? (option.correct ? 'is-ok' : 'is-no') : 'is-on') : ''}`} disabled={solved} aria-label={tx(option.label, lang)} aria-pressed={picked === i} onClick={() => { setPicked(i); setChecked(false); }}>
-            <span>{picked === i ? '6' : '·'}</span><small>{tx(option.label, lang)}</small>
+        <div className="p4-place-row">{choices.map((option) => (
+          <button key={option.id} type="button" className={`p4-place-slot ${picked === option ? (checked ? (option.correct ? 'is-ok' : 'is-no') : 'is-on') : ''}`} disabled={solved} aria-label={tx(option.label, lang)} aria-pressed={picked === option} onClick={() => { setPicked(option); setChecked(false); }}>
+            <span>{picked === option ? '6' : '·'}</span><small>{tx(option.label, lang)}</small>
           </button>
         ))}</div>
       </div>}
@@ -399,7 +405,7 @@ function Task({ task, lang, last, onSolved }) {
       {checked && <Feedback feedbackRef={feedbackRef} ok={solved} text={tx(solved ? task.correctText : wrongText, lang)} rule={task.rule} lang={lang} />}
 
       <div className="p4-actions">
-        {!solved && <button type="button" className="p4-btn" disabled={!canCheck} onClick={() => { setChecked(true); setAttempts((n) => n + 1); }}>{tx(UI.check, lang)}</button>}
+        {!solved && <button type="button" className="p4-btn" disabled={!canCheck} onClick={() => { setChecked(true); setAttempts((n) => n + 1); if (!answerCorrect) setWrongRound((old) => old + 1); }}>{tx(UI.check, lang)}</button>}
         {checked && !solved && <button type="button" className="p4-btn p4-btn-ghost" onClick={retry}>{tx(UI.retry, lang)}</button>}
         {solved && <button
           type="button"
@@ -446,7 +452,7 @@ export default function Grade4Dars09Practice({ lang: langProp, onFinished }) {
 
   return (
     <div className="p4-root">
-      <style>{STYLES + PRACTICE_FIX_CSS}</style>
+      <style>{STYLES}</style>
       {preview && <div className="p4-lang" role="group" aria-label={tx(UI.language, lang)}>{SUPPORTED_LANGS.map((code) => <button key={code} type="button" className={code === lang ? 'is-active' : ''} aria-pressed={code === lang} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}
       <header className="p4-head">
         <div className="p4-progress" role="progressbar" aria-label={tx(LESSON_META.lessonTitle, lang)} aria-valuemin="0" aria-valuemax="10" aria-valuenow={finished ? 10 : index}><div className="p4-progress-bar" style={{ width: `${percent}%` }} /></div>
@@ -479,4 +485,14 @@ const STYLES = `
 .p4-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;margin-top:4px}.p4-btn{min-height:46px;padding:10px 22px;border:0;border-radius:12px;background:${T.paper};color:${T.accent};font-family:inherit;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 8px 20px -10px rgba(255,91,53,.5),inset 0 0 0 1px rgba(255,91,53,.2)}.p4-btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}.p4-btn-ready{background:${T.accent};color:#fff}.p4-btn-ghost{background:transparent;color:${T.ink2};box-shadow:none}.p4-done{display:flex;flex-direction:column;align-items:center;gap:10px;padding:20px 12px;text-align:center}.p4-done h2{margin:0;font:600 clamp(24px,5vw,34px) 'Source Serif 4',Georgia,serif}.p4-score{margin:0;font-family:'JetBrains Mono',monospace}.p4-score b{font-size:clamp(32px,7vw,44px);color:${T.success}}.p4-score span{font-size:14px;color:${T.ink3}}
 @media(max-width:520px){.p4-options{grid-template-columns:1fr}.p4-match-cols{gap:8px}.p4-match-item{font-size:11px;padding:7px}.p4-place-slot small{font-size:8px}.p4-head{padding-top:54px}}
 @media(prefers-reduced-motion:reduce){.p4-root *,.p4-root *::before,.p4-root *::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+
+/* PRACTICE-FIX boshlanishi — metodist qarori 2026-08-21.
+   1) Tekshirish tugmasi o'ngda (2-dars etaloni).
+   2) Moslashtirishda ikki tomondagi kartochkalar bir xil o'lchamda: ustun grid
+      bo'ladi va qatorlari 1fr, shuning uchun juftlar qator bo'yicha tekislanadi.
+   Bu blok har darsda takrorlanadi ATAYLAB: LMS avtonom fayl talab qiladi. */
+.p4-actions, .g4p-actions { justify-content: flex-end; }
+.p4-match-cols, .g4p-match-cols { align-items: stretch; }
+.p4-match-col, .g4p-match-col { display: grid; grid-auto-rows: 1fr; align-content: stretch; }
+/* PRACTICE-FIX tugashi */
 `;

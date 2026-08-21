@@ -45,7 +45,7 @@ export function LevelPick({ screen, storedAnswer, onAnswer, onPrev, onNext }) {
   const attempts = useRef(storedAnswer?.attempts ?? 0);
 
   const pick = (value) => {
-    if (!canAnswer || solved || flashKey !== null) return;
+    if (!canAnswer || solved) return;
     const right = value === c.correctLevel;
     attempts.current += 1;
     if (firstTry.current === null) firstTry.current = right;
@@ -98,7 +98,7 @@ export function LevelPick({ screen, storedAnswer, onAnswer, onPrev, onNext }) {
                 data-g4-correct={value === c.correctLevel ? 'true' : 'false'}
                 data-g4-wrong-flash={flashKey === value ? 'true' : undefined}
                 data-g4-answer-dim={solved && value !== c.correctLevel ? 'true' : undefined}
-                disabled={!canAnswer || solved || flashKey !== null}
+                disabled={!canAnswer || solved}
                 onClick={() => pick(value)}
               >
                 {value}
@@ -154,7 +154,7 @@ export function FormulaBuild({ screen, storedAnswer, onAnswer, onPrev, onNext, f
   const need = solved ? null : c.target[step];
 
   const tap = (index) => {
-    if (!canAnswer || solved || usedPool.has(index) || flashKey !== null) return;
+    if (!canAnswer || solved || usedPool.has(index)) return;
     const right = c.pool[index] === need;
     attempts.current += 1;
     if (firstTry.current === null) firstTry.current = right;
@@ -222,7 +222,7 @@ export function FormulaBuild({ screen, storedAnswer, onAnswer, onPrev, onNext, f
                 data-g4-source-index={index}
                 data-g4-correct={index === nextRightIndex ? 'true' : 'false'}
                 data-g4-wrong-flash={flashKey === index ? 'true' : undefined}
-                disabled={!canAnswer || solved || usedPool.has(index) || flashKey !== null}
+                disabled={!canAnswer || solved || usedPool.has(index)}
                 onClick={() => tap(index)}
               >
                 {token}
@@ -268,7 +268,7 @@ export function ScaleRead({ screen, storedAnswer, onAnswer, onPrev, onNext }) {
   const attempts = useRef(storedAnswer?.attempts ?? 0);
 
   const pick = (value) => {
-    if (!canAnswer || solved || flashKey !== null) return;
+    if (!canAnswer || solved) return;
     const right = value === c.target;
     attempts.current += 1;
     if (firstTry.current === null) firstTry.current = right;
@@ -338,7 +338,7 @@ export function ScaleRead({ screen, storedAnswer, onAnswer, onPrev, onNext }) {
             // tanlov faqat `flashValue` orqali qisqa vaqt qizarib ko'rinadi.
             picked: solved ? c.target : null,
             flashValue: flashKey,
-            disabled: !canAnswer || solved || flashKey !== null,
+            disabled: !canAnswer || solved,
             onPick: pick,
           }}
         />

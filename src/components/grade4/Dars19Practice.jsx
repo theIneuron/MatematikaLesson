@@ -4,7 +4,6 @@
 // ============================================================================
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { PRACTICE_FIX_CSS } from './grade4PracticeFixStyles.js';
 
 const T = {
   bg: '#F5F5F0', paper: '#FFFFFF', ink: '#12212C', ink2: '#50616D', ink3: '#87949D',
@@ -324,6 +323,11 @@ function Task({ task, lang, isLast, onSolved }) {
   const checkingRef = useRef(false);
   const advancedRef = useRef(false);
   const feedbackRef = useRef(null);
+  // Xato javobdan keyin variantlar qayta aralashadi; ilgari ular umuman
+  // aralashmasdi va to'g'ri javob bir o'rinda qotib qolardi.
+  const [wrongRound, setWrongRound] = useState(0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- wrongRound ataylab yangi tartib beradi
+  const choiceCards = useMemo(() => shuffle(task.options || []), [task.options, wrongRound]);
   const rightCards = useMemo(() => shuffle(task.right || []), [task.right]);
   const orderCards = useMemo(() => shuffle(task.cards || []), [task.cards]);
 
@@ -340,8 +344,13 @@ function Task({ task, lang, isLast, onSolved }) {
     if (task.kind === 'fracbuild') return fraction.n !== null && fraction.d !== null;
     return false;
   })();
+  // Tanlangan variant ID bo'yicha topiladi: ro'yxat aralashsa ham javob va
+  // uning izohi o'z kartasiga bog'langan qoladi.
+  const choicePicked = ['mc', 'sign', 'card'].includes(task.kind)
+    ? (task.options || []).find((item) => item.id === picked)
+    : null;
   const answerCorrect = () => {
-    if (task.kind === 'mc' || task.kind === 'sign' || task.kind === 'card') return Boolean(task.options[picked]?.correct);
+    if (task.kind === 'mc' || task.kind === 'sign' || task.kind === 'card') return Boolean(choicePicked?.correct);
     if (task.kind === 'ticks') return picked === task.answer;
     if (task.kind === 'numpad' || task.kind === 'missing') return typed === task.answer;
     if (task.kind === 'match') return task.pairs.every((pair) => pairs[pair.id] === pair.correctRight);
@@ -378,10 +387,10 @@ function Task({ task, lang, isLast, onSolved }) {
     checkingRef.current = true;
     const nextAttempts = attempts + 1;
     setAttempts(nextAttempts); setChecked(true);
-    if (answerCorrect()) setSolved(true);
+    if (answerCorrect()) setSolved(true); else setWrongRound((old) => old + 1);
   };
   const hintLevel = checked && !solved ? attempts : 0;
-  const wrongText = adaptive(task, ['mc', 'sign', 'card'].includes(task.kind) ? task.options[picked] : null, attempts);
+  const wrongText = adaptive(task, choicePicked, attempts);
   const setAnswer = (setter, value) => { checkingRef.current = false; setter(value); setChecked(false); };
   const toggleSelected = (index) => setAnswer(setSelected, selected.includes(index) ? selected.filter((value) => value !== index) : [...selected, index]);
 
@@ -392,7 +401,7 @@ function Task({ task, lang, isLast, onSolved }) {
       task.kind === 'shade' ? <div className="p4-visual"><Cells total={task.visual.total} filled={task.visual.filled} second={task.visual.second} removed={task.visual.removed} selected={selected} allowed={task.allowed} onToggle={toggleSelected} selectionMode={task.selectionMode} resolved={solved} disabled={solved}/></div> : <Visual task={task} hintLevel={hintLevel} lang={lang}/>}
     <h2 id={`task-${task.id}`} className="p4-ask">{tx(task.prompt, lang)}</h2>
 
-    {['mc', 'sign', 'card'].includes(task.kind) && <div className={`p4-options ${task.kind === 'sign' ? 'is-sign' : ''}`}>{task.options.map((item, index) => <button type="button" key={item.id} disabled={solved} aria-pressed={picked === index} className={`p4-option ${picked === index ? (checked ? (item.correct ? 'is-ok' : 'is-no') : 'is-on') : ''}`} onClick={() => setAnswer(setPicked, index)}><span className="p4-letter">{'ABCD'[index]}</span><span>{tx(item.text, lang)}</span></button>)}</div>}
+    {['mc', 'sign', 'card'].includes(task.kind) && <div className={`p4-options ${task.kind === 'sign' ? 'is-sign' : ''}`}>{choiceCards.map((item, index) => <button type="button" key={item.id} disabled={solved} aria-pressed={picked === item.id} className={`p4-option ${picked === item.id ? (checked ? (item.correct ? 'is-ok' : 'is-no') : 'is-on') : ''}`} onClick={() => setAnswer(setPicked, item.id)}><span className="p4-letter">{'ABCD'[index]}</span><span>{tx(item.text, lang)}</span></button>)}</div>}
     {(task.kind === 'numpad' || task.kind === 'missing') && <NumPad value={typed} onChange={(value) => setAnswer(setTyped, value)} max={task.maxLen || 4} disabled={solved} lang={lang}/>}
     {task.kind === 'match' && <div className="p4-match"><p className="p4-note">{tx(UI.matchHint, lang)}</p><div className="p4-match-cols"><div className="p4-match-col">{task.pairs.map((pair) => <button type="button" key={pair.id} disabled={solved} aria-pressed={activeLeft === pair.id} className={`p4-match-item ${activeLeft === pair.id ? 'is-active' : ''} ${pairs[pair.id] ? 'is-tied' : ''}`} onClick={() => { checkingRef.current = false; setActiveLeft(pair.id); setChecked(false); }}><span>{tx(pair.left, lang)}</span>{pairs[pair.id] && <b>{tx(task.right.find((right) => right.id === pairs[pair.id])?.text, lang)}</b>}</button>)}</div><div className="p4-match-col">{rightCards.map((right) => { const used = Object.values(pairs).includes(right.id); return <button type="button" key={right.id} disabled={solved || activeLeft === null || used} className={`p4-match-item ${used ? 'is-used' : ''}`} onClick={() => { checkingRef.current = false; setPairs((old) => ({ ...old, [activeLeft]: right.id })); setActiveLeft(null); setChecked(false); }}>{tx(right.text, lang)}</button>; })}</div></div></div>}
     {task.kind === 'order' && <div className="p4-order"><p className="p4-note">{tx(UI.orderHint, lang)}</p><div className="p4-order-slots">{task.steps.map((step) => <button type="button" key={step.id} disabled={solved} aria-pressed={activeStep === step.id} className={`p4-order-slot ${activeStep === step.id ? 'is-active' : ''}`} onClick={() => { checkingRef.current = false; setActiveStep(step.id); setChecked(false); }}><small>{tx(step.label, lang)}</small><b>{placed[step.id] ? tx(task.cards.find((card) => card.id === placed[step.id])?.text, lang) : '—'}</b></button>)}</div><div className="p4-card-bank">{orderCards.map((card) => { const used = Object.values(placed).includes(card.id); return <button type="button" key={card.id} disabled={solved || activeStep === null || used} className={`p4-card ${used ? 'is-used' : ''}`} onClick={() => { checkingRef.current = false; setPlaced((old) => ({ ...old, [activeStep]: card.id })); setActiveStep(null); setChecked(false); }}>{tx(card.text, lang)}</button>; })}</div></div>}
@@ -442,7 +451,7 @@ export default function Grade4Dars19Practice({ lang: langProp, onFinished }) {
   };
   const restart = () => { finishedRef.current = false; startedAtRef.current = Date.now(); setIndex(0); setAnswers([]); setFirstTry(0); setFinished(false); };
 
-  return <div className="p4-root"><style>{STYLES + PRACTICE_FIX_CSS}</style>
+  return <div className="p4-root"><style>{STYLES}</style>
     {preview && <div className="p4-lang" role="group" aria-label={tx(UI.language, lang)}>{SUPPORTED_LANGS.map((code) => <button type="button" key={code} aria-pressed={lang === code} className={lang === code ? 'is-active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}
     <header className="p4-head"><div className="p4-progress" role="progressbar" aria-label={tx(UI.title, lang)} aria-valuemin="0" aria-valuemax="10" aria-valuenow={finished ? 10 : index}><div className="p4-progress-bar" style={{ width: `${percent}%` }}/></div><div className="p4-head-row"><span className="p4-title">{tx(UI.title, lang)}</span><span className="p4-counter">{finished ? 10 : index + 1} / 10</span></div></header>
     <main className="p4-main">{finished ? <section className="p4-done" aria-live="polite"><span className="p4-medal" aria-hidden="true">★</span><h2>{tx(UI.done, lang)}</h2><p className="p4-score"><b>{firstTry}</b><span>/ 10</span></p><p className="p4-note">{tx(UI.firstTry, lang)}</p><p className="p4-complete">{tx(UI.allSolved, lang)}</p><button type="button" className="p4-btn p4-btn-ready" onClick={restart}>{tx(UI.again, lang)}</button></section> : <Task key={task.id} task={task} lang={lang} isLast={index === 9} onSolved={onSolved}/>}</main>
@@ -473,4 +482,14 @@ const STYLES = `
 @keyframes p4-cell-in{from{opacity:.35;transform:scale(.94)}to{opacity:1;transform:none}}@keyframes p4-result{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}@keyframes p4-shake{0%,100%{transform:none}35%{transform:translateX(-4px)}70%{transform:translateX(4px)}}
 @media(max-width:640px){.p4-model-grid{grid-template-columns:1fr}.p4-options{grid-template-columns:1fr}.p4-order-slots{grid-template-columns:repeat(2,minmax(0,1fr))}.p4-scale.is-vertical{height:220px}.p4-visual{min-height:104px}.p4-match-cols{gap:7px}}
 @media(prefers-reduced-motion:reduce){.p4-root *,.p4-root *::before,.p4-root *::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+/* PRACTICE-FIX boshlanishi — metodist qarori 2026-08-21.
+   1) Tekshirish tugmasi o'ngda (2-dars etaloni).
+   2) Moslashtirishda ikki tomondagi kartochkalar bir xil o'lchamda: ustun grid
+      bo'ladi va qatorlari 1fr, shuning uchun juftlar qator bo'yicha tekislanadi.
+   Bu blok har darsda takrorlanadi ATAYLAB: LMS avtonom fayl talab qiladi. */
+.p4-actions, .g4p-actions { justify-content: flex-end; }
+.p4-match-cols, .g4p-match-cols { align-items: stretch; }
+.p4-match-col, .g4p-match-col { display: grid; grid-auto-rows: 1fr; align-content: stretch; }
+/* PRACTICE-FIX tugashi */
 `;

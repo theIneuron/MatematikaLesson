@@ -143,7 +143,7 @@ export const Options = ({
             data-g4-answer-dim={solved && index !== correctIndex ? 'true' : undefined}
             // Flash davomida hamma variant band: bola xato izohini eshitib
             // ulgursin. Flash tugagach o'sha variant yana bosiladi.
-            disabled={disabled || solved || flashKey !== null}
+            disabled={disabled || solved}
             // Faqat yechilgan javob "tanlangan" bo'lib qoladi: xato tanlov
             // flash tugagach neytral holatga qaytadi va aria ham shuni aytadi.
             aria-pressed={solved && picked === index}

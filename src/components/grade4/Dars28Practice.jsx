@@ -4,7 +4,6 @@
 // ============================================================================
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { PRACTICE_FIX_CSS } from './grade4PracticeFixStyles.js';
 
 const b = (ru, uz, en) => ({ ru, uz, en });
 const option = (id, ru, uz, en, correct = false, wrongRu = '', wrongUz = '', wrongEn = '') => ({
@@ -288,7 +287,7 @@ export default function Grade4Dars28Practice({ studentName, lang: langProp, onFi
       durationSec: startedAtRef.current ? Math.max(0, Math.floor((Date.now() - startedAtRef.current) / 1000)) : 0, skillTags: [...new Set(TASKS.map((item) => item.skillTag))], levelBreakdown, lessonMeta: LESSON_META, screenMeta: SCREEN_META, answers: nextAnswers });
   };
   const restart = () => { finishedRef.current = false; startedAtRef.current = Date.now(); setIndex(0); setAnswers([]); setFirstTry(0); setFinished(false); setRunId((old) => old + 1); };
-  return <div className="p4-root"><style>{STYLES + PRACTICE_FIX_CSS}</style>{preview && <div className="p4-lang" role="group" aria-label={tx(UI.language, lang)}>{SUPPORTED_LANGS.map((code) => <button type="button" key={code} aria-pressed={lang === code} className={lang === code ? 'is-active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}<header><div className="p4-progress" role="progressbar" aria-label={tx(UI.title, lang)} aria-valuemin="0" aria-valuemax="10" aria-valuenow={finished ? 10 : index}><i style={{ width: `${percent}%` }}/></div><div><span className="p4-title">{tx(UI.title, lang)}</span><b className="p4-counter">{finished ? 10 : index + 1} / 10</b></div></header><main>{finished ? <section className="p4-done" aria-live="polite"><h2>{tx(UI.done, lang)}</h2><strong>{firstTry}<small>/ 10</small></strong><p>{tx(UI.firstTry, lang)}</p><p>{tx(UI.allSolved, lang)}</p><button type="button" className="p4-btn p4-btn-ready" onClick={restart}>{tx(UI.again, lang)}</button></section> : <Task key={`${runId}-${task.id}`} task={task} lang={lang} isLast={index === 9} onSolved={onSolved} shuffleSeed={`${LESSON_META.lessonId}:${runId}`}/>}</main></div>;
+  return <div className="p4-root"><style>{STYLES}</style>{preview && <div className="p4-lang" role="group" aria-label={tx(UI.language, lang)}>{SUPPORTED_LANGS.map((code) => <button type="button" key={code} aria-pressed={lang === code} className={lang === code ? 'is-active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}<header><div className="p4-progress" role="progressbar" aria-label={tx(UI.title, lang)} aria-valuemin="0" aria-valuemax="10" aria-valuenow={finished ? 10 : index}><i style={{ width: `${percent}%` }}/></div><div><span className="p4-title">{tx(UI.title, lang)}</span><b className="p4-counter">{finished ? 10 : index + 1} / 10</b></div></header><main>{finished ? <section className="p4-done" aria-live="polite"><h2>{tx(UI.done, lang)}</h2><strong>{firstTry}<small>/ 10</small></strong><p>{tx(UI.firstTry, lang)}</p><p>{tx(UI.allSolved, lang)}</p><button type="button" className="p4-btn p4-btn-ready" onClick={restart}>{tx(UI.again, lang)}</button></section> : <Task key={`${runId}-${task.id}`} task={task} lang={lang} isLast={index === 9} onSolved={onSolved} shuffleSeed={`${LESSON_META.lessonId}:${runId}`}/>}</main></div>;
 }
 
 const STYLES = `
@@ -307,4 +306,14 @@ const STYLES = `
 @media(max-width:520px){.p4-options{grid-template-columns:1fr}.p4-order-slots{grid-template-columns:repeat(2,1fr)}.p4-match>div{gap:8px}.p4-root>header{padding-top:54px}.p4-visual{min-height:96px}}
 @media(max-width:640px) and (max-height:700px){.p4-root>header{padding:40px 10px 3px!important}.p4-root>main{padding:1px 8px!important}.p4-task{gap:5px!important}.p4-setup{font-size:12px;line-height:1.3}.p4-task h2{font-size:16px!important}.p4-visual{min-height:72px!important;padding:8px 10px!important;border-radius:16px}.p4-visual strong{font-size:18px}.p4-options{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:5px!important}.p4-options button,.p4-match button,.p4-order button{min-height:44px!important;padding:5px 8px!important;font-size:12px!important}.p4-actions .p4-btn,.p4-done .p4-btn{min-height:44px!important;padding:7px 14px}.p4-feedback{padding:8px 10px}}
 @media(prefers-reduced-motion:reduce){.p4-root *,.p4-root *::before,.p4-root *::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+/* PRACTICE-FIX boshlanishi — metodist qarori 2026-08-21.
+   1) Tekshirish tugmasi o'ngda (2-dars etaloni).
+   2) Moslashtirishda ikki tomondagi kartochkalar bir xil o'lchamda: ustun grid
+      bo'ladi va qatorlari 1fr, shuning uchun juftlar qator bo'yicha tekislanadi.
+   Bu blok har darsda takrorlanadi ATAYLAB: LMS avtonom fayl talab qiladi. */
+.p4-actions, .g4p-actions { justify-content: flex-end; }
+.p4-match-cols, .g4p-match-cols { align-items: stretch; }
+.p4-match-col, .g4p-match-col { display: grid; grid-auto-rows: 1fr; align-content: stretch; }
+/* PRACTICE-FIX tugashi */
 `;

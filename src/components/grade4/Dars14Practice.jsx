@@ -6,7 +6,6 @@
 // ============================================================================
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { PRACTICE_FIX_CSS } from './grade4PracticeFixStyles.js';
 
 const T = {
   bg: '#F5F5F0',
@@ -739,7 +738,7 @@ export default function Grade4Dars14Practice({ lang: langProp, onFinished }) {
 
   return (
     <div className="p4-root">
-      <style>{STYLES + PRACTICE_FIX_CSS}</style>
+      <style>{STYLES}</style>
       {preview && <div className="p4-lang" role="group" aria-label={tx(UI.language, lang)}>{SUPPORTED_LANGS.map((code) => (
         <button key={code} type="button" className={code === lang ? 'is-active' : ''} aria-pressed={code === lang} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>
       ))}</div>}
@@ -793,4 +792,14 @@ const STYLES = `
 @media(max-width:520px){.p4-head{padding-top:58px}.p4-main{padding-top:1px}.p4-task{gap:9px}.p4-figure{padding:9px}.p4-known-flow{grid-template-columns:1fr auto 1fr;gap:5px}.p4-known-flow .p4-flow-op:nth-of-type(2){display:none}.p4-known-chip.is-target{grid-column:1/-1;min-height:46px}.p4-options{grid-template-columns:1fr}.p4-option{min-height:50px;padding:8px 10px}.p4-time-scale{grid-template-columns:28px minmax(0,1fr);padding-right:0}.p4-compare-row{grid-template-columns:28px minmax(0,1fr)}.p4-compare-row>span{grid-column:2;text-align:center;font-size:9px}.p4-match-cols{gap:6px}.p4-match-item{min-height:50px;padding:6px 5px;font-size:10px}.p4-timeline-total{font-size:10px}.p4-timeline-parts>span{font-size:10px}.p4-mastery span{font-size:10px}}
 @media(max-width:390px){.p4-title{font-size:14px}.p4-counter{font-size:11px}.p4-setup{font-size:13px}.p4-ask{font-size:17px}.p4-track-segment b{font-size:8px}.p4-unit-flow>span,.p4-unit-flow>strong{padding:8px;font-size:12px}}
 @media(prefers-reduced-motion:reduce){.p4-root *,.p4-root *::before,.p4-root *::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+
+/* PRACTICE-FIX boshlanishi — metodist qarori 2026-08-21.
+   1) Tekshirish tugmasi o'ngda (2-dars etaloni).
+   2) Moslashtirishda ikki tomondagi kartochkalar bir xil o'lchamda: ustun grid
+      bo'ladi va qatorlari 1fr, shuning uchun juftlar qator bo'yicha tekislanadi.
+   Bu blok har darsda takrorlanadi ATAYLAB: LMS avtonom fayl talab qiladi. */
+.p4-actions, .g4p-actions { justify-content: flex-end; }
+.p4-match-cols, .g4p-match-cols { align-items: stretch; }
+.p4-match-col, .g4p-match-col { display: grid; grid-auto-rows: 1fr; align-content: stretch; }
+/* PRACTICE-FIX tugashi */
 `;
