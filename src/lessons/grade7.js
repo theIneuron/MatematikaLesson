@@ -159,6 +159,16 @@ export const grade7Nazariy = [
     desc: "Koeffitsiyent darajaga ko'tariladi, harf ko'rsatkichlari ko'paytiriladi. Bo'linish har doim bir had bermaydi. 15 slayd, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade7/Dars17.jsx')),
   },
+  {
+    // B4 BLOKINING BIRINCHI DARSI. Ko'phad -- bir hadlarning ALGEBRAIK
+    // yig'indisi, ya'ni ishora hadning o'ziga tegishli. Blokning asbobi:
+    // HADLAR LENTASI -- u faqat qo'shuv va ayirish belgisi bo'yicha
+    // kesiladi, ko'paytirish nuqtasida kesish tugmasi yo'q.
+    slug: 'dars18-kophad-va-turlari',
+    title: "Dars 18. Ko'phad va uning turlari",
+    desc: "Ko'phad bir hadlarning yig'indisi, ishora esa had bilan ketadi. Tur standart shakldagi hadlar soniga qarab aytiladi. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade7/Dars18.jsx')),
+  },
 ]
 
 // 7-sinf AMALIY mashg'ulotlari. Har nazariy darsga 10 tekshiriladigan
@@ -217,5 +227,11 @@ export const grade7Amaliy = [
     title: "Dars 6. Amaliyot: o'xshash hadlar",
     desc: "10 topshiriq: o'xshash hadni topish, koeffitsiyentlar, ikki guruh, qavsdan keyin yig'ish, soddalashmaydigan yozuvlar va nechta had qolishi. Yetti xil mexanika, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade7/practice/dars06/Dars06Practice.jsx')),
+  },
+  {
+    slug: 'dars07-amaliyot-tenglama-ildizi',
+    title: 'Dars 7. Amaliyot: tenglama ildizi',
+    desc: "10 topshiriq: ildizni tekshirish, tekshirish qatorini yozish va hisoblash, noma'lum ikki tomonda, manfiy ko'paytuvchi, ildizi yo'q tenglamalar va nechta ildiz bo'lishi. Yetti xil mexanika, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade7/practice/dars07/Dars07Practice.jsx')),
   },
 ]
