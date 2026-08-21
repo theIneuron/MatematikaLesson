@@ -240,4 +240,10 @@ export const grade7Amaliy = [
     desc: "10 topshiriq: chiziqli tenglamani tanish, hadni ko'chirish va ishora, yechim qadamlari, qavsli tenglama, ildizi bir xil tenglamalar va masaladan tenglamaga. Yetti xil mexanika, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade7/practice/dars08/Dars08Practice.jsx')),
   },
+  {
+    slug: 'dars09-amaliyot-tenglamalarni-yechish',
+    title: 'Dars 9. Amaliyot: tenglamalarni yechish',
+    desc: "10 topshiriq: birinchi qadamni tanlash, qavsni ochish, to'liq yechim, ikki qavsli tenglama, ildizni tekshirish va uch xil ildiz. Yetti xil mexanika, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade7/practice/dars09/Dars09Practice.jsx')),
+  },
 ]
