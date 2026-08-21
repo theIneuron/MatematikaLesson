@@ -1,59 +1,67 @@
-// Dars03 · Amaliyot 06 — 12 · (7 + 3) ga teng yozuvlar · 🟡 · tag: same_as_distributed
+// Dars03 · Amaliyot 06 — −12 · (7 − 3) ga teng yozuvlar · 🟡 · tag: same_as_distributed
 // Faqat MA'LUMOT. Mexanika: `practice/kit.jsx` -> MarkAll.
 //
-// 12 · (7 + 3) = 12 · 10 = 120. Tekshirilgan:
-//   12 · 7 + 12 · 3  = 84 + 36 = 120   HA (taqsimot qonuni)
-//   12 · 10          = 120             HA (qavs ichi hisoblangan)
-//   (7 + 3) · 12     = 120             HA (o'rin almashtirish)
-//   12 · 7 + 3       = 87              yo'q (ikkinchi songa yetmagan)
-//   12 + 7 · 3       = 33              yo'q (ko'paytiruvchi qo'shuvchiga aylangan)
-//   12 · 7 · 3       = 252             yo'q (qo'shish ko'paytirishga aylangan)
+// DARAJA KO'TARILDI (metodist qarori 2026-08-21): ko'paytuvchi manfiy, qavs
+// ichida ayirish. Endi har variantda IKKI narsani tekshirish kerak: bo'lakka
+// bo'lish to'g'rimi va ishora to'g'rimi.
+//
+// −12 · (7 − 3) = −12 · 4 = −48. Tekshirilgan:
+//   −12 · 7 + 12 · 3   = −84 + 36 = −48   HA (taqsimot, ikkinchi ishora ag'darilgan)
+//   −12 · 4            = −48              HA (qavs ichi hisoblangan)
+//   12 · (3 − 7)       = 12 · (−4) = −48  HA (ikki ishora ham ag'darilgan)
+//   −12 · 7 − 12 · 3   = −120             yo'q (ikkinchi ishora o'zgarmagan)
+//   −12 · 7 + 3        = −81              yo'q (ikkinchi songa yetmagan)
+//   12 · 7 − 12 · 3    = 48               yo'q (ishora butunlay teskari)
 import React from 'react';
 import { MarkAll, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'same_as_distributed', level: '🟡', col: 175, itemSize: 21,
+  tag: 'same_as_distributed', level: '🟡', col: 180, itemSize: 20,
   eyebrow: L('Bir xil qiymat', 'То же значение', 'The same value'),
   setup: L(
-    "Bitta qiymatga bir necha yo'l bilan yetish mumkin. Lekin har yozuv emas: ba'zilari boshqa son beradi.",
-    'К одному значению можно прийти разными путями. Но не любая запись годится: часть даёт другое число.',
-    'The same value can be reached in several ways. But not by any record: some give a different number.'),
-  ask: L('12 · (7 + 3) ga TENG hamma yozuvni belgilang.', 'Отметь все записи, равные 12 · (7 + 3).', 'Mark every record equal to 12 · (7 + 3).'),
+    "−12 · (7 − 3) ning qiymati −48. Bunga bir necha yo'l bilan yetish mumkin, lekin har yozuv emas: ishora bitta joyda xato bo'lsa, natija boshqa chiqadi.",
+    'Значение −12 · (7 − 3) равно −48. К нему можно прийти разными путями, но не любая запись годится: одна ошибка в знаке — и результат другой.',
+    'The value of −12 · (7 − 3) is −48. Several paths lead there, but not any record: one wrong sign and the result differs.'),
+  ask: L('−12 · (7 − 3) ga TENG hamma yozuvni belgilang.', 'Отметь все записи, равные −12 · (7 − 3).', 'Mark every record equal to −12 · (7 − 3).'),
   note: L("Bir nechta bo'lishi mumkin.", 'Их может быть несколько.', 'There can be several.'),
   items: [
-    { id: 'p1', tokens: ['12', '·', '7', '+', '12', '·', '3'], hit: true },
-    { id: 'p2', tokens: ['12', '·', '10'], hit: true },
-    { id: 'p3', tokens: ['(', '7', '+', '3', ')', '·', '12'], hit: true },
-    { id: 'n1', tokens: ['12', '·', '7', '+', '3'], hit: false },
-    { id: 'n2', tokens: ['12', '+', '7', '·', '3'], hit: false },
-    { id: 'n3', tokens: ['12', '·', '7', '·', '3'], hit: false },
+    { id: 'p1', tokens: ['−12', '·', '7', '+', '12', '·', '3'], hit: true },
+    { id: 'n1', tokens: ['−12', '·', '7', '−', '12', '·', '3'], hit: false },
+    { id: 'p2', tokens: ['−12', '·', '4'], hit: true },
+    { id: 'n2', tokens: ['−12', '·', '7', '+', '3'], hit: false },
+    { id: 'p3', tokens: ['12', '·', '(', '3', '−', '7', ')'], hit: true },
+    { id: 'n3', tokens: ['12', '·', '7', '−', '12', '·', '3'], hit: false },
   ],
   correctText: L(
-    "To'g'ri. Qavs ichini hisoblash ham, har songa alohida ko'paytirish ham 120 beradi. O'rin almashtirish esa ko'paytirishda erkin.",
-    'Верно. И счёт в скобке, и умножение на каждое число по отдельности дают 120. А переставлять множители можно свободно.',
-    'Correct. Working out the bracket and multiplying each number separately both give 120. And factors may be swapped freely.'),
+    "To'g'ri. Qavs ichini hisoblash ham, taqsimlash ham, ikki ishorani birga ag'darish ham −48 beradi.",
+    'Верно. И счёт в скобке, и распределение, и переворот обоих знаков сразу дают −48.',
+    'Correct. Working out the bracket, distributing, and flipping both signs at once all give −48.'),
   wrongs: [
     { when: (s) => s.extra.indexOf('n1') !== -1, text: L(
-      "12 · 7 + 3 da ko'paytiruvchi ikkinchi songa yetmagan: 84 + 3 = 87, 120 emas.",
-      'В 12 · 7 + 3 множитель не дошёл до второго числа: 84 + 3 = 87, а не 120.',
-      'In 12 · 7 + 3 the factor did not reach the second number: 84 + 3 = 87, not 120.') },
+      "−12 · 7 − 12 · 3 = −120. Qavs ichida AYIRISH turgan, ya'ni ikkinchi bo'lak ishorasini o'zgartiradi va qo'shiladi.",
+      '−12 · 7 − 12 · 3 = −120. В скобке было ВЫЧИТАНИЕ, значит вторая часть меняет знак и прибавляется.',
+      '−12 · 7 − 12 · 3 = −120. The bracket had a SUBTRACTION, so the second part flips sign and is added.') },
     { when: (s) => s.extra.indexOf('n3') !== -1, text: L(
-      "12 · 7 · 3 da qavs ichidagi QO'SHISH ko'paytirishga aylanib qolgan: 252 chiqadi.",
-      'В 12 · 7 · 3 СЛОЖЕНИЕ в скобке превратилось в умножение: получается 252.',
-      'In 12 · 7 · 3 the ADDITION inside the bracket turned into multiplication: that gives 252.') },
+      "12 · 7 − 12 · 3 = 48 -- moduli o'sha, lekin ishora teskari. Ko'paytuvchi manfiy edi.",
+      '12 · 7 − 12 · 3 = 48 — по модулю то же, но знак обратный. Множитель был отрицательным.',
+      '12 · 7 − 12 · 3 = 48 — the same size but the opposite sign. The factor was negative.') },
     { when: (s) => s.extra.indexOf('n2') !== -1, text: L(
-      "12 + 7 · 3 da 12 ko'paytiruvchi emas, qo'shiluvchi bo'lib qolgan: 12 + 21 = 33.",
-      'В 12 + 7 · 3 двенадцать стало слагаемым, а не множителем: 12 + 21 = 33.',
-      'In 12 + 7 · 3 the twelve became a term, not a factor: 12 + 21 = 33.') },
+      "−12 · 7 + 3 da ko'paytuvchi ikkinchi songa yetmagan: −84 + 3 = −81.",
+      'В −12 · 7 + 3 множитель не дошёл до второго числа: −84 + 3 = −81.',
+      'In −12 · 7 + 3 the factor did not reach the second number: −84 + 3 = −81.') },
+    { when: (s) => s.miss.indexOf('p3') !== -1, text: L(
+      "12 · (3 − 7) ni tekshirmadingiz: ikki ishora ham ag'darildi, qavs ichi −4 bo'ldi va 12 · (−4) = −48.",
+      'Ты не проверил 12 · (3 − 7): оба знака перевернулись, в скобке вышло −4, и 12 · (−4) = −48.',
+      'You did not check 12 · (3 − 7): both signs flipped, the bracket gave −4 and 12 · (−4) = −48.') },
     { when: (s) => s.miss.length > 0, text: L(
-      "Bittasi belgilanmadi: qavs ichini oldin hisoblash ham, har songa tarqatish ham bir xil qiymat beradi.",
-      'Одну пропустил: и посчитать скобку сначала, и раздать множитель каждому числу — значение одно.',
-      'One is missing: working out the bracket first and handing the factor to each number give the same value.') },
+      "Bittasi belgilanmadi: har yozuvni oxirigacha hisoblab −48 bilan solishtiring.",
+      'Одну пропустил: досчитай каждую запись до конца и сравни с −48.',
+      'One is missing: work each record out to the end and compare with −48.') },
   ],
   wrongText: L(
-    "Har yozuvni oxirigacha hisoblang va 120 bilan solishtiring.",
-    'Досчитай каждую запись до конца и сравни со 120.',
-    'Work each record out to the end and compare with 120.'),
+    "Har yozuvni oxirigacha hisoblang va −48 bilan solishtiring. Ishorani alohida tekshiring.",
+    'Досчитай каждую запись до конца и сравни с −48. Знак проверяй отдельно.',
+    'Work each record out to the end and compare with −48. Check the sign separately.'),
 };
 
 export default function D03_06(props) { return <MarkAll data={DATA} {...props} />; }

@@ -1,11 +1,14 @@
 // Dars03 · Amaliyot 07 — Yaqin yumaloq son · 🔴 · tag: round_neighbour
 // Faqat MA'LUMOT. Mexanika: `practice/kit.jsx` -> SlotsBank.
 //
-// 48 · 37. 48 ni 50 − 2 deb olamiz (yaqin yumaloq son) va taqsimlaymiz:
-//   50 · 37 = 1850,  2 · 37 = 74,  1850 − 74 = 1776
-// Tekshirish: 48 · 37 = 1776.
-// Kartalar orasida 1800 (50 · 36 dan), 72 (2 · 36 dan) va 1926 (ayirish
-// o'rniga qo'shgan) turadi.
+// DARAJA KO'TARILDI (metodist qarori 2026-08-21): ilgari 48 · 37 edi. Endi
+// 98 · 4,7 -- yaqin yumaloq son yuz, ikkinchi ko'paytuvchi esa O'NLI KASR.
+// Ya'ni xossa saqlanadi, hisob esa 7-sinf darajasida.
+//
+// 98 · 4,7 = (100 − 2) · 4,7 = 100 · 4,7 − 2 · 4,7 = 470 − 9,4 = 460,6
+// Tekshirish: 98 · 4,7 = 460,6.
+// Kartalar orasida 47 (vergulni yo'qotgan), 9,4 to'g'ri, 479,4 (qo'shgan) va
+// 460,4 turadi.
 import React from 'react';
 import { SlotsBank, L } from '../kit.jsx';
 
@@ -13,39 +16,39 @@ const DATA = {
   tag: 'round_neighbour', level: '🔴',
   eyebrow: L('Yaqin yumaloq son', 'Соседнее круглое', 'The round neighbour'),
   setup: L(
-    "Ikki xonali sonni ko'paytirish uchun yonidagi yumaloq sonni olamiz va ortiqchasini ayiramiz. Ish ikki oson amalga bo'linadi.",
-    'Чтобы умножить двузначное число, берём соседнее круглое и вычитаем лишнее. Работа распадается на два простых действия.',
-    'To multiply a two-digit number we take the round neighbour and subtract the extra. The work splits into two easy steps.'),
+    "98 ni 100 − 2 deb olamiz. Yuzga ko'paytirish o'nli kasr bilan ham oson: vergul ikki xona o'ngga ko'chadi.",
+    'Берём 98 как 100 − 2. Умножать на сто легко и с десятичной дробью: запятая уходит на два разряда вправо.',
+    'We take 98 as 100 − 2. Multiplying by a hundred is easy even with a decimal: the comma moves two places right.'),
   rows: [
-    [{ t: ['48', '·', '37', '=', '(', '50', '−', '2', ')', '·', '37'] }],
+    [{ t: ['98', '·', '4,7', '=', '(', '100', '−', '2', ')', '·', '4,7'] }],
     [{ t: ['='] }, { slot: 0 }, { t: ['−'] }, { slot: 1 }, { t: ['='] }, { slot: 2 }],
   ],
-  cards: ['1850', '74', '1776', '1800', '72', '1926'],
-  answer: ['1850', '74', '1776'],
+  cards: ['470', '9,4', '460,6', '47', '4,7', '479,4'],
+  answer: ['470', '9,4', '460,6'],
   ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
-    "To'g'ri. 50 · 37 = 1850 va 2 · 37 = 74. Ayirmasi 1776, ya'ni 48 · 37 ning o'zi.",
-    'Верно. 50 · 37 = 1850 и 2 · 37 = 74. Разность 1776 — это и есть 48 · 37.',
-    'Correct. 50 · 37 = 1850 and 2 · 37 = 74. The difference 1776 is exactly 48 · 37.'),
+    "To'g'ri. 100 · 4,7 = 470 va 2 · 4,7 = 9,4. Ayirmasi 460,6, ya'ni 98 · 4,7 ning o'zi.",
+    'Верно. 100 · 4,7 = 470 и 2 · 4,7 = 9,4. Разность 460,6 — это и есть 98 · 4,7.',
+    'Correct. 100 · 4,7 = 470 and 2 · 4,7 = 9,4. The difference 460,6 is exactly 98 · 4,7.'),
   wrongs: [
-    { when: (s) => s.slots[0] === '1800' || s.slots[1] === '72', text: L(
-      "Ikkinchi ko'paytiruvchi 37, 36 emas: 50 · 37 = 1850 va 2 · 37 = 74.",
-      'Второй множитель 37, а не 36: 50 · 37 = 1850 и 2 · 37 = 74.',
-      'The second factor is 37, not 36: 50 · 37 = 1850 and 2 · 37 = 74.') },
-    { when: (s) => s.slots[2] === '1926', text: L(
-      "48 bu 50 dan IKKI KAM, shuning uchun 2 · 37 ayiriladi, qo'shilmaydi.",
-      '48 это на ДВА МЕНЬШЕ пятидесяти, поэтому 2 · 37 вычитается, а не прибавляется.',
-      '48 is TWO LESS than fifty, so 2 · 37 is subtracted, not added.') },
-    { when: (s) => s.slots[0] === '74' || s.slots[1] === '1850', text: L(
-      "Uyalar joyi almashdi: avval katta bo'lak (50 · 37), keyin ortiqcha bo'lak (2 · 37) ayiriladi.",
-      'Клетки перепутаны: сначала большая часть (50 · 37), потом вычитается лишняя (2 · 37).',
-      'The cells are swapped: the big part (50 · 37) comes first, then the extra part (2 · 37) is subtracted.') },
+    { when: (s) => s.slots[0] === '47', text: L(
+      "Yuzga ko'paytirganda vergul IKKI xona o'ngga ko'chadi: 4,7 dan 470 chiqadi, 47 emas.",
+      'При умножении на сто запятая уходит на ДВА разряда вправо: из 4,7 выходит 470, а не 47.',
+      'Multiplying by a hundred moves the comma TWO places right: 4,7 becomes 470, not 47.') },
+    { when: (s) => s.slots[1] === '4,7', text: L(
+      "Ikkinchi bo'lakda 2 ga ko'paytirish bor: 2 · 4,7 = 9,4.",
+      'Во второй части есть умножение на 2: 2 · 4,7 = 9,4.',
+      'The second part has a multiplication by 2: 2 · 4,7 = 9,4.') },
+    { when: (s) => s.slots[2] === '479,4', text: L(
+      "98 bu 100 dan IKKI KAM, shuning uchun 9,4 ayiriladi, qo'shilmaydi: 470 − 9,4 = 460,6.",
+      '98 это на ДВА МЕНЬШЕ ста, поэтому 9,4 вычитается, а не прибавляется: 470 − 9,4 = 460,6.',
+      '98 is TWO LESS than a hundred, so 9,4 is subtracted, not added: 470 − 9,4 = 460,6.') },
   ],
   wrongText: L(
-    "50 ni 37 ga ko'paytiring, keyin 2 ni 37 ga ko'paytiring va ikkinchisini birinchisidan ayiring.",
-    'Умножь 50 на 37, потом 2 на 37 и вычти второе из первого.',
-    'Multiply 50 by 37, then 2 by 37, and take the second from the first.'),
+    "100 ni 4,7 ga ko'paytiring, keyin 2 ni 4,7 ga ko'paytiring va ikkinchisini birinchisidan ayiring.",
+    'Умножь 100 на 4,7, потом 2 на 4,7 и вычти второе из первого.',
+    'Multiply 100 by 4,7, then 2 by 4,7, and take the second from the first.'),
 };
 
 export default function D03_07(props) { return <SlotsBank data={DATA} {...props} />; }

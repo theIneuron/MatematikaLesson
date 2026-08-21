@@ -1,52 +1,53 @@
-// Dars03 · Amaliyot 04 — Bo'lib ko'paytirish · 🟡 · tag: distribute_split
+// Dars03 · Amaliyot 04 — Manfiy ko'paytuvchi bilan taqsimlash · 🟡 · tag: distribute_negative
 // Faqat MA'LUMOT. Mexanika: `practice/kit.jsx` -> SlotsBank.
 //
-// 6 · 48 ni og'zaki hisoblash uchun 48 ni 50 − 2 deb yozamiz va taqsimot
-// qonunini ishlatamiz: 6 · 50 − 6 · 2.
-//   6 · 50 = 300,  6 · 2 = 12,  300 − 12 = 288
-// Tekshirish: 6 · 48 = 288.
-// Kartalar orasida 250 va 18 turadi -- 6 ni 50 ga qo'shish yoki 6 va 2 ni
-// qo'shib yuborishdan chiqadigan sonlar; 312 esa ayirish o'rniga qo'shgan.
+// DARAJA KO'TARILDI (metodist qarori 2026-08-21): ilgari 6 · 48 edi, ya'ni
+// 5-sinf misoli. Endi ko'paytuvchi MANFIY va har qadamda ishora nazorat
+// qilinadi.
+//
+// 48 · (−7) = (50 − 2) · (−7) = 50 · (−7) − 2 · (−7) = −350 + 14 = −336.
+// Tekshirish: 48 · 7 = 336, ya'ni javob −336.
+// Kartalar orasida −364 (14 ni ayirgan), 350 va −14 turadi.
 import React from 'react';
 import { SlotsBank, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'distribute_split', level: '🟡',
-  eyebrow: L("Bo'lib ko'paytirish", 'Умножение по частям', 'Multiplying in parts'),
+  tag: 'distribute_negative', level: '🟡',
+  eyebrow: L("Manfiy ko'paytuvchi", 'Отрицательный множитель', 'A negative factor'),
   setup: L(
-    "48 ni 50 − 2 deb yozsak, ko'paytirish ikki oson amalga bo'linadi. Bu taqsimot qonuni.",
-    'Если записать 48 как 50 − 2, умножение распадается на два простых действия. Это распределительный закон.',
-    'Writing 48 as 50 − 2 splits the multiplication into two easy steps. That is the distributive law.'),
+    "48 ni 50 − 2 deb yozsak, ko'paytirish ikki oson amalga bo'linadi. Ko'paytuvchi manfiy bo'lsa, har bo'lakning ishorasi ham o'zgaradi.",
+    'Если записать 48 как 50 − 2, умножение распадается на два простых действия. Когда множитель отрицательный, знак меняется у каждой части.',
+    'Writing 48 as 50 − 2 splits the multiplication in two. With a negative factor the sign of each part changes too.'),
   rows: [
-    [{ t: ['6', '·', '48', '=', '6', '·', '(', '50', '−', '2', ')'] }],
-    [{ t: ['='] }, { slot: 0 }, { t: ['−'] }, { slot: 1 }, { t: ['='] }, { slot: 2 }],
+    [{ t: ['48', '·', '(−7)', '=', '(', '50', '−', '2', ')', '·', '(−7)'] }],
+    [{ t: ['='] }, { slot: 0 }, { t: ['+'] }, { slot: 1 }, { t: ['='] }, { slot: 2 }],
   ],
-  cards: ['300', '12', '288', '250', '18', '312'],
-  answer: ['300', '12', '288'],
+  cards: ['−350', '14', '−336', '350', '−14', '−364'],
+  answer: ['−350', '14', '−336'],
   ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
-    "To'g'ri. 6 · 50 = 300 va 6 · 2 = 12. Ayirmasi 288, ya'ni 6 · 48 ning o'zi.",
-    'Верно. 6 · 50 = 300 и 6 · 2 = 12. Разность 288 — это и есть 6 · 48.',
-    'Correct. 6 · 50 = 300 and 6 · 2 = 12. The difference 288 is exactly 6 · 48.'),
+    "To'g'ri. 50 · (−7) = −350 va 2 · (−7) = −14, lekin u AYIRILADI: −350 − (−14) = −350 + 14 = −336. Tekshirish: 48 · 7 = 336.",
+    'Верно. 50 · (−7) = −350 и 2 · (−7) = −14, но оно ВЫЧИТАЕТСЯ: −350 − (−14) = −350 + 14 = −336. Проверка: 48 · 7 = 336.',
+    'Correct. 50 · (−7) = −350 and 2 · (−7) = −14, but it is SUBTRACTED: −350 − (−14) = −350 + 14 = −336. Check: 48 · 7 = 336.'),
   wrongs: [
-    { when: (s) => s.slots[0] === '250', text: L(
-      "Birinchi uyada ko'paytirish bo'lishi kerak: 6 · 50 = 300. 250 esa 200 ga 50 qo'shilganda chiqadi.",
-      'В первой клетке должно быть умножение: 6 · 50 = 300. А 250 получается, если к 200 прибавить 50.',
-      'The first cell needs a multiplication: 6 · 50 = 300. The 250 comes from adding 50 to 200.') },
-    { when: (s) => s.slots[1] === '18', text: L(
-      "Ikkinchi uyada ham ko'paytirish: 6 · 2 = 12. 18 esa 6 va 12 ni qo'shganda chiqadi.",
-      'Во второй клетке тоже умножение: 6 · 2 = 12. А 18 получается при сложении 6 и 12.',
-      'The second cell is a multiplication too: 6 · 2 = 12. The 18 comes from adding 6 and 12.') },
-    { when: (s) => s.slots[2] === '312', text: L(
-      "Qavs ichida AYIRISH turgan edi, shuning uchun 6 · 2 ham ayiriladi: 300 − 12.",
-      'В скобке было ВЫЧИТАНИЕ, поэтому 6 · 2 тоже вычитается: 300 − 12.',
-      'The bracket had a SUBTRACTION, so 6 · 2 is subtracted too: 300 − 12.') },
+    { when: (s) => s.slots[0] === '350', text: L(
+      "Birinchi bo'lakda ishora yo'qoldi: 50 ni manfiy songa ko'paytirsa manfiy chiqadi, −350.",
+      'В первой части потерялся знак: 50 умножить на отрицательное даёт отрицательное, −350.',
+      'The sign is lost in the first part: 50 times a negative gives a negative, −350.') },
+    { when: (s) => s.slots[1] === '−14', text: L(
+      "2 · (−7) = −14, lekin qavs ichida AYIRISH turgan edi. Manfiy sonni ayirish esa qo'shishga aylanadi: +14.",
+      '2 · (−7) = −14, но в скобке было ВЫЧИТАНИЕ. А вычитание отрицательного превращается в сложение: +14.',
+      '2 · (−7) = −14, but the bracket had a SUBTRACTION. And subtracting a negative turns into adding: +14.') },
+    { when: (s) => s.slots[2] === '−364', text: L(
+      "−364 chiqishi uchun 14 ayirilgan. Ikkinchi bo'lak esa qo'shiladi: −350 + 14 = −336.",
+      'Чтобы вышло −364, четырнадцать вычли. А вторая часть прибавляется: −350 + 14 = −336.',
+      'To get −364 the fourteen was subtracted. The second part is added: −350 + 14 = −336.') },
   ],
   wrongText: L(
-    "Oltini qavs ichidagi har songa alohida ko'paytiring, keyin natijalarni o'sha belgi bilan qo'shing yoki ayiring.",
-    'Умножь шесть на каждое число в скобке отдельно, потом соедини результаты тем же знаком.',
-    'Multiply six by each number in the bracket separately, then join the results with the same sign.'),
+    "Qavs ichidagi har songa (−7) ni ko'paytiring, keyin ikki bo'lakni qavsdagi belgi bilan bog'lang -- va manfiy sonni ayirish qo'shishga aylanadi.",
+    'Умножь каждое число в скобке на (−7), потом соедини части знаком из скобки — а вычитание отрицательного превращается в сложение.',
+    'Multiply each number in the bracket by (−7), then join the parts with the sign from the bracket — and subtracting a negative turns into adding.'),
 };
 
 export default function D03_04(props) { return <SlotsBank data={DATA} {...props} />; }
