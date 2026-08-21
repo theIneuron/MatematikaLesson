@@ -92,7 +92,6 @@ export const Stage = ({ screen, audio, onPrev, onNext, finish = false, done, chi
   useEffect(() => {
     if (done === true && !storedActivity) markActivity(screen, true);
   }, [done, markActivity, screen, storedActivity]);
-  const showCaption = Boolean(audio?.caption && (audio.muted || audio.visualOnly));
   return (
     <main className={`stage stage-${meta.type}`}>
       <header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}>
@@ -109,10 +108,9 @@ export const Stage = ({ screen, audio, onPrev, onNext, finish = false, done, chi
         </div>
       </header>
       <section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>
+        {/* Metodist qarori (2026-08-21): ekran ostidagi to'q rangli subtitr
+            olib tashlandi. */}
         <div className="stage-body">{children}</div>
-        <div className={`caption caption-slot ${showCaption ? 'visible' : ''}`} aria-hidden={!showCaption}>
-          {showCaption ? audio.caption : ''}
-        </div>
       </section>
       <footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>
         {screen === 0

@@ -212,6 +212,10 @@ for (const [lesson, spec] of Object.entries(EXPECTED)) {
     './modelSteps.jsx',
     './supportHint.jsx',
     './grade4GeometryFrameStyles.js',
+    // 2026-08-21: xato javob ko'rsatkichi va maket tuzatishlari umumiy modulga
+    // chiqarildi (bitta bagni 20 faylda tuzatmaslik uchun) — CLAUDE.md §5.
+    './wrongAnswerFlash.js',
+    './grade4LayoutFixStyles.js',
   ]);
   const foreignImports = [...source.matchAll(/from\s+['"](\.[^'"]+)['"]/g)]
     .map((match) => match[1])
