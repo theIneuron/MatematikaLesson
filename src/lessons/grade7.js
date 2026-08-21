@@ -37,6 +37,16 @@ export const grade7Nazariy = [
     Component: lazy(() => import('../components/grade7/Dars03.jsx')),
   },
   {
+    // KECHIKKAN DARS. Metodist 2026-08-16 da to'xtatgan edi: darslikda
+    // «ayniyat» so'zi yo'q. 2026-08-21 da qilish kerak dedi. Dars darslik
+    // BERADIGAN narsaga qurilgan -- amallarning xossalari va soddalashtirish;
+    // atama esa faqat NOM.
+    slug: 'dars04-ayniyat',
+    title: 'Dars 4. Ayniyat va ayniy ozgartirishlar',
+    desc: "Bitta son isbot emas: u faqat rad etadi. Isbot esa xossa bilan qayta yozish. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade7/Dars04.jsx')),
+  },
+  {
     // NOLDAN qayta yozildi (metodist qarori 2026-08-15): eski 5-dars eski
     // yondashuvda edi va loyihadan olib tashlangan.
     // §1.3: qavs oldidagi ISHORA -- bu darsda; qavs oldidagi KO'PAYTUVCHI --
@@ -179,6 +189,15 @@ export const grade7Nazariy = [
     desc: "Qavs oldidagi minus ichidagi har hadning ishorasini almashtiradi. Qo'shish faqat ustun ichida. 15 slayd, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade7/Dars19.jsx')),
   },
+  {
+    // BIRINCHI DARS KONVEYERDA: fayl faqat MA'LUMOT, o'ram `screens.jsx` da.
+    // Asbob -- YUZA TO'RTBURCHAGI: kataklar soni qavsdagi hadlar soniga teng
+    // va u ko'rinadi, ya'ni ko'paytmani tushirib qoldirish mumkin emas.
+    slug: 'dars20-kophadni-birhadga-kopaytirish',
+    title: "Dars 20. Ko'phadni bir hadga ko'paytirish",
+    desc: "Har katak bitta ko'paytma. Kataklar soni qavsdagi hadlar soniga teng. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade7/Dars20.jsx')),
+  },
 ]
 
 // 7-sinf AMALIY mashg'ulotlari. Har nazariy darsga 10 tekshiriladigan
@@ -291,5 +310,11 @@ export const grade7Amaliy = [
     title: 'Dars 15. Amaliyot: bir had',
     desc: "10 topshiriq: bir hadni tanish, koeffitsiyent, ko'paytirish, standart ko'rinish, o'xshash bir hadlar va bir hadning darajasi. Yetti xil mexanika, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade7/practice/dars15/Dars15Practice.jsx')),
+  },
+  {
+    slug: 'dars16-amaliyot-bir-hadlarni-kopaytirish',
+    title: "Dars 16. Amaliyot: bir hadlarni ko'paytirish",
+    desc: "10 topshiriq: koeffitsiyentlar ko'paytmasi va ko'rsatkichlar yig'indisi, ishora, ikki harf, uchta ko'paytuvchi, ko'paytmaning darajasi. Yetti xil mexanika, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade7/practice/dars16/Dars16Practice.jsx')),
   },
 ]
