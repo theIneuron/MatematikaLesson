@@ -388,7 +388,11 @@ const NumPad = ({ value, onChange, max, disabled, lang }) => (
   </div>
 );
 
-function Task({ task, lang, isLast, onSolved }) {
+// `platform` berilganda tugma qatori chizilmaydi: uni LMS o'zi beradi va
+// tekshiruvni `registerCheck` orqali chaqiradi (LMS kontrakti).
+function Task({ task, lang, isLast, onSolved ,
+  platform = false, mode, onReady, registerCheck, onSubmit, playCorrect, playWrong,
+}) {
   // Xato javobdan keyin variantlar qayta aralashadi (metodist qarori 2026-08-21).
   const [wrongRound, setWrongRound] = useState(0);
   // eslint-disable-next-line react-hooks/exhaustive-deps -- wrongRound ataylab yangi tartib beradi
@@ -504,6 +508,26 @@ function Task({ task, lang, isLast, onSolved }) {
     if (!answerCorrect) setWrongRound((old) => old + 1);
   };
 
+  // --- LMS platforma kontrakti ------------------------------------------
+  // Mexanikaga tegilmaydi: natija mavjud holatlardan o'qiladi.
+  useEffect(() => { onReady?.(Boolean(canCheck) && !solved && mode !== 'review'); },
+    [canCheck, solved, mode, onReady]);
+  const checkRef = useRef(checkAnswer);
+  useEffect(() => { checkRef.current = checkAnswer; });
+  useEffect(() => { registerCheck?.(() => checkRef.current?.()); }, [registerCheck]);
+  const reportedRef = useRef(-1);
+  useEffect(() => {
+    if (!checked) return;
+    if (reportedRef.current === attempts) return;
+    reportedRef.current = attempts;
+    (solved ? playCorrect : playWrong)?.();
+    onSubmit?.({
+      questionText: typeof task.prompt === 'object' ? task.prompt.uz : String(task.prompt ?? ''),
+      correct: Boolean(solved),
+      meta: { taskId: task.id, kind: task.kind, attempts: attempts },
+    });
+  }, [attempts, checked, solved, onSubmit, playCorrect, playWrong, task]);
+  // ----------------------------------------------------------------------
   return <section className={`p4-task ${hintLevel >= 2 ? 'is-hint' : ''}`} aria-labelledby={`task-${task.id}`}>
     <p className={`p4-eyebrow is-${task.level}`}><span>{tx(UI.level[task.level], lang)}</span> · {tx(UI.task, lang)} {Number(task.id)}</p>
     <p className="p4-setup">{tx(task.setup, lang)}</p>
@@ -522,11 +546,11 @@ function Task({ task, lang, isLast, onSolved }) {
     {task.kind === 'order' && <div className="p4-order"><p className="p4-note">{tx(UI.orderHint, lang)}</p><div className="p4-order-slots">{task.steps.map((step) => <button key={step.id} type="button" className={`p4-order-slot ${activeStep === step.id ? 'is-active' : ''} ${hintLevel >= 2 && wrongStep?.id === step.id ? 'is-hint' : ''}`} aria-pressed={activeStep === step.id} disabled={solved} onClick={() => activateStep(step.id)}><small>{tx(step.label, lang)}</small><b>{placed[step.id] ? tx(task.cards.find((card) => card.id === placed[step.id])?.text, lang) : '—'}</b></button>)}</div><div className="p4-card-bank">{orderCards.map((card) => { const used = Object.values(placed).includes(card.id); return <button key={card.id} type="button" className={`p4-card ${used ? 'is-used' : ''}`} aria-pressed={used} disabled={solved || !activeStep || used} onClick={() => placeStep(card.id)}>{tx(card.text, lang)}</button>; })}</div></div>}
 
     {checked && <Feedback feedbackRef={feedbackRef} ok={solved} text={solved ? tx(task.correctText, lang) : wrongText} rule={task.rule} lang={lang} />}
-    <div className="p4-actions">
+    {!platform && <div className="p4-actions">
       {!checked && !solved && <button type="button" className="p4-btn" disabled={!canCheck} onClick={checkAnswer}>{tx(UI.check, lang)}</button>}
       {checked && !solved && <button type="button" className="p4-btn p4-btn-ghost" onClick={retry}>{tx(UI.retry, lang)}</button>}
       {solved && <button type="button" className="p4-btn p4-btn-ready" disabled={advancing} onClick={() => { if (advancedRef.current) return; checkingRef.current = false; advancedRef.current = true; setAdvancing(true); onSolved({ taskId: task.id, taskNumber: Number(task.id), level: task.level, kind: task.kind, skillTag: task.skillTag, attempts, firstTry: attempts === 1, correct: true, setup: task.setup, prompt: task.prompt, studentAnswer: answerSnapshot(), correctAnswer: correctSnapshot(), answerChoices: task.options?.map(({ id, text, correct }) => ({ id, text, correct: Boolean(correct) })) ?? task.right ?? task.cards ?? null, screenMeta: SCREEN_META.find((screen) => screen.taskId === task.id) }); }}>{tx(isLast ? UI.finish : UI.next, lang)}</button>}
-    </div>
+    </div>}
   </section>;
 }
 

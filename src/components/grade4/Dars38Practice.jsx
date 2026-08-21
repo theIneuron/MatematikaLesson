@@ -896,7 +896,11 @@ function Feedback({ ok, text, rule, lang, feedbackRef }) {
   );
 }
 
-function Task({ task, lang, isLast, onSolved, shuffleSeed }) {
+// `platform` berilganda tugma qatori chizilmaydi: uni LMS o'zi beradi va
+// tekshiruvni `registerCheck` orqali chaqiradi (LMS kontrakti).
+function Task({ task, lang, isLast, onSolved, shuffleSeed ,
+  platform = false, mode, onReady, registerCheck, onSubmit, playCorrect, playWrong,
+}) {
   const [pickedId, setPickedId] = useState(null);
   const [pairs, setPairs] = useState({});
   const [activeLeft, setActiveLeft] = useState(null);
@@ -1028,6 +1032,26 @@ function Task({ task, lang, isLast, onSolved, shuffleSeed }) {
 
   const unassigned = sortItems.filter((item) => !assignments[item.id]);
 
+  // --- LMS platforma kontrakti ------------------------------------------
+  // Mexanikaga tegilmaydi: natija mavjud holatlardan o'qiladi.
+  useEffect(() => { onReady?.(Boolean(answerReady) && !solved && mode !== 'review'); },
+    [answerReady, solved, mode, onReady]);
+  const checkRef = useRef(check);
+  useEffect(() => { checkRef.current = check; });
+  useEffect(() => { registerCheck?.(() => checkRef.current?.()); }, [registerCheck]);
+  const reportedRef = useRef(-1);
+  useEffect(() => {
+    if (!checked) return;
+    if (reportedRef.current === attempts) return;
+    reportedRef.current = attempts;
+    (solved ? playCorrect : playWrong)?.();
+    onSubmit?.({
+      questionText: typeof task.prompt === 'object' ? task.prompt.uz : String(task.prompt ?? ''),
+      correct: Boolean(solved),
+      meta: { taskId: task.id, kind: task.kind, attempts: attempts },
+    });
+  }, [attempts, checked, solved, onSubmit, playCorrect, playWrong, task]);
+  // ----------------------------------------------------------------------
   return (
     <section className="p4-task" aria-labelledby={`task-${task.id}`}>
       <p className={`p4-eyebrow is-${task.level}`}>
@@ -1238,7 +1262,7 @@ function Task({ task, lang, isLast, onSolved, shuffleSeed }) {
           text={solved ? task.correctText : adaptive(task, pickedOption, slotWrong, firstWrongItem?.wrong, sequenceWrong, attempts)} />
       )}
 
-      <div className="p4-actions">
+      {!platform && <div className="p4-actions">
         {!checked && !solved && (
           <button type="button" className="p4-btn" disabled={!answerReady} onClick={check}>
             {tx(UI.check, lang)}
@@ -1278,7 +1302,7 @@ function Task({ task, lang, isLast, onSolved, shuffleSeed }) {
             {tx(isLast ? UI.finish : UI.next, lang)}
           </button>
         )}
-      </div>
+      </div>}
     </section>
   );
 }

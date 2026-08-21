@@ -374,7 +374,11 @@ function Feedback({ task, solved, attempts, wrongText, lang, feedbackRef }) {
   );
 }
 
-function Task({ task, taskIndex, lang, onSolved }) {
+// `platform` berilganda tugma qatori chizilmaydi: uni LMS o'zi beradi va
+// tekshiruvni `registerCheck` orqali chaqiradi (LMS kontrakti).
+function Task({ task, taskIndex, lang, onSolved ,
+  platform = false, mode, onReady, registerCheck, onSubmit, playCorrect, playWrong,
+}) {
   const isChoice = task.kind === 'mc' || task.kind === 'digit' || task.kind === 'missing';
   const isAssign = task.kind === 'slots' || task.kind === 'order';
   // Xato javobdan keyin variantlar qayta aralashadi (metodist qarori 2026-08-21).
@@ -454,6 +458,26 @@ function Task({ task, taskIndex, lang, onSolved }) {
     });
   };
 
+  // --- LMS platforma kontrakti ------------------------------------------
+  // Mexanikaga tegilmaydi: natija mavjud holatlardan o'qiladi.
+  useEffect(() => { onReady?.(Boolean(canCheck) && !solved && mode !== 'review'); },
+    [canCheck, solved, mode, onReady]);
+  const checkRef = useRef(check);
+  useEffect(() => { checkRef.current = check; });
+  useEffect(() => { registerCheck?.(() => checkRef.current?.()); }, [registerCheck]);
+  const reportedRef = useRef(-1);
+  useEffect(() => {
+    if (!checked) return;
+    if (reportedRef.current === attempts) return;
+    reportedRef.current = attempts;
+    (solved ? playCorrect : playWrong)?.();
+    onSubmit?.({
+      questionText: typeof task.prompt === 'object' ? task.prompt.uz : String(task.prompt ?? ''),
+      correct: Boolean(solved),
+      meta: { taskId: task.id, kind: task.kind, attempts: attempts },
+    });
+  }, [attempts, checked, solved, onSubmit, playCorrect, playWrong, task]);
+  // ----------------------------------------------------------------------
   return (
     <section className="g4p-task" aria-labelledby={`g4p-task-${task.id}`}>
       <p className={`g4p-eyebrow is-${task.level}`}><span>{tx(UI.levels[task.level], lang)}</span> · {tx(UI.task, lang)} {task.id}</p>
@@ -468,11 +492,11 @@ function Task({ task, taskIndex, lang, onSolved }) {
       {isAssign && <AssignBoard task={task} cards={cards} placed={placed} setPlaced={(updater) => { setPlaced(updater); clearFeedback(); }} activeSlot={activeSlot} setActiveSlot={(slot) => { setActiveSlot(slot); clearFeedback(); }} checked={checked} solved={solved} lang={lang} />}
 
       {checked && <Feedback task={task} solved={solved} attempts={attempts} wrongText={wrongText} lang={lang} feedbackRef={feedbackRef} />}
-      <div className="g4p-actions">
+      {!platform && <div className="g4p-actions">
         {!solved && <button type="button" className="g4p-btn" disabled={!canCheck || checked} onClick={check}>{tx(UI.check, lang)}</button>}
         {checked && !solved && <button type="button" className="g4p-btn is-ghost" onClick={clearFeedback}>{tx(UI.retry, lang)}</button>}
         {solved && <button type="button" className="g4p-btn is-ready" onClick={advance}>{tx(taskIndex === TASKS.length - 1 ? UI.finish : UI.next, lang)}</button>}
-      </div>
+      </div>}
     </section>
   );
 }

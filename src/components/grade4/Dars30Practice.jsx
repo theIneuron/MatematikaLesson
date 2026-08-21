@@ -236,7 +236,11 @@ function Feedback({ ok, text, rule, lang }) {
   return <div className={`p4-feedback ${ok ? 'is-ok' : 'is-no'}`} role="status" aria-live="polite"><p>{tx(text, lang)}</p>{ok && <p><b>{tx(UI.rule, lang)}.</b> {tx(rule, lang)}</p>}</div>;
 }
 
-function Task({ task, lang, isLast, onSolved, shuffleSeed }) {
+// `platform` berilganda tugma qatori chizilmaydi: uni LMS o'zi beradi va
+// tekshiruvni `registerCheck` orqali chaqiradi (LMS kontrakti).
+function Task({ task, lang, isLast, onSolved, shuffleSeed ,
+  platform = false, mode, onReady, registerCheck, onSubmit, playCorrect, playWrong,
+}) {
   const [pickedId, setPickedId] = useState(null); const [typed, setTyped] = useState(''); const [pairs, setPairs] = useState({});
   const [activeLeft, setActiveLeft] = useState(null); const [placed, setPlaced] = useState({}); const [activeStep, setActiveStep] = useState(null);
   const [attempts, setAttempts] = useState(0); const [checked, setChecked] = useState(false); const [solved, setSolved] = useState(false); const [advancing, setAdvancing] = useState(false);
@@ -263,6 +267,26 @@ function Task({ task, lang, isLast, onSolved, shuffleSeed }) {
   const studentAnswer = task.kind === 'mc' ? { optionId: pickedId, text: pickedOption?.text } : task.kind === 'numpad' || task.kind === 'missing' ? { value: typed } : task.kind === 'match' ? { pairs } : { order: task.steps.map((step) => placed[step.id]) };
   const correctAnswer = task.kind === 'mc' ? (() => { const item = task.options.find((candidate) => candidate.correct); return { optionId: item.id, text: item.text }; })() : task.kind === 'numpad' || task.kind === 'missing' ? { value: task.answer } : task.kind === 'match' ? { pairs: Object.fromEntries(task.pairs.map((pair) => [pair.id, pair.correctRight])) } : { order: task.cards.slice().sort((a, c) => a.order - c.order).map((card) => card.id) };
 
+  // --- LMS platforma kontrakti ------------------------------------------
+  // Mexanikaga tegilmaydi: natija mavjud holatlardan o'qiladi.
+  useEffect(() => { onReady?.(Boolean(answerReady) && !solved && mode !== 'review'); },
+    [answerReady, solved, mode, onReady]);
+  const checkRef = useRef(check);
+  useEffect(() => { checkRef.current = check; });
+  useEffect(() => { registerCheck?.(() => checkRef.current?.()); }, [registerCheck]);
+  const reportedRef = useRef(-1);
+  useEffect(() => {
+    if (!checked) return;
+    if (reportedRef.current === attempts) return;
+    reportedRef.current = attempts;
+    (solved ? playCorrect : playWrong)?.();
+    onSubmit?.({
+      questionText: typeof task.prompt === 'object' ? task.prompt.uz : String(task.prompt ?? ''),
+      correct: Boolean(solved),
+      meta: { taskId: task.id, kind: task.kind, attempts: attempts },
+    });
+  }, [attempts, checked, solved, onSubmit, playCorrect, playWrong, task]);
+  // ----------------------------------------------------------------------
   return <section className="p4-task" aria-labelledby={`task-${task.id}`}>
     <p className={`p4-eyebrow is-${task.level}`}><span>{tx(UI.level[task.level], lang)}</span> · {tx(UI.task, lang)} {Number(task.id)}</p>
     <p className="p4-setup">{tx(task.setup, lang)}</p><Visual task={task} lang={lang}/><h2 id={`task-${task.id}`}>{tx(task.prompt, lang)}</h2>
@@ -271,7 +295,7 @@ function Task({ task, lang, isLast, onSolved, shuffleSeed }) {
     {task.kind === 'match' && <div className="p4-match"><p>{tx(UI.matchHint, lang)}</p><div><section className="p4-match-col">{task.pairs.map((pair) => <button type="button" key={pair.id} disabled={solved} aria-pressed={activeLeft === pair.id} className={`${activeLeft === pair.id ? 'is-active' : ''} ${pairs[pair.id] ? 'is-tied' : ''}`} onClick={() => { checkingRef.current = false; setActiveLeft(pair.id); setChecked(false); }}>{tx(pair.left, lang)}{pairs[pair.id] && <small>{tx(task.right.find((item) => item.id === pairs[pair.id])?.text, lang)}</small>}</button>)}</section><section className="p4-match-col">{rightCards.map((item) => { const used = Object.values(pairs).includes(item.id); return <button type="button" key={item.id} disabled={solved || activeLeft === null || used} className={used ? 'is-used' : ''} onClick={() => { checkingRef.current = false; setPairs((old) => ({ ...old, [activeLeft]: item.id })); setActiveLeft(null); setChecked(false); }}>{tx(item.text, lang)}</button>; })}</section></div></div>}
     {task.kind === 'order' && <div className="p4-order"><p>{tx(UI.orderHint, lang)}</p><div className="p4-order-slots">{task.steps.map((step) => <button type="button" key={step.id} disabled={solved} aria-pressed={activeStep === step.id} className={activeStep === step.id ? 'is-active' : ''} onClick={() => { checkingRef.current = false; setActiveStep(step.id); setChecked(false); }}><small>{tx(step.label, lang)}</small><b>{placed[step.id] ? tx(task.cards.find((card) => card.id === placed[step.id])?.text, lang) : '—'}</b></button>)}</div><div className="p4-card-bank">{orderCards.map((card) => { const used = Object.values(placed).includes(card.id); return <button type="button" key={card.id} disabled={solved || activeStep === null || used} className={used ? 'is-used' : ''} onClick={() => { checkingRef.current = false; setPlaced((old) => ({ ...old, [activeStep]: card.id })); setActiveStep(null); setChecked(false); }}>{tx(card.text, lang)}</button>; })}</div></div>}
     {checked && <Feedback ok={solved} text={solved ? task.correctText : adaptive(task, pickedOption, attempts)} rule={task.rule} lang={lang}/>}
-    <div className="p4-actions">{!checked && !solved && <button type="button" className="p4-btn" disabled={!answerReady} onClick={check}>{tx(UI.check, lang)}</button>}{checked && !solved && <button type="button" className="p4-btn p4-btn-ghost is-ghost" onClick={clearResponse}>{tx(UI.retry, lang)}</button>}{solved && <button type="button" className="p4-btn p4-btn-ready is-ready" disabled={advancing} onClick={() => { if (advancedRef.current) return; advancedRef.current = true; checkingRef.current = false; setAdvancing(true); onSolved({ taskId: task.id, taskNumber: Number(task.id), level: task.level, kind: task.kind, skillTag: task.skillTag, attempts, firstTry: attempts === 1, correct: true, setup: task.setup, prompt: task.prompt, studentAnswer, correctAnswer, answerChoices: task.kind === 'mc' ? options.map(({ id, text, correct }) => ({ id, text, correct })) : task.right ?? task.cards ?? null, screenMeta: SCREEN_META.find((screen) => screen.taskId === task.id) }); }}>{tx(isLast ? UI.finish : UI.next, lang)}</button>}</div>
+    {!platform && <div className="p4-actions">{!checked && !solved && <button type="button" className="p4-btn" disabled={!answerReady} onClick={check}>{tx(UI.check, lang)}</button>}{checked && !solved && <button type="button" className="p4-btn p4-btn-ghost is-ghost" onClick={clearResponse}>{tx(UI.retry, lang)}</button>}{solved && <button type="button" className="p4-btn p4-btn-ready is-ready" disabled={advancing} onClick={() => { if (advancedRef.current) return; advancedRef.current = true; checkingRef.current = false; setAdvancing(true); onSolved({ taskId: task.id, taskNumber: Number(task.id), level: task.level, kind: task.kind, skillTag: task.skillTag, attempts, firstTry: attempts === 1, correct: true, setup: task.setup, prompt: task.prompt, studentAnswer, correctAnswer, answerChoices: task.kind === 'mc' ? options.map(({ id, text, correct }) => ({ id, text, correct })) : task.right ?? task.cards ?? null, screenMeta: SCREEN_META.find((screen) => screen.taskId === task.id) }); }}>{tx(isLast ? UI.finish : UI.next, lang)}</button>}</div>}
   </section>;
 }
 

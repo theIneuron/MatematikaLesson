@@ -337,7 +337,11 @@ function Feedback({ task, lang, correct, attempts, picked }) {
   </div>;
 }
 
-function PracticeTask({ task, index, lang, runSeed, onSolved }) {
+// `platform` berilganda tugma qatori chizilmaydi: uni LMS o'zi beradi va
+// tekshiruvni `registerCheck` orqali chaqiradi (LMS kontrakti).
+function PracticeTask({ task, index, lang, runSeed, onSolved ,
+  platform = false, mode, onReady, registerCheck, onSubmit, playCorrect, playWrong,
+}) {
   const [pickedId, setPickedId] = useState(null);
   const [typed, setTyped] = useState('');
   const [pairs, setPairs] = useState({});
@@ -406,6 +410,26 @@ function PracticeTask({ task, index, lang, runSeed, onSolved }) {
     });
   };
 
+  // --- LMS platforma kontrakti ------------------------------------------
+  // Mexanikaga tegilmaydi: natija mavjud holatlardan o'qiladi.
+  useEffect(() => { onReady?.(Boolean(responseReady) && !solved && mode !== 'review'); },
+    [responseReady, solved, mode, onReady]);
+  const checkRef = useRef(check);
+  useEffect(() => { checkRef.current = check; });
+  useEffect(() => { registerCheck?.(() => checkRef.current?.()); }, [registerCheck]);
+  const reportedRef = useRef(-1);
+  useEffect(() => {
+    if (!checked) return;
+    if (reportedRef.current === attempts) return;
+    reportedRef.current = attempts;
+    (solved ? playCorrect : playWrong)?.();
+    onSubmit?.({
+      questionText: typeof task.prompt === 'object' ? task.prompt.uz : String(task.prompt ?? ''),
+      correct: Boolean(solved),
+      meta: { taskId: task.id, kind: task.kind, attempts: attempts },
+    });
+  }, [attempts, checked, solved, onSubmit, playCorrect, playWrong, task]);
+  // ----------------------------------------------------------------------
   return <section className="p4-card" aria-labelledby={`p4-task-${task.id}`}>
     <div className="p4-task-top"><span aria-label={`${tx(UI.task, lang)} ${index + 1}/10`}>{index + 1}/10</span><span className={`p4-level is-${task.level}`}>{tx(UI.level[task.level], lang)}</span></div>
     <h2 id={`p4-task-${task.id}`}>{tx(task.prompt, lang)}</h2>
@@ -416,11 +440,11 @@ function PracticeTask({ task, index, lang, runSeed, onSolved }) {
     {task.kind === 'match' && <MatchInput task={task} lang={lang} runSeed={runSeed} pairs={pairs} setPairs={(value) => { setPairs(value); setChecked(false); }} activeLeft={activeLeft} setActiveLeft={setActiveLeft} locked={solved} />}
     {task.kind === 'order' && <OrderInput task={task} lang={lang} runSeed={runSeed} placed={placed} setPlaced={(value) => { setPlaced(value); setChecked(false); }} activeStep={activeStep} setActiveStep={setActiveStep} locked={solved} />}
     {checked && <div ref={feedbackRef}><Feedback task={task} lang={lang} correct={solved} attempts={attempts} picked={pickedId} /></div>}
-    <div className="p4-actions">
+    {!platform && <div className="p4-actions">
       {!solved && !checked && <button type="button" className="p4-btn" disabled={!responseReady} onClick={check}>{tx(UI.check, lang)}</button>}
       {!solved && checked && <button type="button" className="p4-btn p4-btn-ghost" onClick={resetResponse}>{tx(UI.retry, lang)}</button>}
       {solved && <button type="button" className="p4-btn p4-btn-ready" onClick={advance}>{index === 9 ? tx(UI.finish, lang) : tx(UI.next, lang)}</button>}
-    </div>
+    </div>}
   </section>;
 }
 

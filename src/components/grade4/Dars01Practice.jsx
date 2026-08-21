@@ -20,7 +20,7 @@
 // ko'rsatadi, javobni bermaydi.
 // ============================================================================
 
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 const T = {
   bg: '#F5F5F0',
@@ -603,7 +603,11 @@ const Feedback = ({ ok, text, rule, lang }) => (
 // ---------------------------------------------------------------------------
 // BITTA TOPSHIRIQ
 // ---------------------------------------------------------------------------
-function Task({ task, lang, onSolved }) {
+// `platform` berilganda tugma qatori chizilmaydi: uni LMS o'zi beradi va
+// tekshiruvni `registerCheck` orqali chaqiradi (LMS kontrakti).
+function Task({ task, lang, onSolved ,
+  platform = false, mode, onReady, registerCheck, onSubmit, playCorrect, playWrong,
+}) {
   const [picked, setPicked] = useState(null);
   const [typed, setTyped] = useState('');
   const [gap, setGap] = useState(null);
@@ -658,6 +662,26 @@ function Task({ task, lang, onSolved }) {
     if (task.kind === 'match') { setPairs({}); setActiveLeft(null); }
   };
 
+  // --- LMS platforma kontrakti ------------------------------------------
+  // Mexanikaga tegilmaydi: natija mavjud holatlardan o'qiladi.
+  useEffect(() => { onReady?.(Boolean(canCheck) && !solvedNow && mode !== 'review'); },
+    [canCheck, solvedNow, mode, onReady]);
+  const checkRef = useRef(check);
+  useEffect(() => { checkRef.current = check; });
+  useEffect(() => { registerCheck?.(() => checkRef.current?.()); }, [registerCheck]);
+  const reportedRef = useRef(-1);
+  useEffect(() => {
+    if (!checked) return;
+    if (reportedRef.current === attempts) return;
+    reportedRef.current = attempts;
+    (solvedNow ? playCorrect : playWrong)?.();
+    onSubmit?.({
+      questionText: typeof task.prompt === 'object' ? task.prompt.uz : String(task.prompt ?? ''),
+      correct: Boolean(solvedNow),
+      meta: { taskId: task.id, kind: task.kind, attempts: attempts },
+    });
+  }, [attempts, checked, solvedNow, onSubmit, playCorrect, playWrong, task]);
+  // ----------------------------------------------------------------------
   return (
     <div className="p4-task">
       <p className="p4-eyebrow">{task.level} {tx(UI.task, lang)} {task.id}</p>
@@ -777,7 +801,7 @@ function Task({ task, lang, onSolved }) {
         />
       )}
 
-      <div className="p4-actions">
+      {!platform && <div className="p4-actions">
         {!solvedNow && (
           <button type="button" className="p4-btn" disabled={!canCheck} onClick={check}>
             {tx(UI.check, lang)}
@@ -793,7 +817,7 @@ function Task({ task, lang, onSolved }) {
             {tx(UI.next, lang)}
           </button>
         )}
-      </div>
+      </div>}
     </div>
   );
 }

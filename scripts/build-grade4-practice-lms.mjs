@@ -166,8 +166,10 @@ function validate(code, lesson, task) {
   }
   if (!code.includes(`export default function ${name}`)) issues.push('default export nomi noto\'g\'ri');
   if ((code.match(/^export /gm) || []).length !== 1) issues.push('bitta default eksportdan boshqasi bor');
-  if (!/const TASKS = \[/.test(code)) issues.push('TASKS yo\'q');
-  if (!/function Task\(\{/.test(code)) issues.push('Task komponenti yo\'q');
+  // TASKS har darsda boshqacha yozilgan: `[` yoki `addEnglish([`.
+  if (!/const TASKS = /.test(code)) issues.push("TASKS yo'q");
+  // Komponent nomi ikki xil: `Task` va `PracticeTask`.
+  if (!/function (?:Task|PracticeTask)\(\{/.test(code)) issues.push("Task komponenti yo'q");
   if (!/registerCheck/.test(code)) issues.push('platforma kontrakti yo\'q (registerCheck)');
   return issues;
 }

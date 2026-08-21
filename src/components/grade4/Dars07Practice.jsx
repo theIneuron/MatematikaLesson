@@ -543,7 +543,11 @@ function SortTask({ task, lang, assignments, setAssignments, active, setActive, 
   );
 }
 
-function Task({ task, lang, isLast, onSolved }) {
+// `platform` berilganda tugma qatori chizilmaydi: uni LMS o'zi beradi va
+// tekshiruvni `registerCheck` orqali chaqiradi (LMS kontrakti).
+function Task({ task, lang, isLast, onSolved ,
+  platform = false, mode, onReady, registerCheck, onSubmit, playCorrect, playWrong,
+}) {
   // Xato javobdan keyin variantlar qayta aralashadi (metodist qarori 2026-08-21).
   const [wrongRound, setWrongRound] = useState(0);
   // eslint-disable-next-line react-hooks/exhaustive-deps -- wrongRound ataylab yangi tartib beradi
@@ -627,6 +631,28 @@ function Task({ task, lang, isLast, onSolved }) {
     setChecked(false);
   };
 
+  // Tekshirish bir joyda: lokal tugma ham, platforma ham shuni chaqiradi.
+  const check = () => { if (mode === 'review') return; setChecked(true); setAttempts((count) => count + 1); if (!answerCorrect) setWrongRound((old) => old + 1); };
+  // --- LMS platforma kontrakti ------------------------------------------
+  // Mexanikaga tegilmaydi: natija mavjud holatlardan o'qiladi.
+  useEffect(() => { onReady?.(Boolean(canCheck) && !solved && mode !== 'review'); },
+    [canCheck, solved, mode, onReady]);
+  const checkRef = useRef(check);
+  useEffect(() => { checkRef.current = check; });
+  useEffect(() => { registerCheck?.(() => checkRef.current?.()); }, [registerCheck]);
+  const reportedRef = useRef(-1);
+  useEffect(() => {
+    if (!checked) return;
+    if (reportedRef.current === attempts) return;
+    reportedRef.current = attempts;
+    (solved ? playCorrect : playWrong)?.();
+    onSubmit?.({
+      questionText: typeof task.prompt === 'object' ? task.prompt.uz : String(task.prompt ?? ''),
+      correct: Boolean(solved),
+      meta: { taskId: task.id, kind: task.kind, attempts: attempts },
+    });
+  }, [attempts, checked, solved, onSubmit, playCorrect, playWrong, task]);
+  // ----------------------------------------------------------------------
   return (
     <section className="p4-task" aria-labelledby={`p4-question-${task.id}`}>
       <p className="p4-eyebrow">{task.level} {tx(UI.task, lang)} {task.id}</p>
@@ -712,13 +738,13 @@ function Task({ task, lang, isLast, onSolved }) {
         />
       )}
 
-      <div className="p4-actions">
+      {!platform && <div className="p4-actions">
         {!solved && (
           <button
             type="button"
             className="p4-btn"
             disabled={!canCheck}
-            onClick={() => { setChecked(true); setAttempts((count) => count + 1); if (!answerCorrect) setWrongRound((old) => old + 1); }}
+            onClick={check}
           >{tx(UI.check, lang)}</button>
         )}
         {checked && !solved && (
@@ -739,7 +765,7 @@ function Task({ task, lang, isLast, onSolved }) {
             }}
           >{tx(isLast ? UI.finish : UI.next, lang)}</button>
         )}
-      </div>
+      </div>}
     </section>
   );
 }
