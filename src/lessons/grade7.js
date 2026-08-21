@@ -234,4 +234,10 @@ export const grade7Amaliy = [
     desc: "10 topshiriq: ildizni tekshirish, tekshirish qatorini yozish va hisoblash, noma'lum ikki tomonda, manfiy ko'paytuvchi, ildizi yo'q tenglamalar va nechta ildiz bo'lishi. Yetti xil mexanika, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade7/practice/dars07/Dars07Practice.jsx')),
   },
+  {
+    slug: 'dars08-amaliyot-chiziqli-tenglama',
+    title: 'Dars 8. Amaliyot: chiziqli tenglama',
+    desc: "10 topshiriq: chiziqli tenglamani tanish, hadni ko'chirish va ishora, yechim qadamlari, qavsli tenglama, ildizi bir xil tenglamalar va masaladan tenglamaga. Yetti xil mexanika, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade7/practice/dars08/Dars08Practice.jsx')),
+  },
 ]
