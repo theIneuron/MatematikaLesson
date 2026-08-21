@@ -158,6 +158,8 @@ const CONTENT = {
       bi('1000 mm', '1000 мм', '1000 mm'),
     ],
     correctIndex: 0,
+    // Boshqa topshiriq ekranlaridagi kabi YECHIM ramkasining formulasi.
+    proof: bi('1 cm = 10 mm', '1 см = 10 мм', '1 cm = 10 mm'),
     note: {
       right: bi("To'g'ri. Chizg'ichda bitta santimetr o'nta mayda bo'lakka bo'lingan.", 'Верно. На линейке один сантиметр разделён на десять мелких частей.', 'Correct. On the ruler one centimetre is split into ten small parts.'),
       wrong: bi("Yuz millimetr bitta detsimetrga, ming millimetr bitta metrga to'g'ri keladi.", 'Сто миллиметров это один дециметр, тысяча миллиметров это один метр.', 'A hundred millimetres is one decimetre and a thousand millimetres is one metre.'),
@@ -435,6 +437,8 @@ const CONTENT = {
         bi('1000 ga', 'на 1000', 'by 1000'),
       ],
       correctIndex: 0,
+      // Boshqa topshiriq ekranlaridagi kabi YECHIM ramkasining formulasi.
+      proof: bi('1 m = 100 cm', '1 м = 100 см', '1 m = 100 cm'),
       note: {
         right: bi("To'g'ri. Metrdan santimetrga ikki qadam bor, shuning uchun yuzga ko'paytiriladi.", 'Верно. От метра до сантиметра два шага, поэтому умножают на сто.', 'Correct. There are two steps from a metre to a centimetre, so we multiply by a hundred.'),
         wrong: bi("O'nga ko'paytirish bitta qadam uchun, mingga ko'paytirish kilometr uchun.", 'Умножение на десять для одного шага, умножение на тысячу для километра.', 'Multiplying by ten is for one step, multiplying by a thousand is for the kilometre.'),
@@ -1272,13 +1276,17 @@ const Stage = ({ screen, audio, onPrev, onNext, nextDisabled: originalNextDisabl
   return <main className={`stage stage-${meta.type}`}><header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}><div className="progress-track" role="progressbar" aria-valuemin={1} aria-valuemax={TOTAL_SCREENS} aria-valuenow={screen + 1} aria-label={`${screen + 1} / ${TOTAL_SCREENS}`}><div className="progress-fill progress-bar" style={{ width: `${(screen + 1) / TOTAL_SCREENS * 100}%` }}/></div><div className="stage-chrome"><div className="chrome-title"><span className="status-dot"/><span>{t(c.eyebrow)}</span></div><div className="chrome-actions"><ScreenTypeLabel type={meta.type}/>{audio && <AudioIndicator audio={audio}/>}<span className="screen-count">{String(screen + 1).padStart(2, '0')} / {TOTAL_SCREENS}</span></div></div></header><section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>{children}<div className={`caption-slot ${audio?.caption && (audio.muted || audio.visualOnly) ? 'is-visible' : ''}`} aria-live="polite"><span>{audio?.caption && (audio.muted || audio.visualOnly) ? audio.caption : ''}</span></div></section><footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{screen === 0 ? <span/> : <button type="button" className="btn-ghost" onClick={onPrev}>← {t({ uz: "Orqaga", ru: 'Назад', en: 'Back' })}</button>}<button type="button" className="btn-white-accent" disabled={nextDisabled || !onNext} onClick={onNext}>{finish ? t({ uz: "Darsni yakunlash", ru: 'Завершить урок', en: 'Finish lesson' }) : t({ uz: "Davom etish", ru: 'Продолжить', en: 'Continue' })} →</button></footer></main>;
 };
 
-const InlineCheck = ({ prompt, options, correctIndex, picked, onPick, disabled, note }) => {
+// Javob izohi bu yerda EMAS: darsning boshqa hamma topshiriq ekranida javobdan
+// keyin standart YECHIM ramkasi (FeedbackBlock) chiqadi, bu ekranda esa faqat
+// 12 px ingichka satr chiqardi (metodist qarori 2026-08-21). Endi izohni
+// chaqiruvchi ekran FeedbackBlock ichida ko'rsatadi, widget esa faqat savol va
+// chiplarni beradi.
+const InlineCheck = ({ prompt, options, correctIndex, picked, onPick, disabled }) => {
   const t = useT();
   const done = picked === correctIndex;
   return <div className="inline-check" data-g4-role="inline-check">
     <span className="inline-check-prompt">{t(prompt)}</span>
     <div className="inline-check-row">{options.map((option, index) => <button type="button" key={index} className={'inline-chip' + (picked === index ? (index === correctIndex ? ' is-right' : ' is-bad') : '')} disabled={disabled || done} onClick={() => onPick(index)}>{t(option)}</button>)}</div>
-    <span className="inline-check-note" role="status">{picked === null ? '' : t(done ? note.right : note.wrong)}</span>
   </div>;
 };
 
@@ -1735,6 +1743,7 @@ function Screen0({ screen, storedAnswer, onAnswer, onNext }) {
 }
 
 function Screen1({ screen, onNext, onPrev }) {
+  const t = useT();
   const c = CONTENT.s1;
   const audio = useNarration(c.audio, screen);
   const ready = audio.muted || audio.completed;
@@ -1754,8 +1763,10 @@ function Screen1({ screen, onNext, onPrev }) {
           picked={picked}
           onPick={(index) => { if (ready) setPicked(index); }}
           disabled={!ready}
-          note={c.note}
         />
+        <FeedbackBlock show={picked !== null} correct={solved} proof={solved ? t(c.proof) : null}>
+          {picked === null ? '' : t(solved ? c.note.right : c.note.wrong)}
+        </FeedbackBlock>
       </div>
     </Stage>
   );
@@ -1932,8 +1943,10 @@ function Screen7({ screen, onNext, onPrev }) {
           picked={picked}
           onPick={(index) => { if (ready) setPicked(index); }}
           disabled={!ready}
-          note={c.check.note}
         />
+        <FeedbackBlock show={picked !== null} correct={solved} proof={solved && c.check.proof ? t(c.check.proof) : null}>
+          {picked === null ? '' : t(solved ? c.check.note.right : c.check.note.wrong)}
+        </FeedbackBlock>
       </div>
     </Stage>
   );
@@ -3049,8 +3062,22 @@ const LESSON_STYLES = `
    ramkalar ekranning yuqori qismidan yoziladi, markazga surilmaydi. */
 .lesson-root .stage-content > .stack { align-content: start; }
 .lesson-root .stack > .model-card.compact { min-height: 0; }
-/* Model kartasi ichidagi yorliq va natija qatori ham markazda turadi. */
-.lesson-root .stack > .model-card { justify-items: center; }
+/* Model kartasi grid EMAS edi: muallif unga gap, justify-items va
+   align-content yozgan, lekin display: grid yozilmagan - shu sababli bu
+   qoidalar hech narsa qilmasdi. Natijada ichki ramkalar bir-biriga tegib
+   turardi (4-slaydda zanjir "O'LCHOV" katagining chetiga yopishgan), har bir
+   qator boshqa kenglikda edi va kartaning pastida bo'sh joy qolardi
+   (metodist qarori 2026-08-21). Endi karta bitta markazlashgan ustun:
+   qatorlar orasida bo'shliq bor, chetlari tekis, kontent vertikal markazda. */
+.lesson-root .stack > .model-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: center;
+  justify-items: center;
+  gap: 12px;
+  width: min(560px, 100%);
+  margin-inline: auto;
+}
 /* Tanlangan noto'g'ri variant joyida qoladi, lekin xiralashadi va bosilmaydi. */
 .lesson-root .option.bad { opacity: .6; cursor: default; }
 .lesson-root .option:disabled { cursor: default; }

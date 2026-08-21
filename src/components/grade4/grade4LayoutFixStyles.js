@@ -89,8 +89,14 @@ export const FINALE_FIT_CSS = `
 // `.feedback.feedback-slot { height: 76px; min-height: 76px }` turadi (telefonda
 // 54 px), ya'ni balandlik QATTIQ belgilangan — faqat `min-height` ni nolga
 // tushirish yetmaydi.
+// Selektor uch bo'g'inli: darsning o'z nusxasida
+// `.lesson-root .feedback.feedback-slot { height: auto !important;
+// min-height: 60px !important; padding: 6px 8px !important }` turadi (telefon
+// bloki). Ikkala tomonda ham `!important` bo'lgani uchun g'olibni SPETSIFIKLIK
+// aniqlaydi — shuning uchun bizda `.feedback-slot` ham, `.feedback-empty` ham
+// bor. Ikki bo'g'inli selektor telefonda ishlamay qolgan edi.
 export const EMPTY_FEEDBACK_CSS = `
-.feedback.feedback-empty {
+.lesson-root .feedback.feedback-slot.feedback-empty {
   height: 0 !important;
   min-height: 0 !important;
   padding: 0 !important;
