@@ -7,12 +7,12 @@
 // O'rin almashtirish faqat QO'SHISH va KO'PAYTIRISHDA ishlaydi -- sonlar
 // manfiy yoki kasr bo'lsa ham. Ayirish va bo'lishda esa ishlamaydi.
 // Tekshirilgan:
-//   −19 + 46      -> 27,  teskarisi 46 + (−19) = 27      HA
-//   −19 · 46      -> −874, teskarisi 46 · (−19) = −874   HA
-//   0,5 + 40      -> 40,5, teskarisi 40 + 0,5 = 40,5     HA
-//   19 − 46       -> −27, teskarisi 27                   yo'q
-//   144 : (−12)   -> −12, teskarisi −1/12                yo'q
-//   100 : 0,5     -> 200, teskarisi 0,005                yo'q
+//   −1900 + 4600  -> 2700, teskarisi 4600 + (−1900) = 2700   HA
+//   −19 · 4600    -> −87400, teskarisi bir xil               HA
+//   0,5 + 4000    -> 4000,5, teskarisi 4000 + 0,5 = 4000,5   HA
+//   1900 − 4600   -> −2700, teskarisi 2700                   yo'q
+//   14400 : (−12) -> −1200, teskarisi butun son emas         yo'q
+//   10000 : 0,5   -> 20000, teskarisi 0,00005                yo'q
 import React from 'react';
 import { MarkAll, L } from '../kit.jsx';
 
@@ -26,12 +26,12 @@ const DATA = {
   ask: L("Sonlar o'rni almashsa ham qiymati O'ZGARMAYDIGAN yozuvlarni belgilang.", 'Отметь записи, значение которых НЕ изменится, если поменять числа местами.', 'Mark the records whose value does NOT change when the numbers swap.'),
   note: L("Bir nechta bo'lishi mumkin.", 'Их может быть несколько.', 'There can be several.'),
   items: [
-    { id: 'p1', tokens: ['−19', '+', '46'], hit: true },
-    { id: 'n1', tokens: ['19', '−', '46'], hit: false },
-    { id: 'p2', tokens: ['−19', '·', '46'], hit: true },
-    { id: 'n2', tokens: ['144', ':', '(−12)'], hit: false },
-    { id: 'p3', tokens: ['0,5', '+', '40'], hit: true },
-    { id: 'n3', tokens: ['100', ':', '0,5'], hit: false },
+    { id: 'p1', tokens: ['−1900', '+', '4600'], hit: true },
+    { id: 'n1', tokens: ['1900', '−', '4600'], hit: false },
+    { id: 'p2', tokens: ['−19', '·', '4600'], hit: true },
+    { id: 'n2', tokens: ['14400', ':', '(−12)'], hit: false },
+    { id: 'p3', tokens: ['0,5', '+', '4000'], hit: true },
+    { id: 'n3', tokens: ['10000', ':', '0,5'], hit: false },
   ],
   correctText: L(
     "To'g'ri. O'rin almashtirish qo'shish va ko'paytirishda ishlaydi, ishora va kasr bunga to'sqinlik qilmaydi. Ayirish va bo'lishda esa sonlarning o'rni QAT'IY.",
@@ -39,21 +39,21 @@ const DATA = {
     'Correct. Swapping works in addition and multiplication; signs and decimals do not matter. In subtraction and division the places are FIXED.'),
   wrongs: [
     { when: (s) => s.extra.indexOf('n1') !== -1, text: L(
-      "19 − 46 = −27, teskarisi 46 − 19 = 27. Modul o'sha, lekin ishora boshqa -- ya'ni son boshqa.",
-      '19 − 46 = −27, а наоборот 46 − 19 = 27. Модуль тот же, но знак другой — значит число другое.',
-      '19 − 46 = −27, the other way 46 − 19 = 27. Same size, different sign — a different number.') },
+      "1900 − 4600 = −2700, teskarisi 4600 − 1900 = 2700. Modul o'sha, lekin ishora boshqa -- ya'ni son boshqa.",
+      '1900 − 4600 = −2700, а наоборот 4600 − 1900 = 2700. Модуль тот же, но знак другой — значит число другое.',
+      '1900 − 4600 = −2700, the other way 4600 − 1900 = 2700. Same size, different sign — a different number.') },
     { when: (s) => s.extra.indexOf('n3') !== -1, text: L(
-      "100 : 0,5 = 200, teskarisi esa 0,5 : 100 = 0,005. Bo'lishda o'rin almashtirib bo'lmaydi.",
-      '100 : 0,5 = 200, а наоборот 0,5 : 100 = 0,005. В делении переставлять нельзя.',
-      '100 : 0,5 = 200, the other way 0,5 : 100 = 0,005. You cannot swap in a division.') },
+      "10000 : 0,5 = 20000, teskarisi esa 0,5 : 10000 juda kichik son. Bo'lishda o'rin almashtirib bo'lmaydi.",
+      '10000 : 0,5 = 20000, а наоборот 0,5 : 10000 — совсем маленькое число. В делении переставлять нельзя.',
+      '10000 : 0,5 = 20000, the other way 0,5 : 10000 is a tiny number. You cannot swap in a division.') },
     { when: (s) => s.extra.indexOf('n2') !== -1, text: L(
-      "144 : (−12) = −12, teskarisi butun son ham emas. Bo'linuvchi va bo'luvchining o'rni qat'iy.",
-      '144 : (−12) = −12, а наоборот даже не целое число. Место делимого и делителя строгое.',
-      '144 : (−12) = −12; the other way is not even a whole number. Dividend and divisor have fixed places.') },
+      "14400 : (−12) = −1200, teskarisi butun son ham emas. Bo'linuvchi va bo'luvchining o'rni qat'iy.",
+      '14400 : (−12) = −1200, а наоборот даже не целое число. Место делимого и делителя строгое.',
+      '14400 : (−12) = −1200; the other way is not even a whole number. Dividend and divisor have fixed places.') },
     { when: (s) => s.miss.indexOf('p3') !== -1, text: L(
-      "0,5 + 40 ni tekshirmadingiz: qo'shishda o'rin almashtirish kasr bilan ham ishlaydi.",
-      'Ты не проверил 0,5 + 40: в сложении перестановка работает и с дробью.',
-      'You did not check 0,5 + 40: swapping works in addition with decimals too.') },
+      "0,5 + 4000 ni tekshirmadingiz: qo'shishda o'rin almashtirish kasr bilan ham ishlaydi.",
+      'Ты не проверил 0,5 + 4000: в сложении перестановка работает и с дробью.',
+      'You did not check 0,5 + 4000: swapping works in addition with decimals too.') },
     { when: (s) => s.miss.length > 0, text: L(
       "Bittasi belgilanmadi: amalga qarang, son manfiy yoki kasr bo'lishi ahamiyatsiz.",
       'Одну пропустил: смотри на действие, а отрицательное число или дробь значения не имеют.',

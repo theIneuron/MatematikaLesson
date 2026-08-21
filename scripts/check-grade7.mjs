@@ -56,11 +56,15 @@ const AUDIO_BAD = ['=', '<', '>', '%', '$', '^', '×', '÷', '≠', '—', '«',
 // papkalariga yotdi (1, 2 va 5-sinflardagi joylashuv), va bir qavatli
 // `readdir` ularni KO'RMAY qolardi: o'n ikkita yangi fayl uch til, apostrof
 // va ovoz tekshiruvidan JIMGINA tushib qolgan bo'lardi.
+// LMS uchun yig'ilgan papka tekshirilmaydi: u avtomatik, manba fayllari
+// allaqachon tekshirilgan (nusxada bir xil matn ikki marta hisoblanardi).
+const SKIP_DIRS = ['lms-grade7-practice-standalone'];
 const listJsx = async (dir, prefix = '') => {
   const out = []
   for (const entry of await readdir(dir, { withFileTypes: true })) {
     const rel = prefix ? prefix + '/' + entry.name : entry.name
     if (entry.isDirectory()) {
+      if (SKIP_DIRS.includes(entry.name)) continue;
       out.push(...await listJsx(path.join(dir, entry.name), rel))
     } else if (entry.name.endsWith('.jsx')) {
       out.push(rel)

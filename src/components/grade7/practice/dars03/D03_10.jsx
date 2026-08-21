@@ -5,9 +5,9 @@
 // MANFIY son bor. Ya'ni o'quvchi ishoraga qarab chalkashmasligi va faqat
 // o'zgarishning TURINI ko'rishi kerak.
 //
-//   −17 + 25 + 17 -> −17 + 17 + 25       qo'shiluvchilar o'rni almashdi
-//   −4 · (25 · 17) -> (−4 · 25) · 17     qavs ko'chdi, tartib o'sha
-//   −12 · (30 + 5) -> −12 · 30 − 12 · 5  ko'paytuvchi har songa tarqaldi
+//   −1700 + 2500 + 1700 -> −1700 + 1700 + 2500   o'rin almashdi
+//   −4 · (250 · 17) -> (−4 · 250) · 17        qavs ko'chdi
+//   −12 · (300 + 5) -> −12 · 300 − 12 · 5     ko'paytuvchi tarqaldi
 // ATAMALAR darsning o'zidan: o'rin almashtirish, guruhlash, taqsimlash.
 import React from 'react';
 import { Zones, L } from '../kit.jsx';
@@ -25,9 +25,9 @@ const DATA = {
     { id: 'zdist', label: L('TAQSIMLASH', 'РАСПРЕДЕЛЕНИЕ', 'DISTRIBUTING') },
   ],
   items: [
-    { id: 'i1', tokens: ['−17', '+', '25', '+', '17', '→', '−17', '+', '17', '+', '25'], zone: 'zswap' },
-    { id: 'i2', tokens: ['−4', '·', '(', '25', '·', '17', ')', '→', '(', '−4', '·', '25', ')', '·', '17'], zone: 'zgroup' },
-    { id: 'i3', tokens: ['−12', '·', '(', '30', '+', '5', ')', '→', '−12', '·', '30', '−', '12', '·', '5'], zone: 'zdist' },
+    { id: 'i1', tokens: ['−1700', '+', '2500', '+', '1700', '→', '−1700', '+', '1700', '+', '2500'], zone: 'zswap' },
+    { id: 'i2', tokens: ['−4', '·', '(', '250', '·', '17', ')', '→', '(', '−4', '·', '250', ')', '·', '17'], zone: 'zgroup' },
+    { id: 'i3', tokens: ['−12', '·', '(', '300', '+', '5', ')', '→', '−12', '·', '300', '−', '12', '·', '5'], zone: 'zdist' },
   ],
   ask: L('Kartani bosing, keyin zonani bosing. Zonadagi kartani bosish uni qaytarib oladi.',
     'Нажми карточку, затем зону. Нажатие на карточку в зоне возвращает её обратно.',
