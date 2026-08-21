@@ -212,4 +212,10 @@ export const grade7Amaliy = [
     desc: "10 topshiriq: minusli qavs, ishora qayerda o'zgaradi, uchta qavs, a − b − c ga teng yozuvlar va qavs oldida belgi emas, ko'paytuvchi turgan holat. Yetti xil mexanika, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade7/practice/dars05/Dars05Practice.jsx')),
   },
+  {
+    slug: 'dars06-amaliyot-oxshash-hadlar',
+    title: "Dars 6. Amaliyot: o'xshash hadlar",
+    desc: "10 topshiriq: o'xshash hadni topish, koeffitsiyentlar, ikki guruh, qavsdan keyin yig'ish, soddalashmaydigan yozuvlar va nechta had qolishi. Yetti xil mexanika, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade7/practice/dars06/Dars06Practice.jsx')),
+  },
 ]

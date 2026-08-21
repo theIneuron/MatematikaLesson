@@ -165,19 +165,22 @@ export function Choice({ data, lang = 'uz', mode = 'answer', initialAnswer = nul
       ) : null}
       <Given data={data} lang={lang} />
       <p style={S.ask}>{tr(data.ask, lang)}</p>
-      {data.opts.map((o, i) => {
-        const active = picked === i;
-        let bg = '#fff'; let bd = '#d6dae3'; let col = C.soft;
-        if (active) { bg = C.hotBg; bd = C.hot; col = C.ink; }
-        if (A.checked && active) { const good = i === data.correct; bg = good ? C.okBg : C.noBg; bd = good ? C.ok : C.no; col = good ? C.ok : C.no; }
-        if (A.checked && !active && i === data.correct) { bd = C.ok; col = C.ok; }
-        return (
-          <button key={i} type="button" data-opt={i} disabled={A.locked} onClick={() => setPicked(i)}
-            style={{ display: 'block', width: '100%', textAlign: 'left', padding: '11px 15px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 15.5, fontWeight: 600, cursor: A.locked ? 'default' : 'pointer', marginBottom: 7, fontFamily: 'inherit' }}>
-            {typeof o.label === 'object' && Array.isArray(o.label) ? <Row tokens={o.label} size={20} /> : tr(o.label, lang)}
-          </button>
-        );
-      })}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(' + (data.optCols || 1) + ', minmax(0, 1fr))', gap: 7 }}>
+        {data.opts.map((o, i) => {
+          const active = picked === i;
+          const short = (data.optCols || 1) > 1;
+          let bg = '#fff'; let bd = '#d6dae3'; let col = C.soft;
+          if (active) { bg = C.hotBg; bd = C.hot; col = C.ink; }
+          if (A.checked && active) { const good = i === data.correct; bg = good ? C.okBg : C.noBg; bd = good ? C.ok : C.no; col = good ? C.ok : C.no; }
+          if (A.checked && !active && i === data.correct) { bd = C.ok; col = C.ok; }
+          return (
+            <button key={i} type="button" data-opt={i} disabled={A.locked} onClick={() => setPicked(i)}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: short ? 'center' : 'flex-start', width: '100%', minHeight: short ? 50 : 0, padding: '11px 15px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 15.5, fontWeight: 600, cursor: A.locked ? 'default' : 'pointer', fontFamily: 'inherit', textAlign: short ? 'center' : 'left' }}>
+              {typeof o.label === 'object' && Array.isArray(o.label) ? <Row tokens={o.label} size={20} /> : tr(o.label, lang)}
+            </button>
+          );
+        })}
+      </div>
       {A.fb && <HFB ok={A.fb.correct} text={A.fb.correct ? tr(data.correctText, lang) : A.fb.why} />}
     </div>
   );
