@@ -1,9 +1,12 @@
 // Dars06 · Amaliyot 01 — O'xshash hadlarni topish · 🟢 · tag: find_like_terms
 // Faqat MA'LUMOT. Mexanika: `practice/kit.jsx` -> TapTerms.
 //
-// 7a + 3b − 2a + 5. O'xshash hadlar -- harfli qismi BIR XIL bo'lganlar:
-// 7a va 2a. 3b ning harfi boshqa, 5 da esa harf umuman yo'q.
-// Eng ko'p uchraydigan xato: «hammasida harf bor, demak o'xshash» deb 3b ni
+// DARAJA KO'TARILDI (PODXOD_7SINF.md §13): koeffitsiyentlar ikki va uch
+// xonali, ya'ni hadni «kichik son» belgisi bilan tanib olib bo'lmaydi.
+//
+// 24a + 47b − 150a + 68. O'xshash hadlar -- harfli qismi BIR XIL bo'lganlar:
+// 24a va 150a. 47b ning harfi boshqa, 68 da esa harf umuman yo'q.
+// Eng ko'p uchraydigan xato: «hammasida harf bor, demak o'xshash» deb 47b ni
 // ham belgilash.
 import React from 'react';
 import { TapTerms, L } from '../kit.jsx';
@@ -18,28 +21,28 @@ const DATA = {
   ask: L("Yozuvdagi O'XSHASH hadlarni belgilang.", 'Отметь в записи ПОДОБНЫЕ слагаемые.', 'Mark the LIKE terms in the record.'),
   note: L("Hadni bosib belgilanadi.", 'Слагаемое отмечается нажатием.', 'Tap a term to mark it.'),
   parts: [
-    { k: 'term', id: 't1', v: '7a' },
+    { k: 'term', id: 't1', v: '24a' },
     { k: 'sign', v: '+' },
-    { k: 'term', id: 't2', v: '3b' },
+    { k: 'term', id: 't2', v: '47b' },
     { k: 'sign', v: '−' },
-    { k: 'term', id: 't3', v: '2a' },
+    { k: 'term', id: 't3', v: '150a' },
     { k: 'sign', v: '+' },
-    { k: 'term', id: 't4', v: '5' },
+    { k: 'term', id: 't4', v: '68' },
   ],
   want: ['t1', 't3'],
   correctText: L(
-    "To'g'ri. 7a va 2a harfi bir xil, ular o'xshash. 3b ning harfi boshqa, 5 da esa harf yo'q.",
-    'Верно. У 7a и 2a одна и та же буква, они подобны. У 3b буква другая, а у 5 буквы нет вовсе.',
-    'Correct. 7a and 2a share the same letter, they are like terms. 3b has a different letter and 5 has none.'),
+    "To'g'ri. 24a va 150a harfi bir xil, ular o'xshash. 47b ning harfi boshqa, 68 da esa harf yo'q.",
+    'Верно. У 24a и 150a одна и та же буква, они подобны. У 47b буква другая, а у 68 буквы нет вовсе.',
+    'Correct. 24a and 150a share the same letter, they are like terms. 47b has a different letter and 68 has none.'),
   wrongs: [
     { when: (s) => s.extra.indexOf('t2') !== -1, text: L(
-      "3b ning harfi b, qolganlarida a. Harflar boshqa bo'lsa hadlar o'xshash emas -- ularni qo'shib bo'lmaydi.",
-      'У 3b буква b, а у остальных a. Если буквы разные, слагаемые не подобны — их не сложить.',
-      '3b has the letter b, the others have a. Different letters mean the terms are not alike — they cannot be added.') },
+      "47b ning harfi b, qolganlarida a. Harflar boshqa bo'lsa hadlar o'xshash emas -- ularni qo'shib bo'lmaydi.",
+      'У 47b буква b, а у остальных a. Если буквы разные, слагаемые не подобны — их не сложить.',
+      '47b has the letter b, the others have a. Different letters mean the terms are not alike — they cannot be added.') },
     { when: (s) => s.extra.indexOf('t4') !== -1, text: L(
-      "5 da harf yo'q. U ozod had: faqat boshqa ozod hadlar bilan qo'shiladi.",
-      'У 5 буквы нет. Это свободный член: он складывается только с другими свободными членами.',
-      '5 has no letter. It is a free term: it adds only to other free terms.') },
+      "68 da harf yo'q. U ozod had: faqat boshqa ozod hadlar bilan qo'shiladi.",
+      'У 68 буквы нет. Это свободный член: он складывается только с другими свободными членами.',
+      '68 has no letter. It is a free term: it adds only to other free terms.') },
     { when: (s) => s.miss.length > 0, text: L(
       "Bittasi qoldi: harfi a bo'lgan IKKI had bor, ikkovini ham belgilash kerak.",
       'Одно осталось: слагаемых с буквой a ДВА, отметить нужно оба.',

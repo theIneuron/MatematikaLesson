@@ -1,10 +1,12 @@
 // Dars13 · Amaliyot 01 — Daraja nimani bildiradi · 🟢 · tag: power_meaning
 // Faqat MA'LUMOT. Mexanika: `practice/kit.jsx` -> Choice.
 //
-// 2⁵ -- ikkining beshinchi darajasi: 2 ni O'ZIGA besh marta ko'paytirish.
-//   2 · 2 · 2 · 2 · 2 = 32
-// Xato variantlar: 2 · 5 = 10 (darajani ko'paytiruvchi deb o'qigan) va
-// 5 · 5 · 5 · 5 · 5 (asos va ko'rsatkichni almashtirgan).
+// DARAJA KO'TARILDI (PODXOD_7SINF.md §13): ko'rsatkich oltiga chiqdi, ya'ni
+// ko'paytuvchilarni sanash e'tibor talab qiladi.
+//
+// 3⁶ -- uchning oltinchi darajasi: 3 ni o'ziga olti marta ko'paytirish,
+// natijasi 729. Xato variantlar: 3 · 6 = 18 (ko'rsatkichni ko'paytuvchi deb
+// o'qigan) va 6 · 6 · 6 (asos bilan ko'rsatkichni almashtirgan).
 import React from 'react';
 import { Choice, L } from '../kit.jsx';
 
@@ -15,32 +17,32 @@ const DATA = {
     "Darajada ikki son bor: pastda ASOS, tepada KO'RSATKICH. Ko'rsatkich asos necha marta ko'paytuvchi bo'lganini aytadi.",
     'В степени два числа: внизу ОСНОВАНИЕ, сверху ПОКАЗАТЕЛЬ. Показатель говорит, сколько раз основание взято множителем.',
     'A power has two numbers: the BASE below and the EXPONENT above. The exponent says how many times the base is a factor.'),
-  expr: ['2⁵'], exprSize: 40,
+  expr: ['3⁶'], exprSize: 40,
   ask: L('Bu yozuv nimani bildiradi?', 'Что означает эта запись?', 'What does this record mean?'),
   opts: [
-    { label: ['2', '·', '2', '·', '2', '·', '2', '·', '2'] },
-    { label: ['2', '·', '5'] },
-    { label: ['5', '·', '5', '·', '5', '·', '5', '·', '5'] },
+    { label: ['3', '·', '3', '·', '3', '·', '3', '·', '3', '·', '3'] },
+    { label: ['3', '·', '6'] },
+    { label: ['6', '·', '6', '·', '6'] },
   ],
   correct: 0,
   correctText: L(
-    "To'g'ri. Asos 2, ko'rsatkich 5: ikki besh marta ko'paytuvchi bo'ladi. 2 · 2 · 2 · 2 · 2 = 32.",
-    'Верно. Основание 2, показатель 5: двойка берётся множителем пять раз. 2 · 2 · 2 · 2 · 2 = 32.',
-    'Correct. The base is 2 and the exponent 5: the two is a factor five times. 2 · 2 · 2 · 2 · 2 = 32.'),
+    "To'g'ri. Asos 3, ko'rsatkich 6: uchta emas, OLTITA uchlik ko'paytiriladi. Natijasi 729.",
+    'Верно. Основание 3, показатель 6: перемножаются не три, а ШЕСТЬ тройек. Результат 729.',
+    'Correct. The base is 3 and the exponent 6: not three but SIX threes are multiplied. The result is 729.'),
   wrongs: [
     { when: (s) => s.picked === 1, text: L(
-      "2 · 5 bu oddiy ko'paytirish, u 10 beradi. Daraja esa asosni O'ZIGA ko'paytirishni bildiradi.",
-      '2 · 5 это обычное умножение, оно даёт 10. А степень означает умножение основания САМО НА СЕБЯ.',
-      '2 · 5 is an ordinary multiplication giving 10. A power means multiplying the base BY ITSELF.') },
+      "3 · 6 bu oddiy ko'paytirish, u 18 beradi. Daraja esa asosni O'ZIGA ko'paytirishni bildiradi.",
+      '3 · 6 это обычное умножение, оно даёт 18. А степень означает умножение основания САМО НА СЕБЯ.',
+      '3 · 6 is an ordinary multiplication giving 18. A power means multiplying the base BY ITSELF.') },
     { when: (s) => s.picked === 2, text: L(
-      "Asos va ko'rsatkich joyi almashgan: pastda 2 turibdi, ya'ni ko'paytuvchi 2 bo'ladi, 5 emas.",
-      'Основание и показатель перепутаны: внизу стоит 2, значит множитель это 2, а не 5.',
-      'The base and the exponent got swapped: the 2 is below, so the factor is 2, not 5.') },
+      "Asos va ko'rsatkich joyi almashgan: pastda 3 turibdi, ya'ni ko'paytuvchi 3, va u olti marta olinadi.",
+      'Основание и показатель перепутаны: внизу стоит 3, значит множитель это 3, и он берётся шесть раз.',
+      'The base and the exponent got swapped: the 3 is below, so the factor is 3, taken six times.') },
   ],
   wrongText: L(
-    "Pastdagi son -- ko'paytuvchi, tepadagi son -- u necha marta yozilgani.",
-    'Число внизу — множитель, число сверху — сколько раз он написан.',
-    'The number below is the factor, the number above is how many times it is written.'),
+    "Pastdagi son -- ko'paytuvchi, tepadagi son -- u necha marta yozilgani. Ko'paytuvchilarni sanang.",
+    'Число внизу — множитель, число сверху — сколько раз он написан. Пересчитай множители.',
+    'The number below is the factor, the number above is how many times it appears. Count the factors.'),
 };
 
 export default function D13_01(props) { return <Choice data={DATA} {...props} />; }
