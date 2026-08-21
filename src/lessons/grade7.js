@@ -169,6 +169,16 @@ export const grade7Nazariy = [
     desc: "Ko'phad bir hadlarning yig'indisi, ishora esa had bilan ketadi. Tur standart shakldagi hadlar soniga qarab aytiladi. 15 slayd, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade7/Dars18.jsx')),
   },
+  {
+    // Asbobning IKKINCHI REJIMI: hadlar USTUNI. Darslikning o'zi shu
+    // ko'rinishni beradi -- o'xshash hadlar birining ostiga ikkinchisi.
+    // Qavs oldidagi minus ustun ochilganda HAR hadning ishorasini
+    // almashtiradi va bu ko'rinadi.
+    slug: 'dars19-kophadlarni-qoshish',
+    title: "Dars 19. Ko'phadlarni qo'shish va ayirish",
+    desc: "Qavs oldidagi minus ichidagi har hadning ishorasini almashtiradi. Qo'shish faqat ustun ichida. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade7/Dars19.jsx')),
+  },
 ]
 
 // 7-sinf AMALIY mashg'ulotlari. Har nazariy darsga 10 tekshiriladigan
@@ -245,5 +255,41 @@ export const grade7Amaliy = [
     title: 'Dars 9. Amaliyot: tenglamalarni yechish',
     desc: "10 topshiriq: birinchi qadamni tanlash, qavsni ochish, to'liq yechim, ikki qavsli tenglama, ildizni tekshirish va uch xil ildiz. Yetti xil mexanika, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade7/practice/dars09/Dars09Practice.jsx')),
+  },
+  {
+    slug: 'dars10-amaliyot-modulli-tenglama',
+    title: 'Dars 10. Amaliyot: modulli tenglama',
+    desc: "10 topshiriq: ikki holat, modul nolga teng, ildizi yo'q tenglamalar, modulni ajratish, modul tashqarisidagi minus va ildizlar soni. Yetti xil mexanika, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade7/practice/dars10/Dars10Practice.jsx')),
+  },
+  {
+    slug: 'dars11-amaliyot-masala-tenglama',
+    title: 'Dars 11. Amaliyot: masalalarni tenglama bilan yechish',
+    desc: "10 topshiriq: masalaning tenglamasi, ikki barobar ko'p, farqi ma'lum ikki son, ketma-ket sonlar va javob kim haqida ekani. Yetti xil mexanika, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade7/practice/dars11/Dars11Practice.jsx')),
+  },
+  {
+    slug: 'dars12-amaliyot-matnli-masalalar',
+    title: 'Dars 12. Amaliyot: matnli masalalar',
+    desc: "10 topshiriq: yo'l masalasi, sarflandi va qoldi, uch barobar ko'p, lentaning ikki bo'lagi, ota va o'g'il yoshi, xarid. Yetti xil mexanika, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade7/practice/dars12/Dars12Practice.jsx')),
+  },
+  {
+    slug: 'dars13-amaliyot-daraja',
+    title: "Dars 13. Amaliyot: natural ko'rsatkichli daraja",
+    desc: "10 topshiriq: darajaning ma'nosi, manfiy asos, qavs bor va qavs yo'q holatlari, darajalar ko'paytmasi va ishorani aniqlash. Yetti xil mexanika, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade7/practice/dars13/Dars13Practice.jsx')),
+  },
+  {
+    slug: 'dars14-amaliyot-daraja-xossalari',
+    title: 'Dars 14. Amaliyot: daraja xossalari',
+    desc: "10 topshiriq: ko'rsatkichlar qo'shilishi, ayirilishi va ko'paytirilishi, asoslar bir xilmi, ko'paytmani darajaga ko'tarish. Yetti xil mexanika, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade7/practice/dars14/Dars14Practice.jsx')),
+  },
+  {
+    slug: 'dars15-amaliyot-bir-had',
+    title: 'Dars 15. Amaliyot: bir had',
+    desc: "10 topshiriq: bir hadni tanish, koeffitsiyent, ko'paytirish, standart ko'rinish, o'xshash bir hadlar va bir hadning darajasi. Yetti xil mexanika, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade7/practice/dars15/Dars15Practice.jsx')),
   },
 ]
