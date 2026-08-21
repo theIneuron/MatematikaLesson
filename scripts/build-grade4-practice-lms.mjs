@@ -119,6 +119,18 @@ function buildTaskFile(lessonSource, lesson, task) {
   // Faqat `react` importi qoladi va React nomi JSX uchun kerak.
   body = body.replace(/^import \{([^}]*)\} from 'react';/m, (m, names) => `import React, {${names}} from 'react';`);
 
+  // Darslar bir xil yozilmagan: uslublar konstantasi `STYLES` yoki `CSS`,
+  // topshiriq komponenti `Task` yoki `PracticeTask`, ildiz sinfi `p4-root`
+  // yoki `g4p-root`. Nomlarni FAYLDAN o'qiymiz — qotib qolgan nom 12, 13, 22,
+  // 23, 24-darslarning avtonom faylini jim buzgan edi: `STYLES is not defined`
+  // yoki uslubsiz ekran.
+  const styleName = /\bconst (STYLES|CSS) = `/.exec(lessonSource)?.[1];
+  if (!styleName) throw new Error("uslublar konstantasi topilmadi (STYLES/CSS)");
+  const taskName = /\bfunction (PracticeTask|Task)\(\{/.exec(lessonSource)?.[1];
+  if (!taskName) throw new Error("topshiriq komponenti topilmadi (Task/PracticeTask)");
+  const rootClass = /className=[{`"']*((?:g4p|p4)-root)\b/.exec(lessonSource)?.[1];
+  if (!rootClass) throw new Error("ildiz sinfi topilmadi (p4-root/g4p-root)");
+
   const name = `D${pad(lesson)}_${pad(task)}`;
   const header = [
     `/* 4-sinf ${lesson}-dars amaliyoti, ${task}-topshiriq: LMS uchun avtonom fayl.`,
@@ -134,9 +146,9 @@ function buildTaskFile(lessonSource, lesson, task) {
     '  lang = \'uz\', mode, onReady, registerCheck, onSubmit, playCorrect, playWrong,',
     '}) {',
     '  return (',
-    '    <div className="p4-root">',
-    '      <style>{STYLES}</style>',
-    '      <Task',
+    `    <div className="${rootClass}">`,
+    `      <style>{${styleName}}</style>`,
+    `      <${taskName}`,
     `        task={TASKS[${task - 1}]}`,
     '        lang={lang}',
     '        platform',
@@ -171,6 +183,23 @@ function validate(code, lesson, task) {
   // Komponent nomi ikki xil: `Task` va `PracticeTask`.
   if (!/function (?:Task|PracticeTask)\(\{/.test(code)) issues.push("Task komponenti yo'q");
   if (!/registerCheck/.test(code)) issues.push('platforma kontrakti yo\'q (registerCheck)');
+  // Qobiq faqat SHU faylda mavjud nomlarga murojaat qilishi kerak. Aks holda
+  // fayl shakl jihatidan to'g'ri, ammo brauzerda «X is not defined» beradi.
+  const usedStyle = /<style>\{(\w+)\}<\/style>/.exec(code)?.[1];
+  if (!usedStyle) issues.push("qobiqda <style> yo'q");
+  else if (!new RegExp(`\\bconst ${usedStyle} = \``).test(code)) {
+    issues.push(`qobiq ${usedStyle} ga murojaat qiladi, lekin u aniqlanmagan`);
+  }
+  const usedTask = /\r?\n {6}<(\w+)\r?\n {8}task=\{TASKS\[/.exec(code)?.[1];
+  if (!usedTask) issues.push("qobiqda topshiriq komponenti yo'q");
+  else if (!new RegExp(`\\bfunction ${usedTask}\\(\\{`).test(code)) {
+    issues.push(`qobiq ${usedTask} ga murojaat qiladi, lekin u aniqlanmagan`);
+  }
+  const usedRoot = /<div className="([\w-]+)">\r?\n {6}<style>/.exec(code)?.[1];
+  if (!usedRoot) issues.push("qobiqda ildiz div yo'q");
+  else if (!new RegExp(`\\.${usedRoot}\\s*\\{`).test(code)) {
+    issues.push(`ildiz sinfi ${usedRoot} uslublarda yo'q`);
+  }
   return issues;
 }
 
