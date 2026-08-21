@@ -3,7 +3,7 @@
 // Dars01Practice vizual/texnik etaloni asosida: 10 topshiriq, RU/UZ, ovozsiz.
 // ============================================================================
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const T = {
   bg: '#F5F5F0', paper: '#FFFFFF', ink: '#12212C', ink2: '#50616D', ink3: '#87949D',
@@ -213,7 +213,12 @@ const Feedback = ({ ok, text, rule, lang, feedbackRef }) => (
   </div>
 );
 
-function Task({ task, lang, onSolved }) {
+// `platform` berilganda tugma qatori chizilmaydi: uni LMS o'zi beradi va
+// tekshiruvni `registerCheck` orqali chaqiradi (metodist kontrakti).
+function Task({
+  task, lang, onSolved,
+  platform = false, mode, onReady, registerCheck, onSubmit, playCorrect, playWrong,
+}) {
   // Xato javobdan keyin qayta aralashadi: `wrongRound` o'sadi.
   const [wrongRound, setWrongRound] = useState(0);
   // eslint-disable-next-line react-hooks/exhaustive-deps -- wrongRound ataylab yangi tartib beradi
@@ -264,6 +269,33 @@ function Task({ task, lang, onSolved }) {
     return task.wrongText;
   })();
 
+  // Tekshirish bir joyda: lokal tugma ham, platforma ham shuni chaqiradi.
+  const check = useCallback(() => {
+    if (!canCheck || solved || mode === 'review') return;
+    const ok = answerCorrect;
+    setChecked(true);
+    setAttempts((n) => n + 1);
+    if (!ok) setWrongRound((old) => old + 1);
+    (ok ? playCorrect : playWrong)?.();
+    onSubmit?.({
+      questionText: tx(task.prompt, 'uz'),
+      studentAnswer: task.kind === 'mc' ? tx(picked?.text, 'uz')
+        : task.kind === 'numpad' ? typed
+          : task.kind === 'gap' ? gap : pairs,
+      correctAnswer: task.kind === 'mc'
+        ? tx(task.options.find((item) => item.correct)?.text, 'uz')
+        : task.kind === 'numpad' ? task.answer
+          : task.kind === 'gap' ? task.correctGap
+            : task.pairs.map((pair) => pair.id),
+      correct: ok,
+      meta: { taskId: task.id, kind: task.kind, attempts: attempts + 1 },
+    });
+  }, [answerCorrect, attempts, canCheck, gap, mode, onSubmit, pairs, picked, playCorrect, playWrong, solved, task, typed]);
+
+  // Platforma «Tekshirish» tugmasini o'zi chizadi: unga tayyorlikni va
+  // tekshirish funksiyasini uzatamiz.
+  useEffect(() => { onReady?.(canCheck && !solved); }, [canCheck, onReady, solved]);
+  useEffect(() => { registerCheck?.(check); }, [check, registerCheck]);
   const retry = () => {
     setChecked(false);
     if (task.kind === 'mc') setPicked(null);
@@ -317,11 +349,11 @@ function Task({ task, lang, onSolved }) {
 
       {checked && <Feedback feedbackRef={feedbackRef} ok={solved} text={tx(solved ? task.correctText : wrongText, lang)} rule={task.rule} lang={lang} />}
 
-      <div className="p4-actions">
-        {!solved && <button type="button" className="p4-btn" disabled={!canCheck} onClick={() => { setChecked(true); setAttempts((n) => n + 1); if (!answerCorrect) setWrongRound((old) => old + 1); }}>{tx(UI.check, lang)}</button>}
+      {!platform && <div className="p4-actions">
+        {!solved && <button type="button" className="p4-btn" disabled={!canCheck} onClick={check}>{tx(UI.check, lang)}</button>}
         {checked && !solved && <button type="button" className="p4-btn p4-btn-ghost" onClick={retry}>{tx(UI.retry, lang)}</button>}
-        {solved && <button type="button" className="p4-btn p4-btn-ready" onClick={() => onSolved(attempts === 1)}>{tx(UI.next, lang)}</button>}
-      </div>
+        {solved && <button type="button" className="p4-btn p4-btn-ready" onClick={() => onSolved?.(attempts === 1)}>{tx(UI.next, lang)}</button>}
+      </div>}
     </div>
   );
 }
