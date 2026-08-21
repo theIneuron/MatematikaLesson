@@ -419,7 +419,10 @@ const Feedback = ({ ok, text, rule, lang, feedbackRef }) => <div ref={feedbackRe
 const NumPad = ({ value, onChange, max, disabled, lang }) => <div className="p4-pad" role="group" aria-label={tx(UI.typeAnswer, lang)}><output className="p4-pad-display" aria-live="polite">{value ? grouped(value) : '—'}</output><div className="p4-pad-keys">{[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((number) => <button key={number} type="button" className="p4-key" disabled={disabled} onClick={() => onChange(value.length >= max ? value : value + number)}>{number}</button>)}<button type="button" className="p4-key p4-key-del" disabled={disabled} aria-label={tx(UI.clear, lang)} onClick={() => onChange(value.slice(0, -1))}>⌫</button></div></div>;
 
 function Task({ task, lang, isLast, onSolved }) {
-  const options = useMemo(() => task.kind === 'mc' ? shuffle(task.options) : [], [task]);
+  // Xato javobdan keyin variantlar qayta aralashadi (metodist qarori 2026-08-21).
+  const [wrongRound, setWrongRound] = useState(0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- wrongRound ataylab yangi tartib beradi
+  const options = useMemo(() => task.kind === 'mc' ? shuffle(task.options) : [], [task, wrongRound]);
   const rightCards = useMemo(() => task.kind === 'match' ? shuffle(task.right) : [], [task]);
   const orderCards = useMemo(() => task.kind === 'order' ? shuffle(task.cards) : [], [task]);
   const [picked, setPicked] = useState(null);
@@ -435,16 +438,19 @@ function Task({ task, lang, isLast, onSolved }) {
   const checkingRef = useRef(false);
   const feedbackRef = useRef(null);
 
-  const solved = checked && ((task.kind === 'mc' && options[picked]?.correct === true)
+  // Javobning to'g'riligi `checked` dan ALOHIDA hisoblanadi: tekshirishda
+  // xato bo'lsa variantlar qayta aralashtiriladi.
+  const answerCorrect = ((task.kind === 'mc' && picked?.correct === true)
     || ((task.kind === 'numpad' || task.kind === 'missing') && typed === task.answer)
     || (task.kind === 'match' && task.pairs.every((pair) => pairs[pair.id] === pair.correctRight))
     || (task.kind === 'order' && task.steps.every((step) => placed[step.id] === step.correct)));
+  const solved = checked && answerCorrect;
   const canCheck = (task.kind === 'mc' && picked !== null)
     || ((task.kind === 'numpad' || task.kind === 'missing') && typed !== '')
     || (task.kind === 'match' && task.pairs.every((pair) => pairs[pair.id]))
     || (task.kind === 'order' && task.steps.every((step) => placed[step.id]));
   const wrongSource = (() => {
-    if (task.kind === 'mc') return options[picked]?.wrong;
+    if (task.kind === 'mc') return picked?.wrong;
     if (task.kind === 'numpad' || task.kind === 'missing') return task.wrongAnswers?.[typed] ?? task.wrongText;
     if (task.kind === 'match') return task.pairs.find((pair) => pairs[pair.id] !== pair.correctRight)?.wrong;
     if (task.kind === 'order') return task.steps.find((step) => placed[step.id] !== step.correct)?.wrong;
@@ -454,7 +460,7 @@ function Task({ task, lang, isLast, onSolved }) {
   const hintLevel = checked && !solved ? attempts : 0;
   const wrongPair = task.kind === 'match' ? task.pairs.find((pair) => pairs[pair.id] !== pair.correctRight) : null;
   const wrongStep = task.kind === 'order' ? task.steps.find((step) => placed[step.id] !== step.correct) : null;
-  const hintTarget = task.kind === 'mc' ? options[picked]?.id : task.kind === 'match' ? wrongPair?.id : task.kind === 'order' ? wrongStep?.id : typed;
+  const hintTarget = task.kind === 'mc' ? picked?.id : task.kind === 'match' ? wrongPair?.id : task.kind === 'order' ? wrongStep?.id : typed;
 
   useEffect(() => {
     if (!checked || !feedbackRef.current) return undefined;
@@ -489,7 +495,7 @@ function Task({ task, lang, isLast, onSolved }) {
     setChecked(false);
   };
   const answerSnapshot = () => {
-    if (task.kind === 'mc') return { selectedOptionId: options[picked]?.id, selectedText: options[picked]?.text };
+    if (task.kind === 'mc') return { selectedOptionId: picked?.id, selectedText: picked?.text };
     if (task.kind === 'numpad' || task.kind === 'missing') return { enteredValue: typed };
     if (task.kind === 'match') return { pairs: { ...pairs } };
     return { order: task.steps.map((step) => placed[step.id]) };
@@ -505,6 +511,7 @@ function Task({ task, lang, isLast, onSolved }) {
     checkingRef.current = true;
     setAttempts((old) => old + 1);
     setChecked(true);
+    if (!answerCorrect) setWrongRound((old) => old + 1);
   };
 
   return <section className={`p4-task ${hintLevel >= 2 ? 'is-hint' : ''}`} aria-labelledby={`task-${task.id}`}>
@@ -512,7 +519,7 @@ function Task({ task, lang, isLast, onSolved }) {
     <p className="p4-setup">{tx(task.setup, lang)}</p>
     <GeometryVisual visual={task.visual} solved={solved} lang={lang} hintLevel={hintLevel} hintTarget={hintTarget} />
     <h2 id={`task-${task.id}`} className="p4-ask">{tx(task.prompt, lang)}</h2>
-    {task.kind === 'mc' && <div className="p4-options">{options.map((option, index) => <button key={option.id} type="button" className={`p4-option ${picked === index ? (checked ? (option.correct ? 'is-ok' : 'is-no') : 'is-on') : ''}`} aria-pressed={picked === index} disabled={solved} onClick={() => { checkingRef.current = false; setPicked(index); setChecked(false); }}><span className="p4-letter">{'ABCD'[index]}</span><span>{tx(option.text, lang)}</span></button>)}</div>}
+    {task.kind === 'mc' && <div className="p4-options">{options.map((option, index) => <button key={option.id} type="button" className={`p4-option ${picked === option ? (checked ? (option.correct ? 'is-ok' : 'is-no') : 'is-on') : ''}`} aria-pressed={picked === option} disabled={solved} onClick={() => { checkingRef.current = false; setPicked(option); setChecked(false); }}><span className="p4-letter">{'ABCD'[index]}</span><span>{tx(option.text, lang)}</span></button>)}</div>}
     {(task.kind === 'numpad' || task.kind === 'missing') && <NumPad value={typed} onChange={(value) => { checkingRef.current = false; setTyped(value); setChecked(false); }} max={task.maxLen} disabled={solved} lang={lang} />}
     {task.kind === 'match' && <div className="p4-match"><p className="p4-note">{tx(UI.matchHint, lang)}</p><div className="p4-match-cols"><div className="p4-match-col">{task.pairs.map((pair) => <button key={pair.id} type="button" className={`p4-match-item ${activeLeft === pair.id ? 'is-active' : ''} ${pairs[pair.id] ? 'is-tied' : ''} ${hintLevel >= 2 && wrongPair?.id === pair.id ? 'is-hint' : ''}`} aria-pressed={activeLeft === pair.id} disabled={solved} onClick={() => activateLeft(pair.id)}><span>{tx(pair.left, lang)}</span>{pairs[pair.id] && <b className="p4-tie">{tx(task.right.find((right) => right.id === pairs[pair.id])?.text, lang)}</b>}</button>)}</div><div className="p4-match-col">{rightCards.map((right) => { const used = Object.values(pairs).includes(right.id); return <button key={right.id} type="button" className={`p4-match-item p4-match-right ${used ? 'is-used' : ''}`} aria-pressed={used} disabled={solved || activeLeft === null || used} onClick={() => connect(right.id)}>{tx(right.text, lang)}</button>; })}</div></div></div>}
     {task.kind === 'order' && <div className="p4-order"><p className="p4-note">{tx(UI.orderHint, lang)}</p><div className="p4-order-slots">{task.steps.map((step) => <button key={step.id} type="button" className={`p4-order-slot ${activeStep === step.id ? 'is-active' : ''} ${hintLevel >= 2 && wrongStep?.id === step.id ? 'is-hint' : ''}`} aria-pressed={activeStep === step.id} disabled={solved} onClick={() => activateStep(step.id)}><small>{tx(step.label, lang)}</small><b>{placed[step.id] ? tx(task.cards.find((card) => card.id === placed[step.id])?.text, lang) : '—'}</b></button>)}</div><div className="p4-card-bank">{orderCards.map((card) => { const used = Object.values(placed).includes(card.id); return <button key={card.id} type="button" className={`p4-card ${used ? 'is-used' : ''}`} aria-pressed={used} disabled={solved || !activeStep || used} onClick={() => placeStep(card.id)}>{tx(card.text, lang)}</button>; })}</div></div>}
