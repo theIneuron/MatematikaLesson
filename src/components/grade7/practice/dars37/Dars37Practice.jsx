@@ -3,12 +3,14 @@
 // qobiq `practice/PracticeHost.jsx` da (CLAUDE.md §5).
 //
 // MEXANIKALAR RASKLADKADAN: node scripts/grade7-practice-layout.mjs --json
+// 37-dars raskladkasi: build, choice, order, sort, bracket, fix, build, slots, build, chain
 // Raskladka nomlari mavjud mexanikalarga solishtirildi (metodist qarori
 // 2026-08-21): build/order/bracket -> BuildLine, slots/chain -> SlotsBank,
 // fix -> TapTerms, sort -> Zones, choice -> Choice (faqat isinish uchun).
-// 37-dars raskladkasi: build, choice, order, sort, bracket, fix, build, slots, build, chain
 //
-// Darsning O'Z misollari ((2; 12), (2; 6), (3; 12), (4; −8), (5; 20), k = 15) ataylab takrorlanmadi.
+// MAVZU DARS BILAN SVERKA QILINDI (metodist qarori 2026-08-22): amaliyot
+// mavzusi `src/lessons/grade7.js` dagi nazariy darsning mavzusiga mos.
+
 import React, { useState } from 'react';
 import PracticeHost, { usePracticeZoom } from '../PracticeHost.jsx';
 import D37_01 from './D37_01.jsx';
@@ -29,16 +31,16 @@ const HEAD = {
 };
 
 const ITEMS = [
-  { id: '01', label: { uz: "k ni topish", ru: 'Найти k', en: 'Find k' }, C: D37_01 },  // build 🟢 (2; 10)
-  { id: '02', label: { uz: "Qaysi biri", ru: 'Какая из них', en: 'Which one' }, C: D37_02 },  // choice 🟢 y = 7x
-  { id: '03', label: { uz: "Manfiy k", ru: 'Отрицательный k', en: 'Negative k' }, C: D37_03 },  // order 🟢 (4; −12)
-  { id: '04', label: { uz: "Uch formula", ru: 'Три формулы', en: 'Three rules' }, C: D37_04 },  // sort 🟡 y = −6x
-  { id: '05', label: { uz: "Boshdan", ru: 'Через начало', en: 'Through origin' }, C: D37_05 },  // bracket 🟡 y = 8x
-  { id: '06', label: { uz: "Ishora", ru: 'Знак', en: 'Sign' }, C: D37_06 },  // fix 🟡 y = 3x, x = −2
-  { id: '07', label: { uz: "Formulani tuzish", ru: 'Составить формулу', en: 'Build the rule' }, C: D37_07 },  // build 🟡 (3; 12)
-  { id: '08', label: { uz: "Jadval", ru: 'Таблица', en: 'Table' }, C: D37_08 },  // slots 🔴 y = −2x
-  { id: '09', label: { uz: "Manfiy nuqta", ru: 'Отрицательная точка', en: 'Negative point' }, C: D37_09 },  // build 🔴 (−4; 20)
-  { id: '10', label: { uz: "Zanjir", ru: 'Цепочка', en: 'Chain' }, C: D37_10 },  // chain 🔴 (2; 6), x = 10
+  { id: '01', label: { uz: 'k ni topish', ru: 'Найти k', en: 'Find k' }, C: D37_01 },  // build 🟢 prop_find_k
+  { id: '02', label: { uz: 'Qaysi biri', ru: 'Какая из них', en: 'Which one' }, C: D37_02 },  // choice 🟢 which_prop
+  { id: '03', label: { uz: 'Uch qadam', ru: 'Три шага', en: 'Three steps' }, C: D37_03 },  // order 🟢 prop_order
+  { id: '04', label: { uz: 'Uch formula', ru: 'Три формулы', en: 'Three formulas' }, C: D37_04 },  // sort 🟡 prop_zones
+  { id: '05', label: { uz: 'Qoidani yozish', ru: 'Записать правило', en: 'Write the rule' }, C: D37_05 },  // bracket 🟡 prop_rule
+  { id: '06', label: { uz: 'Xato qadam', ru: 'Неверный шаг', en: 'The wrong step' }, C: D37_06 },  // fix 🟡 prop_fix
+  { id: '07', label: { uz: 'Formula va qiymat', ru: 'Формула и значение', en: 'Formula and value' }, C: D37_07 },  // build 🟡 prop_build
+  { id: '08', label: { uz: 'Jadval', ru: 'Таблица', en: 'The table' }, C: D37_08 },  // slots 🔴 prop_table
+  { id: '09', label: { uz: 'Necha barobar', ru: 'Во сколько раз', en: 'How many times' }, C: D37_09 },  // build 🔴 prop_times
+  { id: '10', label: { uz: 'Zanjir', ru: 'Цепочка', en: 'A chain' }, C: D37_10 },  // chain 🔴 prop_chain
 ];
 
 export default function Dars37Practice({ lang = 'uz' }) {

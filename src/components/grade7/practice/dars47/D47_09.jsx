@@ -1,51 +1,76 @@
-// Dars47 · Amaliyot 09 — Teskari teorema · 🔴 · build · tag: pyth_inverse
-// Mexanika: kit.jsx -> BuildLine. Raskladka: 9-o'rin.
-// 9, 40, 41: 81 + 1600 = 1681 va 41² = 1681 -> uchburchak to'g'ri burchakli.
+// Dars47 · Amaliyot 09 — Yasash mumkinmi · 🔴 · build · tag: comp_possible
+// Mexanika: kit.jsx -> BuildLine. Raskladka: 9-o'rin `build`.
+// 5, 6, 12: 5 + 6 = 11 < 12 -> yoylar kesishmaydi, uchburchak yasalmaydi.
 import React from 'react';
 import { BuildLine, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'pyth_inverse', level: '🔴',
-  eyebrow: L('Teskari teorema', 'Обратная теорема', 'The converse'),
+  tag: 'comp_possible',
+  level: '🔴',
+  eyebrow: L(
+    'Yasash mumkinmi',
+    'Можно ли построить',
+    'Can it be built'),
   setup: L(
-    "Agar ikki kichik tomon kvadratlarining yig'indisi eng katta tomon kvadratiga teng bo'lsa, uchburchak to'g'ri burchakli bo'ladi.",
-    'Если сумма квадратов двух меньших сторон равна квадрату наибольшей, треугольник прямоугольный.',
-    'If the squares of the two shorter sides sum to the square of the longest, the triangle is right-angled.'),
-  given: [['9,', '40,', '41']],
-  givenLabel: L('Tomonlar:', 'Стороны:', 'Sides:'),
+    'Uch tomoni berilgan. Yasashdan oldin tekshirish kerak: yoylar kesishadimi. Ikki javob kerak: xulosa va sabab.',
+    'Даны три стороны. Перед построением надо проверить: пересекутся ли дуги. Нужны два ответа: вывод и причина.',
+    'Three sides are given. Before building, check whether the arcs meet. Two answers: the conclusion and the reason.'),
+  given: [['5, 6, 12']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
   cards: [
-    { id: 'a', label: '81 + 1600' },
-    { id: 'b', label: '1681' },
-    { id: 'c', label: '41² = 1681' },
-    { id: 'd', label: '9 + 40 = 49' },
-    { id: 'e', label: '49 > 41' },
+    { id: 'a', label: 'yasash mumkin emas' },
+    { id: 'b', label: '5 + 6 < 12' },
+    { id: 'c', label: 'yasash mumkin' },
+    { id: 'd', label: '12 − 6 = 6' },
   ],
-  answerSeq: ['a', 'b', 'c'],
-  empty: L("Uch qadamni tartib bilan qo'ying", 'Поставь три шага по порядку', 'Place the three steps in order'),
-  ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+  answerSeq: ['a', 'b'],
+  fieldH: 44,
+  ask: L(
+    "Kartani bosish uni chiziqqa qo'yadi.",
+    'Нажатие на карточку ставит её в строку.',
+    'Tapping a card puts it in the line.'),
+  empty: L(
+    'Kartalarni bosib javobni tuzing',
+    'Нажимай карточки и собери ответ',
+    'Tap the cards to build the answer'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. 81 + 1600 = 1681 va 41² = 1681: yig'indi mos keldi, ya'ni uchburchak to'g'ri burchakli.",
-    'Верно. 81 + 1600 = 1681 и 41² = 1681: суммы совпали, значит треугольник прямоугольный.',
-    'Correct. 81 + 1600 = 1681 and 41² = 1681: they match, so the triangle is right-angled.'),
+    "To'g'ri. 5 + 6 = 11, bu 12 dan kichik: yoylar bir-biriga yetib bormaydi va kesishmaydi.",
+    'Верно. 5 + 6 = 11, это меньше 12: дуги не достают друг до друга и не пересекаются.',
+    'Correct. 5 + 6 = 11 is below 12: the arcs fall short and never cross.'),
   wrongs: [
-    { when: (s) => s.seq.indexOf('d') !== -1 || s.seq.indexOf('e') !== -1, text: L(
-      "Bu uchburchak tengsizligini tekshirish. Teskari teorema uchun KVADRATLARNI solishtirish kerak.",
-      'Это проверка неравенства треугольника. Для обратной теоремы надо сравнивать КВАДРАТЫ.',
-      'That checks the triangle inequality. The converse compares the SQUARES.') },
-    { when: (s) => s.seq.length === 3, text: L(
-      "Qadamlar to'g'ri, tartibi boshqa: yig'indi, natija, eng katta tomon kvadrati bilan solishtirish.",
-      'Шаги верные, но порядок другой: сумма, результат, сравнение с квадратом наибольшей.',
-      'The steps are right but the order is not: sum, result, comparison with the largest square.') },
-    { when: (s) => s.seq.length < 3, text: L(
-      "Uch qadam bo'lishi kerak.",
-      'Должно быть три шага.',
-      'There must be three steps.') },
+    {
+      when: (s) => s.seq.indexOf('c') !== -1,
+      text: L(
+        "Tengsizlik bajarilmadi: 11 < 12, ya'ni yasash mumkin emas.",
+        'Неравенство не выполнено: 11 < 12, значит построить нельзя.',
+        'The inequality fails: 11 < 12, so it cannot be built.'),
+    },
+    {
+      when: (s) => s.seq.indexOf('d') !== -1,
+      text: L(
+        "12 − 6 = 6 -- bu ayirma, tekshirish esa YIG'INDI bilan qilinadi: 5 + 6 va 12.",
+        '12 − 6 = 6 это разность, а проверяют СУММОЙ: 5 + 6 против 12.',
+        '12 − 6 = 6 is a difference; the test uses the SUM: 5 + 6 against 12.'),
+    },
+    {
+      when: (s) => s.seq.length < 2,
+      text: L(
+        'Ikki karta kerak.',
+        'Нужны две карточки.',
+        'Two cards are needed.'),
+    },
   ],
   wrongText: L(
-    "Ikki kichik tomon kvadratlarini qo'shing va eng katta tomon kvadrati bilan solishtiring.",
-    'Сложи квадраты двух меньших сторон и сравни с квадратом наибольшей.',
-    'Add the squares of the two shorter sides and compare with the largest square.'),
+    "Ikki kichik tomonni qo'shing va eng katta bilan solishtiring.",
+    'Сложи две меньшие стороны и сравни с наибольшей.',
+    'Add the two shorter sides and compare with the longest.'),
 };
 
 export default function D47_09(props) { return <BuildLine data={DATA} {...props} />; }

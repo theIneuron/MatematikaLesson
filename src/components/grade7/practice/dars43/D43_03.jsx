@@ -1,47 +1,76 @@
-// Dars43 · Amaliyot 03 — Mos burchak · 🟢 · build · tag: eq_corresponding
-// Mexanika: kit.jsx -> BuildLine. Raskladka: 3-o'rin.
-// Teng uchburchaklarda ∠A = 40°, ∠B = 70° -> ∠C = 180 − 110 = 70°.
-// Mos burchak ham 70° bo'ladi.
+// Dars43 · Amaliyot 03 — Yon tomon va perimetr · 🟢 · build · tag: iso_side_p
+// Mexanika: kit.jsx -> BuildLine. Raskladka: 3-o'rin `build`.
+// Yon tomon 9 -> ikkinchi yon tomon ham 9; asos 4 -> P = 9 + 9 + 4 = 22.
 import React from 'react';
 import { BuildLine, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'eq_corresponding', level: '🟢',
-  eyebrow: L('Mos burchak', 'Соответственный угол', 'Corresponding angle'),
+  tag: 'iso_side_p',
+  level: '🟢',
+  eyebrow: L(
+    'Yon tomon va perimetr',
+    'Боковая и периметр',
+    'Leg and perimeter'),
   setup: L(
-    "Teng uchburchaklarda mos burchaklar teng. Uchinchi burchakni topsak, ikkinchi uchburchakdagi mos burchak ham shu bo'ladi.",
-    'У равных треугольников соответственные углы равны. Найдя третий угол, получаем и соответственный во втором треугольнике.',
-    'Equal triangles have equal corresponding angles. Finding the third gives the matching one too.'),
-  given: [['∠A', '=', '40°'], ['∠B', '=', '70°']],
-  givenLabel: L('Berilgan:', 'Дано:', 'Given:'),
+    'Yon tomonlar teng. Ikki javob kerak: ikkinchi yon tomon va perimetr.',
+    'Боковые стороны равны. Нужны два ответа: вторая боковая и периметр.',
+    'The legs are equal. Two answers: the second leg and the perimeter.'),
+  given: [['yon tomon 9', ',', 'asos 4']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
   cards: [
-    { id: 'a', label: '180° − 110°' },
-    { id: 'b', label: '70°' },
-    { id: 'c', label: '180° − 40°' },
-    { id: 'd', label: '140°' },
+    { id: 'a', label: 'yon tomon 9' },
+    { id: 'b', label: 'P = 22' },
+    { id: 'c', label: 'P = 13' },
+    { id: 'd', label: 'yon tomon 4' },
   ],
   answerSeq: ['a', 'b'],
-  empty: L("Hisoblab yozing", 'Запиши вычисление', 'Write the working'),
-  ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+  fieldH: 44,
+  ask: L(
+    "Kartani bosish uni chiziqqa qo'yadi.",
+    'Нажатие на карточку ставит её в строку.',
+    'Tapping a card puts it in the line.'),
+  empty: L(
+    'Kartalarni bosib javobni tuzing',
+    'Нажимай карточки и собери ответ',
+    'Tap the cards to build the answer'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. 40 + 70 = 110, keyin 180 − 110 = 70. Ikkinchi uchburchakdagi mos burchak ham 70°.",
-    'Верно. 40 + 70 = 110, потом 180 − 110 = 70. Соответственный угол второго треугольника тоже 70°.',
-    'Correct. 40 + 70 = 110, then 180 − 110 = 70. The corresponding angle is 70° too.'),
+    "To'g'ri. Ikkinchi yon tomon ham 9, va 9 + 9 + 4 = 22.",
+    'Верно. Вторая боковая тоже 9, и 9 + 9 + 4 = 22.',
+    'Correct. The second leg is 9 as well, and 9 + 9 + 4 = 22.'),
   wrongs: [
-    { when: (s) => s.seq.indexOf('c') !== -1 || s.seq.indexOf('d') !== -1, text: L(
-      "Faqat bitta burchak ayirilgan: ikkinchisini ham hisobga olish kerak.",
-      'Вычли только один угол: второй тоже надо учесть.',
-      'Only one angle was subtracted: the second counts too.') },
-    { when: (s) => s.seq.length < 2, text: L(
-      "Ikki bo'lak kerak: hisoblash va natija.",
-      'Нужны две части: вычисление и результат.',
-      'Two parts are needed: the working and the result.') },
+    {
+      when: (s) => s.seq.indexOf('c') !== -1,
+      text: L(
+        "13 bu 9 + 4, ya'ni bitta yon tomon hisobga olinmagan. Yon tomon IKKITA.",
+        '13 это 9 + 4: одну боковую не учли. Боковых ДВЕ.',
+        '13 is 9 + 4, leaving out one leg. There are TWO legs.'),
+    },
+    {
+      when: (s) => s.seq.indexOf('d') !== -1,
+      text: L(
+        '4 bu asos. Yon tomonlar bir-biriga teng: 9.',
+        '4 это основание. Боковые равны между собой: 9.',
+        '4 is the base. The legs equal each other: 9.'),
+    },
+    {
+      when: (s) => s.seq.length < 2,
+      text: L(
+        'Ikki karta kerak.',
+        'Нужны две карточки.',
+        'Two cards are needed.'),
+    },
   ],
   wrongText: L(
-    "Ikki burchakni qo'shing, keyin 180 dan ayiring.",
-    'Сложи два угла, потом вычти из 180.',
-    'Add the two angles, then subtract from 180.'),
+    "Ikki yon tomon va bitta asosni qo'shing.",
+    'Сложи две боковые и одно основание.',
+    'Add the two legs and the single base.'),
 };
 
 export default function D43_03(props) { return <BuildLine data={DATA} {...props} />; }

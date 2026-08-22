@@ -1,46 +1,72 @@
-// Dars39 · Amaliyot 07 — Uchinchi tanlov qo'shildi · 🟡 · chain · tag: comb_chain
-// Mexanika: kit.jsx -> SlotsBank (ikki qator). Raskladka: 7-o'rin.
-// 1-qator: 3 · 5 = 15. 2-qator: yana 2 variantli tanlov qo'shilsa 15 · 2 = 30.
+// Dars39 · Amaliyot 07 — Yana bir tanlov · 🟡 · chain · tag: comb_chain
+// Mexanika: kit.jsx -> SlotsBank. Raskladka: 7-o'rin `chain`.
+// DARAJA KO'TARILDI (metodist qarori 2026-08-22): manfiy va kasr koeffitsiyent,
+// ikki qadamli savol, yaqin tuzoq -- PODXOD_7SINF.md 13-band.
+// 3 · 5 = 15, keyin yana 2 variantli tanlov: 15 · 2 = 30.
 import React from 'react';
 import { SlotsBank, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'comb_chain', level: '🟡',
-  eyebrow: L('Yangi tanlov', 'Новый выбор', 'A new choice'),
+  tag: 'comb_chain',
+  level: '🟡',
+  eyebrow: L(
+    'Zanjir',
+    'Цепочка',
+    'A chain'),
   setup: L(
-    "Avval ikki tanlov bor edi, keyin uchinchisi qo'shildi. Yangi tanlov oldingi variantlarni KO'PAYTIRADI.",
-    'Сначала было два выбора, потом добавился третий. Новый выбор УМНОЖАЕТ прежние варианты.',
-    'There were two choices, then a third joined. A new choice MULTIPLIES the earlier options.'),
+    "Birinchi qatorda ikki bosqich, ikkinchi qatorda esa uchinchi tanlov qo'shiladi.",
+    'В первой строке два этапа, во второй добавляется третий выбор.',
+    'The first row has two stages, the second adds a third choice.'),
+  given: [['3', ',', '5', ';', 'keyin', '2']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
   rows: [
-    [{ t: ['3', '·', '5', '='] }, { slot: 0 }],
-    [{ t: ['yana', '2', 'variant', '→'] }, { slot: 1 }],
+    [{ t: ['ikki', 'bosqich', '='] }, { slot: 0 }],
+    [{ t: ['uchinchisi', 'bilan', '='] }, { slot: 1 }],
   ],
-  cards: ['15', '30', '17', '10'],
+  cards: ['15', '30', '8', '10'],
   answer: ['15', '30'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+  ask: L(
+    'Kartani bosing, keyin uyani bosing.',
+    'Нажми карточку, затем клетку.',
+    'Tap a card, then tap a cell.'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. 3 · 5 = 15, keyin 15 · 2 = 30. Uchinchi tanlov variantlarni ikki barobar oshirdi.",
-    'Верно. 3 · 5 = 15, потом 15 · 2 = 30. Третий выбор удвоил число вариантов.',
-    'Correct. 3 · 5 = 15, then 15 · 2 = 30. The third choice doubled the options.'),
+    "To'g'ri. 3 · 5 = 15, keyin 15 · 2 = 30.",
+    'Верно. 3 · 5 = 15, затем 15 · 2 = 30.',
+    'Correct. 3 · 5 = 15, then 15 · 2 = 30.'),
   wrongs: [
-    { when: (s) => s.slots[1] === '17', text: L(
-      "17 bu 15 + 2. Yangi tanlov qo'shilmaydi, ko'paytiriladi: 15 · 2 = 30.",
-      '17 это 15 + 2. Новый выбор не прибавляется, а умножается: 15 · 2 = 30.',
-      '17 is 15 + 2. A new choice multiplies, it does not add: 15 · 2 = 30.') },
-    { when: (s) => s.slots[0] === '10', text: L(
-      "10 emas: 3 · 5 = 15.",
-      'Не 10: 3 · 5 = 15.',
-      'Not 10: 3 · 5 = 15.') },
-    { when: (s) => s.slots[0] === '30' || s.slots[1] === '15', text: L(
-      "Qatorlar almashib ketdi: birinchi qatorda ikki tanlov, ikkinchisida uchtasi.",
-      'Строки перепутались: в первой два выбора, во второй три.',
-      'The rows got swapped: two choices first, three in the second.') },
+    {
+      when: (s) => s.slots[0] === '8',
+      text: L(
+        "8 bu 3 + 5. Bosqichlar ko'paytiriladi.",
+        '8 это 3 + 5. Этапы умножаются.',
+        '8 is 3 + 5. Stages multiply.'),
+    },
+    {
+      when: (s) => s.slots[1] === '10',
+      text: L(
+        "10 bu 5 · 2. Uchinchi tanlov JAMI 15 ga ko'paytiriladi.",
+        '10 это 5 · 2. Третий выбор умножается на ВСЕ 15.',
+        '10 is 5 · 2. The third choice multiplies all 15.'),
+    },
+    {
+      when: (s) => s.slots.indexOf(null) !== -1,
+      text: L(
+        "Hamma uya to'ldirilishi kerak.",
+        'Надо заполнить все клетки.',
+        'Every cell must be filled.'),
+    },
   ],
   wrongText: L(
-    "Birinchi qatorni hisoblang, keyin natijani yangi tanlov soniga ko'paytiring.",
-    'Посчитай первую строку, потом умножь результат на число новых вариантов.',
-    'Work out the first row, then multiply by the new number of options.'),
+    "Yangi tanlov jami variantga ko'paytiriladi.",
+    'Новый выбор умножается на всё количество.',
+    'A new choice multiplies the whole count.'),
 };
 
 export default function D39_07(props) { return <SlotsBank data={DATA} {...props} />; }

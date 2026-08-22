@@ -1,46 +1,76 @@
-// Dars41 · Amaliyot 01 — Qo'shni burchak · 🟢 · order · tag: ang_adjacent
-// Mexanika: kit.jsx -> BuildLine (tartib muhim). Raskladka: 41-dars, 1-o'rin.
-// Qo'shni burchaklar yig'indisi 180°. Biri 50° -> ikkinchisi 130°.
+// Dars41 · Amaliyot 01 — Ikki nom · 🟢 · order · tag: kind_two_names
+// Mexanika: kit.jsx -> BuildLine. Raskladka: 1-o'rin `order`.
+// Bir uchburchak IKKI nom oladi: tomonlar bo'yicha va burchaklar bo'yicha. 5, 5, 8 -- teng yonli; katta burchagi 100° -- o'tmas burchakli.
 import React from 'react';
 import { BuildLine, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'ang_adjacent', level: '🟢',
-  eyebrow: L("Qo'shni burchaklar", 'Смежные углы', 'Adjacent angles'),
+  tag: 'kind_two_names',
+  level: '🟢',
+  eyebrow: L(
+    'Ikki nom',
+    'Два имени',
+    'Two names'),
   setup: L(
-    "Qo'shni burchaklar birga yoyilgan burchakni tashkil qiladi, ya'ni yig'indisi 180 daraja.",
-    'Смежные углы вместе образуют развёрнутый угол, значит их сумма 180 градусов.',
-    'Adjacent angles form a straight angle, so they add to 180 degrees.'),
-  given: [['∠1', '=', '50°']],
-  givenLabel: L('Berilgan:', 'Дано:', 'Given:'),
+    "Uchburchak turi ikki xil aytiladi: TOMONLAR bo'yicha va BURCHAKLAR bo'yicha. Bu ikki nom bir-birini almashtirmaydi, ular birga aytiladi.",
+    'Вид треугольника называют двумя способами: по СТОРОНАМ и по УГЛАМ. Эти имена не заменяют друг друга, они идут вместе.',
+    'A triangle is named in two ways: by SIDES and by ANGLES. The names do not replace each other, they go together.'),
+  given: [['5, 5, 8', ';', 'katta burchak 100°']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
   cards: [
-    { id: 'a', label: '180° − 50°' },
-    { id: 'b', label: '130°' },
-    { id: 'c', label: '90° − 50°' },
-    { id: 'd', label: '40°' },
+    { id: 'a', label: 'teng yonli' },
+    { id: 'b', label: "o'tmas burchakli" },
+    { id: 'c', label: 'teng tomonli' },
+    { id: 'd', label: "o'tkir burchakli" },
   ],
   answerSeq: ['a', 'b'],
-  empty: L("Hisoblab yozing", 'Запиши вычисление', 'Write the working'),
-  ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+  fieldH: 44,
+  ask: L(
+    "Kartani bosish uni chiziqqa qo'yadi.",
+    'Нажатие на карточку ставит её в строку.',
+    'Tapping a card puts it in the line.'),
+  empty: L(
+    'Kartalarni bosib javobni tuzing',
+    'Нажимай карточки и собери ответ',
+    'Tap the cards to build the answer'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. 180° − 50° = 130°. Tekshirish: 50 + 130 = 180.",
-    'Верно. 180° − 50° = 130°. Проверка: 50 + 130 = 180.',
-    'Correct. 180° − 50° = 130°. Check: 50 + 130 = 180.'),
+    "To'g'ri. Ikki tomoni teng -- teng yonli; katta burchagi 90 dan katta -- o'tmas burchakli.",
+    'Верно. Две стороны равны — равнобедренный; больший угол больше 90 — тупоугольный.',
+    'Correct. Two equal sides make it isosceles; the largest angle above 90 makes it obtuse.'),
   wrongs: [
-    { when: (s) => s.seq.indexOf('c') !== -1 || s.seq.indexOf('d') !== -1, text: L(
-      "90 gradus TO'LDIRUVCHI burchaklar uchun. Qo'shni burchaklar yig'indisi 180 gradus.",
-      '90 градусов это для дополнительных углов. Сумма смежных углов 180 градусов.',
-      '90 degrees is for complementary angles. Adjacent angles add to 180.') },
-    { when: (s) => s.seq.length < 2, text: L(
-      "Ikki bo'lak kerak: hisoblash va natija.",
-      'Нужны две части: вычисление и результат.',
-      'Two parts are needed: the working and the result.') },
+    {
+      when: (s) => s.seq.indexOf('c') !== -1,
+      text: L(
+        'Teng tomonli uchburchakda UCH tomon teng. Bu yerda 8 boshqacha.',
+        'У равностороннего равны ТРИ стороны. Здесь 8 отличается.',
+        'An equilateral triangle has THREE equal sides. Here 8 differs.'),
+    },
+    {
+      when: (s) => s.seq.indexOf('d') !== -1,
+      text: L(
+        "100° 90 dan katta, ya'ni burchak o'tmas. O'tkir burchakli uchburchakda hamma burchak 90 dan kichik.",
+        '100° больше 90, значит угол тупой. У остроугольного все углы меньше 90.',
+        '100° exceeds 90, so the angle is obtuse. An acute triangle keeps every angle below 90.'),
+    },
+    {
+      when: (s) => s.seq.length < 2,
+      text: L(
+        'Ikki karta kerak.',
+        'Нужны две карточки.',
+        'Two cards are needed.'),
+    },
   ],
   wrongText: L(
-    "Qo'shni burchaklar birga qanday burchak beradi? Uning o'lchovi nechchi?",
-    'Какой угол образуют смежные углы вместе? Какова его мера?',
-    'What angle do adjacent angles form together? What is its measure?'),
+    'Avval tomonlarga qarang, keyin katta burchakka.',
+    'Сначала посмотри на стороны, потом на больший угол.',
+    'Look at the sides first, then at the largest angle.'),
 };
 
 export default function D41_01(props) { return <BuildLine data={DATA} {...props} />; }

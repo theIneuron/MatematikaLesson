@@ -1,51 +1,74 @@
 // Dars36 · Amaliyot 10 — Qiymatda xato · 🔴 · fix · tag: graph_fix
-// Mexanika: kit.jsx -> TapTerms. Raskladka: 10-o'rin.
-// y = −2x + 1, x = 3: −2 · 3 = −6, −6 + 1 = −5. Chuqur javob 7 -- ishora
-// hisobga olinmagan.
+// Mexanika: kit.jsx -> TapTerms. Raskladka: 10-o'rin `fix`.
+// DARAJA KO'TARILDI (metodist qarori 2026-08-22): k manfiy va kasr bo'ladi,
+// savol ikki qadamli -- PODXOD_7SINF.md 13-band.
+// Chuqur yechim: y = −5x + 2, x = 4 -> −20 + 2 = −18. Xato javob 22: minus tashlab ketilgan.
 import React from 'react';
 import { TapTerms, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'graph_fix', level: '🔴',
-  eyebrow: L('Xato bo\'lak', 'Неверная часть', 'The wrong part'),
+  tag: 'graph_fix',
+  level: '🔴',
+  eyebrow: L(
+    'Xato qadam',
+    'Неверный шаг',
+    'The wrong step'),
   setup: L(
-    "Boshqa o'quvchi qiymat hisobladi. Ikki qadam to'g'ri, natijada esa ishora yo'qolgan.",
-    'Другой ученик посчитал значение. Два шага верные, а в результате потерялся знак.',
-    'Another pupil worked out the value. Two steps are right; the result lost its sign.'),
-  given: [['y', '=', '−2x', '+', '1'], ['x', '=', '3']],
-  givenLabel: L('Berilgan:', 'Дано:', 'Given:'),
-  ask: L("NOTO'G'RI bo'lakni belgilang.", 'Отметь НЕВЕРНУЮ часть.', 'Mark the WRONG part.'),
-  note: L('Bitta bo\'lak.', 'Одна часть.', 'One part.'),
+    "Uch qadamdan biri noto'g'ri. k manfiy, ya'ni ko'paytma ham manfiy chiqadi.",
+    'Один из трёх шагов неверный. k отрицательный, значит и произведение отрицательное.',
+    'One of the three steps is wrong. k is negative, so the product is negative too.'),
+  given: [['y = −5x + 2', ',', 'x = 4']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
+  ask: L(
+    "NOTO'G'RI qadamni belgilang.",
+    'Отметь НЕВЕРНЫЙ шаг.',
+    'Mark the WRONG step.'),
+  note: L(
+    'Bitta qadam.',
+    'Один шаг.',
+    'One step.'),
   parts: [
-    { k: 'term', id: 't1', v: '−2 · 3' },
-    { k: 'sign', v: '+' },
-    { k: 'term', id: 't2', v: '1' },
-    { k: 'sign', v: '=' },
-    { k: 'term', id: 't3', v: '7' },
+    { k: 'term', id: 't1', v: "x = 4 qo'yiladi" },
+    { k: 'sign', v: ' ' },
+    { k: 'term', id: 't2', v: '−5 · 4 = 20' },
+    { k: 'sign', v: ' ' },
+    { k: 'term', id: 't3', v: 'y = 22' },
   ],
-  want: ['t3'],
+  want: ['t2'],
   correctText: L(
-    "To'g'ri. −2 · 3 = −6, keyin −6 + 1 = −5. Javob 7 emas, −5.",
-    'Верно. −2 · 3 = −6, потом −6 + 1 = −5. Ответ не 7, а −5.',
-    'Correct. −2 · 3 = −6, then −6 + 1 = −5. The answer is −5, not 7.'),
+    "To'g'ri. −5 · 4 = −20, ya'ni y = −20 + 2 = −18.",
+    'Верно. −5 · 4 = −20, значит y = −20 + 2 = −18.',
+    'Correct. −5 · 4 = −20, so y = −20 + 2 = −18.'),
   wrongs: [
-    { when: (s) => s.extra.indexOf('t1') !== -1, text: L(
-      "−2 · 3 to'g'ri yozilgan: x o'rniga 3 qo'yilgan.",
-      '−2 · 3 записано верно: вместо x подставлена тройка.',
-      '−2 · 3 is written correctly: 3 replaced x.') },
-    { when: (s) => s.extra.indexOf('t2') !== -1, text: L(
-      "+1 ham to'g'ri: formulada ozod had +1.",
-      '+1 тоже верно: в формуле свободный член +1.',
-      '+1 is right too: the rule has +1.') },
-    { when: (s) => s.miss.length > 0, text: L(
-      "Natijani tekshiring: −6 ga 1 qo'shilsa nima chiqadi?",
-      'Проверь результат: что выйдет, если к −6 прибавить 1?',
-      'Check the result: what is −6 plus 1?') },
+    {
+      when: (s) => s.extra.indexOf('t1') !== -1,
+      text: L(
+        "x = 4 ni qo'yish to'g'ri: shart shunday.",
+        'Подстановка x = 4 верна: так дано в условии.',
+        'Substituting x = 4 is right: the task says so.'),
+    },
+    {
+      when: (s) => s.extra.indexOf('t3') !== -1,
+      text: L(
+        '22 ikkinchi qadamdan chiqdi. Sabab esa aynan ikkinchi qadamda.',
+        '22 вытекает из второго шага. Причина именно во втором шаге.',
+        '22 follows the second step, and that is where the flaw is.'),
+    },
+    {
+      when: (s) => s.miss.length > 0,
+      text: L(
+        "Manfiy k ni musbat songa ko'paytirsak qanday ishora chiqadi?",
+        'Какой знак даёт отрицательный k, умноженный на положительное число?',
+        'What sign comes from a negative k times a positive number?'),
+    },
   ],
   wrongText: L(
-    "−2 · 3 nechchi? Undan keyin 1 qo'shilsa natija musbatmi?",
-    'Чему равно −2 · 3? Станет ли результат положительным после +1?',
-    'What is −2 · 3? Does adding 1 make it positive?'),
+    "Manfiy va musbat sonning ko'paytmasi manfiy bo'ladi.",
+    'Произведение отрицательного и положительного отрицательно.',
+    'A negative times a positive is negative.'),
 };
 
 export default function D36_10(props) { return <TapTerms data={DATA} {...props} />; }

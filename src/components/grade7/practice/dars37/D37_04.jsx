@@ -1,53 +1,91 @@
 // Dars37 · Amaliyot 04 — Uch formula · 🟡 · sort · tag: prop_zones
-// Mexanika: kit.jsx -> Zones. Raskladka: 4-o'rin.
-// y = −6x -> to'g'ri proporsionallik; y = 2x + 3 -> chiziqli, lekin emas;
-// y = 6 : x -> umuman proporsional emas (teskari bog'lanish).
+// Mexanika: kit.jsx -> Zones. Raskladka: 4-o'rin `sort`.
+// DARAJA KO'TARILDI (metodist qarori 2026-08-22): manfiy va kasr koeffitsiyent,
+// ikki qadamli savol, yaqin tuzoq -- PODXOD_7SINF.md 13-band.
+// y = −6x -> proporsionallik; y = 2x + 3 -> chiziqli, lekin proporsionallik emas; y = 6 : x -> chiziqli ham emas.
 import React from 'react';
 import { Zones, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'prop_zones', level: '🟡', itemSize: 20, zoneLbl: 118,
-  eyebrow: L('Uch formula', 'Три формулы', 'Three rules'),
+  tag: 'prop_zones',
+  level: '🟡',
+  eyebrow: L(
+    'Uch formula',
+    'Три формулы',
+    'Three formulas'),
   setup: L(
-    "Uch formulada yettilik yoki oltilik bor, lekin ular boshqa bog'lanishlar. Ozod had va bo'linish hammasini o'zgartiradi.",
-    'В трёх формулах есть шестёрка, но зависимости разные. Свободный член и деление всё меняют.',
-    'All three carry a six, yet the relationships differ. A free term or a division changes everything.'),
+    "Uch turni ajratish kerak: to'g'ri proporsionallik, ozod hadli chiziqli funksiya va umuman chiziqli bo'lmagan bog'lanish.",
+    'Надо различить три типа: прямая пропорциональность, линейная со свободным членом и вовсе не линейная связь.',
+    'Three kinds must be told apart: direct proportion, a linear function with a constant, and a non-linear relation.'),
+  itemSize: 18,
+  zoneLbl: 112,
   zones: [
-    { id: 'zp', label: L("To'g'ri proporsionallik", 'Прямая пропорциональность', 'Direct proportion') },
-    { id: 'zl', label: L('Chiziqli, lekin emas', 'Линейная, но нет', 'Linear, but not') },
-    { id: 'zn', label: L('Proporsional emas', 'Не пропорциональна', 'Not proportional') },
+    {
+      id: 'z1',
+      label: L(
+        'Proporsionallik',
+        'Пропорциональность',
+        'Proportion'),
+    },
+    {
+      id: 'z2',
+      label: L(
+        'Chiziqli, lekin emas',
+        'Линейная, но нет',
+        'Linear, but not'),
+    },
+    {
+      id: 'z3',
+      label: L(
+        'Chiziqli emas',
+        'Не линейная',
+        'Not linear'),
+    },
   ],
   items: [
-    { id: 'i1', tokens: ['y', '=', '−6x'], zone: 'zp' },
-    { id: 'i2', tokens: ['y', '=', '2x', '+', '3'], zone: 'zl' },
-    { id: 'i3', tokens: ['y', '=', '6', ':', 'x'], zone: 'zn' },
+    { id: 'i1', tokens: ['y = −6x'], zone: 'z1' },
+    { id: 'i2', tokens: ['y = 2x + 3'], zone: 'z2' },
+    { id: 'i3', tokens: ['y = 6 : x'], zone: 'z3' },
   ],
-  ask: L('Kartani bosing, keyin zonani bosing. Zonadagi kartani bosish uni qaytarib oladi.',
+  bank: L(
+    'Formulalar',
+    'Формулы',
+    'Formulas'),
+  ask: L(
+    'Kartani bosing, keyin zonani bosing. Zonadagi kartani bosish uni qaytarib oladi.',
     'Нажми карточку, затем зону. Нажатие на карточку в зоне возвращает её обратно.',
     'Tap a card, then tap a zone. Tapping a card inside a zone takes it back.'),
-  bank: L('Formulalar', 'Формулы', 'Rules'),
   correctText: L(
-    "To'g'ri. y = −6x da faqat k bor -- manfiy bo'lsa ham proporsionallik. Ozod had bo'lsa chiziqli, x bo'luvchida bo'lsa esa umuman boshqa.",
-    'Верно. В y = −6x есть только k — даже отрицательный, это пропорциональность. Со свободным членом линейная, а с x в делителе совсем другое.',
-    'Correct. y = −6x has only k — negative still counts. A free term makes it merely linear; x as divisor is something else.'),
+    "To'g'ri. y = kx -- proporsionallik; ozod had qo'shilsa faqat chiziqli qoladi; x maxrajda bo'lsa chiziqli ham emas.",
+    'Верно. y = kx это пропорциональность; со свободным членом остаётся только линейная; при x в знаменателе не линейная вовсе.',
+    'Correct. y = kx is proportion; a constant leaves it merely linear; x in the denominator is not linear at all.'),
   wrongs: [
-    { when: (s) => s.bad.indexOf('i1') !== -1, text: L(
-      "k manfiy bo'lishi mumkin: y = −6x ham to'g'ri proporsionallik, grafik boshdan o'tadi.",
-      'k может быть отрицательным: y = −6x тоже прямая пропорциональность, график проходит через начало.',
-      'k may be negative: y = −6x is still a direct proportion through the origin.') },
-    { when: (s) => s.bad.indexOf('i2') !== -1, text: L(
-      "y = 2x + 3 da ozod had bor: grafik boshdan o'tmaydi, ya'ni proporsionallik emas.",
-      'В y = 2x + 3 есть свободный член: график не проходит через начало, значит не пропорциональность.',
-      'y = 2x + 3 has a free term: the graph misses the origin, so not a proportion.') },
-    { when: (s) => s.bad.indexOf('i3') !== -1, text: L(
-      "y = 6 : x da x bo'luvchida: bu chiziqli funksiya ham emas.",
-      'В y = 6 : x икс в делителе: это даже не линейная функция.',
-      'In y = 6 : x the x is a divisor: not even a linear function.') },
+    {
+      when: (s) => s.bad.indexOf('i2') !== -1,
+      text: L(
+        "+3 bor, ya'ni grafik boshdan o'tmaydi: proporsionallik emas.",
+        'Есть +3, значит график не проходит через начало: это не пропорциональность.',
+        'The +3 keeps the graph off the origin: not proportion.'),
+    },
+    {
+      when: (s) => s.bad.indexOf('i3') !== -1,
+      text: L(
+        "x maxrajda: grafik to'g'ri chiziq bo'lmaydi.",
+        'x в знаменателе: график не будет прямой.',
+        'x sits below: the graph is not a line.'),
+    },
+    {
+      when: (s) => s.bad.indexOf('i1') !== -1,
+      text: L(
+        "y = −6x aynan y = kx ko'rinishida.",
+        'y = −6x именно вида y = kx.',
+        'y = −6x is exactly y = kx.'),
+    },
   ],
   wrongText: L(
-    "Har formulada ikki narsani tekshiring: ozod had bormi va x qayerda turadi.",
-    'В каждой формуле проверь два признака: есть ли свободный член и где стоит x.',
-    'Check two things in each: is there a free term, and where does x sit.'),
+    'Ozod had bormi? x qayerda turibdi -- suratdami, maxrajdami?',
+    'Есть ли свободный член? Где стоит x — в числителе или в знаменателе?',
+    'Is there a constant? Where is x, above or below?'),
 };
 
 export default function D37_04(props) { return <Zones data={DATA} {...props} />; }

@@ -1,46 +1,76 @@
-// Dars42 · Amaliyot 06 — Teng yonli uchburchak · 🟡 · build · tag: tri_isosceles
-// Mexanika: kit.jsx -> BuildLine. Raskladka: 6-o'rin.
-// Asos burchagi 70° -> ikkinchisi ham 70°, uchi 180 − 140 = 40°.
+// Dars42 · Amaliyot 06 — Uchinchi tomon · 🟡 · build · tag: eq_third_side
+// Mexanika: kit.jsx -> BuildLine. Raskladka: 6-o'rin `build`.
+// Teng uchburchaklarning perimetri teng: P = 30, ikki tomon 9 va 11 -> uchinchisi 10, ikkinchi uchburchakda ham 10.
 import React from 'react';
 import { BuildLine, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'tri_isosceles', level: '🟡',
-  eyebrow: L('Teng yonli', 'Равнобедренный', 'Isosceles'),
+  tag: 'eq_third_side',
+  level: '🟡',
+  eyebrow: L(
+    'Uchinchi tomon',
+    'Третья сторона',
+    'The third side'),
   setup: L(
-    "Teng yonli uchburchakda asosdagi ikki burchak teng. Ya'ni 70 gradus ikki marta hisobga olinadi.",
-    'В равнобедренном треугольнике два угла при основании равны. Значит 70 градусов учитывается дважды.',
-    'An isosceles triangle has equal base angles, so the 70 counts twice.'),
-  given: [['asos', 'burchagi', '=', '70°']],
-  givenLabel: L('Berilgan:', 'Дано:', 'Given:'),
+    "Uchburchaklar teng, ya'ni perimetrlari ham teng. Uchinchi tomonni toping va ikkinchi uchburchakdagi mos tomonni aytib bering.",
+    'Треугольники равны, значит равны и периметры. Найди третью сторону и назови соответственную во втором треугольнике.',
+    'The triangles are equal, so are their perimeters. Find the third side and name the matching one in the second triangle.'),
+  given: [['P = 30', ',', '9', ',', '11']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
   cards: [
-    { id: 'a', label: '180° − 140°' },
-    { id: 'b', label: '40°' },
-    { id: 'c', label: '180° − 70°' },
-    { id: 'd', label: '110°' },
+    { id: 'a', label: 'BC = 10' },
+    { id: 'b', label: 'B₁C₁ = 10' },
+    { id: 'c', label: 'BC = 20' },
+    { id: 'd', label: 'B₁C₁ = 30' },
   ],
   answerSeq: ['a', 'b'],
-  empty: L("Hisoblab yozing", 'Запиши вычисление', 'Write the working'),
-  ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+  fieldH: 44,
+  ask: L(
+    "Kartani bosish uni chiziqqa qo'yadi.",
+    'Нажатие на карточку ставит её в строку.',
+    'Tapping a card puts it in the line.'),
+  empty: L(
+    'Kartalarni bosib javobni tuzing',
+    'Нажимай карточки и собери ответ',
+    'Tap the cards to build the answer'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. Asosdagi ikki burchak 70 + 70 = 140, keyin 180 − 140 = 40.",
-    'Верно. Два угла при основании 70 + 70 = 140, потом 180 − 140 = 40.',
-    'Correct. The base angles give 70 + 70 = 140, then 180 − 140 = 40.'),
+    "To'g'ri. 30 − 9 − 11 = 10, va mos tomon ham 10 ga teng.",
+    'Верно. 30 − 9 − 11 = 10, и соответственная сторона тоже 10.',
+    'Correct. 30 − 9 − 11 = 10, and the matching side is 10 as well.'),
   wrongs: [
-    { when: (s) => s.seq.indexOf('c') !== -1 || s.seq.indexOf('d') !== -1, text: L(
-      "Asos burchagi IKKITA: 70 ni bir marta emas, ikki marta ayirish kerak.",
-      'Углов при основании ДВА: вычитать 70 надо дважды, а не один раз.',
-      'There are TWO base angles: subtract 70 twice, not once.') },
-    { when: (s) => s.seq.length < 2, text: L(
-      "Ikki bo'lak kerak: hisoblash va natija.",
-      'Нужны две части: вычисление и результат.',
-      'Two parts are needed: the working and the result.') },
+    {
+      when: (s) => s.seq.indexOf('c') !== -1,
+      text: L(
+        "20 bu 9 + 11, ya'ni ikki tomonning yig'indisi. Uchinchisi perimetrdan ayirish bilan chiqadi.",
+        '20 это 9 + 11, сумма двух сторон. Третья получается вычитанием из периметра.',
+        '20 is 9 + 11, the sum of two sides. The third comes from subtracting from the perimeter.'),
+    },
+    {
+      when: (s) => s.seq.indexOf('d') !== -1,
+      text: L(
+        '30 bu butun perimetr, bitta tomon emas.',
+        '30 это весь периметр, а не одна сторона.',
+        '30 is the whole perimeter, not one side.'),
+    },
+    {
+      when: (s) => s.seq.length < 2,
+      text: L(
+        'Ikki karta kerak.',
+        'Нужны две карточки.',
+        'Two cards are needed.'),
+    },
   ],
   wrongText: L(
-    "Teng yonli uchburchakda 70 gradusli burchak nechta?",
-    'Сколько углов по 70 градусов в равнобедренном треугольнике?',
-    'How many 70-degree angles does an isosceles triangle have?'),
+    "Perimetrdan ikki ma'lum tomonni ayiring, keyin moslikni yozing.",
+    'Вычти из периметра две известные стороны, потом запиши соответствие.',
+    'Subtract the two known sides from the perimeter, then write the correspondence.'),
 };
 
 export default function D42_06(props) { return <BuildLine data={DATA} {...props} />; }

@@ -1,44 +1,67 @@
-// Dars48 · Amaliyot 07 — Teskari masala · 🟡 · slots · tag: area_reverse
-// Mexanika: kit.jsx -> SlotsBank. Raskladka: 7-o'rin.
-// Uchburchak S = 24: asos 8 bo'lsa balandlik 6; balandlik 4 bo'lsa asos 12.
+// Dars48 · Amaliyot 07 — Tenglik va perimetr · 🟡 · slots · tag: rev_eq_perimeter
+// Mexanika: kit.jsx -> SlotsBank. Raskladka: 7-o'rin `slots`.
+// Teng uchburchaklar, P = 28, ikki tomon 8 va 9 -> uchinchisi 11; mos tomon ham 11.
 import React from 'react';
 import { SlotsBank, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'area_reverse', level: '🟡',
-  eyebrow: L('Teskari masala', 'Обратная задача', 'The reverse task'),
+  tag: 'rev_eq_perimeter',
+  level: '🟡',
+  eyebrow: L(
+    'Tenglik va perimetr',
+    'Равенство и периметр',
+    'Equality and perimeter'),
   setup: L(
-    "Yuza berilgan, asos yoki balandlik so'ralgan. S = a · h : 2 dan a · h = 2S, ya'ni ko'paytma 48 ga teng.",
-    'Дана площадь, спрашивается основание или высота. Из S = a · h : 2 выходит a · h = 2S, то есть произведение равно 48.',
-    'The area is given and a side is asked. From S = a · h : 2 we get a · h = 2S, so the product is 48.'),
-  given: [['S', '=', '24']],
-  givenLabel: L('Berilgan:', 'Дано:', 'Given:'),
-  rows: [
-    [{ t: ['asos', '=', '8', '→', 'balandlik', '='] }, { slot: 0 }],
-    [{ t: ['balandlik', '=', '4', '→', 'asos', '='] }, { slot: 1 }],
-  ],
-  cards: ['6', '12', '3', '20'],
-  answer: ['6', '12'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+    'Uchburchaklar teng. Uchinchi tomonni toping va ikkinchi uchburchakdagi mos tomonni yozing.',
+    'Треугольники равны. Найди третью сторону и запиши соответственную во втором треугольнике.',
+    'The triangles are equal. Find the third side and give the matching one in the second triangle.'),
+  given: [['P = 28', ',', '8', ',', '9']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
+  rows: [[{ t: ['uchinchi', '='] }, { slot: 0 }, { t: ['mos', 'tomon', '='] }, { slot: 1 }]],
+  cards: ['11', '11 ham', '17', '28'],
+  answer: ['11', '11 ham'],
+  ask: L(
+    'Kartani bosing, keyin uyani bosing.',
+    'Нажми карточку, затем клетку.',
+    'Tap a card, then tap a cell.'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. a · h = 48. Asos 8 bo'lsa balandlik 48 : 8 = 6; balandlik 4 bo'lsa asos 48 : 4 = 12.",
-    'Верно. a · h = 48. При основании 8 высота 48 : 8 = 6; при высоте 4 основание 48 : 4 = 12.',
-    'Correct. a · h = 48. With base 8 the height is 6; with height 4 the base is 12.'),
+    "To'g'ri. 28 − 8 − 9 = 11, va teng uchburchakda mos tomon ham 11.",
+    'Верно. 28 − 8 − 9 = 11, и в равном треугольнике соответственная сторона тоже 11.',
+    'Correct. 28 − 8 − 9 = 11, and the matching side of the equal triangle is 11 too.'),
   wrongs: [
-    { when: (s) => s.slots[0] === '3', text: L(
-      "3 chiqishi uchun 24 ni 8 ga bo'lgan. Lekin S da ikkiga bo'lish bor: a · h = 48, keyin 48 : 8 = 6.",
-      'Чтобы вышло 3, разделили 24 на 8. Но в S есть деление на два: a · h = 48, потом 48 : 8 = 6.',
-      'To get 3 the 24 was divided by 8. But S halves: a · h = 48, then 48 : 8 = 6.') },
-    { when: (s) => s.slots[1] === '20', text: L(
-      "20 emas: 48 : 4 = 12. Ko'paytma 48 ga teng bo'lishi kerak.",
-      'Не 20: 48 : 4 = 12. Произведение должно быть равно 48.',
-      'Not 20: 48 : 4 = 12. The product must be 48.') },
+    {
+      when: (s) => s.slots[0] === '17',
+      text: L(
+        '17 bu 8 + 9. Uchinchi tomon perimetrdan ayirish bilan chiqadi.',
+        '17 это 8 + 9. Третья сторона получается вычитанием из периметра.',
+        '17 is 8 + 9. The third side comes from subtracting from the perimeter.'),
+    },
+    {
+      when: (s) => s.slots[1] === '28',
+      text: L(
+        '28 bu perimetr, tomon emas.',
+        '28 это периметр, а не сторона.',
+        '28 is the perimeter, not a side.'),
+    },
+    {
+      when: (s) => s.slots.indexOf(null) !== -1,
+      text: L(
+        "Hamma uya to'ldirilishi kerak.",
+        'Надо заполнить все клетки.',
+        'Every cell must be filled.'),
+    },
   ],
   wrongText: L(
-    "Yuzani ikkiga ko'paytiring: asos va balandlik ko'paytmasi shuncha bo'ladi.",
-    'Умножь площадь на два: столько и будет произведение основания на высоту.',
-    'Double the area: that is the product of base and height.'),
+    "Perimetrdan ikki tomonni ayiring. Teng uchburchakda mos tomon o'sha son.",
+    'Вычти из периметра две стороны. В равном треугольнике соответственная сторона та же.',
+    'Subtract the two sides from the perimeter. The matching side keeps that value.'),
 };
 
 export default function D48_07(props) { return <SlotsBank data={DATA} {...props} />; }

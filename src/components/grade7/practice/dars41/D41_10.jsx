@@ -1,42 +1,67 @@
-// Dars41 · Amaliyot 10 — Ikki qadamli zanjir · 🔴 · chain · tag: ang_chain
-// Mexanika: kit.jsx -> SlotsBank (ikki qator). Raskladka: 10-o'rin.
-// 1-qator: 118° ning qo'shnisi 62°. 2-qator: 62° ning yarmi 31°.
+// Dars41 · Amaliyot 10 — Harf bilan · 🔴 · chain · tag: kind_letter_p
+// Mexanika: kit.jsx -> SlotsBank. Raskladka: 10-o'rin `chain`.
+// Tomonlar x, x va x + 4, P = 34: 3x + 4 = 34 -> x = 10, asos 14.
 import React from 'react';
 import { SlotsBank, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'ang_chain', level: '🔴',
-  eyebrow: L('Zanjir', 'Цепочка', 'A chain'),
+  tag: 'kind_letter_p',
+  level: '🔴',
+  eyebrow: L(
+    'Harf bilan',
+    'С буквой',
+    'With a letter'),
   setup: L(
-    "Avval qo'shni burchak topiladi, keyin uning bissektrisasi. Ikkinchi qadam birinchisining natijasi bilan ishlaydi.",
-    'Сначала находится смежный угол, потом его биссектриса. Второй шаг работает с результатом первого.',
-    'First the adjacent angle, then its bisector. The second step uses the first result.'),
-  rows: [
-    [{ t: ['118°', "qo'shnisi", '='] }, { slot: 0 }],
-    [{ t: ['uning', 'yarmi', '='] }, { slot: 1 }],
-  ],
-  cards: ['62°', '31°', '59°', '124°'],
-  answer: ['62°', '31°'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+    "Yon tomonlar x, asos esa x + 4. Ikki qatorni to'ldiring: avval x, keyin asos.",
+    'Боковые равны x, основание x + 4. Заполни две строки: сначала x, потом основание.',
+    'The legs are x and the base is x + 4. Fill both rows: x first, then the base.'),
+  given: [['x, x', 'va', 'x + 4', ';', 'P = 34']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
+  rows: [[{ t: ['x', '='] }, { slot: 0 }], [{ t: ['asos', '='] }, { slot: 1 }]],
+  cards: ['10', '14', '11', '34'],
+  answer: ['10', '14'],
+  ask: L(
+    'Kartani bosing, keyin uyani bosing.',
+    'Нажми карточку, затем клетку.',
+    'Tap a card, then tap a cell.'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. 180 − 118 = 62, keyin 62 : 2 = 31.",
-    'Верно. 180 − 118 = 62, потом 62 : 2 = 31.',
-    'Correct. 180 − 118 = 62, then 62 : 2 = 31.'),
+    "To'g'ri. x + x + x + 4 = 34, ya'ni 3x = 30 va x = 10. Asos 10 + 4 = 14.",
+    'Верно. x + x + x + 4 = 34, значит 3x = 30 и x = 10. Основание 10 + 4 = 14.',
+    'Correct. x + x + x + 4 = 34 gives 3x = 30 and x = 10. The base is 10 + 4 = 14.'),
   wrongs: [
-    { when: (s) => s.slots[1] === '59°', text: L(
-      "59 bu 118 : 2. Bissektrisa QO'SHNI burchakka qo'yilgan, ya'ni 62 ni ikkiga bo'lish kerak.",
-      '59 это 118 : 2. Биссектриса проведена в СМЕЖНОМ угле, значит делить надо 62.',
-      '59 is 118 : 2. The bisector belongs to the ADJACENT angle, so halve 62.') },
-    { when: (s) => s.slots[0] === '124°', text: L(
-      "124 emas: qo'shni burchak 180 dan ayirish bilan topiladi, 180 − 118 = 62.",
-      'Не 124: смежный угол находится вычитанием из 180, 180 − 118 = 62.',
-      'Not 124: the adjacent angle is 180 − 118 = 62.') },
+    {
+      when: (s) => s.slots[0] === '11',
+      text: L(
+        "11 chiqishi uchun 34 uchga bo'lingan, lekin +4 ayirilmagan: avval 34 − 4 = 30.",
+        'Чтобы вышло 11, разделили 34 на три, не вычтя +4: сначала 34 − 4 = 30.',
+        '11 divides 34 by three without removing the +4: first 34 − 4 = 30.'),
+    },
+    {
+      when: (s) => s.slots[1] === '10',
+      text: L(
+        '10 bu yon tomon. Asos undan 4 ga katta: 14.',
+        '10 это боковая сторона. Основание на 4 больше: 14.',
+        '10 is the leg. The base is 4 more: 14.'),
+    },
+    {
+      when: (s) => s.slots.indexOf(null) !== -1,
+      text: L(
+        "Hamma uya to'ldirilishi kerak.",
+        'Надо заполнить все клетки.',
+        'Every cell must be filled.'),
+    },
   ],
   wrongText: L(
-    "Birinchi qatorda 180 dan ayiring, keyin natijani ikkiga bo'ling.",
-    'В первой строке вычти из 180, потом раздели результат на два.',
-    'Subtract from 180 in the first row, then halve the result.'),
+    "Uch tomonni qo'shing: x + x + (x + 4). Yig'indi 34 ga teng.",
+    'Сложи три стороны: x + x + (x + 4). Сумма равна 34.',
+    'Add the three sides: x + x + (x + 4). The sum is 34.'),
 };
 
 export default function D41_10(props) { return <SlotsBank data={DATA} {...props} />; }

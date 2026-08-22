@@ -1,46 +1,76 @@
-// Dars48 · Amaliyot 10 — Yuza bo'yicha tomonni topish · 🔴 · build · tag: area_side
-// Mexanika: kit.jsx -> BuildLine. Raskladka: 10-o'rin.
-// To'rtburchak S = 45, bir tomon 9 -> ikkinchisi 45 : 9 = 5.
+// Dars48 · Amaliyot 10 — Teng yonli va tashqi burchak · 🔴 · build · tag: rev_iso_ext
+// Mexanika: kit.jsx -> BuildLine. Raskladka: 10-o'rin `build`.
+// Uchidagi burchak 40° -> asos burchagi 70° -> asosdagi tashqi burchak 180 − 70 = 110°.
 import React from 'react';
 import { BuildLine, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'area_side', level: '🔴',
-  eyebrow: L('Tomonni topish', 'Найти сторону', 'Find the side'),
+  tag: 'rev_iso_ext',
+  level: '🔴',
+  eyebrow: L(
+    'Uch fakt birga',
+    'Три факта вместе',
+    'Three facts at once'),
   setup: L(
-    "Yuza ko'paytma bo'lgani uchun tomonni topish uchun BO'LISH kerak. Perimetr bilan aralashtirmaslik kerak.",
-    'Так как площадь это произведение, для поиска стороны нужно ДЕЛЕНИЕ. Не путать с периметром.',
-    'Area is a product, so finding a side needs DIVISION. Do not confuse it with the perimeter.'),
-  given: [['S', '=', '45'], ['a', '=', '9']],
-  givenLabel: L('Berilgan:', 'Дано:', 'Given:'),
+    "Uch fakt ketma-ket ishlaydi: asosdagi burchaklar teng, yig'indi 180, tashqi burchak ichkisining qo'shnisi. Ikki javob kerak.",
+    'Три факта работают друг за другом: углы при основании равны, сумма 180, внешний угол смежен с внутренним. Нужны два ответа.',
+    'Three facts chain together: equal base angles, the 180 sum, and the exterior angle adjacent to the interior one.'),
+  given: [['uchidagi burchak = 40°']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
   cards: [
-    { id: 'a', label: '45 : 9' },
-    { id: 'b', label: '5' },
-    { id: 'c', label: '45 − 9' },
-    { id: 'd', label: '36' },
+    { id: 'a', label: 'asos burchagi 70°' },
+    { id: 'b', label: 'tashqi burchak 110°' },
+    { id: 'c', label: 'asos burchagi 140°' },
+    { id: 'd', label: 'tashqi burchak 140°' },
   ],
   answerSeq: ['a', 'b'],
-  empty: L("Hisoblab yozing", 'Запиши вычисление', 'Write the working'),
-  ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+  fieldH: 44,
+  ask: L(
+    "Kartani bosish uni chiziqqa qo'yadi.",
+    'Нажатие на карточку ставит её в строку.',
+    'Tapping a card puts it in the line.'),
+  empty: L(
+    'Kartalarni bosib javobni tuzing',
+    'Нажимай карточки и собери ответ',
+    'Tap the cards to build the answer'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. 45 : 9 = 5. Tekshirish: 9 · 5 = 45.",
-    'Верно. 45 : 9 = 5. Проверка: 9 · 5 = 45.',
-    'Correct. 45 : 9 = 5. Check: 9 · 5 = 45.'),
+    "To'g'ri. (180 − 40) : 2 = 70, keyin 180 − 70 = 110.",
+    'Верно. (180 − 40) : 2 = 70, затем 180 − 70 = 110.',
+    'Correct. (180 − 40) : 2 = 70, then 180 − 70 = 110.'),
   wrongs: [
-    { when: (s) => s.seq.indexOf('c') !== -1 || s.seq.indexOf('d') !== -1, text: L(
-      "Ayirish perimetr masalalarida ishlatiladi. Yuza ko'paytma, ya'ni teskarisi bo'lish.",
-      'Вычитание нужно в задачах на периметр. Площадь это произведение, значит обратное действие деление.',
-      'Subtraction belongs to perimeter tasks. Area is a product, so the inverse is division.') },
-    { when: (s) => s.seq.length < 2, text: L(
-      "Ikki bo'lak kerak: hisoblash va natija.",
-      'Нужны две части: вычисление и результат.',
-      'Two parts are needed: the working and the result.') },
+    {
+      when: (s) => s.seq.indexOf('c') !== -1,
+      text: L(
+        "140 bu ikki asos burchagining yig'indisi. Bittasi 70.",
+        '140 это сумма двух углов при основании. Один равен 70.',
+        '140 is the sum of both base angles. One of them is 70.'),
+    },
+    {
+      when: (s) => s.seq.indexOf('d') !== -1,
+      text: L(
+        "140 tashqi burchak emas: tashqi burchak 70 ning qo'shnisi, ya'ni 110.",
+        '140 не внешний угол: внешний смежен с 70, значит 110.',
+        '140 is not the exterior angle: it is adjacent to 70, hence 110.'),
+    },
+    {
+      when: (s) => s.seq.length < 2,
+      text: L(
+        'Ikki karta kerak.',
+        'Нужны две карточки.',
+        'Two cards are needed.'),
+    },
   ],
   wrongText: L(
-    "Yuza qanday topilgan edi? Teskari amal qanday?",
-    'Как находилась площадь? Каково обратное действие?',
-    'How was the area found? What is the inverse action?'),
+    "Avval asos burchagini toping, keyin uning qo'shnisini hisoblang.",
+    'Сначала найди угол при основании, потом его смежный.',
+    'Find the base angle first, then its adjacent angle.'),
 };
 
 export default function D48_10(props) { return <BuildLine data={DATA} {...props} />; }

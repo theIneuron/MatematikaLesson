@@ -1,42 +1,90 @@
 // Dars33 · Amaliyot 02 — Nuqta qayerda · 🟢 · choice · tag: point_where
-// Mexanika: kit.jsx -> Choice. Raskladka: 2-o'rin (isinish).
-// (0; −6): abssissa nol, ya'ni nuqta y o'qida yotadi (nolning pastida).
+// Mexanika: kit.jsx -> Choice. Raskladka: 2-o'rin `choice`.
+// DARAJA KO'TARILDI (metodist qarori 2026-08-22): sonlar ikki xonali va manfiy,
+// qadamlar soni ikkitadan boshlanadi -- PODXOD_7SINF.md 13-band.
+// (−18; 0) -- ordinata nol, ya'ni nuqta x o'qida, nolning chapida.
 import React from 'react';
 import { Choice, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'point_where', level: '🟢',
-  eyebrow: L('Nuqta qayerda', 'Где точка', 'Where the point is'),
+  tag: 'point_where',
+  level: '🟢',
+  eyebrow: L(
+    'Nuqta qayerda',
+    'Где точка',
+    'Where the point is'),
   setup: L(
-    "Nol koordinata nuqtani o'qqa olib chiqadi: abssissa nol bo'lsa nuqta y o'qida, ordinata nol bo'lsa x o'qida yotadi.",
-    'Нулевая координата выводит точку на ось: если абсцисса нуль, точка на оси y, если ордината нуль — на оси x.',
-    'A zero coordinate puts the point on an axis: zero abscissa means the y axis, zero ordinate the x axis.'),
-  expr: ['(0;', '−6)'], exprSize: 34,
-  ask: L('Bu nuqta qayerda yotadi?', 'Где лежит эта точка?', 'Where does this point lie?'),
+    "Koordinatalardan biri nol bo'lsa, nuqta o'qda yotadi. Qaysi o'qda -- shuni NOL bo'lgan koordinata hal qiladi.",
+    'Если одна из координат ноль, точка лежит на оси. На какой именно — решает та координата, что равна нулю.',
+    'A zero coordinate puts the point on an axis. Which axis is decided by which coordinate is zero.'),
+  given: [['(−18; 0)']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
+  ask: L(
+    'Bu nuqta qayerda yotadi?',
+    'Где лежит эта точка?',
+    'Where does this point lie?'),
   opts: [
-    { label: L('y o\'qida', 'На оси y', 'On the y axis') },
-    { label: L('x o\'qida', 'На оси x', 'On the x axis') },
-    { label: L('Ikkinchi chorakda', 'Во второй четверти', 'In the second quadrant') },
+    {
+      label: L(
+        "x o'qida, noldan chapda",
+        'На оси x, левее нуля',
+        'On the x axis, left of zero'),
+    },
+    {
+      label: L(
+        "y o'qida, noldan pastda",
+        'На оси y, ниже нуля',
+        'On the y axis, below zero'),
+    },
+    {
+      label: L(
+        'Uchinchi chorakda',
+        'В третьей четверти',
+        'In the third quadrant'),
+    },
+    {
+      label: L(
+        'Koordinatalar boshida',
+        'В начале координат',
+        'At the origin'),
+    },
   ],
   correct: 0,
+  optCols: 1,
   correctText: L(
-    "To'g'ri. Abssissa nol, ya'ni nuqta o'ngga ham chapga ham siljimaydi: u y o'qida, noldan olti pastda.",
-    'Верно. Абсцисса нуль, значит точка не сдвигается ни вправо, ни влево: она на оси y, на шесть ниже нуля.',
-    'Correct. The abscissa is zero, so no shift left or right: the point sits on the y axis, six below zero.'),
+    "To'g'ri. Ordinata nol -- nuqta x o'qida; abssissa manfiy -- noldan chapda.",
+    'Верно. Ордината ноль — точка на оси x; абсцисса отрицательная — левее нуля.',
+    'Correct. A zero ordinate puts it on the x axis; the negative abscissa puts it left of zero.'),
   wrongs: [
-    { when: (s) => s.picked === 1, text: L(
-      "x o'qida yotish uchun ORDINATA nol bo'lishi kerak. Bizda esa abssissa nol.",
-      'Чтобы лежать на оси x, нулём должна быть ОРДИНАТА. А у нас нуль абсцисса.',
-      'To sit on the x axis the ORDINATE must be zero. Here the abscissa is.') },
-    { when: (s) => s.picked === 2, text: L(
-      "Choraklarda yotish uchun ikki koordinata ham noldan farqli bo'lishi kerak.",
-      'Чтобы лежать в четверти, обе координаты должны быть отличны от нуля.',
-      'To lie in a quadrant both coordinates must be non-zero.') },
+    {
+      when: (s) => s.picked === 1,
+      text: L(
+        "y o'qida yotishi uchun ABSSISSA nol bo'lishi kerak. Bu yerda nol -- ordinata.",
+        'Чтобы лежать на оси y, нулём должна быть АБСЦИССА. Здесь ноль это ордината.',
+        'Lying on the y axis needs a zero ABSCISSA. Here the ordinate is zero.'),
+    },
+    {
+      when: (s) => s.picked === 2,
+      text: L(
+        'Chorakda yotish uchun ikki koordinata ham noldan farq qilishi kerak.',
+        'Чтобы лежать в четверти, обе координаты должны быть не нулевые.',
+        'A quadrant needs both coordinates non-zero.'),
+    },
+    {
+      when: (s) => s.picked === 3,
+      text: L(
+        'Koordinatalar boshi (0; 0). Bu yerda abssissa −18.',
+        'Начало координат это (0; 0). Здесь абсцисса −18.',
+        'The origin is (0; 0). Here the abscissa is −18.'),
+    },
   ],
   wrongText: L(
-    "Qaysi koordinata nol? Nol siljish qaysi o'q bo'ylab yo'q degani?",
-    'Какая координата нулевая? По какой оси нет сдвига?',
-    'Which coordinate is zero? Along which axis is there no shift?'),
+    "Qaysi koordinata nol? Nuqta shu koordinataga MOS BO'LMAGAN o'qda yotadi.",
+    'Какая координата ноль? Точка лежит на оси, которой эта координата НЕ соответствует.',
+    'Which coordinate is zero? The point sits on the other axis.'),
 };
 
 export default function D33_02(props) { return <Choice data={DATA} {...props} />; }

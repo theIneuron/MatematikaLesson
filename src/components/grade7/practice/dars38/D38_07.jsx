@@ -1,55 +1,76 @@
-// Dars38 · Amaliyot 07 — Uch qadam · 🟡 · order · tag: sys_order
-// Mexanika: kit.jsx -> BuildLine (tartib muhim). Raskladka: 7-o'rin.
-// y = x − 1 va y = 4: x − 1 = 4 -> x = 5 -> (5; 4).
+// Dars38 · Amaliyot 07 — Qadamlar tartibi · 🟡 · order · tag: sys_order
+// Mexanika: kit.jsx -> BuildLine. Raskladka: 7-o'rin `order`.
+// y = 3 − x va x + 2y = 4: x + 2(3 − x) = 4 -> x + 6 − 2x = 4 -> x = 2, y = 1.
 import React from 'react';
 import { BuildLine, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'sys_order', level: '🟡',
-  eyebrow: L('Uch qadam', 'Три шага', 'Three steps'),
+  tag: 'sys_order',
+  level: '🟡',
+  eyebrow: L(
+    'Qadamlar tartibi',
+    'Порядок шагов',
+    'Order of steps'),
   setup: L(
-    "Uch qadam: tenglama tuzish, x ni topish, javobni juftlik qilib yozish. Oxirgi qadam eng ko'p tashlab ketiladi.",
-    'Три шага: составить уравнение, найти x, записать ответ парой. Последний шаг забывают чаще всего.',
-    'Three steps: form the equation, find x, write the pair. The last step is the one most often skipped.'),
-  given: [['y', '=', 'x', '−', '1'], ['y', '=', '4']],
-  givenLabel: L('Sistema:', 'Система:', 'The system:'),
+    "Qo'yish usulining qadamlarini tartib bilan qo'ying: qo'yish, qavs ochish, javob.",
+    'Поставь по порядку шаги способа подстановки: подстановка, раскрытие скобки, ответ.',
+    'Order the substitution steps: substitute, open the bracket, answer.'),
+  given: [['y = 3 − x', ';', 'x + 2y = 4']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
   cards: [
-    { id: 'a', label: 'x − 1 = 4' },
-    { id: 'b', label: 'x = 5' },
-    { id: 'c', label: '(5; 4)' },
-    { id: 'd', label: 'x = 3' },
-    { id: 'e', label: '(4; 5)' },
+    { id: 'a', label: 'x + 2(3 − x) = 4' },
+    { id: 'b', label: 'x + 6 − 2x = 4' },
+    { id: 'c', label: 'x = 2, y = 1' },
+    { id: 'd', label: 'x + 3 − x = 4' },
+    { id: 'e', label: 'x = 2, y = 3' },
   ],
   answerSeq: ['a', 'b', 'c'],
-  empty: L("Uch qadamni tartib bilan qo'ying", 'Поставь три шага по порядку', 'Place the three steps in order'),
-  ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+  ask: L(
+    "Kartani bosish uni chiziqqa qo'yadi.",
+    'Нажатие на карточку ставит её в строку.',
+    'Tapping a card puts it in the line.'),
+  empty: L(
+    'Kartalarni bosib javobni tuzing',
+    'Нажимай карточки и собери ответ',
+    'Tap the cards to build the answer'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. x − 1 = 4 -> x = 5, yechim (5; 4). Javob juftlik bo'lishi kerak.",
-    'Верно. x − 1 = 4 → x = 5, решение (5; 4). Ответ должен быть парой.',
-    'Correct. x − 1 = 4 → x = 5, the solution is (5; 4). The answer must be a pair.'),
+    "To'g'ri. Qavs ochilgach −x = −2, ya'ni x = 2 va y = 3 − 2 = 1.",
+    'Верно. После раскрытия −x = −2, значит x = 2 и y = 3 − 2 = 1.',
+    'Correct. Opening gives −x = −2, so x = 2 and y = 3 − 2 = 1.'),
   wrongs: [
-    { when: (s) => s.seq.indexOf('d') !== -1, text: L(
-      "x = 3 emas: ko'chirishda 1 qo'shiladi, 4 + 1 = 5.",
-      'x не 3: при переносе единица прибавляется, 4 + 1 = 5.',
-      'x is not 3: moving the one adds it, 4 + 1 = 5.') },
-    { when: (s) => s.seq.indexOf('e') !== -1, text: L(
-      "(4; 5) da tartib buzilgan: birinchi o'rinda x = 5 turishi kerak.",
-      'В (4; 5) нарушен порядок: на первом месте должен стоять x = 5.',
-      'In (4; 5) the order is wrong: x = 5 comes first.') },
-    { when: (s) => s.seq.length === 3, text: L(
-      "Qadamlar to'g'ri, tartibi boshqa: tenglama, ildiz, juftlik.",
-      'Шаги верные, но порядок другой: уравнение, корень, пара.',
-      'The steps are right but the order is not: equation, root, pair.') },
-    { when: (s) => s.seq.length < 3, text: L(
-      "Uch qadam bo'lishi kerak, oxirgisi -- javob juftligi.",
-      'Должно быть три шага, последний это пара-ответ.',
-      'Three steps are needed, the last being the answer pair.') },
+    {
+      when: (s) => s.seq.indexOf('d') !== -1,
+      text: L(
+        'Koeffitsiyent 2 tashlab ketilgan: 2y = 2(3 − x).',
+        'Потерян коэффициент 2: 2y = 2(3 − x).',
+        'The coefficient 2 is lost: 2y = 2(3 − x).'),
+    },
+    {
+      when: (s) => s.seq.indexOf('e') !== -1,
+      text: L(
+        'y = 3 bu x = 0 dagi qiymat. x = 2 da y = 3 − 2 = 1.',
+        'y = 3 это значение при x = 0. При x = 2 y = 3 − 2 = 1.',
+        'y = 3 belongs to x = 0. At x = 2 we get y = 1.'),
+    },
+    {
+      when: (s) => s.seq.length < 3,
+      text: L(
+        'Uch karta kerak.',
+        'Нужны три карточки.',
+        'Three cards are needed.'),
+    },
   ],
   wrongText: L(
-    "y ni birinchi tenglamaga qo'ying, x ni toping, keyin javobni juftlik qilib yozing.",
-    'Подставь y в первое уравнение, найди x, потом запиши ответ парой.',
-    'Put y into the first equation, find x, then write the answer as a pair.'),
+    "y ni qavs bilan qo'ying va 2 ga ko'paytirishni unutmang.",
+    'Подставь y в скобках и не забудь умножить на 2.',
+    'Substitute y in brackets and remember the factor 2.'),
 };
 
 export default function D38_07(props) { return <BuildLine data={DATA} {...props} />; }

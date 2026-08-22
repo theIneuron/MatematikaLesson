@@ -1,12 +1,15 @@
-// Dars40 amaliyoti — 10 topshiriq. Mavzu: KESMA VA UZUNLIK.
+// Dars40 amaliyoti — 10 topshiriq. Mavzu: CHIZIQLAR VA BURCHAKLAR.
 // Topshiriq fayllarida FAQAT ma'lumot; mexanikalar `practice/kit.jsx` da,
 // qobiq `practice/PracticeHost.jsx` da (CLAUDE.md §5).
 //
 // MEXANIKALAR RASKLADKADAN: node scripts/grade7-practice-layout.mjs --json
+// 40-dars raskladkasi: choice, chain, slots, build, bracket, build, sort, order, build, fix
 // Raskladka nomlari mavjud mexanikalarga solishtirildi (metodist qarori
 // 2026-08-21): build/order/bracket -> BuildLine, slots/chain -> SlotsBank,
 // fix -> TapTerms, sort -> Zones, choice -> Choice (faqat isinish uchun).
-// 40-dars raskladkasi: choice, chain, slots, build, bracket, build, sort, order, build, fix
+//
+// MAVZU DARS BILAN SVERKA QILINDI (metodist qarori 2026-08-22): amaliyot
+// mavzusi `src/lessons/grade7.js` dagi nazariy darsning mavzusiga mos.
 
 import React, { useState } from 'react';
 import PracticeHost, { usePracticeZoom } from '../PracticeHost.jsx';
@@ -22,22 +25,22 @@ import D40_09 from './D40_09.jsx';
 import D40_10 from './D40_10.jsx';
 
 const HEAD = {
-  uz: "Dars 40 amaliyoti — 10 topshiriq (kesma va uzunlik)",
-  ru: 'Практика урока 40 — 10 заданий (отрезок и длина)',
-  en: 'Lesson 40 practice — 10 tasks (segments and length)',
+  uz: 'Dars 40 amaliyoti — 10 topshiriq (chiziqlar va burchaklar)',
+  ru: 'Практика урока 40 — 10 заданий (прямые и углы)',
+  en: 'Lesson 40 practice — 10 tasks (lines and angles)',
 };
 
 const ITEMS = [
-  { id: '01', label: { uz: "Qolgan bo'lak", ru: 'Остаток', en: 'The rest' }, C: D40_01 },  // choice 🟢 AB = 12, AC = 5
-  { id: '02', label: { uz: "O'rta nuqta", ru: 'Середина', en: 'Midpoint' }, C: D40_02 },  // chain 🟢 5 va 9
-  { id: '03', label: { uz: "Ikki nuqta", ru: 'Две точки', en: 'Two points' }, C: D40_03 },  // slots 🟢 AB = 24, AK = 5
-  { id: '04', label: { uz: "Bo'lakni topish", ru: 'Найти часть', en: 'Find the part' }, C: D40_04 },  // build 🟡 AB = 30, AC = 12
-  { id: '05', label: { uz: "Tenglik", ru: 'Равенство', en: 'Equality' }, C: D40_05 },  // bracket 🟡 AB = AC + CB
-  { id: '06', label: { uz: "Harf bilan", ru: 'С буквой', en: 'With a letter' }, C: D40_06 },  // build 🟡 3x + 12 = 27
-  { id: '07', label: { uz: "Uch holat", ru: 'Три случая', en: 'Three cases' }, C: D40_07 },  // sort 🟡 8 / 12 / 20
-  { id: '08', label: { uz: "Ikki marta yarim", ru: 'Дважды половина', en: 'Halved twice' }, C: D40_08 },  // order 🔴 AB = 36
-  { id: '09', label: { uz: "Nisbat", ru: 'Отношение', en: 'Ratio' }, C: D40_09 },  // build 🔴 2 : 3, AB = 25
-  { id: '10', label: { uz: "Xato hisob", ru: 'Неверный расчёт', en: 'Wrong figure' }, C: D40_10 },  // fix 🔴 CB = 21
+  { id: '01', label: { uz: "Qo'shni burchak", ru: 'Смежный угол', en: 'Adjacent angle' }, C: D40_01 },  // choice 🟢 ang_adjacent
+  { id: '02', label: { uz: 'Ikki qadam', ru: 'Два шага', en: 'Two steps' }, C: D40_02 },  // chain 🟢 ang_chain
+  { id: '03', label: { uz: "Kesma bo'laklari", ru: 'Части отрезка', en: 'Parts of a segment' }, C: D40_03 },  // slots 🟢 seg_slots
+  { id: '04', label: { uz: 'Vertikal burchaklar', ru: 'Вертикальные углы', en: 'Vertical angles' }, C: D40_04 },  // build 🟡 ang_vert_letter
+  { id: '05', label: { uz: 'Tenglamani yozish', ru: 'Записать уравнение', en: 'Write the equation' }, C: D40_05 },  // bracket 🟡 ang_equality
+  { id: '06', label: { uz: 'Bissektrisa', ru: 'Биссектриса', en: 'The bisector' }, C: D40_06 },  // build 🟡 ang_bisector
+  { id: '07', label: { uz: 'Uch juftlik', ru: 'Три пары', en: 'Three pairs' }, C: D40_07 },  // sort 🟡 ang_pair_zones
+  { id: '08', label: { uz: 'Uch qadam', ru: 'Три шага', en: 'Three steps' }, C: D40_08 },  // order 🔴 seg_half_twice
+  { id: '09', label: { uz: 'Nisbat bilan', ru: 'По отношению', en: 'By ratio' }, C: D40_09 },  // build 🔴 ang_ratio
+  { id: '10', label: { uz: 'Xato qadam', ru: 'Неверный шаг', en: 'The wrong step' }, C: D40_10 },  // fix 🔴 ang_fix
 ];
 
 export default function Dars40Practice({ lang = 'uz' }) {

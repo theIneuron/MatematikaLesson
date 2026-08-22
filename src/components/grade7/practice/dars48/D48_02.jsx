@@ -1,48 +1,71 @@
-// Dars48 · Amaliyot 02 — Formulani yozish · 🟢 · bracket · tag: area_formula
-// Mexanika: kit.jsx -> BuildLine (qavs kartalari). Raskladka: 2-o'rin.
-// Uchburchak yuzasi: S = a · h : 2.
+// Dars48 · Amaliyot 02 — Tenglikni yozish · 🟢 · bracket · tag: rev_bracket
+// Mexanika: kit.jsx -> BuildLine. Raskladka: 2-o'rin `bracket`.
+// Tashqi burchak = A + B (qolgan ikki ichki burchak).
 import React from 'react';
 import { BuildLine, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'area_formula', level: '🟢',
-  eyebrow: L('Uchburchak yuzasi', 'Площадь треугольника', 'Area of a triangle'),
+  tag: 'rev_bracket',
+  level: '🟢',
+  eyebrow: L(
+    'Tenglikni yozish',
+    'Записать равенство',
+    'Write the equality'),
   setup: L(
-    "Uchburchak to'rtburchakning yarmi bo'ladi: asos va balandlik ko'paytiriladi, keyin ikkiga bo'linadi.",
-    'Треугольник это половина прямоугольника: основание и высоту перемножают, потом делят на два.',
-    'A triangle is half a rectangle: multiply base by height, then halve.'),
+    "Tashqi burchakning xossasini yozing: u qaysi burchaklardan yig'iladi.",
+    'Запиши свойство внешнего угла: из каких углов он складывается.',
+    'Write the property of the exterior angle: which angles make it.'),
   cards: [
-    { id: 'a', label: 'S' },
-    { id: 'b', label: '= a · h : 2' },
-    { id: 'c', label: '= a · h' },
-    { id: 'd', label: '= a + h' },
+    { id: 'a', label: 'tashqi burchak' },
+    { id: 'b', label: '= A + B' },
+    { id: 'c', label: '= A + B + C' },
+    { id: 'd', label: '= C' },
   ],
   answerSeq: ['a', 'b'],
-  empty: L("Formulani tuzing", 'Составь формулу', 'Build the formula'),
-  ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+  fieldH: 44,
+  ask: L(
+    "Kartani bosish uni chiziqqa qo'yadi.",
+    'Нажатие на карточку ставит её в строку.',
+    'Tapping a card puts it in the line.'),
+  empty: L(
+    'Kartalarni bosib javobni tuzing',
+    'Нажимай карточки и собери ответ',
+    'Tap the cards to build the answer'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. S = a · h : 2. Ikkiga bo'lish shart: uchburchak to'rtburchakning yarmi.",
-    'Верно. S = a · h : 2. Деление на два обязательно: треугольник это половина прямоугольника.',
-    'Correct. S = a · h : 2. The halving matters: a triangle is half a rectangle.'),
+    "To'g'ri. Tashqi burchak o'ziga qo'shni bo'lmagan ikki ichki burchakning yig'indisiga teng.",
+    'Верно. Внешний угол равен сумме двух не смежных с ним внутренних углов.',
+    'Correct. The exterior angle equals the sum of the two non-adjacent interior angles.'),
   wrongs: [
-    { when: (s) => s.seq.indexOf('c') !== -1, text: L(
-      "a · h bu TO'RTBURCHAK yuzasi. Uchburchak uchun uni ikkiga bo'lish kerak.",
-      'a · h это площадь ПРЯМОУГОЛЬНИКА. Для треугольника надо разделить на два.',
-      'a · h is the RECTANGLE area. A triangle needs it halved.') },
-    { when: (s) => s.seq.indexOf('d') !== -1, text: L(
-      "Qo'shish yuza bermaydi: yuza uchun ko'paytirish kerak.",
-      'Сложение площади не даёт: для площади нужно умножение.',
-      'Adding gives no area: area needs multiplication.') },
-    { when: (s) => s.seq.length < 2, text: L(
-      "Formula ikki bo'lakdan iborat.",
-      'Формула состоит из двух частей.',
-      'The formula has two parts.') },
+    {
+      when: (s) => s.seq.indexOf('c') !== -1,
+      text: L(
+        "A + B + C = 180 -- butun yig'indi, tashqi burchak emas.",
+        'A + B + C = 180 это вся сумма, а не внешний угол.',
+        'A + B + C = 180 is the whole sum, not the exterior angle.'),
+    },
+    {
+      when: (s) => s.seq.indexOf('d') !== -1,
+      text: L(
+        "C tashqi burchakning qo'shnisi: ular birga 180 beradi, teng emas.",
+        'C смежный с внешним: вместе они дают 180, а не равны.',
+        'C is adjacent to the exterior: together they give 180, they are not equal.'),
+    },
+    {
+      when: (s) => s.seq.length < 2,
+      text: L(
+        'Ikki karta kerak.',
+        'Нужны две карточки.',
+        'Two cards are needed.'),
+    },
   ],
   wrongText: L(
-    "Uchburchak to'rtburchakning qanday qismi? Formulada bu qanday ko'rinadi?",
-    'Какую часть прямоугольника составляет треугольник? Как это видно в формуле?',
-    'What fraction of a rectangle is a triangle? How does the formula show it?'),
+    'Tashqi burchak 180 − C, va A + B ham 180 − C ga teng.',
+    'Внешний угол равен 180 − C, и A + B тоже равно 180 − C.',
+    'The exterior angle is 180 − C, and A + B equals 180 − C as well.'),
 };
 
 export default function D48_02(props) { return <BuildLine data={DATA} {...props} />; }

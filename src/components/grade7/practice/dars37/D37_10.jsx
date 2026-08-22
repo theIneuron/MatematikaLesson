@@ -1,46 +1,69 @@
-// Dars37 · Amaliyot 10 — Ikki qadamli zanjir · 🔴 · chain · tag: prop_chain
-// Mexanika: kit.jsx -> SlotsBank (ikki qator). Raskladka: 10-o'rin.
-// 1-qator: (2; 6) -> k = 3. 2-qator: x = 10 -> y = 30.
+// Dars37 · Amaliyot 10 — Kasr k bilan zanjir · 🔴 · chain · tag: prop_chain
+// Mexanika: kit.jsx -> SlotsBank. Raskladka: 10-o'rin `chain`.
+// DARAJA KO'TARILDI (metodist qarori 2026-08-22): manfiy va kasr koeffitsiyent,
+// ikki qadamli savol, yaqin tuzoq -- PODXOD_7SINF.md 13-band.
+// (2; −9): k = −4,5; keyin x = 6 da y = −27.
 import React from 'react';
 import { SlotsBank, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'prop_chain', level: '🔴',
-  eyebrow: L('Zanjir', 'Цепочка', 'A chain'),
+  tag: 'prop_chain',
+  level: '🔴',
+  eyebrow: L(
+    'Zanjir',
+    'Цепочка',
+    'A chain'),
   setup: L(
-    "Avval nuqtadan k topiladi, keyin shu k bilan boshqa qiymat hisoblanadi. Ikkinchi qator birinchisiga tayanadi.",
-    'Сначала по точке находится k, потом с этим k считается другое значение. Вторая строка опирается на первую.',
-    'First k is found from the point, then that k gives another value. The second row rests on the first.'),
-  rows: [
-    [{ t: ['(2;', '6)', '→', 'k', '='] }, { slot: 0 }],
-    [{ t: ['x', '=', '10', '→', 'y', '='] }, { slot: 1 }],
-  ],
-  cards: ['3', '30', '12', '10'],
-  answer: ['3', '30'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+    'Birinchi qatorda koeffitsiyent topiladi -- u kasr chiqadi. Ikkinchi qatorda esa yangi qiymat hisoblanadi.',
+    'В первой строке находим коэффициент — он выйдет дробным. Во второй считаем новое значение.',
+    'The first row finds the coefficient, which is fractional. The second computes a new value.'),
+  given: [['(2; −9)']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
+  rows: [[{ t: ['k', '='] }, { slot: 0 }], [{ t: ['x = 6', 'da', 'y', '='] }, { slot: 1 }]],
+  cards: ['−4,5', '−27', '4,5', '−18'],
+  answer: ['−4,5', '−27'],
+  ask: L(
+    'Kartani bosing, keyin uyani bosing.',
+    'Нажми карточку, затем клетку.',
+    'Tap a card, then tap a cell.'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. k = 6 : 2 = 3, ya'ni y = 3x. Keyin x = 10 da y = 30.",
-    'Верно. k = 6 : 2 = 3, значит y = 3x. Потом при x = 10 выходит y = 30.',
-    'Correct. k = 6 : 2 = 3, so y = 3x. Then x = 10 gives y = 30.'),
+    "To'g'ri. −9 : 2 = −4,5, keyin −4,5 · 6 = −27.",
+    'Верно. −9 : 2 = −4,5, затем −4,5 · 6 = −27.',
+    'Correct. −9 : 2 = −4.5, then −4.5 · 6 = −27.'),
   wrongs: [
-    { when: (s) => s.slots[0] === '12', text: L(
-      "12 bu 6 · 2. k ni topish uchun bo'lish kerak: 6 : 2 = 3.",
-      '12 это 6 · 2. Чтобы найти k, надо делить: 6 : 2 = 3.',
-      '12 is 6 · 2. Finding k needs division: 6 : 2 = 3.') },
-    { when: (s) => s.slots[1] === '10', text: L(
-      "10 bu x ning o'zi. y ni topish uchun uni k ga ko'paytirish kerak: 3 · 10 = 30.",
-      '10 это сам x. Чтобы найти y, его надо умножить на k: 3 · 10 = 30.',
-      '10 is x itself. To get y multiply by k: 3 · 10 = 30.') },
-    { when: (s) => s.slots[0] === '30' || s.slots[1] === '3', text: L(
-      "Qatorlar almashib ketdi: birinchi qatorda k, ikkinchisida y.",
-      'Строки перепутались: в первой k, во второй y.',
-      'The rows got swapped: k first, then y.') },
+    {
+      when: (s) => s.slots[0] === '4,5',
+      text: L(
+        "Ordinata manfiy, ya'ni k = −4,5.",
+        'Ордината отрицательная, значит k = −4,5.',
+        'The ordinate is negative, so k = −4.5.'),
+    },
+    {
+      when: (s) => s.slots[1] === '−18',
+      text: L(
+        "−18 chiqishi uchun k = −3 deb olingan. k = −4,5, ya'ni −4,5 · 6 = −27.",
+        'Чтобы вышло −18, брали k = −3. А k = −4,5, значит −4,5 · 6 = −27.',
+        '−18 uses k = −3. With k = −4.5 the value is −27.'),
+    },
+    {
+      when: (s) => s.slots.indexOf(null) !== -1,
+      text: L(
+        "Hamma uya to'ldirilishi kerak.",
+        'Надо заполнить все клетки.',
+        'Every cell must be filled.'),
+    },
   ],
   wrongText: L(
-    "Birinchi qatorda k ni bo'lish bilan toping, keyin uni x ga ko'paytiring.",
-    'В первой строке найди k делением, потом умножь его на x.',
-    'Find k by dividing in the first row, then multiply it by x.'),
+    "Avval −9 ni 2 ga bo'ling, keyin natijani 6 ga ko'paytiring.",
+    'Сначала раздели −9 на 2, потом умножь результат на 6.',
+    'Divide −9 by 2 first, then multiply by 6.'),
 };
 
 export default function D37_10(props) { return <SlotsBank data={DATA} {...props} />; }

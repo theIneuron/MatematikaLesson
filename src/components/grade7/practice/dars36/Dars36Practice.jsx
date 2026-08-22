@@ -3,12 +3,14 @@
 // qobiq `practice/PracticeHost.jsx` da (CLAUDE.md §5).
 //
 // MEXANIKALAR RASKLADKADAN: node scripts/grade7-practice-layout.mjs --json
+// 36-dars raskladkasi: choice, order, build, chain, sort, build, slots, build, bracket, fix
 // Raskladka nomlari mavjud mexanikalarga solishtirildi (metodist qarori
 // 2026-08-21): build/order/bracket -> BuildLine, slots/chain -> SlotsBank,
 // fix -> TapTerms, sort -> Zones, choice -> Choice (faqat isinish uchun).
-// 36-dars raskladkasi: choice, order, build, chain, sort, build, slots, build, bracket, fix
 //
-// Darsning O'Z misollari ((1; 3), (2; 1), (2; −3), (3; 2), (4; 2)) ataylab takrorlanmadi.
+// MAVZU DARS BILAN SVERKA QILINDI (metodist qarori 2026-08-22): amaliyot
+// mavzusi `src/lessons/grade7.js` dagi nazariy darsning mavzusiga mos.
+
 import React, { useState } from 'react';
 import PracticeHost, { usePracticeZoom } from '../PracticeHost.jsx';
 import D36_01 from './D36_01.jsx';
@@ -29,16 +31,16 @@ const HEAD = {
 };
 
 const ITEMS = [
-  { id: '01', label: { uz: "Nechta nuqta", ru: 'Сколько точек', en: 'How many points' }, C: D36_01 },  // choice 🟢 to'g'ri chiziq
-  { id: '02', label: { uz: "Qadamlar", ru: 'Шаги', en: 'Steps' }, C: D36_02 },  // order 🟢 y = 2x + 3
-  { id: '03', label: { uz: "Tekshirish", ru: 'Проверка', en: 'Check' }, C: D36_03 },  // build 🟢 (2; 7)
-  { id: '04', label: { uz: "Ikki savol", ru: 'Два вопроса', en: 'Two questions' }, C: D36_04 },  // chain 🟡 y = −x + 6
-  { id: '05', label: { uz: "Qaysi formula", ru: 'Какая формула', en: 'Which rule' }, C: D36_05 },  // sort 🟡 nuqta juftlari
-  { id: '06', label: { uz: "Grafikdan", ru: 'По графику', en: 'From graph' }, C: D36_06 },  // build 🟡 (0; −4), (2; 0)
-  { id: '07', label: { uz: "Jadval", ru: 'Таблица', en: 'Table' }, C: D36_07 },  // slots 🟡 y = 4 − x
-  { id: '08', label: { uz: "Manfiy x", ru: 'Отрицательный x', en: 'Negative x' }, C: D36_08 },  // build 🔴 y = 2x + 5
-  { id: '09', label: { uz: "x o'qi", ru: 'Ось x', en: 'The x axis' }, C: D36_09 },  // bracket 🔴 y = 3x − 12
-  { id: '10', label: { uz: "Xato bo'lak", ru: 'Неверная часть', en: 'Wrong part' }, C: D36_10 },  // fix 🔴 y = −2x + 1
+  { id: '01', label: { uz: 'Nechta nuqta', ru: 'Сколько точек', en: 'How many points' }, C: D36_01 },  // choice 🟢 how_many_points
+  { id: '02', label: { uz: 'Qurish qadamlari', ru: 'Шаги построения', en: 'Steps of drawing' }, C: D36_02 },  // order 🟢 draw_order
+  { id: '03', label: { uz: 'Nuqta grafikda', ru: 'Точка на графике', en: 'A point on the graph' }, C: D36_03 },  // build 🟢 point_on_line
+  { id: '04', label: { uz: 'Ikki savol', ru: 'Два вопроса', en: 'Two questions' }, C: D36_04 },  // chain 🟡 graph_chain
+  { id: '05', label: { uz: 'Uch juftlik', ru: 'Три пары', en: 'Three pairs' }, C: D36_05 },  // sort 🟡 graph_zones
+  { id: '06', label: { uz: 'Grafikdan formula', ru: 'Формула по графику', en: 'Formula from a graph' }, C: D36_06 },  // build 🟡 read_graph
+  { id: '07', label: { uz: 'Jadval', ru: 'Таблица', en: 'The table' }, C: D36_07 },  // slots 🟡 graph_table
+  { id: '08', label: { uz: 'Kesishish nuqtasi', ru: 'Точка пересечения', en: 'The crossing point' }, C: D36_08 },  // build 🔴 graph_cross
+  { id: '09', label: { uz: 'Tekshirish yozuvi', ru: 'Запись проверки', en: 'The check written out' }, C: D36_09 },  // bracket 🔴 graph_check_write
+  { id: '10', label: { uz: 'Xato qadam', ru: 'Неверный шаг', en: 'The wrong step' }, C: D36_10 },  // fix 🔴 graph_fix
 ];
 
 export default function Dars36Practice({ lang = 'uz' }) {

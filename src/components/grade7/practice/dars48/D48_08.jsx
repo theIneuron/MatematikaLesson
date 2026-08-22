@@ -1,53 +1,89 @@
-// Dars48 · Amaliyot 08 — Uch yuza · 🔴 · sort · tag: area_zones
-// Mexanika: kit.jsx -> Zones. Raskladka: 8-o'rin.
-// To'rtburchak 6 va 4 -> 24;  uchburchak asos 12 balandlik 8 -> 48;
-// uchburchak asos 6 balandlik 4 -> 12.
+// Dars48 · Amaliyot 08 — Uch to'plam, uch sabab · 🔴 · sort · tag: rev_zones
+// Mexanika: kit.jsx -> Zones. Raskladka: 8-o'rin `sort`.
+// 50/60/70 -> uchburchak bor; 90/60/40 = 190 -> yig'indi buzilgan; tomonlar 2, 3, 9 -> tengsizlik buzilgan.
 import React from 'react';
 import { Zones, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'area_zones', level: '🔴', itemSize: 17, zoneLbl: 68,
-  eyebrow: L('Uch yuza', 'Три площади', 'Three areas'),
+  tag: 'rev_zones',
+  level: '🔴',
+  eyebrow: L(
+    "Nega bo'lmaydi",
+    'Почему нельзя',
+    'Why not'),
   setup: L(
-    "Ikki xil shakl bor: to'rtburchakda ikkiga bo'lish yo'q, uchburchakda esa bor. Sonlar ataylab yaqin.",
-    'Здесь две разные фигуры: у прямоугольника деления на два нет, у треугольника есть. Числа специально близкие.',
-    'Two shapes: the rectangle has no halving, the triangle does. The numbers are deliberately close.'),
+    "Uchburchak ikki sababdan bo'lmasligi mumkin: burchaklar yig'indisi buzilsa yoki tomonlar tengsizligi buzilsa. Har to'plamni sababiga ko'ra joylashtiring.",
+    'Треугольника может не быть по двум причинам: нарушена сумма углов или нарушено неравенство сторон. Размести каждый набор по причине.',
+    'A triangle can fail for two reasons: the angle sum or the side inequality. Sort each set by its reason.'),
+  itemSize: 17,
+  zoneLbl: 112,
   zones: [
-    { id: 'z24', label: L('24', '24', '24') },
-    { id: 'z48', label: L('48', '48', '48') },
-    { id: 'z12', label: L('12', '12', '12') },
+    {
+      id: 'ze',
+      label: L(
+        'Uchburchak bor',
+        'Треугольник есть',
+        'It exists'),
+    },
+    {
+      id: 'zs',
+      label: L(
+        "Yig'indi buzilgan",
+        'Сумма нарушена',
+        'Sum broken'),
+    },
+    {
+      id: 'zi',
+      label: L(
+        'Tengsizlik buzilgan',
+        'Неравенство нарушено',
+        'Inequality broken'),
+    },
   ],
   items: [
-    { id: 'i1', tokens: ["to'rtburchak", '6', 'va', '4'], zone: 'z24' },
-    { id: 'i2', tokens: ['uchburchak', '12', 'va', '8'], zone: 'z48' },
-    { id: 'i3', tokens: ['uchburchak', '6', 'va', '4'], zone: 'z12' },
+    { id: 'i1', tokens: ['50°, 60°, 70°'], zone: 'ze' },
+    { id: 'i2', tokens: ['90°, 60°, 40°'], zone: 'zs' },
+    { id: 'i3', tokens: ['tomonlar 2, 3, 9'], zone: 'zi' },
   ],
-  ask: L('Kartani bosing, keyin zonani bosing. Zonadagi kartani bosish uni qaytarib oladi.',
+  bank: L(
+    "To'plamlar",
+    'Наборы',
+    'Sets'),
+  ask: L(
+    'Kartani bosing, keyin zonani bosing. Zonadagi kartani bosish uni qaytarib oladi.',
     'Нажми карточку, затем зону. Нажатие на карточку в зоне возвращает её обратно.',
     'Tap a card, then tap a zone. Tapping a card inside a zone takes it back.'),
-  bank: L('Shakllar', 'Фигуры', 'Shapes'),
   correctText: L(
-    "To'g'ri. 6 · 4 = 24 (to'rtburchak); 12 · 8 : 2 = 48; 6 · 4 : 2 = 12. Bir xil sonlar ikki xil natija berdi.",
-    'Верно. 6 · 4 = 24 (прямоугольник); 12 · 8 : 2 = 48; 6 · 4 : 2 = 12. Одни числа дали разные результаты.',
-    'Correct. 6 · 4 = 24 (rectangle); 12 · 8 : 2 = 48; 6 · 4 : 2 = 12. Same numbers, different results.'),
+    "To'g'ri. 50 + 60 + 70 = 180 -- bor; 90 + 60 + 40 = 190 -- yig'indi buzilgan; 2 + 3 = 5 < 9 -- tengsizlik buzilgan.",
+    'Верно. 50 + 60 + 70 = 180 — есть; 90 + 60 + 40 = 190 — нарушена сумма; 2 + 3 = 5 < 9 — нарушено неравенство.',
+    'Correct. 50 + 60 + 70 = 180 exists; 90 + 60 + 40 = 190 breaks the sum; 2 + 3 = 5 < 9 breaks the inequality.'),
   wrongs: [
-    { when: (s) => s.bad.indexOf('i3') !== -1, text: L(
-      "Uchburchakda ikkiga bo'lish bor: 6 · 4 : 2 = 12, 24 emas.",
-      'У треугольника есть деление на два: 6 · 4 : 2 = 12, а не 24.',
-      'A triangle halves: 6 · 4 : 2 = 12, not 24.') },
-    { when: (s) => s.bad.indexOf('i1') !== -1, text: L(
-      "To'rtburchakda ikkiga bo'lish yo'q: 6 · 4 = 24.",
-      'У прямоугольника деления на два нет: 6 · 4 = 24.',
-      'A rectangle does not halve: 6 · 4 = 24.') },
-    { when: (s) => s.bad.indexOf('i2') !== -1, text: L(
-      "12 · 8 = 96, ikkiga bo'linsa 48.",
-      '12 · 8 = 96, при делении на два выходит 48.',
-      '12 · 8 = 96, halved gives 48.') },
+    {
+      when: (s) => s.bad.indexOf('i1') !== -1,
+      text: L(
+        '50 + 60 + 70 = 180: shart bajarildi.',
+        '50 + 60 + 70 = 180: условие выполнено.',
+        '50 + 60 + 70 = 180: the condition holds.'),
+    },
+    {
+      when: (s) => s.bad.indexOf('i2') !== -1,
+      text: L(
+        "Bu yerda burchaklar berilgan, ya'ni yig'indi tekshiriladi: 190 ko'p.",
+        'Здесь даны углы, значит проверяется сумма: 190 это много.',
+        'Angles are given here, so the sum is tested: 190 is too much.'),
+    },
+    {
+      when: (s) => s.bad.indexOf('i3') !== -1,
+      text: L(
+        "Bu yerda tomonlar berilgan, ya'ni tengsizlik tekshiriladi: 2 + 3 < 9.",
+        'Здесь даны стороны, значит проверяется неравенство: 2 + 3 < 9.',
+        'Sides are given here, so the inequality is tested: 2 + 3 < 9.'),
+    },
   ],
   wrongText: L(
-    "Har shaklda ikkiga bo'lish kerakmi -- shuni tekshiring.",
-    'Проверь в каждой фигуре: нужно ли делить на два?',
-    'Check each shape: does it need halving?'),
+    "Avval qarang: to'plamda burchaklar bormi yoki tomonlar. Tekshirish shundan keyin tanlanadi.",
+    'Сначала посмотри: в наборе углы или стороны. Проверка выбирается уже потом.',
+    'First see whether the set holds angles or sides; the test follows from that.'),
 };
 
 export default function D48_08(props) { return <Zones data={DATA} {...props} />; }

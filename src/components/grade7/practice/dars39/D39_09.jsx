@@ -1,52 +1,91 @@
-// Dars39 · Amaliyot 09 — Uch natija · 🔴 · sort · tag: comb_zones
-// Mexanika: kit.jsx -> Zones. Raskladka: 9-o'rin.
-// 4 · 3 = 12;  3 · 3 = 9;  3 · 2 = 6. Sonlar yaqin, farqi tanlov turida.
+// Dars39 · Amaliyot 09 — Uch masala · 🔴 · sort · tag: comb_zones
+// Mexanika: kit.jsx -> Zones. Raskladka: 9-o'rin `sort`.
+// DARAJA KO'TARILDI (metodist qarori 2026-08-22): manfiy va kasr koeffitsiyent,
+// ikki qadamli savol, yaqin tuzoq -- PODXOD_7SINF.md 13-band.
+// 4 · 3 = 12 (takrorsiz); 4 · 4 = 16 (takrorli); 4 + 3 = 7 («yoki»). Sonlar yaqin, farqi shartda.
 import React from 'react';
 import { Zones, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'comb_zones', level: '🔴', itemSize: 22, zoneLbl: 74,
-  eyebrow: L('Uch natija', 'Три результата', 'Three results'),
+  tag: 'comb_zones',
+  level: '🔴',
+  eyebrow: L(
+    'Uch masala',
+    'Три задачи',
+    'Three tasks'),
   setup: L(
-    "Uch yozuvda sonlar yaqin. Har birini hisoblab, natijasiga qo'ying.",
-    'В трёх записях числа близкие. Посчитай каждую и поставь к своему результату.',
-    'The three records have close numbers. Work each out and place it.'),
+    'Uch masalada sonlar bir xil, shart esa boshqa: takrorlash mumkinmi, tanlov ketma-ketmi yoki «yoki»mi.',
+    'В трёх задачах числа одни и те же, а условие разное: можно ли повторять, идут выборы подряд или это «или».',
+    'The three tasks share numbers but differ in the condition: repeats allowed, choices in sequence, or an "or".'),
+  itemSize: 16,
+  zoneLbl: 100,
   zones: [
-    { id: 'z12', label: L('12', '12', '12') },
-    { id: 'z9', label: L('9', '9', '9') },
-    { id: 'z6', label: L('6', '6', '6') },
+    {
+      id: 'z1',
+      label: L(
+        '12',
+        '12',
+        '12'),
+    },
+    {
+      id: 'z2',
+      label: L(
+        '16',
+        '16',
+        '16'),
+    },
+    {
+      id: 'z3',
+      label: L(
+        '7',
+        '7',
+        '7'),
+    },
   ],
   items: [
-    { id: 'i1', tokens: ['4', '·', '3'], zone: 'z12' },
-    { id: 'i2', tokens: ['3', '·', '3'], zone: 'z9' },
-    { id: 'i3', tokens: ['3', '·', '2'], zone: 'z6' },
+    { id: 'i1', tokens: ['4 va 3, ketma-ket'], zone: 'z1' },
+    { id: 'i2', tokens: ['4 raqam, takror mumkin'], zone: 'z2' },
+    { id: 'i3', tokens: ["4 yoki 3 ta yo'l"], zone: 'z3' },
   ],
-  ask: L('Kartani bosing, keyin zonani bosing. Zonadagi kartani bosish uni qaytarib oladi.',
+  bank: L(
+    'Masalalar',
+    'Задачи',
+    'Tasks'),
+  ask: L(
+    'Kartani bosing, keyin zonani bosing. Zonadagi kartani bosish uni qaytarib oladi.',
     'Нажми карточку, затем зону. Нажатие на карточку в зоне возвращает её обратно.',
     'Tap a card, then tap a zone. Tapping a card inside a zone takes it back.'),
-  bank: L('Yozuvlar', 'Записи', 'Records'),
   correctText: L(
-    "To'g'ri. 4 · 3 = 12, 3 · 3 = 9, 3 · 2 = 6. Bitta ko'paytuvchi o'zgarsa natija ham o'zgaradi.",
-    'Верно. 4 · 3 = 12, 3 · 3 = 9, 3 · 2 = 6. Меняется один множитель — меняется и результат.',
-    'Correct. 4 · 3 = 12, 3 · 3 = 9, 3 · 2 = 6. One factor changes, the result changes.'),
+    "To'g'ri. Ketma-ket tanlov 4 · 3 = 12; takrorli ikki o'rin 4 · 4 = 16; «yoki» esa 4 + 3 = 7.",
+    'Верно. Подряд 4 · 3 = 12; с повторением два места 4 · 4 = 16; «или» это 4 + 3 = 7.',
+    'Correct. In sequence 4 · 3 = 12; two places with repeats 4 · 4 = 16; "or" gives 4 + 3 = 7.'),
   wrongs: [
-    { when: (s) => s.bad.indexOf('i1') !== -1, text: L(
-      "4 · 3 = 12: birinchi tanlovda to'rt variant bor.",
-      '4 · 3 = 12: в первом выборе четыре варианта.',
-      '4 · 3 = 12: the first choice has four options.') },
-    { when: (s) => s.bad.indexOf('i2') !== -1, text: L(
-      "3 · 3 = 9: ikki tanlov ham uch variantli, ya'ni takrorlash mumkin.",
-      '3 · 3 = 9: у обоих выборов три варианта, значит повтор разрешён.',
-      '3 · 3 = 9: both choices have three options, so repeats are allowed.') },
-    { when: (s) => s.bad.indexOf('i3') !== -1, text: L(
-      "3 · 2 = 6: ikkinchi qadamda variant bittaga kamaygan.",
-      '3 · 2 = 6: на втором шаге вариантов стало на один меньше.',
-      '3 · 2 = 6: the second step has one fewer option.') },
+    {
+      when: (s) => s.bad.indexOf('i3') !== -1,
+      text: L(
+        "«Yoki» -- bitta yo'l tanlanadi, ya'ni qo'shiladi: 4 + 3 = 7.",
+        '«Или» значит выбирается один путь, поэтому складываем: 4 + 3 = 7.',
+        '"Or" picks one path, so add: 4 + 3 = 7.'),
+    },
+    {
+      when: (s) => s.bad.indexOf('i2') !== -1,
+      text: L(
+        "Takrorlash mumkin bo'lsa ikkinchi o'rinda ham 4 variant: 16.",
+        'Если повторять можно, на втором месте тоже 4 варианта: 16.',
+        'With repeats the second place keeps 4 options: 16.'),
+    },
+    {
+      when: (s) => s.bad.indexOf('i1') !== -1,
+      text: L(
+        'Ketma-ket ikki bosqich: 4 · 3 = 12.',
+        'Два этапа подряд: 4 · 3 = 12.',
+        'Two stages in sequence: 4 · 3 = 12.'),
+    },
   ],
   wrongText: L(
-    "Har yozuvni oxirigacha hisoblang: ikki sonni ko'paytiring.",
-    'Досчитай каждую запись: перемножь два числа.',
-    'Finish each record: multiply the two numbers.'),
+    "Har masalada so'rang: takrorlash bormi, «va»mi yoki «yoki»mi.",
+    'Спроси о каждой задаче: есть ли повторения, это «и» или «или».',
+    'Ask of each task: repeats or not, "and" or "or".'),
 };
 
 export default function D39_09(props) { return <Zones data={DATA} {...props} />; }

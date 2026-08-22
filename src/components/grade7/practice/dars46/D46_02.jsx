@@ -1,45 +1,70 @@
-// Dars46 · Amaliyot 02 — Eng katta va eng kichik · 🟢 · chain · tag: side_chain
-// Mexanika: kit.jsx -> SlotsBank (ikki qator). Raskladka: 2-o'rin.
-// Burchaklar 80°, 60°, 40°: eng katta tomon 80° qarshisida,
-// eng kichigi 40° qarshisida.
+// Dars46 · Amaliyot 02 — Ikkinchi o'tkir burchak · 🟢 · chain · tag: rt_acute_chain
+// Mexanika: kit.jsx -> SlotsBank. Raskladka: 2-o'rin `chain`.
+// To'g'ri burchakli uchburchakda o'tkir burchaklar yig'indisi 90°: 35 -> 55. Eng katta tomon -- gipotenuza.
 import React from 'react';
 import { SlotsBank, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'side_chain', level: '🟢',
-  eyebrow: L('Eng katta va kichik', 'Наибольшая и наименьшая', 'Largest and smallest'),
+  tag: 'rt_acute_chain',
+  level: '🟢',
+  eyebrow: L(
+    'Ikki qadam',
+    'Два шага',
+    'Two steps'),
   setup: L(
-    "Uch burchak ma'lum. Tomonlar tartibi burchaklar tartibini takrorlaydi.",
-    'Известны три угла. Порядок сторон повторяет порядок углов.',
-    'The three angles are known. The order of sides follows the order of angles.'),
-  given: [['80°,', '60°,', '40°']],
-  givenLabel: L('Burchaklar:', 'Углы:', 'Angles:'),
+    "To'g'ri burchakli uchburchakda 90 gradus allaqachon olingan, ya'ni ikki o'tkir burchakka 90 gradus qoladi.",
+    'В прямоугольном треугольнике 90 градусов уже занято, значит на два острых угла остаётся 90 градусов.',
+    'A right triangle already spends 90 degrees, so the two acute angles share the remaining 90.'),
+  given: [["o'tkir burchak = 35°"]],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
   rows: [
-    [{ t: ['eng', 'katta', 'tomon', '--', 'qarshisida'] }, { slot: 0 }],
-    [{ t: ['eng', 'kichik', 'tomon', '--', 'qarshisida'] }, { slot: 1 }],
+    [{ t: ['ikkinchi', "o'tkir", 'burchak', '='] }, { slot: 0 }],
+    [{ t: ['eng', 'katta', 'tomon', '--'] }, { slot: 1 }],
   ],
-  cards: ['80°', '40°', '60°', '180°'],
-  answer: ['80°', '40°'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+  cards: ['55°', 'gipotenuza', '145°', 'katet'],
+  answer: ['55°', 'gipotenuza'],
+  ask: L(
+    'Kartani bosing, keyin uyani bosing.',
+    'Нажми карточку, затем клетку.',
+    'Tap a card, then tap a cell.'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. Eng katta tomon 80° qarshisida, eng kichigi 40° qarshisida yotadi.",
-    'Верно. Наибольшая сторона против 80°, наименьшая против 40°.',
-    'Correct. The largest side faces 80°, the smallest faces 40°.'),
+    "To'g'ri. 90 − 35 = 55. To'g'ri burchak eng katta bo'lgani uchun eng katta tomon gipotenuza.",
+    'Верно. 90 − 35 = 55. Прямой угол наибольший, поэтому наибольшая сторона это гипотенуза.',
+    'Correct. 90 − 35 = 55. The right angle is the largest, so the hypotenuse is the largest side.'),
   wrongs: [
-    { when: (s) => s.slots[0] === '40°' || s.slots[1] === '80°', text: L(
-      "Tartib teskari: katta burchak katta tomonni, kichik burchak kichik tomonni beradi.",
-      'Порядок перевёрнут: большой угол даёт большую сторону, малый — малую.',
-      'The order is reversed: a big angle gives a big side and a small one a small side.') },
-    { when: (s) => s.slots[0] === '60°' || s.slots[1] === '60°', text: L(
-      "60° o'rtadagi burchak: uning qarshisidagi tomon ham o'rtada bo'ladi.",
-      '60° это средний угол: сторона против него тоже средняя.',
-      '60° is the middle angle, so its side is the middle one.') },
+    {
+      when: (s) => s.slots[0] === '145°',
+      text: L(
+        "145 chiqishi uchun 180 dan ayirilgan. Lekin 90 allaqachon band: o'tkir burchaklarga 90 qoladi.",
+        'Чтобы вышло 145, вычли из 180. Но 90 уже занято: на острые остаётся 90.',
+        '145 subtracts from 180, but 90 is already used: the acute angles share 90.'),
+    },
+    {
+      when: (s) => s.slots[1] === 'katet',
+      text: L(
+        "Katet o'tkir burchak qarshisida: 35 va 55 gradus 90 dan kichik.",
+        'Катет лежит против острого угла: 35 и 55 меньше 90.',
+        'A leg faces an acute angle: 35 and 55 are below 90.'),
+    },
+    {
+      when: (s) => s.slots.indexOf(null) !== -1,
+      text: L(
+        "Hamma uya to'ldirilishi kerak.",
+        'Надо заполнить все клетки.',
+        'Every cell must be filled.'),
+    },
   ],
   wrongText: L(
-    "Uch burchakdan qaysi biri eng katta, qaysi biri eng kichik?",
-    'Какой из трёх углов наибольший, а какой наименьший?',
-    'Which of the three angles is largest and which smallest?'),
+    '90 dan berilgan burchakni ayiring, keyin eng katta burchakning qarshisiga qarang.',
+    'Вычти данный угол из 90, потом посмотри против наибольшего угла.',
+    'Subtract the given angle from 90, then look opposite the largest angle.'),
 };
 
 export default function D46_02(props) { return <SlotsBank data={DATA} {...props} />; }

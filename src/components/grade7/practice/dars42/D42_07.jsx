@@ -1,53 +1,89 @@
-// Dars42 · Amaliyot 07 — Uchburchak turlari · 🟡 · sort · tag: tri_zones
-// Mexanika: kit.jsx -> Zones. Raskladka: 7-o'rin.
-// 60/60/60 -> o'tkir burchakli; 90/45/45 -> to'g'ri burchakli;
-// 120/30/30 -> o'tmas burchakli.
+// Dars42 · Amaliyot 07 — Uch to'plam, uch alomat · 🟡 · sort · tag: eq_signs_zones
+// Mexanika: kit.jsx -> Zones. Raskladka: 7-o'rin `sort`.
+// 5, 7, orasidagi 40° -> ikki tomon va burchak; 6 va yopishgan 30°, 50° -> tomon va ikki burchak; 4, 6, 9 -> uch tomon.
 import React from 'react';
 import { Zones, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'tri_zones', level: '🟡', itemSize: 19, zoneLbl: 104,
-  eyebrow: L('Uchburchak turi', 'Вид треугольника', 'Kind of triangle'),
+  tag: 'eq_signs_zones',
+  level: '🟡',
+  eyebrow: L(
+    'Uch alomat',
+    'Три признака',
+    'Three criteria'),
   setup: L(
-    "Turi eng KATTA burchakka qarab aytiladi: uchtasi ham o'tkir bo'lsa o'tkir burchakli, biri to'g'ri bo'lsa to'g'ri burchakli.",
-    'Вид определяется по НАИБОЛЬШЕМУ углу: все острые — остроугольный, есть прямой — прямоугольный.',
-    'The kind follows the LARGEST angle: all acute means acute-angled, one right means right-angled.'),
+    "Har to'plam bitta alomatga to'g'ri keladi. Burchak tomonlar ORASIDA turgani yoki tomonga YOPISHGANI muhim.",
+    'Каждый набор отвечает одному признаку. Важно, стоит ли угол МЕЖДУ сторонами или ПРИЛЕЖИТ к стороне.',
+    'Each set matches one criterion. What matters is whether the angle sits BETWEEN sides or is ADJACENT to one.'),
+  itemSize: 18,
+  zoneLbl: 112,
   zones: [
-    { id: 'zo', label: L("O'tkir burchakli", 'Остроугольный', 'Acute-angled') },
-    { id: 'zt', label: L("To'g'ri burchakli", 'Прямоугольный', 'Right-angled') },
-    { id: 'zm', label: L("O'tmas burchakli", 'Тупоугольный', 'Obtuse-angled') },
+    {
+      id: 'z1',
+      label: L(
+        'Uch tomon',
+        'Три стороны',
+        'Three sides'),
+    },
+    {
+      id: 'z2',
+      label: L(
+        'Ikki tomon va burchak',
+        'Две стороны и угол',
+        'Two sides and angle'),
+    },
+    {
+      id: 'z3',
+      label: L(
+        'Tomon va ikki burchak',
+        'Сторона и два угла',
+        'Side and two angles'),
+    },
   ],
   items: [
-    { id: 'i1', tokens: ['60°', '60°', '60°'], zone: 'zo' },
-    { id: 'i2', tokens: ['90°', '45°', '45°'], zone: 'zt' },
-    { id: 'i3', tokens: ['120°', '30°', '30°'], zone: 'zm' },
+    { id: 'i1', tokens: ['4, 6, 9'], zone: 'z1' },
+    { id: 'i2', tokens: ['5, 7, orasidagi 40°'], zone: 'z2' },
+    { id: 'i3', tokens: ['6, yopishgan 30° va 50°'], zone: 'z3' },
   ],
-  ask: L('Kartani bosing, keyin zonani bosing. Zonadagi kartani bosish uni qaytarib oladi.',
+  bank: L(
+    "To'plamlar",
+    'Наборы',
+    'Sets'),
+  ask: L(
+    'Kartani bosing, keyin zonani bosing. Zonadagi kartani bosish uni qaytarib oladi.',
     'Нажми карточку, затем зону. Нажатие на карточку в зоне возвращает её обратно.',
     'Tap a card, then tap a zone. Tapping a card inside a zone takes it back.'),
-  bank: L('Uchburchaklar', 'Треугольники', 'Triangles'),
   correctText: L(
-    "To'g'ri. Uch to'plamda ham yig'indi 180, farq esa eng katta burchakda.",
-    'Верно. Во всех трёх наборах сумма 180, а разница в наибольшем угле.',
-    'Correct. All three sum to 180; the difference is in the largest angle.'),
+    "To'g'ri. Uch son -- uch tomon; ikki tomon va orasidagi burchak; bitta tomon va unga yopishgan ikki burchak.",
+    'Верно. Три числа это три стороны; две стороны и угол между ними; одна сторона и два прилежащих угла.',
+    'Correct. Three numbers are three sides; two sides with the included angle; one side with two adjacent angles.'),
   wrongs: [
-    { when: (s) => s.bad.indexOf('i3') !== -1, text: L(
-      "120 > 90, ya'ni bu o'tmas burchakli uchburchak. Bitta o'tmas burchak yetadi.",
-      '120 > 90, значит это тупоугольный треугольник. Одного тупого угла достаточно.',
-      '120 > 90, so obtuse-angled. One obtuse angle is enough.') },
-    { when: (s) => s.bad.indexOf('i2') !== -1, text: L(
-      "90 gradusli burchak bor, ya'ni to'g'ri burchakli uchburchak.",
-      'Есть угол 90 градусов, значит прямоугольный треугольник.',
-      'There is a 90-degree angle, so right-angled.') },
-    { when: (s) => s.bad.indexOf('i1') !== -1, text: L(
-      "Uch burchak ham 90 dan kichik: o'tkir burchakli uchburchak.",
-      'Все три угла меньше 90: остроугольный треугольник.',
-      'All three are under 90: acute-angled.') },
+    {
+      when: (s) => s.bad.indexOf('i1') !== -1,
+      text: L(
+        "4, 6, 9 -- uchtasi ham tomon, burchak yo'q.",
+        '4, 6, 9 это три стороны, углов нет.',
+        '4, 6, 9 are three sides with no angle.'),
+    },
+    {
+      when: (s) => s.bad.indexOf('i2') !== -1,
+      text: L(
+        'Bu yerda ikki tomon va ular ORASIDAGI burchak berilgan.',
+        'Здесь две стороны и угол МЕЖДУ ними.',
+        'Here we have two sides and the angle BETWEEN them.'),
+    },
+    {
+      when: (s) => s.bad.indexOf('i3') !== -1,
+      text: L(
+        'Bitta tomon va unga YOPISHGAN ikki burchak -- uchinchi alomat.',
+        'Одна сторона и два ПРИЛЕЖАЩИХ к ней угла это третий признак.',
+        'One side with two ADJACENT angles is the third criterion.'),
+    },
   ],
   wrongText: L(
-    "Har to'plamda eng katta burchakni toping va uni 90 bilan solishtiring.",
-    'В каждом наборе найди наибольший угол и сравни с 90.',
-    'Find the largest angle in each set and compare with 90.'),
+    "Har to'plamda nechta tomon va nechta burchak borligini sanang.",
+    'Посчитай в каждом наборе число сторон и число углов.',
+    'Count the sides and the angles in each set.'),
 };
 
 export default function D42_07(props) { return <Zones data={DATA} {...props} />; }

@@ -1,46 +1,78 @@
-// Dars35 · Amaliyot 07 — Kesish nuqtasi · 🟡 · bracket · tag: lin_cross
-// Mexanika: kit.jsx -> BuildLine (qavs kartalari). Raskladka: 7-o'rin.
-// y = 7x − 9: y o'qini (0; −9) nuqtasida kesadi.
+// Dars35 · Amaliyot 07 — x o'qini kesish · 🟡 · bracket · tag: lin_cross
+// Mexanika: kit.jsx -> BuildLine. Raskladka: 7-o'rin `bracket`.
+// DARAJA KO'TARILDI (metodist qarori 2026-08-22): k manfiy va kasr bo'ladi,
+// savol ikki qadamli -- PODXOD_7SINF.md 13-band.
+// y = 5x − 45: y = 0 da 5x = 45, x = 9, nuqta (9; 0).
 import React from 'react';
 import { BuildLine, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'lin_cross', level: '🟡',
-  eyebrow: L('Kesish nuqtasi', 'Точка пересечения', 'The crossing point'),
+  tag: 'lin_cross',
+  level: '🟡',
+  eyebrow: L(
+    "x o'qini kesish",
+    'Пересечение с осью x',
+    'The x intercept'),
   setup: L(
-    "Grafik y o'qini x = 0 bo'lgan joyda kesadi. U yerda y faqat ozod hadga teng bo'ladi.",
-    'График пересекает ось y там, где x = 0. В этой точке y равен свободному члену.',
-    'The graph meets the y axis where x = 0. There y equals the free term.'),
-  given: [['y', '=', '7x', '−', '9']],
-  givenLabel: L('Formula:', 'Формула:', 'The rule:'),
+    "x o'qida ordinata nol. Shuning uchun y ni nolga tenglashtirib x topiladi, keyin nuqta yoziladi.",
+    'На оси x ордината ноль. Поэтому приравниваем y к нулю, находим x и записываем точку.',
+    'On the x axis the ordinate is zero, so set y to zero, find x and write the point.'),
+  given: [['y = 5x − 45']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
   cards: [
-    { id: 'a', label: '(0;' },
-    { id: 'b', label: '−9)' },
-    { id: 'c', label: '(−9;' },
-    { id: 'd', label: '0)' },
+    { id: 'a', label: '(9;' },
+    { id: 'b', label: '0)' },
+    { id: 'c', label: '(0;' },
+    { id: 'd', label: '−45)' },
   ],
   answerSeq: ['a', 'b'],
-  empty: L("Nuqtaning yozuvini tuzing", 'Составь запись точки', 'Build the point record'),
-  ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+  fieldH: 44,
+  ask: L(
+    "Kartani bosish uni chiziqqa qo'yadi.",
+    'Нажатие на карточку ставит её в строку.',
+    'Tapping a card puts it in the line.'),
+  empty: L(
+    'Kartalarni bosib javobni tuzing',
+    'Нажимай карточки и собери ответ',
+    'Tap the cards to build the answer'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. x = 0 bo'lganda y = −9, ya'ni nuqta (0; −9).",
-    'Верно. При x = 0 выходит y = −9, значит точка (0; −9).',
-    'Correct. At x = 0, y = −9, so the point is (0; −9).'),
+    "To'g'ri. 5x − 45 = 0 dan x = 9, ya'ni nuqta (9; 0).",
+    'Верно. Из 5x − 45 = 0 следует x = 9, значит точка (9; 0).',
+    'Correct. 5x − 45 = 0 gives x = 9, so the point is (9; 0).'),
   wrongs: [
-    { when: (s) => s.seq.indexOf('c') !== -1 || s.seq.indexOf('d') !== -1, text: L(
-      "(−9; 0) bu x o'qidagi nuqta. y o'qida abssissa nol bo'ladi, ya'ni nol BIRINCHI o'rinda.",
-      '(−9; 0) это точка на оси x. На оси y нулём является абсцисса, значит нуль ПЕРВЫЙ.',
-      '(−9; 0) sits on the x axis. On the y axis the abscissa is zero, so the zero comes FIRST.') },
-    { when: (s) => s.seq.length < 2, text: L(
-      "Yozuv ikki bo'lakdan iborat.",
-      'Запись состоит из двух частей.',
-      'The record has two parts.') },
+    {
+      when: (s) => s.seq.indexOf('c') !== -1 && s.seq.indexOf('d') !== -1,
+      text: L(
+        "(0; −45) -- bu y o'qini kesish nuqtasi. Bizga x o'qi kerak.",
+        '(0; −45) это пересечение с осью y. А нам нужна ось x.',
+        '(0; −45) is the y intercept. We need the x axis.'),
+    },
+    {
+      when: (s) => s.seq.indexOf('c') !== -1,
+      text: L(
+        "x o'qidagi nuqtada BIRINCHI son noldan farq qiladi, ikkinchisi nol.",
+        'У точки на оси x первое число не ноль, а второе ноль.',
+        'On the x axis the first number is non-zero and the second is zero.'),
+    },
+    {
+      when: (s) => s.seq.length < 2,
+      text: L(
+        'Ikki karta kerak.',
+        'Нужны две карточки.',
+        'Two cards are needed.'),
+    },
   ],
   wrongText: L(
-    "y o'qida qaysi koordinata nol bo'ladi?",
-    'Какая координата равна нулю на оси y?',
-    'Which coordinate is zero on the y axis?'),
+    'y ni nolga tenglashtirib tenglamani yeching.',
+    'Приравняй y к нулю и решай уравнение.',
+    'Set y to zero and solve.'),
 };
 
 export default function D35_07(props) { return <BuildLine data={DATA} {...props} />; }

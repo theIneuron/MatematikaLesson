@@ -1,38 +1,60 @@
 // Dars37 · Amaliyot 02 — Qaysi biri proporsionallik · 🟢 · choice · tag: which_prop
-// Mexanika: kit.jsx -> Choice. Raskladka: 2-o'rin (isinish).
-// y = 7x -- to'g'ri proporsionallik. y = 7x + 1 da ozod had bor,
-// y = 7 : x da esa x bo'luvchi -- ikkovi ham proporsionallik emas.
+// Mexanika: kit.jsx -> Choice. Raskladka: 2-o'rin `choice`.
+// DARAJA KO'TARILDI (metodist qarori 2026-08-22): manfiy va kasr koeffitsiyent,
+// ikki qadamli savol, yaqin tuzoq -- PODXOD_7SINF.md 13-band.
+// y = −7x -- to'g'ri proporsionallik. y = −7x + 1 da ozod had bor, y = 7 : x va y = x² esa boshqa turdagi bog'lanish.
 import React from 'react';
 import { Choice, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'which_prop', level: '🟢', optCols: 3,
-  eyebrow: L('Qaysi biri', 'Какая из них', 'Which one'),
+  tag: 'which_prop',
+  level: '🟢',
+  eyebrow: L(
+    'Qaysi biri',
+    'Какая из них',
+    'Which one'),
   setup: L(
-    "To'g'ri proporsionallik y = kx ko'rinishida bo'ladi: ozod had yo'q va x bo'luvchida turmaydi.",
-    'Прямая пропорциональность имеет вид y = kx: свободного члена нет и x не стоит в делителе.',
-    'Direct proportion looks like y = kx: no free term and x is not a divisor.'),
-  ask: L("Qaysi formula to'g'ri proporsionallik?", 'Какая формула это прямая пропорциональность?', 'Which rule is a direct proportion?'),
-  opts: [{ label: ['y', '=', '7x'] }, { label: ['y', '=', '7x', '+', '1'] }, { label: ['y', '=', '7', ':', 'x'] }],
+    "To'g'ri proporsionallik faqat y = kx ko'rinishida bo'ladi: ozod had yo'q, x maxrajda ham, darajada ham turmaydi.",
+    'Прямая пропорциональность это только вид y = kx: без свободного члена, x не в знаменателе и не в степени.',
+    'Direct proportion means y = kx only: no constant, and x neither in a denominator nor a power.'),
+  ask: L(
+    "Qaysi biri to'g'ri proporsionallik?",
+    'Какая из них прямая пропорциональность?',
+    'Which one is direct proportion?'),
+  opts: [{ label: 'y = −7x' }, { label: 'y = −7x + 1' }, { label: 'y = 7 : x' }, { label: 'y = x²' }],
   correct: 0,
+  optCols: 2,
   correctText: L(
-    "To'g'ri. y = 7x da faqat k bor, ozod had yo'q: grafik koordinatalar boshidan o'tadi.",
-    'Верно. В y = 7x есть только k, свободного члена нет: график проходит через начало координат.',
-    'Correct. y = 7x has only k and no free term: the graph passes through the origin.'),
+    "To'g'ri. y = −7x aynan y = kx ko'rinishida, k manfiy bo'lishi mumkin.",
+    'Верно. y = −7x именно вида y = kx, а k может быть отрицательным.',
+    'Correct. y = −7x is exactly y = kx, and k may be negative.'),
   wrongs: [
-    { when: (s) => s.picked === 1, text: L(
-      "y = 7x + 1 chiziqli, lekin proporsionallik emas: ozod had bor, ya'ni grafik boshdan o'tmaydi.",
-      'y = 7x + 1 линейная, но не пропорциональность: есть свободный член, значит график не проходит через начало.',
-      'y = 7x + 1 is linear but not a proportion: the free term shifts it off the origin.') },
-    { when: (s) => s.picked === 2, text: L(
-      "y = 7 : x da x bo'luvchida turibdi: x oshsa y KAMAYADI. Bu boshqa bog'lanish.",
-      'В y = 7 : x икс стоит в делителе: с ростом x значение y УБЫВАЕТ. Это другая зависимость.',
-      'In y = 7 : x the x is a divisor: as x grows y FALLS. A different relationship.') },
+    {
+      when: (s) => s.picked === 1,
+      text: L(
+        "+1 ozod had. U bo'lsa grafik koordinatalar boshidan o'tmaydi.",
+        '+1 это свободный член. С ним график не проходит через начало координат.',
+        'The +1 is a constant. With it the graph misses the origin.'),
+    },
+    {
+      when: (s) => s.picked === 2,
+      text: L(
+        "y = 7 : x da x maxrajda: x o'sganda y KAMAYADI, bu boshqa bog'lanish.",
+        'В y = 7 : x икс в знаменателе: с ростом x значение УБЫВАЕТ, это другая связь.',
+        'In y = 7 : x the x sits below: growing x lowers y, a different relation.'),
+    },
+    {
+      when: (s) => s.picked === 3,
+      text: L(
+        "y = x² da x darajada. Proporsionallikda x birinchi darajada bo'ladi.",
+        'В y = x² икс в степени. В пропорциональности x в первой степени.',
+        'In y = x² the x is squared. Proportion keeps x to the first power.'),
+    },
   ],
   wrongText: L(
-    "Ozod had bormi? x bo'luvchida turadimi? Ikki savol formulani ajratadi.",
-    'Есть ли свободный член? Стоит ли x в делителе? Два вопроса всё различают.',
-    'Is there a free term? Is x a divisor? Those two questions decide.'),
+    "y = kx ko'rinishiga aynan tushadigan yozuvni tanlang.",
+    'Выбери запись, которая точно ложится в вид y = kx.',
+    'Pick the record that fits y = kx exactly.'),
 };
 
 export default function D37_02(props) { return <Choice data={DATA} {...props} />; }

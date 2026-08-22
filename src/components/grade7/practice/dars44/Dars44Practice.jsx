@@ -1,12 +1,15 @@
-// Dars44 amaliyoti — 10 topshiriq. Mavzu: TENG YONLI UCHBURCHAK.
+// Dars44 amaliyoti — 10 topshiriq. Mavzu: UCHBURCHAK BURCHAKLARINING YIG'INDISI.
 // Topshiriq fayllarida FAQAT ma'lumot; mexanikalar `practice/kit.jsx` da,
 // qobiq `practice/PracticeHost.jsx` da (CLAUDE.md §5).
 //
 // MEXANIKALAR RASKLADKADAN: node scripts/grade7-practice-layout.mjs --json
+// 44-dars raskladkasi: choice, bracket, slots, fix, order, build, sort, chain, bracket, build
 // Raskladka nomlari mavjud mexanikalarga solishtirildi (metodist qarori
 // 2026-08-21): build/order/bracket -> BuildLine, slots/chain -> SlotsBank,
 // fix -> TapTerms, sort -> Zones, choice -> Choice (faqat isinish uchun).
-// 44-dars raskladkasi: choice, bracket, slots, fix, order, build, sort, chain, bracket, build
+//
+// MAVZU DARS BILAN SVERKA QILINDI (metodist qarori 2026-08-22): amaliyot
+// mavzusi `src/lessons/grade7.js` dagi nazariy darsning mavzusiga mos.
 
 import React, { useState } from 'react';
 import PracticeHost, { usePracticeZoom } from '../PracticeHost.jsx';
@@ -22,22 +25,22 @@ import D44_09 from './D44_09.jsx';
 import D44_10 from './D44_10.jsx';
 
 const HEAD = {
-  uz: "Dars 44 amaliyoti — 10 topshiriq (teng yonli uchburchak)",
-  ru: 'Практика урока 44 — 10 заданий (равнобедренный треугольник)',
-  en: 'Lesson 44 practice — 10 tasks (the isosceles triangle)',
+  uz: "Dars 44 amaliyoti — 10 topshiriq (uchburchak burchaklarining yig'indisi)",
+  ru: 'Практика урока 44 — 10 заданий (сумма углов треугольника)',
+  en: 'Lesson 44 practice — 10 tasks (the angle sum)',
 };
 
 const ITEMS = [
-  { id: '01', label: { uz: "Asos burchaklari", ru: 'Углы при основании', en: 'Base angles' }, C: D44_01 },  // choice 🟢 teng
-  { id: '02', label: { uz: "Tenglik", ru: 'Равенство', en: 'Equality' }, C: D44_02 },  // bracket 🟢 ∠A = ∠C
-  { id: '03', label: { uz: "Ikki burchak", ru: 'Два угла', en: 'Two angles' }, C: D44_03 },  // slots 🟢 asos 40°
-  { id: '04', label: { uz: "Xato yozuv", ru: 'Неверная запись', en: 'Wrong record' }, C: D44_04 },  // fix 🟡 uchi 100°
-  { id: '05', label: { uz: "Uch qadam", ru: 'Три шага', en: 'Three steps' }, C: D44_05 },  // order 🟡 uchi 36°
-  { id: '06', label: { uz: "Uchidagi burchak", ru: 'Угол при вершине', en: 'Apex angle' }, C: D44_06 },  // build 🟡 asos 65°
-  { id: '07', label: { uz: "Uch holat", ru: 'Три случая', en: 'Three cases' }, C: D44_07 },  // sort 🟡 40 / 80 / 60
-  { id: '08', label: { uz: "Uchi ikki barobar", ru: 'Вершина вдвое', en: 'Apex twice' }, C: D44_08 },  // chain 🔴 4x = 180°
-  { id: '09', label: { uz: "Perimetr formulasi", ru: 'Формула периметра', en: 'Perimeter formula' }, C: D44_09 },  // bracket 🔴 P = 2a + b
-  { id: '10', label: { uz: "Asosni topish", ru: 'Найти основание', en: 'Find the base' }, C: D44_10 },  // build 🔴 P = 50, yon 15
+  { id: '01', label: { uz: "Burchaklar yig'indisi", ru: 'Сумма углов', en: 'Sum of angles' }, C: D44_01 },  // choice 🟢 sum_value
+  { id: '02', label: { uz: 'Tenglikni yozish', ru: 'Записать равенство', en: 'Write the equality' }, C: D44_02 },  // bracket 🟢 sum_bracket
+  { id: '03', label: { uz: 'Uchinchi burchak', ru: 'Третий угол', en: 'The third angle' }, C: D44_03 },  // slots 🟢 sum_third_ext
+  { id: '04', label: { uz: 'Bunday uchburchak', ru: 'Такой треугольник', en: 'Such a triangle' }, C: D44_04 },  // fix 🟡 sum_fix
+  { id: '05', label: { uz: 'Uch qadam', ru: 'Три шага', en: 'Three steps' }, C: D44_05 },  // order 🟡 sum_order
+  { id: '06', label: { uz: 'Teng yonli', ru: 'Равнобедренный', en: 'Isosceles' }, C: D44_06 },  // build 🟡 sum_iso
+  { id: '07', label: { uz: "Uch to'plam", ru: 'Три набора', en: 'Three sets' }, C: D44_07 },  // sort 🟡 sum_zones
+  { id: '08', label: { uz: 'Harf bilan', ru: 'С буквой', en: 'With a letter' }, C: D44_08 },  // chain 🔴 sum_letters
+  { id: '09', label: { uz: 'Tashqi burchak', ru: 'Внешний угол', en: 'The exterior angle' }, C: D44_09 },  // bracket 🔴 sum_exterior
+  { id: '10', label: { uz: 'Nisbat bilan', ru: 'По отношению', en: 'By ratio' }, C: D44_10 },  // build 🔴 sum_ratio
 ];
 
 export default function Dars44Practice({ lang = 'uz' }) {

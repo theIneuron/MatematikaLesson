@@ -1,50 +1,78 @@
-// Dars37 · Amaliyot 07 — Formulani tuzish · 🟡 · build · tag: prop_build
-// Mexanika: kit.jsx -> BuildLine. Raskladka: 7-o'rin.
-// (3; 12) -> k = 12 : 3 = 4, ya'ni y = 4x.
+// Dars37 · Amaliyot 07 — Formula va qiymat · 🟡 · build · tag: prop_build
+// Mexanika: kit.jsx -> BuildLine. Raskladka: 7-o'rin `build`.
+// DARAJA KO'TARILDI (metodist qarori 2026-08-22): manfiy va kasr koeffitsiyent,
+// ikki qadamli savol, yaqin tuzoq -- PODXOD_7SINF.md 13-band.
+// (−3; 21): k = 21 : (−3) = −7, y = −7x. x = 5 da y = −35.
 import React from 'react';
 import { BuildLine, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'prop_build', level: '🟡',
-  eyebrow: L('Formulani tuzish', 'Составить формулу', 'Build the rule'),
+  tag: 'prop_build',
+  level: '🟡',
+  eyebrow: L(
+    'Formula va qiymat',
+    'Формула и значение',
+    'Formula and value'),
   setup: L(
-    "Bitta nuqta yetadi: proporsionallikda ozod had yo'q, shuning uchun faqat k topiladi.",
-    'Одной точки достаточно: в пропорциональности нет свободного члена, поэтому находится только k.',
-    'One point is enough: a proportion has no free term, so only k is needed.'),
-  given: [['(3;', '12)']],
-  givenLabel: L('Nuqta:', 'Точка:', 'The point:'),
+    "Avval koeffitsiyentni toping, keyin topilgan formulaga yangi x ni qo'ying. Ikki javob kerak.",
+    'Сначала найди коэффициент, потом подставь в найденную формулу новый x. Нужны два ответа.',
+    'Find the coefficient first, then put a new x into that formula. Two answers.'),
+  given: [['(−3; 21)', ';', 'x = 5']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
   cards: [
-    { id: 'a', label: 'k = 4' },
-    { id: 'b', label: 'y = 4x' },
-    { id: 'c', label: 'k = 36' },
-    { id: 'd', label: 'y = 3x' },
+    { id: 'a', label: 'k = −7' },
+    { id: 'b', label: 'y = −35' },
+    { id: 'c', label: 'k = 7' },
+    { id: 'd', label: 'y = 35' },
   ],
   answerSeq: ['a', 'b'],
-  empty: L("k ni topib formulani yozing", 'Найди k и запиши формулу', 'Find k and write the rule'),
-  ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+  fieldH: 44,
+  ask: L(
+    "Kartani bosish uni chiziqqa qo'yadi.",
+    'Нажатие на карточку ставит её в строку.',
+    'Tapping a card puts it in the line.'),
+  empty: L(
+    'Kartalarni bosib javobni tuzing',
+    'Нажимай карточки и собери ответ',
+    'Tap the cards to build the answer'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. k = 12 : 3 = 4, ya'ni y = 4x. Tekshirish: 4 · 3 = 12.",
-    'Верно. k = 12 : 3 = 4, значит y = 4x. Проверка: 4 · 3 = 12.',
-    'Correct. k = 12 : 3 = 4, so y = 4x. Check: 4 · 3 = 12.'),
+    "To'g'ri. 21 : (−3) = −7, keyin −7 · 5 = −35.",
+    'Верно. 21 : (−3) = −7, затем −7 · 5 = −35.',
+    'Correct. 21 : (−3) = −7, then −7 · 5 = −35.'),
   wrongs: [
-    { when: (s) => s.seq.indexOf('c') !== -1, text: L(
-      "36 bu 12 · 3. k ni topish uchun bo'lish kerak.",
-      '36 это 12 · 3. Чтобы найти k, надо делить.',
-      '36 is 12 · 3. Finding k needs division.') },
-    { when: (s) => s.seq.indexOf('d') !== -1, text: L(
-      "y = 3x da 3 · 3 = 9, 12 emas. Koeffitsiyent 4.",
-      'В y = 3x выходит 3 · 3 = 9, а не 12. Коэффициент равен 4.',
-      'In y = 3x we get 3 · 3 = 9, not 12. The coefficient is 4.') },
-    { when: (s) => s.seq.length < 2, text: L(
-      "Ikki bo'lak kerak: k va formula.",
-      'Нужны две части: k и формула.',
-      'Two parts are needed: k and the rule.') },
+    {
+      when: (s) => s.seq.indexOf('c') !== -1,
+      text: L(
+        "Abssissa manfiy, ya'ni k manfiy chiqadi.",
+        'Абсцисса отрицательная, значит k выйдет отрицательным.',
+        'The abscissa is negative, so k is negative.'),
+    },
+    {
+      when: (s) => s.seq.indexOf('d') !== -1,
+      text: L(
+        "k manfiy bo'lgani uchun musbat x da qiymat manfiy chiqadi.",
+        'Так как k отрицательный, при положительном x значение отрицательное.',
+        'With a negative k a positive x gives a negative value.'),
+    },
+    {
+      when: (s) => s.seq.length < 2,
+      text: L(
+        'Ikki karta kerak.',
+        'Нужны две карточки.',
+        'Two cards are needed.'),
+    },
   ],
   wrongText: L(
-    "12 ni 3 ga bo'ling, keyin topilgan sonni formulaga qo'ying.",
-    'Раздели 12 на 3, потом подставь найденное число в формулу.',
-    'Divide 12 by 3, then put that number into the rule.'),
+    "Avval k, keyin y = kx ga yangi x ni qo'ying.",
+    'Сначала k, потом подставь новый x в y = kx.',
+    'First k, then put the new x into y = kx.'),
 };
 
 export default function D37_07(props) { return <BuildLine data={DATA} {...props} />; }

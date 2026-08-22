@@ -1,42 +1,67 @@
-// Dars44 · Amaliyot 08 — Uchi ikki barobar · 🔴 · chain · tag: iso_chain
-// Mexanika: kit.jsx -> SlotsBank (ikki qator). Raskladka: 8-o'rin.
-// Uchi 2x, asos burchaklari x va x: 4x = 180 -> x = 45, uchi 90°.
+// Dars44 · Amaliyot 08 — Harfli burchaklar · 🔴 · chain · tag: sum_letters
+// Mexanika: kit.jsx -> SlotsBank. Raskladka: 8-o'rin `chain`.
+// Burchaklar 3x, 2x va 100°: 5x + 100 = 180 -> x = 16, burchaklar 48° va 32°.
 import React from 'react';
 import { SlotsBank, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'iso_chain', level: '🔴',
-  eyebrow: L('Uchi ikki barobar', 'Вершина вдвое', 'Apex twice as big'),
+  tag: 'sum_letters',
+  level: '🔴',
+  eyebrow: L(
+    'Harf bilan',
+    'С буквой',
+    'With a letter'),
   setup: L(
-    "Uchidagi burchak asos burchagidan ikki barobar katta. Uch burchak birga 180 beradi: x + x + 2x.",
-    'Угол при вершине вдвое больше угла при основании. Три угла вместе дают 180: x + x + 2x.',
-    'The apex is twice a base angle. All three make 180: x + x + 2x.'),
-  rows: [
-    [{ t: ['4x', '=', '180°', '→', 'x', '='] }, { slot: 0 }],
-    [{ t: ['uchi', '='] }, { slot: 1 }],
-  ],
-  cards: ['45°', '90°', '60°', '120°'],
-  answer: ['45°', '90°'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+    'Ikki burchak harf bilan berilgan. Avval x ni toping, keyin kattaroq burchakni yozing.',
+    'Два угла заданы буквой. Сначала найди x, потом запиши больший из них.',
+    'Two angles carry a letter. Find x first, then give the larger of them.'),
+  given: [['3x', ',', '2x', ',', '100°']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
+  rows: [[{ t: ['x', '='] }, { slot: 0 }], [{ t: ['katta', 'burchak', '='] }, { slot: 1 }]],
+  cards: ['16', '48°', '36', '32°'],
+  answer: ['16', '48°'],
+  ask: L(
+    'Kartani bosing, keyin uyani bosing.',
+    'Нажми карточку, затем клетку.',
+    'Tap a card, then tap a cell.'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. 4x = 180 -> x = 45, uchi 2 · 45 = 90°. Bu to'g'ri burchakli teng yonli uchburchak.",
-    'Верно. 4x = 180 → x = 45, вершина 2 · 45 = 90°. Это прямоугольный равнобедренный треугольник.',
-    'Correct. 4x = 180 → x = 45, apex 2 · 45 = 90°. A right isosceles triangle.'),
+    "To'g'ri. 3x + 2x + 100 = 180, ya'ni 5x = 80 va x = 16. Burchaklar 48 va 32, kattasi 48.",
+    'Верно. 3x + 2x + 100 = 180, значит 5x = 80 и x = 16. Углы 48 и 32, больший 48.',
+    'Correct. 3x + 2x + 100 = 180 gives 5x = 80 and x = 16. The angles are 48 and 32, the larger is 48.'),
   wrongs: [
-    { when: (s) => s.slots[0] === '60°', text: L(
-      "60 chiqishi uchun 180 uchga bo'lingan. Bizda esa to'rt x bor: x + x + 2x.",
-      'Чтобы вышло 60, разделили 180 на три. А у нас четыре x: x + x + 2x.',
-      'To get 60 the 180 was divided by three. We have four x: x + x + 2x.') },
-    { when: (s) => s.slots[1] === '120°', text: L(
-      "120 bu 2 · 60. x = 45 bo'lgani uchun uchi 90°.",
-      '120 это 2 · 60. Так как x = 45, вершина равна 90°.',
-      '120 is 2 · 60. Since x = 45, the apex is 90°.') },
+    {
+      when: (s) => s.slots[0] === '36',
+      text: L(
+        "36 chiqishi uchun 180 beshga bo'lingan, 100 esa ayirilmagan: avval 180 − 100 = 80.",
+        'Чтобы вышло 36, разделили 180 на пять, не вычтя 100: сначала 180 − 100 = 80.',
+        '36 divides 180 by five without removing the 100: first 180 − 100 = 80.'),
+    },
+    {
+      when: (s) => s.slots[1] === '32°',
+      text: L(
+        "32 bu 2x, ya'ni KICHIK burchak. Kattasi 3x = 48.",
+        '32 это 2x, МЕНЬШИЙ угол. Больший это 3x = 48.',
+        '32 is 2x, the SMALLER angle. The larger is 3x = 48.'),
+    },
+    {
+      when: (s) => s.slots.indexOf(null) !== -1,
+      text: L(
+        "Hamma uya to'ldirilishi kerak.",
+        'Надо заполнить все клетки.',
+        'Every cell must be filled.'),
+    },
   ],
   wrongText: L(
-    "Nechta x bor: ikki asos burchagi va ikki barobar uchi. Yig'indini 180 ga tenglashtiring.",
-    'Сколько всего x: два угла при основании и вдвое больший при вершине. Приравняй сумму к 180.',
-    'Count the x: two base angles plus a double apex. Set the sum to 180.'),
+    "Uch burchakni qo'shib 180 ga tenglashtiring, keyin 3x ni hisoblang.",
+    'Сложи три угла и приравняй к 180, потом посчитай 3x.',
+    'Add the three angles to 180, then compute 3x.'),
 };
 
 export default function D44_08(props) { return <SlotsBank data={DATA} {...props} />; }

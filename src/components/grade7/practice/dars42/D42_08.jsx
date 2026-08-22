@@ -1,44 +1,67 @@
-// Dars42 · Amaliyot 08 — Harfli burchaklar · 🔴 · chain · tag: tri_letters
-// Mexanika: kit.jsx -> SlotsBank (ikki qator). Raskladka: 8-o'rin.
-// Burchaklar 3x, 2x va 100°: 5x + 100 = 180 -> x = 16. Burchaklar 48° va 32°.
+// Dars42 · Amaliyot 08 — Perimetrdan mos tomon · 🔴 · chain · tag: eq_chain
+// Mexanika: kit.jsx -> SlotsBank. Raskladka: 8-o'rin `chain`.
+// P = 32, ikki tomon 9 va 12 -> uchinchisi 11; teng uchburchakda mos tomon ham 11.
 import React from 'react';
 import { SlotsBank, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'tri_letters', level: '🔴',
-  eyebrow: L('Harfli burchaklar', 'Углы с буквой', 'Angles with a letter'),
+  tag: 'eq_chain',
+  level: '🔴',
+  eyebrow: L(
+    'Ikki qadam',
+    'Два шага',
+    'Two steps'),
   setup: L(
-    "Ikki burchak harf bilan berilgan. Yig'indi tenglama beradi: uni yechib x topiladi, keyin burchaklar hisoblanadi.",
-    'Два угла заданы буквой. Сумма даёт уравнение: решив его, находим x, потом сами углы.',
-    'Two angles carry a letter. The sum gives an equation: solve for x, then the angles.'),
-  given: [['3x,', '2x', 'va', '100°']],
-  givenLabel: L('Burchaklar:', 'Углы:', 'Angles:'),
-  rows: [
-    [{ t: ['5x', '+', '100°', '=', '180°', '→', 'x', '='] }, { slot: 0 }],
-    [{ t: ['burchaklar', '='] }, { slot: 1 }, { slot: 2 }],
-  ],
-  cards: ['16', '48°', '32°', '36', '54°', '18°'],
-  answer: ['16', '48°', '32°'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+    'Birinchi qatorda uchinchi tomonni hisoblang, ikkinchi qatorda esa ikkinchi uchburchakdagi mos tomonni yozing.',
+    'В первой строке вычисли третью сторону, во второй запиши соответственную сторону второго треугольника.',
+    'Compute the third side in the first row, then give the matching side of the second triangle.'),
+  given: [['P = 32', ',', '9', ',', '12']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
+  rows: [[{ t: ['uchinchi', 'tomon', '='] }, { slot: 0 }], [{ t: ['mos', 'tomon', '='] }, { slot: 1 }]],
+  cards: ['11', '21', '32', '11 ham'],
+  answer: ['11', '11 ham'],
+  ask: L(
+    'Kartani bosing, keyin uyani bosing.',
+    'Нажми карточку, затем клетку.',
+    'Tap a card, then tap a cell.'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. 5x = 80 -> x = 16. Keyin 3x = 48 va 2x = 32. Tekshirish: 48 + 32 + 100 = 180.",
-    'Верно. 5x = 80 → x = 16. Потом 3x = 48 и 2x = 32. Проверка: 48 + 32 + 100 = 180.',
-    'Correct. 5x = 80 → x = 16. Then 3x = 48 and 2x = 32. Check: 48 + 32 + 100 = 180.'),
+    "To'g'ri. 32 − 9 − 12 = 11. Uchburchaklar teng, ya'ni mos tomon ham 11.",
+    'Верно. 32 − 9 − 12 = 11. Треугольники равны, значит соответственная сторона тоже 11.',
+    'Correct. 32 − 9 − 12 = 11. The triangles are equal, so the matching side is 11 too.'),
   wrongs: [
-    { when: (s) => s.slots[0] === '36', text: L(
-      "36 chiqishi uchun 180 ni beshga bo'lgan. Avval 100 ni ayirish kerak: 5x = 80.",
-      'Чтобы вышло 36, разделили 180 на пять. Сначала надо вычесть 100: 5x = 80.',
-      'To get 36 the 180 was divided by five. Subtract 100 first: 5x = 80.') },
-    { when: (s) => s.slots[1] === '54°' || s.slots[2] === '18°', text: L(
-      "Bu burchaklar x = 18 dan chiqadi. Bizda esa x = 16: 3 · 16 = 48 va 2 · 16 = 32.",
-      'Эти углы выходят при x = 18. А у нас x = 16: 3 · 16 = 48 и 2 · 16 = 32.',
-      'Those come from x = 18. Ours is x = 16: 3 · 16 = 48 and 2 · 16 = 32.') },
+    {
+      when: (s) => s.slots[0] === '21',
+      text: L(
+        '21 bu 9 + 12. Uchinchi tomon perimetrdan ayirish bilan topiladi.',
+        '21 это 9 + 12. Третья сторона находится вычитанием из периметра.',
+        '21 is 9 + 12. The third side comes from subtracting from the perimeter.'),
+    },
+    {
+      when: (s) => s.slots[1] === '32',
+      text: L(
+        "32 bu perimetr. Ikkinchi qatorda TOMON so'raladi.",
+        '32 это периметр. Во второй строке спрашивают СТОРОНУ.',
+        '32 is the perimeter. The second row asks for a SIDE.'),
+    },
+    {
+      when: (s) => s.slots.indexOf(null) !== -1,
+      text: L(
+        "Hamma uya to'ldirilishi kerak.",
+        'Надо заполнить все клетки.',
+        'Every cell must be filled.'),
+    },
   ],
   wrongText: L(
-    "Avval 100 ni o'ng tomonga ko'chiring, keyin beshga bo'ling.",
-    'Сначала перенеси 100 вправо, потом раздели на пять.',
-    'Move the 100 to the right first, then divide by five.'),
+    "Perimetrdan ikki tomonni ayiring. Teng uchburchakda mos tomon o'zgarmaydi.",
+    'Вычти из периметра две стороны. В равном треугольнике соответственная сторона та же.',
+    'Subtract the two sides from the perimeter. In an equal triangle the matching side is unchanged.'),
 };
 
 export default function D42_08(props) { return <SlotsBank data={DATA} {...props} />; }

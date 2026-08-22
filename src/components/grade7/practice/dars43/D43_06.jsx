@@ -1,43 +1,67 @@
-// Dars43 · Amaliyot 06 — Mos elementlar · 🟡 · slots · tag: eq_slots
-// Mexanika: kit.jsx -> SlotsBank. Raskladka: 6-o'rin.
-// Teng uchburchaklar: AB = 8, ∠C = 55° -> mos elementlar ham 8 va 55°.
+// Dars43 · Amaliyot 06 — Uchidan tushgan chiziq · 🟡 · slots · tag: iso_median
+// Mexanika: kit.jsx -> SlotsBank. Raskladka: 6-o'rin `slots`.
+// Teng yonli uchburchakda uchidan tushgan bissektrisa asosni teng ikkiga bo'ladi: asos 14 -> 7 va 7.
 import React from 'react';
 import { SlotsBank, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'eq_slots', level: '🟡',
-  eyebrow: L('Mos elementlar', 'Соответственные элементы', 'Corresponding parts'),
+  tag: 'iso_median',
+  level: '🟡',
+  eyebrow: L(
+    'Uchidan tushgan chiziq',
+    'Линия из вершины',
+    'The line from the apex'),
   setup: L(
-    "Uchburchaklar teng bo'lsa, mos tomonlar va mos burchaklar ham teng bo'ladi. Sonlarni o'zgartirish kerak emas.",
-    'Если треугольники равны, равны и соответственные стороны, и соответственные углы. Числа менять не нужно.',
-    'Equal triangles have equal corresponding sides and angles. The numbers carry over unchanged.'),
-  given: [['AB', '=', '8'], ['∠C', '=', '55°']],
-  givenLabel: L('Birinchi uchburchak:', 'Первый треугольник:', 'First triangle:'),
-  rows: [
-    [{ t: ['A₁B₁', '='] }, { slot: 0 }, { t: ['∠C₁', '='] }, { slot: 1 }],
-  ],
-  cards: ['8', '55°', '16', '125°'],
-  answer: ['8', '55°'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+    "Teng yonli uchburchakda uchidan tushgan bissektrisa asosni teng ikki bo'lakka bo'ladi. Ikki bo'lakni yozing.",
+    'В равнобедренном треугольнике биссектриса из вершины делит основание на две равные части. Запиши обе части.',
+    'In an isosceles triangle the bisector from the apex splits the base into two equal parts.'),
+  given: [['asos = 14']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
+  rows: [[{ t: ['birinchi', "bo'lak", '='] }, { slot: 0 }, { t: ['ikkinchi', '='] }, { slot: 1 }]],
+  cards: ['7', '7 ham', '14', '3,5'],
+  answer: ['7', '7 ham'],
+  ask: L(
+    'Kartani bosing, keyin uyani bosing.',
+    'Нажми карточку, затем клетку.',
+    'Tap a card, then tap a cell.'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. Teng uchburchaklarda mos elementlar aynan teng: 8 va 55°.",
-    'Верно. У равных треугольников соответственные элементы в точности равны: 8 и 55°.',
-    'Correct. Corresponding parts of equal triangles are exactly equal: 8 and 55°.'),
+    "To'g'ri. 14 : 2 = 7, ikki bo'lak ham 7 ga teng.",
+    'Верно. 14 : 2 = 7, обе части равны 7.',
+    'Correct. 14 : 2 = 7, both parts equal 7.'),
   wrongs: [
-    { when: (s) => s.slots[0] === '16', text: L(
-      "16 bu 8 · 2. Teng uchburchaklar bir xil o'lchamda: tomon ikki barobar bo'lmaydi.",
-      '16 это 8 · 2. Равные треугольники одного размера: сторона не удваивается.',
-      '16 is 8 · 2. Equal triangles are the same size: the side does not double.') },
-    { when: (s) => s.slots[1] === '125°', text: L(
-      "125 bu 55 ning qo'shni burchagi. Mos burchak esa aynan 55° bo'ladi.",
-      '125 это смежный угол к 55. А соответственный угол ровно 55°.',
-      '125 is the adjacent angle to 55. The corresponding angle is exactly 55°.') },
+    {
+      when: (s) => s.slots[0] === '3,5',
+      text: L(
+        "3,5 bu 14 ni to'rtga bo'lgan. Asos IKKI bo'lakka bo'linadi.",
+        '3,5 это 14 делённое на четыре. Основание делится на ДВЕ части.',
+        '3.5 divides 14 by four. The base splits into TWO parts.'),
+    },
+    {
+      when: (s) => s.slots[0] === '14' || s.slots[1] === '14',
+      text: L(
+        "14 bu butun asos. Bo'lak esa uning yarmi.",
+        '14 это всё основание. А часть это его половина.',
+        '14 is the whole base. A part is half of it.'),
+    },
+    {
+      when: (s) => s.slots.indexOf(null) !== -1,
+      text: L(
+        "Hamma uya to'ldirilishi kerak.",
+        'Надо заполнить все клетки.',
+        'Every cell must be filled.'),
+    },
   ],
   wrongText: L(
-    "Teng uchburchaklarda mos element o'zgaradimi?",
-    'Меняется ли соответственный элемент у равных треугольников?',
-    'Does a corresponding part change between equal triangles?'),
+    "Asosni ikkiga bo'ling: bo'laklar teng.",
+    'Раздели основание на два: части равны.',
+    'Halve the base: the parts are equal.'),
 };
 
 export default function D43_06(props) { return <SlotsBank data={DATA} {...props} />; }

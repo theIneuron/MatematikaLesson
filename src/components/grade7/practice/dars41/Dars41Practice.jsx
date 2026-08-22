@@ -1,12 +1,15 @@
-// Dars41 amaliyoti — 10 topshiriq. Mavzu: BURCHAK VA UNING O'LCHOVI.
+// Dars41 amaliyoti — 10 topshiriq. Mavzu: UCHBURCHAK VA UNING TURLARI.
 // Topshiriq fayllarida FAQAT ma'lumot; mexanikalar `practice/kit.jsx` da,
 // qobiq `practice/PracticeHost.jsx` da (CLAUDE.md §5).
 //
 // MEXANIKALAR RASKLADKADAN: node scripts/grade7-practice-layout.mjs --json
+// 41-dars raskladkasi: order, choice, build, fix, sort, slots, bracket, build, order, chain
 // Raskladka nomlari mavjud mexanikalarga solishtirildi (metodist qarori
 // 2026-08-21): build/order/bracket -> BuildLine, slots/chain -> SlotsBank,
 // fix -> TapTerms, sort -> Zones, choice -> Choice (faqat isinish uchun).
-// 41-dars raskladkasi: order, choice, build, fix, sort, slots, bracket, build, order, chain
+//
+// MAVZU DARS BILAN SVERKA QILINDI (metodist qarori 2026-08-22): amaliyot
+// mavzusi `src/lessons/grade7.js` dagi nazariy darsning mavzusiga mos.
 
 import React, { useState } from 'react';
 import PracticeHost, { usePracticeZoom } from '../PracticeHost.jsx';
@@ -22,22 +25,22 @@ import D41_09 from './D41_09.jsx';
 import D41_10 from './D41_10.jsx';
 
 const HEAD = {
-  uz: "Dars 41 amaliyoti — 10 topshiriq (burchak va uning o'lchovi)",
-  ru: 'Практика урока 41 — 10 заданий (угол и его мера)',
-  en: 'Lesson 41 practice — 10 tasks (angles and their measure)',
+  uz: 'Dars 41 amaliyoti — 10 topshiriq (uchburchak va uning turlari)',
+  ru: 'Практика урока 41 — 10 заданий (треугольник и виды)',
+  en: 'Lesson 41 practice — 10 tasks (triangle and its kinds)',
 };
 
 const ITEMS = [
-  { id: '01', label: { uz: "Qo'shni", ru: 'Смежный', en: 'Adjacent' }, C: D41_01 },  // order 🟢 50°
-  { id: '02', label: { uz: "Burchak turi", ru: 'Вид угла', en: 'Kind' }, C: D41_02 },  // choice 🟢 95°
-  { id: '03', label: { uz: "Qo'shnisini topish", ru: 'Найти смежный', en: 'Find adjacent' }, C: D41_03 },  // build 🟢 40°
-  { id: '04', label: { uz: "Vertikal", ru: 'Вертикальный', en: 'Vertical' }, C: D41_04 },  // fix 🟡 65°
-  { id: '05', label: { uz: "Uch tur", ru: 'Три вида', en: 'Three kinds' }, C: D41_05 },  // sort 🟡 35 / 90 / 120
-  { id: '06', label: { uz: "Bissektrisa", ru: 'Биссектриса', en: 'Bisector' }, C: D41_06 },  // slots 🟡 76°
-  { id: '07', label: { uz: "Tenglik", ru: 'Равенство', en: 'Equality' }, C: D41_07 },  // bracket 🟡 ∠1 + ∠2 = 180°
-  { id: '08', label: { uz: "Ikki barobar", ru: 'Вдвое', en: 'Twice' }, C: D41_08 },  // build 🔴 x va 2x
-  { id: '09', label: { uz: "Harf bilan", ru: 'С буквой', en: 'With a letter' }, C: D41_09 },  // order 🔴 3x = 75°
-  { id: '10', label: { uz: "Zanjir", ru: 'Цепочка', en: 'Chain' }, C: D41_10 },  // chain 🔴 118°
+  { id: '01', label: { uz: 'Ikki nom', ru: 'Два имени', en: 'Two names' }, C: D41_01 },  // order 🟢 kind_two_names
+  { id: '02', label: { uz: "Burchaklar bo'yicha", ru: 'По углам', en: 'By angles' }, C: D41_02 },  // choice 🟢 kind_equilateral
+  { id: '03', label: { uz: 'Uch teng tomon', ru: 'Три равные стороны', en: 'Three equal sides' }, C: D41_03 },  // build 🟢 kind_three_equal
+  { id: '04', label: { uz: 'Xato xulosa', ru: 'Неверный вывод', en: 'The wrong claim' }, C: D41_04 },  // fix 🟡 kind_fix
+  { id: '05', label: { uz: "Uch to'plam", ru: 'Три набора', en: 'Three sets' }, C: D41_05 },  // sort 🟡 kind_zones
+  { id: '06', label: { uz: 'Nom va perimetr', ru: 'Имя и периметр', en: 'Name and perimeter' }, C: D41_06 },  // slots 🟡 kind_name_perimeter
+  { id: '07', label: { uz: 'Formula', ru: 'Формула', en: 'Formula' }, C: D41_07 },  // bracket 🟡 kind_formula
+  { id: '08', label: { uz: 'Nom va perimetr', ru: 'Имя и периметр', en: 'Name and perimeter' }, C: D41_08 },  // build 🔴 kind_long_p
+  { id: '09', label: { uz: 'Uch qadam', ru: 'Три шага', en: 'Three steps' }, C: D41_09 },  // order 🔴 kind_leg_from_p
+  { id: '10', label: { uz: 'Harf bilan', ru: 'С буквой', en: 'With a letter' }, C: D41_10 },  // chain 🔴 kind_letter_p
 ];
 
 export default function Dars41Practice({ lang = 'uz' }) {

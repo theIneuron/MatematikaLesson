@@ -1,46 +1,71 @@
-// Dars44 · Amaliyot 02 — Tenglikni yozish · 🟢 · bracket · tag: iso_bracket
-// Mexanika: kit.jsx -> BuildLine (qavs kartalari). Raskladka: 2-o'rin.
-// Asosi AC bo'lgan teng yonli uchburchakda: ∠A = ∠C.
+// Dars44 · Amaliyot 02 — Tenglikni yozish · 🟢 · bracket · tag: sum_bracket
+// Mexanika: kit.jsx -> BuildLine. Raskladka: 2-o'rin `bracket`.
+// Uch burchakni qo'shib 180 ga tenglashtirish: burchak A + burchak B + burchak C = 180°.
 import React from 'react';
 import { BuildLine, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'iso_bracket', level: '🟢',
-  eyebrow: L('Tenglikni yozish', 'Записать равенство', 'Write the equality'),
+  tag: 'sum_bracket',
+  level: '🟢',
+  eyebrow: L(
+    'Tenglikni yozish',
+    'Записать равенство',
+    'Write the equality'),
   setup: L(
-    "Asosi AC bo'lsa, asosdagi burchaklar ∠A va ∠C bo'ladi. Uchidagi burchak ∠B ular bilan teng emas.",
-    'Если основание AC, то углы при основании это ∠A и ∠C. Угол при вершине ∠B им не равен.',
-    'With base AC the base angles are ∠A and ∠C. The apex angle ∠B is not among them.'),
-  given: [['asos', '=', 'AC']],
-  givenLabel: L('Berilgan:', 'Дано:', 'Given:'),
+    "Uchburchakning uch burchagi qo'shiladi va 180 ga tenglashtiriladi.",
+    'Три угла треугольника складываются и приравниваются к 180.',
+    'The three angles of a triangle add up and equal 180.'),
   cards: [
-    { id: 'a', label: '∠A' },
-    { id: 'b', label: '= ∠C' },
-    { id: 'c', label: '= ∠B' },
-    { id: 'd', label: '∠B' },
+    { id: 'a', label: 'A + B + C' },
+    { id: 'b', label: '= 180°' },
+    { id: 'c', label: '= 360°' },
+    { id: 'd', label: 'A + B' },
   ],
   answerSeq: ['a', 'b'],
-  empty: L("Tenglikni tuzing", 'Составь равенство', 'Build the equality'),
-  ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+  fieldH: 44,
+  ask: L(
+    "Kartani bosish uni chiziqqa qo'yadi.",
+    'Нажатие на карточку ставит её в строку.',
+    'Tapping a card puts it in the line.'),
+  empty: L(
+    'Kartalarni bosib javobni tuzing',
+    'Нажимай карточки и собери ответ',
+    'Tap the cards to build the answer'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. ∠A = ∠C: ikkovi ham asosda yotadi.",
-    'Верно. ∠A = ∠C: оба лежат при основании.',
-    'Correct. ∠A = ∠C: both sit at the base.'),
+    "To'g'ri. A + B + C = 180 gradus -- bu uchburchakning asosiy tengligi.",
+    'Верно. A + B + C = 180 градусов — это главное равенство треугольника.',
+    'Correct. A + B + C = 180 degrees is the key equality of a triangle.'),
   wrongs: [
-    { when: (s) => s.seq.indexOf('c') !== -1 || s.seq.indexOf('d') !== -1, text: L(
-      "∠B uchidagi burchak: u asos burchaklariga teng bo'lishi shart emas.",
-      '∠B это угол при вершине: он не обязан быть равен углам при основании.',
-      '∠B is the apex angle: it need not equal the base angles.') },
-    { when: (s) => s.seq.length < 2, text: L(
-      "Tenglik ikki bo'lakdan iborat.",
-      'Равенство состоит из двух частей.',
-      'The equality has two parts.') },
+    {
+      when: (s) => s.seq.indexOf('c') !== -1,
+      text: L(
+        "360° to'liq aylana. Uchburchakda 180.",
+        '360° это полный круг. В треугольнике 180.',
+        '360° is a full circle. A triangle gives 180.'),
+    },
+    {
+      when: (s) => s.seq.indexOf('d') !== -1,
+      text: L(
+        'Ikki burchak yetmaydi: tenglikda uch burchak ham qatnashadi.',
+        'Двух углов мало: в равенстве участвуют все три.',
+        'Two angles are not enough: all three take part.'),
+    },
+    {
+      when: (s) => s.seq.length < 2,
+      text: L(
+        'Ikki karta kerak.',
+        'Нужны две карточки.',
+        'Two cards are needed.'),
+    },
   ],
   wrongText: L(
-    "Asos AC bo'lsa, qaysi ikki burchak asosda yotadi?",
-    'Если основание AC, какие два угла лежат при основании?',
-    'With base AC, which two angles sit at the base?'),
+    "Nechta burchak bor? Hammasini qo'shing.",
+    'Сколько углов? Сложи все.',
+    'How many angles are there? Add them all.'),
 };
 
 export default function D44_02(props) { return <BuildLine data={DATA} {...props} />; }

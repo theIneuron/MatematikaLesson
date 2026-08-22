@@ -1,46 +1,76 @@
-// Dars41 · Amaliyot 03 — Qo'shni burchakni topish · 🟢 · build · tag: ang_build
-// Mexanika: kit.jsx -> BuildLine. Raskladka: 3-o'rin.
-// 40° ning qo'shnisi: 180° − 40° = 140°.
+// Dars41 · Amaliyot 03 — Uch teng tomon · 🟢 · build · tag: kind_three_equal
+// Mexanika: kit.jsx -> BuildLine. Raskladka: 3-o'rin `build`.
+// 7, 7, 7 -- teng tomonli va (60° bo'lgani uchun) o'tkir burchakli.
 import React from 'react';
 import { BuildLine, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'ang_build', level: '🟢',
-  eyebrow: L("Qo'shni burchak", 'Смежный угол', 'The adjacent angle'),
+  tag: 'kind_three_equal',
+  level: '🟢',
+  eyebrow: L(
+    'Uch teng tomon',
+    'Три равные стороны',
+    'Three equal sides'),
   setup: L(
-    "Berilgan burchakning qo'shnisini topish uchun 180 dan uni ayirish kerak.",
-    'Чтобы найти смежный угол, надо вычесть данный из 180.',
-    'To find the adjacent angle, subtract the given one from 180.'),
-  given: [['∠1', '=', '40°']],
-  givenLabel: L('Berilgan:', 'Дано:', 'Given:'),
+    "Uch tomoni ham teng. Bunday uchburchakning hamma burchagi 60 gradus. Ikki nomni yig'ing.",
+    'Все три стороны равны. У такого треугольника все углы 60 градусов. Собери два имени.',
+    'All three sides are equal, and such a triangle has all angles 60 degrees. Build both names.'),
+  given: [['7, 7, 7']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
   cards: [
-    { id: 'a', label: '180° − 40°' },
-    { id: 'b', label: '140°' },
-    { id: 'c', label: '180° + 40°' },
-    { id: 'd', label: '220°' },
+    { id: 'a', label: 'teng tomonli' },
+    { id: 'b', label: "o'tkir burchakli" },
+    { id: 'c', label: 'teng yonli emas' },
+    { id: 'd', label: "to'g'ri burchakli" },
   ],
   answerSeq: ['a', 'b'],
-  empty: L("Hisoblab yozing", 'Запиши вычисление', 'Write the working'),
-  ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+  fieldH: 44,
+  ask: L(
+    "Kartani bosish uni chiziqqa qo'yadi.",
+    'Нажатие на карточку ставит её в строку.',
+    'Tapping a card puts it in the line.'),
+  empty: L(
+    'Kartalarni bosib javobni tuzing',
+    'Нажимай карточки и собери ответ',
+    'Tap the cards to build the answer'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. 180° − 40° = 140°. Ikki burchak birga yoyilgan burchakni beradi.",
-    'Верно. 180° − 40° = 140°. Два угла вместе дают развёрнутый угол.',
-    'Correct. 180° − 40° = 140°. Together they form a straight angle.'),
+    "To'g'ri. Uch tomon teng -- teng tomonli; burchaklari 60 -- o'tkir burchakli.",
+    'Верно. Три стороны равны — равносторонний; углы по 60 — остроугольный.',
+    'Correct. Three equal sides make it equilateral; angles of 60 make it acute.'),
   wrongs: [
-    { when: (s) => s.seq.indexOf('c') !== -1 || s.seq.indexOf('d') !== -1, text: L(
-      "220 gradus bo'lolmaydi: qo'shni burchak yoyilgan burchakning bir bo'lagi, ya'ni 180 dan kichik.",
-      '220 градусов быть не может: смежный угол это часть развёрнутого, то есть меньше 180.',
-      '220 is impossible: an adjacent angle is part of a straight angle, so under 180.') },
-    { when: (s) => s.seq.length < 2, text: L(
-      "Ikki bo'lak kerak: hisoblash va natija.",
-      'Нужны две части: вычисление и результат.',
-      'Two parts are needed: the working and the result.') },
+    {
+      when: (s) => s.seq.indexOf('c') !== -1,
+      text: L(
+        "Teng tomonli uchburchak teng yonli HAM bo'ladi: unda ikki teng tomon bor, hatto uchta.",
+        'Равносторонний треугольник ТОЖЕ равнобедренный: у него есть две равные стороны, даже три.',
+        'An equilateral triangle IS isosceles too: it has two equal sides, in fact three.'),
+    },
+    {
+      when: (s) => s.seq.indexOf('d') !== -1,
+      text: L(
+        "To'g'ri burchak 90 gradus. Bu yerda burchaklar 60.",
+        'Прямой угол это 90 градусов. Здесь углы по 60.',
+        'A right angle is 90 degrees. Here the angles are 60.'),
+    },
+    {
+      when: (s) => s.seq.length < 2,
+      text: L(
+        'Ikki karta kerak.',
+        'Нужны две карточки.',
+        'Two cards are needed.'),
+    },
   ],
   wrongText: L(
-    "Ikki qo'shni burchak yig'indisi 180 gradus. Ikkinchisini qanday topadilar?",
-    'Сумма двух смежных углов 180 градусов. Как находят второй?',
-    'Two adjacent angles add to 180. How is the second found?'),
+    "Tomonlar bo'yicha nom va burchaklar bo'yicha nom -- ikkovi ham kerak.",
+    'Нужны оба имени: по сторонам и по углам.',
+    'Both names are needed: by sides and by angles.'),
 };
 
 export default function D41_03(props) { return <BuildLine data={DATA} {...props} />; }

@@ -1,48 +1,67 @@
-// Dars42 · Amaliyot 03 — Bunday uchburchak bormi · 🟢 · fix · tag: tri_impossible
-// Mexanika: kit.jsx -> TapTerms. Raskladka: 3-o'rin.
-// 70° + 80° + 40° = 190° -- bunday uchburchak yo'q.
+// Dars42 · Amaliyot 03 — Uch burchak yetarli emas · 🟢 · fix · tag: eq_angles_fix
+// Mexanika: kit.jsx -> TapTerms. Raskladka: 3-o'rin `fix`.
+// Uch xulosadan biri xato: uch burchakning tengligi uchburchaklar tengligini BERMAYDI (o'lcham har xil).
 import React from 'react';
 import { TapTerms, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'tri_impossible', level: '🟢',
-  eyebrow: L('Xato yozuv', 'Неверная запись', 'The wrong record'),
+  tag: 'eq_angles_fix',
+  level: '🟢',
+  eyebrow: L(
+    'Xato xulosa',
+    'Неверный вывод',
+    'The wrong claim'),
   setup: L(
-    "Uch to'plam burchaklardan biri uchburchak bo'lolmaydi: yig'indisi 180 dan farq qiladi.",
-    'Один из трёх наборов углов не может быть треугольником: сумма отличается от 180.',
-    'One of the three angle sets cannot be a triangle: the sum differs from 180.'),
-  ask: L("Uchburchak bo'lolmaydigan to'plamni belgilang.", 'Отметь набор, который не может быть треугольником.', 'Mark the set that cannot be a triangle.'),
-  note: L('Bitta to\'plam.', 'Один набор.', 'One set.'),
+    "Uch xulosadan biri noto'g'ri. Uch burchak faqat SHAKLNI beradi: bir xil shaklda katta va kichik uchburchak bo'lishi mumkin.",
+    'Один из трёх выводов неверный. Три угла задают только ФОРМУ: при одной форме треугольник может быть большим и маленьким.',
+    'One of the three claims is wrong. Three angles fix only the SHAPE: the same shape comes in large and small.'),
+  ask: L(
+    "NOTO'G'RI xulosani belgilang.",
+    'Отметь НЕВЕРНЫЙ вывод.',
+    'Mark the WRONG claim.'),
+  note: L(
+    'Bitta xulosa.',
+    'Один вывод.',
+    'One claim.'),
   parts: [
-    { k: 'term', id: 't1', v: '60° 60° 60°' },
+    { k: 'term', id: 't1', v: 'uch tomon teng -> teng' },
     { k: 'sign', v: ' ' },
-    { k: 'term', id: 't2', v: '70° 80° 40°' },
+    { k: 'term', id: 't2', v: 'uch burchak teng -> teng' },
     { k: 'sign', v: ' ' },
-    { k: 'term', id: 't3', v: '90° 45° 45°' },
+    { k: 'term', id: 't3', v: 'teng uchburchaklarning perimetri teng' },
   ],
   want: ['t2'],
   correctText: L(
-    "To'g'ri. 70 + 80 + 40 = 190, ya'ni 180 dan katta. Bunday uchburchak yo'q.",
-    'Верно. 70 + 80 + 40 = 190, то есть больше 180. Такого треугольника нет.',
-    'Correct. 70 + 80 + 40 = 190, more than 180. No such triangle exists.'),
+    "To'g'ri. Uch burchak teng bo'lsa shakl bir xil, lekin o'lcham boshqa bo'lishi mumkin.",
+    'Верно. При равных трёх углах форма одна, а размер может быть разным.',
+    'Correct. Equal angles give one shape, but the size may still differ.'),
   wrongs: [
-    { when: (s) => s.extra.indexOf('t1') !== -1, text: L(
-      "60 + 60 + 60 = 180: bu teng tomonli uchburchak, u mavjud.",
-      '60 + 60 + 60 = 180: это равносторонний треугольник, он существует.',
-      '60 + 60 + 60 = 180: an equilateral triangle, which exists.') },
-    { when: (s) => s.extra.indexOf('t3') !== -1, text: L(
-      "90 + 45 + 45 = 180: bu to'g'ri burchakli teng yonli uchburchak.",
-      '90 + 45 + 45 = 180: это прямоугольный равнобедренный треугольник.',
-      '90 + 45 + 45 = 180: a right isosceles triangle.') },
-    { when: (s) => s.miss.length > 0, text: L(
-      "Har to'plamning yig'indisini hisoblang: 180 dan farq qilgani mavjud emas.",
-      'Посчитай сумму каждого набора: тот, что отличается от 180, невозможен.',
-      'Add each set: the one that differs from 180 is impossible.') },
+    {
+      when: (s) => s.extra.indexOf('t1') !== -1,
+      text: L(
+        "Uch tomon tengligi -- bu alomat, xulosa to'g'ri.",
+        'Равенство трёх сторон это признак, вывод верный.',
+        'Three equal sides form a criterion, so the claim holds.'),
+    },
+    {
+      when: (s) => s.extra.indexOf('t3') !== -1,
+      text: L(
+        "Teng uchburchaklarning tomonlari mos ravishda teng, ya'ni perimetrlari ham teng.",
+        'У равных треугольников стороны соответственно равны, значит и периметры равны.',
+        'Equal triangles have matching sides, hence equal perimeters.'),
+    },
+    {
+      when: (s) => s.miss.length > 0,
+      text: L(
+        "Bitta xulosa faqat shaklni beradi, o'lchamni bermaydi. Shu joyni toping.",
+        'Один из выводов даёт только форму, но не размер. Найди его.',
+        'One claim gives shape only, not size. Find it.'),
+    },
   ],
   wrongText: L(
-    "Har uch burchakni qo'shing va 180 bilan solishtiring.",
-    'Сложи каждые три угла и сравни с 180.',
-    'Add each set of three and compare with 180.'),
+    'Bir xil burchakli katta va kichik uchburchakni tasavvur qiling.',
+    'Представь большой и маленький треугольник с одинаковыми углами.',
+    'Picture a large and a small triangle with the same angles.'),
 };
 
 export default function D42_03(props) { return <TapTerms data={DATA} {...props} />; }

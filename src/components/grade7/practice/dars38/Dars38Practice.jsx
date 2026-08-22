@@ -1,14 +1,16 @@
-// Dars38 amaliyoti — 10 topshiriq. Mavzu: TENGLAMALAR SISTEMASI.
+// Dars38 amaliyoti — 10 topshiriq. Mavzu: CHIZIQLI TENGLAMALAR SISTEMASI.
 // Topshiriq fayllarida FAQAT ma'lumot; mexanikalar `practice/kit.jsx` da,
 // qobiq `practice/PracticeHost.jsx` da (CLAUDE.md §5).
 //
 // MEXANIKALAR RASKLADKADAN: node scripts/grade7-practice-layout.mjs --json
+// 38-dars raskladkasi: choice, build, bracket, build, sort, slots, order, build, chain, fix
 // Raskladka nomlari mavjud mexanikalarga solishtirildi (metodist qarori
 // 2026-08-21): build/order/bracket -> BuildLine, slots/chain -> SlotsBank,
 // fix -> TapTerms, sort -> Zones, choice -> Choice (faqat isinish uchun).
-// 38-dars raskladkasi: choice, build, bracket, build, sort, slots, order, build, chain, fix
 //
-// Darsning O'Z misollari ((0; 3), (1; 2), (2; 1), (3; 0), y = 1) ataylab takrorlanmadi.
+// MAVZU DARS BILAN SVERKA QILINDI (metodist qarori 2026-08-22): amaliyot
+// mavzusi `src/lessons/grade7.js` dagi nazariy darsning mavzusiga mos.
+
 import React, { useState } from 'react';
 import PracticeHost, { usePracticeZoom } from '../PracticeHost.jsx';
 import D38_01 from './D38_01.jsx';
@@ -23,22 +25,22 @@ import D38_09 from './D38_09.jsx';
 import D38_10 from './D38_10.jsx';
 
 const HEAD = {
-  uz: "Dars 38 amaliyoti — 10 topshiriq (tenglamalar sistemasi)",
-  ru: 'Практика урока 38 — 10 заданий (система уравнений)',
-  en: 'Lesson 38 practice — 10 tasks (a system of equations)',
+  uz: 'Dars 38 amaliyoti — 10 topshiriq (chiziqli tenglamalar sistemasi)',
+  ru: 'Практика урока 38 — 10 заданий (системы линейных уравнений)',
+  en: 'Lesson 38 practice — 10 tasks (systems of linear equations)',
 };
 
 const ITEMS = [
-  { id: '01', label: { uz: "Yechim nima", ru: 'Что такое решение', en: 'What a solution is' }, C: D38_01 },  // choice 🟢 ta'rif
-  { id: '02', label: { uz: "Tekshirish", ru: 'Проверка', en: 'Check' }, C: D38_02 },  // build 🟢 (2; 1)
-  { id: '03', label: { uz: "Juftlik", ru: 'Пара', en: 'A pair' }, C: D38_03 },  // bracket 🟢 x = 5, y = −2
-  { id: '04', label: { uz: "Bittasi ma'lum", ru: 'Одно известно', en: 'One known' }, C: D38_04 },  // build 🟡 y = 3
-  { id: '05', label: { uz: "Nechta yechim", ru: 'Сколько решений', en: 'How many' }, C: D38_05 },  // sort 🟡 parallel va bir xil
-  { id: '06', label: { uz: "Ikki natija", ru: 'Два результата', en: 'Two results' }, C: D38_06 },  // slots 🟡 (3; 2)
-  { id: '07', label: { uz: "Uch qadam", ru: 'Три шага', en: 'Three steps' }, C: D38_07 },  // order 🟡 y = x − 1, y = 4
-  { id: '08', label: { uz: "Yig'indi va ayirma", ru: 'Сумма и разность', en: 'Sum and difference' }, C: D38_08 },  // build 🔴 10 va 2
-  { id: '09', label: { uz: "Zanjir", ru: 'Цепочка', en: 'Chain' }, C: D38_09 },  // chain 🔴 y = 2x − 3, y = 5
-  { id: '10', label: { uz: "Xato tekshirish", ru: 'Неверная проверка', en: 'Wrong check' }, C: D38_10 },  // fix 🔴 (2; 2)
+  { id: '01', label: { uz: 'Yechim nima', ru: 'Что такое решение', en: 'What a solution is' }, C: D38_01 },  // choice 🟢 sys_what
+  { id: '02', label: { uz: 'Tekshirish', ru: 'Проверка', en: 'The check' }, C: D38_02 },  // build 🟢 sys_check
+  { id: '03', label: { uz: 'Javobni yozish', ru: 'Записать ответ', en: 'Write the answer' }, C: D38_03 },  // bracket 🟢 sys_pair
+  { id: '04', label: { uz: "Qo'yish usuli", ru: 'Способ подстановки', en: 'Substitution method' }, C: D38_04 },  // build 🟡 sys_substitution
+  { id: '05', label: { uz: 'Nechta yechim', ru: 'Сколько решений', en: 'How many solutions' }, C: D38_05 },  // sort 🟡 sys_zones
+  { id: '06', label: { uz: "Qo'shish usuli", ru: 'Способ сложения', en: 'Adding method' }, C: D38_06 },  // slots 🟡 sys_add
+  { id: '07', label: { uz: 'Qadamlar tartibi', ru: 'Порядок шагов', en: 'Order of steps' }, C: D38_07 },  // order 🟡 sys_order
+  { id: '08', label: { uz: "Qo'shish", ru: 'Сложение', en: 'Adding' }, C: D38_08 },  // build 🔴 sys_add_coef
+  { id: '09', label: { uz: 'Zanjir', ru: 'Цепочка', en: 'A chain' }, C: D38_09 },  // chain 🔴 sys_chain
+  { id: '10', label: { uz: 'Xato xulosa', ru: 'Неверный вывод', en: 'The wrong claim' }, C: D38_10 },  // fix 🔴 sys_fix
 ];
 
 export default function Dars38Practice({ lang = 'uz' }) {

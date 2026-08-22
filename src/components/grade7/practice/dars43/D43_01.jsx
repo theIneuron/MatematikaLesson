@@ -1,47 +1,71 @@
-// Dars43 · Amaliyot 01 — Teng uchburchakning perimetri · 🟢 · build · tag: eq_perimeter
-// Mexanika: kit.jsx -> BuildLine. Raskladka: 43-dars, 1-o'rin.
-// Teng uchburchaklarning tomonlari mos ravishda teng, ya'ni perimetrlari ham
-// teng: 6 + 8 + 10 = 24.
+// Dars43 · Amaliyot 01 — Asosdagi ikkinchi burchak · 🟢 · build · tag: iso_base_equal
+// Mexanika: kit.jsx -> BuildLine. Raskladka: 1-o'rin `build`.
+// Asosdagi burchaklar teng: biri 50° bo'lsa ikkinchisi ham 50°. Burchaklar yig'indisi bu darsda ISHLATILMAYDI.
 import React from 'react';
 import { BuildLine, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'eq_perimeter', level: '🟢',
-  eyebrow: L('Teng uchburchaklar', 'Равные треугольники', 'Equal triangles'),
+  tag: 'iso_base_equal',
+  level: '🟢',
+  eyebrow: L(
+    'Asosdagi burchaklar',
+    'Углы при основании',
+    'Base angles'),
   setup: L(
-    "Teng uchburchaklarda mos tomonlar teng. Shuning uchun bir uchburchakning perimetri ikkinchisining perimetrini ham beradi.",
-    'У равных треугольников соответственные стороны равны. Поэтому периметр одного даёт и периметр другого.',
-    'Equal triangles have equal corresponding sides, so one perimeter gives the other.'),
-  given: [['6,', '8,', '10']],
-  givenLabel: L('Tomonlar:', 'Стороны:', 'Sides:'),
-  cards: [
-    { id: 'a', label: '6 + 8 + 10' },
-    { id: 'b', label: '24' },
-    { id: 'c', label: '6 · 8 · 10' },
-    { id: 'd', label: '480' },
-  ],
-  answerSeq: ['a', 'b'],
-  empty: L("Perimetrni hisoblang", 'Посчитай периметр', 'Work out the perimeter'),
-  ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+    'Teng yonli uchburchakda asosdagi ikki burchak teng. Bu xossa tomonlar tengligidan chiqadi.',
+    'В равнобедренном треугольнике два угла при основании равны. Это свойство идёт из равенства сторон.',
+    'An isosceles triangle has equal base angles. The property follows from the equal sides.'),
+  given: [['asosdagi burchak = 50°']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
+  cards: [{ id: 'a', label: '50°' }, { id: 'b', label: '130°' }, { id: 'c', label: '40°' }],
+  answerSeq: ['a'],
+  fieldH: 44,
+  ask: L(
+    "Kartani bosish uni chiziqqa qo'yadi.",
+    'Нажатие на карточку ставит её в строку.',
+    'Tapping a card puts it in the line.'),
+  empty: L(
+    'Kartalarni bosib javobni tuzing',
+    'Нажимай карточки и собери ответ',
+    'Tap the cards to build the answer'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. Perimetr tomonlar yig'indisi: 6 + 8 + 10 = 24. Teng uchburchakda ham 24.",
-    'Верно. Периметр это сумма сторон: 6 + 8 + 10 = 24. У равного треугольника тоже 24.',
-    'Correct. The perimeter is the sum of the sides: 6 + 8 + 10 = 24, the same for the equal triangle.'),
+    "To'g'ri. Asosdagi burchaklar teng, ya'ni ikkinchisi ham 50 gradus.",
+    'Верно. Углы при основании равны, значит второй тоже 50 градусов.',
+    'Correct. The base angles are equal, so the second is 50 degrees too.'),
   wrongs: [
-    { when: (s) => s.seq.indexOf('c') !== -1 || s.seq.indexOf('d') !== -1, text: L(
-      "Ko'paytirish yuza uchun ishlatiladi. Perimetr esa tomonlarning YIG'INDISI.",
-      'Умножение используется для площади. А периметр это СУММА сторон.',
-      'Multiplication belongs to area. The perimeter is the SUM of the sides.') },
-    { when: (s) => s.seq.length < 2, text: L(
-      "Ikki bo'lak kerak: hisoblash va natija.",
-      'Нужны две части: вычисление и результат.',
-      'Two parts are needed: the working and the result.') },
+    {
+      when: (s) => s.seq.indexOf('b') !== -1,
+      text: L(
+        "130° bu 50 ning qo'shnisi. Asosdagi burchaklar esa bir-biriga TENG.",
+        '130° это смежный к 50. А углы при основании РАВНЫ друг другу.',
+        '130° is adjacent to 50. Base angles are EQUAL to each other.'),
+    },
+    {
+      when: (s) => s.seq.indexOf('c') !== -1,
+      text: L(
+        "40° bu 90 − 50. Bu yerda hech narsa 90 ga to'ldirilmaydi.",
+        '40° это 90 − 50. Здесь ничего не дополняется до 90.',
+        '40° is 90 − 50. Nothing is completed to 90 here.'),
+    },
+    {
+      when: (s) => s.seq.length < 1,
+      text: L(
+        'Bitta karta kerak.',
+        'Нужна одна карточка.',
+        'One card is needed.'),
+    },
   ],
   wrongText: L(
-    "Perimetr qanday topiladi -- tomonlar qo'shiladimi yoki ko'paytiriladimi?",
-    'Как находят периметр — стороны складывают или умножают?',
-    'How is a perimeter found — adding or multiplying the sides?'),
+    'Teng tomonlar qarshisida teng burchaklar yotadi.',
+    'Против равных сторон лежат равные углы.',
+    'Equal sides face equal angles.'),
 };
 
 export default function D43_01(props) { return <BuildLine data={DATA} {...props} />; }

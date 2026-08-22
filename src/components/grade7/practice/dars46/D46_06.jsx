@@ -1,51 +1,69 @@
-// Dars46 · Amaliyot 06 — Uch qadamli tekshirish · 🟡 · order · tag: ineq_order
-// Mexanika: kit.jsx -> BuildLine (tartib muhim). Raskladka: 6-o'rin.
-// 6, 7, 15: 6 + 7 = 13, 13 < 15 -> uchburchak yo'q.
+// Dars46 · Amaliyot 06 — Uch qadam · 🟡 · order · tag: rt_order
+// Mexanika: kit.jsx -> BuildLine. Raskladka: 6-o'rin `order`.
+// O'tkir burchak 28° -> 28 + x = 90 -> x = 62.
 import React from 'react';
 import { BuildLine, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'ineq_order', level: '🟡',
-  eyebrow: L('Uch qadam', 'Три шага', 'Three steps'),
+  tag: 'rt_order',
+  level: '🟡',
+  eyebrow: L(
+    'Uch qadam',
+    'Три шага',
+    'Three steps'),
   setup: L(
-    "Tekshirish uch qadamda: ikki kichik tomonni qo'shish, eng katta bilan solishtirish, xulosa.",
-    'Проверка в три шага: сложить две меньшие стороны, сравнить с наибольшей, сделать вывод.',
-    'The check takes three steps: add the two shorter sides, compare with the longest, conclude.'),
-  given: [['6,', '7,', '15']],
-  givenLabel: L('Tomonlar:', 'Стороны:', 'Sides:'),
+    "To'g'ri burchakli uchburchakda bir o'tkir burchak 28 gradus. Ikkinchisini uch qadamda toping.",
+    'В прямоугольном треугольнике один острый угол 28 градусов. Найди второй в три шага.',
+    'A right triangle has one acute angle of 28 degrees. Find the other in three steps.'),
+  given: [['28°']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
   cards: [
-    { id: 'a', label: '6 + 7 = 13' },
-    { id: 'b', label: '13 < 15' },
-    { id: 'c', label: "uchburchak yo'q" },
-    { id: 'd', label: '13 > 15' },
-    { id: 'e', label: 'uchburchak bor' },
+    { id: 'a', label: '28 + x = 90' },
+    { id: 'b', label: 'x = 62' },
+    { id: 'c', label: "o'tkir burchak 62°" },
+    { id: 'd', label: '28 + x = 180' },
+    { id: 'e', label: 'x = 152' },
   ],
   answerSeq: ['a', 'b', 'c'],
-  empty: L("Uch qadamni tartib bilan qo'ying", 'Поставь три шага по порядку', 'Place the three steps in order'),
-  ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+  ask: L(
+    "Kartani bosish uni chiziqqa qo'yadi.",
+    'Нажатие на карточку ставит её в строку.',
+    'Tapping a card puts it in the line.'),
+  empty: L(
+    'Kartalarni bosib javobni tuzing',
+    'Нажимай карточки и собери ответ',
+    'Tap the cards to build the answer'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. 6 + 7 = 13, 13 < 15, ya'ni tomonlar tutashmaydi -- bunday uchburchak yo'q.",
-    'Верно. 6 + 7 = 13, 13 < 15, значит стороны не сомкнутся — такого треугольника нет.',
-    'Correct. 6 + 7 = 13 and 13 < 15, so the sides cannot meet — no such triangle.'),
+    "To'g'ri. O'tkir burchaklar birga 90 beradi, ya'ni 90 − 28 = 62.",
+    'Верно. Острые углы вместе дают 90, значит 90 − 28 = 62.',
+    'Correct. The acute angles give 90 together, so 90 − 28 = 62.'),
   wrongs: [
-    { when: (s) => s.seq.indexOf('d') !== -1 || s.seq.indexOf('e') !== -1, text: L(
-      "13 va 15 ni solishtiring: 13 kichik, ya'ni shart bajarilmadi.",
-      'Сравни 13 и 15: тринадцать меньше, значит условие не выполнено.',
-      'Compare 13 with 15: thirteen is less, so the condition fails.') },
-    { when: (s) => s.seq.length === 3, text: L(
-      "Qadamlar to'g'ri, tartibi boshqa: yig'indi, solishtirish, xulosa.",
-      'Шаги верные, но порядок другой: сумма, сравнение, вывод.',
-      'The steps are right but the order is not: sum, comparison, conclusion.') },
-    { when: (s) => s.seq.length < 3, text: L(
-      "Uch qadam bo'lishi kerak.",
-      'Должно быть три шага.',
-      'There must be three steps.') },
+    {
+      when: (s) => s.seq.indexOf('d') !== -1 || s.seq.indexOf('e') !== -1,
+      text: L(
+        "180 uch burchakning yig'indisi. To'g'ri burchak 90 ni olib qo'ygan, o'tkirlarga 90 qoladi.",
+        '180 это сумма трёх углов. Прямой угол забрал 90, острым остаётся 90.',
+        '180 is the sum of all three. The right angle takes 90, leaving 90 for the acute ones.'),
+    },
+    {
+      when: (s) => s.seq.length < 3,
+      text: L(
+        'Uch karta kerak.',
+        'Нужны три карточки.',
+        'Three cards are needed.'),
+    },
   ],
   wrongText: L(
-    "Ikki kichik tomonni qo'shing va eng katta bilan solishtiring.",
-    'Сложи две меньшие стороны и сравни с наибольшей.',
-    'Add the two shorter sides and compare with the longest.'),
+    "To'g'ri burchakni 180 dan ayiring: o'tkir burchaklarga qancha qoladi?",
+    'Вычти прямой угол из 180: сколько остаётся острым?',
+    'Subtract the right angle from 180: what is left for the acute ones?'),
 };
 
 export default function D46_06(props) { return <BuildLine data={DATA} {...props} />; }

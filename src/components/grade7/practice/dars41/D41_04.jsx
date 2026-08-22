@@ -1,45 +1,67 @@
-// Dars41 · Amaliyot 04 — Vertikal burchaklar · 🟡 · fix · tag: ang_vertical_fix
-// Mexanika: kit.jsx -> TapTerms. Raskladka: 4-o'rin.
-// Vertikal burchaklar TENG. Chuqur yechim: 65° va 115° -- bu qo'shni
-// burchaklar xossasi, vertikal emas.
+// Dars41 · Amaliyot 04 — Xato xulosa · 🟡 · fix · tag: kind_fix
+// Mexanika: kit.jsx -> TapTerms. Raskladka: 4-o'rin `fix`.
+// Uch xulosadan biri xato: to'g'ri burchakli uchburchak teng yonli BO'LISHI mumkin (45°, 45°, 90°).
 import React from 'react';
 import { TapTerms, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'ang_vertical_fix', level: '🟡',
-  eyebrow: L('Xato yozuv', 'Неверная запись', 'The wrong record'),
+  tag: 'kind_fix',
+  level: '🟡',
+  eyebrow: L(
+    'Xato xulosa',
+    'Неверный вывод',
+    'The wrong claim'),
   setup: L(
-    "Vertikal burchaklar teng bo'ladi, qo'shni burchaklar esa 180 gradusga to'ldiradi. Boshqa o'quvchi ikkovini aralashtirgan.",
-    'Вертикальные углы равны, а смежные дополняют до 180 градусов. Другой ученик их перепутал.',
-    'Vertical angles are equal; adjacent ones add to 180. Another pupil mixed them up.'),
-  given: [['∠1', '=', '65°']],
-  givenLabel: L('Berilgan:', 'Дано:', 'Given:'),
-  ask: L("NOTO'G'RI yozuvni belgilang.", 'Отметь НЕВЕРНУЮ запись.', 'Mark the WRONG record.'),
-  note: L('Bitta yozuv.', 'Одна запись.', 'One record.'),
+    "Uch xulosadan biri noto'g'ri. Ikki bo'linish MUSTAQIL: tomonlar bo'yicha nom burchaklar bo'yicha nomni cheklamaydi.",
+    'Один из трёх выводов неверный. Два деления НЕЗАВИСИМЫ: имя по сторонам не ограничивает имя по углам.',
+    'One of the three claims is wrong. The two classifications are INDEPENDENT: the side name does not limit the angle name.'),
+  ask: L(
+    "NOTO'G'RI xulosani belgilang.",
+    'Отметь НЕВЕРНЫЙ вывод.',
+    'Mark the WRONG claim.'),
+  note: L(
+    'Bitta xulosa.',
+    'Один вывод.',
+    'One claim.'),
   parts: [
-    { k: 'term', id: 't1', v: "qo'shni = 115°" },
+    { k: 'term', id: 't1', v: 'teng tomonli teng yonli hamdir' },
     { k: 'sign', v: ' ' },
-    { k: 'term', id: 't2', v: 'vertikal = 115°' },
+    { k: 'term', id: 't2', v: "to'g'ri burchakli teng yonli bo'lolmaydi" },
+    { k: 'sign', v: ' ' },
+    { k: 'term', id: 't3', v: "o'tmas burchak faqat bitta bo'ladi" },
   ],
   want: ['t2'],
   correctText: L(
-    "To'g'ri. Vertikal burchak TENG bo'ladi: 65°. 115° esa qo'shni burchak.",
-    'Верно. Вертикальный угол РАВЕН данному: 65°. А 115° это смежный.',
-    'Correct. The vertical angle is EQUAL: 65°. The 115° is the adjacent one.'),
+    "To'g'ri. 45, 45 va 90 gradusli uchburchak ham to'g'ri burchakli, ham teng yonli.",
+    'Верно. Треугольник 45, 45 и 90 градусов и прямоугольный, и равнобедренный.',
+    'Correct. A 45, 45, 90 triangle is both right-angled and isosceles.'),
   wrongs: [
-    { when: (s) => s.extra.indexOf('t1') !== -1, text: L(
-      "Qo'shni burchak to'g'ri hisoblangan: 180 − 65 = 115.",
-      'Смежный угол посчитан верно: 180 − 65 = 115.',
-      'The adjacent angle is right: 180 − 65 = 115.') },
-    { when: (s) => s.miss.length > 0, text: L(
-      "Vertikal burchaklar haqidagi qoidani eslang: ular teng bo'ladi.",
-      'Вспомни правило о вертикальных углах: они равны.',
-      'Recall the rule for vertical angles: they are equal.') },
+    {
+      when: (s) => s.extra.indexOf('t1') !== -1,
+      text: L(
+        "Teng tomonlida uch tomon teng, ya'ni ikki teng tomon ham bor -- xulosa to'g'ri.",
+        'У равностороннего три равные стороны, значит есть и две равные — вывод верный.',
+        'An equilateral has three equal sides, hence two as well — the claim holds.'),
+    },
+    {
+      when: (s) => s.extra.indexOf('t3') !== -1,
+      text: L(
+        "Ikki o'tmas burchak birga 180 dan oshadi, ya'ni bittadan ko'p bo'lolmaydi -- xulosa to'g'ri.",
+        'Два тупых угла вместе дают больше 180, значит больше одного быть не может — вывод верный.',
+        'Two obtuse angles would exceed 180 together, so only one is possible — the claim holds.'),
+    },
+    {
+      when: (s) => s.miss.length > 0,
+      text: L(
+        "Har xulosani misol bilan sinab ko'ring: 45, 45, 90 uchburchagini eslang.",
+        'Проверь каждый вывод примером: вспомни треугольник 45, 45, 90.',
+        'Test each claim with an example: recall the 45, 45, 90 triangle.'),
+    },
   ],
   wrongText: L(
-    "Vertikal burchaklar teng bo'ladimi yoki 180 ga to'ldiradimi?",
-    'Вертикальные углы равны или дополняют до 180?',
-    'Are vertical angles equal, or do they add to 180?'),
+    "To'g'ri burchakli uchburchakning ikki kateti teng bo'lsa nima bo'ladi?",
+    'Что будет, если у прямоугольного треугольника равны два катета?',
+    'What if a right triangle has two equal legs?'),
 };
 
 export default function D41_04(props) { return <TapTerms data={DATA} {...props} />; }

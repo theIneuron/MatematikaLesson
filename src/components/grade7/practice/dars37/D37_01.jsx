@@ -1,50 +1,73 @@
-// Dars37 · Amaliyot 01 — k ni topish · 🟢 · build · tag: prop_find_k
-// Mexanika: kit.jsx -> BuildLine. Raskladka: 37-dars, 1-o'rin.
-// y = kx, (2; 10) -> k = 10 : 2 = 5, ya'ni y = 5x.
+// Dars37 · Amaliyot 01 — Manfiy k ni topish · 🟢 · build · tag: prop_find_k
+// Mexanika: kit.jsx -> BuildLine. Raskladka: 1-o'rin `build`.
+// DARAJA KO'TARILDI (metodist qarori 2026-08-22): manfiy va kasr koeffitsiyent,
+// ikki qadamli savol, yaqin tuzoq -- PODXOD_7SINF.md 13-band.
+// y = kx, (−4; 20): k = 20 : (−4) = −5.
 import React from 'react';
 import { BuildLine, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'prop_find_k', level: '🟢',
-  eyebrow: L("To'g'ri proporsionallik", 'Прямая пропорциональность', 'Direct proportion'),
+  tag: 'prop_find_k',
+  level: '🟢',
+  eyebrow: L(
+    'k ni topish',
+    'Найти k',
+    'Find k'),
   setup: L(
-    "y = kx da ozod had yo'q. k ni topish uchun ordinatani abssissaga bo'lish kifoya.",
-    'В y = kx нет свободного члена. Чтобы найти k, достаточно разделить ординату на абсциссу.',
-    'In y = kx there is no free term. Divide the ordinate by the abscissa to find k.'),
-  given: [['(2;', '10)']],
-  givenLabel: L('Nuqta:', 'Точка:', 'The point:'),
-  cards: [
-    { id: 'a', label: 'k = 5' },
-    { id: 'b', label: 'y = 5x' },
-    { id: 'c', label: 'k = 20' },
-    { id: 'd', label: 'y = 2x' },
-  ],
-  answerSeq: ['a', 'b'],
-  empty: L("k ni topib formulani yozing", 'Найди k и запиши формулу', 'Find k and write the rule'),
-  ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+    "To'g'ri proporsionallikda k = y : x. Nuqtaning abssissasi manfiy, ya'ni k ham manfiy chiqadi.",
+    'В прямой пропорциональности k = y : x. Абсцисса точки отрицательная, значит и k выйдет отрицательным.',
+    'For direct proportion k = y : x. The abscissa is negative, so k comes out negative.'),
+  given: [['(−4; 20)']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
+  cards: [{ id: 'a', label: 'k = −5' }, { id: 'b', label: 'k = 5' }, { id: 'c', label: 'k = −80' }],
+  answerSeq: ['a'],
+  fieldH: 44,
+  ask: L(
+    "Kartani bosish uni chiziqqa qo'yadi.",
+    'Нажатие на карточку ставит её в строку.',
+    'Tapping a card puts it in the line.'),
+  empty: L(
+    'Kartalarni bosib javobni tuzing',
+    'Нажимай карточки и собери ответ',
+    'Tap the cards to build the answer'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. k = 10 : 2 = 5, ya'ni y = 5x. Tekshirish: 5 · 2 = 10.",
-    'Верно. k = 10 : 2 = 5, значит y = 5x. Проверка: 5 · 2 = 10.',
-    'Correct. k = 10 : 2 = 5, so y = 5x. Check: 5 · 2 = 10.'),
+    "To'g'ri. 20 : (−4) = −5, ya'ni y = −5x.",
+    'Верно. 20 : (−4) = −5, значит y = −5x.',
+    'Correct. 20 : (−4) = −5, so y = −5x.'),
   wrongs: [
-    { when: (s) => s.seq.indexOf('c') !== -1, text: L(
-      "20 bu 10 · 2. k ni topish uchun BO'LISH kerak: 10 : 2 = 5.",
-      '20 это 10 · 2. Чтобы найти k, надо ДЕЛИТЬ: 10 : 2 = 5.',
-      '20 is 10 · 2. To find k you DIVIDE: 10 : 2 = 5.') },
-    { when: (s) => s.seq.indexOf('d') !== -1, text: L(
-      "y = 2x da 2 bu abssissa, koeffitsiyent emas: 2 · 2 = 4, 10 emas.",
-      'В y = 2x двойка это абсцисса, а не коэффициент: 2 · 2 = 4, а не 10.',
-      'In y = 2x the 2 is the abscissa, not the coefficient: 2 · 2 = 4, not 10.') },
-    { when: (s) => s.seq.length < 2, text: L(
-      "Ikki bo'lak kerak: k va formula.",
-      'Нужны две части: k и формула.',
-      'Two parts are needed: k and the rule.') },
+    {
+      when: (s) => s.seq.indexOf('b') !== -1,
+      text: L(
+        "Ishora tashlab ketilgan: musbatni manfiyga bo'lsak manfiy chiqadi.",
+        'Потерян знак: положительное делить на отрицательное даёт отрицательное.',
+        'The sign is lost: positive over negative is negative.'),
+    },
+    {
+      when: (s) => s.seq.indexOf('c') !== -1,
+      text: L(
+        "−80 bu 20 · (−4). k bo'lish bilan topiladi: y : x.",
+        '−80 это 20 · (−4). k находится делением: y : x.',
+        '−80 is 20 · (−4). k comes from dividing: y : x.'),
+    },
+    {
+      when: (s) => s.seq.length < 1,
+      text: L(
+        'Bitta karta kerak.',
+        'Нужна одна карточка.',
+        'One card is needed.'),
+    },
   ],
   wrongText: L(
-    "Ordinatani abssissaga bo'ling: 10 : 2 nechchi?",
-    'Раздели ординату на абсциссу: сколько 10 : 2?',
-    'Divide the ordinate by the abscissa: what is 10 : 2?'),
+    'k = y : x. Ishoraga diqqat.',
+    'k = y : x. Следи за знаком.',
+    'k = y : x. Watch the sign.'),
 };
 
 export default function D37_01(props) { return <BuildLine data={DATA} {...props} />; }

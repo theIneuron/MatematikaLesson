@@ -1,48 +1,76 @@
-// Dars41 · Amaliyot 07 — Tenglikni tuzish · 🟡 · bracket · tag: ang_equality
-// Mexanika: kit.jsx -> BuildLine (qavs kartalari). Raskladka: 7-o'rin.
-// Qo'shni burchaklar uchun: ∠1 + ∠2 = 180°. Tuzoq: 90° yoki ayirma.
+// Dars41 · Amaliyot 07 — Perimetr formulasi · 🟡 · bracket · tag: kind_formula
+// Mexanika: kit.jsx -> BuildLine. Raskladka: 7-o'rin `bracket`.
+// Teng yonli uchburchak perimetri: P = 2a + b, a -- yon tomon, b -- asos.
 import React from 'react';
 import { BuildLine, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'ang_equality', level: '🟡',
-  eyebrow: L('Tenglikni tuzish', 'Составить равенство', 'Build the equality'),
+  tag: 'kind_formula',
+  level: '🟡',
+  eyebrow: L(
+    'Formula',
+    'Формула',
+    'Formula'),
   setup: L(
-    "Ikki burchak qo'shni. Bu holatni tenglik bilan yozish kerak.",
-    'Два угла смежные. Это надо записать равенством.',
-    'Two angles are adjacent. Write that as an equality.'),
+    "Teng yonli uchburchakda ikki yon tomon teng, asos esa boshqa. Perimetr formulasini yig'ing.",
+    'У равнобедренного две боковые равны, а основание другое. Собери формулу периметра.',
+    'An isosceles triangle has two equal legs and a different base. Build the perimeter formula.'),
+  given: [['a', '--', 'yon tomon', ',', 'b', '--', 'asos']],
+  givenLabel: L(
+    'Belgilash:',
+    'Обозначения:',
+    'Notation:'),
   cards: [
-    { id: 'a', label: '∠1 + ∠2' },
-    { id: 'b', label: '= 180°' },
-    { id: 'c', label: '= 90°' },
-    { id: 'd', label: '∠1 − ∠2' },
+    { id: 'a', label: 'P =' },
+    { id: 'b', label: '2a' },
+    { id: 'c', label: '+ b' },
+    { id: 'd', label: '2b' },
+    { id: 'e', label: '+ a' },
   ],
-  answerSeq: ['a', 'b'],
-  empty: L("Tenglikni tuzing", 'Составь равенство', 'Build the equality'),
-  ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+  answerSeq: ['a', 'b', 'c'],
+  ask: L(
+    "Kartani bosish uni chiziqqa qo'yadi.",
+    'Нажатие на карточку ставит её в строку.',
+    'Tapping a card puts it in the line.'),
+  empty: L(
+    'Kartalarni bosib javobni tuzing',
+    'Нажимай карточки и собери ответ',
+    'Tap the cards to build the answer'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. ∠1 + ∠2 = 180°: qo'shni burchaklar birga yoyilgan burchak beradi.",
-    'Верно. ∠1 + ∠2 = 180°: смежные углы вместе дают развёрнутый угол.',
-    'Correct. ∠1 + ∠2 = 180°: adjacent angles form a straight angle.'),
+    "To'g'ri. P = 2a + b: yon tomon ikki marta, asos bir marta.",
+    'Верно. P = 2a + b: боковая дважды, основание один раз.',
+    'Correct. P = 2a + b: the leg twice, the base once.'),
   wrongs: [
-    { when: (s) => s.seq.indexOf('c') !== -1, text: L(
-      "90 gradus to'ldiruvchi burchaklar uchun. Qo'shni burchaklar 180 beradi.",
-      '90 градусов для дополнительных углов. Смежные дают 180.',
-      '90 is for complementary angles. Adjacent ones give 180.') },
-    { when: (s) => s.seq.indexOf('d') !== -1, text: L(
-      "Ayirma emas: qo'shni burchaklar QO'SHILADI.",
-      'Не разность: смежные углы СКЛАДЫВАЮТСЯ.',
-      'Not a difference: adjacent angles ADD.') },
-    { when: (s) => s.seq.length < 2, text: L(
-      "Tenglik ikki bo'lakdan iborat.",
-      'Равенство состоит из двух частей.',
-      'The equality has two parts.') },
+    {
+      when: (s) => s.seq.indexOf('d') !== -1,
+      text: L(
+        '2b asos ikki marta degani. Ikki marta olinadigan tomon YON tomon.',
+        '2b значит основание дважды. Дважды берётся БОКОВАЯ сторона.',
+        '2b doubles the base. It is the LEG that appears twice.'),
+    },
+    {
+      when: (s) => s.seq.indexOf('e') !== -1,
+      text: L(
+        "Bu yozuvda a ikki joyda chiqib qoladi. Formulada har tomon o'z sonicha turadi.",
+        'В этой записи a попадает в два места. В формуле каждая сторона стоит столько раз, сколько её есть.',
+        'This puts a in two places. Each side appears exactly as many times as it occurs.'),
+    },
+    {
+      when: (s) => s.seq.length < 3,
+      text: L(
+        'Uch karta kerak.',
+        'Нужны три карточки.',
+        'Three cards are needed.'),
+    },
   ],
   wrongText: L(
-    "Qo'shni burchaklar qanday amal bilan birlashadi va nechchi beradi?",
-    'Каким действием соединяются смежные углы и что они дают?',
-    'Which operation joins adjacent angles, and what do they give?'),
+    'Teng yonli uchburchakda nechta yon tomon va nechta asos bor?',
+    'Сколько у равнобедренного боковых сторон и сколько оснований?',
+    'How many legs and how many bases does an isosceles triangle have?'),
 };
 
 export default function D41_07(props) { return <BuildLine data={DATA} {...props} />; }

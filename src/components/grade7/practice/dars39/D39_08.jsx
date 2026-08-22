@@ -1,47 +1,66 @@
-// Dars39 · Amaliyot 08 — Takrorsiz tanlash · 🔴 · bracket · tag: comb_no_repeat
-// Mexanika: kit.jsx -> BuildLine (qavs kartalari). Raskladka: 8-o'rin.
-// 4 kishidan uchtasini navbat bilan tanlash: 4 · 3 · 2 = 24.
-// Har qadamda variant BITTAGA kamayadi.
+// Dars39 · Amaliyot 08 — Takrorsiz yozuv · 🔴 · bracket · tag: comb_no_repeat
+// Mexanika: kit.jsx -> BuildLine. Raskladka: 8-o'rin `bracket`.
+// DARAJA KO'TARILDI (metodist qarori 2026-08-22): manfiy va kasr koeffitsiyent,
+// ikki qadamli savol, yaqin tuzoq -- PODXOD_7SINF.md 13-band.
+// Besh kishidan uchtasini navbat bilan tanlash: 5 · 4 · 3 = 60. Har qadamda variant bittaga kamayadi.
 import React from 'react';
 import { BuildLine, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'comb_no_repeat', level: '🔴',
-  eyebrow: L('Takrorsiz', 'Без повторов', 'No repeats'),
+  tag: 'comb_no_repeat',
+  level: '🔴',
+  eyebrow: L(
+    'Takrorsiz yozuv',
+    'Запись без повторений',
+    'The no-repeat record'),
   setup: L(
-    "Bir odam ikki o'rinni egallay olmaydi, ya'ni har qadamda tanlov bittaga kamayadi.",
-    'Один человек не может занять два места, значит на каждом шаге выбор уменьшается на один.',
-    'One person cannot fill two places, so each step has one fewer choice.'),
-  given: [['4', 'kishi,', '3', "o'rin"]],
-  givenLabel: L('Masala:', 'Задание:', 'The task:'),
+    "Besh kishidan uchtasi navbat bilan tanlanadi. Tanlangan odam qaytib tanlanmaydi, ya'ni har qadamda variant kamayadi. Hisob yozuvini yig'ing.",
+    'Из пяти человек по очереди выбирают трёх. Выбранный больше не участвует, значит на каждом шаге вариантов меньше. Собери запись вычисления.',
+    'Three of five people are chosen in turn. A chosen one drops out, so options shrink each step. Build the computation.'),
   cards: [
-    { id: 'a', label: '4 · 3 · 2' },
-    { id: 'b', label: '24' },
-    { id: 'c', label: '4 · 4 · 4' },
-    { id: 'd', label: '64' },
+    { id: 'a', label: '5 · 4 · 3' },
+    { id: 'b', label: '= 60' },
+    { id: 'c', label: '5 · 5 · 5' },
+    { id: 'd', label: '= 125' },
   ],
   answerSeq: ['a', 'b'],
-  empty: L("Hisoblab yozing", 'Запиши вычисление', 'Write the working'),
-  ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+  fieldH: 44,
+  ask: L(
+    "Kartani bosish uni chiziqqa qo'yadi.",
+    'Нажатие на карточку ставит её в строку.',
+    'Tapping a card puts it in the line.'),
+  empty: L(
+    'Kartalarni bosib javobni tuzing',
+    'Нажимай карточки и собери ответ',
+    'Tap the cards to build the answer'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. Birinchi o'ringa to'rt kishi, ikkinchisiga uchta, uchinchisiga ikkita: 4 · 3 · 2 = 24.",
-    'Верно. На первое место четыре человека, на второе три, на третье два: 4 · 3 · 2 = 24.',
-    'Correct. Four for the first place, three for the second, two for the third: 4 · 3 · 2 = 24.'),
+    "To'g'ri. 5 · 4 · 3 = 60: har qadamda bitta odam kamayadi.",
+    'Верно. 5 · 4 · 3 = 60: на каждом шаге на одного человека меньше.',
+    'Correct. 5 · 4 · 3 = 60: one person fewer at each step.'),
   wrongs: [
-    { when: (s) => s.seq.indexOf('c') !== -1 || s.seq.indexOf('d') !== -1, text: L(
-      "4 · 4 · 4 takrorlash mumkin bo'lganda to'g'ri bo'lardi. Bu yerda bir odam ikki o'rinni egallay olmaydi.",
-      '4 · 4 · 4 было бы верно, если повтор разрешён. Но один человек не может занять два места.',
-      '4 · 4 · 4 would fit if repeats were allowed. Here one person cannot take two places.') },
-    { when: (s) => s.seq.length < 2, text: L(
-      "Ikki bo'lak kerak: hisoblash va natija.",
-      'Нужны две части: вычисление и результат.',
-      'Two parts are needed: the working and the result.') },
+    {
+      when: (s) => s.seq.indexOf('c') !== -1 || s.seq.indexOf('d') !== -1,
+      text: L(
+        "5 · 5 · 5 -- takrorlash mumkin bo'lgan holat. Odam ikki marta tanlanmaydi.",
+        '5 · 5 · 5 это случай с повторениями. Человека дважды не выбирают.',
+        '5 · 5 · 5 allows repeats, yet a person is not chosen twice.'),
+    },
+    {
+      when: (s) => s.seq.length < 2,
+      text: L(
+        'Ikki karta kerak.',
+        'Нужны две карточки.',
+        'Two cards are needed.'),
+    },
   ],
   wrongText: L(
-    "Birinchi o'rinni egallagandan keyin nechta kishi qoladi?",
-    'Сколько человек остаётся после занятия первого места?',
-    'How many people remain after the first place is filled?'),
+    'Ikkinchi qadamda nechta odam qoladi?',
+    'Сколько человек остаётся на втором шаге?',
+    'How many people remain at the second step?'),
 };
 
 export default function D39_08(props) { return <BuildLine data={DATA} {...props} />; }

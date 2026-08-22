@@ -1,53 +1,89 @@
-// Dars40 · Amaliyot 07 — Uch holat · 🟡 · sort · tag: seg_zones
-// Mexanika: kit.jsx -> Zones. Raskladka: 7-o'rin.
-// AB = 20, AC = 12 -> CB = 8;  AB = 20, AC = 8 -> CB = 12;
-// AC = 8, CB = 12 -> AB = 20.
+// Dars40 · Amaliyot 07 — Uch juftlik · 🟡 · sort · tag: ang_pair_zones
+// Mexanika: kit.jsx -> Zones. Raskladka: 7-o'rin `sort`.
+// Vertikal juft teng; qo'shni juft 180 beradi; 47° va 43° hech qaysi turga kirmaydi (90 ga to'ldiradi).
 import React from 'react';
 import { Zones, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'seg_zones', level: '🟡', itemSize: 19, zoneLbl: 74,
-  eyebrow: L('Uch holat', 'Три случая', 'Three cases'),
+  tag: 'ang_pair_zones',
+  level: '🟡',
+  eyebrow: L(
+    'Uch juftlik',
+    'Три пары',
+    'Three pairs'),
   setup: L(
-    "Uch holatda bir xil sonlar: 8, 12 va 20. Har holatda nima so'ralganiga qarab amal o'zgaradi.",
-    'В трёх случаях одни числа: 8, 12 и 20. Действие меняется в зависимости от того, что спрашивают.',
-    'The three cases share 8, 12 and 20. The operation depends on what is asked.'),
+    "Har juftlikni turiga ko'ra joylashtiring. Uchinchi juftlik na teng, na 180 beradi: u 90 gradusga to'ldiradi.",
+    'Размести каждую пару по её типу. Третья пара ни равна, ни даёт 180: она дополняет до 90 градусов.',
+    'Sort each pair by its kind. The third pair is neither equal nor 180: it completes 90 degrees.'),
+  itemSize: 20,
+  zoneLbl: 104,
   zones: [
-    { id: 'z8', label: L('8', '8', '8') },
-    { id: 'z12', label: L('12', '12', '12') },
-    { id: 'z20', label: L('20', '20', '20') },
+    {
+      id: 'zt',
+      label: L(
+        'Teng',
+        'Равны',
+        'Equal'),
+    },
+    {
+      id: 'zs',
+      label: L(
+        "Yig'indisi 180°",
+        'В сумме 180°',
+        'Sum is 180°'),
+    },
+    {
+      id: 'zn',
+      label: L(
+        'Boshqa holat',
+        'Другой случай',
+        'Neither'),
+    },
   ],
   items: [
-    { id: 'i1', tokens: ['AB', '=', '20,', 'AC', '=', '12', '→', 'CB'], zone: 'z8' },
-    { id: 'i2', tokens: ['AB', '=', '20,', 'AC', '=', '8', '→', 'CB'], zone: 'z12' },
-    { id: 'i3', tokens: ['AC', '=', '8,', 'CB', '=', '12', '→', 'AB'], zone: 'z20' },
+    { id: 'i1', tokens: ['47° va 47°'], zone: 'zt' },
+    { id: 'i2', tokens: ['47° va 133°'], zone: 'zs' },
+    { id: 'i3', tokens: ['47° va 43°'], zone: 'zn' },
   ],
-  ask: L('Kartani bosing, keyin zonani bosing. Zonadagi kartani bosish uni qaytarib oladi.',
+  bank: L(
+    'Juftliklar',
+    'Пары',
+    'Pairs'),
+  ask: L(
+    'Kartani bosing, keyin zonani bosing. Zonadagi kartani bosish uni qaytarib oladi.',
     'Нажми карточку, затем зону. Нажатие на карточку в зоне возвращает её обратно.',
     'Tap a card, then tap a zone. Tapping a card inside a zone takes it back.'),
-  bank: L('Holatlar', 'Случаи', 'Cases'),
   correctText: L(
-    "To'g'ri. Butun so'ralganda qo'shiladi, bo'lak so'ralganda ayiriladi.",
-    'Верно. Когда спрашивают целое — складывают, когда часть — вычитают.',
-    'Correct. Asking for the whole means adding; asking for a part means subtracting.'),
+    "To'g'ri. Vertikal burchaklar teng, qo'shni burchaklar 180 beradi, 47 va 43 esa faqat 90 ga to'ldiradi.",
+    'Верно. Вертикальные равны, смежные дают 180, а 47 и 43 дополняют только до 90.',
+    'Correct. Vertical angles are equal, adjacent ones give 180, while 47 and 43 only make 90.'),
   wrongs: [
-    { when: (s) => s.bad.indexOf('i3') !== -1, text: L(
-      "Uchinchi holatda BUTUN kesma so'ralgan: 8 + 12 = 20.",
-      'В третьем случае спрашивают ВЕСЬ отрезок: 8 + 12 = 20.',
-      'The third case asks for the WHOLE: 8 + 12 = 20.') },
-    { when: (s) => s.bad.indexOf('i1') !== -1, text: L(
-      "Birinchi holatda bo'lak so'ralgan: 20 − 12 = 8.",
-      'В первом случае спрашивают часть: 20 − 12 = 8.',
-      'The first case asks for a part: 20 − 12 = 8.') },
-    { when: (s) => s.bad.indexOf('i2') !== -1, text: L(
-      "Ikkinchi holatda 20 − 8 = 12.",
-      'Во втором случае 20 − 8 = 12.',
-      'The second case gives 20 − 8 = 12.') },
+    {
+      when: (s) => s.bad.indexOf('i3') !== -1,
+      text: L(
+        "47 + 43 = 90. Bu qo'shni burchaklar emas, chunki ular to'g'ri chiziqni to'ldirmaydi.",
+        '47 + 43 = 90. Это не смежные углы: они не дополняют до прямой.',
+        '47 + 43 = 90. These are not adjacent: they do not make a straight line.'),
+    },
+    {
+      when: (s) => s.bad.indexOf('i2') !== -1,
+      text: L(
+        "47 + 133 = 180, ya'ni bu qo'shni burchaklar juftligi.",
+        '47 + 133 = 180, значит это пара смежных углов.',
+        '47 + 133 = 180, so this pair is adjacent.'),
+    },
+    {
+      when: (s) => s.bad.indexOf('i1') !== -1,
+      text: L(
+        "Bir xil ikki son -- bu teng burchaklar, vertikal juftlik shunday bo'ladi.",
+        'Два одинаковых числа это равные углы, так бывает у вертикальной пары.',
+        'Two equal numbers mean equal angles, as a vertical pair gives.'),
+    },
   ],
   wrongText: L(
-    "Har holatda so'ralgan narsa butunmi yoki bo'lak? Shu amalni belgilaydi.",
-    'В каждом случае спрашивают целое или часть? Это и задаёт действие.',
-    'In each case, is the whole or a part asked? That sets the operation.'),
+    "Har juftlikni qo'shib ko'ring: 180 chiqsa -- qo'shni, sonlar bir xil bo'lsa -- teng.",
+    'Сложи каждую пару: вышло 180 это смежные, числа одинаковы это равные.',
+    'Add each pair: 180 means adjacent, identical numbers mean equal.'),
 };
 
 export default function D40_07(props) { return <Zones data={DATA} {...props} />; }

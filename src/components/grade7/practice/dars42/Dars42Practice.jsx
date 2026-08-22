@@ -1,12 +1,15 @@
-// Dars42 amaliyoti — 10 topshiriq. Mavzu: UCHBURCHAK BURCHAKLARI.
+// Dars42 amaliyoti — 10 topshiriq. Mavzu: UCHBURCHAKLAR TENGLIGI ALOMATLARI.
 // Topshiriq fayllarida FAQAT ma'lumot; mexanikalar `practice/kit.jsx` da,
 // qobiq `practice/PracticeHost.jsx` da (CLAUDE.md §5).
 //
 // MEXANIKALAR RASKLADKADAN: node scripts/grade7-practice-layout.mjs --json
+// 42-dars raskladkasi: choice, bracket, fix, build, slots, build, sort, chain, build, order
 // Raskladka nomlari mavjud mexanikalarga solishtirildi (metodist qarori
 // 2026-08-21): build/order/bracket -> BuildLine, slots/chain -> SlotsBank,
 // fix -> TapTerms, sort -> Zones, choice -> Choice (faqat isinish uchun).
-// 42-dars raskladkasi: choice, bracket, fix, build, slots, build, sort, chain, build, order
+//
+// MAVZU DARS BILAN SVERKA QILINDI (metodist qarori 2026-08-22): amaliyot
+// mavzusi `src/lessons/grade7.js` dagi nazariy darsning mavzusiga mos.
 
 import React, { useState } from 'react';
 import PracticeHost, { usePracticeZoom } from '../PracticeHost.jsx';
@@ -22,22 +25,22 @@ import D42_09 from './D42_09.jsx';
 import D42_10 from './D42_10.jsx';
 
 const HEAD = {
-  uz: "Dars 42 amaliyoti — 10 topshiriq (uchburchak burchaklari)",
-  ru: 'Практика урока 42 — 10 заданий (углы треугольника)',
-  en: 'Lesson 42 practice — 10 tasks (angles of a triangle)',
+  uz: 'Dars 42 amaliyoti — 10 topshiriq (uchburchaklar tengligi alomatlari)',
+  ru: 'Практика урока 42 — 10 заданий (признаки равенства треугольников)',
+  en: 'Lesson 42 practice — 10 tasks (congruence criteria)',
 };
 
 const ITEMS = [
-  { id: '01', label: { uz: "Yig'indi", ru: 'Сумма', en: 'The sum' }, C: D42_01 },  // choice 🟢 180°
-  { id: '02', label: { uz: "Tenglik", ru: 'Равенство', en: 'Equality' }, C: D42_02 },  // bracket 🟢 ∠A + ∠B + ∠C
-  { id: '03', label: { uz: "Bunday yo'q", ru: 'Такого нет', en: 'Impossible' }, C: D42_03 },  // fix 🟢 70 80 40
-  { id: '04', label: { uz: "Uchinchi burchak", ru: 'Третий угол', en: 'Third angle' }, C: D42_04 },  // build 🟡 55° va 65°
-  { id: '05', label: { uz: "To'g'ri burchakli", ru: 'Прямоугольный', en: 'Right-angled' }, C: D42_05 },  // slots 🟡 90° va 35°
-  { id: '06', label: { uz: "Teng yonli", ru: 'Равнобедренный', en: 'Isosceles' }, C: D42_06 },  // build 🟡 asos 70°
-  { id: '07', label: { uz: "Turlari", ru: 'Виды', en: 'Kinds' }, C: D42_07 },  // sort 🟡 60 / 90 / 120
-  { id: '08', label: { uz: "Harfli burchaklar", ru: 'Углы с буквой', en: 'With letters' }, C: D42_08 },  // chain 🔴 3x, 2x, 100°
-  { id: '09', label: { uz: "Tashqi burchak", ru: 'Внешний угол', en: 'Exterior' }, C: D42_09 },  // build 🔴 130° va 60°
-  { id: '10', label: { uz: "Nisbat", ru: 'Отношение', en: 'Ratio' }, C: D42_10 },  // order 🔴 1 : 2 : 3
+  { id: '01', label: { uz: 'Yetarlimi', ru: 'Достаточно ли', en: 'Is it enough' }, C: D42_01 },  // choice 🟢 eq_enough
+  { id: '02', label: { uz: 'Moslik', ru: 'Соответствие', en: 'Correspondence' }, C: D42_02 },  // bracket 🟢 eq_bracket
+  { id: '03', label: { uz: 'Xato xulosa', ru: 'Неверный вывод', en: 'The wrong claim' }, C: D42_03 },  // fix 🟢 eq_angles_fix
+  { id: '04', label: { uz: 'Qaysi alomat', ru: 'Какой признак', en: 'Which criterion' }, C: D42_04 },  // build 🟡 eq_which_sign
+  { id: '05', label: { uz: 'Mos elementlar', ru: 'Соответственные элементы', en: 'Matching elements' }, C: D42_05 },  // slots 🟡 eq_slots
+  { id: '06', label: { uz: 'Uchinchi tomon', ru: 'Третья сторона', en: 'The third side' }, C: D42_06 },  // build 🟡 eq_third_side
+  { id: '07', label: { uz: 'Uch alomat', ru: 'Три признака', en: 'Three criteria' }, C: D42_07 },  // sort 🟡 eq_signs_zones
+  { id: '08', label: { uz: 'Ikki qadam', ru: 'Два шага', en: 'Two steps' }, C: D42_08 },  // chain 🔴 eq_chain
+  { id: '09', label: { uz: 'Harf bilan', ru: 'С буквой', en: 'With a letter' }, C: D42_09 },  // build 🔴 eq_letter
+  { id: '10', label: { uz: 'Isbot qadamlari', ru: 'Шаги доказательства', en: 'Steps of a proof' }, C: D42_10 },  // order 🔴 eq_order
 ];
 
 export default function Dars42Practice({ lang = 'uz' }) {

@@ -1,46 +1,76 @@
-// Dars43 · Amaliyot 08 — Teng yonli va perimetr · 🔴 · build · tag: eq_isosceles_p
-// Mexanika: kit.jsx -> BuildLine. Raskladka: 8-o'rin.
-// Teng yonli uchburchak, P = 32, asos 12 -> yon tomon (32 − 12) : 2 = 10.
+// Dars43 · Amaliyot 08 — Harf bilan tomonlar · 🔴 · build · tag: iso_letter_sides
+// Mexanika: kit.jsx -> BuildLine. Raskladka: 8-o'rin `build`.
+// Yon tomonlar 2x, asos x + 6, P = 41: 5x + 6 = 41 -> x = 7. Yon tomon 14, asos 13.
 import React from 'react';
 import { BuildLine, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'eq_isosceles_p', level: '🔴',
-  eyebrow: L('Yon tomon', 'Боковая сторона', 'The leg'),
+  tag: 'iso_letter_sides',
+  level: '🔴',
+  eyebrow: L(
+    'Harf bilan',
+    'С буквой',
+    'With a letter'),
   setup: L(
-    "Teng yonli uchburchakda ikki yon tomon teng. Perimetrdan asosni ayirsak, qolgani ikki teng tomonga bo'linadi.",
-    'В равнобедренном треугольнике две боковые стороны равны. Вычтя основание из периметра, остаток делим на две равные стороны.',
-    'An isosceles triangle has two equal legs. Take the base from the perimeter and split the rest in two.'),
-  given: [['P', '=', '32'], ['asos', '=', '12']],
-  givenLabel: L('Berilgan:', 'Дано:', 'Given:'),
+    'Yon tomonlar 2x, asos esa x + 6. Ikki javob kerak: x va asos.',
+    'Боковые равны 2x, основание x + 6. Нужны два ответа: x и основание.',
+    'The legs are 2x and the base is x + 6. Two answers: x and the base.'),
+  given: [['2x, 2x', 'va', 'x + 6', ';', 'P = 41']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
   cards: [
-    { id: 'a', label: '32 − 12 = 20' },
-    { id: 'b', label: '20 : 2 = 10' },
-    { id: 'c', label: '32 − 12 = 20' },
-    { id: 'd', label: '20' },
+    { id: 'a', label: 'x = 7' },
+    { id: 'b', label: 'asos = 13' },
+    { id: 'c', label: 'x = 8,2' },
+    { id: 'd', label: 'asos = 14' },
   ],
   answerSeq: ['a', 'b'],
-  empty: L("Ikki qadamni qo'ying", 'Поставь два шага', 'Place the two steps'),
-  ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+  fieldH: 44,
+  ask: L(
+    "Kartani bosish uni chiziqqa qo'yadi.",
+    'Нажатие на карточку ставит её в строку.',
+    'Tapping a card puts it in the line.'),
+  empty: L(
+    'Kartalarni bosib javobni tuzing',
+    'Нажимай карточки и собери ответ',
+    'Tap the cards to build the answer'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. 32 − 12 = 20 -- bu ikki yon tomon birga. Bittasi 20 : 2 = 10.",
-    'Верно. 32 − 12 = 20 — это две боковые вместе. Одна равна 20 : 2 = 10.',
-    'Correct. 32 − 12 = 20 covers both legs. One is 20 : 2 = 10.'),
+    "To'g'ri. 2x + 2x + (x + 6) = 41, ya'ni 5x = 35 va x = 7. Asos 7 + 6 = 13.",
+    'Верно. 2x + 2x + (x + 6) = 41, значит 5x = 35 и x = 7. Основание 7 + 6 = 13.',
+    'Correct. 2x + 2x + (x + 6) = 41 gives 5x = 35 and x = 7. The base is 7 + 6 = 13.'),
   wrongs: [
-    { when: (s) => s.seq.indexOf('d') !== -1, text: L(
-      "20 bu IKKI yon tomonning yig'indisi. Bitta tomon uning yarmi: 10.",
-      '20 это сумма ДВУХ боковых сторон. Одна сторона это половина: 10.',
-      '20 is the sum of BOTH legs. One leg is half of that: 10.') },
-    { when: (s) => s.seq.length < 2, text: L(
-      "Ikki qadam kerak: ayirish va ikkiga bo'lish.",
-      'Нужны два шага: вычитание и деление на два.',
-      'Two steps: subtract, then halve.') },
+    {
+      when: (s) => s.seq.indexOf('c') !== -1,
+      text: L(
+        "8,2 chiqishi uchun 41 beshga bo'lingan, lekin +6 ayirilmagan: avval 41 − 6 = 35.",
+        'Чтобы вышло 8,2, разделили 41 на пять, не вычтя +6: сначала 41 − 6 = 35.',
+        '8.2 divides 41 by five without removing the +6: first 41 − 6 = 35.'),
+    },
+    {
+      when: (s) => s.seq.indexOf('d') !== -1,
+      text: L(
+        '14 bu yon tomon (2 · 7). Asos esa x + 6 = 13.',
+        '14 это боковая (2 · 7). А основание x + 6 = 13.',
+        '14 is the leg (2 · 7). The base is x + 6 = 13.'),
+    },
+    {
+      when: (s) => s.seq.length < 2,
+      text: L(
+        'Ikki karta kerak.',
+        'Нужны две карточки.',
+        'Two cards are needed.'),
+    },
   ],
   wrongText: L(
-    "Perimetrdan asosni ayirsangiz nechta tomon qoladi?",
-    'Сколько сторон останется, если вычесть основание из периметра?',
-    'How many sides remain when the base is taken from the perimeter?'),
+    "Uch tomonni qo'shing: 2x + 2x + (x + 6) = 41.",
+    'Сложи три стороны: 2x + 2x + (x + 6) = 41.',
+    'Add the three sides: 2x + 2x + (x + 6) = 41.'),
 };
 
 export default function D43_08(props) { return <BuildLine data={DATA} {...props} />; }

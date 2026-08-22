@@ -1,37 +1,83 @@
-// Dars42 · Amaliyot 01 — Burchaklar yig'indisi · 🟢 · choice · tag: tri_sum
-// Mexanika: kit.jsx -> Choice. Raskladka: 42-dars, 1-o'rin (isinish).
-// Uchburchak burchaklari yig'indisi 180°.
+// Dars42 · Amaliyot 01 — Ikki tomon yetarlimi · 🟢 · choice · tag: eq_enough
+// Mexanika: kit.jsx -> Choice. Raskladka: 1-o'rin `choice`.
+// Ikki tomon tengligi yetarli emas: ular ORASIDAGI burchak ham kerak.
 import React from 'react';
 import { Choice, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'tri_sum', level: '🟢', optCols: 3,
-  eyebrow: L("Burchaklar yig'indisi", 'Сумма углов', 'Sum of angles'),
+  tag: 'eq_enough',
+  level: '🟢',
+  eyebrow: L(
+    'Yetarlimi',
+    'Достаточно ли',
+    'Is it enough'),
   setup: L(
-    "Har qanday uchburchakda uch burchak bor va ularning yig'indisi o'zgarmaydi. Uchburchak katta yoki kichik bo'lishi ahamiyatsiz.",
-    'В любом треугольнике три угла, и их сумма не меняется. Размер треугольника значения не имеет.',
-    'Every triangle has three angles and their sum never changes, whatever its size.'),
-  ask: L("Uchburchak burchaklari yig'indisi nechchi?", 'Чему равна сумма углов треугольника?', 'What is the sum of a triangle\'s angles?'),
-  opts: [{ label: ['180°'] }, { label: ['360°'] }, { label: ['90°'] }],
+    "Uchburchaklar tengligi uchun UCHTA mos element kerak. Ikki tomon tengligi shaklni qulflab qo'ymaydi: ular orasidagi burchak har xil bo'lishi mumkin.",
+    'Для равенства треугольников нужны ТРИ соответствующих элемента. Равенство двух сторон не закрепляет форму: угол между ними может быть разным.',
+    'Equal triangles need THREE matching elements. Two equal sides do not lock the shape: the angle between them may differ.'),
+  ask: L(
+    "Ikki tomonga nima qo'shilishi kerak?",
+    'Что надо добавить к двум сторонам?',
+    'What must join the two sides?'),
+  opts: [
+    {
+      label: L(
+        'Orasidagi burchak',
+        'Угол между ними',
+        'The angle between them'),
+    },
+    {
+      label: L(
+        'Istalgan burchak',
+        'Любой угол',
+        'Any angle'),
+    },
+    {
+      label: L(
+        'Perimetr',
+        'Периметр',
+        'The perimeter'),
+    },
+    {
+      label: L(
+        'Hech narsa, yetarli',
+        'Ничего, достаточно',
+        'Nothing, it is enough'),
+    },
+  ],
   correct: 0,
+  optCols: 2,
   correctText: L(
-    "To'g'ri. Uch burchak birga 180 gradus beradi -- yoyilgan burchak kabi.",
-    'Верно. Три угла вместе дают 180 градусов — как развёрнутый угол.',
-    'Correct. The three angles make 180 degrees, like a straight angle.'),
+    "To'g'ri. Ikki tomon va ular ORASIDAGI burchak -- shu uchlik uchburchakni qulflaydi.",
+    'Верно. Две стороны и угол МЕЖДУ ними — эта тройка закрепляет треугольник.',
+    'Correct. Two sides and the angle BETWEEN them lock the triangle.'),
   wrongs: [
-    { when: (s) => s.picked === 1, text: L(
-      "360 gradus to'rtburchak uchun. Uchburchakda esa 180.",
-      '360 градусов у четырёхугольника. У треугольника 180.',
-      '360 belongs to a quadrilateral. A triangle has 180.') },
-    { when: (s) => s.picked === 2, text: L(
-      "90 gradus faqat BITTA burchak bo'lishi mumkin -- to'g'ri burchak. Uchtasining yig'indisi esa 180.",
-      '90 градусов может быть только ОДИН угол — прямой. А сумма трёх равна 180.',
-      '90 can be ONE angle, a right one. The three together make 180.') },
+    {
+      when: (s) => s.picked === 1,
+      text: L(
+        'Istalgan burchak emas: aynan ikki tomon orasidagi burchak kerak.',
+        'Не любой угол: нужен именно угол между этими двумя сторонами.',
+        'Not any angle: it must be the one between those two sides.'),
+    },
+    {
+      when: (s) => s.picked === 2,
+      text: L(
+        "Perimetr uchinchi tomonni bermaydi: bir xil perimetrda shakl boshqacha bo'lishi mumkin.",
+        'Периметр не даёт третью сторону: при одном периметре форма может отличаться.',
+        'The perimeter does not fix the third side: the same perimeter allows different shapes.'),
+    },
+    {
+      when: (s) => s.picked === 3,
+      text: L(
+        "Ikki tomon yetmaydi: ularni bir-biriga nisbatan burish mumkin, uchburchak o'zgaradi.",
+        'Двух сторон мало: их можно повернуть друг относительно друга, и треугольник изменится.',
+        'Two sides are not enough: rotating one against the other changes the triangle.'),
+    },
   ],
   wrongText: L(
-    "Uchburchakning uch burchagini bir joyga qo'ysak qanday burchak chiqadi?",
-    'Если сложить три угла треугольника вместе, какой угол выйдет?',
-    "Placing the three angles together, what angle appears?"),
+    "Ikki tayoqchani burchak bilan ushlab ko'ring: burchak o'zgarsa uchinchi tomon o'zgaradi.",
+    'Представь две палочки под углом: меняется угол — меняется третья сторона.',
+    'Picture two sticks at an angle: change the angle and the third side changes.'),
 };
 
 export default function D42_01(props) { return <Choice data={DATA} {...props} />; }

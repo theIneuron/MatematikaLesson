@@ -1,53 +1,91 @@
 // Dars33 · Amaliyot 09 — Uch chorak · 🔴 · sort · tag: quadrant_zones
-// Mexanika: kit.jsx -> Zones. Raskladka: 9-o'rin.
-// (2; 5) -> I;  (−2; 5) -> II;  (−2; −5) -> III.
-// Sonlar bir xil, faqat ishoralari boshqa.
+// Mexanika: kit.jsx -> Zones. Raskladka: 9-o'rin `sort`.
+// DARAJA KO'TARILDI (metodist qarori 2026-08-22): sonlar ikki xonali va manfiy,
+// qadamlar soni ikkitadan boshlanadi -- PODXOD_7SINF.md 13-band.
+// (13; −8) -> IV; (−13; −8) -> III; (−13; 8) -> II. Sonlar bir xil, faqat ishoralar boshqa.
 import React from 'react';
 import { Zones, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'quadrant_zones', level: '🔴', itemSize: 22, zoneLbl: 90,
-  eyebrow: L('Choraklar', 'Четверти', 'Quadrants'),
+  tag: 'quadrant_zones',
+  level: '🔴',
+  eyebrow: L(
+    'Uch chorak',
+    'Три четверти',
+    'Three quadrants'),
   setup: L(
-    "Uch nuqtada bir xil sonlar: 2 va 5. Chorakni faqat ishoralar belgilaydi: birinchi chorakda ikkovi musbat, uchinchisida ikkovi manfiy.",
-    'В трёх точках одни числа: 2 и 5. Четверть определяют только знаки: в первой оба положительные, в третьей оба отрицательные.',
-    'The three points share 2 and 5. Only the signs decide the quadrant: both positive in I, both negative in III.'),
+    'Uch nuqtada sonlar bir xil, faqat ishoralar boshqa. Chorakni ishoralar jufti hal qiladi.',
+    'В трёх точках числа одинаковые, различаются только знаки. Четверть решает пара знаков.',
+    'The three points share their numbers and differ only in signs. The sign pair decides the quadrant.'),
+  itemSize: 20,
+  zoneLbl: 104,
   zones: [
-    { id: 'z1', label: L('I chorak', 'I четверть', 'Quadrant I') },
-    { id: 'z2', label: L('II chorak', 'II четверть', 'Quadrant II') },
-    { id: 'z3', label: L('III chorak', 'III четверть', 'Quadrant III') },
+    {
+      id: 'z2',
+      label: L(
+        'II chorak',
+        'II четверть',
+        'Quadrant II'),
+    },
+    {
+      id: 'z3',
+      label: L(
+        'III chorak',
+        'III четверть',
+        'Quadrant III'),
+    },
+    {
+      id: 'z4',
+      label: L(
+        'IV chorak',
+        'IV четверть',
+        'Quadrant IV'),
+    },
   ],
   items: [
-    { id: 'i1', tokens: ['(2;', '5)'], zone: 'z1' },
-    { id: 'i2', tokens: ['(−2;', '5)'], zone: 'z2' },
-    { id: 'i3', tokens: ['(−2;', '−5)'], zone: 'z3' },
+    { id: 'i1', tokens: ['(13; −8)'], zone: 'z4' },
+    { id: 'i2', tokens: ['(−13; −8)'], zone: 'z3' },
+    { id: 'i3', tokens: ['(−13; 8)'], zone: 'z2' },
   ],
-  ask: L('Kartani bosing, keyin zonani bosing. Zonadagi kartani bosish uni qaytarib oladi.',
+  bank: L(
+    'Nuqtalar',
+    'Точки',
+    'Points'),
+  ask: L(
+    'Kartani bosing, keyin zonani bosing. Zonadagi kartani bosish uni qaytarib oladi.',
     'Нажми карточку, затем зону. Нажатие на карточку в зоне возвращает её обратно.',
     'Tap a card, then tap a zone. Tapping a card inside a zone takes it back.'),
-  bank: L('Nuqtalar', 'Точки', 'Points'),
   correctText: L(
-    "To'g'ri. Ikkinchi chorak chapda va tepada: abssissa manfiy, ordinata musbat. Uchinchisi chapda va pastda.",
-    'Верно. Вторая четверть слева и сверху: абсцисса отрицательная, ордината положительная. Третья слева и снизу.',
-    'Correct. Quadrant II is left and up: negative abscissa, positive ordinate. Quadrant III is left and down.'),
+    "To'g'ri. Musbat va manfiy -- IV; ikki manfiy -- III; manfiy va musbat -- II.",
+    'Верно. Плюс и минус — IV; два минуса — III; минус и плюс — II.',
+    'Correct. Plus then minus gives IV; two minuses give III; minus then plus gives II.'),
   wrongs: [
-    { when: (s) => s.bad.indexOf('i2') !== -1, text: L(
-      "(−2; 5) chapda va tepada: bu ikkinchi chorak.",
-      '(−2; 5) слева и сверху: это вторая четверть.',
-      '(−2; 5) is left and up: quadrant II.') },
-    { when: (s) => s.bad.indexOf('i3') !== -1, text: L(
-      "(−2; −5) da ikki koordinata ham manfiy: uchinchi chorak.",
-      'У (−2; −5) обе координаты отрицательные: третья четверть.',
-      '(−2; −5) has both negative: quadrant III.') },
-    { when: (s) => s.bad.indexOf('i1') !== -1, text: L(
-      "(2; 5) da ikkovi musbat: birinchi chorak.",
-      'У (2; 5) обе положительные: первая четверть.',
-      '(2; 5) has both positive: quadrant I.') },
+    {
+      when: (s) => s.bad.indexOf('i1') !== -1,
+      text: L(
+        "Abssissa musbat, ordinata manfiy: o'ngda va pastda -- IV chorak.",
+        'Абсцисса положительная, ордината отрицательная: справа и внизу — IV четверть.',
+        'Positive abscissa with negative ordinate sits right and below: quadrant IV.'),
+    },
+    {
+      when: (s) => s.bad.indexOf('i2') !== -1,
+      text: L(
+        'Ikkovi ham manfiy: chapda va pastda -- III chorak.',
+        'Оба отрицательные: слева и внизу — III четверть.',
+        'Both negative sits left and below: quadrant III.'),
+    },
+    {
+      when: (s) => s.bad.indexOf('i3') !== -1,
+      text: L(
+        'Abssissa manfiy, ordinata musbat: chapda va yuqorida -- II chorak.',
+        'Абсцисса отрицательная, ордината положительная: слева и вверху — II четверть.',
+        'Negative abscissa with positive ordinate sits left and above: quadrant II.'),
+    },
   ],
   wrongText: L(
-    "Har nuqtada ikki ishorani ko'ring: nuqta chapdami yoki o'ngda, tepadami yoki pastda?",
-    'Смотри на два знака: точка слева или справа, сверху или снизу?',
-    'Look at the two signs: left or right, up or down?'),
+    "Birinchi ishora chap yoki o'ngni, ikkinchisi past yoki yuqorini beradi.",
+    'Первый знак даёт лево или право, второй низ или верх.',
+    'The first sign gives left or right, the second down or up.'),
 };
 
 export default function D33_09(props) { return <Zones data={DATA} {...props} />; }

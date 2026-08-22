@@ -1,52 +1,89 @@
-// Dars41 · Amaliyot 05 — Uch burchak turi · 🟡 · sort · tag: ang_zones
-// Mexanika: kit.jsx -> Zones. Raskladka: 5-o'rin.
-// 35° -> o'tkir;  90° -> to'g'ri;  120° -> o'tmas.
+// Dars41 · Amaliyot 05 — Uch to'plam · 🟡 · sort · tag: kind_zones
+// Mexanika: kit.jsx -> Zones. Raskladka: 5-o'rin `sort`.
+// 30/60/90 -> to'g'ri; 20/40/120 -> o'tmas; 50/60/70 -> o'tkir. Turini KATTA burchak hal qiladi.
 import React from 'react';
 import { Zones, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'ang_zones', level: '🟡', itemSize: 24, zoneLbl: 84,
-  eyebrow: L('Burchak turlari', 'Виды углов', 'Kinds of angles'),
+  tag: 'kind_zones',
+  level: '🟡',
+  eyebrow: L(
+    "Uch to'plam",
+    'Три набора',
+    'Three sets'),
   setup: L(
-    "Har burchakni o'z turiga ajratish kerak. Chegara 90 daraja: undan kichik, teng yoki katta.",
-    'Каждый угол надо отнести к своему виду. Граница 90 градусов: меньше, равно или больше.',
-    'Sort each angle by kind. The boundary is 90 degrees: below, equal, or above.'),
+    "Turini eng KATTA burchak hal qiladi: u 90 dan kichik, teng yoki katta bo'lishi mumkin. Qolgan burchaklarga qarash shart emas.",
+    'Вид решает самый БОЛЬШОЙ угол: он либо меньше 90, либо равен, либо больше. На остальные смотреть не надо.',
+    'The LARGEST angle decides: below 90, equal to it, or above. The other angles do not matter.'),
+  itemSize: 20,
+  zoneLbl: 108,
   zones: [
-    { id: 'zo', label: L("O'tkir", 'Острый', 'Acute') },
-    { id: 'zt', label: L("To'g'ri", 'Прямой', 'Right') },
-    { id: 'zm', label: L("O'tmas", 'Тупой', 'Obtuse') },
+    {
+      id: 'za',
+      label: L(
+        "O'tkir burchakli",
+        'Остроугольный',
+        'Acute'),
+    },
+    {
+      id: 'zr',
+      label: L(
+        "To'g'ri burchakli",
+        'Прямоугольный',
+        'Right'),
+    },
+    {
+      id: 'zo',
+      label: L(
+        "O'tmas burchakli",
+        'Тупоугольный',
+        'Obtuse'),
+    },
   ],
   items: [
-    { id: 'i1', tokens: ['35°'], zone: 'zo' },
-    { id: 'i2', tokens: ['90°'], zone: 'zt' },
-    { id: 'i3', tokens: ['120°'], zone: 'zm' },
+    { id: 'i1', tokens: ['30°, 60°, 90°'], zone: 'zr' },
+    { id: 'i2', tokens: ['20°, 40°, 120°'], zone: 'zo' },
+    { id: 'i3', tokens: ['50°, 60°, 70°'], zone: 'za' },
   ],
-  ask: L('Kartani bosing, keyin zonani bosing. Zonadagi kartani bosish uni qaytarib oladi.',
+  bank: L(
+    "To'plamlar",
+    'Наборы',
+    'Sets'),
+  ask: L(
+    'Kartani bosing, keyin zonani bosing. Zonadagi kartani bosish uni qaytarib oladi.',
     'Нажми карточку, затем зону. Нажатие на карточку в зоне возвращает её обратно.',
     'Tap a card, then tap a zone. Tapping a card inside a zone takes it back.'),
-  bank: L('Burchaklar', 'Углы', 'Angles'),
   correctText: L(
-    "To'g'ri. 35 < 90 -- o'tkir; 90 -- to'g'ri; 120 > 90 -- o'tmas.",
-    'Верно. 35 < 90 — острый; 90 — прямой; 120 > 90 — тупой.',
-    'Correct. 35 < 90 acute; 90 right; 120 > 90 obtuse.'),
+    "To'g'ri. Katta burchak 90 -- to'g'ri burchakli; 120 -- o'tmas; 70 -- o'tkir.",
+    'Верно. Больший угол 90 — прямоугольный; 120 — тупоугольный; 70 — остроугольный.',
+    'Correct. Largest angle 90 gives right; 120 gives obtuse; 70 gives acute.'),
   wrongs: [
-    { when: (s) => s.bad.indexOf('i3') !== -1, text: L(
-      "120 > 90, ya'ni o'tmas burchak. Yoyilgan bo'lishi uchun u 180 bo'lishi kerak edi.",
-      '120 > 90, значит тупой. Развёрнутым он был бы при 180.',
-      '120 > 90, so obtuse. It would be straight only at 180.') },
-    { when: (s) => s.bad.indexOf('i1') !== -1, text: L(
-      "35 < 90, ya'ni o'tkir burchak.",
-      '35 < 90, значит острый угол.',
-      '35 < 90, so an acute angle.') },
-    { when: (s) => s.bad.indexOf('i2') !== -1, text: L(
-      "90 aynan to'g'ri burchak: na o'tkir, na o'tmas.",
-      '90 это ровно прямой угол: ни острый, ни тупой.',
-      '90 is exactly a right angle: neither acute nor obtuse.') },
+    {
+      when: (s) => s.bad.indexOf('i1') !== -1,
+      text: L(
+        "90 gradusli burchak bor, ya'ni uchburchak to'g'ri burchakli.",
+        'Есть угол 90 градусов, значит треугольник прямоугольный.',
+        'A 90 degree angle is present, so the triangle is right-angled.'),
+    },
+    {
+      when: (s) => s.bad.indexOf('i2') !== -1,
+      text: L(
+        "120 > 90: bu o'tmas burchak.",
+        '120 > 90: это тупой угол.',
+        '120 > 90: that is an obtuse angle.'),
+    },
+    {
+      when: (s) => s.bad.indexOf('i3') !== -1,
+      text: L(
+        "70 < 90, ya'ni hamma burchak o'tkir.",
+        '70 < 90, значит все углы острые.',
+        '70 < 90, so every angle is acute.'),
+    },
   ],
   wrongText: L(
-    "Har burchakni 90 daraja bilan solishtiring.",
-    'Сравни каждый угол с 90 градусами.',
-    'Compare each angle with 90 degrees.'),
+    "Har to'plamdan eng katta sonni oling va 90 bilan solishtiring.",
+    'Возьми из каждого набора наибольшее число и сравни с 90.',
+    'Take the largest number in each set and compare it with 90.'),
 };
 
 export default function D41_05(props) { return <Zones data={DATA} {...props} />; }

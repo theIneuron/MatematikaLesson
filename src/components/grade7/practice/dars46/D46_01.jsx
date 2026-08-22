@@ -1,41 +1,83 @@
-// Dars46 · Amaliyot 01 — Katta burchak qarshisida · 🟢 · choice · tag: side_angle
-// Mexanika: kit.jsx -> Choice. Raskladka: 46-dars, 1-o'rin (isinish).
-// Katta burchak qarshisida katta tomon yotadi.
+// Dars46 · Amaliyot 01 — Eng katta tomon · 🟢 · choice · tag: rt_hypotenuse
+// Mexanika: kit.jsx -> Choice. Raskladka: 1-o'rin `choice`.
+// To'g'ri burchakli uchburchakda eng katta burchak 90°, ya'ni eng katta tomon uning qarshisidagi gipotenuza. PIFAGOR TEOREMASI YO'Q -- u 8-sinfda.
 import React from 'react';
 import { Choice, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'side_angle', level: '🟢',
-  eyebrow: L('Tomon va burchak', 'Сторона и угол', 'Side and angle'),
+  tag: 'rt_hypotenuse',
+  level: '🟢',
+  eyebrow: L(
+    "To'g'ri burchakli uchburchak",
+    'Прямоугольный треугольник',
+    'Right triangle'),
   setup: L(
-    "Uchburchakda tomonlar va burchaklar bog'liq: qaysi burchak katta bo'lsa, uning qarshisidagi tomon ham katta bo'ladi.",
-    'В треугольнике стороны и углы связаны: чем больше угол, тем больше сторона против него.',
-    'Sides and angles are linked: the larger the angle, the larger the side facing it.'),
-  ask: L('Katta burchak qarshisida qanday tomon yotadi?', 'Какая сторона лежит против большего угла?', 'Which side lies opposite the larger angle?'),
+    "To'g'ri burchakli uchburchakda 90 gradusli burchak eng katta. Katta burchak qarshisida katta tomon yotadi -- shu tomonning nomi bor.",
+    'В прямоугольном треугольнике угол 90 градусов наибольший. Против большего угла лежит большая сторона — у неё есть имя.',
+    'In a right triangle the 90 degree angle is the largest. The largest angle faces the largest side, and that side has a name.'),
+  ask: L(
+    'Eng katta tomon qaysi?',
+    'Какая сторона наибольшая?',
+    'Which side is the largest?'),
   opts: [
-    { label: L('Katta tomon', 'Большая сторона', 'The larger side') },
-    { label: L('Kichik tomon', 'Меньшая сторона', 'The smaller side') },
-    { label: L('Har qanday tomon', 'Любая сторона', 'Any side') },
+    {
+      label: L(
+        'Gipotenuza',
+        'Гипотенуза',
+        'The hypotenuse'),
+    },
+    {
+      label: L(
+        'Katet',
+        'Катет',
+        'A leg'),
+    },
+    {
+      label: L(
+        'Ikki katet teng',
+        'Оба катета равны',
+        'Both legs are equal'),
+    },
+    {
+      label: L(
+        "Aniqlab bo'lmaydi",
+        'Определить нельзя',
+        'Cannot be decided'),
+    },
   ],
   correct: 0,
+  optCols: 2,
   correctText: L(
-    "To'g'ri. Katta burchak qarshisida katta tomon yotadi -- bu tomonlar va burchaklarni solishtirishga imkon beradi.",
-    'Верно. Против большего угла лежит большая сторона — это позволяет сравнивать стороны и углы.',
-    'Correct. The larger angle faces the larger side, which lets sides and angles be compared.'),
+    "To'g'ri. Gipotenuza to'g'ri burchak qarshisida yotadi, ya'ni eng katta tomon.",
+    'Верно. Гипотенуза лежит против прямого угла, значит она наибольшая сторона.',
+    'Correct. The hypotenuse faces the right angle, so it is the largest side.'),
   wrongs: [
-    { when: (s) => s.picked === 1, text: L(
-      "Teskari: kichik tomon KICHIK burchak qarshisida yotadi.",
-      'Наоборот: меньшая сторона лежит против МЕНЬШЕГО угла.',
-      'The other way round: the smaller side faces the SMALLER angle.') },
-    { when: (s) => s.picked === 2, text: L(
-      "Bog'lanish qat'iy: burchaklar tartibi tomonlar tartibini takrorlaydi.",
-      'Связь строгая: порядок углов повторяет порядок сторон.',
-      'The link is strict: the order of angles matches the order of sides.') },
+    {
+      when: (s) => s.picked === 1,
+      text: L(
+        "Katet o'tkir burchak qarshisida yotadi, o'tkir burchak esa 90 dan kichik.",
+        'Катет лежит против острого угла, а острый угол меньше 90.',
+        'A leg faces an acute angle, and an acute angle is below 90.'),
+    },
+    {
+      when: (s) => s.picked === 2,
+      text: L(
+        "Katetlar teng bo'lishi mumkin, lekin savol eng KATTA tomon haqida.",
+        'Катеты могут быть равны, но спрашивают о НАИБОЛЬШЕЙ стороне.',
+        'The legs may be equal, yet the question asks for the LARGEST side.'),
+    },
+    {
+      when: (s) => s.picked === 3,
+      text: L(
+        "Aniqlash mumkin: 90 gradus har doim eng katta burchak, chunki ikkinchi 90 bo'lolmaydi.",
+        'Определить можно: 90 градусов всегда наибольший угол, второго такого быть не может.',
+        'It can be decided: 90 degrees is always the largest, as a second one is impossible.'),
+    },
   ],
   wrongText: L(
-    "Teng yonli uchburchakni eslang: teng tomonlar qarshisida teng burchaklar yotadi. Katta burchak-chi?",
-    'Вспомни равнобедренный: против равных сторон равные углы. А против большего угла?',
-    'Recall the isosceles case: equal sides face equal angles. And a larger angle?'),
+    "Burchaklarni solishtiring: 90 va ikki o'tkir burchak. Eng katta burchak qarshisida nima turadi?",
+    'Сравни углы: 90 и два острых. Что лежит против наибольшего угла?',
+    'Compare the angles: 90 and two acute ones. What faces the largest?'),
 };
 
 export default function D46_01(props) { return <Choice data={DATA} {...props} />; }
