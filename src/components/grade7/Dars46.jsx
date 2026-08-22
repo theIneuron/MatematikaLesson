@@ -58,9 +58,9 @@ const S1 = {
   cols: 2,
   probe: {
     question: L(
-      "To'g'ri burchakli uchburchakning to'g'ri burchak yonidagi tomonlari 3 va 4. Uchinchi tomon nechchi chiqadi? Asbob uni o'lchab beradi.",
-      'У прямоугольного треугольника стороны при прямом угле равны 3 и 4. Сколько выйдет третья сторона? Прибор её измерит.',
-      'A right triangle has sides of 3 and 4 at the right angle. What will the third side be? The tool will measure it.',
+      "To'g'ri burchakli uchburchakning to'g'ri burchak yonidagi tomonlari 3 va 4. Uchinchi tomon nechchi chiqadi? U chizmada o'lchanadi.",
+      'У прямоугольного треугольника стороны при прямом угле равны 3 и 4. Сколько выйдет третья сторона? Её измерят на чертеже.',
+      'A right triangle has sides of 3 and 4 at the right angle. What will the third side be? It will be measured on the drawing.',
     ),
     items: [
       {
@@ -94,9 +94,9 @@ const S1 = {
         id: 'cant',
         label: L('bilib bo\'lmaydi', 'узнать нельзя', 'it cannot be known'),
         hint: L(
-          "Asbob o'lchaydi, va chizmada aniq son chiqadi.",
-          'Прибор измерит, и на чертеже выйдет точное число.',
-          'The tool will measure it, and the drawing gives an exact number.',
+          "O'lchov chizmada bajariladi, va aniq son chiqadi.",
+          'Измерение сделают на чертеже, и выйдет точное число.',
+          'The measuring happens on the drawing, and an exact number comes out.',
         ),
       },
     ],
@@ -205,9 +205,9 @@ const S3 = {
   mark: ['A'],
   guess: true,
   caption: L(
-    "To'g'ri burchak A da. Asbob uchta tomonni va uchta burchakni o'lchadi.",
-    'Прямой угол при A. Прибор измерил три стороны и три угла.',
-    'The right angle is at A. The tool measured the three sides and the three angles.',
+    "To'g'ri burchak A da. Uchta tomon va uchta burchak o'lchandi.",
+    'Прямой угол при A. Три стороны и три угла измерены.',
+    'The right angle is at A. The three sides and the three angles are measured.',
   ),
   options: [
     { id: 'a', label: L("to'g'ri burchak qarshisidagi tomon", 'сторона против прямого угла', 'the side opposite the right angle') },
@@ -228,7 +228,7 @@ const S3 = {
   ),
   audio: [
     A('mount', "To'g'ri burchak A uchida turadi va yoritilgan.", 'Прямой угол при вершине A и он подсвечен.', 'The right angle is at A and it is highlighted.'),
-    A('mount', "Asbob uchta tomonni o'lchadi. Eng uzuni qaysi ekanini ayting.", 'Прибор измерил три стороны. Скажи, какая самая длинная.', 'The tool measured the three sides. Say which is longest.'),
+    A('mount', "Uchta tomon o'lchandi. Eng uzuni qaysi ekanini ayting.", 'Три стороны измерены. Скажи, какая самая длинная.', 'The three sides are measured. Say which is longest.'),
   ],
 }
 
@@ -656,17 +656,17 @@ const S12 = {
   ),
   rows: [
     { id: 'r1', text: L('katetlar 6 va 8', 'катеты 6 и 8', 'the legs are 6 and 8') },
-    { id: 'r2', text: '6 + 8 = 14' },
-    { id: 'r3', text: L('gipotenuza katetlardan uzun', 'гипотенуза длиннее катетов', 'the hypotenuse is longer than the legs') },
+    { id: 'r2', text: L('gipotenuza = katetlar yig\'indisi', 'гипотенуза = сумма катетов', 'hypotenuse = the sum of the legs') },
+    { id: 'r3', text: '6 + 8 = 14' },
     { id: 'r4', text: L('javob: gipotenuza 14', 'ответ: гипотенуза 14', 'answer: the hypotenuse is 14') },
   ],
-  answerId: 'r4',
+  answerId: 'r2',
   hints: {
     r1: L("Bu berilgan katetlar.", 'Это данные катеты.', 'Those are the given legs.'),
-    r2: L("To'g'ri: olti qo'shuv sakkiz o'n to'rt.", 'Верно: шесть плюс восемь это четырнадцать.', 'Right: six plus eight is fourteen.'),
-    r3: L("To'g'ri: gipotenuza haqiqatda eng uzun tomon.", 'Верно: гипотенуза действительно самая длинная.', 'Right: the hypotenuse really is the longest.'),
+    r3: L("Hisob to'g'ri: olti qo'shuv sakkiz o'n to'rt.", 'Счёт верен: шесть плюс восемь это четырнадцать.', 'The arithmetic is right: six plus eight is fourteen.'),
+    r4: L("Bu qator oldingisidan chiqqan. Xato esa undan YUQORIDA.", 'Эта строка выходит из предыдущей. А ошибка ВЫШЕ неё.', 'This line follows from the one before. The mistake is ABOVE it.'),
   },
-  tags: { r1: 'Z4', r2: 'Z4', r3: 'Z1' },
+  tags: { r1: 'Z4', r3: 'Z4', r4: 'Z1' },
   proofFill: {
     template: ['6 + 8 = 14   →   ', { slot: 0 }, ',   ', { slot: 1 }],
     parts: [
@@ -682,9 +682,9 @@ const S12 = {
       'Fix the conclusion and give the reason.',
     ),
     checkNote: L(
-      "Ikki tomon yig'indisi uchinchisidan KATTA bo'lishi kerak, teng emas. Demak gipotenuza 14 dan qisqa. Katetlarni qo'shib gipotenuza chiqmaydi: uni qanday hisoblash 8-sinfda ochiladi, hozir esa asbob o'lchab beradi.",
-      'Сумма двух сторон должна быть БОЛЬШЕ третьей, а не равна ей. Значит гипотенуза короче 14. Складывая катеты, гипотенузу не получить: как её вычислять, раскроется в 8 классе, а сейчас её измеряет прибор.',
-      'The sum of two sides must be GREATER than the third, not equal. So the hypotenuse is under 14. Adding the legs does not give it: how to compute it comes in grade 8, for now the tool measures it.',
+      "Ikki tomon yig'indisi uchinchisidan KATTA bo'lishi kerak, teng emas. Demak gipotenuza 14 dan qisqa. Katetlarni qo'shib gipotenuza chiqmaydi: uni qanday hisoblash 8-sinfda ochiladi, hozir esa u chizmada o'lchanadi.",
+      'Сумма двух сторон должна быть БОЛЬШЕ третьей, а не равна ей. Значит гипотенуза короче 14. Складывая катеты, гипотенузу не получить: как её вычислять, раскроется в 8 классе, а сейчас её измеряют на чертеже.',
+      'The sum of two sides must be GREATER than the third, not equal. So the hypotenuse is under 14. Adding the legs does not give it: how to compute it comes in grade 8, for now it is measured on the drawing.',
     ),
     wrongs: [
       { key: 'c', tag: 'Z4', hint: L("Teng bo'lsa uchburchak yopilmasdi: uchlar bir chiziqda qolardi.", 'Если бы равнялась, треугольник не замкнулся бы: вершины легли бы на прямую.', 'If it were equal the triangle could not close: the vertices would lie on a line.') },
@@ -839,9 +839,9 @@ const S15 = {
     hint: L('Yuqori tabloni bosing', 'Нажми на верхнее табло', 'Tap the upper board'),
   },
   fixSay: L(
-    "Katetlarni qo'shib bo'lmaydi: ikki tomonning yig'indisi uchinchisidan katta bo'lishi kerak. Asbob beshni o'lchadi, va gipotenuza istalgan katetdan uzun bo'lib qoldi.",
-    'Складывать катеты нельзя: сумма двух сторон должна быть больше третьей. Прибор измерил пять, и гипотенуза оказалась длиннее любого катета.',
-    'The legs cannot be added: the sum of two sides must exceed the third. The tool measured five, and the hypotenuse came out longer than either leg.',
+    "Katetlarni qo'shib bo'lmaydi: ikki tomonning yig'indisi uchinchisidan katta bo'lishi kerak. Chizmada besh o'lchandi, va gipotenuza istalgan katetdan uzun bo'lib qoldi.",
+    'Складывать катеты нельзя: сумма двух сторон должна быть больше третьей. На чертеже измерено пять, и гипотенуза оказалась длиннее любого катета.',
+    'The legs cannot be added: the sum of two sides must exceed the third. The drawing measured five, and the hypotenuse came out longer than either leg.',
   ),
   predictLabel: L('Sizning taxminingiz', 'Твой прогноз', 'Your prediction'),
   predictMap: {

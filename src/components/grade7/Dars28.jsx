@@ -675,15 +675,17 @@ const S12 = {
     { id: 'r1', text: '(x + 4)(x − 5)' },
     { id: 'r2', text: 'x · x = x²' },
     { id: 'r3', text: '4 · (−5) = −20' },
-    { id: 'r4', text: L('javob: x² − 20', 'ответ: x² − 20', 'answer: x² − 20') },
+    { id: 'r4', text: L("o'rta hadlar yo'q", 'средних членов нет', 'there are no middle terms') },
+    { id: 'r5', text: L('javob: x² − 20', 'ответ: x² − 20', 'answer: x² − 20') },
   ],
   answerId: 'r4',
   hints: {
     r1: L("Bu boshlang'ich yozuv.", 'Это исходная запись.', 'That is the original record.'),
     r2: L("To'g'ri: x karra x x kvadrat beradi.", 'Верно: x на x это x в квадрате.', 'Right: x times x is x squared.'),
     r3: L("To'g'ri: to'rt karra minus besh minus yigirma beradi.", 'Верно: четыре на минус пять это минус двадцать.', 'Right: four times minus five is minus twenty.'),
+    r5: L("Bu qator oldingisidan chiqqan. Xato esa undan YUQORIDA.", 'Эта строка выходит из предыдущей. А ошибка ВЫШЕ неё.', 'This line follows from the one before. The mistake is ABOVE it.'),
   },
-  tags: { r1: 'Z5', r2: 'Z5', r3: 'Z5' },
+  tags: { r1: 'Z5', r2: 'Z5', r3: 'Z5', r5: 'Z5' },
   proofFill: {
     template: ['x · (−5) + 4 · x  =  ', { slot: 0 }, '   →   x² − x − ', { slot: 1 }],
     parts: [

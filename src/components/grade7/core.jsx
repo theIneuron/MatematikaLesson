@@ -1196,7 +1196,72 @@ const BADGES = ['A', 'B', 'C', 'D', 'E', 'F']
 // Ustunlar SONI variantlar soniga qarab: uchta bo'lsa BITTA qatorda, to'rtta
 // bo'lsa 2x2 (metodist qarori 2026-08-13). Ilgari uchta variant 2 va 1 bo'lib
 // buzilib turardi -- oxirgisi yolg'iz qolardi va «boshqacha» ko'rinardi.
+// ============================================================================
+// VARIANTLAR ARALASHADI (§8.3).
+//
+// QA topgan nuqson 2026-08-22: to'g'ri javob HAR DOIM birinchi turardi --
+// 650 savolning 650 tasida, blits ham shu bilan yig'ilardi. Ya'ni bola
+// matematikani bilmasdan, «chapdagi birinchisini bosaman» degan qoida bilan
+// butun kursdan o'tib ketardi.
+//
+// ARALASHTIRISH ID LAR BO'YICHA ESLAB QOLINADI, massiv bo'yicha emas: ba'zi
+// asboblar har render da yangi massiv yasaydi (`items.map(...)` to'g'ridan-
+// to'g'ri JSX ichida), va massiv o'ziga bog'lansa variantlar bola ko'z
+// oldida SAKRAB turardi. ID lar o'zgarmaguncha tartib qotib turadi, savol
+// almashganda esa yangidan aralashadi.
+// ============================================================================
+// KALIT ID LAR BO'YICHA EMAS, MAZMUN BO'YICHA. Birinchi urinishda kalit
+// faqat ID lardan yig'ilgan edi, va zanjirdagi hamma savolda ID lar bir
+// xil: a, b, c, d. Natijada `useMemo` ikkinchi savolga BIRINCHISINING
+// variantlarini qaytardi -- brauzerda tekshirilib topildi (2026-08-22).
+// Endi kalit yorliq matnini ham oladi, ya'ni savol o'zgarsa kalit o'zgaradi.
+function sigOf(items) {
+  return (items || []).map((x) => {
+    const l = x && x.label
+    let s = ''
+    if (typeof l === 'string' || typeof l === 'number') s = String(l)
+    else if (l && typeof l === 'object') s = String(l.uz || l.ru || l.en || '')
+    return ((x && x.id) || '') + ':' + s
+  }).join('|')
+}
+
+function hash32(str) {
+  let h = 2166136261
+  for (let i = 0; i < str.length; i += 1) {
+    h ^= str.charCodeAt(i)
+    h = Math.imul(h, 16777619)
+  }
+  return h >>> 0
+}
+
+// TARTIB MAZMUNDAN HISOBLANADI, tasodifiy holat saqlanmaydi. Shuning uchun
+// bir xil savol bir xil tartib beradi -- ya'ni «eskirgan ro'yxat» xatosi
+// TAKRORLANISHI MUMKIN EMAS. Sahifa har ochilganda SALT yangilanadi, demak
+// yangi kirishda tartib boshqacha bo'ladi.
+const SALT = Math.floor(Math.random() * 1e9)
+
+function shuffleSeeded(list, seed) {
+  const out = list.slice()
+  let st = (seed ^ SALT) >>> 0 || 1
+  for (let i = out.length - 1; i > 0; i -= 1) {
+    st = (Math.imul(st, 1664525) + 1013904223) >>> 0
+    const j = st % (i + 1)
+    const tmp = out[i]
+    out[i] = out[j]
+    out[j] = tmp
+  }
+  return out
+}
+
+export function useShuffled(items) {
+  const sig = sigOf(items)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  return useMemo(() => shuffleSeeded(items || [], hash32(sig)), [sig])
+}
+
 export const Options = ({ items, picked, wrong, onPick, disabled, cols = 2, minH, collapse = true, badges = true, dense = false, neutral = false }) => {
+  // Tartib bir marta aralashadi va savol almashgunicha qotib turadi.
+  items = useShuffled(items)
   // SON javoblari BITTA QATORDA va YIRIK shriftda (metodist 2026-08-14:
   // «to'rt variant bir qatorda bo'lsin, shrift ancha kattaroq, ko'rinmayapti»).
   // Qisqa javob 2x2 panjarada ikki qator egallardi va o'sha ikki qatorda
@@ -4520,9 +4585,14 @@ sup.g7-idx { vertical-align: .46em; }
    ustida son. Javob emas, o'lchov.
    DIQQAT: bu izohda TESKARI APOSTROF bo'lishi mumkin emas.
    ============================================================ */
-.g7-dl { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.g7-dl { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+/* O'RAM SVG NING O'LCHAMIDA. Zonalar inset nol bilan aynan svg ustiga
+   tushishi kerak: ilgari ular butun g7-dl blokini qoplardi, o'q esa markazda
+   620px bilan cheklangan edi -- foizlar boshqa kenglikdan hisoblanib, zona
+   o'z belgisidan chetga ketardi (QA nuqsoni 2026-08-22). */
+.g7-dl-box { position: relative; width: 100%; max-width: 620px; }
 .g7-dl-zones { position: absolute; inset: 0; }
-.g7-dl-svg { width: 100%; max-width: 620px; height: auto; display: block; }
+.g7-dl-svg { width: 100%; height: auto; display: block; }
 .g7-dl-axis { stroke: ${T.ink}; stroke-width: 2; }
 .g7-dl-tick { stroke: ${T.ink3}; stroke-width: 1.5; }
 .g7-dl-num {

@@ -149,7 +149,7 @@ const S2 = {
         { id: 'a', label: '180°', correct: true },
         { id: 'b', label: '90°', tag: 'Z1', hint: L("To'qson to'g'ri burchakli uchburchakning o'tkir burchaklari yig'indisi.", 'Девяносто это сумма острых углов прямоугольного треугольника.', 'Ninety is the sum of the acute angles of a right triangle.') },
         { id: 'c', label: '360°', tag: 'Z1', hint: L("Uch yuz oltmish to'liq aylanish.", 'Триста шестьдесят это полный оборот.', 'Three hundred sixty is a full turn.') },
-        { id: 'd', label: L("turiga bog'liq", 'зависит от вида', 'depends on the kind'), tag: 'Z3', hint: L("Bog'liq emas: buni asbobda ko'rgan edik.", 'Не зависит: мы это видели на приборе.', 'It does not: we saw that on the tool.') },
+        { id: 'd', label: L("turiga bog'liq", 'зависит от вида', 'depends on the kind'), tag: 'Z3', hint: L("Bog'liq emas: buni chizmada ko'rgan edik.", 'Не зависит: мы это видели на чертеже.', 'It does not: we saw that on the drawing.') },
       ],
     },
     {
@@ -209,9 +209,9 @@ const S3 = {
   mark: ['A', 'B'],
   guess: true,
   caption: L(
-    "Yon tomonlar teng. Asbob tomonlarni, burchaklarni va yig'indini bir vaqtda ko'rsatdi.",
-    'Боковые стороны равны. Прибор показал сразу и стороны, и углы, и сумму.',
-    'The legs are equal. The tool shows the sides, the angles and the sum at once.',
+    "Yon tomonlar teng. Chizmada tomonlar ham, burchaklar ham, yig'indi ham bir vaqtda ko'rinadi.",
+    'Боковые стороны равны. На чертеже сразу видны и стороны, и углы, и сумма.',
+    'The legs are equal. The drawing shows the sides, the angles and the sum at once.',
   ),
   options: [
     { id: 'a', label: L("asosdagilar teng va yig'indi 180", 'при основании равны и сумма 180', 'the base ones are equal and the sum is 180') },
@@ -232,7 +232,7 @@ const S3 = {
   ),
   audio: [
     A('mount', "Chizmada teng yonli uchburchak turibdi.", 'На чертеже равнобедренный треугольник.', 'An isosceles triangle is on the drawing.'),
-    A('mount', "Asbob uchta sonni va yig'indini ko'rsatdi. Nima to'g'ri ekanini tanlang.", 'Прибор показал три числа и сумму. Выбери, что верно.', 'The tool shows three numbers and the sum. Choose what is true.'),
+    A('mount', "Chizmada uchta son va yig'indi ko'rinadi. Nima to'g'ri ekanini tanlang.", 'На чертеже видны три числа и сумма. Выбери, что верно.', 'The drawing shows three numbers and the sum. Choose what is true.'),
   ],
 }
 
@@ -651,23 +651,23 @@ const S12 = {
   step1Cap: L('1-QADAM', 'ШАГ 1', 'STEP 1'),
   step2Cap: L('2-QADAM', 'ШАГ 2', 'STEP 2'),
   ask: L(
-    "Ikki qatordagi hisob to'g'ri. Shunday bo'lsa ham, qaysi qator xato?",
-    'Счёт в двух строках верен. И всё же какая строка ошибочна?',
-    'The arithmetic in two lines is right. Even so, which line is wrong?',
+    "Uchinchi burchak to'g'ri hisoblangan. Shunday bo'lsa ham, qaysi qator xato?",
+    'Третий угол посчитан верно. И всё же какая строка ошибочна?',
+    'The third angle is computed right. Even so, which line is wrong?',
   ),
   rows: [
     { id: 'r1', text: L('uchburchakda burchaklar 70° va 60°', 'в треугольнике углы 70° и 60°', 'a triangle has angles 70° and 60°') },
-    { id: 'r2', text: '180 − 70 = 110' },
-    { id: 'r3', text: '180 − 70 − 60 = 50' },
-    { id: 'r4', text: L('javob: uchinchi burchak 110°', 'ответ: третий угол 110°', 'answer: the third angle is 110°') },
+    { id: 'r2', text: '180 − 70 − 60 = 50' },
+    { id: 'r3', text: L('uchinchi burchak 110°', 'третий угол 110°', 'the third angle is 110°') },
+    { id: 'r4', text: L('javob: 110°', 'ответ: 110°', 'answer: 110°') },
   ],
-  answerId: 'r4',
+  answerId: 'r3',
   hints: {
     r1: L("Bu berilgan burchaklar.", 'Это данные углы.', 'Those are the given angles.'),
-    r2: L("Hisob to'g'ri, lekin bu qo'shni burchakning hisobi.", 'Счёт верен, но это счёт смежного угла.', 'The arithmetic is right, but it is the adjacent angle.'),
-    r3: L("To'g'ri: uchinchi burchak aynan shunday topiladi.", 'Верно: третий угол находится именно так.', 'Right: that is how the third angle is found.'),
+    r2: L("To'g'ri: uchinchi burchak aynan shunday topiladi.", 'Верно: третий угол находится именно так.', 'Right: that is how the third angle is found.'),
+    r4: L("Bu qator oldingisidan chiqqan. Xato esa undan YUQORIDA.", 'Эта строка выходит из предыдущей. А ошибка ВЫШЕ неё.', 'This line follows from the one before. The mistake is ABOVE it.'),
   },
-  tags: { r1: 'Z1', r2: 'Z1', r3: 'Z1' },
+  tags: { r1: 'Z1', r2: 'Z1', r4: 'Z1' },
   proofFill: {
     template: ['110°  ', { slot: 0 }, ',   50°  ', { slot: 1 }],
     // IKKI BIR XIL YOZUV BO'LMASIN: ilgari 'c' va 'b' bir xil matn bilan
@@ -697,7 +697,7 @@ const S12 = {
     ],
   },
   audio: [
-    A('mount', "Bu tuzoqda ikki hisob ham to'g'ri.", 'В этой ловушке оба счёта верны.', 'In this trap both computations are right.'),
+    A('mount', "Bu tuzoqda uchinchi burchak to'g'ri hisoblangan.", 'В этой ловушке третий угол посчитан верно.', 'In this trap the third angle is computed right.'),
     A('mount', "Lekin javobga qaysi biri yozilganiga qarang.", 'Но посмотри, какой из них попал в ответ.', 'But look at which of them went into the answer.'),
     A('proof', "Topdingiz. Bittasini ayirish qo'shni burchakni beradi.", 'Нашёл. Вычесть один даёт смежный угол.', 'You found it. Taking one away gives the adjacent angle.'),
     A('done', "Uchburchakda uchta burchak bor, shuning uchun ikkitasi ayiriladi.", 'В треугольнике три угла, поэтому вычитают два.', 'A triangle has three angles, so two are taken away.'),

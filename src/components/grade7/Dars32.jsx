@@ -644,23 +644,23 @@ const S12 = {
   step1Cap: L('1-QADAM', 'ШАГ 1', 'STEP 1'),
   step2Cap: L('2-QADAM', 'ШАГ 2', 'STEP 2'),
   ask: L(
-    "Ikki bo'linma ham to'g'ri hisoblangan. Shunday bo'lsa ham, qaysi qator xato?",
-    'Оба частных посчитаны верно. И всё же какая строка ошибочна?',
-    'Both quotients are computed right. Even so, which line is wrong?',
+    "Bo'linma to'g'ri hisoblangan. Shunday bo'lsa ham, qaysi qator xato?",
+    'Частное посчитано верно. И всё же какая строка ошибочна?',
+    'The quotient is computed right. Even so, which line is wrong?',
   ),
   rows: [
     { id: 'r1', text: '(4x + 8) : 4' },
-    { id: 'r2', text: '4x : 4 = x' },
-    { id: 'r3', text: '8 : 4 = 2' },
+    { id: 'r2', text: L('faqat birinchi had bo\'linadi', 'делится только первый член', 'only the first term is divided') },
+    { id: 'r3', text: '4x : 4 = x' },
     { id: 'r4', text: L('javob: x + 8', 'ответ: x + 8', 'answer: x + 8') },
   ],
-  answerId: 'r4',
+  answerId: 'r2',
   hints: {
     r1: L("Bu boshlang'ich yozuv.", 'Это исходная запись.', 'That is the original record.'),
-    r2: L("To'g'ri: to'rt x ni to'rtga bo'lsak x chiqadi.", 'Верно: четыре x разделить на четыре это x.', 'Right: four x divided by four is x.'),
-    r3: L("To'g'ri: sakkizni to'rtga bo'lsak ikki chiqadi.", 'Верно: восемь разделить на четыре это два.', 'Right: eight divided by four is two.'),
+    r3: L("To'g'ri: to'rt x ni to'rtga bo'lsak x chiqadi.", 'Верно: четыре x разделить на четыре это x.', 'Right: four x divided by four is x.'),
+    r4: L("Bu qator oldingisidan chiqqan. Xato esa undan YUQORIDA.", 'Эта строка выходит из предыдущей. А ошибка ВЫШЕ неё.', 'This line follows from the one before. The mistake is ABOVE it.'),
   },
-  tags: { r1: 'Z1', r2: 'Z1', r3: 'Z1' },
+  tags: { r1: 'Z1', r3: 'Z1', r4: 'Z1' },
   proofFill: {
     template: ['(4x + 8) : 4  =  ', { slot: 0 }, '   →   ', { slot: 1 }],
     parts: [

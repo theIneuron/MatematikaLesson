@@ -667,16 +667,16 @@ const S12 = {
   rows: [
     { id: 'r1', text: L('tomonlar 7 va 9 mos keldi', 'стороны 7 и 9 совпали', 'the sides 7 and 9 matched') },
     { id: 'r2', text: L('7 qarshisidagi burchak 40° mos keldi', 'угол 40° против стороны 7 совпал', 'the 40° angle opposite the side 7 matched') },
-    { id: 'r3', text: L('uchta element mos keldi', 'совпали три элемента', 'three elements matched') },
+    { id: 'r3', text: L('40° tomonlar orasida turadi', 'угол 40° лежит между сторонами', 'the 40° angle lies between the sides') },
     { id: 'r4', text: L('javob: ikkinchi alomat bo\'yicha teng', 'ответ: равны по второму признаку', 'answer: equal by the second test') },
   ],
-  answerId: 'r4',
+  answerId: 'r3',
   hints: {
     r1: L("To'g'ri: ikki tomon haqiqatda mos keldi.", 'Верно: две стороны действительно совпали.', 'Right: two sides really matched.'),
     r2: L("To'g'ri: burchak ham mos keldi, va u 7 qarshisida turadi.", 'Верно: угол тоже совпал, и он лежит против стороны 7.', 'Right: the angle matched too, and it lies opposite the side 7.'),
-    r3: L("To'g'ri: elementlar soni uchta.", 'Верно: элементов действительно три.', 'Right: there really are three elements.'),
+    r4: L("Bu qator oldingisidan chiqqan. Xato esa undan YUQORIDA.", 'Эта строка выходит из предыдущей. А ошибка ВЫШЕ неё.', 'This line follows from the one before. The mistake is ABOVE it.'),
   },
-  tags: { r1: 'Z2', r2: 'Z2', r3: 'Z1' },
+  tags: { r1: 'Z2', r2: 'Z2', r4: 'Z1' },
   proofFill: {
     template: ['40°  ',  { slot: 0 }, '   →   ', { slot: 1 }],
     parts: [

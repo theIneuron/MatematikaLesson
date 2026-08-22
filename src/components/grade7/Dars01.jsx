@@ -1198,7 +1198,7 @@ function Screen10({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S11 = {
   eyebrow: L("FAQAT O'ZINGIZ", 'ТОЛЬКО САМ', 'ON YOUR OWN ONLY'),
-  title: L('Asbobsiz', 'Без прибора', 'Without the tool'),
+  title: L("Qiymatni o'zingiz yig'ing", 'Собери значение сам', 'Build the value yourself'),
   template: ['50 − ', { slot: 0 }, ' + 2 = ', { slot: 1 }],
   // Javobdan keyingi yig'ilish: ko'paytirish birinchi (order[0] = 1).
   nums: [50, 6, 4, 2],
@@ -1222,7 +1222,7 @@ const S11 = {
     { key: '*', tag: 'Z1', hint: L("Birinchi katakka ko'paytirishning natijasi tushadi, ikkinchisiga esa butun yozuvning qiymati.", 'В первую клетку идёт результат умножения, во вторую значение всей записи.', 'The first box takes the result of the multiplication, the second the value of the whole expression.') },
   ],
   audio: [
-    A('mount', "Endi yordamchi asbobsiz. Qadamlar ekranda ko'rinmaydi, ularni o'zingiz o'ylaysiz.", 'Теперь без вспомогательного прибора. Шаги на экране не появятся, их ты держишь в голове.', 'Now with no helper tool. The steps will not appear on screen. You hold them in your head.'),
+    A('mount', "Endi ekranda yordam yo'q. Qadamlar ko'rinmaydi, ularni o'zingiz o'ylaysiz.", 'Теперь помощи на экране нет. Шаги не появятся, их ты держишь в голове.', 'Now there is no help on the screen. The steps will not appear. You hold them in your head.'),
     A('mount', "Qiymatni yig'ing va tekshirishni bosing.", 'Собери значение и нажми проверить.', 'Build the value and tap check.'),
   ],
 }

@@ -652,15 +652,17 @@ const S12 = {
     { id: 'r1', text: 'x² − 12x + 36' },
     { id: 'r2', text: '36 = 6 · 6' },
     { id: 'r3', text: '12x = 2 · x · 6' },
-    { id: 'r4', text: L('javob: (x − 6)(x + 6)', 'ответ: (x − 6)(x + 6)', 'answer: (x − 6)(x + 6)') },
+    { id: 'r4', text: L('bu kvadratlar ayirmasi', 'это разность квадратов', 'this is a difference of squares') },
+    { id: 'r5', text: L('javob: (x − 6)(x + 6)', 'ответ: (x − 6)(x + 6)', 'answer: (x − 6)(x + 6)') },
   ],
   answerId: 'r4',
   hints: {
     r1: L("Bu boshlang'ich yozuv.", 'Это исходная запись.', 'That is the original record.'),
     r2: L("To'g'ri: o'ttiz olti oltining kvadrati.", 'Верно: тридцать шесть это квадрат шести.', 'Right: thirty six is six squared.'),
     r3: L("To'g'ri: o'n ikki x ikki karra x karra olti.", 'Верно: двенадцать x это два на x на шесть.', 'Right: twelve x is two by x by six.'),
+    r5: L("Bu qator oldingisidan chiqqan. Xato esa undan YUQORIDA.", 'Эта строка выходит из предыдущей. А ошибка ВЫШЕ неё.', 'This line follows from the one before. The mistake is ABOVE it.'),
   },
-  tags: { r1: 'Z1', r2: 'Z1', r3: 'Z1' },
+  tags: { r1: 'Z1', r2: 'Z1', r3: 'Z1', r5: 'Z1' },
   proofFill: {
     template: ['(x − 6)(x + 6)  =  ', { slot: 0 }, '   →   x² − 12x + 36  =  (x − 6)', { slot: 1 }],
     parts: [

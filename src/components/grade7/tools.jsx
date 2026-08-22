@@ -53,6 +53,7 @@ import {
   useNarratedSteps,
   useSfx,
   useT,
+  useShuffled,
 } from './core.jsx'
 
 export const UI = {
@@ -406,6 +407,8 @@ export function RuleGate({ probe, rule, swap, onSolved, onStep, disabled, audio 
 // Tekshiruv SON QO'YIB bajariladi.
 // ============================================================
 export function SlotFill({ template, parts, answer, checkNote, wrongs, onSolved, onStep, prompt, promptCap, tightAsk, wide, noReset, disabled, audio }) {
+  // Bo'laklar banki ham aralashadi: to'g'ri bo'lak birinchi turmasin (§8.3).
+  parts = useShuffled(parts)
   const t = useT()
   const fx = useAnswerFx(audio)
   const [filled, setFilled] = useState(() => answer.map(() => null))
@@ -2702,7 +2705,11 @@ export function DistanceLine({ center = 0, dist, from, to, audio, onSolved, onSt
     <>
       <Slot mh={150} style={{ alignItems: 'stretch' }}>
         <div className={'g7-dl' + (shake ? ' g7-shakebox' : '')}>
-          {/* O'q va tugmalar BITTA qatlamda turadi, shuning uchun o'ram. */}
+          {/* O'q va bosish zonalari BITTA o'ramda: o'ram svg ning o'lchamini
+              oladi, shuning uchun foizlar aynan svg ga tushadi. Hisoblagich
+              satri o'ramdan TASHQARIDA qoladi -- aks holda vertikal foiz
+              undan ham hisoblanardi. */}
+          <div className="g7-dl-box">
           <svg viewBox={'0 0 ' + W + ' 128'} className={'g7-dl-svg' + (shake && miss ? ' g7-shake' : '')} role="img" aria-label={String(dist)}>
             <line className="g7-dl-axis" x1={pad} y1="82" x2={W - pad} y2="82" />
             {marks.map((v) => (
@@ -2753,6 +2760,7 @@ export function DistanceLine({ center = 0, dist, from, to, audio, onSolved, onSt
                 onClick={() => tap(v)}
               />
             ))}
+          </div>
           </div>
           <span className="g7-dl-cnt">{t(label)} {hits.length} / {need}</span>
         </div>
@@ -3960,6 +3968,10 @@ export function BuildValue({
 //   wrongs: [{ key?, hint, tag }]       -- `key` -- xato joylashganlar id lari
 // ============================================================================
 export function SortZones({ zones, items, prompt, promptCap, wrongs, okNote, onSolved, onStep, disabled, audio }) {
+  // Kartochkalar ham aralashadi (§8.3). Ilgari ular ZONA bo'yicha guruh
+  // bo'lib turardi -- 12 ekrandan 8 tasida «birinchi yarmi chapga» degan
+  // qoida javob berardi, mazmunga qaramasdan.
+  items = useShuffled(items)
   const t = useT()
   const fx = useAnswerFx(audio)
   const [place, setPlace] = useState({})   // itemId -> zoneId

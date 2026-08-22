@@ -905,7 +905,7 @@ function Screen10({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S11 = {
   eyebrow: L("FAQAT O'ZINGIZ", 'ТОЛЬКО САМ', 'ON YOUR OWN ONLY'),
-  title: L('Asbobsiz', 'Без прибора', 'Without the tool'),
+  title: L("Ikki qadamli tenglama", 'Уравнение в два шага', 'A two-step equation'),
   template: ['2x + 3 = 15,     x = ', { slot: 0 }],
   parts: [
     { id: 'p6', label: '6' },

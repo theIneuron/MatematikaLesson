@@ -637,18 +637,18 @@ const S12 = {
   rows: [
     { id: 'r1', text: '(x + 4)²' },
     { id: 'r2', text: 'x · x = x²' },
-    { id: 'r3', text: 'x · 4 = 4x' },
-    { id: 'r4', text: '4 · 4 = 16' },
+    { id: 'r3', text: '4 · 4 = 16' },
+    { id: 'r4', text: L("o'rta had: 4x", 'средний член: 4x', 'the middle term: 4x') },
     { id: 'r5', text: L('javob: x² + 4x + 16', 'ответ: x² + 4x + 16', 'answer: x² + 4x + 16') },
   ],
-  answerId: 'r5',
+  answerId: 'r4',
   hints: {
     r1: L("Bu boshlang'ich yozuv.", 'Это исходная запись.', 'That is the original record.'),
     r2: L("To'g'ri: x karra x x kvadrat beradi.", 'Верно: x на x это x в квадрате.', 'Right: x times x is x squared.'),
-    r3: L("To'g'ri: x karra to'rt to'rt x beradi.", 'Верно: x на четыре это четыре x.', 'Right: x times four is four x.'),
-    r4: L("To'g'ri: to'rt karra to'rt o'n olti.", 'Верно: четыре на четыре шестнадцать.', 'Right: four times four is sixteen.'),
+    r3: L("To'g'ri: to'rt karra to'rt o'n olti.", 'Верно: четыре на четыре шестнадцать.', 'Right: four times four is sixteen.'),
+    r5: L("Bu qator oldingisidan chiqqan. Xato esa undan YUQORIDA.", 'Эта строка выходит из предыдущей. А ошибка ВЫШЕ неё.', 'This line follows from the one before. The mistake is ABOVE it.'),
   },
-  tags: { r1: 'Z2', r2: 'Z2', r3: 'Z2', r4: 'Z2' },
+  tags: { r1: 'Z2', r2: 'Z2', r3: 'Z2', r5: 'Z2' },
   proofFill: {
     template: ['4 · x  =  ', { slot: 0 }, '   →   x² + ', { slot: 1 }, ' + 16'],
     parts: [

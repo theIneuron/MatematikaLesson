@@ -215,7 +215,7 @@ const S3 = {
   ),
   audio: [
     A('mount', "Uchta ko'paytuvchi taklif qilinadi, ularning hammasi ikkala hadni bo'ladi.", 'Предложены три множителя, и все они делят оба члена.', 'Three factors are offered, and all of them divide both terms.'),
-    A('mount', "Lekin bittasi ENG KATTA. Asbob boshqasini qabul qilmaydi.", 'Но один из них НАИБОЛЬШИЙ. Другой прибор не примет.', 'But one of them is the GREATEST. The tool will not accept another.'),
+    A('mount', "Lekin bittasi ENG KATTA. Boshqa javob o'tmaydi.", 'Но один из них НАИБОЛЬШИЙ. Другой ответ не пройдёт.', 'But one of them is the GREATEST. Another answer will not pass.'),
   ],
 }
 

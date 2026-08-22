@@ -633,7 +633,7 @@ const S10 = {
 const S11 = {
   kind: 'slot',
   eyebrow: L("FAQAT O'ZINGIZ", 'ТОЛЬКО САМ', 'ON YOUR OWN ONLY'),
-  title: L('Yasash mumkinmi', 'Возможно ли построение', 'Is it possible'),
+  title: L('Yoylar yetadimi', 'Дотянутся ли дуги', 'Will the arcs reach'),
   given: L(
     "Asos 12, yoylarning radiuslari 5 va 6. Yasash mumkinmi?",
     'Основание 12, радиусы дуг 5 и 6. Возможно ли построение?',
@@ -684,16 +684,16 @@ const S12 = {
   rows: [
     { id: 'r1', text: L('sirkul bilan P nuqtasi topildi', 'циркулем нашли точку P', 'the point P was found with a compass') },
     { id: 'r2', text: L('P dan A gacha va B gacha 5', 'от P до A и до B по 5', 'from P to A and to B it is 5') },
-    { id: 'r3', text: L('demak P teng uzoqlikda', 'значит P равноудалена', 'so P is equidistant') },
+    { id: 'r3', text: L("teng uzoqlikdagi nuqta -- kesmaning o'rtasi", 'равноудалённая точка это середина отрезка', 'an equidistant point is the midpoint') },
     { id: 'r4', text: L("javob: P kesmaning o'rtasi", 'ответ: P это середина отрезка', 'answer: P is the midpoint') },
   ],
-  answerId: 'r4',
+  answerId: 'r3',
   hints: {
     r1: L("Bu yasashning qadami.", 'Это шаг построения.', 'That is a step of the construction.'),
-    r2: L("To'g'ri: ikki masofa ham besh.", 'Верно: оба расстояния по пять.', 'Right: both distances are five.'),
-    r3: L("To'g'ri: teng masofa aynan teng uzoqlik.", 'Верно: равные расстояния это и есть равноудалённость.', 'Right: equal distances mean equidistant.'),
+    r2: L("To'g'ri: ikki masofa ham besh, demak P teng uzoqlikda.", 'Верно: оба расстояния по пять, значит P равноудалена.', 'Right: both distances are five, so P is equidistant.'),
+    r4: L("Bu qator oldingisidan chiqqan. Xato esa undan YUQORIDA.", 'Эта строка выходит из предыдущей. А ошибка ВЫШЕ неё.', 'This line follows from the one before. The mistake is ABOVE it.'),
   },
-  tags: { r1: 'Z1', r2: 'Z1', r3: 'Z3' },
+  tags: { r1: 'Z1', r2: 'Z1', r4: 'Z3' },
   proofFill: {
     template: [{ slot: 0 }, '   →   ', { slot: 1 }],
     parts: [

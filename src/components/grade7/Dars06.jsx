@@ -900,7 +900,7 @@ function Screen10({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S11 = {
   eyebrow: L("FAQAT O'ZINGIZ", 'ТОЛЬКО САМ', 'ON YOUR OWN ONLY'),
-  title: L('Asbobsiz', 'Без прибора', 'Without the tool'),
+  title: L("Yozuvni o'zingiz yig'ing", 'Собери запись сам', 'Build the record yourself'),
   template: ['=  ', { slot: 0 }, 'x + ', { slot: 1 }],
   parts: [
     { id: 'p3', label: '3' },

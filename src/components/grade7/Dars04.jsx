@@ -821,7 +821,7 @@ function Screen10({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S11 = {
   eyebrow: L("FAQAT O'ZINGIZ", 'ТОЛЬКО САМ', 'ON YOUR OWN ONLY'),
-  title: L('Asbobsiz', 'Без прибора', 'Without the instrument'),
+  title: L("Yozuvni o'zingiz yig'ing", 'Собери запись сам', 'Build the record yourself'),
   template: ['4(5x − 11) + 8(−7x − 3)  =  ', { slot: 0 }, ' ', { slot: 1 }],
   parts: [
     { id: 'a', label: '−36x' },
@@ -846,7 +846,7 @@ const S11 = {
     { key: '*', tag: 'Z5', hint: L("Avval to'rt qismni ko'paytiring, keyin o'xshashlarini yig'ing.", 'Сначала перемножь четыре части, потом собери подобные.', 'Multiply the four parts first, then collect the like ones.') },
   ],
   audio: [
-    A('mount', "Bu safar asbob yo'q. Ikki qavs, ikkinchisida ikkala had ham manfiy.", 'На этот раз прибора нет. Две скобки, во второй оба члена отрицательные.', 'This time there is no instrument. Two brackets, and in the second both terms are negative.'),
+    A('mount', "Bu safar yordamsiz. Ikki qavs, ikkinchisida ikkala had ham manfiy.", 'На этот раз без подсказки. Две скобки, во второй оба члена отрицательные.', 'This time with no prompt. Two brackets, and in the second both terms are negative.'),
   ],
 }
 
