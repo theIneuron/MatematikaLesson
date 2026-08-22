@@ -732,7 +732,10 @@ const S13 = {
     'Квадратный участок со стороной x плюс пять и прямоугольный участок x на x плюс десять. Насколько квадрат больше?',
     'A square plot with side x plus five and a rectangular plot x by x plus ten. By how much is the square bigger?',
   ),
-  template: ['(x + 5)² − x(x + 10)  =  x² + 10x + 25 − x² − 10x  =  ', { slot: 0 }],
+  // YOZUV QISQARTIRILDI: to'liq holida u 57 belgi edi, ikkinchi qatorga
+  // tushardi va ekran balandligidan 28px oshib ketardi (o'lchov 2026-08-22,
+  // 1366x615). O'rta qadam javobdan KEYINGI izohga ko'chdi -- u yerda joy bor.
+  template: ['(x + 5)² − x(x + 10)  =  ', { slot: 0 }],
   parts: [
     { id: 'a', label: '25' },
     { id: 'b', label: '10x' },
@@ -746,9 +749,9 @@ const S13 = {
     'What the difference equals.',
   ),
   checkNote: L(
-    "x li hadlar yo'q bo'ldi, yigirma besh qoldi. Ya'ni farq x ga BOG'LIQ EMAS.",
-    'Члены с x уничтожились, осталось двадцать пять. То есть разница НЕ ЗАВИСИТ от x.',
-    'The x terms cancelled and twenty five remains. So the difference does NOT depend on x.',
+    "Qavslar ochilsa x² + 10x + 25 − x² − 10x chiqadi. x li hadlar yo'q bo'ldi, yigirma besh qoldi. Ya'ni farq x ga BOG'LIQ EMAS.",
+    'Раскроем скобки: x² + 10x + 25 − x² − 10x. Члены с x уничтожились, осталось двадцать пять. То есть разница НЕ ЗАВИСИТ от x.',
+    'Expanding gives x² + 10x + 25 − x² − 10x. The x terms cancelled and twenty five remains. So the difference does NOT depend on x.',
   ),
   wrongs: [
     { key: 'b', tag: 'Z6', hint: L("O'n x va minus o'n x bir-birini yo'q qildi.", 'Десять x и минус десять x уничтожили друг друга.', 'Ten x and minus ten x cancelled each other.') },

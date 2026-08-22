@@ -1979,6 +1979,11 @@ html, body { margin: 0; padding: 0; }
 /* O'zgaruvchi KURSIV, funksiya nomi va raqam TIK (ISO 80000-2). */
 .g7-var { font-style: italic; font-synthesis: none; }
 .g7-expr { text-align: center; white-space: nowrap; }
+/* YOZUV PANELI SIG'MASA IKKINCHI QATORGA TUSHADI. g7-expr dagi
+   nowrap uzun yozuvni qirqib tashlardi (QA nuqsoni 2026-08-22,
+   28-dars 13-slayd). Panel flex va wrap bilan, shuning uchun
+   ko'chirish bo'laklar chegarasida va probel joyida bo'ladi. */
+.g7-slotfill-panel { white-space: normal; }
 .g7-wrap { white-space: normal; overflow-wrap: anywhere; }
 .g7-expr-hero { font-size: clamp(26px, 3.1vw, 40px); letter-spacing: -.02em; }
 /* Yozuvning HAMMA ko'rinishi bitta o'lchamda: metodist 2026-08-14 --
@@ -2136,6 +2141,12 @@ sup.g7-idx { vertical-align: .46em; }
 /* Past noutbukda (615px) yoy qatori sig'maydi: 4-ekran 71px oshib ketardi.
    Yoy -- tushuntirishning YORDAMCHISI, matn va natija ASOSIY. */
 @media (max-height: 660px) {
+  /* CHIZMA PAST EKRANDA KICHRAYADI. Bandlik ham bo'shatiladi: Slot ni
+     inline min-height bilan chizadi, shuning uchun !important kerak. */
+  .g7-drawslot { min-height: 0 !important; }
+  .g7-fg-svg, .g7-pl-svg { max-height: 150px; width: auto; }
+  /* Tuzoq qatorlari: besh qator past ekranda 20px oshib ketardi. */
+  .g7-auditrows .g7-opt { padding-top: 4px; padding-bottom: 4px; }
   .g7-cmp-arc { display: none; }
   .g7-cmp { padding: 7px 11px; gap: 2px; }
   .g7-cmp-expr { font-size: clamp(16px, 1.9vw, 20px); }

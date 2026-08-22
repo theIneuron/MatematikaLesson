@@ -660,7 +660,7 @@ export function AuditRows({ rows, answerId, hints, tags, proof, prompt, promptCa
   return (
     <>
       {!solved ? <Ask kind="task" tight cap={promptCap ? t(promptCap) : undefined}>{prompt ? t(prompt) : null}</Ask> : null}
-      <div className="g7-panel g7-panel-paper" style={{ display: 'flex', flexDirection: 'column', gap: solved ? 2 : 4 }}>
+      <div className="g7-panel g7-panel-paper g7-auditrows" style={{ display: 'flex', flexDirection: 'column', gap: solved ? 2 : 4 }}>
         {/* Qator topilgach ekranda FAQAT IKKI qator qoladi: boshlang'ich
             yozuv va topilgan qator. Qolganlari kerak emas -- isbot aynan
             shu ikkitasini solishtiradi, va ular ketgach isbot shakli
@@ -4708,7 +4708,7 @@ export function Plane({
     <>
       {caption ? <div className="g7-ts-cap">{t(caption)}</div> : null}
 
-      <Slot mh={VH + 6} style={{ alignItems: 'center' }}>
+      <Slot mh={VH + 6} className="g7-drawslot" style={{ alignItems: 'center' }}>
         <div className="g7-pl-wrap">
           <svg
             viewBox={'0 0 ' + VW + ' ' + VH}
@@ -4973,7 +4973,7 @@ export function Figure({
     <>
       {caption ? <div className="g7-ts-cap">{t(caption)}</div> : null}
 
-      <Slot mh={VH + 6} style={{ alignItems: 'center' }}>
+      <Slot mh={VH + 6} className="g7-drawslot" style={{ alignItems: 'center' }}>
         <div className="g7-pl-wrap">
           <svg
             viewBox={'0 0 ' + VW + ' ' + VH}

@@ -711,18 +711,16 @@ const S12 = {
   rows: [
     { id: 'r1', text: '(1; 4) (2; 6) (3; 8) (2; 9)' },
     { id: 'r2', text: '1 → 4' },
-    { id: 'r3', text: '2 → 6' },
-    { id: 'r4', text: '3 → 8' },
+    { id: 'r4', text: L('har bir x bittadan y oldi', 'каждый x получил по одному y', 'every x got exactly one y') },
     { id: 'r5', text: L('javob: funksiya', 'ответ: функция', 'answer: a function') },
   ],
-  answerId: 'r5',
+  answerId: 'r4',
   hints: {
     r1: L("Bu boshlang'ich ro'yxat.", 'Это исходный список.', 'That is the original list.'),
     r2: L("To'g'ri: birga to'rt mos keladi.", 'Верно: единице отвечает четыре.', 'Right: one has four.'),
-    r3: L("To'g'ri: ikkiga olti mos keladi.", 'Верно: двойке отвечает шесть.', 'Right: two has six.'),
-    r4: L("To'g'ri: uchga sakkiz mos keladi.", 'Верно: тройке отвечает восемь.', 'Right: three has eight.'),
+    r5: L("Bu qator oldingisidan chiqqan. Xato esa undan YUQORIDA.", 'Эта строка выходит из предыдущей. А ошибка ВЫШЕ неё.', 'This line follows from the one before. The mistake is ABOVE it.'),
   },
-  tags: { r1: 'Z4', r2: 'Z4', r3: 'Z4', r4: 'Z4' },
+  tags: { r1: 'Z4', r2: 'Z4', r5: 'Z4' },
   proofFill: {
     template: ['2 → 6   va   2 → 9   →   ', { slot: 0 }],
     parts: [

@@ -625,15 +625,17 @@ const S12 = {
     { id: 'r1', text: 'y = x + 1' },
     { id: 'r2', text: L('so\'raladi: x = 2 da y', 'спрошено: y при x = 2', 'asked: y at x = 2') },
     { id: 'r3', text: L('nuqta topildi: (2; 3)', 'точка найдена: (2; 3)', 'point found: (2; 3)') },
-    { id: 'r4', text: L('javob: y = 2', 'ответ: y = 2', 'answer: y = 2') },
+    { id: 'r4', text: L('juftlikning birinchi soni y', 'первое число пары это y', 'the first number of the pair is y') },
+    { id: 'r5', text: L('javob: y = 2', 'ответ: y = 2', 'answer: y = 2') },
   ],
   answerId: 'r4',
   hints: {
     r1: L("Bu berilgan formula.", 'Это данная формула.', 'That is the given formula.'),
     r2: L("Bu savolning o'zi.", 'Это сам вопрос.', 'That is the question itself.'),
     r3: L("To'g'ri: chiziq ustidagi nuqta aynan shu.", 'Верно: это и есть точка на прямой.', 'Right: that is the point on the line.'),
+      r5: L("Bu qator oldingisidan chiqqan. Xato esa undan YUQORIDA.", 'Эта строка выходит из предыдущей. А ошибка ВЫШЕ неё.', 'This line follows from the one before. The mistake is ABOVE it.'),
   },
-  tags: { r1: 'Z1', r2: 'Z1', r3: 'Z1' },
+  tags: { r1: 'Z1', r2: 'Z1', r3: 'Z1' , r5: 'Z1' },
   proofFill: {
     template: ['(2; 3)   →   y = ', { slot: 0 }],
     parts: [

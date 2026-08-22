@@ -891,15 +891,17 @@ const S12 = {
     { id: 'r1', text: L('tekshiramiz: x² = x', 'проверяем: x² = x', 'checking: x² = x') },
     { id: 'r2', text: L('x = 0 da: 0 va 0, teng', 'при x = 0: 0 и 0, равно', 'at x = 0: 0 and 0, equal') },
     { id: 'r3', text: L('x = 1 da: 1 va 1, teng', 'при x = 1: 1 и 1, равно', 'at x = 1: 1 and 1, equal') },
-    { id: 'r4', text: L('javob: ayniyat', 'ответ: тождество', 'answer: an identity') },
+    { id: 'r4', text: L('ikki tekshiruv yetarli', 'двух проверок достаточно', 'two checks are enough') },
+    { id: 'r5', text: L('javob: ayniyat', 'ответ: тождество', 'answer: an identity') },
   ],
   answerId: 'r4',
   hints: {
     r1: L("Bu tekshirilayotgan tenglikning o'zi.", 'Это само проверяемое равенство.', 'That is the equality being checked.'),
     r2: L("To'g'ri: nol kvadrat nolga teng.", 'Верно: ноль в квадрате равен нулю.', 'Right: zero squared is zero.'),
     r3: L("To'g'ri: bir kvadrat birga teng.", 'Верно: единица в квадрате равна единице.', 'Right: one squared is one.'),
+    r5: L("Bu qator oldingisidan chiqqan. Xato esa undan YUQORIDA.", 'Эта строка выходит из предыдущей. А ошибка ВЫШЕ неё.', 'This line follows from the one before. The mistake is ABOVE it.'),
   },
-  tags: { r1: 'Z1', r2: 'Z1', r3: 'Z1' },
+  tags: { r1: 'Z1', r2: 'Z1', r3: 'Z1', r5: 'Z1' },
   proofFill: {
     template: ['x = 2 da:  ', { slot: 0 }, '  va  ', { slot: 1 }],
     parts: [

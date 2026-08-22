@@ -643,15 +643,17 @@ const S12 = {
     { id: 'r1', text: 'y = 3x + 2' },
     { id: 'r2', text: L('nuqta: (1; 6)', 'точка: (1; 6)', 'point: (1; 6)') },
     { id: 'r3', text: '3 · 1 + 2 = 5' },
-    { id: 'r4', text: L('javob: nuqta grafikda turadi', 'ответ: точка лежит на графике', 'answer: the point lies on the graph') },
+    { id: 'r4', text: L('5 nuqtaning y si bilan mos keldi', '5 совпало с y точки', '5 matched the y of the point') },
+    { id: 'r5', text: L('javob: nuqta grafikda turadi', 'ответ: точка лежит на графике', 'answer: the point lies on the graph') },
   ],
   answerId: 'r4',
   hints: {
     r1: L("Bu berilgan formula.", 'Это данная формула.', 'That is the given formula.'),
     r2: L("Bu berilgan nuqta.", 'Это данная точка.', 'That is the given point.'),
     r3: L("To'g'ri: uch karra bir qo'shuv ikki besh beradi.", 'Верно: три на один плюс два это пять.', 'Right: three times one plus two is five.'),
+      r5: L("Bu qator oldingisidan chiqqan. Xato esa undan YUQORIDA.", 'Эта строка выходит из предыдущей. А ошибка ВЫШЕ неё.', 'This line follows from the one before. The mistake is ABOVE it.'),
   },
-  tags: { r1: 'Z2', r2: 'Z2', r3: 'Z2' },
+  tags: { r1: 'Z2', r2: 'Z2', r3: 'Z2' , r5: 'Z2' },
   proofFill: {
     template: ['5 ', { slot: 0 }, ' 6   →   ', { slot: 1 }],
     parts: [

@@ -633,15 +633,17 @@ const S12 = {
     { id: 'r1', text: 'y = 2x + 1' },
     { id: 'r2', text: 'x = 1   →   y = 3' },
     { id: 'r3', text: 'x = 2   →   y = 5' },
-    { id: 'r4', text: L("javob: to'g'ri proporsionallik", 'ответ: прямая пропорциональность', 'answer: a direct proportionality') },
+    { id: 'r4', text: L("x nol bo'lganda y ham nol", 'при x = 0 выходит y = 0', 'at x = 0 the y comes out 0') },
+    { id: 'r5', text: L("javob: to'g'ri proporsionallik", 'ответ: прямая пропорциональность', 'answer: a direct proportionality') },
   ],
   answerId: 'r4',
   hints: {
     r1: L("Bu berilgan formula.", 'Это данная формула.', 'That is the given formula.'),
     r2: L("To'g'ri: ikki karra bir qo'shuv bir uch.", 'Верно: два на один плюс один три.', 'Right: two times one plus one is three.'),
     r3: L("To'g'ri: ikki karra ikki qo'shuv bir besh.", 'Верно: два на два плюс один пять.', 'Right: two times two plus one is five.'),
+      r5: L("Bu qator oldingisidan chiqqan. Xato esa undan YUQORIDA.", 'Эта строка выходит из предыдущей. А ошибка ВЫШЕ неё.', 'This line follows from the one before. The mistake is ABOVE it.'),
   },
-  tags: { r1: 'Z1', r2: 'Z1', r3: 'Z1' },
+  tags: { r1: 'Z1', r2: 'Z1', r3: 'Z1' , r5: 'Z1' },
   proofFill: {
     template: ['x = 0   →   y = ', { slot: 0 }, '   →   ', { slot: 1 }],
     parts: [

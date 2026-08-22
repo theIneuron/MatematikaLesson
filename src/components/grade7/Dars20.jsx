@@ -579,15 +579,17 @@ const S12 = {
     { id: 'r1', text: '2x(3x − 5 + y)' },
     { id: 'r2', text: '2x · 3x = 6x²' },
     { id: 'r3', text: '2x · (−5) = −10x' },
-    { id: 'r4', text: L('javob: 6x² − 10x', 'ответ: 6x² − 10x', 'answer: 6x² − 10x') },
+    { id: 'r4', text: L('qavsda ikki had bor', 'в скобке два члена', 'the bracket has two terms') },
+    { id: 'r5', text: L('javob: 6x² − 10x', 'ответ: 6x² − 10x', 'answer: 6x² − 10x') },
   ],
   answerId: 'r4',
   hints: {
     r1: L("Bu boshlang'ich yozuv.", 'Это исходная запись.', 'That is the original record.'),
     r2: L("To'g'ri: ikki karra uch olti, x ikkita.", 'Верно: два на три шесть, x две.', 'Right: two times three is six, and there are two x.'),
     r3: L("To'g'ri: ikki karra minus besh minus o'n.", 'Верно: два на минус пять это минус десять.', 'Right: two times minus five is minus ten.'),
+      r5: L("Bu qator oldingisidan chiqqan. Xato esa undan YUQORIDA.", 'Эта строка выходит из предыдущей. А ошибка ВЫШЕ неё.', 'This line follows from the one before. The mistake is ABOVE it.'),
   },
-  tags: { r1: 'Z2', r2: 'Z2', r3: 'Z2' },
+  tags: { r1: 'Z2', r2: 'Z2', r3: 'Z2' , r5: 'Z2' },
   proofFill: {
     // AJRATGICH SO'ZSIZ: shablon tarjima qilinmaydi, va «javob» so'zi ruscha
     // versiyada ham o'zbekcha bo'lib qolardi.
