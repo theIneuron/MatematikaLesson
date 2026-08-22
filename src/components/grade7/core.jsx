@@ -4219,6 +4219,224 @@ sup.g7-idx { vertical-align: .46em; }
 @media (prefers-reduced-motion: reduce) { .g7-ft-cell { animation-duration: .01ms; } }
 
 /* ============================================================
+   HADLAR LENTASI (TermStrip, B4 bloki). Kesish tugmasi FAQAT qo'shuv va
+   ayirish belgisida turadi: ko'paytirish nuqtasida tugma YO'Q, ya'ni bitta
+   hadni ikkiga bo'lib yuborish mumkin emas. Kesilgach belgi O'CHADI va had
+   ostidagi chipda paydo bo'ladi -- minus had bilan KETGANI ko'rinadi.
+   ============================================================ */
+.g7-ts-wrap { display: flex; flex-direction: column; align-items: center; gap: 7px; width: 100%; }
+.g7-ts { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.g7-ts-lbl {
+  font-family: 'Manrope', sans-serif; font-size: 11px; letter-spacing: .1em;
+  text-transform: uppercase; font-weight: 700; color: ${T.ink3};
+}
+.g7-ts-row {
+  display: inline-flex; flex-wrap: wrap; justify-content: center; align-items: center;
+  gap: 1px; font-weight: 800; font-size: clamp(16px, 2.3vw, 22px);
+}
+.g7-ts-term { padding: 2px 5px; border-radius: 8px; color: ${T.ink}; }
+.g7-ts-op {
+  font-family: inherit; font-weight: 800; font-size: inherit; color: ${T.accent};
+  padding: 1px 9px; margin-inline: 2px; border-radius: 9px;
+  background: ${T.accentSoft}; border: 1px dashed ${T.accent}; cursor: pointer;
+}
+.g7-ts-op.is-gone {
+  color: ${T.ink3}; background: none; border-color: transparent;
+  opacity: .3; cursor: default;
+}
+.g7-ts-out {
+  display: inline-flex; flex-wrap: wrap; justify-content: center; gap: 5px;
+  min-height: 22px;
+}
+.g7-ts-chip {
+  font-weight: 800; font-size: clamp(14px, 1.9vw, 18px); color: ${T.graph};
+  padding: 2px 9px; border-radius: 9px;
+  background: ${T.graphSoft}; border: 1px solid rgba(18, 110, 115, 0.25);
+  animation: g7-ts-in .28s ease both;
+}
+.g7-ts-cnt {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: 'Manrope', sans-serif; font-size: 12px; letter-spacing: .1em;
+  text-transform: uppercase; font-weight: 700; color: ${T.graph};
+}
+.g7-ts-cnt.is-wait {
+  color: ${T.ink3}; text-transform: none; letter-spacing: 0; font-size: 12.5px;
+}
+.g7-ts-kind { color: ${T.ok}; }
+/* IKKI LENTA bitta ekranda: yozuv maydasi va oraliqlar tor. 4-ekran
+   488 px budjetiga faqat shu bilan sig'adi. */
+.g7-ts-wrap.is-pair { gap: 4px; }
+.g7-ts-wrap.is-pair .g7-ts { gap: 2px; }
+.g7-ts-wrap.is-pair .g7-ts-row { font-size: clamp(15px, 2vw, 19px); }
+.g7-ts-wrap.is-pair .g7-ts-chip { font-size: clamp(13px, 1.7vw, 16px); padding: 1px 7px; }
+.g7-ts-wrap.is-pair .g7-ts-out { min-height: 20px; }
+
+/* ============================================================
+   HADLAR USTUNI (TermColumns, 19-dars). O'xshash hadlar birining ostiga
+   ikkinchisi turadi -- darslikning ustun usuli (44-bet). Chiziq ostidagi
+   qator TUGMALAR: ustunni bosgach, qo'shiluvchilar pastga tushadi.
+   Minusli qatorda ishora ALMASHADI va shu joyda ko'rinadi.
+   ============================================================ */
+.g7-tc {
+  display: grid; justify-content: center; align-items: center;
+  gap: 4px 14px; font-weight: 800; font-size: clamp(15px, 2.1vw, 20px);
+}
+.g7-tc-op { color: ${T.stage1}; text-align: right; min-width: 14px; }
+.g7-tc-cell { text-align: center; white-space: nowrap; padding: 1px 2px; }
+.g7-tc-cell.is-flip { color: ${T.accent}; }
+.g7-tc-res {
+  border-top: 1.5px solid rgba(24, 34, 36, 0.28); padding-top: 5px; margin-top: 2px;
+  display: flex; align-items: center; justify-content: center; min-height: 34px;
+}
+.g7-tc-pair {
+  color: ${T.graph}; white-space: nowrap;
+  animation: g7-ts-in .28s ease both;
+}
+.g7-tc-tap {
+  position: relative; display: inline-flex; align-items: center; justify-content: center;
+  min-width: 54px; min-height: 30px; padding: 2px 8px;
+  border-radius: 10px; background: ${T.accentSoft};
+  border: 1px dashed ${T.accent}; cursor: pointer;
+  font-family: inherit; font-weight: 800; font-size: 17px; color: ${T.accent};
+}
+.g7-tc-tap:disabled { opacity: .45; cursor: default; }
+
+/* ============================================================
+   YUZA TO'RTBURCHAGI (AreaGrid, B4 bloki). Kataklar SONI ko'rinadi: to'rtta
+   katak turgan joyda ikki ko'paytma yozib bo'lmaydi. Ochilmagan katak bo'sh
+   turadi va u ko'zga tashlanadi -- «ko'paytmani tushirib qoldirdim» xatosi
+   shu bilan yopiladi.
+   ============================================================ */
+.g7-ag {
+  display: grid; justify-content: center; align-items: stretch;
+  gap: 4px; font-weight: 800; font-size: clamp(14px, 1.9vw, 18px);
+}
+.g7-ag-corner { min-width: 18px; }
+.g7-ag-top, .g7-ag-left {
+  display: flex; align-items: center; justify-content: center;
+  color: ${T.graph}; padding: 2px 6px; white-space: nowrap;
+}
+.g7-ag-left { justify-content: flex-end; }
+.g7-ag-cell {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 44px; min-width: 96px; padding: 3px 6px;
+  border-radius: 12px; background: ${T.paper};
+  border: 1.5px dashed rgba(24, 34, 36, 0.22);
+}
+.g7-ag-pair {
+  color: ${T.ink}; white-space: nowrap;
+  animation: g7-ts-in .28s ease both;
+}
+.g7-ag-tap {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 52px; min-height: 30px; border-radius: 10px;
+  background: ${T.accentSoft}; border: 1px dashed ${T.accent};
+  cursor: pointer; font-family: inherit; font-weight: 800;
+  font-size: 17px; color: ${T.accent};
+}
+.g7-ag-tap:disabled { opacity: .45; cursor: default; }
+
+/* KOORDINATALAR TEKISLIGI (Plane, B6). Chizma o'lchamini CSS beradi, viewBox
+   emas: viewBox ga balandlik kiritilsa, chizma telefonda BUTUNLAY kichrayadi.
+   Shuning uchun kenglik foizda, cheklovi max-width da, balandligi esa auto.
+   DIQQAT: bu qator STYLES shablon satri ICHIDA -- bekitik yozib bo'lmaydi. */
+.g7-pl-wrap { width: 100%; display: flex; justify-content: center; }
+.g7-pl-svg {
+  width: 100%; max-width: 420px; height: auto;
+  background: ${T.paperSolid};
+  border: 1px solid ${T.line}; border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(${T.shadow}, .05);
+}
+/* Bosish zonasi KO'RINIB turishi kerak: o'quvchi qayerga bosishni bilishi shart. */
+.g7-pl-svg.is-live { cursor: crosshair; border-color: ${T.accent}; box-shadow: 0 0 0 3px ${T.accentSoft}; }
+.g7-pl-grid { stroke: rgba(24, 34, 36, .07); stroke-width: 1; }
+.g7-pl-ax { stroke: ${T.ink2}; stroke-width: 1.6; }
+.g7-pl-arrow { fill: ${T.ink2}; }
+.g7-pl-tick { stroke: ${T.ink2}; stroke-width: 1.4; }
+.g7-pl-num { font-family: ${MATH_FONT}; font-size: 11px; fill: ${T.ink3}; }
+.g7-pl-axname { font-family: ${MATH_FONT}; font-weight: 700; font-size: 13px; fill: ${T.ink2}; }
+.g7-pl-line { fill: none; stroke: ${T.graph}; stroke-width: 2.6; stroke-linecap: round; }
+.g7-pl-l1 { stroke: ${T.tip}; stroke-dasharray: 7 4; }
+.g7-pl-guide { stroke: ${T.ink3}; stroke-width: 1; stroke-dasharray: 3 3; }
+.g7-pl-dot { fill: ${T.graph}; stroke: ${T.paperSolid}; stroke-width: 1.6; }
+.g7-pl-dotg.is-mine .g7-pl-dot { fill: ${T.accent}; }
+.g7-pl-dotg.is-mine .g7-pl-guide { stroke: ${T.accent}; }
+.g7-pl-lab { font-family: ${MATH_FONT}; font-weight: 700; font-size: 12.5px; fill: ${T.ink}; }
+.g7-pl-dotg { animation: g7-pop .34s cubic-bezier(.22,.9,.3,1.2) both; }
+
+/* CHIZMA (Figure, B7). Tekislik bilan bir xil o'ram, lekin o'qlar yo'q:
+   geometriyada asosiy narsa figura, to'r esa faqat bosish tugunlarini
+   ko'rsatadi. Uchni ko'chirish mumkin bo'lganda ramka aksent rangida. */
+.g7-fg-svg {
+  width: 100%; max-width: 420px; height: auto;
+  background: ${T.paperSolid};
+  border: 1px solid ${T.line}; border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(${T.shadow}, .05);
+}
+.g7-fg-svg.is-live { cursor: crosshair; border-color: ${T.accent}; box-shadow: 0 0 0 3px ${T.accentSoft}; }
+.g7-fg-node { fill: rgba(24, 34, 36, .16); }
+.g7-fg-seg { stroke: ${T.ink}; stroke-width: 2.2; stroke-linecap: round; }
+.g7-fg-seg.is-mark { stroke: ${T.graph}; stroke-width: 3.4; }
+/* O'CHGAN element: u YO'Q emas, u YETMAYDI. Shuning uchun ko'rinadi, lekin
+   xira: «bu element belgiga yetmaydi» degani (etalon § 2, B7). */
+.g7-fg-seg.is-dim { stroke: ${T.ink3}; stroke-width: 1.4; stroke-dasharray: 4 4; }
+.g7-fg-pt { fill: ${T.ink}; stroke: ${T.paperSolid}; stroke-width: 1.4; }
+.g7-fg-ptg.is-move .g7-fg-pt { fill: ${T.accent}; }
+.g7-fg-name { font-family: ${MATH_FONT}; font-weight: 800; font-size: 13px; fill: ${T.ink}; }
+.g7-fg-len { font-family: ${MATH_FONT}; font-size: 11.5px; fill: ${T.ink2}; }
+.g7-fg-len.is-dim { fill: ${T.ink3}; }
+.g7-fg-ang { font-family: ${MATH_FONT}; font-weight: 700; font-size: 12.5px; fill: ${T.graph}; }
+.g7-fg-ang.is-mark { fill: ${T.accent}; }
+.g7-fg-ang.is-dim { fill: ${T.ink3}; }
+.g7-fg-sum { font-family: ${MATH_FONT}; font-weight: 700; font-size: 14px; color: ${T.ink}; }
+.g7-fg-sum.is-guess { color: ${T.tip}; }
+.g7-ts-cap { text-align: center; font-size: 13.5px; color: ${T.ink2}; }
+@keyframes g7-ts-in { 0% { opacity: 0; transform: translateY(-5px); } 100% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .g7-ts-chip { animation-duration: .01ms; } }
+
+/* ============================================================
+   ZONALARGA TARQATISH (SortZones). Asbob tools.jsx da bor edi, LEKIN
+   7-sinfda uslub YO'Q edi: 18-darsning 6-ekrani suratda zonasiz uch qator
+   matn bo'lib chiqdi -- bosish zonasi ko'rinmaydi (matematika profili
+   must-bandi). Endi zona QUTI: chegarasi punktir, karta qo'lga olinganda
+   esa chegara to'q sariqqa aylanadi, ya'ni QAYERGA bosish kerakligi
+   ko'rinib turadi.
+   ============================================================ */
+.g7-sz-zones {
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px; width: 100%;
+}
+.g7-sz-zone { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.g7-sz-cap {
+  font-family: 'Manrope', sans-serif; font-size: 11px; letter-spacing: .09em;
+  text-transform: uppercase; font-weight: 700; color: ${T.ink3};
+  text-align: center;
+}
+.g7-sz-drop {
+  min-height: 60px; display: flex; align-items: center; justify-content: center;
+  padding: 5px; border-radius: 14px;
+  background: ${T.paper}; border: 1.5px dashed rgba(24, 34, 36, 0.22);
+}
+.g7-sz-drop.is-open {
+  background: ${T.accentSoft}; border-color: ${T.accent}; cursor: pointer;
+}
+.g7-sz-in { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; }
+.g7-sz-pool { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.g7-sz-chip {
+  font-family: inherit; font-weight: 800; font-size: clamp(13px, 1.8vw, 17px);
+  color: ${T.ink}; padding: 4px 10px; border-radius: 11px;
+  background: ${T.paperSolid}; border: 1px solid rgba(24, 34, 36, 0.16);
+  cursor: pointer;
+}
+.g7-sz-chip.is-picked {
+  border-color: ${T.accent}; background: ${T.accentSoft};
+  box-shadow: 0 2px 8px rgba(${T.shadow}, 0.12);
+}
+.g7-sz-chip.is-bad { border-color: ${T.tip}; background: ${T.tipSoft}; color: ${T.tip}; }
+.g7-sz-chip.is-good { border-color: ${T.ok}; background: ${T.okSoft}; color: ${T.ok}; }
+.g7-sz-chip:disabled { cursor: default; }
+
+/* ============================================================
    KATTALIKLAR JADVALI (QuantityCard, 11-dars). Masalaning tuzilishi:
    chapda kattalik nomi, o'ngda uning ifodasi. Hali topilmagani savol
    belgisi bilan turadi -- natija polosasi birinchi soniyadan ko'rinadi.
@@ -4253,6 +4471,24 @@ sup.g7-idx { vertical-align: .46em; }
 }
 .g7-qc-wait { color: ${T.ink3}; font-weight: 700; }
 @media (max-width: 390px) {
+  .g7-sz-zones { gap: 5px; }
+  .g7-sz-drop { min-height: 50px; border-radius: 11px; }
+  .g7-sz-cap { font-size: 9.5px; letter-spacing: .04em; }
+  .g7-sz-chip { font-size: 12px; padding: 3px 7px; }
+  .g7-tc { gap: 3px 8px; font-size: 14px; }
+  .g7-tc-tap { min-width: 36px; min-height: 22px; }
+  .g7-ag { gap: 3px; font-size: 13px; }
+  .g7-ag-cell { min-height: 38px; min-width: 64px; border-radius: 9px; }
+  .g7-ag-tap { min-width: 38px; min-height: 24px; }
+  .g7-pl-svg { max-width: 100%; border-radius: 11px; }
+  .g7-pl-num { font-size: 10px; }
+  .g7-pl-lab { font-size: 11px; }
+  .g7-fg-svg { max-width: 100%; border-radius: 11px; }
+  .g7-fg-name { font-size: 11.5px; }
+  .g7-fg-len { font-size: 10px; }
+  .g7-fg-ang { font-size: 11px; }
+  .g7-fg-sum { font-size: 12.5px; }
+
   .g7-qc-row { grid-template-columns: minmax(0,1fr) 72px; padding: 6px 10px; }
   .g7-qc-name { font-size: 14px; }
   /* TELEFONDA IKKI TOR JOY. Ular 2026-08-17 da, tekshiruv walkeri

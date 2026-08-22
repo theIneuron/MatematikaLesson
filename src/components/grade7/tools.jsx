@@ -71,6 +71,25 @@ export const UI = {
   ftMul: L('Muljitellar:', 'Множителей:', 'Factors:'),
   ftNums: L('Sonlar:', 'Числа:', 'Numbers:'),
   ftSum: L("Qo'shiluvchilar:", 'Слагаемых:', 'Terms:'),
+  // HADLAR LENTASI (TermStrip, B4). Tur nomi HADLAR SONI bilan chiqadi:
+  // darslik turlarni aynan shu bilan ajratadi (38-bet).
+  tsCut: L(
+    "Belgini bosing: ko'phad hadlarga ajraladi",
+    'Нажми на знак: многочлен разделится на члены',
+    'Tap a sign: the polynomial splits into terms',
+  ),
+  tsHads: L('Hadlar:', 'Членов:', 'Terms:'),
+  agCells: L('Kataklar:', 'Клеток:', 'Cells:'),
+  fgSum: L("Burchaklar yig'indisi:", 'Сумма углов:', 'Angle sum:'),
+  fgGuess: L('taxmin', 'предположение', 'a guess'),
+  fgMeasure: L("O'lchov", 'Измерение', 'The measurement'),
+  tsKind: [
+    L('Birhad', 'Одночлен', 'Monomial'),
+    L('Ikkihad', 'Двучлен', 'Binomial'),
+    L('Uchhad', 'Трёхчлен', 'Trinomial'),
+    L("To'rthad", 'Четырёхчлен', 'Four-term polynomial'),
+    L("Ko'phad", 'Многочлен', 'Polynomial'),
+  ],
   dlMiss: L(
     "Bu nuqtagacha masofa",
     'До этой точки расстояние',
@@ -943,7 +962,11 @@ export function SubstituteRows({ rows, numbers, question, options, onSolved, onS
 // O'quvchi IFODANING QISMINI tanlaydi, keyin AMALNI tanlaydi.
 // «Darrov javob» tugmasi YO'Q -- uni bosadigan joy yo'q.
 // ============================================================
-export function Transform({ start, steps, parts, actions, onSolved, onStep, footNote, disabled, audio }) {
+// `ask` va `askAct` -- TOPSHIRIQ MATNI. Standart matn 1 va 5-darslardan
+// keladi va «nimani birinchi hisoblaymiz» deb so'raydi -- amallar tartibi
+// darsining savoli. 4-darsda esa savol boshqa: qaysi XOSSANI qo'llaymiz.
+// Shu sababli matn almashtiriladigan bo'ldi (2026-08-21).
+export function Transform({ start, steps, parts, actions, onSolved, onStep, footNote, disabled, audio, ask, askAct }) {
   const t = useT()
   const fx = useAnswerFx(audio)
   const [lines, setLines] = useState([start])
@@ -1005,7 +1028,7 @@ export function Transform({ start, steps, parts, actions, onSolved, onStep, foot
       {/* Topshiriq e'loni umumiy `Ask` bilan -- darsdagi qolgan ekranlar
           kabi. Ilgari bu yerda o'z razmetkasi turardi: yorliqsiz va
           kartochkali, ya'ni boshqa ekranlardan farq qilardi va balandroq edi. */}
-      {!finished ? <Ask kind="task" tight>{t(part ? UI.askAct : UI.askPart)}</Ask> : null}
+      {!finished ? <Ask kind="task" tight>{t(part ? (askAct || UI.askAct) : (ask || UI.askPart))}</Ask> : null}
       {/* Ramka YIRIKROQ: qatorlar markazda va ular uchun joy oldindan band. */}
       {/* Balandlik OLDINDAN band: o'tgan qatorlar ixcham (27px), joriy qator
           yirik (46px), pastda esa bo'sh qator uchun joy. Panel to'ladi,
@@ -1103,7 +1126,12 @@ export function Transform({ start, steps, parts, actions, onSolved, onStep, foot
              to'g'ri berilsa React yiqiladi (xato 31). Bu nuqson ANCHADAN
              beri turgan, lekin tekshiruv walkeri Transform ni YAKUNIGA
              yetkazmagani uchun ko'rinmagan (topildi 2026-08-17). */
-          <Expr size="sm">{t(footNote)}</Expr>
+          /* PROZA: `.g7-expr` da nowrap turadi, shuning uchun uzun gap
+             chetga chiqib ketadi va skroll yo'q ekan, KESILGANI bilinmaydi.
+             4-darsda telefonda 271px (ru) va 353px (en) oshib ketgan edi
+             (o'lchov 2026-08-21). Sinfning naqshi shu: proza -- `plain` va
+             `g7-wrap` bilan (Probe dagi savol kabi). */
+          <Expr size="sm" plain className="g7-wrap">{t(footNote)}</Expr>
         ) : null}
       </Slot>
 
@@ -4017,7 +4045,9 @@ export function SortZones({ zones, items, prompt, promptCap, wrongs, okNote, onS
     <>
       <Ask kind="task" tight cap={promptCap ? t(promptCap) : undefined}>{prompt ? t(prompt) : null}</Ask>
 
-      <div className="g7-sz-zones">
+      {/* USTUNLAR SONI zonalar soniga teng. CSS da uchta qotib turgan edi va
+          ikki zonali ekranda o'ngda BO'SH ustun qolardi (surat 2026-08-21). */}
+      <div className="g7-sz-zones" style={{ gridTemplateColumns: 'repeat(' + zones.length + ', minmax(0, 1fr))' }}>
         {zones.map((z) => (
           <div key={z.id} className="g7-sz-zone">
             <span className="g7-sz-cap">{t(z.label)}</span>
@@ -4061,6 +4091,990 @@ export function SortZones({ zones, items, prompt, promptCap, wrongs, okNote, onS
       <Slot mh={58}>
         {solved && okNote ? <Feedback show ok>{t(okNote)}</Feedback> : null}
         {!solved && hint ? <Feedback show ok={false}>{t(hint)}</Feedback> : null}
+      </Slot>
+    </>
+  )
+}
+
+// ============================================================================
+// HADLAR LENTASI (TermStrip) -- B4 blokining asbobi, 18-dars.
+//
+// NIMA UCHUN. Darslik ko'phadni «bir nechta birhadning ALGEBRAIK yig'indisi»
+// deb ta'riflaydi (38-bet). «Algebraik» so'zi bitta narsani bildiradi: minus
+// hadning O'ZIGA tegishli. O'quvchi buni yozuvda ko'rmaydi -- u minusni
+// hadlar ORASIDAGI amal deb o'qiydi, va 19-darsda qavs oldidagi minusni
+// faqat birinchi hadga tarqatadi.
+//
+// ASBOB NAZORATCHI, oracle emas (§8.1). Lenta FAQAT qo'shuv va ayirish
+// belgilari bo'yicha kesiladi: ko'paytirish nuqtasida kesish tugmasi YO'Q,
+// ya'ni 3a · 2b ni ikki hadga bo'lib yuborish JISMONAN mumkin emas. Kesilgan
+// joyda belgi O'CHADI va had ostidagi chipda PAYDO BO'LADI -- minus hadning
+// yoniga ko'chib o'tgani ko'rinadi, aytilmaydi.
+//
+// Birinchi hadning minusi tugma EMAS: u kesuvchi belgi emas, u hadning
+// qismi. Shu bilan «−2x² ning minusi qayerdan keldi» savoli o'zi yopiladi.
+//
+// SANOQ OXIRIDA. Hadlar soni va tur nomi (Birhad, Ikkihad, Uchhad,
+// To'rthad) faqat BARCHA kesiklar qo'yilgach chiqadi: aks holda asbob
+// o'quvchidan oldin javob berib qo'yadi.
+//
+//   strips: [{ parts: ['9a⁶b²c', '−2a³bc⁴', '+2ab', '−5ac'], cap }]
+//           birinchi qismda belgi bo'lishi mumkin (u hadning qismi),
+//           qolganlari + yoki − bilan boshlanadi.
+//   options/answer/wrongs -- bo'lmasa, lentaning kesilishi javob bo'ladi.
+// ============================================================================
+const tsSplit = (raw) => {
+  const s = String(raw).trim()
+  if (s[0] === '+' || s[0] === '−' || s[0] === '-') {
+    return { sign: s[0] === '-' ? '−' : s[0], body: s.slice(1).trim() }
+  }
+  return { sign: '', body: s }
+}
+
+export function TermStrip({
+  strips, showKind = true, caption,
+  options, answer, wrongs, note, cols = 4,
+  onSolved, onStep, disabled, audio,
+}) {
+  const t = useT()
+  const fx = useAnswerFx(audio)
+  const list = useMemo(() => (strips || []).map((s) => ({
+    cap: s.cap,
+    parts: s.parts.map(tsSplit),
+  })), [strips])
+  const [cuts, setCuts] = useState(() => (strips || []).map((s) => s.parts.slice(1).map(() => false)))
+  const [picked, setPicked] = useState(null)
+  const [wrong, setWrong] = useState([])
+  const [hint, setHint] = useState(null)
+  const [tags, setTags] = useState([])
+
+  const done = (rows) => rows.every((r) => r.every(Boolean))
+  const allCut = done(cuts)
+
+  const cut = (si, i) => {
+    if (disabled || cuts[si][i]) return
+    fx.tap()
+    const next = cuts.map((row, k) => (k === si ? row.map((v, j) => (j === i ? true : v)) : row))
+    setCuts(next)
+    if (onStep) onStep('cut')
+    if (done(next)) {
+      if (onStep) onStep('cut-all')
+      // Variantlar bo'lmasa, kesishning O'ZI topshiriq: asbob shu yerda
+      // yopiladi va keyingi ekranga yo'l ochiladi.
+      if (!options && onSolved) onSolved({ correct: true, attempts: 1, tags: [] })
+    }
+  }
+
+  const pick = (o) => {
+    if (picked || disabled) return
+    if (o.id === answer) {
+      fx.right()
+      setPicked(o.id)
+      setHint(note || null)
+      if (onSolved) onSolved({ correct: true, attempts: wrong.length + 1, tags })
+      return
+    }
+    const w = (wrongs || []).find((x) => x.key === o.id) || (wrongs || []).find((x) => x.key === '*')
+    setWrong((prev) => (prev.indexOf(o.id) === -1 ? prev.concat(o.id) : prev))
+    setHint(w ? w.hint : null)
+    if (w && w.tag) setTags((prev) => (prev.indexOf(w.tag) === -1 ? prev.concat(w.tag) : prev))
+    fx.wrong(w ? w.hint : null)
+  }
+
+  const kindOf = (n) => UI.tsKind[Math.min(n, 5) - 1] || UI.tsKind[4]
+
+  return (
+    <>
+      {caption ? <div className="g7-ts-cap">{t(caption)}</div> : null}
+
+      <Slot mh={list.length > 1 ? 98 : 82}>
+        <div className={'g7-ts-wrap' + (list.length > 1 ? ' is-pair' : '')}>
+          {list.map((strip, si) => {
+            const n = strip.parts.length
+            const row = cuts[si]
+            return (
+              <div className="g7-ts" key={si}>
+                {strip.cap ? <span className="g7-ts-lbl">{t(strip.cap)}</span> : null}
+                <span className="g7-ts-row">
+                  {strip.parts.map((p, i) => (
+                    <React.Fragment key={i}>
+                      {i ? (
+                        <button
+                          type="button"
+                          className={'g7-ts-op' + (row[i - 1] ? ' is-gone' : '')}
+                          onClick={() => cut(si, i - 1)}
+                          disabled={disabled || row[i - 1]}
+                        >
+                          {p.sign || '+'}
+                        </button>
+                      ) : null}
+                      <span className="g7-ts-term">
+                        <Fx>{(i === 0 ? p.sign : '') + p.body}</Fx>
+                      </span>
+                    </React.Fragment>
+                  ))}
+                </span>
+
+                {/* Chip faqat had IKKI TOMONDAN ajratilganda chiqadi: chap
+                    chegara -- oldingi kesik, o'ng chegara -- keyingisi. */}
+                <span className="g7-ts-out">
+                  {strip.parts.map((p, i) => {
+                    const left = i === 0 ? true : row[i - 1]
+                    const right = i === n - 1 ? true : row[i]
+                    if (!left || !right) return null
+                    return (
+                      <span className="g7-ts-chip" key={i}>
+                        <Fx>{(p.sign || (i === 0 ? '' : '+')) + p.body}</Fx>
+                      </span>
+                    )
+                  })}
+                </span>
+
+                {row.every(Boolean) ? (
+                  <span className="g7-ts-cnt">
+                    <span>{t(UI.tsHads)} {n}</span>
+                    {showKind ? <span className="g7-ts-kind">{t(kindOf(n))}</span> : null}
+                  </span>
+                ) : list.length > 1 ? null : (
+                  <span className="g7-ts-cnt is-wait">{t(UI.tsCut)}</span>
+                )}
+              </div>
+            )
+          })}
+          {list.length > 1 && !allCut ? (
+            <span className="g7-ts-cnt is-wait">{t(UI.tsCut)}</span>
+          ) : null}
+        </div>
+      </Slot>
+
+      <Slot mh={options ? 54 : 0}>
+        {options && allCut ? (
+          <Options
+            items={options.map((o) => ({ id: o.id, label: t(o.label) }))}
+            picked={picked}
+            wrong={wrong}
+            onPick={pick}
+            disabled={disabled}
+            cols={cols}
+          />
+        ) : null}
+      </Slot>
+
+      <Slot mh={58}>
+        <Feedback show={!!hint} ok={!!picked}>{hint ? t(hint) : null}</Feedback>
+      </Slot>
+    </>
+  )
+}
+
+// ============================================================================
+// HADLAR USTUNI (TermColumns) -- B4 asbobining IKKINCHI REJIMI, 19-dars.
+//
+// DARSLIKNING O'ZI shu ko'rinishni beradi (44-bet): ko'phadlar yig'indisini
+// sonlarni qo'shishga o'xshab USTUN usulida topish qulay, o'xshash hadlar
+// birining ostiga ikkinchisi turadi. Ya'ni bu yangi mexanika emas: 18-darsda
+// lenta hadlarni AJRATGAN edi, bu yerda o'sha hadlar ustunga TERILADI.
+//
+// NAZORATCHI shundan: qo'shish faqat USTUN ICHIDA bo'ladi. Ustunlar orasida
+// hech narsa qo'shilmaydi, chunki bosish ustunga tegishli. Blokning eng
+// qimmat xatosi -- 3x² qo'shuv 2x ni 5x³ deb yozish -- shu bilan JISMONAN
+// mumkin bo'lmaydi.
+//
+// QAVS OLDIDAGI MINUS. `op` qatorga tegishli. Minus bo'lsa, ustun ochilganda
+// SHU QATORNING hadi ishorasini almashtiradi va eski ishora o'chirilgan holda
+// yonida qoladi: minus BARCHA hadlarga tarqalgani ko'rinadi, aytilmaydi. Bu
+// 18-darsning «ishora hadning qismi» chizig'ining davomi.
+//
+// ASBOB HISOBLAMAYDI (§8.1). U hadlarni yonma-yon qo'yadi va ishorani
+// almashtiradi -- qo'shishni o'quvchi o'zi qiladi va javobni variantlardan
+// tanlaydi. Aks holda asbob javobni berib qo'yardi.
+//
+//   rows: [{ op, cells: ['3a', '−4b'] }]   -- `null` yacheyka BO'SH ustun
+//   options/answer/wrongs -- barcha ustunlar ochilgach paydo bo'ladi
+// ============================================================================
+const tcFlip = (raw) => {
+  const { sign, body } = tsSplit(raw)
+  if (sign === '−') return '+' + body
+  return '−' + body
+}
+
+export function TermColumns({
+  rows, caption, options, answer, wrongs, note, cols = 2,
+  onSolved, onStep, disabled, audio,
+}) {
+  const t = useT()
+  const fx = useAnswerFx(audio)
+  const width = rows.reduce((m, r) => Math.max(m, r.cells.length), 0)
+  const [open, setOpen] = useState(() => rows[0].cells.map(() => false))
+  const [picked, setPicked] = useState(null)
+  const [wrong, setWrong] = useState([])
+  const [hint, setHint] = useState(null)
+  const [tags, setTags] = useState([])
+  const allOpen = open.every(Boolean)
+
+  const openCol = (i) => {
+    if (disabled || open[i]) return
+    fx.tap()
+    const next = open.map((v, j) => (j === i ? true : v))
+    setOpen(next)
+    if (onStep) onStep('col')
+    if (next.every(Boolean) && onStep) onStep('col-all')
+  }
+
+  const pick = (o) => {
+    if (picked || disabled) return
+    if (o.id === answer) {
+      fx.right()
+      setPicked(o.id)
+      setHint(note || null)
+      if (onSolved) onSolved({ correct: true, attempts: wrong.length + 1, tags })
+      return
+    }
+    const w = (wrongs || []).find((x) => x.key === o.id) || (wrongs || []).find((x) => x.key === '*')
+    setWrong((prev) => (prev.indexOf(o.id) === -1 ? prev.concat(o.id) : prev))
+    setHint(w ? w.hint : null)
+    if (w && w.tag) setTags((prev) => (prev.indexOf(w.tag) === -1 ? prev.concat(w.tag) : prev))
+    fx.wrong(w ? w.hint : null)
+  }
+
+  // Ustun ochilganda pastda TURGAN juft: minusli qatorning hadi ishorasi
+  // almashgan holda. Bu javob EMAS -- bu qo'shiluvchilar.
+  const pairOf = (i) => rows
+    .map((r) => {
+      const cell = r.cells[i]
+      if (!cell) return null
+      if (r.op === '−') return tcFlip(cell)
+      return cell
+    })
+    .filter(Boolean)
+
+  return (
+    <>
+      {caption ? <div className="g7-ts-cap">{t(caption)}</div> : null}
+
+      <Slot mh={118}>
+        <div className="g7-tc" style={{ gridTemplateColumns: 'auto repeat(' + width + ', minmax(0, auto))' }}>
+          {rows.map((r, ri) => (
+            <React.Fragment key={ri}>
+              <span className="g7-tc-op">{r.op ? <Fx>{r.op}</Fx> : null}</span>
+              {r.cells.map((cell, i) => (
+                <span className={'g7-tc-cell' + (open[i] && r.op === '−' ? ' is-flip' : '')} key={i}>
+                  {cell ? <Fx>{open[i] && r.op === '−' ? tcFlip(cell) : cell}</Fx> : null}
+                </span>
+              ))}
+            </React.Fragment>
+          ))}
+
+          <span className="g7-tc-op" />
+          {open.map((isOpen, i) => (
+            <span className="g7-tc-res" key={i}>
+              {isOpen ? (
+                <span className="g7-tc-pair"><Fx>{pairOf(i).join(' ')}</Fx></span>
+              ) : (
+                // Bu yerda `TapMark` ISHLAMAYDI: u katta emoji qo'l va u
+                // kichik tugmadan chiqib ketadi (surat 2026-08-21). Slot
+                // belgisi -- `SlotFill` dagi bilan bir xil tilda.
+                <button
+                  type="button"
+                  className="g7-tc-tap"
+                  onClick={() => openCol(i)}
+                  disabled={disabled}
+                >
+                  ?
+                </button>
+              )}
+            </span>
+          ))}
+        </div>
+      </Slot>
+
+      <Slot mh={options ? 54 : 0}>
+        {options && allOpen ? (
+          <Options
+            items={options.map((o) => ({ id: o.id, label: t(o.label) }))}
+            picked={picked}
+            wrong={wrong}
+            onPick={pick}
+            disabled={disabled}
+            cols={cols}
+          />
+        ) : null}
+      </Slot>
+
+      <Slot mh={58}>
+        <Feedback show={!!hint} ok={!!picked}>{hint ? t(hint) : null}</Feedback>
+      </Slot>
+    </>
+  )
+}
+
+// ============================================================================
+// YUZA TO'RTBURCHAGI (AreaGrid) -- B4 blokining KO'PAYTIRISH asbobi
+// (etalon § 2, 3-asbob). Darslikning o'zi shu modelni so'raydi: modellar
+// asosida qo'shish (45-bet), shakllarning yuzini toping (47 va 49-betlar),
+// yig'indi kvadratining geometrik ko'rinishi (57-bet).
+//
+// NAZORATCHI SHUNDAN: kataklar SONI tomonlar hadlarining ko'paytmasiga
+// teng va u KO'RINADI. To'rtta katak turgan joyda ikkita ko'paytma yozib
+// bo'lmaydi, ya'ni (a + b)(c + d) ni ac qo'shuv bd deb yozish mumkin emas:
+// ikki katak bo'sh qoladi va ular ekranda ko'rinib turadi. Variantlar esa
+// HAMMA katak ochilmaguncha chiqmaydi.
+//
+// ASBOB HISOBLAMAYDI (§8.1). Katak ochilganda u KO'PAYTUVCHILAR JUFTINI
+// ko'rsatadi, natijani emas: koeffitsiyent va ko'rsatkichlar ustida ishlash
+// B3 blokining ishi va u o'quvchida qoladi.
+//
+//   left:  ['−2a⁴']            -- chap tomon (qatorlar)
+//   top:   ['14ab', '+2,5b']   -- yuqori tomon (ustunlar)
+// ============================================================================
+export function AreaGrid({
+  left, top, caption, options, answer, wrongs, note, cols = 2,
+  onSolved, onStep, disabled, audio,
+}) {
+  const t = useT()
+  const fx = useAnswerFx(audio)
+  const rows = left.length
+  const colsN = top.length
+  const [open, setOpen] = useState(() => left.map(() => top.map(() => false)))
+  const [picked, setPicked] = useState(null)
+  const [wrong, setWrong] = useState([])
+  const [hint, setHint] = useState(null)
+  const [tags, setTags] = useState([])
+
+  const allOpen = open.every((r) => r.every(Boolean))
+  const openCount = open.reduce((n, r) => n + r.filter(Boolean).length, 0)
+
+  const tap = (i, j) => {
+    if (disabled || open[i][j]) return
+    fx.tap()
+    const next = open.map((r, ri) => r.map((v, cj) => (ri === i && cj === j ? true : v)))
+    setOpen(next)
+    if (onStep) onStep('cell')
+    if (next.every((r) => r.every(Boolean)) && onStep) onStep('cell-all')
+  }
+
+  const pick = (o) => {
+    if (picked || disabled) return
+    if (o.id === answer) {
+      fx.right()
+      setPicked(o.id)
+      setHint(note || null)
+      if (onSolved) onSolved({ correct: true, attempts: wrong.length + 1, tags })
+      return
+    }
+    const w = (wrongs || []).find((x) => x.key === o.id) || (wrongs || []).find((x) => x.key === '*')
+    setWrong((prev) => (prev.indexOf(o.id) === -1 ? prev.concat(o.id) : prev))
+    setHint(w ? w.hint : null)
+    if (w && w.tag) setTags((prev) => (prev.indexOf(w.tag) === -1 ? prev.concat(w.tag) : prev))
+    fx.wrong(w ? w.hint : null)
+  }
+
+  // Ustun yorliqlari + har qator uchun bitta yorliq ustuni.
+  // KATAK KENGLIGI MAZMUNDAN. `1fr` bo'lganda kataklar butun kenglikka
+  // cho'zilib ketardi va to'rtburchak ikki uzun tasmaga o'xshab qolardi
+  // (surat 2026-08-21) -- ya'ni YUZA modeli o'qilmasdi.
+  const gridCols = 'auto repeat(' + colsN + ', minmax(104px, max-content))'
+
+  // Katakdagi JUFT: qavsdagi had ishorasi bilan olinadi. Qo'shuv belgisi
+  // tashlanadi (3a karra qo'shuv besh degan yozuv bo'lmaydi), manfiy had
+  // esa qavsga olinadi -- matematik yozuv shunday.
+  const pairText = (rowCap, colCap) => {
+    const c = String(colCap).trim()
+    // IKKI QATORLI to'rtburchakda chap yorliq ham hadning ISHORASI bilan
+    // keladi (21-dars: `2a` va `−3`). Musbat had oldidagi qo'shuv belgisi
+    // katakda tashlanadi -- `+3 · x` degan yozuv bo'lmaydi; manfiy had esa
+    // birinchi ko'paytuvchi bo'lganda qavsga olinmaydi.
+    const r0 = String(rowCap).trim()
+    const r = r0.charAt(0) === '+' ? r0.slice(1).trim() : r0
+    if (c.charAt(0) === '+') return r + ' · ' + c.slice(1).trim()
+    if (c.charAt(0) === '−') return r + ' · (' + c + ')'
+    return r + ' · ' + c
+  }
+
+  return (
+    <>
+      {caption ? <div className="g7-ts-cap">{t(caption)}</div> : null}
+
+      <Slot mh={rows * 52 + 34}>
+        <div className="g7-ag" style={{ gridTemplateColumns: gridCols }}>
+          <span className="g7-ag-corner" />
+          {top.map((cap, j) => (
+            <span className="g7-ag-top" key={j}><Fx>{cap}</Fx></span>
+          ))}
+          {left.map((rowCap, i) => (
+            <React.Fragment key={i}>
+              <span className="g7-ag-left"><Fx>{rowCap}</Fx></span>
+              {top.map((colCap, j) => (
+                <span className="g7-ag-cell" key={j}>
+                  {open[i][j] ? (
+                    <span className="g7-ag-pair"><Fx>{pairText(rowCap, colCap)}</Fx></span>
+                  ) : (
+                    <button
+                      type="button"
+                      className="g7-ag-tap"
+                      onClick={() => tap(i, j)}
+                      disabled={disabled}
+                    >
+                      ?
+                    </button>
+                  )}
+                </span>
+              ))}
+            </React.Fragment>
+          ))}
+        </div>
+      </Slot>
+
+      {/* Sanoq MARKAZDA: `Slot` ustun yo'nalishida, ya'ni markazlash uchun
+          `alignItems` kerak -- aks holda satr chap chetda qolib ketadi. */}
+      <Slot mh={22} style={{ alignItems: 'center' }}>
+        <span className={'g7-ts-cnt' + (allOpen ? '' : ' is-wait')}>
+          {t(UI.agCells)} {openCount} / {rows * colsN}
+        </span>
+      </Slot>
+
+      <Slot mh={options ? 54 : 0}>
+        {options && allOpen ? (
+          <Options
+            items={options.map((o) => ({ id: o.id, label: t(o.label) }))}
+            picked={picked}
+            wrong={wrong}
+            onPick={pick}
+            disabled={disabled}
+            cols={cols}
+          />
+        ) : null}
+      </Slot>
+
+      <Slot mh={58}>
+        <Feedback show={!!hint} ok={!!picked}>{hint ? t(hint) : null}</Feedback>
+      </Slot>
+    </>
+  )
+}
+
+// ============================================================================
+// KOORDINATALAR TEKISLIGI (Plane) -- B6 blokining asbobi, etalon § 2 dagi
+// 4-asbob («funksiyaning to'rt oynasi») ning TOR ko'rinishi.
+//
+// NEGA TOR. 8-sinfda `plot.jsx` bor va u 868 qator: surgichlar, parametrik
+// egri chiziqlar, nuqtani sudrash. Uni bu yerga ULAB bo'lmaydi -- u 8-sinf
+// yadrosiga va palitrasiga bog'langan, ya'ni bitta darsga ikkinchi yadro va
+// begona rang keladi. Metodist qarori 2026-08-21: «tor tekislik». Shuning
+// uchun bu yerda faqat B6 uchun kerak bo'lgani yozilgan.
+//
+// 8-SINFDAN KOD OLINMADI, TO'RT QARORI OLINDI:
+//   1. CHIZIQ FUNKSIYADAN quriladi. Dars `f` beradi, nuqtalar ro'yxatini
+//      emas: ro'yxat berilsa, muallif noto'g'ri grafik chizadi va buni hech
+//      qanday tekshiruv tutmaydi.
+//   2. BOSISH MATEMATIK KOORDINATADA tekshiriladi, piksel bilan emas:
+//      telefonda dars zoom bilan kichrayadi va piksel yolg'on gapiradi.
+//      `rect` orqali olingan ulush o'lchamsiz, shuning uchun xavfsiz.
+//   3. O'qlar strelka, bo'linma va son bilan; boshi O deb belgilanadi
+//      (METODIK_PROFIL_MATEMATIKA.md ning must-bandi).
+//   4. Asbob NAZORATCHI: natijani ko'rsatadi, javobni AYTMAYDI. Nuqta
+//      qo'yilgach uning koordinatalari yoziladi, «to'g'ri» degan so'z emas.
+//
+// Prop lar:
+//   range   {x0,x1,y0,y1}   ko'rinadigan maydon. MAYDONNI DARS TANLAYDI --
+//                           o'z funksiyasiga qarab: tik chiziq tor oynadan
+//                           tez chiqib ketadi (y teng ikki x qo'shuv bir
+//                           default oynada x bo'yicha atigi to'rt birlik
+//                           ko'rinadi). Masshtabni esa ASBOB teng saqlaydi.
+//   fn      [{id,f,label}]  chiziqlar, HAR BIRI funksiyadan
+//   dots    [{x,y}]         tayyor nuqtalar (o'qish topshiriqlari uchun)
+//   pick    {x,y}           o'quvchi qo'yishi kerak bo'lgan nuqta
+//   labels  true            tayyor nuqtalarni imzolash. DEFAULT O'CHIQ:
+//                           imzo «koordinatani o'qing» topshirig'ida javobni
+//                           berib qo'yadi
+//   options/answer/wrongs/note   qolgan asboblardagi bilan bir xil
+// ============================================================================
+export function Plane({
+  range, fn, dots, pick, labels, caption, options, answer, wrongs, note, cols = 2,
+  onSolved, onStep, disabled, audio,
+}) {
+  const t = useT()
+  const fx = useAnswerFx(audio)
+  // Default maydon kadr nisbatiga mos: 14 ga 8 (nisbat 1,75), ya'ni bo'sh
+  // joy qolmaydi. Dars boshqa maydon bersa, asbob uni MARKAZGA qo'yadi va
+  // masshtabni teng saqlaydi -- shunda tekislik kvadrat bo'lib chiqadi.
+  const R = { x0: -7, x1: 7, y0: -4, y1: 4, ...(range || {}) }
+  const [put, setPut] = useState(null)      // o'quvchi qo'ygan nuqta
+  const [picked, setPicked] = useState(null)
+  const [wrong, setWrong] = useState([])
+  const [hint, setHint] = useState(null)
+  const [tags, setTags] = useState([])
+
+  // Kadr: viewBox QAT'IY, o'lcham CSS bilan keladi. Balandlik viewBox ga
+  // kiritilib ketsa, chizma telefonda BUTUNLAY kichrayadi (10-sinf grabli).
+  const VW = 420
+  const VH = 250
+  const P = { l: 34, r: 16, t: 14, b: 26 }
+  // MASHTAB IKKI O'QDA BIR XIL, va buni ASBOB ta'minlaydi, dars emas.
+  // Boshda maydon shunchaki cho'zilgan edi: x bo'yicha qadam 37 piksel,
+  // y bo'yicha 21 -- ya'ni y teng x to'g'ri chizig'i qirq besh daraja
+  // ostida ketmasdi va qiyalik KO'Z BILAN noto'g'ri o'qilardi (statik
+  // tekshiruv 2026-08-21). Endi bir birlik ikki o'qda bir xil piksel, va
+  // maydon kadr o'rtasiga qo'yiladi.
+  const availW = VW - P.l - P.r
+  const availH = VH - P.t - P.b
+  const k = Math.min(availW / (R.x1 - R.x0), availH / (R.y1 - R.y0))
+  const w = k * (R.x1 - R.x0)
+  const h = k * (R.y1 - R.y0)
+  const ox = P.l + (availW - w) / 2
+  const oy = P.t + (availH - h) / 2
+  const sx = (x) => ox + (x - R.x0) * k
+  const sy = (y) => oy + h - (y - R.y0) * k
+
+  // Nuqta qo'yish TUGAGANMI. `pick` berilmagan bo'lsa, ekran o'qishga
+  // mo'ljallangan va variantlar darrov chiqadi.
+  const ready = !pick || !!put
+
+  const ints = (a, b) => {
+    const out = []
+    for (let v = Math.ceil(a); v <= Math.floor(b); v += 1) out.push(v)
+    return out
+  }
+
+  // BOSISH: ulush -> matematik koordinata -> eng yaqin butun tugun.
+  const tap = (e) => {
+    if (disabled || !pick || put) return
+    const box = e.currentTarget.getBoundingClientRect()
+    if (!box.width || !box.height) return
+    const vx = ((e.clientX - box.left) / box.width) * VW
+    const vy = ((e.clientY - box.top) / box.height) * VH
+    const mx = R.x0 + ((vx - P.l) / w) * (R.x1 - R.x0)
+    const my = R.y0 + ((VH - P.b - vy) / h) * (R.y1 - R.y0)
+    const gx = Math.round(mx)
+    const gy = Math.round(my)
+    if (gx < R.x0 || gx > R.x1 || gy < R.y0 || gy > R.y1) return
+    fx.tap()
+    setPut({ x: gx, y: gy })
+    if (onStep) onStep('dot')
+  }
+
+  const choose = (o) => {
+    if (picked || disabled) return
+    if (o.id === answer) {
+      fx.right()
+      setPicked(o.id)
+      setHint(note || null)
+      if (onSolved) onSolved({ correct: true, attempts: wrong.length + 1, tags })
+      return
+    }
+    const bad = (wrongs || []).find((x) => x.key === o.id) || (wrongs || []).find((x) => x.key === '*')
+    setWrong((prev) => (prev.indexOf(o.id) === -1 ? prev.concat(o.id) : prev))
+    setHint(bad ? bad.hint : null)
+    if (bad && bad.tag) setTags((prev) => (prev.indexOf(bad.tag) === -1 ? prev.concat(bad.tag) : prev))
+    fx.wrong(bad ? bad.hint : null)
+  }
+
+  // CHIZIQ: `f` bo'yicha namuna olinadi, maydondan chiqqan qismi tashlanadi.
+  // 7-sinfda chiziqlar to'g'ri, lekin namuna olish umumiy: keyingi blokda
+  // boshqa funksiya kelsa, asbob o'zgarmaydi.
+  const polyOf = (f) => {
+    const pts = []
+    const N = 64
+    for (let i = 0; i <= N; i += 1) {
+      const x = R.x0 + ((R.x1 - R.x0) * i) / N
+      const y = f(x)
+      if (!isFinite(y) || y < R.y0 || y > R.y1) { pts.push(null); continue }
+      pts.push(sx(x).toFixed(1) + ',' + sy(y).toFixed(1))
+    }
+    const runs = []
+    let cur = []
+    pts.forEach((p) => {
+      if (p === null) { if (cur.length > 1) runs.push(cur); cur = [] } else cur.push(p)
+    })
+    if (cur.length > 1) runs.push(cur)
+    return runs
+  }
+
+  const shown = (put ? [{ x: put.x, y: put.y, mine: true }] : []).concat(dots || [])
+
+  return (
+    <>
+      {caption ? <div className="g7-ts-cap">{t(caption)}</div> : null}
+
+      <Slot mh={VH + 6} style={{ alignItems: 'center' }}>
+        <div className="g7-pl-wrap">
+          <svg
+            viewBox={'0 0 ' + VW + ' ' + VH}
+            className={'g7-pl-svg' + (pick && !put && !disabled ? ' is-live' : '')}
+            onClick={tap}
+            role="img"
+            aria-label={t(caption || UI.agCells)}
+          >
+            {ints(R.x0, R.x1).map((x) => (
+              <line key={'gx' + x} className="g7-pl-grid" x1={sx(x)} y1={sy(R.y0)} x2={sx(x)} y2={sy(R.y1)} />
+            ))}
+            {ints(R.y0, R.y1).map((y) => (
+              <line key={'gy' + y} className="g7-pl-grid" x1={sx(R.x0)} y1={sy(y)} x2={sx(R.x1)} y2={sy(y)} />
+            ))}
+
+            <line className="g7-pl-ax" x1={sx(R.x0)} y1={sy(0)} x2={sx(R.x1)} y2={sy(0)} />
+            <line className="g7-pl-ax" x1={sx(0)} y1={sy(R.y0)} x2={sx(0)} y2={sy(R.y1)} />
+            <polygon
+              className="g7-pl-arrow"
+              points={(sx(R.x1) + 8) + ',' + sy(0) + ' ' + sx(R.x1) + ',' + (sy(0) - 4) + ' ' + sx(R.x1) + ',' + (sy(0) + 4)}
+            />
+            <polygon
+              className="g7-pl-arrow"
+              points={sx(0) + ',' + (sy(R.y1) - 8) + ' ' + (sx(0) - 4) + ',' + sy(R.y1) + ' ' + (sx(0) + 4) + ',' + sy(R.y1)}
+            />
+
+            {ints(R.x0, R.x1).filter((x) => x !== 0).map((x) => (
+              <g key={'tx' + x}>
+                <line className="g7-pl-tick" x1={sx(x)} y1={sy(0) - 3} x2={sx(x)} y2={sy(0) + 3} />
+                <text className="g7-pl-num" x={sx(x)} y={sy(0) + 15} textAnchor="middle">{x}</text>
+              </g>
+            ))}
+            {ints(R.y0, R.y1).filter((y) => y !== 0).map((y) => (
+              <g key={'ty' + y}>
+                <line className="g7-pl-tick" x1={sx(0) - 3} y1={sy(y)} x2={sx(0) + 3} y2={sy(y)} />
+                <text className="g7-pl-num" x={sx(0) - 8} y={sy(y) + 4} textAnchor="end">{y}</text>
+              </g>
+            ))}
+            <text className="g7-pl-num" x={sx(0) - 8} y={sy(0) + 15} textAnchor="end">O</text>
+            <text className="g7-pl-axname" x={sx(R.x1) + 4} y={sy(0) + 16}>x</text>
+            <text className="g7-pl-axname" x={sx(0) + 8} y={sy(R.y1) - 2}>y</text>
+
+            {(fn || []).map((fi, i) => polyOf(fi.f).map((run, k) => (
+              <polyline key={'f' + i + '_' + k} className={'g7-pl-line g7-pl-l' + (i % 2)} points={run.join(' ')} />
+            )))}
+
+            {shown.map((d, i) => (
+              <g key={'d' + i} className={'g7-pl-dotg' + (d.mine ? ' is-mine' : '')}>
+                <line className="g7-pl-guide" x1={sx(d.x)} y1={sy(d.y)} x2={sx(d.x)} y2={sy(0)} />
+                <line className="g7-pl-guide" x1={sx(d.x)} y1={sy(d.y)} x2={sx(0)} y2={sy(d.y)} />
+                <circle className="g7-pl-dot" cx={sx(d.x)} cy={sy(d.y)} r="5" />
+                {/* ASBOB ORAKUL EMAS (§8.1). O'quvchining O'Z nuqtasi
+                    imzolanadi -- u qayerga bosganini bilishi kerak. Tayyor
+                    nuqtalar esa imzosiz turadi: «koordinatalarni o'qing»
+                    topshirig'ida imzo javobni BERIB QO'YARDI. Imzo kerak
+                    bo'lsa, dars `labels` beradi -- masalan avvalgi ekranda
+                    allaqachon topilgan nuqta uchun. */}
+                {d.mine || labels ? (
+                  <text className="g7-pl-lab" x={sx(d.x) + 8} y={sy(d.y) - 8}>
+                    {'(' + d.x + '; ' + d.y + ')'}
+                  </text>
+                ) : null}
+              </g>
+            ))}
+          </svg>
+        </div>
+      </Slot>
+
+      <Slot mh={options ? 54 : 0}>
+        {options && ready ? (
+          <Options
+            items={options.map((o) => ({ id: o.id, label: t(o.label) }))}
+            picked={picked}
+            wrong={wrong}
+            onPick={choose}
+            disabled={disabled}
+            cols={cols}
+          />
+        ) : null}
+      </Slot>
+
+      <Slot mh={58}>
+        <Feedback show={!!hint} ok={!!picked}>{hint ? t(hint) : null}</Feedback>
+      </Slot>
+    </>
+  )
+}
+
+// ============================================================================
+// CHIZMA (Figure) -- B7 blokining asbobi, etalon § 2 dagi 5-asbob
+// («chizmada isbot») ning tor ko'rinishi.
+//
+// NEGA KLIK, SUDRASH EMAS. Etalon uch joyda HARAKAT talab qiladi: teng
+// yonli uchburchakda uchni surganda tomonlar tengligi yo'qoladi (82-bet),
+// burchaklar yig'indisi surilganda qayta hisoblanadi (124-bet), va katta
+// burchak qarshisida katta tomon yotadi (131 va 138-betlar). Buning uchun
+// sichqoncha bilan sudrash SHART emas: uch to'rning boshqa TUGUNIGA
+// ko'chiriladi, va hamma son qayta hisoblanadi. Klik mexanikasi `Plane` da
+// allaqachon yozilgan va tekshirilgan -- shu yerda u qayta ishlatiladi
+// (metodist qarori 2026-08-21).
+//
+// O'LCHOV -- TAXMIN, LEKIN 42-DARSDAN. Etalonning B7 izohi qat'iy: «o'lchov
+// isbot emas» talabi § 9 dan boshlanadi, 40 va 41-darslarda esa o'lchash
+// TEMANING O'ZI. Shuning uchun «taxmin» yorlig'i darsdan keladi (`guess`),
+// asbobda qotib qolgan emas.
+//
+// BURCHAKLAR YIG'INDISI HAR DOIM ANIQ 180. Ikki burchak butun darajaga
+// yaxlitlanadi, uchinchisi esa AYIRMA bilan olinadi. Aks holda yaxlitlash
+// tufayli yig'indi 179 yoki 181 chiqib qolardi, va aynan «yig'indi 180»
+// darsi buzilardi.
+//
+// Prop lar:
+//   pts     {A:{x,y}, B:{x,y}, ...}   tugunlardagi nuqtalar
+//   seg     [['A','B'], ...]          chiziqlar; berilmasa pts bo'yicha yopiq
+//   move    'C'                       o'quvchi ko'chira oladigan uch
+//   pick    {x,y}                     uni qayerga qo'yish kerak
+//   show    {sides,angles,sum}        nima yoziladi
+//   mark    ['AB','B']                yoritiladigan tomon va burchaklar
+//   dim     ['CA']                    o'chib turadigan elementlar
+//   guess   true                      o'lchov natijasiga «taxmin» yorlig'i
+//   notes   [{x,y,text,mark,dim}]     ERKIN YORLIQ to'r nuqtasida. Nima uchun:
+//                                     asbob burchakni faqat UCHBURCHAK uchun
+//                                     hisoblaydi (uchta nuqta). Ikki chiziq
+//                                     kesishgan joyda yoki kesuvchi bo'lgan
+//                                     chizmada (40 va 45-darslar) burchak
+//                                     qiymati DARSDAN keladi va shu yorliq
+//                                     bilan qo'yiladi. Yorliqni yoritish yoki
+//                                     xiralashtirish ham mumkin -- «juftlar
+//                                     bittalab yoritiladi» talabi shundan
+//                                     bajariladi (etalon § 2, B7)
+//   options/answer/wrongs/note        qolgan asboblardagi bilan bir xil
+// ============================================================================
+export function Figure({
+  pts, seg, move, pick, show, mark, dim, guess, notes, caption,
+  options, answer, wrongs, note, cols = 2,
+  onSolved, onStep, disabled, audio,
+}) {
+  const t = useT()
+  const fx = useAnswerFx(audio)
+  const [moved, setMoved] = useState(null)
+  const [picked, setPicked] = useState(null)
+  const [wrong, setWrong] = useState([])
+  const [hint, setHint] = useState(null)
+  const [tags, setTags] = useState([])
+
+  const VW = 420
+  const VH = 250
+  const P = { l: 18, r: 18, t: 18, b: 18 }
+  const R = { x0: -6, x1: 6, y0: -4, y1: 4 }
+  // Masshtab teng, maydon markazda -- `Plane` dagi bilan bir xil hisob.
+  const availW = VW - P.l - P.r
+  const availH = VH - P.t - P.b
+  const k = Math.min(availW / (R.x1 - R.x0), availH / (R.y1 - R.y0))
+  const w = k * (R.x1 - R.x0)
+  const h = k * (R.y1 - R.y0)
+  const ox = P.l + (availW - w) / 2
+  const oy = P.t + (availH - h) / 2
+  const sx = (x) => ox + (x - R.x0) * k
+  const sy = (y) => oy + h - (y - R.y0) * k
+
+  // Joriy holat: ko'chirilgan uch bo'lsa, uning o'rni almashadi.
+  const now = { ...pts }
+  if (move && moved) now[move] = moved
+
+  const names = Object.keys(now)
+  const links = seg || names.map((n, i) => [n, names[(i + 1) % names.length]])
+  const ready = !move || !!moved
+
+  const ints = (a, b) => {
+    const out = []
+    for (let v = Math.ceil(a); v <= Math.floor(b); v += 1) out.push(v)
+    return out
+  }
+
+  const tap = (e) => {
+    if (disabled || !move || moved) return
+    const box = e.currentTarget.getBoundingClientRect()
+    if (!box.width || !box.height) return
+    const vx = ((e.clientX - box.left) / box.width) * VW
+    const vy = ((e.clientY - box.top) / box.height) * VH
+    const mx = R.x0 + ((vx - ox) / w) * (R.x1 - R.x0)
+    const my = R.y0 + ((oy + h - vy) / h) * (R.y1 - R.y0)
+    const gx = Math.round(mx)
+    const gy = Math.round(my)
+    if (gx < R.x0 || gx > R.x1 || gy < R.y0 || gy > R.y1) return
+    fx.tap()
+    setMoved({ x: gx, y: gy })
+    if (onStep) onStep('move')
+  }
+
+  const choose = (o) => {
+    if (picked || disabled) return
+    if (o.id === answer) {
+      fx.right()
+      setPicked(o.id)
+      setHint(note || null)
+      if (onSolved) onSolved({ correct: true, attempts: wrong.length + 1, tags })
+      return
+    }
+    const bad = (wrongs || []).find((x) => x.key === o.id) || (wrongs || []).find((x) => x.key === '*')
+    setWrong((prev) => (prev.indexOf(o.id) === -1 ? prev.concat(o.id) : prev))
+    setHint(bad ? bad.hint : null)
+    if (bad && bad.tag) setTags((prev) => (prev.indexOf(bad.tag) === -1 ? prev.concat(bad.tag) : prev))
+    fx.wrong(bad ? bad.hint : null)
+  }
+
+  // O'LCHOVLAR. Tomon uzunligi to'r birligida, bir kasr xonasi bilan.
+  const dist = (a, b) => Math.sqrt((now[a].x - now[b].x) ** 2 + (now[a].y - now[b].y) ** 2)
+  const lenTxt = (a, b) => {
+    const d = dist(a, b)
+    return (Math.round(d * 10) / 10).toFixed(1).replace('.', ',')
+  }
+
+  // Uchdagi burchak, darajada.
+  const angAt = (v, a, b) => {
+    const ux = now[a].x - now[v].x
+    const uy = now[a].y - now[v].y
+    const vx2 = now[b].x - now[v].x
+    const vy2 = now[b].y - now[v].y
+    const dot = ux * vx2 + uy * vy2
+    const m1 = Math.sqrt(ux * ux + uy * uy)
+    const m2 = Math.sqrt(vx2 * vx2 + vy2 * vy2)
+    if (!m1 || !m2) return 0
+    let c = dot / (m1 * m2)
+    if (c > 1) c = 1
+    if (c < -1) c = -1
+    return (Math.acos(c) * 180) / Math.PI
+  }
+
+  // Uchburchak burchaklari: ikkitasi yaxlitlanadi, uchinchisi AYIRMA bilan.
+  // Shunda yig'indi har doim aniq 180 chiqadi.
+  // BURCHAK FAQAT YOPIQ UCHBURCHAKDA hisoblanadi. Uch nuqta bo'lishi
+  // yetarli emas: `seg` ochiq siniq chiziq bergan bo'lsa (masalan nur va
+  // to'g'ri chiziq), uchburchak yo'q va burchak yozib bo'lmaydi -- aks holda
+  // asbob ma'nosiz uchta son chiqarardi. Ochiq chizmada burchak `notes`
+  // bilan beriladi.
+  const closed = names.length === 3 && names.every((n, i) => {
+    const m = names[(i + 1) % 3]
+    return (seg || []).length === 0 || links.some(([a, b]) => (a === n && b === m) || (a === m && b === n))
+  })
+  let angles = null
+  if (closed) {
+    const [A, B, C] = names
+    const a1 = Math.round(angAt(A, B, C))
+    const a2 = Math.round(angAt(B, A, C))
+    angles = { [A]: a1, [B]: a2, [C]: 180 - a1 - a2 }
+  }
+
+  const isMark = (id) => (mark || []).indexOf(id) !== -1
+  const isDim = (id) => (dim || []).indexOf(id) !== -1
+  const segId = (a, b) => a + b
+  const segCls = (a, b) => {
+    const id1 = segId(a, b)
+    const id2 = segId(b, a)
+    let c = 'g7-fg-seg'
+    if (isMark(id1) || isMark(id2)) c += ' is-mark'
+    if (isDim(id1) || isDim(id2)) c += ' is-dim'
+    return c
+  }
+
+  return (
+    <>
+      {caption ? <div className="g7-ts-cap">{t(caption)}</div> : null}
+
+      <Slot mh={VH + 6} style={{ alignItems: 'center' }}>
+        <div className="g7-pl-wrap">
+          <svg
+            viewBox={'0 0 ' + VW + ' ' + VH}
+            className={'g7-fg-svg' + (move && !moved && !disabled ? ' is-live' : '')}
+            onClick={tap}
+            role="img"
+            aria-label={t(caption || UI.agCells)}
+          >
+            {/* To'r TUGUNLAR bilan beriladi, chiziq bilan emas: chizmada
+                asosiy narsa figura, to'r esa faqat qayerga bosish mumkinligini
+                ko'rsatadi. */}
+            {ints(R.x0, R.x1).map((x) => ints(R.y0, R.y1).map((y) => (
+              <circle key={'n' + x + '_' + y} className="g7-fg-node" cx={sx(x)} cy={sy(y)} r="1.4" />
+            )))}
+
+            {links.map(([a, b], i) => (
+              <line
+                key={'s' + i}
+                className={segCls(a, b)}
+                x1={sx(now[a].x)} y1={sy(now[a].y)}
+                x2={sx(now[b].x)} y2={sy(now[b].y)}
+              />
+            ))}
+
+            {/* Tomon uzunliklari: o'rtasida, chiziqdan bir oz nariroqda. */}
+            {show && show.sides ? links.map(([a, b], i) => (
+              <text
+                key={'l' + i}
+                className={'g7-fg-len' + (isDim(segId(a, b)) ? ' is-dim' : '')}
+                x={(sx(now[a].x) + sx(now[b].x)) / 2}
+                y={(sy(now[a].y) + sy(now[b].y)) / 2 - 6}
+                textAnchor="middle"
+              >
+                {lenTxt(a, b)}
+              </text>
+            )) : null}
+
+            {/* Burchaklar: uchning yonida. */}
+            {show && show.angles && angles ? names.map((n) => (
+              <text
+                key={'a' + n}
+                className={'g7-fg-ang' + (isMark(n) ? ' is-mark' : '') + (isDim(n) ? ' is-dim' : '')}
+                x={sx(now[n].x) + (now[n].x >= 0 ? -16 : 16)}
+                y={sy(now[n].y) + (now[n].y >= 0 ? 18 : -10)}
+                textAnchor="middle"
+              >
+                {angles[n]}
+              </text>
+            )) : null}
+
+            {(notes || []).map((nt, i) => (
+              <text
+                key={'nt' + i}
+                className={'g7-fg-ang' + (nt.mark ? ' is-mark' : '') + (nt.dim ? ' is-dim' : '')}
+                x={sx(nt.x)}
+                y={sy(nt.y)}
+                textAnchor="middle"
+              >
+                {nt.text}
+              </text>
+            ))}
+
+            {names.map((n) => (
+              <g key={'p' + n} className={'g7-fg-ptg' + (move === n ? ' is-move' : '')}>
+                <circle className="g7-fg-pt" cx={sx(now[n].x)} cy={sy(now[n].y)} r="4.5" />
+                <text
+                  className="g7-fg-name"
+                  x={sx(now[n].x) + (now[n].x >= 0 ? 10 : -10)}
+                  y={sy(now[n].y) + (now[n].y >= 0 ? -8 : 16)}
+                  textAnchor="middle"
+                >
+                  {n}
+                </text>
+              </g>
+            ))}
+          </svg>
+        </div>
+      </Slot>
+
+      {/* O'LCHOV NATIJASI «TAXMIN» deb imzolanadi -- faqat dars shuni
+          so'raganda (42-darsdan boshlab). */}
+      {/* O'LCHOV NATIJASI «TAXMIN» DEB IMZOLANADI (etalon § 9). Yig'indi
+          ko'rsatilgan bo'lsa -- yig'indining yonida; yig'indi yo'q, lekin
+          tomon yoki burchak o'lchangan bo'lsa -- alohida satrda. Aks holda
+          `guess` bayrog'i darsda qo'yilib, ekranda ko'rinmay ketardi. */}
+      <Slot mh={(show && show.sum) || (guess && show && (show.sides || show.angles)) ? 26 : 0}>
+        {show && show.sum && angles ? (
+          <span className={'g7-fg-sum' + (guess ? ' is-guess' : '')}>
+            {t(UI.fgSum)} {names.map((n) => angles[n]).reduce((s2, v) => s2 + v, 0)}
+            {guess ? ' -- ' + t(UI.fgGuess) : ''}
+          </span>
+        ) : guess && show && (show.sides || show.angles) ? (
+          <span className="g7-fg-sum is-guess">
+            {t(UI.fgMeasure)} -- {t(UI.fgGuess)}
+          </span>
+        ) : null}
+      </Slot>
+
+      <Slot mh={options ? 54 : 0}>
+        {options && ready ? (
+          <Options
+            items={options.map((o) => ({ id: o.id, label: t(o.label) }))}
+            picked={picked}
+            wrong={wrong}
+            onPick={choose}
+            disabled={disabled}
+            cols={cols}
+          />
+        ) : null}
+      </Slot>
+
+      <Slot mh={58}>
+        <Feedback show={!!hint} ok={!!picked}>{hint ? t(hint) : null}</Feedback>
       </Slot>
     </>
   )

@@ -98,6 +98,11 @@ const leafOptionSets = (block) => {
   optionBlocks(block).forEach((ob) => {
     const entries = optionEntries(ob)
     if (!entries.length) return
+    // VARIANT `label` bilan tanaladi. `SortZones` ning `items` i -- kartalar
+    // ro'yxati (`text`, `zone`), ya'ni variant EMAS: uni variant deb olsak,
+    // tekshiruv «to'g'ri javob 0 ta» va «6 ta variant» deb yolg'on xabar
+    // beradi (18-dars, 6-ekran).
+    if (!entries.some((e) => /label:/.test(e)) && entries.some((e) => /zone:/.test(e))) return
     if (entries.some((e) => e.includes('items: ['))) {
       entries.forEach((e) => { leafOptionSets(e).forEach((s) => out.push(s)) })
       return
@@ -117,11 +122,20 @@ const leafOptionSets = (block) => {
 const SCENES = ['HookMachines', 'RideScene', 'TwoRoutes', 'PlotScene', 'CrateScene']
 
 // ASBOBLAR: javob shakllari va ko'rsatuvchi asboblar (§4.2 farqi).
+// KONVEYER REJIMI (2026-08-21). 20-darsdan boshlab dars fayli MA'LUMOT:
+// o'ram `screens.jsx` da, ekran esa `kind` maydoni bilan tanaladi. Asbob JSX
+// dan emas, `kind` dan o'qiladi -- aks holda tekshiruv kvotani NOL deb
+// ko'rsatib, O'Z FOYDASIGA yolg'on gapirardi (bu loyihada uch marta bo'lgan).
+const KIND_PICK = ['hook', 'chain', 'blitz']
+const KIND_HANDS = ['strip', 'columns', 'grid', 'substitute', 'sort', 'slot', 'slot2', 'rule', 'trap', 'tape', 'plane', 'figure', 'transform', 'wrap']
+const KIND_BUILD = ['slot', 'slot2', 'trap']
+const kindOf = (blk) => ((blk.match(/kind:\s*'([a-z0-9]+)'/) || [])[1] || '')
+
 const PICK_ONLY = ['Probe', 'ProbeChain']
 // `EquationBalance` -- B2 blokining asbobi. Unda o'quvchi to'rttadan
 // tanlamaydi: u AMALNI tanlaydi va yechimni qadamma-qadam yig'adi, xato amal
 // esa qator qo'shmaydi. Shuning uchun u «javobni yig'adi» ro'yxatida.
-const HANDS_ON = ['SlotFill', 'Transform', 'AuditRows', 'StepOrder', 'BracketGap', 'RuleBuilder', 'SubstituteRows', 'NumberLineTracks', 'EquationBalance', 'FactorTape', 'DistanceLine']
+const HANDS_ON = ['SlotFill', 'Transform', 'AuditRows', 'StepOrder', 'BracketGap', 'RuleBuilder', 'SubstituteRows', 'NumberLineTracks', 'EquationBalance', 'FactorTape', 'DistanceLine', 'TermStrip', 'SortZones', 'TermColumns']
 const FORBIDDEN = ['Options', 'Feedback', 'useSfx', 'useAnswerFx']
 
 // Darslikka havolalar. §3.4: ekranda ham, ovozda ham bo'lmaydi.
@@ -144,13 +158,24 @@ const audit = (file) => {
   const screensArr =
     (src.match(/const SCREENS = \[([\s\S]*?)\]/) || [])[1] ||
     (src.match(/screens:\s*\[([\s\S]*?)\]/) || [])[1] || ''
-  const listed = (screensArr.match(/Screen\d+/g) || []).length
+  const conveyor = /makeLesson\(/.test(raw)
+  const listed = conveyor
+    ? (screensArr.match(/\bS\d+\b/g) || []).length
+    : (screensArr.match(/Screen\d+/g) || []).length
   const totalRaw = (raw.match(/const TOTAL = (\d+)/) || [])[1]
   const total = totalRaw || String(listed)
   say(total === '15', `ekranlar soni ${total}, 15 bo'lishi kerak (§4.1)`)
   say(listed === 15, `ekranlar ro'yxatida ${listed} ta, 15 bo'lishi kerak`)
   for (let n = 1; n <= 15; n += 1) {
-    say(screenFn(src, n) !== '', `Screen${n} komponenti yo'q`)
+    if (conveyor) {
+      const blk = screenBlock(src, n)
+      say(blk !== '', `S${n} ma'lumot bloki yo'q`)
+      const k = kindOf(blk)
+      say(k !== '', `S${n} da kind yo'q -- konveyer qaysi ekranni qo'yishini bilmaydi`)
+      if (k) say(KIND_PICK.indexOf(k) !== -1 || KIND_HANDS.indexOf(k) !== -1, `S${n} kind «${k}» tekshiruvga tanish emas`)
+    } else {
+      say(screenFn(src, n) !== '', `Screen${n} komponenti yo'q`)
+    }
   }
 
   // --- 2. MEXANIKA DARS FAYLIDA YO'Q (§9.1) ---
@@ -161,7 +186,13 @@ const audit = (file) => {
     say(!new RegExp(`\\b${name}\\b`).test(imports), `dars fayli ${name} ni import qiladi -- mexanika darsga ko'chgan (§9.1)`)
   })
   say(!/from '\.\.\/shared\//.test(raw), "`../shared/` dan import qilingan -- 7-sinfga taqiqlangan (§4.5)")
-  say(/^import React/m.test(raw), 'import React yo\'q -- LMS jsx ni klassik rejimda yuklaydi')
+  // KONVEYERDA dars faylida JSX YO'Q -- u faqat ma'lumot, va React ham
+  // kerak emas: JSX ni `screens.jsx` yozadi. Talab REJIMGA qarab o'zgaradi.
+  if (conveyor) {
+    say(/from '.\/screens.\jsx'/.test(raw), "konveyer darsi ./screens.jsx dan import qilmaydi")
+  } else {
+    say(/^import React/m.test(raw), 'import React yo\'q -- LMS jsx ni klassik rejimda yuklaydi')
+  }
 
   // --- 3. RO'YXATGA MOSLIK ---
   const reg = readFileSync(REGISTRY, 'utf8')
@@ -222,6 +253,11 @@ const audit = (file) => {
   // --- 6. TANLOV KVOTASI: 2-13 dan ko'pi bilan uchta (§4.2) ---
   const quota = []
   for (let n = 2; n <= 13; n += 1) {
+    if (conveyor) {
+      const k = kindOf(screenBlock(src, n))
+      if (k && KIND_PICK.indexOf(k) !== -1) quota.push(n)
+      continue
+    }
     const fn = screenFn(src, n)
     if (!fn) continue
     // `askFirst` rejimida SubstituteRows QO'L ishi emas: o'quvchi faqat
@@ -239,13 +275,28 @@ const audit = (file) => {
   // --- 7. JAVOBNI O'QUVCHI YIG'ADIGAN EKRANLAR: kamida uchta ---
   const build = []
   for (let n = 2; n <= 13; n += 1) {
+    if (conveyor) {
+      const k = kindOf(screenBlock(src, n))
+      if (k && KIND_BUILD.indexOf(k) !== -1) build.push(n)
+      continue
+    }
     if (/<SlotFill\b/.test(screenFn(src, n))) build.push(n)
   }
   say(build.length >= 3, `javob bo'laklardan yig'iladigan ekranlar: ${build.length} ta, kamida 3 kerak (§8.5)`)
 
   // --- 8. BAHOLANADIGAN EKRAN BITTA ---
-  const scored = (src.match(/scored:\s*true/g) || []).length
-  say(scored === 1, `scored: true ${scored} marta uchraydi, bittada bo'lishi kerak (§8.5)`)
+  const scored = conveyor
+    ? (src.match(/kind:\s*'blitz'/g) || []).length
+    : (src.match(/scored:\s*true/g) || []).length
+  if (conveyor) {
+    // Konveyerda `scored: true` `screens.jsx` da turadi. Darsda esa
+    // baholanadigan ekran `kind: 'blitz'` bilan belgilanadi.
+    const blitzes = []
+    for (let n = 1; n <= 15; n += 1) { if (kindOf(screenBlock(src, n)) === 'blitz') blitzes.push(n) }
+    say(blitzes.length === 1, `blitz ekrani ${blitzes.length} ta, bittada bo'lishi kerak (§8.5)`)
+  } else {
+    say(scored === 1, `scored: true ${scored} marta uchraydi, bittada bo'lishi kerak (§8.5)`)
+  }
 
   // --- 9. ZAMOK: javob shakli bor har ekranda ---
   for (let n = 1; n <= 14; n += 1) {
@@ -261,10 +312,17 @@ const audit = (file) => {
   // O'lchov buni ko'rmaydi: sahnasiz xuk ham budjetga sig'adi va hamma
   // tekshiruvdan yashil o'tadi. 5-dars aynan shunday o'tgandi.
   const fn1 = screenFn(src, 1)
-  say(
-    SCENES.some((c) => new RegExp(`<${c}\\b`).test(fn1)),
-    `1-ekranda sahna yo'q. Sinf etaloni -- chizilgan sahna, ikkita kartochka yetarli emas. Bor sahnalar: ${SCENES.join(', ')}`,
-  )
+  if (conveyor) {
+    // Konveyerda sahna `screens.jsx` da chiziladi, darsda esa `gate.source`
+    // bilan beriladi -- shuning uchun tekshiruv MA'LUMOTGA qaraydi.
+    const s1 = screenBlock(src, 1)
+    say(/gate:/.test(s1) && /source:/.test(s1), "1-ekranda sahna yo'q: gate.source berilmagan")
+  } else {
+    say(
+      SCENES.some((c) => new RegExp(`<${c}\\b`).test(fn1)),
+      `1-ekranda sahna yo'q. Sinf etaloni -- chizilgan sahna, ikkita kartochka yetarli emas. Bor sahnalar: ${SCENES.join(', ')}`,
+    )
+  }
 
   // --- 9b. LENTA PLASHKALARIDA SO'Z YO'Q ---
   // `HistoryTape` plashkalari oddiy satrlar, ular UCH TILGA bo'linmaydi.
@@ -293,10 +351,18 @@ const audit = (file) => {
   // to'g'ri (`x + 3x = 48` hamma tilda bir xil), lekin so'z uchun yo'q:
   // 11-darsda «javob: 12» ruscha versiyada ham o'zbekcha bo'lib turardi.
   src.split(NL).filter((l) => l.indexOf('text:') !== -1).forEach((l) => {
-    const val = l.slice(l.indexOf('text:') + 5).trim()
+    // FAQAT satr adabiyoti olinadi, qatorning qolgani emas: `text: '3m · 4m',
+    // zone: 'z1'` da `zone` kaliti SO'Z deb hisoblanib qolardi (18-dars).
+    const rest = l.slice(l.indexOf('text:') + 5).trim()
+    const q = rest.charAt(0)
+    let val = rest
+    if (q === "'" || q === '"') {
+      const end = rest.indexOf(q, 1)
+      if (end !== -1) val = rest.slice(1, end)
+    }
     // Xizmat chaqiruvlari: `L(...)` tarjima qiladi, `tr(...)` esa yadroning
     // ovoz yig'gichida turadi -- ular matn emas.
-    if (val.startsWith('L(') || val.startsWith('tr(')) return
+    if (rest.startsWith('L(') || rest.startsWith('tr(')) return
     if (CYR.test(val)) bad.push(`qator matnida kirill: ${val.slice(0, 40)} -- L() kerak`)
     else if (WORD.test(val)) bad.push(`qator matnida so'z: ${val.slice(0, 40)} -- L() kerak`)
   })
