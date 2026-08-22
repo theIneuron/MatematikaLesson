@@ -1,1016 +1,634 @@
-// ============================================================================
-// 8-SINF AMALIYOTINING UMUMIY QATLAMI — TIPLAR BIR JOYDA.
-// Kontrakt: src/books/grade8/TIPLAR_AMALIYOT_8SINF.md
+// 7-SINF AMALIYOTINING UMUMIY QATLAMI — MEXANIKALAR BIR JOYDA.
 //
-// NEGA. Sinfda 55 dars, har darsda 10 topshiriq — 550 fayl. Agar har fayl
-// o'z ichida maydon, hukm, razbor bloki va tekshirishni takrorlasa, bitta
-// nuqsonni 550 joyda tuzatish kerak bo'ladi (CLAUDE.md §5).
+// NEGA. 1-dars amaliyotida har topshiriq fayli o'z ichida bir xil 60 satrni
+// takrorlaydi: uslublar, razbor bloki, `registerCheck` ulanishi, ikonkalar.
+// Bitta darsda bu ko'rinmaydi, 13 darsda esa 130 fayl va bitta nuqsonni 130
+// joyda tuzatish degani. CLAUDE.md §5: umumiy kod ko'chirilmaydi, umumiy
+// modulga chiqariladi.
 //
-// NIMA QOLADI TOPSHIRIQDA. Faqat MA'LUMOT: yozuv, kartalar, to'g'ri javob,
-// har xato yo'lga razbor, uch til. Ya'ni metodik ish.
+// NIMA QOLADI TOPSHIRIQDA. Faqat MA'LUMOT: yozuv, variantlar, kartalar,
+// to'g'ri javob, har xato yo'lga razbor va uch til. Ya'ni metodik ish.
 //
-// MUHIM QOIDA (7-sinfda qimmatga tushgan xato): MATEMATIKA til blokining
-// ICHIDA turmaydi. `answer`, `accepts`, `cards`, `items`, `excluded` — til
-// bloklaridan TASHQARIDA, `L()` esa faqat SO'ZLAR uchun. Uch nusxa birinchi
-// tahrirda ajralib ketadi va rus tilidagi topshiriq yechilmas bo'lib qoladi.
+// MUHIM QOIDA (2026-08-20 da qimmatga tushgan xato): MATEMATIKA til blokining
+// ICHIDA turmaydi. Yozuv, variant, karta -- bu tarjima emas, matematikaning
+// o'zi. Uchta nusxa birinchi tahrirda ajralib ketadi va rus tilidagi
+// topshiriq yechilmas bo'lib qoladi. Shuning uchun `expr`, `opts`, `cards`,
+// `items` -- til bloklaridan TASHQARIDA, `L()` esa faqat SO'ZLAR uchun.
 //
-// HECH NARSA KO'CHIRILMAGAN. Maydon, klaviatura va javobni baholash —
-// `math.jsx` (judgeExpr / judgeOdz / MathField), kontrprimer va yozuv
-// renderi — `core.jsx` (Counterexample / Frac / Row), sonlar to'plami —
-// `tools.jsx` (parseNumberSet), ODZ ning nollari — `mathcore.js`
-// (domainHoles). Dars nimani ishlatsa, amaliyot ham SHUNI ishlatadi.
+// MEXANIKALAR (1-dars amaliyotidan olindi, xatti-harakati o'sha):
+//   Choice     -- uchta-to'rtta o'qishdan bittasi (faqat 1-2 «isinish» uchun)
+//   TypeValue  -- javob klaviaturadan, manfiy son ham mumkin
+//   SlotsBank  -- uyalar va kartalar banki; bir yoki bir necha qator
+//   TapTerms   -- yozuvning O'ZIDA hadlarni belgilash
+//   MarkAll    -- bir nechta yozuvni belgilash, «hammasi yoki hech narsa»
+//   BuildLine  -- kartalardan yozuv yig'ish, kursor istalgan joyga
+//   Zones      -- yozuvlarni zonalarga taqsimlash
 //
-// XATTI-HARAKAT (metodist qarori 2026-08-21):
-//   1. javob BIR marta tekshiriladi, keyin topshiriq YOPILADI;
-//   2. razbor tekshirishdan KEYIN DARROV chiqadi, «maslahat» tugmasi yo'q.
-// Tugma bu yerda emas, `PracticeHost.jsx` da: har tip `registerCheck` orqali
-// o'z tekshiruvini hostga beradi.
+// HAR MEXANIKA jsx-question kontraktini bajaradi: `onReady`, `registerCheck`,
+// `onSubmit`. O'z «Tekshirish» tugmasi YO'Q -- uni PracticeHost beradi.
+// Javob BITTA marta tekshiriladi, keyin ekran yopiladi (amaliyot qoidasi).
 //
-// TIPLAR (o'ntadan yettitasi, TIPLAR_AMALIYOT_8SINF.md §5):
-//   Input     — javobni yozadi: ifoda, son yoki ODZ
-//   Odz       — IKKI maydon: natija VA shart, razbor alohida
-//   Slots     — tayyor yechimdagi tirqishlarni kartalardan to'ldiradi
-//   Build     — berilgan XOSSAGA ega yozuvni kartalardan yig'adi
-//   Boundary  — ikki yozuv QAYERDA ajralishini yozadi
-//   Sort      — yozuvlarni zonalarga taqsimlaydi
-//   AuditRows — BIRINCHI noto'g'ri satrni topadi va kontrprimer yozadi
-// Qolgan uchtasi o'zi kerak bo'lgan darsda yoziladi: `steps` (2-6 darslar),
-// `line` (25-29), `figure` (37-55). Ishlatilmagan mexanika — tekshirilmagan
-// mexanika, shuning uchun oldindan yozilmaydi.
-// ============================================================================
-/* eslint-disable react-refresh/only-export-components -- tiplar ham, uslublar
-   ham shu faylda turadi: ular bir kontrakt va bo'linsa ajralib ketadi. */
-import React, { useCallback, useEffect, useRef, useState } from 'react'
-import {
-  Counterexample, Frac, L, MATH_FONT, Note, Row, T, tr, useSfx, useT,
-} from '../core.jsx'
-import { MathField, judgeExpr, judgeOdz, useIsPhone } from '../math.jsx'
-import { parseNumberSet } from '../tools.jsx'
-import { domainHoles, evaluate, parse } from '../mathcore.js'
+// BALANDLIK: 1366x615 da ishchi maydon 487px, tepada til qatori, pastda
+// tugma. Topshiriq 363px dan oshmasligi kerak -- uslublar shu hisobda
+// ixcham qilingan (`practice/PracticeHost.jsx` dagi izohga qarang).
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { Frac, Row } from './frac.jsx';
 
-export { L, tr, Frac, Row }
+export { Frac, Row };
 
-// Kasr — ma'lumot faylida qisqa yozilishi uchun.
-export const F = (num, den) => <Frac num={num} den={den} size="big" />
+// ============================================================ TIL
+// L() faqat SO'ZLAR uchun. Matematika uchun emas.
+export const L = (uz, ru, en) => ({ uz, ru, en });
+export const tr = (v, lang) => {
+  if (v == null) return '';
+  if (typeof v === 'string' || typeof v === 'number') return v;
+  return v[lang] || v.uz || '';
+};
 
-// Yozuv qatori: markazda, dars bilan bir xil o'lchamda.
-export const E = ({ children }) => (
-  <div className="pq-expr"><Row size="big" align="center">{children}</Row></div>
-)
+// ============================================================ USLUBLAR
+export const S = {
+  wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
+  setup: { fontSize: 16, lineHeight: 1.45, margin: '5px 0 9px', color: '#374151' },
+  ask: { fontSize: 17, fontWeight: 700, margin: '10px 0 8px' },
+  note: { fontSize: 13, color: '#9aa1ad', fontWeight: 600, margin: '0 0 8px' },
+  bankLbl: { fontSize: 12, fontWeight: 800, color: '#9aa1ad', letterSpacing: '.04em', marginBottom: 6 },
+  mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontWeight: 800 },
+};
+export const C = {
+  ink: '#1f2430', soft: '#374151', mute: '#9aa1ad', line: '#cbd5e1', pale: '#e2e8f0',
+  hot: '#fe5b1a', hotBg: '#fff0e8', ok: '#1a7f43', okBg: '#e8f7ee', no: '#c0392b', noBg: '#fdecec',
+  bg: '#f8fafc', stage2: '#2C5FA8', stage1: '#7A4FA3', brace: '#0f766e',
+};
 
-const TXT = {
-  none: L("Taqiqlangan qiymat yo'q", 'Нет запрещённого значения', 'No forbidden value'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
-  yours: L('sizda', 'у тебя', 'yours'),
-  source: L("boshlang'ich", 'исходная', 'original'),
-  empty: L('Javob yozilmagan.', 'Ответ не записан.', 'No answer written.'),
-  noneWrong: L(
-    "Taqiq bor: maxrajni nolga aylantiradigan qiymat topiladi.",
-    'Запрет есть: значение, обращающее знаменатель в нуль, найдётся.',
-    'There is a restriction: a value making the denominator zero does exist.',
-  ),
-  proofOk: L(
-    'Shu qiymatda maxraj nolga aylanadi, ya\'ni satr shu joyda buziladi.',
-    'При этом значении знаменатель обращается в нуль — значит строка ломается здесь.',
-    'At this value the denominator becomes zero, so the line breaks here.',
-  ),
-  proofNo: L(
-    'Bu qiymatda yozuv hisoblanadi. Maxrajni nolga aylantiradigan sonni oling.',
-    'При этом значении запись считается. Возьми число, обращающее знаменатель в нуль.',
-    'At this value the record still computes. Take a number that makes the denominator zero.',
-  ),
-  pickRow: L('Satrni bosing.', 'Нажми строку.', 'Tap a line.'),
-  proofAlready: L(
-    "Bu qiymatni yechimning o'zi taqiqlagan, ya'ni u dalil emas. Yechim RUXSAT BERGAN, lekin kasr hisoblanmaydigan sonni oling.",
-    'Это значение решение и так запретило, значит оно не улика. Возьми число, которое решение РАЗРЕШИЛО, а дробь при нём не считается.',
-    'The solution already excluded this value, so it proves nothing. Take a number the solution ALLOWED where the fraction still fails.',
-  ),
-  proofAsk: L('son', 'число', 'number'),
-}
+const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
+const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
+
+// Razbor bloki. O'lchamlari 615px balandlikka hisoblangan: razbor topshiriq
+// bilan birga sig'ishi kerak, aks holda o'quvchi uni ko'rmaydi.
+export const HFB = ({ ok, text }) => (
+  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 10, padding: '10px 13px', borderRadius: 12, fontSize: 14.5, lineHeight: 1.4, fontWeight: 600, background: ok ? C.okBg : C.noBg, color: ok ? C.ok : C.no }}>
+    {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
+  </div>
+);
 
 // ============================================================ UMUMIY HOLAT
-// Har tipda bir xil: javob BIR marta tekshiriladi, keyin qulflanadi.
-function useOnce({ onReady, ready }) {
-  const [fb, setFb] = useState(null)
-  const [checked, setChecked] = useState(false)
-  useEffect(() => { onReady?.(ready && !checked) }, [ready, checked, onReady])
-  return { fb, setFb, checked, setChecked, locked: checked }
+// Har mexanikada bir xil: javob bir marta tekshiriladi, keyin qulflanadi.
+function useAnswer({ mode, initialAnswer, restore }) {
+  const [fb, setFb] = useState(null);
+  const [checked, setChecked] = useState(false);
+  const isReview = mode === 'review';
+  useEffect(() => {
+    if (!initialAnswer) return;
+    restore?.(initialAnswer.studentAnswer);
+    if (typeof initialAnswer.correct === 'boolean') { setFb({ correct: initialAnswer.correct }); setChecked(true); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialAnswer]);
+  return { fb, setFb, checked, setChecked, locked: isReview || checked };
 }
 
 // `registerCheck` HOSTGA funksiya beradi. Funksiya har renderda yangilanadi,
-// lekin hostga bir marta uzatiladi — shuning uchun ref orqali.
+// lekin hostga bir marta uzatiladi -- shuning uchun ref orqali.
 function useRegister(check, registerCheck) {
-  const ref = useRef(check)
-  // Renderda ref ga yozilmaydi (react-hooks/refs): har renderdan KEYIN
-  // yangilanadi. Host tugmani bosganda effektlar allaqachon o'tgan.
-  useEffect(() => { ref.current = check })
-  useEffect(() => { registerCheck?.(() => ref.current()) }, [registerCheck])
+  const ref = useRef(check); ref.current = check;
+  useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
 }
+export { useRegister, useAnswer };
 
-// Razborni TANLASH. `wrongs` — tartib bilan tekshiriladigan shartlar:
-// birinchi mos kelgani chiqadi. Har xato YO'LGA o'z razbori bo'lishi kerak.
-const pickWhy = (data, state) => {
+// Razborni TANLASH. `data.wrongs` — tartib bilan tekshiriladigan shartlar:
+// birinchi mos kelgani chiqadi. Har xato YO'LGA o'z razbori bo'lishi kerak
+// (etalon §8.3), «noto'g'ri» so'zi razbor emas.
+const pickWhy = (data, state, lang) => {
   for (const w of data.wrongs || []) {
-    try { if (w.when(state)) return w.text } catch { /* shart bajarilmadi */ }
+    try { if (w.when(state)) return tr(w.text, lang); } catch (e) { /* shart bajarilmadi */ }
   }
-  return data.wrongText || null
-}
+  return tr(data.wrongText, lang);
+};
 
-// Topshiriq sarlavhasi: hamma tipda bir xil tartib.
-const Head = ({ data }) => {
-  const t = useT()
-  return (
-    <>
-      <div className="pq-eyebrow">{t(data.eyebrow)}</div>
-      {data.setup ? <p className="pq-setup">{t(data.setup)}</p> : null}
-    </>
-  )
-}
-
-const Ask = ({ children }) => (children ? <p className="pq-ask">{children}</p> : null)
-
-// Hukm. To'g'ri bo'lsa — tasdiq matni (unda SON bilan tekshirish bor).
-// Xato bo'lsa — kontrprimer yoki razbor. «Xato» so'zi yozilmaydi (§2.1).
-const Fb = ({ fb }) => {
-  const t = useT()
-  if (!fb) return null
-  if (fb.correct) return <Note kind="ok">{t(fb.text)}</Note>
-  if (fb.cx) {
-    return (
-      <Counterexample {...{ at: fb.cx.at, note: fb.cx.note, mine: fb.cx.mine, ref: fb.cx.src,
-        labelMine: TXT.yours, labelRef: TXT.source }} />
-    )
-  }
-  return <Note kind="no">{fb.text ? t(fb.text) : null}</Note>
-}
-
-// Javobni topshirish: hostga bir xil shaklda ketadi.
-// `fb` ham ketadi: javob berilgan topshiriqqa qaytilganda qobiq AYNAN SHU
-// razborni ko'rsatadi, umumiy gapni emas.
-const payload = (data, extra) => ({
-  tag: data.tag,
-  level: data.level,
+const submitPayload = (data, extra) => ({
+  questionText: extra.questionText || '',
+  options: extra.options || [],
   studentAnswer: extra.studentAnswer,
   correctAnswer: extra.correctAnswer,
   correct: extra.correct,
-  feedback: extra.fb ? (extra.fb.text || (extra.fb.cx && extra.fb.cx.note) || null) : null,
-})
+  meta: { tag: data.tag, level: data.level, ...(data.meta || {}) },
+});
 
-// judgeExpr / judgeOdz natijasini hukm shakliga o'girish.
-const toFb = (res, data, state) => {
-  if (res.why === 'value' || res.why === 'domain') {
-    return {
-      correct: false,
-      cx: {
-        at: res.at,
-        note: res.note || pickWhy(data, state),
-        mine: res.why === 'value' ? res.mine : undefined,
-        // `src` — «boshlang'ich yozuvning qiymati». Nomi ataylab `ref` emas:
-        // JSX da `ref` maxsus nom va linter butun obyektni ref deb oladi.
-        src: res.why === 'value' ? res.ref : undefined,
-      },
-    }
-  }
-  if (res.why === 'empty') return { correct: false, text: TXT.empty }
-  return { correct: false, text: res.note || pickWhy(data, state) }
-}
+// Sarlavha qismi: hamma mexanikada bir xil tartib -- eyebrow, shart, savol.
+const Head = ({ data, lang }) => (
+  <>
+    <div style={S.eyebrow}>{tr(data.eyebrow, lang)}</div>
+    {data.setup ? <p style={S.setup}>{tr(data.setup, lang)}</p> : null}
+  </>
+);
 
-// «Taqiqlangan qiymat yo'q» — TUGMA, matn emas. HAMMA ODZ topshirig'ida
-// turadi: faqat javobi «yo'q» bo'lganda paydo bo'lsa, o'quvchi uni PAYDO
-// BO'LGANI uchun bosadi (dars kanoni §10.1).
-const NoneBtn = ({ on, label, disabled, onClick }) => {
-  const t = useT()
+// Berilgan qiymatlar qatori (a = 4, b = −3). Matematika — `data.given`,
+// so'z — `data.givenLabel`.
+const Given = ({ data, lang }) => {
+  if (!data.given || !data.given.length) return null;
   return (
-    <button
-      type="button"
-      className={'pq-none' + (on ? ' is-on' : '')}
-      aria-pressed={on}
-      disabled={disabled}
-      onClick={onClick}
-    >
-      {t(label || TXT.none)}
-    </button>
-  )
-}
-
-// ============================================================ 1. INPUT
-// Javobni O'ZI yozadi. kind: 'expr' | 'number' | 'odz'.
-//   expr/number — judgeExpr, `data.answer` bo'yicha (satr emas, QIYMAT)
-//   odz         — judgeOdz, `data.excluded` bo'yicha (to'plam solishtiriladi)
-// `data.hints` — aynan shu noto'g'ri yozuv uchun yozilgan razbor.
-// ============================================================
-export function Input({ data, onReady, registerCheck, onSubmit }) {
-  const t = useT()
-  const sfx = useSfx()
-  const [val, setVal] = useState('')
-  const [none, setNone] = useState(false)
-  const kind = data.kind || 'expr'
-  const A = useOnce({ onReady, ready: none || !!String(val).trim() })
-
-  const check = useCallback(() => {
-    let correct
-    let fb
-    if (none) {
-      correct = !!data.noneRight
-      fb = correct
-        ? { correct: true, text: data.correctText }
-        : { correct: false, text: data.noneWrong || TXT.noneWrong }
-    } else {
-      const res = kind === 'odz'
-        ? judgeOdz(val, { excluded: data.excluded, varName: data.varName, hints: data.hints })
-        : judgeExpr(val, { answer: data.answer, hints: data.hints })
-      correct = !!res.ok
-      fb = correct ? { correct: true, text: data.correctText } : toFb(res, data, { value: val })
-    }
-    A.setFb(fb)
-    A.setChecked(true)
-    correct ? sfx.playCorrect() : sfx.playWrong()
-    onSubmit?.(payload(data, {
-      fb,
-      studentAnswer: none ? 'none' : val,
-      correctAnswer: kind === 'odz' ? data.excluded : data.answer,
-      correct,
-    }))
-  }, [val, none, kind, data, A, sfx, onSubmit])
-  useRegister(check, registerCheck)
-
-  return (
-    <div className="pq-wrap">
-      <Head data={data} />
-      {data.expr ? data.expr : null}
-      <Ask>{t(data.ask)}</Ask>
-      <MathField
-        kind={kind}
-        label={data.label}
-        value={val}
-        onChange={(x) => { setVal(x); setNone(false) }}
-        done={A.locked}
-        width={kind === 'number' ? 96 : undefined}
-      />
-      {data.none ? (
-        <NoneBtn
-          on={none}
-          label={data.noneLabel}
-          disabled={A.locked}
-          onClick={() => { setNone(true); setVal('') }}
-        />
-      ) : null}
-      <Fb fb={A.fb} />
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, padding: '5px 0', borderRadius: 12, background: C.bg, border: '1px solid #eef0f4', marginBottom: 4 }}>
+      {data.givenLabel ? <span style={{ fontSize: 12, fontWeight: 800, color: C.mute, letterSpacing: '.04em', textTransform: 'uppercase' }}>{tr(data.givenLabel, lang)}</span> : null}
+      {data.given.map((g, i) => <Row key={i} tokens={g} size={22} />)}
     </div>
-  )
-}
+  );
+};
 
-// ============================================================ 2. ODZ
-// IKKI maydon: natija VA shart. Ular ALOHIDA baholanadi va razbor ham
-// alohida: «kasr to'g'ri, shart yo'qolgan» va «shart to'g'ri, kasr xato» —
-// bu ikki BOSHQA xato (TIPLAR §5.2).
-// data.fields: [{ kind, ask, label, answer|excluded, hints, none }]
-//
-// TELEFONDA BITTA MAYDON. Sabab o'lchov: `MathField` telefonda o'z ekran
-// klaviaturasini chiqaradi, ikki maydon esa IKKI klaviatura degani va kontent
-// ish maydonidan 23-52px chiqib ketardi (o'lchandi 390 va 360 px da). Shuning
-// uchun telefonda faol maydon bitta, ikkinchisi bosiladigan satr bo'lib
-// yig'iladi. Tekshirish esa o'sha-o'sha: BIR marta, ikki javob birga.
-// ============================================================
-export function Odz({ data, onReady, registerCheck, onSubmit }) {
-  const t = useT()
-  const sfx = useSfx()
-  const phone = useIsPhone()
-  const [edit, setEdit] = useState(0)
-  const [vals, setVals] = useState(() => data.fields.map(() => ''))
-  const [none, setNone] = useState(() => data.fields.map(() => false))
-  const filled = data.fields.every((f, i) => none[i] || !!String(vals[i]).trim())
-  const A = useOnce({ onReady, ready: filled })
-  const [each, setEach] = useState(null)
+// ============================================================ 1. CHOICE
+// Tayyor javobni tanlash. Etalon §1.1 ga ko'ra bu KUCHSIZ tekshiruv,
+// shuning uchun faqat isinish uchun (amaliyotda bir-ikkitasi).
+export function Choice({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
+  const [picked, setPicked] = useState(null);
+  const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa?.idx != null) setPicked(sa.idx); } });
+  useEffect(() => { onReady?.(picked != null && !A.checked); }, [picked, A.checked, onReady]);
 
-  const set = (i, v) => setVals((prev) => prev.map((x, j) => (j === i ? v : x)))
-  const setNoneAt = (i) => setNone((prev) => prev.map((x, j) => (j === i ? true : x)))
+  // AMALIYOT_GLOBAL_STANDART.md 5-band: variantlar har ochilganda
+  // aralashtiriladi, to'g'ri javob doimiy joyda turmaydi. Aralashtirish faqat
+  // KO'RSATISH tartibini o'zgartiradi: `data-opt`, `picked` va razbor shartlari
+  // (`s.picked === 1`) ma'lumotdagi ASL raqamda qoladi, ya'ni topshiriq
+  // fayllarini va tekshiruvlarni o'zgartirish kerak emas.
+  const order = useMemo(() => {
+    const idx = (data.opts || []).map((_, i) => i);
+    if (data.noShuffle) return idx;
+    for (let i = idx.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const t = idx[i]; idx[i] = idx[j]; idx[j] = t;
+    }
+    return idx;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
 
   const check = useCallback(() => {
-    const res = data.fields.map((f, i) => {
-      if (none[i]) {
-        return f.noneRight
-          ? { ok: true }
-          : { ok: false, why: 'none', note: f.noneWrong || TXT.noneWrong }
-      }
-      return (f.kind || 'expr') === 'odz'
-        ? judgeOdz(vals[i], { excluded: f.excluded, varName: data.varName, hints: f.hints })
-        : judgeExpr(vals[i], { answer: f.answer, hints: f.hints })
-    })
-    const correct = res.every((r) => r.ok)
-    const fb = correct
-      ? { correct: true, text: data.correctText }
-      : { correct: false, text: pickWhy(data, { res, vals }) }
-    setEach(res)
-    A.setFb(fb)
-    A.setChecked(true)
-    correct ? sfx.playCorrect() : sfx.playWrong()
-    onSubmit?.(payload(data, {
-      fb,
-      studentAnswer: vals.slice(),
-      correctAnswer: data.fields.map((f) => (f.kind === 'odz' ? f.excluded : f.answer)),
-      correct,
-    }))
-  }, [vals, none, data, A, sfx, onSubmit])
-  useRegister(check, registerCheck)
+    const correct = picked === data.correct;
+    A.setFb({ correct, why: correct ? null : pickWhy(data, { picked }, lang) });
+    A.setChecked(true);
+    correct ? playCorrect?.() : playWrong?.();
+    onSubmit?.(submitPayload(data, {
+      questionText: tr(data.ask, lang),
+      options: data.opts.map((o, i) => ({ id: String(i), label: tr(o.label, lang) })),
+      studentAnswer: { idx: picked }, correctAnswer: { idx: data.correct }, correct,
+    }));
+  }, [picked, data, lang, playCorrect, playWrong, onSubmit]);
+  useRegister(check, registerCheck);
 
   return (
-    <div className="pq-wrap">
-      <Head data={data} />
-      {data.expr ? data.expr : null}
-      <div className="pq-two">
-        {data.fields.map((f, i) => {
-          const r = each ? each[i] : null
-          // Telefonda yopilgan maydon: bosilsa ochiladi.
-          if (phone && !A.checked && edit !== i) {
-            const said = none[i] ? t(TXT.none) : String(vals[i] || '')
-            return (
-              <button type="button" key={i} className={'pq-fold' + (said ? ' is-full' : '')}
-                data-fold={i} onClick={() => setEdit(i)}>
-                <span className="pq-fold-ask">{t(f.ask)}</span>
-                <span className="pq-fold-v">{said || '—'}</span>
-              </button>
-            )
-          }
+    <div style={S.wrap}>
+      <Head data={data} lang={lang} />
+      {data.expr ? (
+        <div style={{ textAlign: 'center', margin: '4px 0 10px' }}>
+          <Row tokens={data.expr} size={data.exprSize || 30} />
+        </div>
+      ) : null}
+      <Given data={data} lang={lang} />
+      <p style={S.ask}>{tr(data.ask, lang)}</p>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(' + (data.optCols || 1) + ', minmax(0, 1fr))', gap: 7 }}>
+        {order.map((i) => {
+          const o = data.opts[i];
+          const active = picked === i;
+          const short = (data.optCols || 1) > 1;
+          let bg = '#fff'; let bd = '#d6dae3'; let col = C.soft;
+          if (active) { bg = C.hotBg; bd = C.hot; col = C.ink; }
+          if (A.checked && active) { const good = i === data.correct; bg = good ? C.okBg : C.noBg; bd = good ? C.ok : C.no; col = good ? C.ok : C.no; }
+          if (A.checked && !active && i === data.correct) { bd = C.ok; col = C.ok; }
           return (
-            <div className="pq-two-col" key={i}>
-              <Ask>{t(f.ask)}</Ask>
-              <MathField
-                kind={f.kind || 'expr'}
-                label={f.label}
-                value={vals[i]}
-                onChange={(x) => set(i, x)}
-                done={A.locked}
-                width={f.kind === 'number' ? 96 : undefined}
-              />
-              {f.none ? (
-                <NoneBtn
-                  on={none[i]}
-                  label={f.noneLabel}
-                  disabled={A.locked}
-                  onClick={() => { setNoneAt(i); set(i, '') }}
-                />
-              ) : null}
-              {r ? (
-                <div className={'pq-mark ' + (r.ok ? 'is-ok' : 'is-no')}>
-                  {r.ok ? t(f.okText || data.fieldOk) : t(r.note || f.wrongText)}
-                </div>
-              ) : null}
-            </div>
-          )
+            <button key={i} type="button" data-opt={i} disabled={A.locked} onClick={() => setPicked(i)}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: short ? 'center' : 'flex-start', width: '100%', minHeight: short ? 50 : 0, padding: '11px 15px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 15.5, fontWeight: 600, cursor: A.locked ? 'default' : 'pointer', fontFamily: 'inherit', textAlign: short ? 'center' : 'left' }}>
+              {typeof o.label === 'object' && Array.isArray(o.label) ? <Row tokens={o.label} size={20} /> : tr(o.label, lang)}
+            </button>
+          );
         })}
       </div>
-      <Fb fb={A.fb} />
+      {A.fb && <HFB ok={A.fb.correct} text={A.fb.correct ? tr(data.correctText, lang) : A.fb.why} />}
     </div>
-  )
+  );
 }
 
-// ============================================================ 3. SLOTS
-// Tayyor yechimdagi tirqishlarni kartalardan to'ldirish.
-// rows: [[{ t }, { slot: i }]], cards: [...], answer: [...]
-// Bankda ORTIQCHA kartalar SHART: aks holda topshiriq saralashga aylanadi.
-// ============================================================
-export function Slots({ data, onReady, registerCheck, onSubmit }) {
-  const t = useT()
-  const sfx = useSfx()
-  const [slots, setSlots] = useState(() => data.answer.map(() => null))
-  const [picked, setPicked] = useState(null)
-  const A = useOnce({ onReady, ready: slots.every((s) => s !== null) })
-
-  const used = slots.filter((s) => s !== null)
-  const tapCard = (c) => { if (!A.locked) setPicked(picked === c ? null : c) }
-  const tapSlot = (i) => {
-    if (A.locked) return
-    if (picked === null) { setSlots((p) => p.map((x, j) => (j === i ? null : x))); return }
-    setSlots((p) => p.map((x, j) => (j === i ? picked : x)))
-    setPicked(null)
-  }
+// ============================================================ 2. TYPEVALUE
+// Javob klaviaturadan. Manfiy son ham kiritiladi (`allowNeg`), aks holda
+// 7-sinf misollarining yarmi kiritib bo'lmaydigan bo'lib qolardi.
+export function TypeValue({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
+  const [val, setVal] = useState('');
+  const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa?.value != null) setVal(String(sa.value)); } });
+  const clean = (raw) => {
+    let s = String(raw).replace(/[^0-9\-−]/g, '').replace(/−/g, '-');
+    const neg = data.allowNeg !== false && s.startsWith('-');
+    s = s.replace(/-/g, '');
+    return (neg ? '-' : '') + s;
+  };
+  useEffect(() => { onReady?.(val.trim() !== '' && val.trim() !== '-' && !A.checked); }, [val, A.checked, onReady]);
 
   const check = useCallback(() => {
-    const bad = data.answer.map((a, i) => (slots[i] === a ? null : i)).filter((i) => i !== null)
-    const correct = bad.length === 0
-    const fb = correct
-      ? { correct: true, text: data.correctText }
-      : { correct: false, text: pickWhy(data, { slots, bad }) }
-    A.setFb(fb)
-    A.setChecked(true)
-    correct ? sfx.playCorrect() : sfx.playWrong()
-    onSubmit?.(payload(data, { fb, studentAnswer: slots.slice(), correctAnswer: data.answer, correct }))
-  }, [slots, data, A, sfx, onSubmit])
-  useRegister(check, registerCheck)
+    const v = parseInt(val, 10);
+    const correct = v === data.target;
+    A.setFb({ correct, why: correct ? null : pickWhy(data, { value: v }, lang) });
+    A.setChecked(true);
+    correct ? playCorrect?.() : playWrong?.();
+    onSubmit?.(submitPayload(data, {
+      questionText: tr(data.setup, lang), studentAnswer: { value: v }, correctAnswer: { value: data.target }, correct,
+    }));
+  }, [val, data, lang, playCorrect, playWrong, onSubmit]);
+  useRegister(check, registerCheck);
 
   return (
-    <div className="pq-wrap">
-      <Head data={data} />
-      {data.expr ? data.expr : null}
-      <div className="pq-rows">
+    <div style={S.wrap}>
+      <Head data={data} lang={lang} />
+      <Given data={data} lang={lang} />
+      {data.expr ? (
+        <div style={{ textAlign: 'center', margin: '6px 0 14px' }}>
+          <Row tokens={data.expr} size={data.exprSize || 30} />
+        </div>
+      ) : null}
+      <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: C.soft, marginBottom: 6 }} htmlFor="kit-in">{tr(data.label, lang)}</label>
+      <input id="kit-in" data-input="1" value={val} onChange={(e) => setVal(clean(e.target.value))}
+        inputMode={data.allowNeg === false ? 'numeric' : 'text'} disabled={A.locked} placeholder="0"
+        style={{ width: '100%', boxSizing: 'border-box', fontSize: 24, fontWeight: 800, textAlign: 'center', padding: '12px 14px', borderRadius: 14, border: '2px solid ' + (A.checked ? (A.fb?.correct ? C.ok : C.no) : '#d6dae3'), background: A.checked ? '#fff' : C.bg, outline: 'none', fontFamily: S.mono.fontFamily }} />
+      {A.fb && <HFB ok={A.fb.correct} text={A.fb.correct ? tr(data.correctText, lang) : A.fb.why} />}
+    </div>
+  );
+}
+
+// ============================================================ 3. SLOTSBANK
+// Uyalar va kartalar banki. `rows` — yozuvning qatorlari; qatorda tokenlar
+// yoki `{ slot: n }`. Kartani bosasiz, keyin uyani bosasiz.
+// «Hammasi yoki hech narsa»: uyalarning hammasi to'g'ri bo'lishi kerak.
+export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
+  const n = data.answer.length;
+  const [slots, setSlots] = useState(Array(n).fill(null));
+  const [picked, setPicked] = useState(null);
+  const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa?.slots) setSlots(sa.slots); } });
+  const used = slots.filter(Boolean);
+  const pool = data.cards.filter((c) => used.indexOf(c) === -1);
+  const full = slots.every(Boolean);
+  useEffect(() => { onReady?.(full && !A.checked); }, [full, A.checked, onReady]);
+
+  const tapSlot = (i) => {
+    if (A.locked) return;
+    if (picked) { setSlots((s) => { const x = s.slice(); x[i] = picked; return x; }); setPicked(null); return; }
+    if (slots[i]) setSlots((s) => { const x = s.slice(); x[i] = null; return x; });
+  };
+  const check = useCallback(() => {
+    const correct = slots.join('|') === data.answer.join('|');
+    A.setFb({ correct, why: correct ? null : pickWhy(data, { slots }, lang) });
+    A.setChecked(true);
+    correct ? playCorrect?.() : playWrong?.();
+    onSubmit?.(submitPayload(data, {
+      questionText: tr(data.ask, lang), options: data.cards.map((c) => ({ id: c, label: c })),
+      studentAnswer: { slots: slots.slice() }, correctAnswer: { slots: data.answer }, correct,
+    }));
+  }, [slots, data, lang, playCorrect, playWrong, onSubmit]);
+  useRegister(check, registerCheck);
+
+  const bd = A.checked ? (A.fb?.correct ? C.ok : C.no) : C.line;
+  const size = data.exprSize || 26;
+  return (
+    <div style={S.wrap}>
+      <Head data={data} lang={lang} />
+      <Given data={data} lang={lang} />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'center', margin: '8px 0 6px' }}>
         {data.rows.map((row, ri) => (
-          <div className="pq-row" key={ri}>
-            {row.map((cell, ci) => {
-              if (cell.t !== undefined) return <span className="pq-tok" key={ci}>{cell.t}</span>
-              const i = cell.slot
-              const v = slots[i]
-              let state = ''
-              if (A.checked) state = v === data.answer[i] ? ' is-ok' : ' is-no'
-              return (
-                <button
-                  type="button"
-                  key={ci}
-                  data-slot={i}
-                  className={'pq-slot' + (v ? ' is-full' : '') + state}
-                  disabled={A.locked}
-                  onClick={() => tapSlot(i)}
-                >
-                  {v || ''}
-                </button>
-              )
+          <div key={ri} style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
+            {row.map((part, pi) => {
+              if (part.slot != null) {
+                const i = part.slot;
+                return (
+                  <button key={pi} type="button" data-slot={i} disabled={A.locked} onClick={() => tapSlot(i)}
+                    style={{
+                      minWidth: 74, height: 46, borderRadius: 10, margin: '0 5px',
+                      border: '2px ' + (slots[i] ? 'solid' : 'dashed') + ' ' + (slots[i] ? bd : (picked ? C.hot : C.line)),
+                      background: slots[i] ? '#fff' : (picked ? '#fff7f2' : C.bg),
+                      ...S.mono, fontSize: 23, color: C.ink, cursor: A.locked ? 'default' : 'pointer',
+                    }}>
+                    {slots[i] || ''}
+                  </button>
+                );
+              }
+              return <Row key={pi} tokens={part.t} size={size} />;
             })}
           </div>
         ))}
       </div>
-      <div className="pq-bank">
-        <div className="pq-bank-lbl">{t(data.bank || TXT.bank)}</div>
-        <div className="pq-cards">
-          {data.cards.map((c) => (
-            <button
-              type="button"
-              key={c}
-              data-card={c}
-              className={'pq-card' + (picked === c ? ' is-on' : '') + (used.indexOf(c) !== -1 ? ' is-used' : '')}
-              disabled={A.locked}
-              onClick={() => tapCard(c)}
-            >
+      <div style={S.note}>{tr(data.ask, lang)}</div>
+      <div style={{ borderTop: '1px dashed ' + C.pale, paddingTop: 9 }}>
+        <div style={S.bankLbl}>{String(tr(data.bank, lang)).toUpperCase()}</div>
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', minHeight: 46, alignItems: 'center', flexWrap: 'wrap' }}>
+          {pool.length === 0 && <span style={{ fontSize: 13, color: C.line, fontWeight: 700 }}>—</span>}
+          {pool.map((c) => (
+            <button key={c} type="button" data-card={c} disabled={A.locked} onClick={() => setPicked(picked === c ? null : c)}
+              style={{ minWidth: 62, padding: '0 10px', height: 46, borderRadius: 12, border: '2px solid ' + (picked === c ? C.hot : C.line), background: picked === c ? C.hotBg : '#fff', ...S.mono, fontSize: 22, color: C.ink, cursor: A.locked ? 'default' : 'pointer' }}>
               {c}
             </button>
           ))}
         </div>
       </div>
-      <Fb fb={A.fb} />
+      {A.fb && <HFB ok={A.fb.correct} text={A.fb.correct ? tr(data.correctText, lang) : A.fb.why} />}
     </div>
-  )
+  );
 }
 
-// ============================================================ 4. BUILD
-// TESKARI topshiriq: berilgan XOSSAGA ega yozuvni kartalardan yig'ish.
-// To'g'ri javob KO'P, shuning uchun satr solishtirilmaydi — IKKI xossa
-// tekshiriladi: (1) maxrajning nollari aynan `want.holes`, (2) yozuv kasr
-// (maxrajda harf bor).
-//
-// `wrap` — '5 / (%s)' ko'rinishidagi andoza: o'quvchi butun yozuvni emas,
-// faqat MAXRAJNI yig'adi. Nega kerak: kartalardan butun kasr yig'ilganda
-// topshiriq qavslarning KUCHI haqida bo'lib qoladi ('5 / x * (x - 6)' —
-// bu boshqa yozuv), ODZ esa ikkinchi darajaga tushadi.
-// ============================================================
-const sameSet = (a, b) => {
-  if (a.length !== b.length) return false
-  const x = a.slice().sort((m, n) => m - n)
-  const y = b.slice().sort((m, n) => m - n)
-  return x.every((v, i) => Math.abs(v - y[i]) < 1e-9)
-}
+// ============================================================ 4. TAPTERMS
+// Yozuvning O'ZIDA belgilash. `parts`: `{ k: 'txt'|'op'|'term', v, id }`.
+// Bosiladigan joy KO'RINIB turishi kerak (METODIK_PROFIL: «видимая зона
+// клика») -- shuning uchun had punktir ramkada turadi.
+export function TapTerms({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
+  const [marked, setMarked] = useState([]);
+  const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa?.marked) setMarked(sa.marked); } });
+  useEffect(() => { onReady?.(marked.length > 0 && !A.checked); }, [marked, A.checked, onReady]);
 
-export function Build({ data, onReady, registerCheck, onSubmit }) {
-  const t = useT()
-  const sfx = useSfx()
-  const [seq, setSeq] = useState([])
-  const A = useOnce({ onReady, ready: seq.length > 0 })
-  const built = seq.join(' ')
-
+  const toggle = (id) => { if (!A.locked) setMarked((m) => (m.indexOf(id) === -1 ? m.concat(id) : m.filter((x) => x !== id))); };
   const check = useCallback(() => {
-    const full = data.wrap ? data.wrap.replace('%s', built) : built
-    const P = parse(full)
-    let correct = false
-    let why = null
-    let holes
-    if (P.error) {
-      why = data.parseWrong || TXT.empty
-    } else {
-      const H = domainHoles(full, data.varName)
-      holes = H.holes || []
-      const isFrac = full.indexOf('/') !== -1
-      correct = isFrac && sameSet(holes, data.want.holes)
-      if (!correct) why = pickWhy(data, { holes, isFrac, built, full })
-    }
-    const fb = correct ? { correct: true, text: data.correctText } : { correct: false, text: why }
-    A.setFb(fb)
-    A.setChecked(true)
-    correct ? sfx.playCorrect() : sfx.playWrong()
-    onSubmit?.(payload(data, { fb, studentAnswer: built, correctAnswer: data.want.holes, correct }))
-  }, [built, data, A, sfx, onSubmit])
-  useRegister(check, registerCheck)
+    const extra = marked.filter((id) => data.want.indexOf(id) === -1);
+    const miss = data.want.filter((id) => marked.indexOf(id) === -1);
+    const correct = !extra.length && !miss.length;
+    A.setFb({ correct, why: correct ? null : pickWhy(data, { marked, extra, miss }, lang) });
+    A.setChecked(true);
+    correct ? playCorrect?.() : playWrong?.();
+    onSubmit?.(submitPayload(data, {
+      questionText: tr(data.ask, lang), studentAnswer: { marked: marked.slice() }, correctAnswer: { marked: data.want }, correct,
+    }));
+  }, [marked, data, lang, playCorrect, playWrong, onSubmit]);
+  useRegister(check, registerCheck);
+
+  const size = data.exprSize || 30;
+  return (
+    <div style={S.wrap}>
+      <Head data={data} lang={lang} />
+      <Given data={data} lang={lang} />
+      <p style={S.ask}>{tr(data.ask, lang)}</p>
+      {data.note ? <div style={S.note}>{tr(data.note, lang)}</div> : null}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 2, margin: '8px 0 4px' }}>
+        {data.parts.map((p, i) => {
+          if (p.k === 'txt') return <span key={i} style={{ ...S.mono, fontSize: size, color: C.brace, padding: '0 3px' }}>{p.v}</span>;
+          if (p.k === 'op') return <span key={i} style={{ ...S.mono, fontSize: size + 4, color: C.stage1, padding: '2px 12px', margin: '0 4px', borderRadius: 9, background: '#f3eefa' }}>{p.v}</span>;
+          // 'sign' — oddiy amal belgisi: bosilmaydi, lekin ta'kidlanmaydi ham.
+          if (p.k === 'sign') return <span key={i} style={{ ...S.mono, fontSize: size, color: (p.v === '·' || p.v === ':') ? C.stage2 : C.stage1, padding: '0 7px' }}>{p.v}</span>;
+          const on = marked.indexOf(p.id) !== -1;
+          let bd = C.line; let bg = C.bg; let col = C.ink; let dash = 'dashed';
+          if (on) { bd = C.hot; bg = C.hotBg; dash = 'solid'; }
+          if (A.checked) {
+            dash = 'solid';
+            const right = on === (data.want.indexOf(p.id) !== -1);
+            if (on || data.want.indexOf(p.id) !== -1) { bd = right ? C.ok : C.no; bg = right ? C.okBg : C.noBg; col = right ? C.ok : C.no; }
+            else { bd = C.pale; bg = '#fff'; }
+          }
+          return (
+            <button key={i} type="button" aria-pressed={on} data-term={p.id} disabled={A.locked} onClick={() => toggle(p.id)}
+              style={{ ...S.mono, fontSize: size, color: col, padding: '6px 10px', margin: '0 1px', borderRadius: 10, border: '2px ' + dash + ' ' + bd, background: bg, cursor: A.locked ? 'default' : 'pointer' }}>
+              {p.v}
+            </button>
+          );
+        })}
+      </div>
+      {A.fb && <HFB ok={A.fb.correct} text={A.fb.correct ? tr(data.correctText, lang) : A.fb.why} />}
+    </div>
+  );
+}
+
+// ============================================================ 5. MARKALL
+// Bir nechta yozuvni belgilash. Katakcha-belgi YO'Q (3-sinf kanoni §3.3):
+// tanlangan yozuv ramka va to'ldirish bilan ko'rinadi.
+export function MarkAll({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
+  const [marked, setMarked] = useState([]);
+  const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa?.marked) setMarked(sa.marked); } });
+  useEffect(() => { onReady?.(marked.length > 0 && !A.checked); }, [marked, A.checked, onReady]);
+
+  const want = data.items.filter((i) => i.hit).map((i) => i.id);
+  const toggle = (id) => { if (!A.locked) setMarked((m) => (m.indexOf(id) === -1 ? m.concat(id) : m.filter((x) => x !== id))); };
+  const check = useCallback(() => {
+    const extra = marked.filter((id) => want.indexOf(id) === -1);
+    const miss = want.filter((id) => marked.indexOf(id) === -1);
+    const correct = !extra.length && !miss.length;
+    A.setFb({ correct, why: correct ? null : pickWhy(data, { marked, extra, miss }, lang) });
+    A.setChecked(true);
+    correct ? playCorrect?.() : playWrong?.();
+    onSubmit?.(submitPayload(data, {
+      questionText: tr(data.ask, lang), options: data.items.map((i) => ({ id: i.id })),
+      studentAnswer: { marked: marked.slice() }, correctAnswer: { marked: want }, correct,
+    }));
+  }, [marked, data, lang, playCorrect, playWrong, onSubmit]);
+  useRegister(check, registerCheck);
 
   return (
-    <div className="pq-wrap">
-      <Head data={data} />
-      <div className="pq-line">
-        <span className="pq-line-body">
-          {data.frame
-            ? data.frame(built ? <span className="pq-line-den">{built}</span> : <i className="pq-line-ph">{t(data.placeholder)}</i>)
-            : (built || <i className="pq-line-ph">{t(data.placeholder)}</i>)}
-        </span>
-        <button
-          type="button"
-          className="pq-back"
-          disabled={A.locked || !seq.length}
-          onClick={() => setSeq((s) => s.slice(0, -1))}
-        >
-          ⌫
+    <div style={S.wrap}>
+      <Head data={data} lang={lang} />
+      <Given data={data} lang={lang} />
+      <p style={S.ask}>{tr(data.ask, lang)} {data.note ? <span style={{ fontSize: 13, color: C.mute, fontWeight: 600 }}>{tr(data.note, lang)}</span> : null}</p>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(' + (data.col || 180) + 'px, 1fr))', gap: 7 }}>
+        {data.items.map((it) => {
+          const on = marked.indexOf(it.id) !== -1;
+          let bd = '#d6dae3'; let bg = '#fff';
+          if (on) { bd = C.hot; bg = C.hotBg; }
+          if (A.checked) { const right = on === !!it.hit; bd = right ? C.ok : C.no; bg = right ? C.okBg : C.noBg; }
+          return (
+            <button key={it.id} type="button" aria-pressed={on} data-item={it.id} disabled={A.locked} onClick={() => toggle(it.id)}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 52, padding: '5px 10px', borderRadius: 13, border: '2px solid ' + bd, background: bg, cursor: A.locked ? 'default' : 'pointer' }}>
+              {it.tokens ? <Row tokens={it.tokens} size={data.itemSize || 23} /> : <span style={{ fontSize: 15, fontWeight: 700, color: C.ink }}>{tr(it.label, lang)}</span>}
+            </button>
+          );
+        })}
+      </div>
+      {A.fb && <HFB ok={A.fb.correct} text={A.fb.correct ? tr(data.correctText, lang) : A.fb.why} />}
+    </div>
+  );
+}
+
+// ============================================================ 6. BUILDLINE
+// Kartalardan yozuv yig'ish. KURSOR istalgan joyga ko'chadi: aks holda
+// «(60 − 20)» ni olish uchun qavsni oldin bosish kerak bo'lardi, odam esa
+// avval «60 − 20» ni yozadi.
+//
+// Ikki rejim:
+//   target     -- yig'ilgan yozuvning QIYMATI berilgan songa teng bo'lsin
+//   answerSeq  -- karta id lari aynan shu KETMA-KETLIKDA bo'lsin (harfli
+//                 yozuvda qiymatni hisoblab bo'lmaydi)
+// QIYMAT faqat tekshirishdan keyin ko'rinadi (etalon §8.1): jonli o'lchagich
+// topshiriqni «sonni tutib olish» ga aylantirardi.
+const PREC = { '·': 2, ':': 2, '+': 1, '−': 1 };
+export const evalSeq = (items) => {
+  const out = []; const ops = [];
+  let expectNum = true;
+  const apply = () => {
+    const op = ops.pop(); const b = out.pop(); const a = out.pop();
+    if (op === undefined || a === undefined || b === undefined) return false;
+    if (op === '+') { out.push(a + b); return true; }
+    if (op === '−') { out.push(a - b); return true; }
+    if (op === '·') { out.push(a * b); return true; }
+    if (op === ':') { if (b === 0) return false; out.push(a / b); return true; }
+    return false;
+  };
+  for (const it of items) {
+    if (!it) return null;
+    if (it.kind === 'num') { if (!expectNum) return null; out.push(it.value !== undefined ? it.value : Number(it.label)); expectNum = false; }
+    else if (it.kind === 'op') {
+      if (expectNum) return null;
+      while (ops.length && PREC[ops[ops.length - 1]] >= PREC[it.label]) { if (!apply()) return null; }
+      ops.push(it.label); expectNum = true;
+    } else if (it.kind === 'open') { if (!expectNum) return null; ops.push('('); }
+    else if (it.kind === 'close') {
+      if (expectNum) return null;
+      while (ops.length && ops[ops.length - 1] !== '(') { if (!apply()) return null; }
+      if (!ops.length) return null;
+      ops.pop(); expectNum = false;
+    }
+  }
+  if (expectNum) return null;
+  while (ops.length) { if (ops[ops.length - 1] === '(') return null; if (!apply()) return null; }
+  return out.length === 1 ? out[0] : null;
+};
+
+export function BuildLine({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
+  const [seq, setSeq] = useState([]);      // karta id lari
+  const [pos, setPos] = useState(0);       // kursor o'rni
+  const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa?.seq) { setSeq(sa.seq); setPos(sa.seq.length); } } });
+  const byId = (id) => data.cards.find((c) => c.id === id);
+  const items = seq.map(byId);
+  const left = data.cards.length - seq.length;
+  const value = evalSeq(items);
+  const ready = data.answerSeq ? seq.length > 0 : value !== null;
+  const enough = data.useAll ? (left === 0 && ready) : ready;
+  useEffect(() => { onReady?.(enough && !A.checked); }, [enough, A.checked, onReady]);
+
+  const put = (id) => { if (A.locked) return; setSeq((s) => { const x = s.slice(); x.splice(pos, 0, id); return x; }); setPos((p) => p + 1); };
+  const undo = () => { if (A.locked || pos === 0) return; setSeq((s) => { const x = s.slice(); x.splice(pos - 1, 1); return x; }); setPos((p) => p - 1); };
+  const check = useCallback(() => {
+    const correct = data.answerSeq ? seq.join('|') === data.answerSeq.join('|') : value === data.target;
+    A.setFb({ correct, why: correct ? null : pickWhy(data, { seq, value, line: items.map((i) => i && i.label).join(' ') }, lang) });
+    A.setChecked(true);
+    correct ? playCorrect?.() : playWrong?.();
+    onSubmit?.(submitPayload(data, {
+      questionText: tr(data.setup, lang), studentAnswer: { seq: seq.slice(), value },
+      correctAnswer: data.answerSeq ? { seq: data.answerSeq } : { value: data.target }, correct,
+    }));
+  }, [seq, value, items, data, lang, playCorrect, playWrong, onSubmit]);
+  useRegister(check, registerCheck);
+
+  const caret = (i) => (
+    <button key={'c' + i} type="button" disabled={A.locked} onClick={() => setPos(i)} aria-label="kursor"
+      style={{ width: 10, minHeight: 32, border: 0, background: 'none', padding: 0, cursor: A.locked ? 'default' : 'pointer', position: 'relative' }}>
+      <span style={{ position: 'absolute', left: '50%', top: '12%', bottom: '12%', width: 2, transform: 'translateX(-50%)', borderRadius: 2, background: pos === i && !A.locked ? C.hot : 'transparent' }} />
+    </button>
+  );
+  const toneOf = (lab) => (lab === '·' || lab === ':' ? C.stage2 : (lab === '+' || lab === '−' ? C.stage1 : (lab === '(' || lab === ')' ? C.brace : C.ink)));
+
+  return (
+    <div style={S.wrap}>
+      <Head data={data} lang={lang} />
+      <Given data={data} lang={lang} />
+      <div style={{ minHeight: data.fieldH || 68, borderRadius: 16, border: '2px solid ' + C.pale, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6px 12px', margin: '4px 0 8px', flexWrap: 'wrap' }}>
+        {seq.length === 0 ? (
+          <>{caret(0)}<span style={{ fontSize: 15, fontWeight: 600, color: C.mute }}>{tr(data.empty, lang)}</span></>
+        ) : (
+          <>
+            {items.map((it, i) => (
+              <React.Fragment key={i}>
+                {caret(i)}
+                <button type="button" disabled={A.locked} onClick={() => setPos(i)}
+                  style={{ border: 0, background: 'none', padding: '0 2px', ...S.mono, fontSize: 27, color: toneOf(it && it.label), cursor: A.locked ? 'default' : 'pointer' }}>
+                  {it && it.label}
+                </button>
+              </React.Fragment>
+            ))}
+            {caret(items.length)}
+          </>
+        )}
+      </div>
+      {A.checked && !data.answerSeq ? (
+        <div style={{ textAlign: 'center', marginBottom: 4 }}>
+          <span style={{ fontSize: 12, fontWeight: 700, color: C.mute, letterSpacing: '.05em', textTransform: 'uppercase' }}>{tr(data.valueLabel, lang)} </span>
+          <span style={{ ...S.mono, fontSize: 26, color: A.fb?.correct ? C.ok : C.no }}>{value === null ? '—' : value}</span>
+        </div>
+      ) : null}
+      <div style={S.note}>{tr(data.ask, lang)}</div>
+      <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap', alignItems: 'center' }}>
+        {data.cards.map((c) => {
+          const used = seq.indexOf(c.id) !== -1;
+          return (
+            <button key={c.id} type="button" data-card={c.id} disabled={used || A.locked} onClick={() => put(c.id)}
+              style={{ minWidth: 52, padding: '0 9px', height: 48, borderRadius: 13, border: '2px solid ' + (used ? '#eef0f4' : C.line), background: used ? C.bg : '#fff', ...S.mono, fontSize: 23, color: used ? C.line : toneOf(c.label), cursor: (used || A.locked) ? 'default' : 'pointer' }}>
+              {c.label}
+            </button>
+          );
+        })}
+        <button type="button" disabled={A.locked || pos === 0} onClick={undo}
+          style={{ marginLeft: 6, padding: '8px 14px', borderRadius: 12, border: '1.5px solid #d6dae3', background: '#fff', color: (A.locked || pos === 0) ? '#c2c8d2' : C.soft, fontSize: 13.5, fontWeight: 700, cursor: (A.locked || pos === 0) ? 'default' : 'pointer', fontFamily: 'inherit' }}>
+          {tr(data.undo, lang)}
         </button>
       </div>
-      <Ask>{t(data.ask)}</Ask>
-      <div className="pq-cards">
-        {data.cards.map((c, i) => (
-          <button
-            type="button"
-            key={c + i}
-            data-card={c}
-            className="pq-card"
-            disabled={A.locked}
-            onClick={() => setSeq((s) => s.concat(c))}
-          >
-            {c}
-          </button>
-        ))}
-      </div>
-      <Fb fb={A.fb} />
+      {A.fb && <HFB ok={A.fb.correct} text={A.fb.correct ? tr(data.correctText, lang) : A.fb.why} />}
     </div>
-  )
+  );
 }
 
-// ============================================================ 5. BOUNDARY
-// «Yozuvlar QAYERDA ajraladi». Javob — qiymatlar TO'PLAMI, variant emas:
-// har qanday variant javobni aytib qo'yadi.
-// ============================================================
-export function Boundary({ data, onReady, registerCheck, onSubmit }) {
-  const t = useT()
-  const sfx = useSfx()
-  const [val, setVal] = useState('')
-  const A = useOnce({ onReady, ready: !!String(val).trim() })
-
-  const check = useCallback(() => {
-    const mine = parseNumberSet(val)
-    const correct = !!mine && sameSet(mine, data.answer)
-    const fb = correct
-      ? { correct: true, text: data.correctText }
-      : { correct: false, text: (data.hints && data.hints[String(val).trim()]) || pickWhy(data, { mine, val }) }
-    A.setFb(fb)
-    A.setChecked(true)
-    correct ? sfx.playCorrect() : sfx.playWrong()
-    onSubmit?.(payload(data, { fb, studentAnswer: val, correctAnswer: data.answer, correct }))
-  }, [val, data, A, sfx, onSubmit])
-  useRegister(check, registerCheck)
-
-  return (
-    <div className="pq-wrap">
-      <Head data={data} />
-      <div className="pq-vs">
-        <div className="pq-vs-side">{data.left}</div>
-        <span className="pq-vs-sign">=</span>
-        <div className="pq-vs-side">{data.right}</div>
-      </div>
-      <Ask>{t(data.ask)}</Ask>
-      <MathField kind="number" label={data.label} value={val} onChange={setVal} done={A.locked} width={96} />
-      <Fb fb={A.fb} />
-    </div>
-  )
-}
-
-// ============================================================ 6. SORT
+// ============================================================ 7. ZONES
 // Yozuvlarni zonalarga taqsimlash. BOSISH bilan, tortish bilan emas:
-// telefonda barmoq zonadan chetga tushadi.
-// ============================================================
-export function Sort({ data, onReady, registerCheck, onSubmit }) {
-  const t = useT()
-  const sfx = useSfx()
-  const [place, setPlace] = useState({})
-  const [picked, setPicked] = useState(null)
-  const pool = data.items.filter((it) => !place[it.id])
-  const A = useOnce({ onReady, ready: pool.length === 0 })
+// telefonda barmoq zonadan chetga tushadi (3-sinf kanoni §3.6).
+export function Zones({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
+  const [place, setPlace] = useState({});
+  const [picked, setPicked] = useState(null);
+  const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa?.place) setPlace(sa.place); } });
+  const pool = data.items.filter((it) => !place[it.id]);
+  const all = data.items.every((it) => place[it.id]);
+  const wrongIds = data.items.filter((it) => place[it.id] && place[it.id] !== it.zone).map((it) => it.id);
+  useEffect(() => { onReady?.(all && !A.checked); }, [all, A.checked, onReady]);
 
   const tapItem = (id, e) => {
-    if (e) e.stopPropagation()
-    if (A.locked) return
-    // Zonada yotgan yozuvni bosish: agar QO'LDA yozuv bo'lsa, u SHU zonaga
-    // tushadi. Bunday bo'lmasa to'lgan zonaga ikkinchi yozuvni qo'yish
-    // imkonsiz bo'ladi: barmoq yotgan kartaga tegadi va uni olib qo'yadi
-    // (topildi stendda, 2-topshiriq).
-    if (place[id] && picked) {
-      const z = place[id]
-      setPlace((p) => ({ ...p, [picked]: z }))
-      setPicked(null)
-      return
-    }
-    if (place[id]) { setPlace((p) => { const n = { ...p }; delete n[id]; return n }); setPicked(null); return }
-    setPicked(picked === id ? null : id)
-  }
-  const tapZone = (z) => {
-    if (A.locked || !picked) return
-    setPlace((p) => ({ ...p, [picked]: z }))
-    setPicked(null)
-  }
-
+    if (e) e.stopPropagation();
+    if (A.locked) return;
+    if (place[id] && picked) { const z = place[id]; setPlace((p) => ({ ...p, [picked]: z })); setPicked(null); return; }
+    if (place[id]) { setPlace((p) => { const n = { ...p }; delete n[id]; return n; }); setPicked(null); return; }
+    setPicked(picked === id ? null : id);
+  };
+  const tapZone = (z) => { if (!A.locked && picked) { setPlace((p) => ({ ...p, [picked]: z })); setPicked(null); } };
   const check = useCallback(() => {
-    const bad = data.items.filter((it) => place[it.id] !== it.zone).map((it) => it.id)
-    const correct = bad.length === 0
-    const fb = correct
-      ? { correct: true, text: data.correctText }
-      : { correct: false, text: pickWhy(data, { place, bad }) }
-    A.setFb(fb)
-    A.setChecked(true)
-    correct ? sfx.playCorrect() : sfx.playWrong()
-    onSubmit?.(payload(data, {
-      fb,
-      studentAnswer: { ...place },
-      correctAnswer: data.items.reduce((a, it) => ({ ...a, [it.id]: it.zone }), {}),
-      correct,
-    }))
-  }, [place, data, A, sfx, onSubmit])
-  useRegister(check, registerCheck)
+    const bad = data.items.filter((it) => place[it.id] !== it.zone).map((it) => it.id);
+    const correct = bad.length === 0;
+    A.setFb({ correct, why: correct ? null : pickWhy(data, { place, bad }, lang) });
+    A.setChecked(true);
+    correct ? playCorrect?.() : playWrong?.();
+    onSubmit?.(submitPayload(data, {
+      questionText: tr(data.setup, lang), studentAnswer: { place: { ...place } },
+      correctAnswer: { place: data.items.reduce((a, it) => ({ ...a, [it.id]: it.zone }), {}) }, correct,
+    }));
+  }, [place, data, lang, playCorrect, playWrong, onSubmit]);
+  useRegister(check, registerCheck);
 
   const chip = (it) => {
-    let state = ''
-    if (picked === it.id) state = ' is-on'
-    if (A.checked) state = place[it.id] === it.zone ? ' is-ok' : ' is-no'
+    const bad = A.checked && wrongIds.indexOf(it.id) !== -1;
+    const good = A.checked && place[it.id] && !bad;
+    let bd = C.line; let bg = '#fff';
+    if (picked === it.id) { bd = C.hot; bg = C.hotBg; }
+    if (bad) { bd = C.no; bg = C.noBg; }
+    if (good) { bd = C.ok; bg = C.okBg; }
     return (
-      <button
-        type="button"
-        key={it.id}
-        data-item={it.id}
-        className={'pq-chip' + state}
-        disabled={A.locked}
-        onClick={(e) => tapItem(it.id, e)}
-      >
-        {it.show}
+      <button key={it.id} type="button" disabled={A.locked} data-item={it.id} onClick={(e) => tapItem(it.id, e)}
+        style={{ padding: '5px 9px', borderRadius: 10, border: '2px solid ' + bd, background: bg, cursor: A.locked ? 'default' : 'pointer', lineHeight: 1 }}>
+        <Row tokens={it.tokens} size={data.itemSize || 17} color={bad ? C.no : C.ink} tone={!bad} />
       </button>
-    )
-  }
-
+    );
+  };
   return (
-    <div className="pq-wrap">
-      <Head data={data} />
-      <div className="pq-zones">
+    <div style={S.wrap}>
+      <Head data={data} lang={lang} />
+      <Given data={data} lang={lang} />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 5, margin: '2px 0' }}>
         {data.zones.map((z) => (
-          <div className="pq-zone" key={z.id}>
-            <div className="pq-zone-lbl">{t(z.label)}</div>
-            <div
-              data-zone={z.id}
-              className={'pq-zone-box' + (picked ? ' is-live' : '')}
-              onClick={() => tapZone(z.id)}
-            >
+          <div key={z.id} style={{ display: 'flex', alignItems: 'stretch', gap: 8 }}>
+            <div style={{ width: data.zoneLbl || 104, flex: '0 0 ' + (data.zoneLbl || 104) + 'px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', fontSize: 10.5, fontWeight: 800, color: C.mute, letterSpacing: '.03em', textAlign: 'right' }}>{tr(z.label, lang)}</div>
+            <div data-zone={z.id} onClick={() => tapZone(z.id)}
+              style={{ flex: 1, minHeight: 42, borderRadius: 13, padding: 6, border: '2px dashed ' + (picked ? C.hot : C.pale), background: picked ? '#fff7f2' : C.bg, display: 'flex', flexWrap: 'wrap', gap: 6, alignContent: 'center', justifyContent: 'center', cursor: picked && !A.locked ? 'pointer' : 'default' }}>
               {data.items.filter((it) => place[it.id] === z.id).map(chip)}
             </div>
           </div>
         ))}
       </div>
-      <div className="pq-bank">
-        <div className="pq-bank-lbl">{t(data.ask)}</div>
-        <div className="pq-cards">{pool.length ? pool.map(chip) : <span className="pq-dash">—</span>}</div>
+      <div style={S.note}>{tr(data.ask, lang)}</div>
+      <div style={{ borderTop: '1px dashed ' + C.pale, paddingTop: 8 }}>
+        <div style={S.bankLbl}>{String(tr(data.bank, lang)).toUpperCase()}</div>
+        <div style={{ display: 'flex', gap: 7, justifyContent: 'center', minHeight: 36, alignItems: 'center', flexWrap: 'wrap' }}>
+          {pool.length === 0 && <span style={{ fontSize: 13, color: C.line, fontWeight: 700 }}>—</span>}
+          {pool.map(chip)}
+        </div>
       </div>
-      <Fb fb={A.fb} />
+      {A.fb && <HFB ok={A.fb.correct} text={A.fb.correct ? tr(data.correctText, lang) : A.fb.why} />}
     </div>
-  )
+  );
 }
-
-// ============================================================ 7. AUDITROWS
-// BIRINCHI noto'g'ri satr VA kontrprimer. Ikkisi birga tekshiriladi: satrni
-// topib, sonni yozmagan javob SANALMAYDI — aks holda bu beshtadan bittasini
-// tanlash bo'lib qoladi (TIPLAR §5.6).
-// proof: { of, varName, label, but } — `of` shu sonda QIYMATSIZ bo'lishi
-// kerak VA son `but` ro'yxatida turmasligi kerak. `but` — yechimning O'ZI
-// taqiqlagan qiymatlar: ular kontrprimer bo'la olmaydi, chunki yechim ularni
-// allaqachon chiqarib tashlagan. Bu shart bo'lmasa 7/(x*x - 5x) topshirig'ida
-// «5» ham o'tib ketardi — maxraj unda ham nolga aylanadi.
-// ============================================================
-export function AuditRows({ data, onReady, registerCheck, onSubmit }) {
-  const t = useT()
-  const sfx = useSfx()
-  const [row, setRow] = useState(null)
-  const [num, setNum] = useState('')
-  const A = useOnce({ onReady, ready: row !== null && !!String(num).trim() })
-
-  const check = useCallback(() => {
-    const rowOk = row === data.answerId
-    const n = Number(String(num).replace(',', '.'))
-    const but = data.proof.but || []
-    const already = but.some((v) => Math.abs(v - n) < 1e-9)
-    let proofOk = false
-    if (Number.isFinite(n) && !already) {
-      const P = parse(data.proof.of)
-      if (!P.error) {
-        const env = {}
-        env[data.proof.varName || 'x'] = n
-        proofOk = evaluate(P.node, env) === null
-      }
-    }
-    const correct = rowOk && proofOk
-    let text = data.correctText
-    if (!rowOk) text = (data.hints && data.hints[row]) || pickWhy(data, { row, n })
-    else if (already) text = data.proofAlready || TXT.proofAlready
-    else if (!proofOk) text = data.proofWrong || TXT.proofNo
-    const fb = { correct, text }
-    A.setFb(fb)
-    A.setChecked(true)
-    correct ? sfx.playCorrect() : sfx.playWrong()
-    onSubmit?.(payload(data, {
-      fb,
-      studentAnswer: { row, num },
-      correctAnswer: { row: data.answerId },
-      correct,
-    }))
-  }, [row, num, data, A, sfx, onSubmit])
-  useRegister(check, registerCheck)
-
-  return (
-    <div className="pq-wrap">
-      <Head data={data} />
-      {data.expr ? data.expr : null}
-      <div className="pq-audit">
-        {data.rows.map((r, i) => {
-          let state = ''
-          if (row === r.id) state = ' is-on'
-          if (A.checked && r.id === data.answerId) state = ' is-hit'
-          else if (A.checked && row === r.id) state = ' is-off'
-          return (
-            <button
-              type="button"
-              key={r.id}
-              data-row={r.id}
-              className={'pq-audit-row' + state}
-              disabled={A.locked}
-              onClick={() => setRow(r.id)}
-            >
-              <span className="pq-audit-n">{i + 1}</span>
-              <span className="pq-audit-b">{React.isValidElement(r.show) ? r.show : t(r.show)}</span>
-            </button>
-          )
-        })}
-      </div>
-      <div className="pq-proof">
-        <Ask>{t(data.ask || TXT.pickRow)}</Ask>
-        <MathField
-          kind="number"
-          label={data.proof.label}
-          value={num}
-          onChange={setNum}
-          done={A.locked}
-          width={96}
-        />
-      </div>
-      <Fb fb={A.fb} />
-    </div>
-  )
-}
-
-// ============================================================ USLUBLAR
-// Sinf tili: iliq qog'oz, ichki halqa, soya. Ramka chizig'i yo'q.
-// DIQQAT: bu satr ichida BACKTICK yozilmaydi — shablon satr uziladi.
-export const PRACTICE_STYLES = `
-.pq-root {
-  position: fixed; inset: 0; overflow: clip; overscroll-behavior: none;
-  display: flex; flex-direction: column; isolation: isolate;
-  font-family: 'Manrope', system-ui, sans-serif; color: ${T.ink};
-  zoom: var(--g8z, 1);
-  background:
-    radial-gradient(circle at 82% 18%, rgba(${T.graphRgb},.09), transparent 30%),
-    radial-gradient(circle at 16% 88%, rgba(${T.accentRgb},.07), transparent 34%),
-    linear-gradient(rgba(23,26,29,.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(23,26,29,.025) 1px, transparent 1px),
-    ${T.bg};
-  background-size: auto, auto, 32px 32px, 32px 32px, auto;
-}
-.pq-root, .pq-root * { box-sizing: border-box; }
-.pq-root button { font: inherit; }
-@media (max-width: 639.98px) { .pq-root { width: 390px; } }
-
-/* ---- tepa qatori: sarlavha, chiplar, hisob ----
-   TEPADA 52px BO'SH JOY. Sayt qobig'i amaliyotning ichida emas, USTIDA
-   turadi: chapda «Darslar ro'yxati», o'ngda UZ/RU/EN. Ularni surib bo'lmaydi,
-   faqat joy berish mumkin. Chapdan otstup bermaydi (7-sinf amaliyotidagi
-   naqsh): qobiq keng, sarlavha esa uzun — ikkisi bir qatorga sig'maydi. */
-.pq-top {
-  flex-shrink: 0; padding: 62px clamp(12px, 3vw, 34px) 8px;
-  display: flex; flex-direction: column; gap: 7px;
-}
-.pq-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-.pq-title { font-size: clamp(13px, 1.2vw, 15.5px); font-weight: 800; letter-spacing: -.01em; }
-.pq-score {
-  margin-left: auto; font-family: ${MATH_FONT}; font-size: 13px; font-weight: 800;
-  color: ${T.ink2}; white-space: nowrap;
-}
-.pq-chips { display: flex; gap: 5px; flex-wrap: wrap; }
-.pq-tab {
-  min-width: 30px; padding: 4px 8px; border-radius: 9px; cursor: pointer;
-  font-family: ${MATH_FONT}; font-size: 12px; font-weight: 800;
-  border: 1.5px solid rgba(23,26,29,.13); background: rgba(255,255,255,.72); color: ${T.ink2};
-}
-.pq-tab.is-now { border-color: ${T.graph}; background: ${T.graph}; color: #fff; }
-.pq-tab.is-ok { border-color: ${T.ok}; background: ${T.okSoft}; color: ${T.ok}; }
-.pq-tab.is-no { border-color: ${T.no}; background: ${T.tipSoft}; color: ${T.no}; }
-
-/* ---- ish maydoni ---- */
-.pq-body { flex: 1; min-height: 0; overflow: clip; padding: 0 clamp(12px, 3vw, 34px); }
-.pq-wrap { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 7px; }
-.pq-eyebrow {
-  font-size: 11px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase;
-  color: ${T.accent};
-}
-.pq-setup { font-size: clamp(13.5px, 1.15vw, 15.5px); line-height: 1.42; color: ${T.ink2}; }
-.pq-ask { font-size: clamp(14px, 1.2vw, 16px); font-weight: 700; }
-.pq-expr { display: flex; justify-content: center; padding: 4px 0 2px; }
-
-/* ---- ikki maydon: natija va shart ---- */
-.pq-two { display: flex; gap: clamp(10px, 2vw, 26px); flex-wrap: wrap; }
-.pq-two-col { flex: 1 1 240px; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
-.pq-fold {
-  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; cursor: pointer;
-  padding: 8px 11px; border-radius: 12px;
-  border: 1.5px dashed ${T.line}; background: rgba(255,255,255,.6);
-}
-.pq-fold.is-full { border-style: solid; }
-.pq-fold-ask { flex: 1; font-size: 12.5px; font-weight: 700; color: ${T.ink2}; }
-.pq-fold-v { font-family: ${MATH_FONT}; font-size: 16px; font-weight: 800; color: ${T.ink}; }
-.pq-mark { font-size: 12.5px; font-weight: 700; line-height: 1.35; }
-.pq-mark.is-ok { color: ${T.ok}; }
-.pq-mark.is-no { color: ${T.no}; }
-
-/* ---- tayyor yechim va tirqishlar ---- */
-.pq-rows { display: flex; flex-direction: column; gap: 4px; align-items: center; }
-.pq-row { display: flex; align-items: center; gap: 3px; flex-wrap: wrap; justify-content: center; }
-.pq-tok { font-family: ${MATH_FONT}; font-size: clamp(17px, 1.7vw, 22px); font-weight: 700; }
-.pq-slot {
-  min-width: 52px; min-height: 38px; padding: 3px 8px; border-radius: 10px; cursor: pointer;
-  font-family: ${MATH_FONT}; font-size: clamp(16px, 1.6vw, 21px); font-weight: 800;
-  border: 2px dashed rgba(23,26,29,.24); background: rgba(255,255,255,.6); color: ${T.ink};
-}
-.pq-slot.is-full { border-style: solid; border-color: ${T.graph}; background: rgba(255,255,255,.95); }
-.pq-slot.is-ok { border-style: solid; border-color: ${T.ok}; background: ${T.okSoft}; color: ${T.ok}; }
-.pq-slot.is-no { border-style: solid; border-color: ${T.no}; background: ${T.tipSoft}; color: ${T.no}; }
-
-/* ---- kartalar banki ---- */
-.pq-bank { display: flex; flex-direction: column; gap: 5px; }
-.pq-bank-lbl { font-size: 11px; font-weight: 800; letter-spacing: .06em; color: ${T.ink4}; text-transform: uppercase; }
-.pq-cards { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
-.pq-card {
-  padding: 6px 11px; border-radius: 10px; cursor: pointer;
-  font-family: ${MATH_FONT}; font-size: clamp(14px, 1.4vw, 18px); font-weight: 800;
-  border: 1.5px solid rgba(23,26,29,.16); background: rgba(255,255,255,.85); color: ${T.ink};
-}
-.pq-card.is-on { border-color: ${T.graph}; background: ${T.graph}; color: #fff; }
-.pq-card.is-used { opacity: .34; }
-.pq-card:disabled { cursor: default; }
-.pq-dash { color: ${T.ink4}; font-weight: 800; }
-
-/* ---- yig'ilayotgan yozuv ---- */
-.pq-line {
-  display: flex; align-items: center; gap: 8px; min-height: 46px;
-  padding: 6px 10px; border-radius: 12px;
-  border: 1.5px solid rgba(23,26,29,.12); background: rgba(255,255,255,.78);
-}
-.pq-line-body { flex: 1; font-family: ${MATH_FONT}; font-size: clamp(16px, 1.6vw, 21px); font-weight: 800; }
-.pq-line-den { border-bottom: none; }
-.pq-line-ph { color: ${T.ink4}; font-family: 'Manrope', system-ui, sans-serif; font-size: 13px; font-weight: 600; font-style: normal; }
-.pq-back {
-  border: none; background: rgba(23,26,29,.07); border-radius: 9px; padding: 5px 10px;
-  cursor: pointer; font-size: 15px; color: ${T.ink2};
-}
-
-/* ---- zonalar ---- */
-.pq-zones { display: flex; flex-direction: column; gap: 5px; }
-.pq-zone { display: flex; align-items: stretch; gap: 8px; }
-.pq-zone-lbl {
-  width: 116px; flex: 0 0 116px; display: flex; align-items: center; justify-content: flex-end;
-  text-align: right; font-size: 11px; font-weight: 800; letter-spacing: .03em; color: ${T.ink4};
-}
-.pq-zone-box {
-  flex: 1; min-height: 44px; border-radius: 12px; padding: 5px;
-  border: 2px dashed rgba(23,26,29,.14); background: rgba(255,255,255,.5);
-  display: flex; flex-wrap: wrap; gap: 6px; align-content: center; justify-content: center;
-}
-.pq-zone-box.is-live { border-color: ${T.graph}; background: rgba(255,255,255,.85); cursor: pointer; }
-.pq-chip {
-  padding: 4px 9px; border-radius: 10px; cursor: pointer; line-height: 1;
-  border: 1.5px solid rgba(23,26,29,.16); background: rgba(255,255,255,.9);
-}
-.pq-chip.is-on { border-color: ${T.graph}; background: ${T.graphSoft}; }
-.pq-chip.is-ok { border-color: ${T.ok}; background: ${T.okSoft}; }
-.pq-chip.is-no { border-color: ${T.no}; background: ${T.tipSoft}; }
-
-/* ---- ikki yozuv yonma-yon ---- */
-.pq-vs { display: flex; align-items: center; justify-content: center; gap: clamp(8px, 2vw, 22px); padding: 2px 0; }
-.pq-vs-side { display: flex; align-items: center; }
-.pq-vs-sign { font-family: ${MATH_FONT}; font-size: clamp(18px, 1.8vw, 24px); font-weight: 800; color: ${T.ink4}; }
-
-/* ---- tayyor yechimning satrlari ---- */
-.pq-audit { display: flex; flex-direction: column; gap: 3px; }
-.pq-audit-row {
-  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; cursor: pointer;
-  padding: 5px 10px; border-radius: 10px;
-  border: 1.5px solid rgba(23,26,29,.1); background: rgba(255,255,255,.7);
-}
-.pq-audit-row.is-on { border-color: ${T.graph}; background: ${T.graphSoft}; }
-.pq-audit-row.is-hit { border-color: ${T.ok}; background: ${T.okSoft}; }
-.pq-audit-row.is-off { border-color: ${T.no}; background: ${T.tipSoft}; }
-.pq-audit-n { font-family: ${MATH_FONT}; font-size: 12px; font-weight: 800; color: ${T.ink4}; }
-.pq-audit-b { font-family: ${MATH_FONT}; font-size: clamp(14px, 1.4vw, 18px); font-weight: 700; }
-.pq-proof { display: flex; flex-direction: column; gap: 4px; }
-
-/* ---- «taqiqlangan qiymat yo'q» ---- */
-.pq-none {
-  align-self: flex-start; padding: 5px 11px; border-radius: 999px; cursor: pointer;
-  font-size: 12.5px; font-weight: 700;
-  border: 1.5px solid rgba(23,26,29,.16); background: rgba(255,255,255,.8); color: ${T.ink2};
-}
-.pq-none.is-on { border-color: ${T.graph}; background: ${T.graph}; color: #fff; }
-
-/* ---- KASR AMALIYOTDA KICHIKROQ. Darsda u ramka ichida yolg'iz turadi va
-   44px gacha o'sadi (tools.jsx); amaliyotda esa uning ustida shart, ostida
-   maydon va razbor bor — shu balandlik budjetga sig'ishi kerak. ---- */
-.pq-root .g8-m-big { font-size: clamp(21px, 2.1vw, 28px); }
-.pq-root .g8-frac-big .g8-frac-n, .pq-root .g8-frac-big .g8-frac-d { font-size: clamp(21px, 2.1vw, 28px); }
-
-/* ---- IXCHAM REJIM: past ekran (noutbuk 615-655). Ingliz tilidagi matn eng
-   uzun, va aynan u kadrdan chiqib ketardi (o'lchandi 2026-08-21: 9-topshiriq
-   615px da 155px oshib ketgan). Bu yerda razbor bilan birga hammasi sig'adi. ---- */
-@media (max-height: 700px) and (min-width: 900px) {
-  /* Tepa qatori BIR SATRGA yig'iladi: sarlavha va hisob chapda, chiplar
-     o'ngda. Ikki satrda u 120px egallardi va 9-topshiriq shu sababdan
-     sig'masdi (o'lchandi: ish maydoni 433px, kontent 467px). */
-  .pq-top { flex-direction: row; align-items: center; flex-wrap: nowrap;
-    gap: 12px; padding-top: 54px; padding-bottom: 4px; }
-  .pq-head { flex: 0 1 auto; min-width: 0; }
-  .pq-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 34vw; }
-  .pq-chips { flex: 1 1 auto; justify-content: flex-end; }
-  .pq-btn { padding: 7px 18px; }
-  .pq-wrap { gap: 4px; }
-  .pq-setup { font-size: 13px; line-height: 1.32; }
-  .pq-ask { font-size: 14px; }
-  .pq-expr { padding: 0; }
-  .pq-root .g8-m-big { font-size: 20px; }
-  .pq-root .g8-frac-big .g8-frac-n, .pq-root .g8-frac-big .g8-frac-d { font-size: 20px; }
-  .pq-root .g8-note { padding: 7px 10px; font-size: 13px; line-height: 1.34; }
-  .pq-root .g8-cx { padding: 6px 10px; }
-  .pq-audit-row { padding: 3px 9px; }
-  .pq-audit-b { font-size: 15px; }
-  .pq-rows { gap: 2px; }
-  .pq-slot { min-height: 34px; }
-  .pq-two { gap: 12px; }
-  .pq-zone-box { min-height: 40px; }
-  .pq-foot { padding-top: 6px; padding-bottom: 8px; }
-}
-
-/* ---- TELEFON (390 va 360). Ustun tor, matn ko'p satrga bo'linadi va razbor
-   bilan birga kadrdan chiqib ketardi (o'lchandi 2026-08-21: 2 va 7-topshiriq
-   ru tilida 63-64px oshgan). Balandlik budjeti shu yerda eng qattiq. ---- */
-@media (max-width: 639.98px) {
-  .pq-top { padding-top: 50px; padding-bottom: 3px; gap: 4px; }
-  .pq-title { font-size: 12.5px; }
-  .pq-score { font-size: 11.5px; }
-  .pq-tab { min-width: 26px; padding: 3px 6px; font-size: 11px; border-radius: 8px; }
-  .pq-wrap { gap: 4px; }
-  .pq-eyebrow { font-size: 10px; }
-  .pq-setup { font-size: 12.6px; line-height: 1.3; }
-  .pq-ask { font-size: 13px; }
-  .pq-expr { padding: 0; }
-  .pq-root .g8-m-big { font-size: 19px; }
-  .pq-root .g8-frac-big .g8-frac-n, .pq-root .g8-frac-big .g8-frac-d { font-size: 19px; }
-  .pq-root .g8-note { padding: 6px 9px; font-size: 12.4px; line-height: 1.32; }
-  .pq-root .g8-cx { padding: 5px 9px; }
-  .pq-zone { gap: 6px; }
-  .pq-zone-lbl { width: 78px; flex: 0 0 78px; font-size: 9.5px; }
-  .pq-zone-box { min-height: 36px; padding: 4px; gap: 4px; }
-  .pq-chip { padding: 3px 7px; }
-  .pq-bank-lbl { font-size: 10px; }
-  .pq-cards { gap: 5px; }
-  .pq-card { padding: 4px 9px; font-size: 13px; }
-  .pq-audit-row { padding: 3px 8px; }
-  .pq-audit-b { font-size: 14px; }
-  .pq-rows { gap: 2px; }
-  .pq-slot { min-height: 32px; min-width: 46px; }
-  .pq-fold { padding: 6px 9px; }
-  .pq-two { gap: 8px; }
-  .pq-foot { padding-top: 5px; padding-bottom: 8px; }
-  .pq-btn { padding: 7px 16px; font-size: 13.5px; }
-}
-
-/* ---- pastki qator ---- */
-.pq-foot {
-  flex-shrink: 0; padding: 8px clamp(12px, 3vw, 34px) 12px;
-  display: flex; align-items: center; gap: 10px; justify-content: flex-end;
-}
-.pq-btn {
-  padding: 9px 20px; border-radius: 12px; cursor: pointer; border: none;
-  font-size: 14.5px; font-weight: 800; color: #fff; background: ${T.graph};
-}
-.pq-btn:disabled { opacity: .38; cursor: default; }
-.pq-btn-2 { background: rgba(23,26,29,.08); color: ${T.ink}; }
-.pq-final { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; text-align: center; }
-.pq-final-n { font-family: ${MATH_FONT}; font-size: 40px; font-weight: 800; }
-.pq-final-t { font-size: 15px; font-weight: 700; color: ${T.ink2}; }
-
-/* ---- javob berilgan topshiriqqa qaytish: YOZUV, tirik vidjet emas ---- */
-.pq-said {
-  display: flex; align-items: baseline; gap: 10px; padding: 9px 12px; border-radius: 12px;
-  border: 1.5px solid ${T.line}; background: rgba(255,255,255,.72);
-}
-.pq-said-lbl { font-size: 11.5px; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; color: ${T.ink4}; }
-.pq-said-v { font-family: ${MATH_FONT}; font-size: 16px; font-weight: 800; color: ${T.ink}; }
-`

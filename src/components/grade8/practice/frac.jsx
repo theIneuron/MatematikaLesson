@@ -1,0 +1,49 @@
+// ODDIY KASR VA YOZUV RENDERI — shu papkaga bitta (metodist qarori
+// 2026-08-20: «надо чтобы дробь стоял как настоящий дробь, а не просто слэш
+// и двоеточие»).
+//
+// Kasr IKKI QAVATLI yoziladi: surat, chiziq, maxraj -- darslikdagi kabi.
+// «3/5» yoki «3:5» ko'rinishi YARAMAYDI: birinchisi bo'lish belgisi bilan
+// chalkashadi, ikkinchisi esa nisbat bo'lib o'qiladi.
+//
+// NEGA ALOHIDA FAYL. Amaliyotda har topshiriq fayli
+// mustaqil turadi (LMS bitta jsx ni oladi). Lekin kasrni uchta faylga
+// nusxalash CLAUDE.md §5 ga zid bo'lardi: bitta xato uch joyda tuzatilardi.
+// Shu sababli render BIR joyda turadi, papka ichida. Yig'uvchi fayl ham
+// shu papkadan import qiladi, ya'ni papka allaqachon «import-siz» emas.
+import React from 'react';
+
+// Kasrning surat va maxraji asosiy o'lchamning 0,72 qismi: kichikroq bo'lsa
+// kasr yozuvdan «tushib qolgandek» ko'rinadi, kattaroq bo'lsa qator o'sadi.
+export const Frac = ({ n, d, size = 28, color }) => (
+  <span
+    style={{
+      display: 'inline-flex', flexDirection: 'column', alignItems: 'center',
+      verticalAlign: 'middle', margin: '0 5px',
+      fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+      fontSize: Math.round(size * 0.72), lineHeight: 1.04, fontWeight: 800,
+      ...(color ? { color } : null),
+    }}
+  >
+    <span style={{ padding: '0 3px' }}>{n}</span>
+    <span style={{ borderTop: '2.5px solid currentColor', padding: '0 3px', width: '100%', textAlign: 'center' }}>{d}</span>
+  </span>
+);
+
+// Yozuv TOKENLAR ro'yxati: satr yoki { n, d } -- kasr.
+// Bosqich ranglari sinf tilidan: ikkinchi bosqich ko'k, birinchi binafsha.
+const toneOf = (tok) => {
+  if (tok === '·' || tok === ':') return '#2C5FA8';
+  if (tok === '+' || tok === '−') return '#7A4FA3';
+  return null;
+};
+
+export const Row = ({ tokens, size = 28, color = '#1f2430', tone = true }) => (
+  <span style={{ display: 'inline-flex', alignItems: 'center', flexWrap: 'wrap', fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: size, fontWeight: 800, color }}>
+    {tokens.map((t, i) => {
+      if (typeof t !== 'string') return <Frac key={i} n={t.n} d={t.d} size={size} />;
+      const c = tone ? toneOf(t) : null;
+      return <span key={i} style={{ padding: '0 3px', ...(c ? { color: c } : null) }}>{t}</span>;
+    })}
+  </span>
+);

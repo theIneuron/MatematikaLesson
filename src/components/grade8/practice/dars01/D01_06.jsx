@@ -1,93 +1,198 @@
-// Dars01 · Amaliyot 06 — Berilgan shartga kasr yig'ish · 🟡 · teg: build_odz
-// Faqat MA'LUMOT. Tip: `practice/kit.jsx` -> Build (andoza bilan).
+// Dars01 · Amaliyot 06 — Xato qatorni tuzatish · 🟡 · tag: fix_line
+// Metodist qarori 2026-08-20: 3-8 topshiriqlarning tiplari o'zgartirildi.
+// Ilgari bu yerda «to'rt variantdan bittasi» edi; endi o'quvchi to'g'ri
+// qatorni O'ZI yig'adi -- «xatoni topish» janrining KUCHLI shakli
+// (3-sinf kanoni §4.1: variantdan tanlash kuchsiz shakl).
 //
-// TESKARI topshiriq: odatda kasr berilib shart topiladi, bu yerda SHART
-// berilgan va kasr yig'iladi. To'g'ri javob bitta emas, shuning uchun satr
-// solishtirilmaydi: maxrajning NOLLARI tekshiriladi.
+// ODDIY KASR ham qo'shildi (metodist qarori 2026-08-20): 5/6 ikki qavatli
+// yoziladi, o'nli kasr esa 5-topshiriqda. O'quvchi 6-sinfda kasrni yaxshi
+// biladi, shuning uchun bu takrorlash, lekin misolning darajasi ko'tariladi.
 //
-// O'quvchi faqat MAXRAJNI yig'adi (`wrap`), surat joyida turadi. Sabab:
-// butun kasr yig'ilganda topshiriq qavslar kuchi haqida bo'lib qolardi.
-//   x · (x − 6)  -> nollar 0 va 6   TO'G'RI
-//   x + (x − 6)  -> 2x − 6, nol 3
-//   x · (x + 6)  -> nollar 0 va −6
-//   (x − 6)      -> faqat 6
-// eslint-disable-next-line no-unused-vars
-import React from 'react'
-import { Build, Frac, L } from '../kit.jsx'
+// Yozuv: 5/6 · 720 − 90. Qoida: avval ko'paytirish (5/6 · 720 = 600),
+// keyin ayirish (600 − 90 = 510).
+// Boshqa o'quvchining xatosi: ayirish OLDIN bajarilgan -- 720 − 90 = 630, va
+// qatorga «5/6 · 630» yozilgan.
+// To'g'ri keyingi qator: 600 − 90.
+//
+// TEKSHIRUV YOZUV BO'YICHA (`answerSeq`), qiymat bo'yicha emas: «510» ham
+// 510 ni beradi, lekin u KEYINGI emas, oxirgi qator.
+//
+// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Row } from '../frac.jsx';
 
-const DATA = {
-  tag: 'build_odz',
-  level: '🟡',
-  varName: 'x',
-  wrap: '5 / (%s)',
-  want: { holes: [0, 6] },
-  eyebrow: L('Teskari ish', 'Обратная работа', 'The other way round'),
-  setup: L(
-    "Shart tayyor: kasr x = 0 va x = 6 da qiymatga ega bo'lmasligi kerak, boshqa hamma joyda esa hisoblanishi kerak. Shunday maxraj yig'ing.",
-    'Условие готово: дробь не должна иметь значения при x = 0 и при x = 6, а во всех остальных точках должна считаться. Собери такой знаменатель.',
-    'The condition is given: the fraction must have no value at x = 0 and at x = 6, and must compute everywhere else. Build such a denominator.',
-  ),
-  frame: (den) => <Frac num="5" den={den} size="big" />,
-  placeholder: L('maxrajni yig\'ing', 'собери знаменатель', 'build the denominator'),
-  cards: ['x', '(x − 6)', '(x + 6)', '·', '+', '6'],
-  ask: L('Kartani bosing — u maxrajga qo\'shiladi.', 'Нажми карточку — она встанет в знаменатель.', 'Tap a card and it goes into the denominator.'),
-  wrongs: [
-    {
-      when: (s) => s.holes.length === 1 && Math.abs(s.holes[0] - 6) < 1e-9,
-      text: L(
-        "Bitta nol chiqdi — oltida. Nolda esa maxraj hisoblanadi, ya'ni x = 0 RUXSAT ETILGAN bo'lib qoldi. Nolda ham nolga aylanadigan ko'paytuvchi kerak: bu x ning o'zi.",
-        'Вышел один нуль — в шестёрке. А при нуле знаменатель считается, то есть x = 0 остался РАЗРЕШЁННЫМ. Нужен множитель, который обращается в нуль и при нуле: это сам x.',
-        'One zero came out, at six. At zero the denominator still computes, so x = 0 stayed ALLOWED. A factor that vanishes at zero is needed too: that is x itself.',
-      ),
-    },
-    {
-      when: (s) => s.holes.some((v) => Math.abs(v + 6) < 1e-9),
-      text: L(
-        "(x + 6) minus oltida nolga aylanadi, oltida esa 12 ga teng. Oltida nolga aylanishi uchun (x − 6) kerak.",
-        '(x + 6) обращается в нуль при минус шести, а при шести равно 12. Чтобы нуль был при шести, нужно (x − 6).',
-        '(x + 6) becomes zero at minus six, and at six it equals 12. To get a zero at six you need (x − 6).',
-      ),
-    },
-    {
-      when: (s) => s.holes.length === 1 && Math.abs(s.holes[0] - 3) < 1e-9,
-      text: L(
-        "Ko'paytuvchilar PLUS bilan bog'langan: x + (x − 6) bu 2x − 6 va u faqat uchda nolga aylanadi. Ikki nol KO'PAYTMADA paydo bo'ladi — ko'paytma bitta ko'paytuvchi nol bo'lishi bilanoq nolga aylanadi.",
-        'Множители соединены ПЛЮСОМ: x + (x − 6) это 2x − 6, и он обращается в нуль только при трёх. Два нуля даёт ПРОИЗВЕДЕНИЕ — оно обращается в нуль, едва один множитель стал нулём.',
-        'The factors are joined by a PLUS: x + (x − 6) is 2x − 6 and it vanishes only at three. Two zeros come from a PRODUCT — it vanishes as soon as one factor does.',
-      ),
-    },
-    {
-      when: (s) => s.holes.length === 1 && Math.abs(s.holes[0]) < 1e-9,
-      text: L(
-        "Nol topildi, olti esa qoldi: maxrajda oltida nolga aylanadigan ko'paytuvchi yo'q. U (x − 6).",
-        'Нуль есть, а шестёрка потеряна: в знаменателе нет множителя, обращающегося в нуль при шести. Это (x − 6).',
-        'The zero is there but the six is missing: the denominator has no factor vanishing at six. That factor is (x − 6).',
-      ),
-    },
-    {
-      when: (s) => s.holes.length === 0,
-      text: L(
-        "Bunday maxraj hech qachon nolga aylanmaydi, ya'ni kasr hamma joyda hisoblanadi. Maxrajda HARF bo'lishi kerak.",
-        'Такой знаменатель не обращается в нуль никогда, значит дробь считается всюду. В знаменателе должна быть БУКВА.',
-        'Such a denominator never becomes zero, so the fraction computes everywhere. The denominator must contain a LETTER.',
-      ),
-    },
-  ],
-  wrongText: L(
-    "Ikki nol kerak: biri nolda, biri oltida. Ularni KO'PAYTIRIB qo'shing — ko'paytma bitta ko'paytuvchi nolga aylanishi bilan nol bo'ladi.",
-    'Нужны два нуля: один при нуле, другой при шести. Соедини множители УМНОЖЕНИЕМ — произведение обращается в нуль, едва один множитель стал нулём.',
-    'Two zeros are needed: one at zero, one at six. Join the factors by MULTIPLICATION — a product vanishes as soon as one factor does.',
-  ),
-  correctText: L(
-    "To'g'ri. x · (x − 6) nolda ham, oltida ham nolga aylanadi, boshqa joyda esa yo'q. Tekshirish: x = 1 da maxraj 1 · (−5) = −5 va kasr −1 ga teng, ya'ni bir ruxsat etilgan.",
-    'Верно. x · (x − 6) обращается в нуль и при нуле, и при шести, а больше нигде. Проверка: при x = 1 знаменатель равен 1 · (−5) = −5, а дробь равна −1, то есть единица разрешена.',
-    'Correct. x · (x − 6) vanishes at zero and at six and nowhere else. Check: at x = 1 the denominator is 1 · (−5) = −5 and the fraction equals −1, so one is allowed.',
-  ),
-  parseWrong: L(
-    "Yozuv o'qilmadi: ko'paytuvchilar orasida amal belgisi turishi kerak.",
-    'Запись не читается: между множителями должен стоять знак действия.',
-    'The record cannot be read: an operation sign must stand between the factors.',
-  ),
+const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
+const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
+const S = {
+  wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
+  setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
+  ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
+};
+const HFB = ({ ok, text }) => (
+  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 10, padding: '10px 13px', borderRadius: 12, fontSize: 14.5, lineHeight: 1.4, fontWeight: 600, background: ok ? '#e8f7ee' : '#fdecec', color: ok ? '#1a7f43' : '#c0392b' }}>
+    {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
+  </div>
+);
+function useRegister(check, registerCheck) {
+  const ref = useRef(check); ref.current = check;
+  useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
 }
 
-export default function D01_06(props) { return <Build data={DATA} {...props} /> }
+const GIVEN = [
+  { tokens: [{ n: 5, d: 6 }, '·', '720', '−', '90'] },
+  { tokens: [{ n: 5, d: 6 }, '·', '630'], bad: true },
+];
+const CARDS = [
+  { id: 'c600', label: '600' },
+  { id: 'c90', label: '90' },
+  { id: 'cminus', label: '−' },
+  { id: 'c630', label: '630' },
+  { id: 'c510', label: '510' },
+  { id: 'c720', label: '720' },
+];
+const ANSWER = ['600', '−', '90'];
+
+const T = {
+  uz: {
+    eyebrow: 'Xatoni tuzatish', title: 'Ikkinchi qator',
+    setup: "Boshqa o'quvchining yechimi. Ikkinchi qator xato.",
+    ask: "To'g'ri ikkinchi qatorni kartalardan yig'ing.",
+    empty: "Kartalarni bosib qator yig'ing",
+    undo: 'Bitta orqaga',
+    yours: 'Sizda:', answer: 'To\'g\'ri:',
+    correct: "To'g'ri. Avval ko'paytirish bajariladi: besh oltidan yetti yuz yigirma -- olti yuz. Ayirish esa keyingi qatorda.",
+    wrongSub: "Ayirish OLDIN bajarilgan: yetti yuz yigirmadan to'qsonni ayirib olti yuz o'ttiz chiqarilgan. Lekin ko'paytirish ikkinchi bosqich, u birinchi bajariladi.",
+    wrongLast: "Bu allaqachon OXIRGI qator: siz ikki qadamni birga bajardingiz. Ikkinchi qatorda faqat ko'paytirish hisoblanadi.",
+    wrongOther: "Ikkinchi qatorda BITTA amal bajariladi -- ikkinchi bosqichdagi ko'paytirish. Besh oltidan yetti yuz yigirmani hisoblang.",
+  },
+  ru: {
+    eyebrow: 'Исправь ошибку', title: 'Вторая строка',
+    setup: 'Решение другого ученика. Вторая строка неверна.',
+    ask: 'Собери из карточек верную вторую строку.',
+    empty: 'Собери строку, нажимая карточки',
+    undo: 'На шаг назад',
+    yours: 'У тебя:', answer: 'Верно:',
+    correct: 'Верно. Первым выполняется умножение: пять шестых от семисот двадцати — шестьсот. А вычитание идёт в следующей строке.',
+    wrongSub: 'Вычитание выполнено РАНЬШЕ: из семисот двадцати вычли девяносто и получили шестьсот тридцать. Но умножение — вторая ступень, оно идёт первым.',
+    wrongLast: 'Это уже ПОСЛЕДНЯЯ строка: ты выполнил два шага сразу. Во второй строке считается только умножение.',
+    wrongOther: 'Во второй строке выполняется ОДНО действие — умножение второй ступени. Посчитай пять шестых от семисот двадцати.',
+  },
+  en: {
+    eyebrow: 'Fix the mistake', title: 'The second line',
+    setup: "Another person's solution. The second line is wrong.",
+    ask: 'Build the correct second line from the cards.',
+    empty: 'Build the line by tapping cards',
+    undo: 'One step back',
+    yours: 'You:', answer: 'Correct:',
+    correct: 'Correct. The multiplication runs first: five sixths of seven hundred twenty is six hundred. The subtraction comes in the next line.',
+    wrongSub: 'The subtraction ran FIRST: ninety was taken from seven hundred twenty giving six hundred thirty. But multiplication is the second stage, it goes first.',
+    wrongLast: 'That is already the LAST line: you did two steps at once. In the second line only the multiplication is worked out.',
+    wrongOther: 'In the second line ONE operation runs — the second-stage multiplication. Work out five sixths of seven hundred twenty.',
+  },
+};
+
+export default function D01_06(props) {
+  const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
+  const t = T[lang] || T.uz;
+  const isReview = mode === 'review';
+  const [seq, setSeq] = useState([]);
+  const [pos, setPos] = useState(0);
+  const [fb, setFb] = useState(null);
+  const [checked, setChecked] = useState(false);
+
+  const locked = isReview || checked;
+  const labelOf = (id) => CARDS.find((c) => c.id === id).label;
+  const line = seq.map(labelOf);
+  const ready = seq.length > 0 && !checked;
+
+  useEffect(() => {
+    const sa = initialAnswer?.studentAnswer;
+    if (sa?.seq) {
+      setSeq(sa.seq);
+      if (typeof initialAnswer.correct === 'boolean') { setFb({ correct: initialAnswer.correct, line: sa.label }); setChecked(true); }
+    }
+  }, [initialAnswer]);
+  useEffect(() => { onReady?.(ready); }, [ready, onReady]);
+
+  const put = (id) => { if (locked) return; setSeq((p) => p.slice(0, pos).concat(id, p.slice(pos))); setPos((p) => p + 1); };
+  const undo = () => { if (locked || pos === 0) return; setSeq((p) => p.slice(0, pos - 1).concat(p.slice(pos))); setPos((p) => Math.max(0, p - 1)); };
+
+  const check = useCallback(() => {
+    const got = seq.map(labelOf);
+    const correct = got.join('|') === ANSWER.join('|');
+    let why = 'wrongOther';
+    const j = got.join(' ');
+    if (j === '630' || j.indexOf('630') !== -1) why = 'wrongSub';
+    else if (j === '510') why = 'wrongLast';
+    setFb({ correct, line: j, why }); setChecked(true);
+    correct ? playCorrect?.() : playWrong?.();
+    onSubmit?.({
+      questionText: t.ask, options: [],
+      studentAnswer: { seq: seq.slice(), label: j },
+      correctAnswer: { label: ANSWER.join(' ') },
+      correct, meta: { tag: 'fix_line', level: '🟡' },
+    });
+  }, [seq, t, playCorrect, playWrong, onSubmit]);
+  useRegister(check, registerCheck);
+
+  const caret = (i) => (
+    <button key={'c' + i} type="button" disabled={locked} onClick={() => setPos(i)} aria-label="caret"
+      style={{ width: 10, minHeight: 34, border: 0, background: 'none', padding: 0, cursor: locked ? 'default' : 'pointer', position: 'relative' }}>
+      <span style={{ position: 'absolute', left: '50%', top: '12%', bottom: '12%', width: 2, transform: 'translateX(-50%)', borderRadius: 2, background: pos === i && !locked ? '#fe5b1a' : 'transparent' }} />
+    </button>
+  );
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.eyebrow}>{t.eyebrow}</div>
+      <p style={S.setup}>{t.setup}</p>
+
+      {/* BERILGAN: chet kishining yechimi. O'qiladi, bosilmaydi. */}
+      <div style={{ borderRadius: 14, background: '#f1f5f9', border: '1.5px solid #e2e8f0', padding: '8px 16px', display: 'flex', flexDirection: 'column', gap: 2, marginBottom: 10 }}>
+        {GIVEN.map((r, i) => (
+          <Row key={i} tokens={r.tokens} size={23} color={r.bad ? '#b45309' : '#5c6672'} tone={!r.bad} />
+        ))}
+      </div>
+
+      {/* BO'SH MAYDON */}
+      <div style={{ minHeight: 62, borderRadius: 16, border: '2px solid #e2e8f0', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6px 12px', marginBottom: 8, flexWrap: 'wrap' }}>
+        {seq.length === 0 ? (
+          <>{caret(0)}<span style={{ fontSize: 15, fontWeight: 600, color: '#9aa1ad' }}>{t.empty}</span></>
+        ) : (
+          <>
+            {line.map((lab, i) => (
+              <React.Fragment key={i}>
+                {caret(i)}
+                <button type="button" disabled={locked} onClick={() => setPos(i)}
+                  style={{ border: 0, background: 'none', padding: '0 2px', fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: 26, fontWeight: 800, color: lab === '−' ? '#7A4FA3' : '#1f2430', cursor: locked ? 'default' : 'pointer' }}>
+                  {lab}
+                </button>
+              </React.Fragment>
+            ))}
+            {caret(line.length)}
+          </>
+        )}
+      </div>
+
+      <div style={{ fontSize: 13, color: '#9aa1ad', fontWeight: 600, margin: '2px 0 6px' }}>{t.ask}</div>
+      <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap', alignItems: 'center' }}>
+        {CARDS.map((c) => {
+          const used = seq.indexOf(c.id) !== -1;
+          return (
+            <button key={c.id} type="button" disabled={used || locked} onClick={() => put(c.id)}
+              style={{ minWidth: 56, height: 48, borderRadius: 13, border: '2px solid ' + (used ? '#eef0f4' : '#cbd5e1'), background: used ? '#f8fafc' : '#fff', fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: 22, fontWeight: 800, color: used ? '#cbd5e1' : (c.label === '−' ? '#7A4FA3' : '#1f2430'), cursor: (used || locked) ? 'default' : 'pointer' }}>
+              {c.label}
+            </button>
+          );
+        })}
+        <button type="button" disabled={locked || pos === 0} onClick={undo}
+          style={{ marginLeft: 6, padding: '8px 14px', borderRadius: 12, border: '1.5px solid #d6dae3', background: '#fff', color: (locked || pos === 0) ? '#c2c8d2' : '#374151', fontSize: 13.5, fontWeight: 700, cursor: (locked || pos === 0) ? 'default' : 'pointer', fontFamily: 'inherit' }}>
+          {t.undo}
+        </button>
+      </div>
+
+      {fb && <HFB ok={fb.correct} text={fb.correct ? t.correct : t[fb.why]} />}
+    </div>
+  );
+}

@@ -1,107 +1,176 @@
-// Dars01 · Amaliyot 07 — Ikki maxraj, ikki shart · 🟡 · teg: two_denominators
-// Faqat MA'LUMOT. Tip: `practice/kit.jsx` -> Odz (ikki maydon).
+// Dars01 · Amaliyot 07 — Qadamlar zanjiri · 🔴 · tag: value_chain
+// Metodist qarori 2026-08-20: tip o'zgartirildi -- ilgari bu «to'rt
+// variantdan bittasi» edi. Endi o'quvchi ORALIQ qiymatlarni to'ldiradi.
 //
-// ADASHISH Z2 ning eng qimmat shakli: shart YO'QOLADI, chunki u bitta emas.
-// Ifodada ikki kasr bor, ya'ni ikki maxraj — va shart ikkisidan YIG'ILADI.
-// Javobning o'zida buni ko'rish mumkin emas.
+// NEGA KERAK. Qolgan topshiriqlar YAKUNIY javobni so'raydi, va yakuniy
+// javobni ba'zan taxmin bilan ham topib olish mumkin. Bu topshiriq
+// qadamlarni so'raydi: o'quvchi hisoblab chiqqanini KO'RSATADI.
 //
-// x = 6:  12 : 6 = 2,  2 : (6 − 5) = 2,  yig'indi 4.
-// Shart: birinchi maxraj x da, ikkinchisi x − 5 da nolga aylanadi ->
-//        x ≠ 0 va x ≠ 5.
-// eslint-disable-next-line no-unused-vars
-import React from 'react'
-import { E, F, L, Odz } from '../kit.jsx'
+// −2100 : 30 + (3/5) · 250. Qoida: avval ikkinchi bosqich chapdan o'ngga
+// (−2100 : 30 = −70, keyin uch beshdan ikki yuz ellik = 150), so'ng
+// birinchi bosqich: −70 + 150 = 80.
+//
+// Kartalar orasida 70 va −150 turadi -- ishorani chalkashtirganning javobi,
+// hamda 220: bu −70 ni +70 deb olganda chiqadi.
+//
+// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Row } from '../frac.jsx';
 
-const DATA = {
-  tag: 'two_denominators',
-  level: '🟡',
-  varName: 'x',
-  eyebrow: L('Ikki kasr', 'Две дроби', 'Two fractions'),
-  setup: L(
-    "Ifodada ikki kasr turadi. Har birining o'z maxraji bor, ya'ni har biri o'z taqiqini keltiradi. Yig'indining shartini ikkisidan yig'ish kerak.",
-    'В записи две дроби. У каждой свой знаменатель, значит каждая приносит свой запрет. Условие для суммы собирается из обоих.',
-    'The record holds two fractions. Each has its own denominator, so each brings its own restriction. The condition for the sum is collected from both.',
-  ),
-  expr: <E>{F('12', 'x')} + {F('2', 'x − 5')}</E>,
-  fields: [
-    {
-      kind: 'number',
-      ask: L('x = 6 da qiymat', 'Значение при x = 6', 'Value at x = 6'),
-      label: L('qiymat', 'значение', 'value'),
-      answer: '4',
-      hints: {
-        '2': L(
-          "Bu faqat bitta qo'shiluvchi. Ikkinchi kasr ham hisoblanadi: 2 : (6 − 5) = 2, va ikkisi qo'shiladi.",
-          'Это только одно слагаемое. Вторая дробь тоже считается: 2 : (6 − 5) = 2, и они складываются.',
-          'That is only one summand. The second fraction also computes: 2 : (6 − 5) = 2, and the two are added.',
-        ),
-        '14': L(
-          "12 va 2 qo'shilgan, lekin bo'lish bajarilmagan. Har kasr avval BO'LINADI: 12 : 6 va 2 : 1.",
-          '12 и 2 сложены, но деление не выполнено. Каждая дробь сначала ДЕЛИТСЯ: 12 : 6 и 2 : 1.',
-          'The 12 and the 2 were added but the division was skipped. Each fraction is DIVIDED first: 12 : 6 and 2 : 1.',
-        ),
-      },
-    },
-    {
-      kind: 'odz',
-      ask: L('Qaysi qiymatlarda ifoda qiymatga ega emas?', 'При каких значениях записи нет?', 'At what values does the record have no value?'),
-      label: L('shart', 'условие', 'condition'),
-      excluded: [0, 5],
-      none: true,
-      noneRight: false,
-      noneWrong: L(
-        "Taqiq bor va ikkita: nolda birinchi maxraj, beshda ikkinchisi nolga aylanadi.",
-        'Запрет есть, и он двойной: при нуле в нуль обращается первый знаменатель, при пяти — второй.',
-        'There are restrictions, and two of them: at zero the first denominator vanishes, at five the second.',
-      ),
-      hints: {
-        'x != 5': L(
-          "Beshni topdingiz, nol esa qoldi. Birinchi kasrning maxraji x ning O'ZI: nolda u nolga aylanadi va 12 : 0 ni hisoblab bo'lmaydi.",
-          'Пятёрку нашёл, а нуль потерялся. У первой дроби знаменатель это САМ x: при нуле он обращается в нуль, и 12 : 0 посчитать нельзя.',
-          'You found the five but lost the zero. The first fraction has x ITSELF below the bar: at zero it vanishes and 12 : 0 cannot be computed.',
-        ),
-        'x != 0': L(
-          "Nolni topdingiz, beshni esa qoldirdingiz. Ikkinchi maxraj x − 5, va u beshda nolga aylanadi.",
-          'Нуль нашёл, а пятёрку оставил. Второй знаменатель это x − 5, и он обращается в нуль при пяти.',
-          'You found the zero but left out the five. The second denominator is x − 5 and it vanishes at five.',
-        ),
-        'x != 0, x != -5': L(
-          "Minus beshda x − 5 minus o'nga teng, nolga emas. Nolga aylanadigan qiymat MUSBAT besh.",
-          'При минус пяти x − 5 равно минус десяти, а не нулю. В нуль обращается ПОЛОЖИТЕЛЬНАЯ пятёрка.',
-          'At minus five, x − 5 equals minus ten, not zero. The value giving zero is POSITIVE five.',
-        ),
-      },
-    },
-  ],
-  fieldOk: L('to\'g\'ri', 'верно', 'correct'),
-  wrongs: [
-    {
-      when: (s) => s.res[0].ok && !s.res[1].ok,
-      text: L(
-        "Qiymat to'g'ri, shart esa to'liq emas. Ifodada ikki maxraj bor — ikkisi ham tekshirilishi kerak, hatto biri shunchaki x bo'lsa ham.",
-        'Значение верное, а условие неполное. В записи два знаменателя — проверить надо оба, даже если один это просто x.',
-        'The value is right but the condition is incomplete. The record has two denominators — both must be checked, even when one is just x.',
-      ),
-    },
-    {
-      when: (s) => !s.res[0].ok && s.res[1].ok,
-      text: L(
-        "Shart to'g'ri yig'ildi, hisobda esa xato. Har kasrni alohida hisoblang, keyin qo'shing.",
-        'Условие собрано верно, а в счёте ошибка. Посчитай каждую дробь отдельно, потом сложи.',
-        'The condition is collected correctly but the arithmetic slipped. Compute each fraction separately, then add.',
-      ),
-    },
-  ],
-  wrongText: L(
-    "Har kasrga alohida qaraysiz: maxrajni nolga tenglashtirib, o'z taqiqini olasiz. Ikki taqiq birga ifodaning shartini beradi.",
-    'Смотри на каждую дробь отдельно: приравняй знаменатель к нулю и получи её собственный запрет. Два запрета вместе и дают условие записи.',
-    'Look at each fraction separately: set its denominator to zero and get its own restriction. The two together make the condition of the record.',
-  ),
-  correctText: L(
-    "To'g'ri. x = 6 da 2 + 2 = 4, shart esa ikkitadan yig'iladi: x ≠ 0 va x ≠ 5. Tekshirish: x = 5 da ikkinchi kasr 2 : 0 bo'lib qoladi, ya'ni butun ifoda qiymatsiz — birinchi kasr hisoblansa ham.",
-    'Верно. При x = 6 выходит 2 + 2 = 4, а условие собирается из двух: x ≠ 0 и x ≠ 5. Проверка: при x = 5 вторая дробь превращается в 2 : 0, значит вся запись без значения — даже если первая дробь считается.',
-    'Correct. At x = 6 it gives 2 + 2 = 4, and the condition comes from both: x ≠ 0 and x ≠ 5. Check: at x = 5 the second fraction becomes 2 : 0, so the whole record has no value even though the first fraction computes.',
-  ),
+const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
+const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
+const S = {
+  wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
+  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
+  setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
+  ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
+};
+const HFB = ({ ok, text }) => (
+  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 10, padding: '10px 13px', borderRadius: 12, fontSize: 14.5, lineHeight: 1.4, fontWeight: 600, background: ok ? '#e8f7ee' : '#fdecec', color: ok ? '#1a7f43' : '#c0392b' }}>
+    {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
+  </div>
+);
+function useRegister(check, registerCheck) {
+  const ref = useRef(check); ref.current = check;
+  useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
 }
 
-export default function D01_07(props) { return <Odz data={DATA} {...props} /> }
+const F35 = { n: 3, d: 5 };
+// Uch qator: har birida bitta uya. Uya to'ldirilgach yozuv qisqaradi.
+const LINES = [
+  { before: ['−2100', ':', '30', '+', F35, '·', '250', '='], after: ['+', F35, '·', '250'] },
+  { before: [], after: [] },   // ikkinchi qator: −70 + [uya]
+  { before: [], after: [] },   // uchinchi qator: [uya]
+];
+const ANSWER = ['−70', '150', '80'];
+const CARDS = ['−70', '150', '80', '70', '−150', '220'];
+
+const T = {
+  uz: {
+    eyebrow: 'Qadamlar zanjiri', title: 'Oraliq qiymatlar',
+    setup: 'Yechim uch qadamda yoziladi. Har qatorda BITTA amal hisoblanadi.',
+    ask: 'Uyalarni to\'ldiring: kartani bosing, keyin uyani bosing.',
+    slot: 'uya', bank: 'Kartalar',
+    correct: 'To\'g\'ri. Avval ikkinchi bosqich: −2100 : 30 = −70 va uch beshdan ikki yuz ellik 150. So\'ng −70 + 150 = 80.',
+    wrongSign: 'Ishoraga qarang: −2100 ni 30 ga bo\'lganda manfiy son chiqadi. Manfiy va musbat sonni qo\'shganda katta modul yutadi.',
+    wrongFrac: 'Uch beshdan ikki yuz ellikni hisoblang: ikki yuz ellikni beshga bo\'lib, uchga ko\'paytirasiz.',
+    wrongOther: 'Birinchi qatorda eng chapdagi ikkinchi bosqich amali hisoblanadi -- bu bo\'lish. Uchinchi qatorda esa oldingi ikki natija qo\'shiladi.',
+  },
+  ru: {
+    eyebrow: 'Цепочка шагов', title: 'Промежуточные значения',
+    setup: 'Решение записывается в три шага. В каждой строке считается ОДНО действие.',
+    ask: 'Заполни клетки: нажми карточку, затем клетку.',
+    slot: 'клетка', bank: 'Карточки',
+    correct: 'Верно. Сначала вторая ступень: −2100 : 30 = −70 и три пятых от двухсот пятидесяти — 150. Затем −70 + 150 = 80.',
+    wrongSign: 'Посмотри на знак: −2100 разделить на 30 даёт отрицательное число. При сложении числа с разными знаками побеждает большее по модулю.',
+    wrongFrac: 'Посчитай три пятых от двухсот пятидесяти: делишь на пять и умножаешь на три.',
+    wrongOther: 'В первой строке считается самое левое действие второй ступени — это деление. А в третьей строке складываются два предыдущих результата.',
+  },
+  en: {
+    eyebrow: 'Chain of steps', title: 'Intermediate values',
+    setup: 'The solution is written in three steps. ONE operation is worked out in each line.',
+    ask: 'Fill the cells: tap a card, then tap a cell.',
+    slot: 'cell', bank: 'Cards',
+    correct: 'Correct. Second stage first: −2100 : 30 = −70 and three fifths of two hundred fifty is 150. Then −70 + 150 = 80.',
+    wrongSign: 'Look at the sign: −2100 divided by 30 gives a negative number. When adding numbers of different signs, the larger magnitude wins.',
+    wrongFrac: 'Work out three fifths of two hundred fifty: divide by five and multiply by three.',
+    wrongOther: 'In the first line the leftmost second-stage operation is worked out — the division. And in the third line the two previous results are added.',
+  },
+};
+
+export default function D01_07(props) {
+  const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
+  const t = T[lang] || T.uz;
+  const isReview = mode === 'review';
+  const [slots, setSlots] = useState([null, null, null]);
+  const [picked, setPicked] = useState(null);
+  const [fb, setFb] = useState(null);
+  const [checked, setChecked] = useState(false);
+
+  const locked = isReview || checked;
+  const used = slots.filter(Boolean);
+  const pool = CARDS.filter((c) => used.indexOf(c) === -1);
+  const full = slots.every(Boolean);
+
+  useEffect(() => {
+    const sa = initialAnswer?.studentAnswer;
+    if (sa?.slots) {
+      setSlots(sa.slots);
+      if (typeof initialAnswer.correct === 'boolean') { setFb({ correct: initialAnswer.correct }); setChecked(true); }
+    }
+  }, [initialAnswer]);
+  useEffect(() => { onReady?.(full && !checked); }, [full, checked, onReady]);
+
+  const tapSlot = (i) => {
+    if (locked) return;
+    if (picked) { setSlots((s) => { const n = s.slice(); n[i] = picked; return n; }); setPicked(null); return; }
+    if (slots[i]) setSlots((s) => { const n = s.slice(); n[i] = null; return n; });
+  };
+
+  const check = useCallback(() => {
+    const correct = slots.join('|') === ANSWER.join('|');
+    let why = 'wrongOther';
+    if (slots[0] === '70' || slots[2] === '220') why = 'wrongSign';
+    else if (slots[1] === '−150' || (slots[1] && slots[1] !== '150')) why = 'wrongFrac';
+    setFb({ correct, why }); setChecked(true);
+    correct ? playCorrect?.() : playWrong?.();
+    onSubmit?.({
+      questionText: t.ask, options: [],
+      studentAnswer: { slots: slots.slice() },
+      correctAnswer: { slots: ANSWER },
+      correct, meta: { tag: 'value_chain', level: '🔴' },
+    });
+  }, [slots, t, playCorrect, playWrong, onSubmit]);
+  useRegister(check, registerCheck);
+
+  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#cbd5e1';
+  const slotBox = (i) => (
+    <button type="button" disabled={locked} data-slot={i} onClick={() => tapSlot(i)}
+      style={{
+        minWidth: 74, height: 48, borderRadius: 10, margin: '0 4px',
+        border: '2px ' + (slots[i] ? 'solid' : 'dashed') + ' ' + (slots[i] ? bd : (picked ? '#fe5b1a' : '#cbd5e1')),
+        background: slots[i] ? '#fff' : (picked ? '#fff7f2' : '#f8fafc'),
+        fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: 24, fontWeight: 800,
+        color: '#1f2430', cursor: locked ? 'default' : 'pointer',
+      }}>
+      {slots[i] || ''}
+    </button>
+  );
+
+  return (
+    <div style={S.wrap}>
+      <div style={S.eyebrow}>{t.eyebrow}</div>
+      <p style={S.setup}>{t.setup}</p>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center', margin: '14px 0 10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
+          <Row tokens={LINES[0].before} size={26} />
+          {slotBox(0)}
+          <Row tokens={LINES[0].after} size={26} />
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
+          <Row tokens={['−70', '+']} size={26} />
+          {slotBox(1)}
+          <Row tokens={['=']} size={26} />
+          {slotBox(2)}
+        </div>
+      </div>
+
+      <p style={S.ask}>{t.ask}</p>
+      <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: 12 }}>
+        <div style={{ fontSize: 12, fontWeight: 800, color: '#9aa1ad', letterSpacing: '.04em', marginBottom: 8 }}>{t.bank.toUpperCase()}</div>
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', minHeight: 52, alignItems: 'center', flexWrap: 'wrap' }}>
+          {pool.length === 0 && <span style={{ fontSize: 13, color: '#cbd5e1', fontWeight: 700 }}>—</span>}
+          {pool.map((c) => (
+            <button key={c} type="button" disabled={locked} onClick={() => setPicked(picked === c ? null : c)}
+              style={{ minWidth: 70, height: 52, borderRadius: 12, border: '2px solid ' + (picked === c ? '#fe5b1a' : '#cbd5e1'), background: picked === c ? '#fff0e8' : '#fff', fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: 22, fontWeight: 800, color: '#1f2430', cursor: locked ? 'default' : 'pointer' }}>
+              {c}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {fb && <HFB ok={fb.correct} text={fb.correct ? t.correct : t[fb.why]} />}
+    </div>
+  );
+}

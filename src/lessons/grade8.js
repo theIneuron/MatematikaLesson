@@ -101,30 +101,23 @@ export const grade8Nazariy = [
   },
 ]
 
-// 8-sinf AMALIY mashg'ulotlari. Har nazariy darsga 10 tekshiriladigan
-// topshiriq. Amaliyot — 8-sinfda BAHO QO'YILADIGAN YAGONA joy
-// (ETALON_8SINF.md §13), shuning uchun topshiriqlar darsning HAMMA
-// tasdig'ini va HAMMA adashishini yopishi shart.
+// 8-sinf AMALIY mashg'ulotlari.
 //
-// JOYLASHUV (TIPLAR_AMALIYOT_8SINF.md §3, boshqa sinflardagi bilan bir xil):
-//   practice/PracticeHost.jsx          -- qobiq, sinfga bitta (makePractice)
-//   practice/kit.jsx                   -- tiplar, sinfga bitta
-//   practice/darsNN/DNN_01..10.jsx     -- bitta topshiriq = bitta fayl
-//   practice/darsNN/DarsNNPractice.jsx -- ro'yxat, reyestr shuni chaqiradi
-// Ya'ni darsga 11 jsx. Amaliyot ovozsiz ishlaydi.
+// 1-DARS AMALIYOTI — 7-SINFNING 1-DARS AMALIYOTIDAN AYNAN NUSXA (metodist
+// qarori 2026-08-21). Ko'chirilgan: `practice/kit.jsx`, `practice/frac.jsx`,
+// `practice/PracticeHost.jsx` va `practice/dars01/` ning o'n bir fayli.
+// Matematika ham hozircha 7-sinfning: sonli ifodalar, amallar tartibi.
+// Metodist nimani o'zgartirishni aytadi, shundan keyin bu 8-sinfning
+// amaliyoti bo'ladi.
 //
-// XATTI-HARAKAT (metodist qarori 2026-08-21): javob BIR marta tekshiriladi
-// va topshiriq yopiladi; razbor darrov chiqadi, «maslahat» tugmasi yo'q.
-// Ball birinchi urinish uchun: o'n topshiriq — o'n ball, ≥60% da o'tdi.
-//
-// HECH NARSA KO'CHIRILMAGAN: maydon va javobni baholash `math.jsx` dan,
-// kontrprimer va kasr renderi `core.jsx` dan, sonlar to'plami `tools.jsx`
-// dan olinadi. Dars nimani ishlatsa, amaliyot ham shuni ishlatadi.
+// DIQQAT: bu NUSXA, ya'ni CLAUDE.md §5 ga zid holat. Ikki sinfda bir xil
+// qatlam turadi va bitta nuqson ikki joyda tuzatiladi. Ataylab shunday
+// qilingan — boshlang'ich nuqta sifatida.
 export const grade8Amaliy = [
   {
     slug: 'dars01-amaliyot',
-    title: "Dars 1 amaliyoti — ratsional ifodalar va kasrlar (10 topshiriq)",
-    desc: "Yettita tip: qiymat, ikki zona, yechim satrlari, suratdagi nol, natija VA shart, teskari topshiriq, ikki maxraj, yozuvlar chegarasi, birinchi noto'g'ri satr, taqiq yo'q. Ball birinchi urinish uchun, UZ/RU/EN.",
+    title: 'Dars 1 amaliyoti — 10 topshiriq (7-sinf nusxasi)',
+    desc: "7-sinfning 1-dars amaliyotidan aynan nusxa: amallar tartibi, qavs, o'nli va oddiy kasrlar, manfiy sonlar, harfli ifodalar. O'nta xil mexanika, UZ/RU/EN. Metodist ko'rsatgandan keyin 8-sinfga moslashtiriladi.",
     Component: lazy(() => import('../components/grade8/practice/dars01/Dars01Practice.jsx')),
   },
 ]

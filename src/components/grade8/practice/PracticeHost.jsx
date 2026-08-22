@@ -1,214 +1,184 @@
-// ============================================================================
-// 8-SINF AMALIYOTINING QOBIG'I — SINFGA BITTA.
-// Kontrakt: src/books/grade8/TIPLAR_AMALIYOT_8SINF.md §4
-//
-// `makePractice({ META, ITEMS })` amaliyot komponentini qaytaradi — xuddi
-// `screens.jsx` dagi `makeLesson` kabi. Dars fayli faqat MA'LUMOT bo'ladi:
-// o'nta topshiriq ro'yxati va sarlavha.
-//
-// NIMA UCHUN BAHO SHU YERDA. Amaliyot — 8-sinfda BAHO QO'YILADIGAN YAGONA
-// joy (ETALON_8SINF.md §13). Ball BIRINCHI urinish uchun beriladi, ya'ni
-// hisob topshiriqning ichida emas, qobiqda turishi kerak: aks holda har
-// topshiriq o'z ballini o'zi hisoblardi va 550 joyda bir xil xato bo'lardi.
-//
-// XATTI-HARAKAT (metodist qarori 2026-08-21):
-//   1. «Tekshirish» BIR marta bosiladi, keyin topshiriq YOPILADI;
-//   2. razbor darrov chiqadi, «maslahat» tugmasi YO'Q.
-// Shuning uchun javob berilgan topshiriqqa qaytish TIRIK vidjetni emas,
-// YOZUVNI ko'rsatadi: qayta javob berish yo'li yopiq bo'lishi kerak.
-//
-// OVOZ YO'Q. Amaliyot jim ishlaydi; to'g'ri/xato signali — `useSfx`, ya'ni
-// darsdagi bilan bir xil (yangi dvijok yozilmagan).
-// ============================================================================
-// eslint-disable-next-line no-unused-vars -- LMS xom jsx ni KLASSIK rejimda yuklaydi
-import React, { useCallback, useMemo, useRef, useState } from 'react'
-import { L, LangProvider, Note, STYLES, tr, useMobileZoom } from '../core.jsx'
-import { MATH_STYLES } from '../math.jsx'
-import { TOOLS_STYLES } from '../tools.jsx'
-import { PRACTICE_STYLES } from './kit.jsx'
+/* eslint-disable react-refresh/only-export-components */
+// PracticeHost — LOKAL PREVIEW uchun platforma host'ini taqlid qiluvchi qobiq.
+// Maqsad: jsx-question kontraktidagi props'ni (onReady, registerCheck, onSubmit,
+// playCorrect/playWrong) berib, native "Tekshirish" tugmasini chiqarish — shunda
+// savolni local saytda alohida darslik sifatida sinab ko'rsa bo'ladi.
+// Ichida UZ/RU almashtirgich bor. Ozvuchka yo'q (faqat to'g'ri/noto'g'ri beep cue).
+// Faqat react importi; ikonkalar — inline SVG.
+
+import { useState, useRef, useCallback, useEffect } from 'react';
+
+// usePracticeZoom — amaliyot sahifasi uchun mobil yagona masshtab qatlami
+// (MOBIL_DESKTOP_MOSLASH.md, etalon kenglik 390px). <640px: root 390px kenglikda
+// joylashadi va real ekranga zoom bilan masshtablanadi; desktop: --pqz=1, tegilmaydi.
+export const PQ_MOBILE_W = 390;
+export function usePracticeZoom(breakpoint = 640) {
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const root = document.documentElement;
+    const apply = () => {
+      const z = window.innerWidth < breakpoint ? window.innerWidth / PQ_MOBILE_W : 1;
+      root.style.setProperty('--pqz', String(z));
+    };
+    apply();
+    window.addEventListener('resize', apply);
+    window.addEventListener('orientationchange', apply);
+    return () => {
+      window.removeEventListener('resize', apply);
+      window.removeEventListener('orientationchange', apply);
+      root.style.removeProperty('--pqz');
+    };
+  }, [breakpoint]);
+}
+
+const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
+const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
+const IconRetry = () => (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" /></svg>);
+
+// preview "to'g'ri/noto'g'ri" signal — qisqa beep (ovoz/narratsiya emas)
+function beep(ok) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.frequency.value = ok ? 880 : 220;
+    g.gain.value = 0.06;
+    o.start();
+    o.stop(ctx.currentTime + 0.12);
+  } catch { /* preview-only */ }
+}
 
 const UI = {
-  check: L('Tekshirish', 'Проверить', 'Check'),
-  next: L('Keyingisi', 'Дальше', 'Next'),
-  finish: L('Yakunlash', 'Завершить', 'Finish'),
-  score: L('ball', 'балл', 'points'),
-  yourAnswer: L('Sizning javobingiz', 'Твой ответ', 'Your answer'),
-  noAnswer: L('javob berilmagan', 'ответа нет', 'no answer'),
-  passed: L("O'tdi", 'Зачёт', 'Passed'),
-  failed: L("O'tmadi", 'Не зачтено', 'Not passed'),
-  again: L(
-    "Mavzuni qaytadan o'qib, amaliyotni yangidan boshlang.",
-    'Прочитай тему заново и пройди практику ещё раз.',
-    'Read the topic again and take the practice once more.',
-  ),
-  well: L(
-    'Mavzu qo\'lda. Keyingi darsga o\'tsa bo\'ladi.',
-    'Тема в руках. Можно идти на следующий урок.',
-    'The topic is in hand. You can move to the next lesson.',
-  ),
-}
+  uz: { check: 'Tekshirish', retry: 'Qayta urinish', correct: "To'g'ri", wrong: 'Maslahat' },
+  ru: { check: 'Проверить', retry: 'Заново', correct: 'Верно', wrong: 'Подсказка' },
+  en: { check: 'Check', retry: 'Try again', correct: 'Correct', wrong: 'Hint' },
+};
 
-const PASS = 0.6
+export default function PracticeHost({ Question, lang: langProp = 'uz', onLangChange, onReset, title, showLanguageSwitch = true }) {
+  const [lang, setLang] = useState(langProp);
+  // Platforma tilni almashtirsa, amaliyot ham almashadi.
+  useEffect(() => { setLang(langProp); }, [langProp]);
+  const [ready, setReady] = useState(false);
+  const [result, setResult] = useState(null);
+  const [qKey, setQKey] = useState(0);
+  const checkFnRef = useRef(null);
+  const previousLangRef = useRef(lang);
+  const rootRef = useRef(null);
+  const ui = UI[lang] || UI.uz;
+  const selectLanguage = (nextLang) => {
+    setLang(nextLang);
+    onLangChange?.(nextLang);
+  };
 
-export function makePractice({ META, ITEMS }) {
-  function Practice({ lang: langProp = 'uz', onFinished }) {
-    const lang = ['uz', 'ru', 'en'].indexOf(langProp) === -1 ? 'uz' : langProp
-    const t = useCallback((v) => tr(v, lang), [lang])
-    useMobileZoom()
+  const onReady = useCallback((v) => setReady(!!v), []);
+  const registerCheck = useCallback((fn) => { checkFnRef.current = fn; }, []);
+  const onSubmit = useCallback((res) => setResult(res || { correct: false }), []);
+  const playCorrect = useCallback(() => beep(true), []);
+  const playWrong = useCallback(() => beep(false), []);
 
-    const [idx, setIdx] = useState(0)
-    const [res, setRes] = useState({})          // idx -> { correct, studentAnswer, tag, level }
-    const [ready, setReady] = useState(false)
-    // Shu tashrifda tekshirilgan topshiriq. Kerak, chunki javobdan KEYIN
-    // ekranda RAZBOR turishi shart (metodist qarori 2026-08-21): agar host
-    // darrov yozuvga o'tsa, razbor ko'rinmay qoladi. Yozuv — QAYTGANDA.
-    const [checkedNow, setCheckedNow] = useState(null)
-    const [done, setDone] = useState(false)     // yakuniy ekran
-    const checkRef = useRef(null)
+  const reset = useCallback(() => {
+    setResult(null); setReady(false); checkFnRef.current = null;
+    setQKey((k) => k + 1);
+    onReset?.();
+  }, [onReset]);
 
-    const item = ITEMS[idx]
-    const answered = res[idx] !== undefined
-    const total = ITEMS.length
-    const score = Object.keys(res).filter((k) => res[k].correct).length
-    const allAnswered = Object.keys(res).length === total
-
-    // Tip hostga o'z tekshiruvini beradi; javob berilgan topshiriqda
-    // vidjet yo'q, ya'ni tekshiruv ham yo'q.
-    const registerCheck = useCallback((fn) => { checkRef.current = fn }, [])
-    const onReady = useCallback((v) => setReady(!!v), [])
-    const onSubmit = useCallback((r) => {
-      setRes((prev) => (prev[idx] !== undefined ? prev : { ...prev, [idx]: r }))
-    }, [idx])
-
-    // Topshiriq almashganda tayyorlik va tekshiruv nolga tushadi. Bu EFFEKTDA
-    // qilinmaydi: bola effekti ota effektidan OLDIN ishlaydi, ya'ni effekt
-    // birinchi montajda topshiriq allaqachon bergan tekshiruvni o'chirib
-    // tashlardi va «Tekshirish» hech narsa qilmasdi (topildi stendda).
-    const goTo = (i) => {
-      checkRef.current = null
-      setReady(false)
-      setDone(false)
-      setCheckedNow(null)
-      setIdx(i)
+  // Faqat til haqiqatan o'zgarganda savolni qayta yuklaymiz. Dastlabki mountda
+  // reset qilish tez tanlangan javobdan keyin `ready` holatini bekor qilar edi.
+  useEffect(() => {
+    if (previousLangRef.current !== lang) {
+      previousLangRef.current = lang;
+      reset();
     }
+  }, [lang, reset]);
 
-    const press = () => {
-      if (!answered) { checkRef.current?.(); setCheckedNow(idx); return }
-      if (idx + 1 < total) { goTo(idx + 1); return }
-      finish()
-    }
+  // Javob tanlangan zahoti "Tekshirish" bosilsa ham savolning eng yangi
+  // holati ro'yxatdan o'tishga ulgurishi uchun tekshiruvni navbatdagi tickda bajaramiz.
+  const runCheck = () => {
+    window.setTimeout(() => checkFnRef.current?.(), 0);
+  };
 
-    const finish = () => {
-      setDone(true)
-      const answers = ITEMS.map((it, i) => ({
-        n: i + 1,
-        tag: res[i] ? res[i].tag : it.tag,
-        level: it.level,
-        correct: res[i] ? !!res[i].correct : false,
-      }))
-      onFinished?.({
-        lessonId: META.id,
-        lessonTitle: META.topic,
-        topic: tr(META.topic, lang),
-        totalQuestions: total,
-        correctAnswers: score,
-        scorePercent: Math.round((score / total) * 100),
-        finalScore: score,
-        finalTotal: total,
-        passed: score / total >= PASS,
-        answers,
-      })
-    }
+  const chip = (active) => ({
+    padding: '6px 12px', borderRadius: 999, fontSize: 13, fontWeight: 700, cursor: 'pointer',
+    border: '1.5px solid ' + (active ? '#fe5b1a' : '#d6dae3'),
+    background: active ? '#fe5b1a' : '#fff', color: active ? '#fff' : '#374151',
+    fontFamily: "'Manrope', system-ui, sans-serif",
+  });
+  const btnBase = { padding: '14px 22px', fontSize: 17, fontWeight: 700, borderRadius: 14, fontFamily: "'Manrope', system-ui, sans-serif" };
 
-    const btnLabel = !answered ? UI.check : (idx + 1 < total ? UI.next : UI.finish)
-    const btnOn = !answered ? ready : true
+  // Razbor ekranga sig'masa, o'quvchi uni qidirib skrollamasin: natija
+  // chiqqan zahoti skroll pastga suriladi. Topshiriqning yuqori qismi
+  // (mavzu, shart) ketadi, yozuv va javob esa ko'rinib turadi.
+  useEffect(() => {
+    if (!result) return;
+    // Ba'zi topshiriqlarda javobdan keyin animatsiya balandlikni O'STIRADI
+    // (02 dagi qatorlarning yig'ilishi), shuning uchun ikkinchi surish kerak.
+    const go = () => {
+      let sc = rootRef.current?.parentElement;
+      while (sc && sc.scrollHeight <= sc.clientHeight + 2) sc = sc.parentElement;
+      if (sc) sc.scrollTo({ top: sc.scrollHeight, behavior: 'smooth' });
+    };
+    go();
+    const t = setTimeout(go, 700);
+    return () => clearTimeout(t);
+  }, [result]);
 
-    const Q = item.C
-    const body = useMemo(() => (Q ? <Q onReady={onReady} registerCheck={registerCheck} onSubmit={onSubmit} /> : null),
-      // Til almashsa ham, topshiriq almashsa ham — yangi nusxa.
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      [idx, lang])
+  return (
+    <div ref={rootRef} style={{ display: 'flex', flexDirection: 'column', minHeight: '78vh', maxWidth: 680, margin: '0 auto', width: '100%' }}>
+      {(title || showLanguageSwitch) && (
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 8, padding: '4px 12px',
+        borderBottom: '1px solid #eef0f4', fontFamily: "'Manrope', system-ui, sans-serif",
+      }}>
+        <strong style={{ fontSize: 13, color: '#6b7280', flex: 1 }}>
+          {(title && typeof title === 'object' ? title[lang] : title) || ''}
+        </strong>
+        {showLanguageSwitch && (
+          <>
+            <button type="button" style={chip(lang === 'uz')} onClick={() => selectLanguage('uz')}>UZ</button>
+            <button type="button" style={chip(lang === 'ru')} onClick={() => selectLanguage('ru')}>RU</button>
+          </>
+        )}
+      </div>
+      )}
 
-    return (
-      <LangProvider value={lang}>
-        <style>{STYLES}{MATH_STYLES}{TOOLS_STYLES}{PRACTICE_STYLES}</style>
-        <div className="pq-root">
-          <div className="pq-top">
-            <div className="pq-head">
-              <span className="pq-title">{t(META.topic)}</span>
-              <span className="pq-score">{score} / {total} {t(UI.score)}</span>
-            </div>
-            <div className="pq-chips">
-              {ITEMS.map((it, i) => {
-                let cls = 'pq-tab'
-                if (res[i] !== undefined) cls += res[i].correct ? ' is-ok' : ' is-no'
-                if (i === idx && !done) cls += ' is-now'
-                return (
-                  <button
-                    type="button"
-                    key={it.id}
-                    className={cls}
-                    data-tab={it.id}
-                    onClick={() => goTo(i)}
-                  >
-                    {i + 1}
-                  </button>
-                )
-              })}
-            </div>
+      <div style={{ flex: 1, padding: '10px 12px 28px' }}>
+        <Question
+          key={qKey + '-' + lang}
+          lang={lang}
+          mode="answer"
+          initialAnswer={null}
+          onReady={onReady}
+          registerCheck={registerCheck}
+          onSubmit={onSubmit}
+          playCorrect={playCorrect}
+          playWrong={playWrong}
+          studentName="O'quvchi"
+        />
+      </div>
+
+      <div style={{
+        position: 'sticky', bottom: 0, padding: '9px 12px', background: 'linear-gradient(rgba(255,247,237,0),#fff7ed 28%)',
+        display: 'flex', gap: 10, alignItems: 'center', justifyContent: 'center',
+      }}>
+        {result && (
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 700, color: result.correct ? '#1a7f43' : '#c0392b' }}>
+            {result.correct ? <IconOk /> : <IconNo />}
+            {result.correct ? ui.correct : ui.wrong}
           </div>
-
-          <div className="pq-body">
-            {done ? (
-              <div className="pq-final">
-                <div className="pq-final-n">{score} / {total}</div>
-                <div className="pq-final-t">
-                  {score / total >= PASS ? t(UI.passed) : t(UI.failed)}
-                </div>
-                <Note kind={score / total >= PASS ? 'ok' : 'no'}>
-                  {score / total >= PASS ? t(UI.well) : t(UI.again)}
-                </Note>
-              </div>
-            ) : answered && checkedNow !== idx ? (
-              // Javob berilgan topshiriq: YOZUV, tirik vidjet emas.
-              <div className="pq-wrap">
-                <div className="pq-eyebrow">{t(item.label)}</div>
-                <div className="pq-said">
-                  <span className="pq-said-lbl">{t(UI.yourAnswer)}</span>
-                  <span className="pq-said-v">{showAnswer(res[idx].studentAnswer, t)}</span>
-                </div>
-                <Note kind={res[idx].correct ? 'ok' : 'no'}>
-                  {res[idx].feedback ? t(res[idx].feedback) : t(res[idx].correct ? UI.well : UI.again)}
-                </Note>
-              </div>
-            ) : body}
-          </div>
-
-          <div className="pq-foot">
-            {allAnswered && !done ? (
-              <button type="button" className="pq-btn pq-btn-2" onClick={finish}>{t(UI.finish)}</button>
-            ) : null}
-            {!done ? (
-              <button type="button" className="pq-btn" disabled={!btnOn} onClick={press} data-go="1">
-                {t(btnLabel)}
-              </button>
-            ) : null}
-          </div>
-        </div>
-      </LangProvider>
-    )
-  }
-  return Practice
-}
-
-// O'quvchi yozgani: satr, son, kartalar ro'yxati yoki zonalar jadvali.
-function showAnswer(a, t) {
-  if (a === null || a === undefined || a === '') return t(UI.noAnswer)
-  if (a === 'none') return t(L("taqiq yo'q", 'запрета нет', 'no restriction'))
-  if (Array.isArray(a)) return a.map((x) => (x === '' ? '—' : x)).join('   ·   ')
-  if (typeof a === 'object') {
-    if (a.row !== undefined) return String(a.row) + '   ·   ' + (a.num || '—')
-    return Object.keys(a).map((k) => k + ' → ' + a[k]).join('   ·   ')
-  }
-  return String(a)
+        )}
+        {!result ? (
+          <button type="button" disabled={!ready} onClick={runCheck}
+            style={{ ...btnBase, minWidth: 200, border: 'none', cursor: ready ? 'pointer' : 'not-allowed', color: '#fff', background: ready ? '#fe5b1a' : '#c2c8d2' }}>
+            {ui.check}
+          </button>
+        ) : (
+          <button type="button" onClick={reset}
+            style={{ ...btnBase, fontSize: 16, display: 'inline-flex', alignItems: 'center', gap: 8, border: '1.5px solid #d6dae3', background: '#fff', color: '#374151', cursor: 'pointer' }}>
+            <IconRetry /> {ui.retry}
+          </button>
+        )}
+      </div>
+    </div>
+  );
 }
