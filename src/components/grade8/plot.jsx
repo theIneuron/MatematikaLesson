@@ -20,7 +20,8 @@
 
 // eslint-disable-next-line no-unused-vars -- LMS грузит сырой jsx в КЛАССИЧЕСКОМ режиме
 import React, { useMemo, useRef, useState } from 'react'
-import { Ask, L, MATH_FONT, Note, Slot, T, fmt, useInstructionGate, useSfx, useT } from './core.jsx'
+import { Ask, Frac, L, MATH_FONT, Note, Slot, T, fmt, useInstructionGate, useSfx, useT } from './core.jsx'
+import { MathField, useIsPhone } from './math.jsx'
 
 const TXT = {
   tapHere: L("Javobni chizmada belgilang", 'Отметь ответ на чертеже', 'Mark the answer on the plot'),
@@ -126,7 +127,7 @@ function ticksOf(from, to, step) {
 // 3. КАДР: оси, сетка, деления, кривые, точки
 // ============================================================
 function Canvas({
-  sc, h, fns, holes, points, xLabel, yLabel, grid = true, band, extra, onTap, tappable,
+  sc, h, fns, holes, points, xLabel, yLabel, grid = true, band, extra, onTap, tappable, still,
 }) {
   const ref = useRef(null)
   const ax = Math.min(Math.max(sc.px(0), sc.left), sc.right)
@@ -208,9 +209,23 @@ function Canvas({
         )))}
       </g>
 
+      {/* ЧЕРТЁЖ РИСУЕТСЯ НА ГЛАЗАХ (DINAMIKA_VA_ILLUSTRATSIYA.md §2, долг
+          эталона §18 п. 9). `pathLength="1"` нормирует длину, и одна анимация
+          работает на ветке любой длины.
+          РОДСТВЕННЫЕ КРИВЫЕ НЕ ПОЯВЛЯЮТСЯ ОДНОВРЕМЕННО: задержка растёт с
+          номером кривой, вторая начинается после первой. Ветки ОДНОЙ кривой
+          (гипербола) рисуются вместе — это один объект, а не две кривые. */}
       {(fns || []).map((item, i) => (
         <g key={'f' + i} className={'g8-pl-line tone-' + (item.tone || 'accent')}>
-          {pathsOf(item.f, sc, item.steps).map((d, k) => <path key={k} d={d} />)}
+          {pathsOf(item.f, sc, item.steps).map((d, k) => (
+            <path
+              key={k}
+              d={d}
+              pathLength="1"
+              className={still ? undefined : 'g8-pl-draw'}
+              style={still ? undefined : { animationDelay: (0.15 + i * 0.75) + 's' }}
+            />
+          ))}
         </g>
       ))}
 
@@ -404,7 +419,7 @@ export function ParamPlot({
   return (
     <>
       <div className="g8-pl">
-        <Canvas sc={sc} h={h} fns={fns} xLabel={xLabel} yLabel={yLabel} grid={grid}/>
+        <Canvas sc={sc} h={h} fns={fns} xLabel={xLabel} yLabel={yLabel} grid={grid} still/>
       </div>
 
       {formula ? (
@@ -454,7 +469,7 @@ export function ParamPlot({
         </div>
       ) : null}
 
-      <Slot mh={58}>
+      <Slot mh={48}>
         <Note kind={locked ? 'ok' : 'no'}>{note ? t(note) : null}</Note>
       </Slot>
     </>
@@ -507,12 +522,264 @@ export function DragPoint({
 }
 
 // ============================================================
+// 9. FourWindows — ЧЕТЫРЕ ОКНА ОДНОЙ ЗАВИСИМОСТИ (эталон §7.3).
+//
+//   условие словами · формула · таблица · график
+//
+// Связь между окнами ОДНА — коэффициент k. Ученик заполняет то окно, которое
+// просит задание, и в этот же миг пересчитываются остальные три: формула
+// получает число, таблица считается, график рисуется. Задание всегда одной
+// формы: «дано вот это окно — заполни вот то», в любую сторону.
+//
+// ПОЧЕМУ ЧЕТЫРЁХ ОКОН НЕ ВИДНО ЦЕЛИКОМ В ПОЛНЫЙ РОСТ. Бюджет экрана 400
+// пикселей (§11), и график в полный рост (196) с тремя окнами над ним туда не
+// встаёт. Поэтому окна здесь компактные, а график 140-150: он ОДНО из четырёх
+// окон, а не содержание экрана. Там, где график и есть содержание, стоит
+// `Plot` в полный рост.
+//
+// Прибор — контролёр: он не подписывает ответ и не показывает k, пока ученик
+// его не назвал. До ответа в пустых окнах стоит знак вопроса.
+//
+// props:
+//   k         — верное значение связи;
+//   text      — окно «условие», в тексте место числа помечено {k};
+//   xs        — какие x стоят в таблице;
+//   given     — какое окно ДАНО: 'text' | 'table' | 'plot';
+//   holeAt    — при `given: table` значение при этом x спрятано;
+//   answer    — что вводит ученик: 'k' | 'y';
+//   hints     — разбор по введённому числу, ключ — само число;
+//   titles    — подписи четырёх окон.
+// ============================================================
+export function FourWindows({
+  k, text, xs = [1, 2, 3, 4, 6], given = 'table', holeAt, answer = 'k',
+  ask, hints, after, titles, unit,
+  from = -7, to = 7, yFrom = -7, yTo = 7, h = 104, hPhone = 64,
+  onSolved, audio,
+}) {
+  const t = useT()
+  const sfx = useSfx()
+  const canAnswer = useInstructionGate(audio)
+  // На телефоне четыре окна идут КОЛОНКОЙ, и график должен быть ниже: иначе
+  // четвёрка выходит за рабочую зону 587 (замер 2026-08-20). Высота приходит
+  // из прибора, а не из медиазапроса: `meet` ужимает кадр целиком, и потолком
+  // в vh чертёж делается не ниже, а мельче.
+  const phone = useIsPhone()
+  const ph = phone ? hPhone : h
+  const [val, setVal] = useState('')
+  const [known, setKnown] = useState(false)
+  const [note, setNote] = useState(null)
+  const [tries, setTries] = useState(0)
+
+  const sc = useMemo(
+    () => makeScale({ from, to, yFrom, yTo, h: ph }),
+    [from, to, yFrom, yTo, ph],
+  )
+
+  // Что видно ДО ответа: только то окно, которое дано. Остальные ждут.
+  const showText = known || given === 'text'
+  const showTable = known || given === 'table'
+  const showPlot = known || given === 'plot'
+  const want = answer === 'k' ? k : k / holeAt
+
+  const submit = () => {
+    if (known) return
+    const n = Number(String(val).replace(',', '.'))
+    if (!Number.isFinite(n)) return
+    if (Math.abs(n - want) < 1e-9) {
+      setKnown(true)
+      setNote(after || null)
+      sfx.playCorrect()
+      if (audio && after) audio.say(t(after))
+      if (onSolved) onSolved({ correct: true, tries: tries + 1 })
+      return
+    }
+    setTries((x) => x + 1)
+    const key = fmt(n)
+    const hint = (hints && (hints[key] || hints['*'])) || null
+    setNote(hint)
+    sfx.playWrong()
+    if (audio && hint) audio.say(t(hint))
+  }
+
+  const head = (id) => (titles && titles[id] ? t(titles[id]) : '')
+  const cell = (x) => {
+    if (!showTable && !known) return '?'
+    if (!known && holeAt !== undefined && Math.abs(x - holeAt) < 1e-9) return '?'
+    const y = k / x
+    return fmt(Math.round(y * 1000) / 1000)
+  }
+
+  return (
+    <>
+      <div className="g8-fw">
+        {/* ОКНО 1. Условие словами. Число появляется, когда его назвали. */}
+        <div className={'g8-fw-box' + (given === 'text' ? ' is-given' : '')}>
+          <span className="g8-fw-h">{head('text')}</span>
+          <span className="g8-fw-text">
+            {String(t(text)).replace('{k}', showText ? fmt(k) : '?')}
+          </span>
+        </div>
+
+        {/* ОКНО 2. Формула. Меняющийся коэффициент выделен акцентом. */}
+        <div className="g8-fw-box">
+          <span className="g8-fw-h">{head('formula')}</span>
+          <span className="g8-fw-form" style={{ fontFamily: MATH_FONT }}>
+            {'y = '}
+            {/* Дробь в МАЛОМ кегле: в полный рост она поднимала первую строку
+                окон до 109 пикселей, а вся четвёрка не влезала в бюджет. */}
+            <Frac size="sm" num={<span className="is-live">{known ? fmt(k) : '?'}</span>} den="x" />
+            {unit ? <span className="g8-fw-text">{'  ' + t(unit)}</span> : null}
+          </span>
+        </div>
+
+        {/* ОКНО 3. Таблица. Значения считаются, а не берутся из данных урока. */}
+        <div className={'g8-fw-box' + (given === 'table' ? ' is-given' : '')}>
+          <span className="g8-fw-h">{head('table')}</span>
+          <div className="g8-fw-tab" style={{ fontFamily: MATH_FONT }}>
+            <div className="g8-fw-row">
+              <span className="g8-fw-cell is-head">x</span>
+              {xs.map((x) => <span key={'x' + x} className="g8-fw-cell is-head">{fmt(x)}</span>)}
+            </div>
+            <div className="g8-fw-row">
+              <span className="g8-fw-cell is-head">y</span>
+              {xs.map((x) => {
+                const v = cell(x)
+                return (
+                  <span
+                    key={'y' + x}
+                    className={'g8-fw-cell' + (v === '?' ? ' is-hole' : (known ? ' is-new' : ''))}
+                  >
+                    {v}
+                  </span>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* ОКНО 4. График. Кривая строится ИЗ функции и рисуется на глазах. */}
+        <div className={'g8-fw-box is-plot' + (given === 'plot' ? ' is-given' : '')}>
+          <span className="g8-fw-h">{head('plot')}</span>
+          {showPlot ? (
+            <Canvas sc={sc} h={ph} fns={[{ f: (x) => (x === 0 ? null : k / x) }]}
+              xLabel="x" yLabel="y" grid/>
+          ) : (
+            <Canvas sc={sc} h={ph} fns={[]} xLabel="x" yLabel="y" grid/>
+          )}
+        </div>
+      </div>
+
+      {/* Слоты плотные: четыре окна и без того забирают 320 пикселей на
+          телефоне, а вопрос здесь короткий по контракту. */}
+      <Slot mh={32}>
+        <Ask>{t(ask)}</Ask>
+      </Slot>
+
+      <Slot mh={44}>
+        {!known && canAnswer ? (
+          <MathField kind="number" value={val} onChange={setVal} onSubmit={submit} width={78}/>
+        ) : null}
+      </Slot>
+
+      <Slot mh={44}>
+        <Note kind={known ? 'ok' : 'no'}>{note ? t(note) : null}</Note>
+      </Slot>
+    </>
+  )
+}
+
+// ============================================================
+// 10. HyperFig — ЖИВОЙ ОБЪЕКТ ДЛЯ ЛЕНТЫ КАДРОВ: гипербола собирается.
+//
+// Один объект, четыре состояния (§8): пустая плоскость, точки таблицы сели,
+// ветви прорисовались, ось y отмечена как запрет. Именно так чертёж
+// СТРОИТСЯ НА ГЛАЗАХ, а не появляется готовым.
+//
+// Регистрируется в реестре фигур `tools.jsx` под именем `hyper`, поэтому в
+// данных урока стоит строка, а не JSX.
+//   data: { k, xs }
+// ============================================================
+export function HyperFig({ data, phase }) {
+  const k = data.k
+  const xs = data.xs || [1, 2, 3, 6]
+  const h = data.h || 150
+  const lim = data.lim || 7
+  const sc = useMemo(
+    () => makeScale({ from: -lim, to: lim, yFrom: -lim, yTo: lim, h }),
+    [lim, h],
+  )
+  // Точки СИММЕТРИЧНЫ: вторая ветвь получается из первой, как в учебнике
+  // (§7, стр. 35, пункт 5). Точки за кадром не рисуются.
+  const pts = []
+  if (phase >= 1) {
+    for (const x of xs) {
+      for (const sgn of [1, -1]) {
+        const px = sgn * x
+        const py = k / px
+        if (Math.abs(py) <= lim) pts.push({ x: px, y: py, tone: 'graph' })
+      }
+    }
+  }
+  const fns = phase >= 2 ? [{ f: (x) => (x === 0 ? null : k / x) }] : []
+  return (
+    <div className="g8-pl">
+      <Canvas
+        sc={sc}
+        h={h}
+        fns={fns}
+        points={pts}
+        xLabel="x"
+        yLabel="y"
+        grid
+        extra={phase >= 3 ? (
+          <g className="g8-pl-asym">
+            <line x1={sc.px(0)} y1={sc.top} x2={sc.px(0)} y2={sc.bottom} />
+            <text x={sc.px(0) + 6} y={sc.bottom - 4} style={{ fontFamily: MATH_FONT }}>x &#8800; 0</text>
+          </g>
+        ) : null}
+      />
+    </div>
+  )
+}
+
+// ============================================================
 // 8. CSS
 // ВНИМАНИЕ: строка шаблонная. Обратная кавычка или обратный слэш внутри неё —
 // даже в комментарии — дают белую страницу без объяснения причины.
 // ============================================================
 export const PLOT_STYLES = `
 .g8-pl { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+/* Кривая ВЫХОДИТ ИЗ НАЧАЛА, а не появляется готовой. */
+.g8-pl-draw { stroke-dasharray: 1; stroke-dashoffset: 1;
+  animation: g8-pl-draw 900ms ease-out forwards; }
+@keyframes g8-pl-draw { to { stroke-dashoffset: 0; } }
+
+/* ЧЕТЫРЕ ОКНА. На ноутбуке два столбца, на телефоне один: рабочая зона там
+   узкая, и таблица с графиком рядом не читаются. */
+.g8-fw { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 100%; }
+.g8-fw-box { background: ${T.paper}; border-radius: 14px; padding: 7px 10px;
+  box-shadow: inset 0 0 0 1px ${T.line}; min-width: 0; display: flex;
+  flex-direction: column; gap: 3px; }
+.g8-fw-box.is-given { box-shadow: inset 0 0 0 2px rgba(${T.graphRgb},.5);
+  background: ${T.graphSoft}; }
+/* График СТОИТ РЯДОМ С ТАБЛИЦЕЙ, а не под ней: во второй строке иначе
+   остаётся пустая клетка, и четыре окна вырастают на 145 пикселей — на
+   ноутбуке это ровно то, чего не хватает до фолда (замер 2026-08-20). */
+.g8-fw-box.is-plot { justify-content: center; }
+.g8-fw-h { font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: ${T.ink3};
+  font-weight: 700; }
+.g8-fw-text { font-size: 12.5px; line-height: 1.3; color: ${T.ink2}; }
+.g8-fw-form { font-size: 19px; color: ${T.ink}; text-align: center; }
+.g8-fw-form .is-live { color: ${T.accent}; font-weight: 600; }
+.g8-fw-tab { display: grid; gap: 2px; }
+.g8-fw-row { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 2px; align-items: center; }
+.g8-fw-cell { text-align: center; font-size: 13.5px; padding: 1px 0; border-radius: 5px;
+  background: rgba(${T.graphRgb},.08); color: ${T.ink}; }
+.g8-fw-cell.is-head { color: ${T.ink3}; font-style: italic; background: transparent; }
+.g8-fw-cell.is-hole { background: rgba(${T.accentRgb},.14); color: ${T.accent}; font-weight: 700; }
+.g8-fw-cell.is-new { animation: g8-pl-cell 420ms ease both; }
+@keyframes g8-pl-cell { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+
 /* Высота графика ОТЗЫВЧИВАЯ. viewBox задаёт запас, а потолок в vh ужимает
    чертёж целиком на тесном экране: на ноутбуке 1366 на 615 рабочая зона
    487 px, и график в полный рост выбивал экран за фолд (замер 2026-08-15).
@@ -520,7 +787,8 @@ export const PLOT_STYLES = `
    (preserveAspectRatio meet), поэтому высокий viewBox под низким потолком
    ужимает чертёж и по ширине — график становится уже и мельче, а не выше.
    Потолок здесь — страховка на тесном экране, а не способ задать размер. */
-.g8-plotc { width: 100%; display: block; touch-action: manipulation; max-height: 10vh; }
+.g8-plotc { width: auto; max-width: 100%; display: block; margin: 0 auto;
+  touch-action: manipulation; max-height: min(210px, 34vh); }
 .g8-plotc.is-tappable { cursor: crosshair; }
 
 .g8-pl-grid line { stroke: rgba(${T.graphRgb},.16); stroke-width: 1; }
@@ -543,7 +811,14 @@ export const PLOT_STYLES = `
 .g8-pl-dot.tone-accent circle { fill: ${T.accent}; } .g8-pl-dot.tone-accent text { fill: ${T.accent}; }
 .g8-pl-dot.tone-ok circle     { fill: ${T.ok}; }     .g8-pl-dot.tone-ok text     { fill: ${T.ok}; }
 .g8-pl-dot.tone-tip circle    { fill: ${T.tip}; }    .g8-pl-dot.tone-tip text    { fill: ${T.tip}; }
+/* Точки таблицы — цветом слоя проверки: они ДАННЫЕ, а не результат. Без этого
+   правила они рисовались чёрным по умолчанию браузера. */
+.g8-pl-dot.tone-graph circle  { fill: ${T.graph}; }  .g8-pl-dot.tone-graph text  { fill: ${T.graph}; }
 .g8-pl-guide line { stroke: ${T.ink3}; stroke-width: 1.2; stroke-dasharray: 3 3; }
+/* Ось y как ЗАПРЕТ: в нуле у графика точки нет, и это видно линией, а не
+   словом. Цвет амбер — тот же, которым помечается неверная попытка и таqiq. */
+.g8-pl-asym line { stroke: ${T.tip}; stroke-width: 2; stroke-dasharray: 5 4; }
+.g8-pl-asym text { fill: ${T.tip}; font-size: 12px; font-weight: 700; }
 
 .g8-pl-cap  { margin: 0; font-size: 12.5px; color: ${T.ink2}; text-align: center; }
 .g8-pl-read { margin: 2px 0 0; font-size: 15px; color: ${T.ink}; letter-spacing: .02em; }
@@ -573,6 +848,18 @@ export const PLOT_STYLES = `
 .g8-pl-opts { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 4px; }
 
 @media (max-width: 640px) {
+  /* Телефон: одна колонка. Таблица и график рядом на 390 не читаются.
+     Окна плотнее: на 390 четвёрка забирает 320 пикселей из 587, и вместе с
+     карточкой способа экран практики выходит за фолд (замер 2026-08-20). */
+  /* На 390 условие и формула встают РЯДОМ (они короткие), а таблица и график
+     остаются на всю ширину: там читаются цифры и кривая. Одна колонка на все
+     четыре окна забирала 320 пикселей из 587, две строки — 220. */
+  .g8-fw { grid-template-columns: 1fr 1fr; gap: 5px; }
+  .g8-fw-box:nth-child(3), .g8-fw-box:nth-child(4) { grid-column: 1 / -1; }
+  .g8-fw-box { padding: 5px 8px; gap: 2px; }
+  .g8-fw-text { font-size: 11.5px; line-height: 1.25; }
+  .g8-fw-h { font-size: 9px; letter-spacing: .1em; }
+  .g8-fw-form { font-size: 17px; }
   .g8-pl-form { font-size: 18px; }
   .g8-pl-read { font-size: 14px; }
   .g8-pl-opts { flex-direction: column; }

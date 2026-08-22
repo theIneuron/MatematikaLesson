@@ -224,6 +224,22 @@ const ROW_NUM = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'a', 'b', 'x'
 const ROW_OP = ['+', '-', '*', '/', '(', ')', '^', 'sqrt(', 'abs(', '!=']
 
 const Keyboard = ({ kind, onKey, onBack }) => (
+  // СОН uchun BITTA qator: raqamlar, minus va o'chirish. Ikkinchi qator faqat
+  // minusni ushlab turardi va 55 piksel egallardi (2026-08-20 o'lchovi).
+  kind === 'number' ? (
+    <div className="g8-kb">
+      <div className="g8-kb-row is-num">
+        {/* FAQAT RAQAMLAR. Ilgari bu qatorda harflar ham turardi (`ROW_NUM`
+            ichida a, b, x, y, n bor), ya'ni son so'ralgan joyda o'quvchiga
+            harf tugmasi taklif qilinardi (2026-08-20, stendda ko'rindi). */}
+        {ROW_NUM.filter((k) => /^[0-9]$/.test(k)).map((k) => (
+          <button type="button" key={k} className="g8-key" onClick={() => onKey(k)}>{k}</button>
+        ))}
+        <button type="button" key="minus" className="g8-key" onClick={() => onKey('-')}>-</button>
+        <button type="button" className="g8-key g8-key-w" onClick={onBack}>⌫</button>
+      </div>
+    </div>
+  ) : (
   <div className="g8-kb">
     <div className="g8-kb-row">
       {ROW_NUM.map((k) => (
@@ -231,7 +247,7 @@ const Keyboard = ({ kind, onKey, onBack }) => (
       ))}
     </div>
     <div className="g8-kb-row">
-      {ROW_OP.filter((k) => kind !== 'number' || k === '-').map((k) => (
+      {ROW_OP.map((k) => (
         <button type="button" key={k} className="g8-key" onClick={() => onKey(k)}>
           {k === 'sqrt(' ? '√(' : k === 'abs(' ? '|(' : k === '!=' ? '≠' : k}
         </button>
@@ -239,6 +255,7 @@ const Keyboard = ({ kind, onKey, onBack }) => (
       <button type="button" className="g8-key g8-key-w" onClick={onBack}>⌫</button>
     </div>
   </div>
+  )
 )
 
 export const MATH_STYLES = `
@@ -337,4 +354,8 @@ export const MATH_STYLES = `
 }
 .g8-key:active { background: ${T.accentSoft}; box-shadow: inset 0 0 0 1px rgba(${T.accentRgb},.4); }
 .g8-key-w { min-width: 38px; }
+/* SON KLAVIATURASI: o'n ikki tugma BIR qatorda. 390 px da keng tugmalar
+   ikkinchi qatorga o'tib ketardi va 64 piksel egallardi (2026-08-20). */
+.g8-kb-row.is-num .g8-key { min-width: 25px; padding: 0 2px; }
+.g8-kb-row.is-num .g8-key-w { min-width: 30px; }
 `

@@ -40,10 +40,15 @@ const TXT = {
 }
 
 // ============================================================
-// ЧИСЛОВАЯ ПРЯМАЯ. Множество: { lt } { le } { gt } { ge } { point } { none }
-// { all } { between: [a, b] }. Закрашенное лежит НА самой оси толстой линией,
-// точка на границе — пустая или полная, и это единственный способ показать
-// разницу между строгим и нестрогим знаком.
+// ЧИСЛОВАЯ ПРЯМАЯ. Множество: { lt } { le } { gt } { ge } { point } { points }
+// { none } { all } { between: [a, b] }. Закрашенное лежит НА самой оси толстой
+// линией, точка на границе — пустая или полная, и это единственный способ
+// показать разницу между строгим и нестрогим знаком.
+//
+// `points: [a, b, ...]` — БЛОК Б3 (квадратные уравнения). У квадратного
+// уравнения корней обычно два, и это не луч и не интервал — это две отдельные
+// точки без закраски между ними. `point` (единственное число) остаётся для
+// одного корня, `points` для двух и больше.
 // ============================================================
 const VB = 420
 const AX = 34
@@ -56,9 +61,11 @@ function Line({ from = -6, to = 6, set, flash }) {
   const s = set || {}
   let band = null
   let dot = null
+  let dots = null
   let open = true
   if (s.none) band = null
   else if (s.all) band = [from, to]
+  else if (s.points) dots = s.points
   else if (s.lt !== undefined) { band = [from, s.lt]; dot = s.lt }
   else if (s.le !== undefined) { band = [from, s.le]; dot = s.le; open = false }
   else if (s.gt !== undefined) { band = [s.gt, to]; dot = s.gt }
@@ -86,6 +93,9 @@ function Line({ from = -6, to = 6, set, flash }) {
       {dot !== null && dot !== undefined ? (
         <circle cx={px(dot)} cy={AX} r="5.5" className={'g8-ts-dot' + (open ? ' is-open' : '')}/>
       ) : null}
+      {dots ? dots.map((v, i) => (
+        <circle key={'d' + i} cx={px(v)} cy={AX} r="5.5" className="g8-ts-dot"/>
+      )) : null}
       {s.none ? (
         <text x={VB / 2} y={AX - 12} textAnchor="middle" fontFamily={MATH_FONT}
           fontSize="12" className="g8-ts-word">{'∅'}</text>

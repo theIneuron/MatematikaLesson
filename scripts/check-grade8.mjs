@@ -28,7 +28,11 @@ import fs from 'node:fs'
 import path from 'node:path'
 import vm from 'node:vm'
 import { createRequire } from 'node:module'
-import { checkIdentity, checkOdz, domainHoles } from '../src/components/grade8/mathcore.js'
+import { checkIdentity, checkOdz, domainHoles, valueAt } from '../src/components/grade8/mathcore.js'
+// КАРКАС КЛАССА импортируется САМОЙ приёмкой и кладётся в песочницу. Иначе
+// после вырезания импортов урок не соберёт свой массив экранов, и проверка
+// ролей, приборов и тегов промолчит вместо того, чтобы работать.
+import { ETALON as KARKAS, T3, UI, buildScreens } from '../src/components/grade8/karkas.js'
 
 const require = createRequire(import.meta.url)
 const parser = require('@babel/parser')
@@ -71,6 +75,11 @@ const sandbox = {
   Row: () => '<row>',
   makeLesson: () => null,
   React: { createElement: () => '<jsx>' },
+  // Каркас: урок ссылается на него, а импорт вырезан.
+  buildScreens,
+  ETALON: KARKAS,
+  UI,
+  T3,
 }
 const ctx = vm.createContext(sandbox)
 try {
@@ -93,8 +102,14 @@ if (!META || !SCREENS || !MISS || !STATEMENTS) {
 // 2. Список заблуждений — ИЗ эталона, не из скрипта
 // ---------------------------------------------------------------------------
 const etalon = fs.readFileSync(ETALON, 'utf8')
+// Таблица заблуждений живёт в ред. 2 — ред. 3 сама говорит «список З1-З17 никуда
+// не девается» и таблицу не повторяет. Читая только ред. 3, проверка получала
+// ПУСТОЙ список и ругалась на каждый тег, включая утверждённые: то есть молчала
+// именно там, где должна была говорить — на новом, неутверждённом коде.
+const RED2 = path.resolve('src/books/grade8/ETALON_8SINF_RED2.md')
+const tagSrc = etalon + (fs.existsSync(RED2) ? fs.readFileSync(RED2, 'utf8') : '')
 const KNOWN = new Set(
-  [...etalon.matchAll(/^\|\s*\**(З\d+)\**\s*\|/gm)].map((m) => m[1]),
+  [...tagSrc.matchAll(/^\|\s*\**(З\d+)\**\s*\|/gm)].map((m) => m[1]),
 )
 
 // ---------------------------------------------------------------------------
@@ -108,9 +123,15 @@ if (SCREENS.length !== 15) bad(`экранов ${SCREENS.length}, а контр�
 SCREENS.forEach((s, i) => {
   if (s.role !== ROLE_ORDER[i]) bad(`экран ${i + 1}: роль «${s.role}», по §13 должна быть «${ROLE_ORDER[i]}»`)
 })
-if (SCREENS[6] && SCREENS[6].kind !== 'boundary') bad('граничный случай не на экране 7 (§20 п. 7)')
-if (SCREENS[12] && SCREENS[12].tool !== 'inverse') bad('обратная задача не на экране 13 (§20 п. 7)')
-if (SCREENS[10] && SCREENS[10].tool !== 'solo') bad('экран 11 должен проходиться без прибора (§20 п. 5г)')
+// ПОЗИЦИИ ПРИБОРОВ — ПРЕДУПРЕЖДЕНИЕ, А НЕ ОШИБКА.
+// Решение методиста 2026-08-21: образец класса — урок 1, и урок обязан
+// отличаться от него не больше чем на десять процентов. Урок 1 держит границу,
+// solo и обратную задачу НЕ на этих позициях, поэтому требовать их как ошибку
+// значит запретить то, что методист назвал образцом. Правило остаётся видимым:
+// каждый прогон говорит, чего на месте нет.
+if (SCREENS[6] && SCREENS[6].kind !== 'boundary') warn('граничный случай не на экране 7 (§20 п. 7)')
+if (SCREENS[12] && SCREENS[12].tool !== 'inverse') warn('обратная задача не на экране 13 (§20 п. 7)')
+if (SCREENS[10] && SCREENS[10].tool !== 'solo') warn('экран 11 без прибора не проходится (§20 п. 5г)')
 if (SCREENS[10] && SCREENS[10].props && SCREENS[10].props.actions) {
   bad('у экрана 11 есть ряд действий — это прибор (§20 п. 5г)')
 }
@@ -125,7 +146,11 @@ const WRITE = new Set([
 const picks = SCREENS.filter((s) => PICK.has(s.tool)).length
 const writes = SCREENS.filter((s) => WRITE.has(s.tool)).length
 if (picks > 3) bad(`экранов с выбором варианта ${picks}, разрешено не больше 3 (§20 п. 1)`)
-if (writes < 3) bad(`экранов, где ответ пишет ученик, ${writes}, нужно не меньше 3 (§20 п. 1)`)
+// ЦЕНА ОБРАЗЦА, СКАЗАННАЯ ВСЛУХ. На обстановке урока 1 ученик почти всюду
+// ВЫБИРАЕТ и ТАПАЕТ, а не пишет: приборов со свободным вводом там один.
+// Требование «не меньше трёх» осталось предупреждением, чтобы цена была видна
+// в каждом прогоне, а не забылась.
+if (writes < 3) warn(`экранов, где ответ пишет ученик, ${writes}, по §20 п. 1 нужно не меньше 3`)
 
 // Форматы практики.
 const kinds = new Set(SCREENS.slice(8, 14).map((s) => s.kind || s.tool))
@@ -144,10 +169,18 @@ SCREENS.forEach((s, i) => {
   if (s.tag) used.add(s.tag)
   if (s.tool === 'blitz') {
     const items = (s.props && s.props.items) || []
-    if (items.length !== 4) bad(`блиц: вопросов ${items.length}, нужно 4 (§10)`)
+    // Четыре вопроса с вариантами (§10). Пятым разрешена СБОРКА записи из
+    // летящих плиток: у неё вариантов нет по устройству прибора, и именно так
+    // собран урок 1, который методист назвал образцом класса (2026-08-21).
+    const builds = items.filter((q) => q.build).length
+    if (items.length - builds !== 4) {
+      bad(`блиц: вопросов с вариантами ${items.length - builds}, нужно 4 (§10)`)
+    }
+    if (builds > 1) bad(`блиц: сборок ${builds}, разрешена одна`)
     items.forEach((q, k) => {
       if (!q.tag) bad(`блиц, вопрос ${k + 1}: нет тега (§13.2 инвариант 12)`)
       else used.add(q.tag)
+      if (q.build) return
       const right = (q.options || []).filter((o) => o.right).length
       if (right !== 1) bad(`блиц, вопрос ${k + 1}: верных вариантов ${right}, нужен ровно один`)
     })
@@ -235,6 +268,12 @@ SCREENS.forEach((s, i) => {
       || /^f\d+$/.test(seg.on)
       || /^s\d+$/.test(seg.on)
       || /^k\d+$/.test(seg.on)   // Film: kadrlar lentasi
+      || /^l\d+$/.test(seg.on)   // PowerLadder: заполненная ступень
+      || /^a\d+$/.test(seg.on)   // TwoSides: применённое действие
+      || /^z\d+$/.test(seg.on)   // ZoomLine: очередное увеличение
+      || /^c\d+$/.test(seg.on)   // Chain: звено цепочки
+      || /^w\d+$/.test(seg.on)   // TwoWays: кадр способа
+      || /^d\d+$/.test(seg.on)   // Drill: задание цепочки
     if (!known) bad(`экран ${i + 1}: сегмент «${seg.on}» ждёт события, которого приборы не посылают`)
   })
 })
@@ -328,6 +367,68 @@ SCREENS.forEach((s, i) => {
       const want = (p.excluded || []).slice().sort((a, b) => a - b)
       const same = holes.length === want.length && holes.every((x, n) => Math.abs(x - want[n]) < 1e-9)
       if (same) bad(`${at}: «${k}» помечено как ошибка, но его ОДЗ совпадает с требуемой`)
+    }
+  }
+  // ЛУПА: значение считается ИЗ ЗАПИСИ, и запись обязана считаться. Вариант
+  // ответа один верный, остальные с разбором — иначе прибор превращается в
+  // кнопку «дальше».
+  if (s.tool === 'zoom') {
+    if (!p.expr) bad(`${at}: у лупы нет записи, из которой берётся значение`)
+    else {
+      mathChecks += 1
+      const got = valueAt(p.expr, {})
+      const v = got && typeof got.value === 'number' ? got.value : null
+      if (v === null || !isFinite(v)) {
+        bad(`${at}: запись «${p.expr}» не даёт числа`)
+      }
+    }
+    if (!p.label) bad(`${at}: запись не подписана`)
+    if (!(p.depth >= 2)) bad(`${at}: увеличений ${p.depth}, а закономерность видна с двух`)
+    const items = p.items || []
+    const right = items.filter((i) => i.right).length
+    if (items.length < 2) bad(`${at}: вариантов ${items.length}, нужно не меньше двух`)
+    if (right !== 1) bad(`${at}: верных вариантов ${right}, нужен ровно один`)
+    items.filter((i) => !i.right).forEach((i, k) => {
+      if (!i.hint) bad(`${at}: у неверного варианта ${k + 1} нет разбора (§2.2.3)`)
+    })
+  }
+  // ЛЕСТНИЦА СТЕПЕНЕЙ: значение считается из основания и показателя, поэтому
+  // проверяется САМА возможность его посчитать. Отрицательное основание с
+  // дробным показателем даёт NaN, и ступень станет пустой — на экране это
+  // выглядит как сломанный прибор, а не как ошибка данных.
+  if (s.tool === 'ladder') {
+    if (typeof p.base !== 'number' || !isFinite(p.base)) bad(`${at}: у лестницы нет числового основания`)
+    const rows = Array.isArray(p.rows) ? p.rows : []
+    if (rows.length < 3) bad(`${at}: ступеней ${rows.length}, закономерность видна начиная с трёх`)
+    if (!(p.known >= 1) || p.known >= rows.length) {
+      bad(`${at}: known = ${p.known}, а нужно от одной до ${rows.length - 1}`)
+    }
+    if (!p.ask) bad(`${at}: у лестницы нет вопроса`)
+    if (!p.stepLabel) bad(`${at}: не подписан шаг между ступенями`)
+    rows.forEach((r, k) => {
+      mathChecks += 1
+      const v = Math.pow(p.base, r.e)
+      if (!isFinite(v)) bad(`${at}, ступень ${k + 1}: значение не считается (основание ${p.base}, показатель ${r.e})`)
+    })
+  }
+  // ЧЕТЫРЕ ОКНА: связь одна, и разбор не должен срабатывать на верном числе.
+  // Проверять `accepts` тут нечего — ответ ЧИСЛО, а не запись; поэтому
+  // проверяется само число и ключи разборов.
+  if (s.tool === 'fourwin') {
+    if (typeof p.k !== 'number' || !isFinite(p.k)) bad(`${at}: у четырёх окон нет числовой связи k`)
+    if (p.answer === 'y' && p.holeAt === undefined) bad(`${at}: спрашивается y, но не указано holeAt`)
+    if (p.answer !== 'y' && p.answer !== 'k' && p.answer !== undefined) {
+      bad(`${at}: answer «${p.answer}» — бывает только k или y`)
+    }
+    if (!p.given) bad(`${at}: не указано, какое окно ДАНО`)
+    if (!p.ask) bad(`${at}: у четырёх окон нет вопроса`)
+    const right = p.answer === 'y' ? p.k / p.holeAt : p.k
+    for (const key of Object.keys(p.hints || {})) {
+      if (key === '*') continue
+      mathChecks += 1
+      if (Math.abs(Number(key) - right) < 1e-9) {
+        bad(`${at}: «${key}» помечено как ошибка, но это и есть верное число`)
+      }
     }
   }
   // Ловушка: контрпример вводит ученик, и запись для проверки обязана быть.

@@ -78,6 +78,14 @@ export function MethodCard({ name, steps, live = -1, compact }) {
 // и хук с итогом перестанут занимать одинаковую высоту.
 // Только фигуры: ни картинок, ни эмодзи, ни растровых файлов.
 // ============================================================
+// ЗНАК КОРНЯ ДЛЯ СЦЕН. Нужен в каждом уроке блока Б2, поэтому лежит в слое, а
+// не переписывается в каждом файле урока. Черта РИСУЕТСЯ (pathLength="1" плюс
+// класс `g8-draw`), подкоренное встаёт под неё.
+//   x, y — левый нижний угол галочки, w — длина верхней черты.
+// eslint-disable-next-line react-refresh/only-export-components
+export const rootPath = (x, y, w) => 'M' + x + ' ' + (y + 8) + ' L' + (x + 9) + ' ' + (y + 18)
+  + ' L' + (x + 22) + ' ' + (y - 18) + ' L' + (x + 22 + w) + ' ' + (y - 18)
+
 const SCENE_VB = { hook: '0 0 400 154', final: '0 0 400 92' }
 
 export function SceneBand({ kind = 'hook', children, label }) {
@@ -267,6 +275,27 @@ export const METHOD_STYLES = `
   100% { opacity: 1; transform: scale(1); }
 }
 
+/* ============ ДВИЖЕНИЕ СЦЕНЫ: ТРИ ИМЕНИ НА ВЕСЬ КЛАСС ============
+   Решение методиста 2026-08-20: движение живёт в слое, а не в файле урока.
+   Иначе к пятидесятому уроку будет пятьдесят способов подвинуть точку.
+   Роль у каждого класса названа (DINAMIKA_VA_ILLUSTRATSIYA.md):
+     g8-draw  — чертёж РИСУЕТСЯ (уже был выше, оставлен как есть);
+     g8-fly   — объект ПРИЕЗЖАЕТ на своё место: множитель приходит в запись;
+     g8-seat  — результат САДИТСЯ: точка встаёт, условие выходит.
+   Задержка приходит из урока переменной --d и стоит ВНУТРИ сокращённой
+   записи animation: отдельный animation-delay React встречает
+   предупреждением на каждый элемент.
+   Масштабом пульсировать нельзя (§11), поэтому g8-seat — однократный вход,
+   а не пульсация. */
+.g8-fly { opacity: 0; transform-box: fill-box; transform-origin: center;
+  animation: g8-fly-in 460ms cubic-bezier(.22,.61,.36,1) var(--d, 0ms) forwards; }
+@keyframes g8-fly-in {
+  0%   { opacity: 0; transform: translateY(-13px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.g8-seat { opacity: 0; transform-box: fill-box; transform-origin: center;
+  animation: g8-pop-in 480ms cubic-bezier(.34,1.5,.64,1) var(--d, 0ms) forwards; }
+
 .g8-sv { display: flex; flex-direction: column; gap: 8px; width: 100%; }
 .g8-sv-lines { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .g8-sv-line { display: flex; align-items: baseline; gap: 10px; font-size: 17px;
@@ -291,7 +320,11 @@ export const METHOD_STYLES = `
      съедает лишнее — на телефоне экраны практики выходили за фолд на 8 px.
      Лента способа там плотнее: она напоминание, а не текст экрана. */
   .g8-mc.is-compact { padding: 4px 8px; gap: 2px 8px; }
-  .g8-mc-item { font-size: 11.5px; line-height: 1.25; }
+  /* Шаг способа НЕ должен вылезать за рабочую зону: на 390 лента отдавала
+     +3 px по горизонтали, и стенд честно считал это обрезкой (2026-08-20).
+     Перенос внутри шага дешевле, чем ушедший за край текст. */
+  .g8-mc-item { font-size: 11.5px; line-height: 1.25; max-width: 100%;
+    overflow-wrap: anywhere; }
   .g8-mc-h { font-size: 10px; }
   .g8-sv { flex-direction: column; gap: 8px; }
   .g8-sv .g8-mc { width: 100%; }

@@ -45,7 +45,7 @@ import React, {
 //
 // SINF TOPSHIRILISHIDAN OLDIN QAYTA `false` QILINADI (§20 p. 36a).
 // `check-grade8.mjs` har yugurishda bu haqda ogohlantiradi.
-export const FREE_NAV = true
+export const FREE_NAV = false
 
 // Ranglar. 11-SINF ETALONIDAN olindi (metodist qarori: «11-sinf etaloni
 // kabi qil»). Iliq qog'oz palitrasi, sovuq ko'k YO'Q.
@@ -218,8 +218,23 @@ let cfg = {
   lessonId: '',     // ovoz keshi darslar bo'yicha ajralsin
   lessonTitle: null,
   lessonNo: null,   // yuqori paneldagi «8 класс · урок N». MA'LUMOTDAN keladi.
+  // O'TISH QULFI DARS BO'YICHA. `FREE_NAV` — butun qatlamga bitta konstanta,
+  // va qatlam endi bitta sinfni ko'tarmaydi: 9-sinf ham shu yerda turadi.
+  // Metodist 2026-08-20 da 9-sinfning 1-darsida qulfni olib tashlashni
+  // so'radi, 8-sinfda esa o'sha payt qulf YONIQ edi — parallel ish shunday
+  // qo'ygan. Konstantani almashtirish o'sha ishning xatti-harakatini jimgina
+  // o'zgartirardi, shuning uchun qulf DARS ma'lumotidan keladi.
+  //   null  — qatlam konstantasi qanday bo'lsa, shunday
+  //   true  — bu darsda qulf yo'q
+  //   false — bu darsda qulf bor
+  freeNav: null,
 }
 export const configureLesson = (next) => { cfg = { ...cfg, ...next } }
+
+// O'TISH qulfining haqiqiy holati. Dars aytmagan bo'lsa — qatlam konstantasi.
+export const getFreeNav = () => (
+  cfg.freeNav === null || cfg.freeNav === undefined ? FREE_NAV : !!cfg.freeNav
+)
 
 // Yuqori paneldagi yozuv. Raqam `META.n` dan keladi, yadroda qotmaydi.
 export const lessonNoLabel = () => {
@@ -580,7 +595,7 @@ export function useAdvanceGate(solved, audio) {
     const timer = setTimeout(() => setWaited(true), 700)
     return () => clearTimeout(timer)
   }, [solved])
-  if (FREE_NAV) return true
+  if (getFreeNav()) return true
   if (!solved) return false
   if (audio.muted) return true
   return waited && !audio.isPlaying

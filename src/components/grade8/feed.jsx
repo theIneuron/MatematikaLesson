@@ -195,7 +195,12 @@ export function FeedNumber({
 //
 // Разбор на каждый неверный указывает на признак, а не даёт ответ.
 // ============================================================
-export function PickBroken({ items, ask, after, afterSay, proof, onSolved, audio }) {
+// `predict` — XUK REJIMI (ETALON_8SINF.md §5, 2026-08-20). Xukda TAXMIN
+// olinadi, javob emas: har qanday tanlov ekranni yopadi, `correct: null`,
+// razbor YO'Q, yashil ham yo'q. Taxmin 15-ekranga uzatiladi (`predicted`),
+// javobini o'quvchi 6-ekranda O'ZI topadi. Bu rejim bo'lmaganda xuk faqat
+// `right: true` variant bilan yopilardi, ya'ni taxmin baholanardi.
+export function PickBroken({ items, ask, after, afterSay, proof, predict, onSolved, audio }) {
   const t = useT()
   const sfx = useSfx()
   const [picked, setPicked] = useState(null)
@@ -220,6 +225,13 @@ export function PickBroken({ items, ask, after, afterSay, proof, onSolved, audio
 
   const pick = (it) => {
     if (picked) return
+    if (predict) {
+      setPicked(it.id)
+      setNote(after || null)
+      if (audio && (afterSay || after)) audio.say(t(afterSay || after))
+      if (onSolved) onSolved({ correct: null, predicted: it.label })
+      return
+    }
     if (it.right) {
       setPicked(it.id)
       setNote(after || null)
@@ -247,7 +259,7 @@ export function PickBroken({ items, ask, after, afterSay, proof, onSolved, audio
             key={it.id}
             type="button"
             className={'g8-pb-card'
-              + (picked === it.id ? ' is-ok' : '')
+              + (picked === it.id ? (predict ? ' is-pick' : ' is-ok') : '')
               + (wrong.indexOf(it.id) !== -1 ? ' is-tip' : '')}
             style={{ fontFamily: MATH_FONT }}
             disabled={!!picked}
@@ -293,7 +305,7 @@ export function PickBroken({ items, ask, after, afterSay, proof, onSolved, audio
       ) : null}
 
       <Slot mh={64}>
-        <Note kind={picked ? 'ok' : 'no'}>{note ? t(note) : null}</Note>
+        <Note kind={picked ? (predict ? 'plain' : 'ok') : 'no'}>{note ? t(note) : null}</Note>
       </Slot>
     </>
   )
@@ -512,7 +524,7 @@ export function FormulaSlots({
 // сравнивать способы можно только когда они видны ОДНОВРЕМЕННО, а
 // пошаговое открытие показывает их по очереди и сравнение убивает.
 // ============================================================
-export function TwoWays({ blocks, stepMs = 1900, onStep }) {
+export function TwoWays({ blocks, stepMs = 1900, onStep, onSolved }) {
   const t = useT()
   // ПОСТРОЧНОЕ ОТКРЫТИЕ ПОД ОЗВУЧКУ. Высота карточки при этом ПОЛНАЯ с первой
   // секунды: строки уже стоят, но невидимы. Иначе карточка растёт, экран
@@ -533,6 +545,16 @@ export function TwoWays({ blocks, stepMs = 1900, onStep }) {
     }, shown === 0 ? 900 : stepMs)
     return () => clearTimeout(id)
   }, [shown, total, stepMs])
+
+  // ПОКАЗ ЗАКОНЧИЛСЯ — ЭКРАН ПРОЙДЕН. Без этого прибор ничего не сообщал, и
+  // при закрытом замке экран не отпускал ученика ВООБЩЕ: «Продолжить» не
+  // открывалась ни при каком действии (поймано прогоном урока 9, 2026-08-21).
+  const doneRef = useRef(false)
+  useEffect(() => {
+    if (shown < total || doneRef.current) return
+    doneRef.current = true
+    if (onSolved) onSolved({ correct: true, tries: 1 })
+  }, [shown, total, onSolved])
   // Номер строки считается ЗАРАНЕЕ, а не счётчиком по ходу разметки:
   // менять переменную во время рендера нельзя.
   const starts = []
@@ -821,7 +843,7 @@ export function Chain({
 //
 // Ученик видит не новую тему, а РОЛИ в записи, которую он уже трогал.
 // ============================================================
-export function Parts({ tokens, frac, steps, fact, stepMs = 2600, onStep }) {
+export function Parts({ tokens, frac, steps, fact, stepMs = 2600, onStep, onSolved }) {
   const t = useT()
   const [shown, setShown] = useState(0)
   const stepRef = useRef(onStep)
@@ -834,6 +856,15 @@ export function Parts({ tokens, frac, steps, fact, stepMs = 2600, onStep }) {
     }, shown === 0 ? 900 : stepMs)
     return () => clearTimeout(id)
   }, [shown, steps.length, stepMs])
+
+  // Разбор дошёл до последней части — экран пройден (та же грабля, что у
+  // TwoWays: прибор-показ обязан сообщать о конце).
+  const doneRef = useRef(false)
+  useEffect(() => {
+    if (shown < steps.length || doneRef.current) return
+    doneRef.current = true
+    if (onSolved) onSolved({ correct: true, tries: 1 })
+  }, [shown, steps.length, onSolved])
 
   const focus = shown > 0 ? steps[Math.min(shown, steps.length) - 1].focus : null
 
@@ -1645,6 +1676,11 @@ export const FEED_STYLES = `
   box-shadow: inset 0 0 0 2px rgba(${T.okRgb},.5); }
 .g8-pb-card.is-tip { background: ${T.tipSoft}; color: ${T.tip};
   box-shadow: inset 0 0 0 2px rgba(${T.tipRgb},.45); }
+/* TAXMIN olindi (xuk): tekshiruv rangi YO'Q. Yashil «to'g'ri» degan
+   ma'noni beradi, xukda esa to'g'ri javob yo'q -- faqat tanlov qayd
+   etiladi (§5). Shuning uchun tekshiruv qatlamining rangi. */
+.g8-pb-card.is-pick { background: ${T.graphSoft}; color: ${T.graph};
+  box-shadow: inset 0 0 0 2px rgba(${T.graphRgb},.45); }
 .g8-pb-card:disabled { cursor: default; }
 .g8-fd-tab { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
 .g8-fd-cell { display: flex; flex-direction: column; align-items: center; gap: 2px;

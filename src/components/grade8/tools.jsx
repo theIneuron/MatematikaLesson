@@ -25,6 +25,9 @@ import {
   Row, RuleCard, Slot, T, UI_TXT, fmt, useInstructionGate, useSfx, useSteps, useT,
 } from './core.jsx'
 import { MathField, judgeExpr, judgeOdz } from './math.jsx'
+// Фигура координатной плоскости живёт в `plot.jsx` (там масштаб, оси и пути),
+// а в реестр фигур попадает по имени: цикла нет, plot.jsx о tools.jsx не знает.
+import { HyperFig } from './plot.jsx'
 import { checkReduction, domainHoles, evaluate, parse, valueAt } from './mathcore.js'
 
 const TXT = {
@@ -46,6 +49,8 @@ const TXT = {
     'There is a common factor here. Look again.',
   ),
   pick: L('Amalni tanlang:', 'Выбери действие:', 'Choose the action:'),
+  // WhyStep: amal QAYSI QOIDA asosida qilingani (§7.3).
+  why: L('Nima asosda?', 'На основании чего?', 'On what grounds?'),
   proofAsk: L(
     "Javobingizni tekshiring: o'z soningizni qo'ying",
     'Проверь свой ответ: поставь своё число',
@@ -489,23 +494,44 @@ function FieldOne({ field, onOk, audio }) {
 // 4. Transform — qadamba-qadam qayta yozish. O'quvchi AMALNI tanlaydi va
 //    natijani O'ZI YOZADI. «Darrov javob» tugmasi yo'q -- uni bosadigan
 //    joy ham yo'q. ODZ satri o'zgarmasa MIRЖILLAMAYDI.
-//    steps: [{ action, ask, answer, accepts, hints, show, wrongAction }]
+//    steps: [{ action, why, ask, answer, accepts, hints, show, wrongs }]
+//
+//    WhyStep — IKKINCHI SLOT (ETALON_8SINF.md §7.3, 2-dars, 2026-08-20).
+//    8-sinfning asosiy balosi — ASOSSIZ almashtirish. Shuning uchun amal
+//    tanlangandan keyin o'quvchi NIMA ASOSDA qilinganini ham tanlaydi:
+//      why: { question, items: [{ id, label, right, hint }] }
+//    Maydon FAQAT ikkisi ham to'g'ri bo'lganda ochiladi. Natija to'g'ri,
+//    asos noto'g'ri bo'lsa — qadam YOPILMAYDI: keyingi mavzuda yiqiladigan
+//    narsa aynan shu. `why` berilmagan qadam avvalgidek ishlaydi.
 // ============================================================
 export function Transform({ start, steps, actions, odz, onSolved, onStep, audio, foot }) {
   const t = useT()
   const sfx = useSfx()
   const [lines, setLines] = useState([start])
   const [open, setOpen] = useState(false)
+  const [acted, setActed] = useState(false)
   const [note, setNote] = useState(null)
   const [shake, setShake] = useState(0)
 
   const i = lines.length - 1
   const step = steps[i]
   const finished = i >= steps.length
+  // Amal tanlangan, asos esa hali tanlanmagan: shu holatda ASOS so'raladi.
+  const asksWhy = !finished && acted && !open && !!(step && step.why)
+  // QADAMNING O'Z AMALLARI. Ilgari butun ekranga bitta `actions` qatori
+  // yotardi, ya'ni ikkinchi qadamda ham birinchi qadamning tugmalari
+  // turardi (2-dars, 2026-08-20: 1-qadam yozuvni yozadi, 2-qadam SHARTNI,
+  // va ular uchun amallar boshqa). Berilmasa — avvalgidek umumiy qator.
+  const acts = (step && step.actions) || actions
 
   const act = (id) => {
     if (!step) return
-    if (id === step.action) { setOpen(true); setNote(null); return }
+    if (id === step.action) {
+      setNote(null)
+      setActed(true)
+      if (!step.why) setOpen(true)
+      return
+    }
     const w = (step.wrongs || []).find((x) => x.action === id)
     setNote(w ? w.hint : null)
     setShake((s) => s + 1)
@@ -513,10 +539,21 @@ export function Transform({ start, steps, actions, odz, onSolved, onStep, audio,
     if (audio && w && w.hint) audio.say(t(w.hint))
   }
 
+  const because = (id) => {
+    if (!step || !step.why) return
+    const src = step.why.items.find((x) => x.id === id)
+    if (src && src.right) { setNote(null); setOpen(true); return }
+    setNote(src && src.hint ? src.hint : null)
+    setShake((s) => s + 1)
+    sfx.playWrong()
+    if (audio && src && src.hint) audio.say(t(src.hint))
+  }
+
   const ok = () => {
     const next = lines.concat(step.show)
     setLines(next)
     setOpen(false)
+    setActed(false)
     setNote(null)
     if (onStep) onStep('s' + next.length)
     if (next.length - 1 >= steps.length && onSolved) onSolved({ correct: true })
@@ -532,14 +569,31 @@ export function Transform({ start, steps, actions, odz, onSolved, onStep, audio,
 
       {odz ? <OdzLine value={odz} /> : null}
 
-      <Slot mh={44}>
-        {!finished && !open ? (
+      {/* Amal qatori va ASOS qatori bir joyda turadi: ular bir vaqtda
+          ko'rinmaydi, shuning uchun balandlik ikkisining kattasiga
+          bronlanadi va ekran qadamda O'SMAYDI (§11). */}
+      <Slot mh={68}>
+        {!finished && !open && !acted ? (
           <div className="g8-shakebox">
             <div key={shake} className={shake ? 'g8-shake' : undefined}>
               <div className="g8-acts">
                 <span className="g8-acts-tag">{t(TXT.pick)}</span>
-                {actions.map((a) => (
+                {acts.map((a) => (
                   <button type="button" key={a.id} className="g8-act" onClick={() => act(a.id)}>
+                    {t(a.label)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : null}
+        {asksWhy ? (
+          <div className="g8-shakebox">
+            <div key={'w' + shake} className={shake ? 'g8-shake' : undefined}>
+              <div className="g8-acts g8-why">
+                <span className="g8-acts-tag">{t(step.why.question || TXT.why)}</span>
+                {step.why.items.map((a) => (
+                  <button type="button" key={a.id} className="g8-act" onClick={() => because(a.id)}>
                     {t(a.label)}
                   </button>
                 ))}
@@ -709,7 +763,12 @@ export function RuleBlock({ card, check, onSolved, onStep, audio }) {
             16 piksel chiqib ketardi (o'lchandi 2026-08-13). Yozuvlar qisqa
             (kasrlar), 390 px da 2 x 2 bo'lib turadi — §14 talab qilgan sxema. */}
         <Choice
-          items={check.items.map((i) => ({ id: i.id, label: i.label }))}
+          // `t()` SHART: `Choice` yorliqni XOM chizadi, va uch tilli obyekt
+          // React ni yiqitadi («Objects are not valid as a React child»). Bu
+          // yerda u yo'q edi, chunki `RuleBlock` ni hech bir dars olmagan;
+          // 9-sinfning 1-darsi olgan zahoti 8-ekran qulab tushdi (2026-08-20).
+          // Qolgan olti chaqiruvda `t()` bor.
+          items={check.items.map((i) => ({ id: i.id, label: t(i.label) }))}
           multi
           dense
           checked={marks}
@@ -1574,6 +1633,118 @@ export function RuleBuilder({ fragments, answer, wrongHint, card, after, onSolve
 }
 
 // ============================================================
+// 14a. PowerLadder - LESTNITSA DARAJALARI (etalon §7.3).
+//
+// Зачем прибор. Нулевая, отрицательная и дробная степень в учебниках даются
+// СОГЛАШЕНИЕМ: «примем, что a в нулевой равно единице». Ученик принимает это
+// на веру и через месяц пишет, что a в нулевой равно нулю. Лестница снимает
+// соглашение: ряд идёт сверху вниз, каждый шаг вниз — ОДНО И ТО ЖЕ деление, и
+// ученик продолжает ряд САМ. Единица и дробный показатель получаются как
+// продолжение закономерности, а не как определение.
+//
+// Значение строки СЧИТАЕТСЯ из основания и показателя, а не берётся из данных
+// урока: иначе автор впишет неверное число, и ни одна проверка этого не
+// поймает (то же правило, что у графика, §7.2 п. 1).
+//
+// props:
+//   base      - основание;
+//   rows      - [{ e, show }] сверху вниз: показатель и как он выглядит;
+//   known     - сколько верхних строк ДАНЫ;
+//   stepLabel - подпись шага между строками, например «: 2»;
+//   ask, hints, after, labels;
+//   события озвучки: l1, l2, ... по номеру заполненной строки.
+// ============================================================
+export function PowerLadder({
+  base, rows, known = 2, stepLabel, ask, hints, after, labels,
+  onSolved, onStep, audio,
+}) {
+  const t = useT()
+  const sfx = useSfx()
+  const canAnswer = useInstructionGate(audio)
+  const [at, setAt] = useState(known)
+  const [val, setVal] = useState('')
+  const [note, setNote] = useState(null)
+  const [tries, setTries] = useState(0)
+
+  const valueOf = (r) => Math.pow(base, r.e)
+  const done = at >= rows.length
+
+  const submit = () => {
+    if (done) return
+    const n = Number(String(val).replace(',', '.'))
+    if (!Number.isFinite(n)) return
+    const want = valueOf(rows[at])
+    if (Math.abs(n - want) < 1e-9) {
+      const next = at + 1
+      setAt(next)
+      setVal('')
+      sfx.playCorrect()
+      if (onStep) onStep('l' + next)
+      if (next >= rows.length) {
+        setNote(after || null)
+        if (audio && after) audio.say(t(after))
+        if (onSolved) onSolved({ correct: true, tries: tries + 1 })
+      } else {
+        setNote(null)
+      }
+      return
+    }
+    setTries((x) => x + 1)
+    const hint = (hints && (hints[fmt(n)] || hints['*'])) || null
+    setNote(hint)
+    sfx.playWrong()
+    if (audio && hint) audio.say(t(hint))
+  }
+
+  return (
+    <>
+      <div className="g8-lad" style={{ fontFamily: MATH_FONT }}>
+        <div className="g8-lad-row is-head">
+          <span className="g8-lad-step" />
+          <span className="g8-lad-pow">{labels && labels.pow ? t(labels.pow) : ''}</span>
+          <span className="g8-lad-eq" />
+          <span className="g8-lad-val">{labels && labels.val ? t(labels.val) : ''}</span>
+        </div>
+        {rows.map((r, i) => (
+          <div
+            key={i}
+            className={'g8-lad-row'
+              + (i < at ? ' is-done' : '')
+              + (i === at ? ' is-at' : '')
+              + (i === at - 1 ? ' is-new' : '')}
+          >
+            {/* Шаг подписан МЕЖДУ строками: он один и тот же, и это главное,
+                что ученик обязан увидеть. */}
+            <span className="g8-lad-step">{i > 0 ? t(stepLabel) : ''}</span>
+            <span className="g8-lad-pow">
+              {fmt(base)}<sup>{r.show || fmt(r.e)}</sup>
+            </span>
+            <span className="g8-lad-eq">=</span>
+            <span className="g8-lad-val">
+              {i < at ? fmt(valueOf(r)) : (i === at ? '?' : '')}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <Slot mh={32}>
+        <Ask>{t(ask)}</Ask>
+      </Slot>
+
+      <Slot mh={44}>
+        {!done && canAnswer ? (
+          <MathField kind="number" value={val} onChange={setVal} onSubmit={submit} width={78}/>
+        ) : null}
+      </Slot>
+
+      <Slot mh={44}>
+        <Note kind={done ? 'ok' : 'no'}>{note ? t(note) : null}</Note>
+      </Slot>
+    </>
+  )
+}
+
+// ============================================================
 // 15. FIGURALAR — tushuntirish ekranlarining JONLI obyektlari.
 //
 //     Har figura BITTA obyekt bo'lib, `phase` bilan holatini o'zgartiradi.
@@ -1698,7 +1869,41 @@ function PairFig({ data, phase }) {
   )
 }
 
-const FIGURES = { frac: FracFig, line: LineFig, table: TableFig, pair: PairFig }
+// 15.5. ASOSIY XOSSA: ko'paytuvchi surat va maxrajga BIR VAQTDA keladi.
+//       Bitta obyekt, uchta holat — rasm to'plami emas:
+//       phase 0 — boshlang'ich yozuv;
+//       phase 1 — ko'paytuvchi kelgan yozuv va natija (uchib tushadi),
+//                 ostida qiymat: u O'ZGARMADI;
+//       phase 2 — pastda XUDDI SHU narsa harflar bilan va ko'paytuvchining
+//                 sharti.
+//       Yozuvlar dars ma'lumotidan TAYYOR UZEL bo'lib keladi (§20 p. 19):
+//       kasr chizig'i bilan, slash bilan emas. 2-5 va 11-12 darslar uchun.
+function MultFig({ data, phase }) {
+  const t = useT()
+  return (
+    <div className="g8-fig">
+      <div className="g8-mult">
+        {data.left}
+        {phase >= 1 ? (
+          <>
+            <span className="g8-mult-eq g8-fly" style={{ '--d': '.04s' }}>{'='}</span>
+            <span className="g8-fly" style={{ '--d': '.10s' }}>{data.mid}</span>
+            <span className="g8-mult-eq g8-fly" style={{ '--d': '.40s' }}>{'='}</span>
+            <span className="g8-fly" style={{ '--d': '.46s' }}>{data.right}</span>
+          </>
+        ) : null}
+      </div>
+      <Slot h={24}>
+        {phase >= 1 ? <span className="g8-fig-cap">{t(data.same)}</span> : null}
+      </Slot>
+      <Slot h={40}>
+        {phase >= 2 ? <div className="g8-mult-rule g8-seat">{data.rule}</div> : null}
+      </Slot>
+    </div>
+  )
+}
+
+const FIGURES = { frac: FracFig, line: LineFig, table: TableFig, pair: PairFig, mult: MultFig, hyper: HyperFig }
 
 // ============================================================
 // 16. Film — KADRLAR LENTASI (4-sinf `AnimatedExplanation` naqshi).
@@ -2067,6 +2272,29 @@ export const TOOLS_STYLES = `
 .g8-cascade > *:nth-child(3) { animation-delay: .36s; }
 .g8-cascade > *:nth-child(4) { animation-delay: .48s; }
 
+/* ============ LESTNITSA DARAJALARI ============
+   Ряд идёт сверху вниз, шаг подписан в левой колонке. Заполненная строка
+   ВЫХОДИТ, а не проявляется: продолжение ряда это событие. */
+.g8-lad { display: flex; flex-direction: column; gap: 3px; width: 100%; max-width: 340px;
+  margin: 0 auto; }
+.g8-lad-row { display: grid; grid-template-columns: 44px 1fr 16px 1fr; align-items: center;
+  gap: 4px; min-height: 28px; padding: 1px 6px; border-radius: 9px; }
+.g8-lad-row.is-head { min-height: 16px; }
+.g8-lad-row.is-head .g8-lad-pow, .g8-lad-row.is-head .g8-lad-val {
+  font-family: 'Manrope', system-ui, sans-serif; font-size: 9px; letter-spacing: .14em;
+  text-transform: uppercase; color: ${T.ink3}; font-weight: 700; }
+.g8-lad-row.is-done { background: rgba(${T.graphRgb},.10); }
+.g8-lad-row.is-at { background: rgba(${T.accentRgb},.10);
+  box-shadow: inset 0 0 0 1.5px rgba(${T.accentRgb},.35); }
+.g8-lad-row.is-new .g8-lad-val { animation: g8-lad-in 420ms ease both; }
+@keyframes g8-lad-in { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: none; } }
+.g8-lad-step { font-size: 12.5px; color: ${T.graph}; text-align: right; }
+.g8-lad-pow { font-size: 17px; color: ${T.ink}; }
+.g8-lad-pow sup { font-size: .62em; }
+.g8-lad-eq { font-size: 15px; color: ${T.ink3}; text-align: center; }
+.g8-lad-val { font-size: 17px; color: ${T.ink}; }
+.g8-lad-row.is-at .g8-lad-val { color: ${T.accent}; font-weight: 700; }
+
 /* ============ FIGURA: bitta obyekt, holatlari ============ */
 .g8-fig { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 100%; min-width: 0; }
 .g8-fig-cap { font-family: ${MATH_FONT}; font-size: clamp(13px, 1.2vw, 16px); }
@@ -2076,6 +2304,20 @@ export const TOOLS_STYLES = `
 .g8-fig-key::before { content: ''; width: 9px; height: 9px; border-radius: 50%; }
 .g8-fig-key-a::before { background: ${T.accent}; }
 .g8-fig-key-b::before { background: ${T.ok}; }
+
+/* ASOSIY XOSSA figurasi: uch yozuv bitta qatorda. Uchtadan ko'p ikki
+   qavatli kasr bir ekranga sig'maydi (§11), shuning uchun aynan uchta. */
+.g8-mult {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+  gap: 10px; min-height: 62px; width: 100%;
+}
+.g8-mult-eq { font-family: ${MATH_FONT}; font-size: clamp(15px, 1.5vw, 19px); color: ${T.ink3}; }
+.g8-mult-rule {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 12px; border-radius: 12px;
+  background: ${T.graphSoft}; color: ${T.graph};
+  font-family: ${MATH_FONT}; font-size: clamp(13px, 1.3vw, 16px);
+}
 
 .g8-line { display: block; width: 100%; max-width: 460px; height: clamp(46px, 6.2vh, 62px); margin: 0 auto; overflow: visible; }
 .g8-line-ax { stroke: ${T.ink3}; stroke-width: 1.4; }
@@ -2218,6 +2460,10 @@ export const TOOLS_STYLES = `
    Noutbukda BITTA satr, telefonda ko'chadi: 390 da to'rt tugma 158px
    vylet bergan (11-sinf saboqi). */
 .g8-acts { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; }
+/* ASOS qatori (WhyStep): amal qatoridan RANG bilan farq qiladi, chunki
+   savol boshqa — nima qilamiz emas, nima asosda. */
+.g8-why { padding: 5px 8px; border-radius: 12px; background: ${T.graphSoft}; }
+.g8-why .g8-acts-tag { color: ${T.graph}; }
 .g8-acts-tag {
   font-size: 10px; letter-spacing: .15em; text-transform: uppercase;
   color: ${T.ink3}; font-weight: 700;

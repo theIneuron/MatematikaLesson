@@ -33,12 +33,13 @@ import {
 import { CatchBuild, Drill, Takeaway, FEED_STYLES, FillSolution, Chain, Parts, FeedNumber, FormulaSlots, PickBroken, Steppers, TwoRecords, TwoWays } from './feed.jsx'
 import { MATH_STYLES } from './math.jsx'
 import { METHOD_STYLES, MethodCard, SolveTogether } from './method.jsx'
-import { PLOT_STYLES } from './plot.jsx'
+import { FourWindows, PLOT_STYLES, ParamPlot, Plot, PlotTap } from './plot.jsx'
 import { TWOSIDES_STYLES, TwoSides } from './twosides.jsx'
+import { ZOOM_STYLES, ZoomLine } from './zoom.jsx'
 import {
-  Audit, Blitz, Boundary, Fields, Film, Inverse, PlotVsTable, Reveal, RuleBlock,
-  RuleBuilder, SoloTask, Substitute, TOOLS_STYLES, TapPart, TaskChain, Transform,
-  TwoValues,
+  Audit, Blitz, Boundary, Fields, Film, Inverse, PlotVsTable, PowerLadder, Reveal,
+  RuleBlock, RuleBuilder, SoloTask, Substitute, TOOLS_STYLES, TapPart, TaskChain,
+  Transform, TwoValues,
 } from './tools.jsx'
 
 export const TOTAL = 15
@@ -205,6 +206,22 @@ export function ScreenBody(props) {
   const step = useCallback((name) => audio.step(name), [audio])
   const p = scr.props || {}
 
+  // SINFNING O'Z ASBOBI. Dars ekranda `render` bergan bo'lsa, qatlam uni
+  // shunchaki chaqiradi. Nima uchun bu kerak: 9-sinf 1-darsi 8-sinf
+  // karkasida yig'ilgandan keyin metodist aytdi «faqat nusxa chiqdi, o'z
+  // mexanikangizni bering» (2026-08-20). Sinfning asboblari o'z faylida
+  // yashaydi (`grade9/asboblar.jsx`), va bu switch ga hech narsa
+  // qo'shilmaydi — aks holda 8-sinfning fayli boshqa sinflarning asboblari
+  // bilan to'lib ketardi.
+  //
+  // Asbob o'ramdan aynan shu narsalarni oladi: ovoz, javobni yopish, qadamni
+  // ovozga uzatish. Ya'ni shartlar hamma sinfda bir xil.
+  if (typeof scr.render === 'function') {
+    return scr.render({
+      audio, onSolved, onReady, step, readiness, predicted, statements, miss, notes,
+    })
+  }
+
   switch (scr.tool) {
     case 'substitute':
       return <Substitute {...p} audio={audio} onSolved={onSolved} />
@@ -225,7 +242,7 @@ export function ScreenBody(props) {
       return <FormulaSlots {...p} audio={audio} onSolved={onSolved} />
     // ДВА СПОСОБА СРАЗУ: сравнивать можно только то, что видно одновременно.
     case 'twoways':
-      return <TwoWays {...p} onStep={step} />
+      return <TwoWays {...p} onStep={step} onSolved={onSolved} />
     // СЧЁТЧИКИ: ученик крутит данные, приложение считает и падает на нуле.
     case 'steppers':
       return <Steppers {...p} audio={audio} onSolved={onSolved} />
@@ -241,7 +258,7 @@ export function ScreenBody(props) {
       return <Chain {...p} onStep={step} onSolved={onSolved} audio={audio} />
     // РАЗБОР ЗАПИСИ ПО ЧАСТЯМ: подсветка едет по формуле, полосы копятся.
     case 'parts':
-      return <Parts {...p} onStep={step} />
+      return <Parts {...p} onStep={step} onSolved={onSolved} />
     // KADRLAR LENTASI: tepada bitta obyekt, pastda kadrlar (4-sinf naqshi).
     case 'film':
       return <FilmScreen p={p} audio={audio} onSolved={onSolved} step={step} />
@@ -283,6 +300,25 @@ export function ScreenBody(props) {
       return <Audit {...p} audio={audio} onSolved={onSolved} onStep={step} />
     case 'boundary':
       return <Boundary {...p} audio={audio} onSolved={onSolved} />
+    // ГРАФИКА (§7.2). Приборы координатной плоскости живут в `plot.jsx`, и
+    // урок берёт их так же, как остальные — именем и данными.
+    case 'plot2':
+      return <Plot {...p} />
+    case 'plottap':
+      return <PlotTap {...p} audio={audio} onSolved={onSolved} />
+    case 'paramplot':
+      return <ParamPlot {...p} audio={audio} onSolved={onSolved} />
+    // ЛУПА НА ЧИСЛОВОЙ ПРЯМОЙ: механика блока Б2. Ученик увеличивает отрезок,
+    // и метка ни разу не ложится на деление.
+    case 'zoom':
+      return <ZoomLine {...p} audio={audio} onSolved={onSolved} onStep={step} />
+    // ЛЕСТНИЦА СТЕПЕНЕЙ: ученик продолжает ряд и получает новый показатель
+    // как продолжение закономерности, а не как соглашение.
+    case 'ladder':
+      return <PowerLadder {...p} audio={audio} onSolved={onSolved} onStep={step} />
+    // ЧЕТЫРЕ ОКНА ОДНОЙ ЗАВИСИМОСТИ: условие, формула, таблица, график.
+    case 'fourwin':
+      return <FourWindows {...p} audio={audio} onSolved={onSolved} />
     case 'inverse':
       return <Inverse {...p} audio={audio} onSolved={onSolved} />
     case 'blitz':
@@ -323,7 +359,9 @@ export function ScreenBody(props) {
 // PAYLOADDA `score` va `total` YO'Q (§17): nazariy dars baholanmaydi.
 // Ketadigan narsa: `tags`, `readiness`, `passed`.
 // ============================================================
-export function makeLesson({ META, STATEMENTS, MISS, SCREENS }) {
+// `styles` — sinfning O'Z uslublari (masalan `grade9/asboblar.jsx` dagi
+// G9_STYLES). Berilmasa hech narsa o'zgarmaydi.
+export function makeLesson({ META, STATEMENTS, MISS, SCREENS, styles }) {
   return function Grade8Lesson({ lang = 'ru', ttsApiBase = '', onFinish, studentName = '' }) {
     const [screen, setScreen] = useState(0)
     const [solved, setSolved] = useState({})
@@ -341,6 +379,8 @@ export function makeLesson({ META, STATEMENTS, MISS, SCREENS }) {
         lessonId: META.id,
         lessonTitle: META.topic,
         lessonNo: META.n,   // yuqori panelda «урок N» — yadroda QOTMAYDI
+        // O'tish qulfi dars ma'lumotidan. Berilmasa — qatlam konstantasi.
+        freeNav: META.freeNav === undefined ? null : META.freeNav,
       })
     }, [ttsApiBase, studentName])
 
@@ -380,7 +420,7 @@ export function makeLesson({ META, STATEMENTS, MISS, SCREENS }) {
 
     return (
       <LangProvider value={lang}>
-        <style>{STYLES}{MATH_STYLES}{TOOLS_STYLES}{PLOT_STYLES}{METHOD_STYLES}{TWOSIDES_STYLES}{FEED_STYLES}</style>
+        <style>{STYLES}{MATH_STYLES}{TOOLS_STYLES}{PLOT_STYLES}{METHOD_STYLES}{TWOSIDES_STYLES}{ZOOM_STYLES}{FEED_STYLES}{styles || ''}</style>
         <div className="lesson-root">
           <Frame
             key={screen}
