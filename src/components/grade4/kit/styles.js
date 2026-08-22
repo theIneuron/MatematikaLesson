@@ -11,6 +11,7 @@
 //   2) TO'Q SAHNA faqat birinchi ekranda (ETALON, Dars01 bilan bir xil
 //      gradient va radius). Qolgan ekranlar — yorug' kartochka.
 import { T } from '../theoryShell/palette.js';
+import { WRONG_FLASH_CSS } from '../wrongAnswerFlash.js';
 import { SUMMARY_STYLES } from './summaryStyles.js';
 
 export const KIT_STYLES = `
@@ -393,6 +394,37 @@ html, body { margin: 0; padding: 0; }
   .options, .options.options-two { grid-template-columns: 1fr; }
 }
 .option > span:last-child { min-width: 0; overflow-wrap: anywhere; }
+/* Qisqa variantlar mazmuni bo'yicha o'lchanadi va markazga yig'iladi: uch
+   ta son butun kenglikka cho'zilganda ekranda bo'sh oq lavhalar ko'rinardi
+   (metodist qarori 2026-08-21). display: flex grid ustunlarini bekor qiladi,
+   shuning uchun telefon uchun yozilgan "bitta ustun" qoidasi ham tegmaydi. */
+.options.options-compact {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.options.options-compact .option {
+  flex: 0 1 auto;
+  min-width: 104px;
+  justify-content: center;
+}
+/* Telefonda TO'RTTA ixcham variant bir qatorga sig'maydi va 3 + 1 bo'lib
+   qoladi — oxirgi chip yolg'iz turadi. Ularni 2 + 2 qilib qo'yamiz. Uchta
+   variant bir qatorga sig'adi, shuning uchun qoida faqat to'rtinchi chip
+   bo'lganda ishlaydi. */
+@media (max-width: 639.98px) {
+  .options.options-compact:has(.option:nth-child(4)) .option {
+    flex: 1 1 calc(50% - 6px);
+    min-width: 0;
+  }
+}
+/* Sof sonli javoblar moshirinali: loyihada son va birlik JetBrains Mono da
+   yoziladi. Harf qatnashgan variant Manrope da qoladi. */
+.options.options-numeric .option > span:last-child {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
 .option {
   min-height: 50px;
   padding: clamp(10px, 1.5vh, 14px) 14px;
@@ -431,12 +463,8 @@ html, body { margin: 0; padding: 0; }
   font-size: 13px;
   font-weight: 800;
 }
-.option-wrong {
-  background: #FFF6F3;
-  box-shadow: inset 0 0 0 1.5px rgba(255,91,53,.55);
-  opacity: .72;
-}
-.option-wrong .option-key { background: ${T.accentSoft}; color: ${T.accent}; }
+/* Xato javobning DOIMIY qizil holati yo'q: u data-g4-wrong-flash atributi
+   orqali qisqa vaqt ko'rinadi (wrongAnswerFlash.js, qaror 2026-08-21). */
 .option-right {
   background: ${T.successSoft};
   box-shadow: inset 0 0 0 1.5px rgba(34,122,83,.5);
@@ -592,7 +620,6 @@ html, body { margin: 0; padding: 0; }
 }
 .slot-active { box-shadow: inset 0 0 0 2px ${T.cyan}; background: ${T.cyanSoft}; }
 .slot-done { background: ${T.successSoft}; box-shadow: inset 0 0 0 2px rgba(34,122,83,.45); color: ${T.success}; }
-.slot-bad { background: #FFF6F3; box-shadow: inset 0 0 0 2px rgba(255,91,53,.5); color: ${T.accent}; }
 
 .hint-line {
   color: ${T.ink2};
@@ -631,7 +658,6 @@ html, body { margin: 0; padding: 0; }
 .span-cell:hover:not(:disabled) { box-shadow: inset 0 0 0 2px rgba(22,143,163,.45); }
 .span-active { background: ${T.cyanSoft}; box-shadow: inset 0 0 0 2px ${T.cyan}; }
 .span-done { background: ${T.successSoft}; box-shadow: inset 0 0 0 2px rgba(34,122,83,.5); color: ${T.success}; }
-.span-bad { background: #FFF6F3; box-shadow: inset 0 0 0 2px rgba(255,91,53,.5); color: ${T.accent}; opacity: .8; }
 .span-tail {
   margin-left: 4px;
   font-family: 'JetBrains Mono', monospace;
@@ -689,8 +715,22 @@ html, body { margin: 0; padding: 0; }
 }
 .numpad-key:hover:not(:disabled) { background: ${T.cyanSoft}; }
 .numpad-key:disabled { opacity: .4; cursor: default; }
-.numpad-ok { background: ${T.navy}; color: #F7FBFB; box-shadow: none; }
-.numpad-ok:hover:not(:disabled) { background: ${T.accent}; }
+/* Tasdiqlash tugmasi OLOVRANG (metodist qarori 2026-08-21): ilgari u to'q
+   ko'k edi va bosiladigan asosiy harakatga o'xshamasdi.
+
+   Selektor .lesson-root bilan boshlanadi ataylab: ".lesson-root button"
+   qoidasi color: inherit beradi va spetsifiklik bo'yicha yolg'iz .numpad-ok
+   dan kuchli — shu sababli ptichka to'q ko'k fon ustida to'q siyoh rangida
+   chizilib, deyarli ko'rinmasdi. */
+.lesson-root .numpad-ok {
+  background: ${T.accent};
+  color: #FFFFFF;
+  box-shadow: 0 10px 22px -18px rgba(255,91,53,.9);
+}
+.lesson-root .numpad-ok:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 26px -18px rgba(255,91,53,.95);
+}
 .numpad-del { color: ${T.ink2}; }
 @media (max-width: 720px) {
   .numpad { grid-template-columns: minmax(0, 1fr); }
@@ -717,7 +757,6 @@ html, body { margin: 0; padding: 0; }
   transition: box-shadow .16s, background .16s;
 }
 .chip:hover:not(:disabled) { box-shadow: inset 0 0 0 2px rgba(22,143,163,.45); }
-.chip-bad { background: #FFF6F3; box-shadow: inset 0 0 0 2px rgba(255,91,53,.5); color: ${T.accent}; opacity: .8; }
 .chip-done { background: ${T.successSoft}; box-shadow: inset 0 0 0 2px rgba(34,122,83,.5); color: ${T.success}; }
 
 .value-table {
@@ -793,7 +832,6 @@ html, body { margin: 0; padding: 0; }
 .level-tick:hover:not(:disabled) { box-shadow: inset 0 0 0 2px rgba(22,143,163,.45); }
 .level-tick:disabled { cursor: default; }
 .level-tick-active { background: rgba(255,91,53,.12); box-shadow: inset 0 0 0 2px ${T.accent}; color: ${T.accent}; }
-.level-tick-bad { background: #FFF6F3; box-shadow: inset 0 0 0 2px rgba(255,91,53,.5); color: ${T.accent}; opacity: .75; }
 .level-tick-done { background: ${T.successSoft}; box-shadow: inset 0 0 0 2px rgba(34,122,83,.5); color: ${T.success}; }
 .level-unit {
   margin-left: 4px;
@@ -985,7 +1023,6 @@ html, body { margin: 0; padding: 0; }
 .tile:hover:not(:disabled) { box-shadow: inset 0 0 0 2px rgba(22,143,163,.45); }
 .tile:disabled { cursor: default; }
 .tile-done { background: ${T.successSoft}; box-shadow: inset 0 0 0 2px rgba(34,122,83,.5); color: ${T.success}; }
-.tile-bad { background: #FFF6F3; box-shadow: inset 0 0 0 2px rgba(255,91,53,.5); color: ${T.accent}; opacity: .8; }
 
 /* 19-dars: kasrlarni kichikdan kattaga tizish. */
 .order-line {
@@ -1077,6 +1114,10 @@ html, body { margin: 0; padding: 0; }
 `
 // Yakuniy ekran uslublari etalondan keladi (summaryStyles.js).
 + SUMMARY_STYLES
+
+// Xato javob ko'rsatkichi va to'g'ri javobdan keyingi xiralashish — umumiy
+// modulda (wrongAnswerFlash.js), 1-10 darslar bilan bir xil.
++ WRONG_FLASH_CSS
 
 // Past ekranlar uchun ixchamlashtirish. SUMMARY_STYLES dan KEYIN turadi,
 // shuning uchun bir xil solishtirmali og'irlikda ustun keladi.

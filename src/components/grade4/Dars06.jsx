@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { canUseGrade4TheoryContinue } from './theoryNavigation.js';
+import { WRONG_FLASH_CSS, useWrongFlash } from './wrongAnswerFlash.js';
 import { Grade4Finale, useGrade4TitleClaim } from './Grade4Finale.jsx';
 
 const G4_TITLE_STYLES = `
@@ -3452,6 +3453,7 @@ const ChoiceScreen = ({ screen, contentKey, figure, choiceOrdinal, storedAnswer,
   const [solved, setSolved] = useState(restored);
   const [attempts, setAttempts] = useState(restorableAnswer?.attempts ?? 0);
   const [wrongIndices, setWrongIndices] = useState(() => new Set(restorableAnswer?.wrongIndices ?? []));
+  const [wrongFlash, flashWrong] = useWrongFlash();
   const segments = useMemo(
     () => localizedSegments(c.audio?.intro ?? c.audio, lang, `s${screen}`),
     [c.audio, lang, screen],
@@ -3463,12 +3465,13 @@ const ChoiceScreen = ({ screen, contentKey, figure, choiceOrdinal, storedAnswer,
   const optionOrder = buildOptionOrder(c.options.length, c.correctIndex, LESSON_META.lessonId, choiceOrdinal);
 
   const choose = (index) => {
-    if (!canAnswer || solved || wrongIndices.has(index)) return;
+    if (!canAnswer || solved) return;
     const nextAttempts = attempts + 1;
     const correct = index === c.correctIndex;
     setPicked(index);
     setAttempts(nextAttempts);
     if (!correct) {
+      flashWrong(index);
       const nextWrong = new Set(wrongIndices);
       nextWrong.add(index);
       setWrongIndices(nextWrong);
@@ -3533,19 +3536,19 @@ const ChoiceScreen = ({ screen, contentKey, figure, choiceOrdinal, storedAnswer,
     <div className={`options-grid ${screen === 13 ? 'options-grid-compact-single' : ''} ${isMuseumPacket ? 'museum-packet-options' : ''}`}>
       {optionOrder.map((sourceIndex, displayIndex) => {
         const option = c.options[sourceIndex];
-        const isWrong = wrongIndices.has(sourceIndex);
         const isCorrect = solved && sourceIndex === c.correctIndex;
         return (
           <button
             type="button"
-            className={`option ${isMuseumPacket ? 'museum-packet-option' : ''} ${isWrong ? 'option-picked-wrong' : ''} ${isCorrect ? 'option-correct' : ''} ${solved && !isCorrect ? 'option-dismissed' : ''}`}
+            data-g4-wrong-flash={wrongFlash === sourceIndex ? 'true' : undefined}
+            className={`option ${isMuseumPacket ? 'museum-packet-option' : ''} ${isCorrect ? 'option-correct' : ''} ${solved && !isCorrect ? 'option-dismissed' : ''}`}
             key={`${t(option)}-${sourceIndex}`}
             data-g4-role={isHook ? 'answer-card' : undefined}
             data-g4-branch="choice"
             data-g4-source-index={sourceIndex}
             data-g4-correct={sourceIndex === c.correctIndex ? 'true' : 'false'}
             aria-label={isMuseumPacket ? `${String.fromCharCode(65 + displayIndex)}. ${t(option)}` : undefined}
-            disabled={!canAnswer || solved || isWrong}
+            disabled={!canAnswer || solved || wrongFlash !== null}
             onClick={() => choose(sourceIndex)}
           >
             <span className="option-letter">{String.fromCharCode(65 + displayIndex)}</span>
@@ -3931,6 +3934,7 @@ export default function Grade4Dars06({ studentName, lang: langProp, ttsApiBase, 
 }
 
 const STYLES = `
+${WRONG_FLASH_CSS}
 html:has(.lesson-root),
 body:has(.lesson-root),
 #root:has(.lesson-root),
@@ -4204,6 +4208,9 @@ html, body { margin: 0; padding: 0; }
   background: ${T.paper};
   box-shadow: 0 8px 22px -6px rgba(255,91,53,.30), 0 0 0 1px rgba(255,91,53,.12);
 }
+/* Dars01 etaloni bo'yicha tayyor tugma to'ldirilgan bo'ladi; bu darsda faqat
+   :hover qoidasi bor edi, shuning uchun "Tekshirish" tugmasi tekis ko'rinardi. */
+.btn-white-accent.btn-ready { color: ${T.paper}; background: ${T.accent}; box-shadow: 0 12px 28px -12px rgba(255,91,53,.65); }
 .btn-white-accent.btn-ready:hover { color: ${T.paper}; background: ${T.accent}; transform: translateY(-1px); box-shadow: 0 12px 28px -6px rgba(255,91,53,.50); }
 .btn:disabled { opacity: .42; cursor: not-allowed; transform: none; box-shadow: none; }
 .screen-stack {

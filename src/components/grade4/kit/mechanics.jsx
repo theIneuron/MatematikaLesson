@@ -13,6 +13,7 @@ import { canUseGrade4TheoryContinue } from '../theoryNavigation.js';
 import {
   buildOptionOrder, playSfx, useCanAnswer, useLang, useLesson, useNarration, useT,
 } from '../theoryShell/runtime.js';
+import { useWrongFlash } from '../wrongAnswerFlash.js';
 import { FeedbackBlock, ModelCard, Options, Stage } from './ui.jsx';
 import { explanationDone } from './gate.js';
 
@@ -69,12 +70,12 @@ export function ChoiceScreen({
 
   const [picked, setPicked] = useState(storedAnswer?.solved ? correctIndex : null);
   const [solved, setSolved] = useState(Boolean(storedAnswer?.solved));
-  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const [flashKey, flashWrong] = useWrongFlash();
   const firstTry = useRef(storedAnswer?.firstTry ?? null);
   const attempts = useRef(storedAnswer?.attempts ?? 0);
 
   const pick = (index) => {
-    if (!canAnswer || solved || wrongSet.has(index)) return;
+    if (!canAnswer || solved) return;
     const source = order[index];
     const right = source === c.correctIndex;
     attempts.current += 1;
@@ -85,7 +86,7 @@ export function ChoiceScreen({
       setSolved(true);
       audio.pushOneOff(t(c.correctText));
     } else {
-      setWrongSet((prev) => new Set([...prev, index]));
+      flashWrong(index);
       audio.pushOneOff(t(c.wrong?.[source] ?? c.correctText));
     }
     onAnswer({
@@ -125,7 +126,7 @@ export function ChoiceScreen({
           <Options
             items={shown}
             picked={picked}
-            wrongSet={wrongSet}
+            flashKey={flashKey}
             solved={solved}
             correctIndex={correctIndex}
             disabled={!canAnswer}
@@ -165,12 +166,12 @@ export function SlotScreen({
 
   const [picked, setPicked] = useState(storedAnswer?.solved ? c.correctSlot : null);
   const [solved, setSolved] = useState(Boolean(storedAnswer?.solved));
-  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const [flashKey, flashWrong] = useWrongFlash();
   const firstTry = useRef(storedAnswer?.firstTry ?? null);
   const attempts = useRef(storedAnswer?.attempts ?? 0);
 
   const pick = (index) => {
-    if (!canAnswer || solved || wrongSet.has(index)) return;
+    if (!canAnswer || solved) return;
     const right = index === c.correctSlot;
     attempts.current += 1;
     if (firstTry.current === null) firstTry.current = right;
@@ -178,7 +179,7 @@ export function SlotScreen({
     playSfx(right ? 'correct' : 'wrong');
     if (right) { setSolved(true); audio.pushOneOff(t(c.correctText)); }
     else {
-      setWrongSet((prev) => new Set([...prev, index]));
+      flashWrong(index);
       audio.pushOneOff(t(c.wrong?.[index] ?? c.correctText));
     }
     onAnswer({
@@ -215,15 +216,19 @@ export function SlotScreen({
         <>
           <div className="slot-row" role="group">
             {c.slots.map((slot, index) => {
-              const state = solved && index === c.correctSlot
-                ? 'slot-done'
-                : wrongSet.has(index) ? 'slot-bad' : picked === index ? 'slot-active' : 'slot-empty';
+              // Xato tanlovdan keyin hech qaysi xona "tanlangan" holatda
+              // qolmaydi: qizarish flash bilan o'tadi va tugma neytral bo'ladi
+              // (metodist qarori 2026-08-21). Xato izohi va chizma esa qoladi —
+              // bola nima bo'lganini o'qib ko'radi.
+              const state = solved && index === c.correctSlot ? 'slot-done' : 'slot-empty';
               return (
                 <button
                   type="button"
                   key={index}
                   className={`slot ${state}`}
-                  disabled={!canAnswer || solved || wrongSet.has(index)}
+                  data-g4-wrong-flash={flashKey === index ? 'true' : undefined}
+                  data-g4-answer-dim={solved && index !== c.correctSlot ? 'true' : undefined}
+                  disabled={!canAnswer || solved}
                   onClick={() => pick(index)}
                 >
                   <span>{t(slot.label)}</span>

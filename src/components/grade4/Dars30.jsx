@@ -1607,7 +1607,7 @@ const Screen10 = (props) => (
 // Qoida kartasi: qator `frame >= index + 1` da ochiladi, ovoz esa nol kadrdan
 // boshlanadi. Shuning uchun kadr bittaga suriladi: birinchi bo'lak birinchi
 // qatorni ochadi, uchinchisi uchinchisini.
-const Screen11 = (props) => <RevealScreen {...props} plain ratio="auto" figure={({ frame }) => <RuleCard frame={frame + 1} />} />;
+const Screen11 = (props) => <RevealScreen {...props} plain ratio="auto" figure={({ frame }) => <RuleCard frame={frame} />} />;
 
 const Screen12 = (props) => (
   <ChoiceScreen

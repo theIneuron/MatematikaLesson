@@ -6,6 +6,67 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+// ---- MATCH-FIX (metodist qarori 2026-08-21) --------------------------------
+// Juftlashtirish uch narsani kafolatlaydi:
+//   1) juftlikning ikki tomoni bir xil rang va bir xil belgi oladi — uchta
+//      qator uchta rangda ko'rinadi va bola nimani nima bilan bog'laganini
+//      ko'zi bilan ko'radi;
+//   2) band kartochkani boshqa qatorga berish mumkin, shuning uchun hammasini
+//      juftlagandan keyin ham xatoni tuzatish yo'li bor — tupik yo'q;
+//   3) o'ng ustun chap ustun bilan bir qatorga tushmaydi: to'g'ri javob
+//      qarshisida turib qolsa, bola o'ylamay bir qatorga bosadi.
+// Blok har darsda takrorlanadi ATAYLAB: LMS avtonom fayl talab qiladi
+// (scripts/build-grade4-practice-lms.mjs — lokal import yo'q).
+const MATCH_TONES = 6;
+// Chap ustundagi qatorlarning kaliti = `pairs` obyektining kaliti.
+const matchRows = (task) => (task.pairs || []).map((pair) => pair.id);
+const matchTone = (rows, key) => {
+  const row = rows.findIndex((item) => String(item) === String(key));
+  return row < 0 ? '' : ` p4-tone${(row % MATCH_TONES) + 1}`;
+};
+const matchToneLeft = (task, pairs, rowKey) => (
+  pairs[rowKey] === undefined ? '' : matchTone(matchRows(task), rowKey)
+);
+const matchToneRight = (task, pairs, rightKey) => {
+  const rows = matchRows(task);
+  const owner = rows.find(
+    (key) => pairs[key] !== undefined && String(pairs[key]) === String(rightKey),
+  );
+  return owner === undefined ? '' : matchTone(rows, owner);
+};
+// Kartochka band bo'lsa, eski juftlik bo'shatiladi: bitta kartochka bir vaqtda
+// faqat bitta qatorga tegishli bo'ladi.
+const matchTie = (pairs, rowKey, rightKey) => {
+  const next = {};
+  Object.keys(pairs).forEach((key) => {
+    if (String(pairs[key]) !== String(rightKey)) next[key] = pairs[key];
+  });
+  next[rowKey] = rightKey;
+  return next;
+};
+// O'ng ustunni shunday joylaydi, ki hech bir karta o'z juftining qarshisida
+// turmaydi. Aralashtirish tasodifiy, lekin natijasi tekshiriladi.
+const matchSpread = (cards, aligned) => {
+  const list = Array.isArray(cards) ? [...cards] : [];
+  if (list.length < 2) return list;
+  const stuck = () => list.some((card, row) => aligned(card, row));
+  for (let attempt = 0; attempt < 24 && stuck(); attempt += 1) {
+    for (let i = list.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [list[i], list[j]] = [list[j], list[i]];
+    }
+  }
+  for (let pass = 0; pass <= list.length && stuck(); pass += 1) {
+    for (let i = 0; i < list.length; i += 1) {
+      if (!aligned(list[i], i)) continue;
+      const j = (i + 1) % list.length;
+      [list[i], list[j]] = [list[j], list[i]];
+    }
+  }
+  return list;
+};
+// ---- MATCH-FIX tugashi ----------------------------------------------------
+
 const T = {
   bg: '#F5F5F0', paper: '#FFFFFF', ink: '#12212C', ink2: '#50616D', ink3: '#87949D',
   accent: '#FF5B35', accentSoft: '#FFF0EA', cyan: '#168FA3', cyanSoft: '#E5F5F6',
@@ -388,9 +449,16 @@ const NumPad = ({ value, onChange, max, disabled, lang }) => (
   </div>
 );
 
-function Task({ task, lang, isLast, onSolved }) {
-  const options = useMemo(() => task.kind === 'mc' ? shuffle(task.options) : [], [task]);
-  const rightCards = useMemo(() => task.kind === 'match' ? shuffle(task.right) : [], [task]);
+// `platform` berilganda tugma qatori chizilmaydi: uni LMS o'zi beradi va
+// tekshiruvni `registerCheck` orqali chaqiradi (LMS kontrakti).
+function Task({ task, lang, isLast, onSolved ,
+  platform = false, mode, onReady, registerCheck, onSubmit, playCorrect, playWrong,
+}) {
+  // Xato javobdan keyin variantlar qayta aralashadi (metodist qarori 2026-08-21).
+  const [wrongRound, setWrongRound] = useState(0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- wrongRound ataylab yangi tartib beradi
+  const options = useMemo(() => task.kind === 'mc' ? shuffle(task.options) : [], [task, wrongRound]);
+  const rightCards = useMemo(() => task.kind === 'match' ? matchSpread(task.right, (card, row) => card.id === task.pairs[row]?.correctRight) : [], [task]);
   const orderCards = useMemo(() => task.kind === 'order' ? shuffle(task.cards) : [], [task]);
   const [picked, setPicked] = useState(null);
   const [typed, setTyped] = useState('');
@@ -405,17 +473,20 @@ function Task({ task, lang, isLast, onSolved }) {
   const checkingRef = useRef(false);
   const feedbackRef = useRef(null);
 
-  const solved = checked && ((task.kind === 'mc' && options[picked]?.correct === true)
+  // Javobning to'g'riligi `checked` dan ALOHIDA hisoblanadi: tekshirishda
+  // xato bo'lsa variantlar qayta aralashtiriladi.
+  const answerCorrect = ((task.kind === 'mc' && picked?.correct === true)
     || (task.kind === 'numpad' && typed === task.answer)
     || (task.kind === 'match' && task.pairs.every((pair) => pairs[pair.id] === pair.correctRight))
     || (task.kind === 'order' && task.steps.every((step) => placed[step.id] === step.correct)));
+  const solved = checked && answerCorrect;
   const canCheck = (task.kind === 'mc' && picked !== null)
     || (task.kind === 'numpad' && typed !== '')
     || (task.kind === 'match' && task.pairs.every((pair) => pairs[pair.id]))
     || (task.kind === 'order' && task.steps.every((step) => placed[step.id]));
 
   const wrongSource = (() => {
-    if (task.kind === 'mc') return options[picked]?.wrong;
+    if (task.kind === 'mc') return picked?.wrong;
     if (task.kind === 'numpad') return task.wrongAnswers?.[typed] ?? task.wrongText;
     if (task.kind === 'match') return task.pairs.find((pair) => pairs[pair.id] !== pair.correctRight)?.wrong;
     if (task.kind === 'order') return task.steps.find((step) => placed[step.id] !== step.correct)?.wrong;
@@ -425,7 +496,7 @@ function Task({ task, lang, isLast, onSolved }) {
   const hintLevel = checked && !solved ? attempts : 0;
   const wrongPair = task.kind === 'match' ? task.pairs.find((pair) => pairs[pair.id] !== pair.correctRight) : null;
   const wrongStep = task.kind === 'order' ? task.steps.find((step) => placed[step.id] !== step.correct) : null;
-  const hintTarget = task.kind === 'mc' ? options[picked]?.id : typed;
+  const hintTarget = task.kind === 'mc' ? picked?.id : typed;
 
   useEffect(() => {
     if (!checked || !feedbackRef.current) return undefined;
@@ -447,18 +518,12 @@ function Task({ task, lang, isLast, onSolved }) {
   const activateLeft = (id) => {
     if (solved) return;
     checkingRef.current = false;
-    setPairs((old) => { const next = { ...old }; delete next[id]; return next; });
     setActiveLeft(id); setChecked(false);
   };
   const connect = (rightId) => {
     if (activeLeft === null || solved) return;
     checkingRef.current = false;
-    setPairs((old) => {
-      const next = { ...old };
-      Object.keys(next).forEach((leftId) => { if (next[leftId] === rightId) delete next[leftId]; });
-      next[activeLeft] = rightId;
-      return next;
-    });
+    setPairs((old) => matchTie(old, activeLeft, rightId));
     setActiveLeft(null); setChecked(false);
   };
   const activateStep = (id) => {
@@ -479,7 +544,7 @@ function Task({ task, lang, isLast, onSolved }) {
     setChecked(false);
   };
   const answerSnapshot = () => {
-    if (task.kind === 'mc') return { selectedOptionId: options[picked]?.id, selectedText: options[picked]?.text };
+    if (task.kind === 'mc') return { selectedOptionId: picked?.id, selectedText: picked?.text };
     if (task.kind === 'numpad') return { enteredValue: typed };
     if (task.kind === 'match') return { pairs: { ...pairs } };
     return { order: task.steps.map((step) => placed[step.id]) };
@@ -495,31 +560,52 @@ function Task({ task, lang, isLast, onSolved }) {
     checkingRef.current = true;
     setAttempts((old) => old + 1);
     setChecked(true);
+    if (!answerCorrect) setWrongRound((old) => old + 1);
   };
 
+  // --- LMS platforma kontrakti ------------------------------------------
+  // Mexanikaga tegilmaydi: natija mavjud holatlardan o'qiladi.
+  useEffect(() => { onReady?.(Boolean(canCheck) && !solved && mode !== 'review'); },
+    [canCheck, solved, mode, onReady]);
+  const checkRef = useRef(checkAnswer);
+  useEffect(() => { checkRef.current = checkAnswer; });
+  useEffect(() => { registerCheck?.(() => checkRef.current?.()); }, [registerCheck]);
+  const reportedRef = useRef(-1);
+  useEffect(() => {
+    if (!checked) return;
+    if (reportedRef.current === attempts) return;
+    reportedRef.current = attempts;
+    (solved ? playCorrect : playWrong)?.();
+    onSubmit?.({
+      questionText: typeof task.prompt === 'object' ? task.prompt.uz : String(task.prompt ?? ''),
+      correct: Boolean(solved),
+      meta: { taskId: task.id, kind: task.kind, attempts: attempts },
+    });
+  }, [attempts, checked, solved, onSubmit, playCorrect, playWrong, task]);
+  // ----------------------------------------------------------------------
   return <section className={`p4-task ${hintLevel >= 2 ? 'is-hint' : ''}`} aria-labelledby={`task-${task.id}`}>
     <p className={`p4-eyebrow is-${task.level}`}><span>{tx(UI.level[task.level], lang)}</span> · {tx(UI.task, lang)} {Number(task.id)}</p>
     <p className="p4-setup">{tx(task.setup, lang)}</p>
     <MeanVisual visual={task.visual} solved={solved} lang={lang} hintLevel={hintLevel} hintTarget={hintTarget} />
     <h2 id={`task-${task.id}`} className="p4-ask">{tx(task.prompt, lang)}</h2>
 
-    {task.kind === 'mc' && <div className="p4-options">{options.map((option, index) => <button key={option.id} type="button" className={`p4-option ${picked === index ? (checked ? (option.correct ? 'is-ok' : 'is-no') : 'is-on') : ''}`} aria-pressed={picked === index} disabled={solved} onClick={() => { checkingRef.current = false; setPicked(index); setChecked(false); }}><span className="p4-letter">{'ABCD'[index]}</span><span>{tx(option.text, lang)}</span></button>)}</div>}
+    {task.kind === 'mc' && <div className="p4-options">{options.map((option, index) => <button key={option.id} type="button" className={`p4-option ${picked === option ? (checked ? (option.correct ? 'is-ok' : 'is-no') : 'is-on') : ''}`} aria-pressed={picked === option} disabled={solved} onClick={() => { checkingRef.current = false; setPicked(option); setChecked(false); }}><span className="p4-letter">{'ABCD'[index]}</span><span>{tx(option.text, lang)}</span></button>)}</div>}
 
     {task.kind === 'numpad' && <NumPad value={typed} onChange={(value) => { checkingRef.current = false; setTyped(value); setChecked(false); }} max={task.maxLen} disabled={solved} lang={lang} />}
 
     {task.kind === 'match' && <div className="p4-match"><p className="p4-note">{tx(UI.matchHint, lang)}</p><div className="p4-match-cols">
-      <div className="p4-match-col">{task.pairs.map((pair) => <button key={pair.id} type="button" className={`p4-match-item ${activeLeft === pair.id ? 'is-active' : ''} ${pairs[pair.id] ? 'is-tied' : ''} ${hintLevel >= 2 && wrongPair?.id === pair.id ? 'is-hint' : ''}`} aria-pressed={activeLeft === pair.id} disabled={solved} onClick={() => activateLeft(pair.id)}><span>{tx(pair.left, lang)}</span>{pairs[pair.id] && <b className="p4-tie">{tx(task.right.find((right) => right.id === pairs[pair.id])?.text, lang)}</b>}</button>)}</div>
-      <div className="p4-match-col">{rightCards.map((right) => { const used = Object.values(pairs).includes(right.id); return <button key={right.id} type="button" className={`p4-match-item p4-match-right ${used ? 'is-used' : ''}`} aria-pressed={used} disabled={solved || activeLeft === null || used} onClick={() => connect(right.id)}>{tx(right.text, lang)}</button>; })}</div>
+      <div className="p4-match-col">{task.pairs.map((pair) => <button key={pair.id} type="button" className={`p4-match-item ${activeLeft === pair.id ? 'is-active' : ''} ${pairs[pair.id] ? 'is-tied' : ''} ${hintLevel >= 2 && wrongPair?.id === pair.id ? 'is-hint' : ''}${matchToneLeft(task, pairs, pair.id)}`} aria-pressed={activeLeft === pair.id} disabled={solved} onClick={() => activateLeft(pair.id)}><span>{tx(pair.left, lang)}</span>{pairs[pair.id] && <b className="p4-tie">{tx(task.right.find((right) => right.id === pairs[pair.id])?.text, lang)}</b>}</button>)}</div>
+      <div className="p4-match-col">{rightCards.map((right) => { const used = Object.values(pairs).includes(right.id); return <button key={right.id} type="button" className={`p4-match-item p4-match-right ${used ? 'is-used' : ''}${matchToneRight(task, pairs, right.id)}`} aria-pressed={used} disabled={solved || activeLeft === null} onClick={() => connect(right.id)}>{tx(right.text, lang)}</button>; })}</div>
     </div></div>}
 
     {task.kind === 'order' && <div className="p4-order"><p className="p4-note">{tx(UI.orderHint, lang)}</p><div className="p4-order-slots">{task.steps.map((step) => <button key={step.id} type="button" className={`p4-order-slot ${activeStep === step.id ? 'is-active' : ''} ${hintLevel >= 2 && wrongStep?.id === step.id ? 'is-hint' : ''}`} aria-pressed={activeStep === step.id} disabled={solved} onClick={() => activateStep(step.id)}><small>{tx(step.label, lang)}</small><b>{placed[step.id] ? tx(task.cards.find((card) => card.id === placed[step.id])?.text, lang) : '—'}</b></button>)}</div><div className="p4-card-bank">{orderCards.map((card) => { const used = Object.values(placed).includes(card.id); return <button key={card.id} type="button" className={`p4-card ${used ? 'is-used' : ''}`} aria-pressed={used} disabled={solved || !activeStep || used} onClick={() => placeStep(card.id)}>{tx(card.text, lang)}</button>; })}</div></div>}
 
     {checked && <Feedback feedbackRef={feedbackRef} ok={solved} text={solved ? tx(task.correctText, lang) : wrongText} rule={task.rule} lang={lang} />}
-    <div className="p4-actions">
+    {!platform && <div className="p4-actions">
       {!checked && !solved && <button type="button" className="p4-btn" disabled={!canCheck} onClick={checkAnswer}>{tx(UI.check, lang)}</button>}
       {checked && !solved && <button type="button" className="p4-btn p4-btn-ghost" onClick={retry}>{tx(UI.retry, lang)}</button>}
       {solved && <button type="button" className="p4-btn p4-btn-ready" disabled={advancing} onClick={() => { if (advancedRef.current) return; checkingRef.current = false; advancedRef.current = true; setAdvancing(true); onSolved({ taskId: task.id, taskNumber: Number(task.id), level: task.level, kind: task.kind, skillTag: task.skillTag, attempts, firstTry: attempts === 1, correct: true, setup: task.setup, prompt: task.prompt, studentAnswer: answerSnapshot(), correctAnswer: correctSnapshot(), answerChoices: task.options?.map(({ id, text, correct }) => ({ id, text, correct: Boolean(correct) })) ?? task.right ?? task.cards ?? null, screenMeta: SCREEN_META.find((screen) => screen.taskId === task.id) }); }}>{tx(isLast ? UI.finish : UI.next, lang)}</button>}
-    </div>
+    </div>}
   </section>;
 }
 
@@ -593,4 +679,96 @@ const STYLES = `
 @keyframes p4-reveal{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}@keyframes p4-math-reveal{from{opacity:0;transform:translateY(4px) scale(.94)}to{opacity:1;transform:none}}
 @media(max-width:520px){.p4-head{padding-top:58px}.p4-options{grid-template-columns:1fr}.p4-order-slots{grid-template-columns:repeat(3,minmax(0,1fr))}.p4-order-slot{min-height:60px;padding:5px}.p4-order-slot b{font-size:10px}.p4-compare{grid-template-columns:1fr}.p4-match-cols{gap:7px}.p4-match-item{font-size:12px;padding:6px}.p4-bar-field{gap:7px;padding-inline:6px}.p4-bar-wrap b{font-size:10px}.p4-visual{min-height:82px}.p4-title{max-width:75%}}
 @media(prefers-reduced-motion:reduce){.p4-root *,.p4-root *::before,.p4-root *::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+/* PRACTICE-FIX boshlanishi — metodist qarori 2026-08-21.
+   1) Tekshirish tugmasi o'ngda (2-dars etaloni).
+   2) Moslashtirishda ikki tomondagi kartochkalar bir xil o'lchamda: ustun grid
+      bo'ladi va qatorlari 1fr, shuning uchun juftlar qator bo'yicha tekislanadi.
+   Bu blok har darsda takrorlanadi ATAYLAB: LMS avtonom fayl talab qiladi. */
+.p4-actions, .g4p-actions { justify-content: flex-end; }
+.p4-match-cols, .g4p-match-cols { align-items: stretch; }
+.p4-match-col, .g4p-match-col { display: grid; grid-auto-rows: 1fr; align-content: stretch; }
+/* PRACTICE-FIX tugashi */
+
+/* MATCH-FIX boshlanishi — metodist qarori 2026-08-21.
+   Juftlikning ikki tomoni bir xil rang va bir xil belgi oladi: uchta qator
+   uchta rangda ko'rinadi. Rang tanlangan (is-active) va band (is-used)
+   holatlaridan ustun turishi kerak, shuning uchun !important. Tanlov va
+   tekshiruv holatlari esa rangdan ustun: ular pastda, keyingi qatorlarda.
+   Blok har darsda takrorlanadi ATAYLAB: LMS avtonom fayl talab qiladi. */
+.p4-match [class*="p4-tone"],.g4p-match [class*="p4-tone"]{position:relative;opacity:1!important}
+.p4-match [class*="p4-tone"]::before,.g4p-match [class*="p4-tone"]::before{position:absolute;top:2px;left:4px;font-size:9px;line-height:1;opacity:.9;pointer-events:none}
+.p4-match [class*="p4-tone"] b,.g4p-match [class*="p4-tone"] b,.p4-match [class*="p4-tone"] small,.g4p-match [class*="p4-tone"] small{color:inherit!important}
+.p4-match .p4-tone1,.g4p-match .p4-tone1{background:#DCF0F3!important;border-color:#0E7C8F!important;box-shadow:inset 0 0 0 2px #0E7C8F!important;color:#0B5A68!important}
+.p4-match .p4-tone1::before,.g4p-match .p4-tone1::before{content:"●";color:#0E7C8F}
+.p4-match .p4-tone2,.g4p-match .p4-tone2{background:#E9E4F7!important;border-color:#5E45AD!important;box-shadow:inset 0 0 0 2px #5E45AD!important;color:#3E2E75!important}
+.p4-match .p4-tone2::before,.g4p-match .p4-tone2::before{content:"■";color:#5E45AD}
+.p4-match .p4-tone3,.g4p-match .p4-tone3{background:#FBE2EA!important;border-color:#AE3760!important;box-shadow:inset 0 0 0 2px #AE3760!important;color:#77223F!important}
+.p4-match .p4-tone3::before,.g4p-match .p4-tone3::before{content:"◆";color:#AE3760}
+.p4-match .p4-tone4,.g4p-match .p4-tone4{background:#E2E8F0!important;border-color:#3C5A80!important;box-shadow:inset 0 0 0 2px #3C5A80!important;color:#27405C!important}
+.p4-match .p4-tone4::before,.g4p-match .p4-tone4::before{content:"★";color:#3C5A80}
+.p4-match .p4-tone5,.g4p-match .p4-tone5{background:#EFE6DA!important;border-color:#6B4A2B!important;box-shadow:inset 0 0 0 2px #6B4A2B!important;color:#4A3219!important}
+.p4-match .p4-tone5::before,.g4p-match .p4-tone5::before{content:"▲";color:#6B4A2B}
+.p4-match .p4-tone6,.g4p-match .p4-tone6{background:#FBEBCB!important;border-color:#A2690F!important;box-shadow:inset 0 0 0 2px #A2690F!important;color:#6E4708!important}
+.p4-match .p4-tone6::before,.g4p-match .p4-tone6::before{content:"✚";color:#A2690F}
+.p4-match .is-active,.g4p-match .is-active{background:#FFF0EA!important;border-color:#FF5B35!important;box-shadow:inset 0 0 0 2px #FF5B35!important;color:#12212C!important}
+.p4-match .is-ok,.g4p-match .is-ok{background:#E7F3EC!important;border-color:#227A53!important;box-shadow:inset 0 0 0 2px #227A53!important;color:#1B5E40!important}
+.p4-match .is-no,.g4p-match .is-no{background:#FFF5D9!important;border-color:#A96F13!important;box-shadow:inset 0 0 0 2px #A96F13!important;color:#7C5210!important}
+/* MATCH-FIX tugashi */
+/* NOSCROLL boshlanishi — metodist qarori 2026-08-21.
+   Past ekranda (1280x720 noutbuk, 360x640 telefon) topshiriq skrollga
+   ketmasligi kerak: bola «Tekshirish» tugmasini ko'rmasa, uni bosmaydi.
+   Faqat BO'SH JOY qisqaradi — bosiladigan maydon 44 px dan kichraymaydi
+   (MOBIL_DESKTOP_MOSLASH.md). Blok har darsda takrorlanadi ATAYLAB: LMS
+   avtonom fayl talab qiladi. */
+@media (max-height:820px){
+.p4-root,.g4p-root{padding-bottom:12px}
+.p4-head,.g4p-head{padding-top:52px;padding-bottom:4px}
+.p4-task,.g4p-task{gap:8px}
+.p4-eyebrow,.g4p-eyebrow{margin-top:0}
+.p4-ask,.g4p-ask{margin-top:0}
+.p4-note,.g4p-note{margin-top:4px}
+.p4-actions,.g4p-actions{margin-top:0}
+.p4-figure{padding-top:8px;padding-bottom:8px}
+.p4-pad,.g4p-pad{padding:8px;gap:6px}
+.p4-pad-display,.g4p-pad-display{min-height:44px}
+.p4-pad-keys,.g4p-pad-keys{gap:5px}
+.p4-options,.g4p-options{gap:7px}
+.p4-match-cols,.g4p-match-cols{gap:8px;margin-top:4px}
+.p4-match-col,.g4p-match-col{gap:6px}
+.p4-header,.g4p-header{margin-bottom:4px}
+.p4-header h1,.g4p-header h1{margin-top:2px}
+.p4-task-top{margin-bottom:2px}
+.p4-setup,.g4p-setup{line-height:1.4}
+.p4-match-item,.g4p-match-item{min-height:44px;padding-top:5px;padding-bottom:5px}
+.p4-match button,.g4p-match button{min-height:44px;padding-top:5px;padding-bottom:5px}
+.p4-fb,.p4-feedback,.g4p-feedback{padding-top:9px;padding-bottom:9px}
+.p4-rule,.g4p-rule{margin-top:6px}
+.p4-cells,.p4-grid{gap:4px}
+.p4-card-bank,.p4-order-slots,.p4-slot-list,.p4-sort-pool{gap:6px}
+}
+@media (max-height:760px){
+.p4-head,.g4p-head{padding-bottom:0}
+.p4-main,.g4p-main{padding-top:0;padding-bottom:0}
+.p4-root,.g4p-root{padding-bottom:8px}
+.p4-task,.g4p-task{gap:5px}
+.p4-figure{padding-top:4px;padding-bottom:4px}
+.p4-eyebrow,.g4p-eyebrow{font-size:10px}
+.p4-setup,.g4p-setup{font-size:clamp(13px,1.8vw,14px)}
+.p4-ask,.g4p-ask{font-size:clamp(15px,2.2vw,18px)}
+.p4-pad,.g4p-pad{padding:4px;gap:4px}
+.p4-pad-keys,.g4p-pad-keys{gap:4px}
+.p4-pad-display,.g4p-pad-display{min-height:40px}
+.p4-visual,.g4p-visual{padding-top:8px;padding-bottom:8px;min-height:0}
+.p4-svg,.g4p-svg{max-height:96px}
+}
+@media (max-height:700px){
+.p4-head,.g4p-head{padding-top:52px;padding-bottom:2px}
+.p4-task,.g4p-task{gap:6px}
+.p4-figure{padding-top:6px;padding-bottom:6px}
+.p4-bignum,.g4p-bignum{font-size:clamp(20px,4.4vw,30px)}
+.p4-pad,.g4p-pad{padding:6px;gap:5px}
+.p4-match-col,.g4p-match-col{gap:5px}
+}
+/* NOSCROLL tugashi */
 `;

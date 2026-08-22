@@ -530,7 +530,11 @@ for (const lesson of lessons) {
   // Unvon faqat yakuniy savoldan keyin ochiladi va tanlov Back dan keyin saqlanadi.
   const etalonReflectionGate = /\[reflection, setReflection\]\s*=\s*useState\(storedAnswer\?\.reflection/.test(source)
     && /const solved = reflection === c.correctIndex;/.test(source)
-    && /if \(solved \|\| wrongSet\.has\(sourceIndex\) \|\| !\(audio\.muted \|\| audio\.completed\)\) return;/.test(source)
+    // Xato javobni qulflash qoidasi 2026-08-21 da o'zgardi: variant doimiy
+    // qizil bo'lib qolmaydi (`wrongSet`), qisqa qizarib neytralga qaytadi
+    // (`flashKey`, `wrongAnswerFlash.js`). Ikkala shakl ham qabul qilinadi:
+    // eski shakl hali ko'chirilmagan darslar uchun qoladi.
+    && /if \(solved \|\| (?:wrongSet\.has\(sourceIndex\)|flashKey !== null) \|\| !\(audio\.muted \|\| audio\.completed\)\) return;/.test(source)
     && /reflection: sourceIndex,/.test(source)
     && /solved \? ['"]reward-unlocked['"] : ['"]reward-locked['"]/.test(source)
     && /if \(!solved \|\| finished/.test(source)

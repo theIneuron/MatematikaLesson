@@ -11,6 +11,7 @@ import { canUseGrade4TheoryContinue } from '../theoryNavigation.js';
 import {
   buildOptionOrder, playSfx, useLesson, useNarration, useT,
 } from '../theoryShell/runtime.js';
+import { useWrongFlash } from '../wrongAnswerFlash.js';
 import { BitSVG, FeedbackBlock, Stage } from './ui.jsx';
 
 const RANK_BOOST_MS = 3900;
@@ -29,6 +30,7 @@ export function SummaryScreen({ screen, answers, onAnswer, onPrev, finishLesson 
   const correctIndex = order.indexOf(c.reflectionCorrectIndex);
 
   const [picked, setPicked] = useState(null);
+  const [flashKey, flashWrong] = useWrongFlash();
   const [rulesOpen, setRulesOpen] = useState(false);
   const [showRankBoost, setShowRankBoost] = useState(false);
   const [finished, setFinished] = useState(false);
@@ -53,6 +55,7 @@ export function SummaryScreen({ screen, answers, onAnswer, onPrev, finishLesson 
     const right = order[index] === c.reflectionCorrectIndex;
     setPicked(index);
     playSfx(right ? 'correct' : 'wrong');
+    if (!right) flashWrong(index);
     if (right) {
       setShowRankBoost(true);
       audio.pushOneOff(`${t(c.reflectionCorrect)} ${t(c.rewardAnnounce)} ${t(award.title)}.`);
@@ -133,10 +136,12 @@ export function SummaryScreen({ screen, answers, onAnswer, onPrev, finishLesson 
                 <button
                   type="button"
                   key={option}
-                  className={`reflection-option ${picked === index && !solved ? 'reflection-wrong' : ''}`}
+                  className="reflection-option"
                   data-g4-branch="reflection"
                   data-g4-source-index={order[index]}
                   data-g4-correct={index === correctIndex ? 'true' : 'false'}
+                  data-g4-wrong-flash={flashKey === index ? 'true' : undefined}
+                  data-g4-answer-dim={solved && index !== correctIndex ? 'true' : undefined}
                   disabled={solved}
                   onClick={() => choose(index)}
                 >

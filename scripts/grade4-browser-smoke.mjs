@@ -121,10 +121,16 @@ const registry = await readFile(registryPath, 'utf8');
 const registeredLessons = [...registry.matchAll(/slug:\s*'([^']+)'[\s\S]*?Component:\s*lazy\(\(\)\s*=>\s*import\('\.\.\/components\/grade4\/(Dars\d{2}(Practice)?\.jsx)'\)\)/g)]
   .map((match) => ({ slug: match[1], file: match[2], section: match[3] ? 'amaliy' : 'nazariy' }));
 const numberedFile = (number, suffix = '') => 'Dars' + String(number).padStart(2, '0') + suffix + '.jsx';
+// Amaliyot fayllari qattiq 30 ta deb yozilgan edi va yangi amaliy darslar
+// (41-51) qamrovga tushmay qolardi. Endi ro'yxat DISKDAGI fayllardan
+// yig'iladi: 1-30 mavjud bo'lganda xatti-harakat o'zgarmaydi.
+const availablePracticeNumbers = Array.from({ length: 51 }, (_, index) => index + 1)
+  .filter((number) => existsSync(path.join(ROOT, 'src/components/grade4', numberedFile(number, 'Practice'))));
 const targetLessonFiles = new Set([
   ...Array.from({ length: 51 }, (_, index) => numberedFile(index + 1)),
-  ...Array.from({ length: 30 }, (_, index) => numberedFile(index + 1, 'Practice')),
+  ...availablePracticeNumbers.map((number) => numberedFile(number, 'Practice')),
 ]);
+const EXPECTED_ROUTE_COUNT = 51 + availablePracticeNumbers.length;
 const allLessons = registeredLessons.filter((lesson) => targetLessonFiles.has(lesson.file));
 const registryOnlyLessons = registeredLessons.filter((lesson) => !targetLessonFiles.has(lesson.file));
 const missingRegistryEntries = [...targetLessonFiles].filter((file) => (
@@ -155,8 +161,8 @@ if (unexpectedUnavailable.length) {
   console.error('Grade 4 registryda kutilmagan mavjud bo\'lmagan componentlar: ' + unexpectedUnavailable.join(', ') + '.');
   process.exit(1);
 }
-if ((requested.size === 0 && lessons.length !== 81) || (requested.size > 0 && lessons.length !== requested.size)) {
-  console.error('Grade 4 registrydan ' + lessons.length + ' mavjud route topildi, kutilgan ' + (requested.size || 81) + '.');
+if ((requested.size === 0 && lessons.length !== EXPECTED_ROUTE_COUNT) || (requested.size > 0 && lessons.length !== requested.size)) {
+  console.error('Grade 4 registrydan ' + lessons.length + ' mavjud route topildi, kutilgan ' + (requested.size || EXPECTED_ROUTE_COUNT) + '.');
   process.exit(1);
 }
 if (registryOnlyLessons.length) {
@@ -295,14 +301,33 @@ async function extractPracticeTasks(lesson) {
   });
   const decimal = (comma, point) => b(comma, comma, point);
   const expression = source.slice(initializer.start, initializer.end);
-  const tasks = runInNewContext('(' + expression + ')', {
+  const sandbox = {
     addEnglish: (value) => value,
     b,
     d: decimal,
     dec: decimal,
     decimal,
     option,
-  }, { timeout: 2_000 });
+  };
+  // Bank modul darajasidagi konstantalarga tayanishi mumkin (50-darsda DAYS va
+  // WEEKS): ular avval shu fayldan hisoblanib, sandboxga qo'shiladi.
+  const resolveConstant = (name, seen) => {
+    const constant = findVariableInitializer(ast, name);
+    if (!constant) throw new Error(name + ' topilmadi');
+    const code = source.slice(constant.start, constant.end);
+    seen.add(name);
+    for (const identifier of new Set(code.split(/[^A-Za-z0-9_]+/).filter((word) => /^[A-Z][A-Z0-9_]*$/.test(word)))) {
+      if (identifier in sandbox || seen.has(identifier)) continue;
+      try { sandbox[identifier] = resolveConstant(identifier, seen); } catch { /* konstanta emas */ }
+    }
+    return runInNewContext('(' + code + ')', sandbox, { timeout: 2_000 });
+  };
+  const seen = new Set(['TASKS']);
+  for (const identifier of new Set(expression.split(/[^A-Za-z0-9_]+/).filter((word) => /^[A-Z][A-Z0-9_]*$/.test(word)))) {
+    if (identifier in sandbox || seen.has(identifier)) continue;
+    try { sandbox[identifier] = resolveConstant(identifier, seen); } catch { /* konstanta emas */ }
+  }
+  const tasks = runInNewContext('(' + expression + ')', sandbox, { timeout: 2_000 });
   if (!Array.isArray(tasks) || tasks.length !== 10) {
     throw new Error(lesson.file + ': TASKS soni ' + (Array.isArray(tasks) ? tasks.length : 'array emas') + ', kutilgan 10');
   }
@@ -1541,6 +1566,22 @@ async function solveSort(page, task) {
 }
 
 async function solveShade(page, task) {
+  // 41-darsdan boshlab `shade` sanoqni emas, AYNAN kataklarni tekshiradi:
+  // simmetriyada katakning o'rni javobning o'zi. Bunday topshiriqda katak
+  // kartasi (`visual.map`) bor va `+` belgisi bo'yaladigan katakni ko'rsatadi.
+  if (Array.isArray(task.visual?.map)) {
+    const targets = [];
+    task.visual.map.forEach((row, rowIndex) => {
+      row.split('').forEach((char, colIndex) => {
+        if (char === '+') targets.push(rowIndex + '-' + colIndex);
+      });
+    });
+    if (!targets.length) throw new Error(task.id + ': katak kartasida bo\'yaladigan katak yo\'q');
+    for (const cell of targets) {
+      await inLesson(page, '.p4-grid button[data-cell="' + cell + '"]').click();
+    }
+    return;
+  }
   const cells = inLesson(page, '.p4-cells button');
   if (await cells.count() < task.selectCount) throw new Error(task.id + ': yetarli selectable cell topilmadi');
   for (let index = 0; index < task.selectCount; index += 1) {
@@ -1603,7 +1644,7 @@ async function solvePracticeTask(page, task) {
     return;
   }
   if (task.kind === 'ticks') {
-    await clickMatchingButton(page, '.p4-scale-tick button', task.answer);
+    await clickTick(page, task.answer);
     return;
   }
   if (task.kind === 'shade') {
@@ -1645,6 +1686,30 @@ async function solveWrongOrder(page, task) {
   }
 }
 
+// Bo’linma imzosiz ham bo’lishi mumkin (45 va 51-dars), o’q chizma ichida
+// ham turadi (50-dars): avval aria-label, keyin matn bo’yicha izlanadi.
+async function clickTick(page, value, { avoid = false } = {}) {
+  const selector = '.p4-scale-tick button, .p4-chart-value button';
+  const buttons = inLesson(page, selector);
+  const count = await buttons.count();
+  const labels = [];
+  for (let index = 0; index < count; index += 1) {
+    const button = buttons.nth(index);
+    if (!(await button.isVisible()) || !(await button.isEnabled())) continue;
+    labels.push({ index, label: (await button.getAttribute('aria-label')) ?? '' });
+  }
+  const same = (label) => label === String(value) || label.startsWith(String(value) + " ");
+  const target = avoid
+    ? labels.find((item) => !same(item.label))
+    : labels.find((item) => same(item.label));
+  if (!target) {
+    if (avoid) throw new Error('Tick topilmadi: [' + labels.map((item) => item.label).join(' | ') + ']');
+    await clickMatchingButton(page, selector, value);
+    return;
+  }
+  await buttons.nth(target.index).click();
+}
+
 async function solveWrongPracticeTask(page, task) {
   if (['mc', 'state', 'place', 'sign', 'card'].includes(task.kind)
     || (task.kind === 'missing' && task.answer === undefined)) {
@@ -1661,6 +1726,51 @@ async function solveWrongPracticeTask(page, task) {
   }
   if (task.kind === 'order') {
     await solveWrongOrder(page, task);
+    return;
+  }
+  if (task.kind === 'ticks') {
+    await clickTick(page, task.answer, { avoid: true });
+    return;
+  }
+  if (task.kind === 'sort') {
+    // Bitta karta ataylab boshqa guruhga tushadi, qolgani joyiga.
+    const wrongBin = task.bins.find((bin) => bin.id !== task.items[0].bin);
+    for (const [index, item] of task.items.entries()) {
+      const bin = index === 0 ? wrongBin : task.bins.find((candidate) => candidate.id === item.bin);
+      await clickMatchingButton(page, '.p4-sort-pool button', localize(item.text));
+      await clickMatchingButton(page, '.p4-sort-bin-head', localize(bin.label));
+    }
+    return;
+  }
+  if (task.kind === 'shade') {
+    const cells = inLesson(page, '.p4-grid button, .p4-cells button');
+    const wanted = Math.max(1, (task.selectCount ?? 2) - 1);
+    for (let index = 0; index < wanted; index += 1) await cells.nth(index).click();
+    return;
+  }
+  if (task.kind === 'slots') {
+    const rotated = [...task.slots.slice(1), task.slots[0]].map((slot) => slot.correct);
+    for (const [index] of task.slots.entries()) {
+      const card = task.cards.find((item) => (typeof item === "object" ? item.id : item) === rotated[index]);
+      const text = typeof card === "object" ? localize(card.text ?? card.label ?? card.id) : String(card ?? rotated[index]);
+      await clickLocatorIndex(page, '.p4-slot-list .p4-slot, .g4p-slots button', index);
+      await clickMatchingButton(page, '.p4-card-bank .p4-card, .g4p-cards button', text);
+    }
+    return;
+  }
+  if (task.kind === 'gap') {
+    const gaps = inLesson(page, '.p4-gap');
+    const count = await gaps.count();
+    for (let index = 0; index < count; index += 1) {
+      const label = await gaps.nth(index).getAttribute("aria-label");
+      if (label !== String(task.correctGap)) { await gaps.nth(index).click(); return; }
+    }
+  }
+  if (task.kind === 'fracbuild') {
+    const groups = inLesson(page, '.p4-frac-builder > div');
+    const wrongNumerator = task.nChoices.find((value) => value !== task.answer.n);
+    await groups.nth(0).getByRole("button", { name: String(wrongNumerator), exact: true }).click();
+    await groups.nth(1).getByRole("button", { name: String(task.answer.d), exact: true }).click();
     return;
   }
   throw new Error(task.id + ': wrong-first qo\'llab-quvvatlamaydigan kind "' + task.kind + '"');

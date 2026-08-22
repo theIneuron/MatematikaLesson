@@ -17,4 +17,39 @@ Yangi dars komponenti shu yerda yaratiladi va `src/lessons/grade4.js` registriga
 - `LESSON_META.lessonTitle` uch tilda to'ldiriladi va `onFinished.lessonTitle` tanlangan tilda qaytadi.
 - Ingliz terminlari va TTS shakllari `EN_GLOSSARY.md` bo'yicha yoziladi.
 
+## LMS uchun yig'ish
+
+LMS darsni **bitta avtonom fayl** sifatida o'qiydi: faylda `./kit/index.js`,
+`../theoryShell/...` kabi lokal import bo'lsa, dars ochilmaydi. Bu papkadagi
+manba fayllar esa ataylab umumiy modullar ustida qurilgan — CLAUDE.md §5 dagi
+"infratuzilmani nusxalamaslik" qoidasi shuni talab qiladi.
+
+Bu **ikkala turga** tegishli. Nazariy darslar `kit/` va `theoryShell/` ustida
+turadi; amaliyot darslari avval avtonom yozilgan edi, keyin ular ham
+`./grade4PracticeFixStyles.js` ga o'tdi — ya'ni bitta lokal import ham darsni
+LMS uchun yopib qo'yadi.
+
+Ikkala talab birga bajariladi: manba umumiy modul ustida qoladi, LMS fayli esa
+undan **yig'iladi**.
+
+```powershell
+npm run lms:grade4                 # 51 nazariy
+npm run lms:grade4:practice        # 51 amaliyot
+npm run lms:grade4:all             # 102 fayl
+npm run lms:grade4 15 41-51        # tanlab
+npm run lms:grade4:check           # papkadagi hamma faylning shakli
+node scripts/grade4-lms-render-check.mjs --all   # brauzerda chinakam render
+```
+
+Chiqish: `src/components/grade4/lms-grade4-standalone/` ichida `DarsNN.jsx` va
+`DarsNNPractice.jsx` — papka `.gitignore` da, fayllar kerak bo'lganda qayta
+yaratiladi. Har bir faylda darsning kodi, umumiy modullar va barcha uslublar
+ichkarida; tashqariga faqat `react` va `react-dom` qoladi (amaliyotda —
+faqat `react`). Manba fayllar o'zgartirilmaydi.
+
+`--check` faqat shaklni ko'radi (import yo'q, default export bor, `<style>`
+ichkarida). Mount bo'lishini `grade4-lms-render-check.mjs` tekshiradi — u har
+bir faylni brauzerda React ostida chizib, konsol xatolarini yig'adi. Ikkalasi
+ham o'tmaguncha fayl LMS ga yuklanmaydi.
+
 Tekshiruv: `npm run lint:grade4:trilingual` faqat migratsiya targetlari va ularning audit/smoke infratuzilmasini lint qiladi. `npm run audit:grade4:trilingual` migratsiya scope'idagi Dars01–Dars30 va Dars01Practice–Dars30Practice komponentlari uchun til to'liqligi, selectorlar, theory audio parity va practice audio-free kontraktini tekshiradi. `npm run test:grade4:browser:trilingual` shu 60 route'ni UZ/RU/EN va belgilangan viewportlarda tekshiradi. To'liq Grade 4 inventari 51 theory + 30 practice, ya'ni 81 route. `npm run audit:grade4` esa kengaytirilgan kurs auditini, jumladan Dars31–51 uchun 15 slayd/50 avtomatik frame kontraktini ham ishga tushiradi.

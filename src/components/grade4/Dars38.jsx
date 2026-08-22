@@ -1,6 +1,8 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { canUseGrade4TheoryContinue } from './theoryNavigation.js';
+import { WRONG_FLASH_CSS, useWrongFlash } from './wrongAnswerFlash.js';
+import { FINALE_FIT_CSS, SPLIT_STEPS_FIT_CSS } from './grade4LayoutFixStyles.js';
 
 // ============================================================================
 // 4-SINF · Dars 38 · Geometrik yasashlar
@@ -1018,7 +1020,7 @@ const BitSVG = ({ state = 'present', className = '' }) => {
   </svg>
   );
 };
-const AudioIndicator = ({ audio }) => { const t = useT(); const muteLabel = t(audio.muted ? bi("Ovozni yoqish", 'Включить звук', 'Turn sound on') : bi("Ovozni o'chirish", 'Выключить звук', 'Turn sound off')); const replayLabel = t(bi('Qayta eshitish', 'Повторить', 'Replay')); return <div className="audio-indicator"><button type="button" onClick={audio.toggleMute} aria-label={muteLabel} title={muteLabel}>{audio.muted ? '🔇' : '🔊'}</button><span className={audio.isPlaying ? 'audio-wave playing' : 'audio-wave'}><i/><i/><i/></span>{!audio.muted && <button type="button" onClick={audio.replay} aria-label={replayLabel} title={replayLabel}>↻</button>}</div>; };
+const AudioIndicator = ({ audio }) => { const t = useT(); const muteLabel = t(audio.muted ? bi("Ovozni yoqish", 'Включить звук', 'Turn sound on') : bi("Ovozni o'chirish", 'Выключить звук', 'Turn sound off')); const replayLabel = t(bi('Qayta eshitish', 'Повторить', 'Replay')); return <div className="audio-indicator audio-controls"><button type="button" onClick={audio.toggleMute} aria-label={muteLabel} title={muteLabel}>{audio.muted ? '🔇' : '🔊'}</button><span className={audio.isPlaying ? 'audio-wave playing' : 'audio-wave'}><i/><i/><i/></span>{!audio.muted && <button type="button" onClick={audio.replay} aria-label={replayLabel} title={replayLabel}>↻</button>}</div>; };
 const ScreenTypeLabel = ({ type }) => { const t = useT(); const labels = { hook: bi('Taxmin', 'Гипотеза', "Estimate"), exploration: bi('Tadqiqot', 'Исследование', "Explore"), model: bi('Model', 'Модель', 'Model'), rule: bi('Qoida', 'Правило', "Rule"), strategy: bi('Strategiya', 'Стратегия', 'Strategy'), error: bi('Xatoni tuzatish', 'Исправление ошибки', 'Error repair'), test: bi('Mashq', 'Задание', "Task"), case: bi('Vaziyat', 'Ситуация', "Situation"), summary: bi('Yakun', 'Итог', "Summary") }; return <span className="screen-type">{t(labels[type])}</span>; };
 const Stage = ({ screen, audio, onPrev, onNext, canAdvance = true, canFinish = true, finish = false, nextDisabled = false, children }) => { const t = useT(); const mobile = useIsMobile(); const meta = SCREEN_META[screen]; const c = CONTENT[`s${screen}`]; const pad = mobile ? 12 : 24; const ready = !nextDisabled && canUseGrade4TheoryContinue(canAdvance && canFinish && isAudioReady(audio), finish); return <main className={`stage stage-${meta.type}`}><header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}><div className="progress-track" aria-label={`${screen + 1} / ${TOTAL_SCREENS}`}><div className="progress-fill progress-bar" style={{ width: `${(screen + 1) / TOTAL_SCREENS * 100}%` }}/></div><div className="stage-chrome"><div className="chrome-title"><span className="status-dot"/><span>{t(c.eyebrow)}</span></div><div className="chrome-actions"><ScreenTypeLabel type={meta.type}/>{audio && <AudioIndicator audio={audio}/>}<span className="screen-count">{String(screen + 1).padStart(2, '0')} / {TOTAL_SCREENS}</span></div></div></header><section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}><div className="stage-body">{children}</div></section><footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{screen === 0 ? <span/> : <button type="button" className="btn-ghost" onClick={onPrev}>← {t(bi('Orqaga', 'Назад', "Back"))}</button>}<button type="button" className="btn-white-accent" disabled={!ready} aria-disabled={!ready} onClick={onNext}>{finish ? t(bi('Darsni yakunlash', 'Завершить урок', "Finish lesson")) : t(bi('Davom etish', 'Продолжить', "Continue"))} →</button></footer></main>; };
 const Heading = ({ c, state = 'present', showBit = false, hook = false }) => { const t = useT(); return <div className={'heading ' + (showBit && !hook ? '' : 'heading-solo')}><div><span data-g4-role={hook ? 'hook-topic' : undefined}>{t(c.eyebrow)}</span><h1 data-g4-role={hook ? 'hook-title' : undefined}>{t(c.title)}</h1></div>{showBit && !hook && <BitSVG state={state}/>}</div>; };
@@ -2290,16 +2292,16 @@ function ChoiceScreen({ screen, storedAnswer, onAnswer, onPrev, onNext, visual }
   const optionOrder = buildOptionOrder(c.options.length, c.correctIndex, LESSON_META.lessonId, answerOrdinal);
   const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null);
   const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0);
-  const [wrongChoices, setWrongChoices] = useState(storedAnswer?.wrongChoices ?? []);
+  const [flashKey, flashWrong] = useWrongFlash();
   const correct = picked === c.correctIndex;
   const choose = (index) => {
-    if (!canAnswer || correct || wrongChoices.includes(index)) return;
+    if (!canAnswer || correct || flashKey !== null) return;
     const ok = index === c.correctIndex;
     const nextAttempts = attempts + 1;
-    const nextWrong = ok ? wrongChoices : [...wrongChoices, index];
+    const nextWrong = ok ? [] : [index];
     setPicked(index);
     setAttempts(nextAttempts);
-    setWrongChoices(nextWrong);
+    if (!ok) flashWrong(index);
     playSfx(ok ? 'correct' : 'wrong');
     audio.pushOneOff(t(ok ? c.audio.on_correct : c.audio.on_wrong[index]));
     onAnswer({
@@ -2324,15 +2326,16 @@ function ChoiceScreen({ screen, storedAnswer, onAnswer, onPrev, onNext, visual }
             <h2>{t(c.question)}</h2>
             <div className="options options-four">
               {optionOrder.map((sourceIndex, displayIndex) => {
-                const state = sourceIndex === c.correctIndex && correct ? 'right'
-                  : wrongChoices.includes(sourceIndex) ? 'bad' : '';
+                const state = sourceIndex === c.correctIndex && correct ? 'right' : '';
                 return (
                   <button
                     type="button" key={sourceIndex}
                     data-g4-source-index={sourceIndex}
                     data-g4-correct={sourceIndex === c.correctIndex ? 'true' : 'false'}
                     className={`option ${state}`}
-                    disabled={!canAnswer || correct || wrongChoices.includes(sourceIndex)}
+                    data-g4-wrong-flash={flashKey === sourceIndex ? 'true' : undefined}
+                    data-g4-answer-dim={correct && sourceIndex !== c.correctIndex ? 'true' : undefined}
+                    disabled={!canAnswer || correct || flashKey !== null}
                     onClick={() => choose(sourceIndex)}
                   >
                     <b>{String.fromCharCode(65 + displayIndex)}</b>
@@ -2511,17 +2514,17 @@ function RowRepairScreen({ screen, storedAnswer, onAnswer, onPrev, onNext }) {
   const audio = useNarration(c.audio, screen);
   const canAnswer = isAudioReady(audio);
   const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null);
-  const [wrongRows, setWrongRows] = useState(storedAnswer?.wrongChoices ?? []);
+  const [flashRow, flashWrongRow] = useWrongFlash();
   const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0);
   const correct = picked === c.answerIndex;
   const tap = (index) => {
-    if (!canAnswer || correct || wrongRows.includes(index)) return;
+    if (!canAnswer || correct || flashRow !== null) return;
     const ok = index === c.answerIndex;
     const nextAttempts = attempts + 1;
-    const nextWrong = ok ? wrongRows : [...wrongRows, index];
+    const nextWrong = ok ? [] : [index];
     setPicked(index);
     setAttempts(nextAttempts);
-    setWrongRows(nextWrong);
+    if (!ok) flashWrongRow(index);
     playSfx(ok ? 'correct' : 'wrong');
     audio.pushOneOff(t(ok ? c.audio.on_correct : c.audio.on_wrong));
     onAnswer({
@@ -2546,8 +2549,10 @@ function RowRepairScreen({ screen, storedAnswer, onAnswer, onPrev, onNext }) {
             {c.rows.map((row, index) => (
               <button
                 type="button" key={index}
-                className={`repair-row ${index === c.answerIndex && correct ? 'is-found' : ''} ${wrongRows.includes(index) ? 'is-ruled' : ''}`}
-                disabled={!canAnswer || correct || wrongRows.includes(index)}
+                className={`repair-row ${index === c.answerIndex && correct ? 'is-found' : ''}`}
+                data-g4-wrong-flash={flashRow === index ? 'true' : undefined}
+                data-g4-answer-dim={correct && index !== c.answerIndex ? 'true' : undefined}
+                disabled={!canAnswer || correct || flashRow !== null}
                 onClick={() => tap(index)}
               >
                 <b>{index + 1}</b>
@@ -2694,10 +2699,12 @@ function RapidConsoleScreen({ screen, storedAnswer, onAnswer, onPrev, onNext }) 
   const done = round >= c.rounds.length;
   const current = c.rounds[Math.min(round, c.rounds.length - 1)];
   const solvedRound = picked === current.answer;
+  const [flashTile, flashWrongTile] = useWrongFlash();
   const tap = (index) => {
-    if (!canAnswer || done || solvedRound) return;
+    if (!canAnswer || done || solvedRound || flashTile !== null) return;
     const ok = index === current.answer;
     setPicked(index);
+    if (!ok) flashWrongTile(index);
     setTries((value) => value + 1);
     playSfx(ok ? 'correct' : 'wrong');
     audio.pushOneOff(t(ok ? current.ok : current.no));
@@ -2743,8 +2750,10 @@ function RapidConsoleScreen({ screen, storedAnswer, onAnswer, onPrev, onNext }) 
                 {current.tiles.map((tile, index) => (
                   <button
                     type="button" key={index}
-                    className={`tile wide ${picked === index ? (index === current.answer ? 'right' : 'bad') : ''}`}
-                    disabled={!canAnswer || solvedRound}
+                    className={`tile wide ${picked === index && index === current.answer ? 'right' : ''}`}
+                    data-g4-wrong-flash={flashTile === index ? 'true' : undefined}
+                    data-g4-answer-dim={solvedRound && index !== current.answer ? 'true' : undefined}
+                    disabled={!canAnswer || solvedRound || flashTile !== null}
                     onClick={() => tap(index)}
                   >
                     {t(tile)}
@@ -2847,7 +2856,7 @@ function FinaleScreen({ screen, c: cProp, answers, storedAnswer, onAnswer, onPre
   );
   /* eslint-enable react-hooks/exhaustive-deps */
   const [reflection, setReflection] = useState(storedAnswer?.reflection ?? null);
-  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const [flashKey, flashWrong] = useWrongFlash();
   const attempts = useRef(storedAnswer?.attempts ?? 0);
   const [rulesOpen, setRulesOpen] = useState(false);
   const [revealRequested, setRevealRequested] = useState(false);
@@ -2865,10 +2874,10 @@ function FinaleScreen({ screen, c: cProp, answers, storedAnswer, onAnswer, onPre
   }, 0);
 
   const chooseReflection = (sourceIndex) => {
-    if (solved || wrongSet.has(sourceIndex) || !(audio.muted || audio.completed)) return;
+    if (solved || flashKey !== null || !(audio.muted || audio.completed)) return;
     setReflection(sourceIndex);
     const ok = sourceIndex === c.correctIndex;
-    if (!ok) setWrongSet((previous) => new Set([...previous, sourceIndex]));
+    if (!ok) flashWrong(sourceIndex);
     attempts.current += 1;
     playSfx(ok ? 'correct' : 'wrong');
     audio.pushOneOff(t(c.feedbackAudio[sourceIndex]));
@@ -2925,8 +2934,9 @@ function FinaleScreen({ screen, c: cProp, answers, storedAnswer, onAnswer, onPre
                   data-g4-role="answer-card"
                   data-g4-source-index={sourceIndex}
                   data-g4-correct={sourceIndex === c.correctIndex ? 'true' : 'false'}
-                  className={`reflection-option ${wrongSet.has(sourceIndex) ? 'reflection-wrong' : ''} ${solved && sourceIndex === c.correctIndex ? 'option-answer-confirm' : ''} ${solved && sourceIndex !== c.correctIndex ? 'option-answer-dismiss' : ''}`}
-                  disabled={solved || wrongSet.has(sourceIndex)}
+                  className={`reflection-option ${solved && sourceIndex === c.correctIndex ? 'option-answer-confirm' : ''} ${solved && sourceIndex !== c.correctIndex ? 'option-answer-dismiss' : ''}`}
+                  data-g4-wrong-flash={flashKey === sourceIndex ? 'true' : undefined}
+                  disabled={solved || flashKey !== null}
                   onClick={() => chooseReflection(sourceIndex)}
                 >
                   <span>{String.fromCharCode(65 + displayIndex)}</span>
@@ -3045,7 +3055,7 @@ export default function Grade4Dars38({ studentName, lang: langProp, ttsApiBase, 
   const Current = SCREENS[current];
   return (
     <LangContext.Provider value={lang}>
-      <style>{STYLES + TOPIC_STYLES + G4_ETALON_OVERRIDES}</style>
+      <style>{STYLES + TOPIC_STYLES + G4_ETALON_OVERRIDES + WRONG_FLASH_CSS + FINALE_FIT_CSS + SPLIT_STEPS_FIT_CSS}</style>
       <div className={'lesson-root ' + (preview ? 'lesson-root-preview' : '')}>
         {showPreviewControls && (
           <div className="preview-language" aria-label={bi("Ko'rish tili", 'Язык предпросмотра', 'Preview language')[lang]}>

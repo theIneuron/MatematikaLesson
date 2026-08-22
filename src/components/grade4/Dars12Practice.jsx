@@ -374,10 +374,17 @@ function Feedback({ task, solved, attempts, wrongText, lang, feedbackRef }) {
   );
 }
 
-function Task({ task, taskIndex, lang, onSolved }) {
+// `platform` berilganda tugma qatori chizilmaydi: uni LMS o'zi beradi va
+// tekshiruvni `registerCheck` orqali chaqiradi (LMS kontrakti).
+function Task({ task, taskIndex, lang, onSolved ,
+  platform = false, mode, onReady, registerCheck, onSubmit, playCorrect, playWrong,
+}) {
   const isChoice = task.kind === 'mc' || task.kind === 'digit' || task.kind === 'missing';
   const isAssign = task.kind === 'slots' || task.kind === 'order';
-  const options = useMemo(() => isChoice ? shuffle(task.options) : [], [isChoice, task]);
+  // Xato javobdan keyin variantlar qayta aralashadi (metodist qarori 2026-08-21).
+  const [wrongRound, setWrongRound] = useState(0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- wrongRound ataylab yangi tartib beradi
+  const options = useMemo(() => isChoice ? shuffle(task.options) : [], [isChoice, task, wrongRound]);
   const cards = useMemo(() => isAssign ? shuffle(task.cards) : [], [isAssign, task]);
   const [picked, setPicked] = useState(null);
   const [typed, setTyped] = useState('');
@@ -391,7 +398,7 @@ function Task({ task, taskIndex, lang, onSolved }) {
   const feedbackRef = useRef(null);
 
   const isCorrect = isChoice
-    ? options[picked]?.correct === true
+    ? picked?.correct === true
     : task.kind === 'numpad'
       ? typed === task.answer
       : task.slots.every((slot) => placed[slot.id] === slot.correct);
@@ -400,7 +407,7 @@ function Task({ task, taskIndex, lang, onSolved }) {
     : task.kind === 'numpad'
       ? typed.length > 0
       : task.slots.every((slot) => placed[slot.id]);
-  const wrongText = isChoice ? options[picked]?.wrong : task.kind === 'numpad' ? (task.wrongByValue?.[typed] ?? task.wrongText) : task.wrongText;
+  const wrongText = isChoice ? picked?.wrong : task.kind === 'numpad' ? (task.wrongByValue?.[typed] ?? task.wrongText) : task.wrongText;
 
   useEffect(() => {
     if (!checked || !feedbackRef.current) return undefined;
@@ -424,7 +431,7 @@ function Task({ task, taskIndex, lang, onSolved }) {
     const nextAttempts = attempts + 1;
     setAttempts(nextAttempts);
     setChecked(true);
-    if (isCorrect) setSolved(true);
+    if (isCorrect) setSolved(true); else setWrongRound((old) => old + 1);
   };
   const answerDetails = () => {
     if (isChoice) return {
@@ -432,7 +439,7 @@ function Task({ task, taskIndex, lang, onSolved }) {
       correctIndex: options.findIndex((option) => option.correct),
       correctAnswer: tx(options.find((option) => option.correct)?.text, lang),
       studentAnswerIndex: picked,
-      studentAnswer: tx(options[picked]?.text, lang),
+      studentAnswer: tx(picked?.text, lang),
     };
     if (task.kind === 'numpad') return { options: null, correctIndex: null, correctAnswer: task.answer, studentAnswerIndex: null, studentAnswer: typed };
     return {
@@ -451,6 +458,26 @@ function Task({ task, taskIndex, lang, onSolved }) {
     });
   };
 
+  // --- LMS platforma kontrakti ------------------------------------------
+  // Mexanikaga tegilmaydi: natija mavjud holatlardan o'qiladi.
+  useEffect(() => { onReady?.(Boolean(canCheck) && !solved && mode !== 'review'); },
+    [canCheck, solved, mode, onReady]);
+  const checkRef = useRef(check);
+  useEffect(() => { checkRef.current = check; });
+  useEffect(() => { registerCheck?.(() => checkRef.current?.()); }, [registerCheck]);
+  const reportedRef = useRef(-1);
+  useEffect(() => {
+    if (!checked) return;
+    if (reportedRef.current === attempts) return;
+    reportedRef.current = attempts;
+    (solved ? playCorrect : playWrong)?.();
+    onSubmit?.({
+      questionText: typeof task.prompt === 'object' ? task.prompt.uz : String(task.prompt ?? ''),
+      correct: Boolean(solved),
+      meta: { taskId: task.id, kind: task.kind, attempts: attempts },
+    });
+  }, [attempts, checked, solved, onSubmit, playCorrect, playWrong, task]);
+  // ----------------------------------------------------------------------
   return (
     <section className="g4p-task" aria-labelledby={`g4p-task-${task.id}`}>
       <p className={`g4p-eyebrow is-${task.level}`}><span>{tx(UI.levels[task.level], lang)}</span> · {tx(UI.task, lang)} {task.id}</p>
@@ -459,17 +486,17 @@ function Task({ task, taskIndex, lang, onSolved }) {
       <h1 id={`g4p-task-${task.id}`} className="g4p-question">{tx(task.prompt, lang)}</h1>
 
       {isChoice && <div className={`g4p-options ${task.kind === 'digit' || task.layout === 'digits' ? 'is-digits' : ''}`}>{options.map((option, index) => (
-        <button key={option.id} type="button" className={`${picked === index ? 'is-selected' : ''} ${checked && picked === index ? (option.correct ? 'is-ok' : 'is-no') : ''}`} aria-pressed={picked === index} disabled={solved} onClick={() => { setPicked(index); clearFeedback(); }}><span className="g4p-letter">{'ABCD'[index]}</span><span>{tx(option.text, lang)}</span></button>
+        <button key={option.id} type="button" className={`${picked === option ? 'is-selected' : ''} ${checked && picked === option ? (option.correct ? 'is-ok' : 'is-no') : ''}`} aria-pressed={picked === option} disabled={solved} onClick={() => { setPicked(option); clearFeedback(); }}><span className="g4p-letter">{'ABCD'[index]}</span><span>{tx(option.text, lang)}</span></button>
       ))}</div>}
       {task.kind === 'numpad' && <NumPad value={typed} max={task.maxLen} disabled={solved} lang={lang} onChange={(value) => { setTyped(value); clearFeedback(); }} />}
       {isAssign && <AssignBoard task={task} cards={cards} placed={placed} setPlaced={(updater) => { setPlaced(updater); clearFeedback(); }} activeSlot={activeSlot} setActiveSlot={(slot) => { setActiveSlot(slot); clearFeedback(); }} checked={checked} solved={solved} lang={lang} />}
 
       {checked && <Feedback task={task} solved={solved} attempts={attempts} wrongText={wrongText} lang={lang} feedbackRef={feedbackRef} />}
-      <div className="g4p-actions">
+      {!platform && <div className="g4p-actions">
         {!solved && <button type="button" className="g4p-btn" disabled={!canCheck || checked} onClick={check}>{tx(UI.check, lang)}</button>}
         {checked && !solved && <button type="button" className="g4p-btn is-ghost" onClick={clearFeedback}>{tx(UI.retry, lang)}</button>}
         {solved && <button type="button" className="g4p-btn is-ready" onClick={advance}>{tx(taskIndex === TASKS.length - 1 ? UI.finish : UI.next, lang)}</button>}
-      </div>
+      </div>}
     </section>
   );
 }
@@ -559,4 +586,70 @@ const STYLES = `
 .g4p-result{display:flex;min-height:430px;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center;border-radius:22px;background:${T.paper};box-shadow:0 18px 44px -34px rgba(${T.shadowBase},.68)}.g4p-result-kicker{color:${T.accent};font-size:12px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}.g4p-result h1{color:${T.success};font:800 clamp(44px,9vw,68px) 'JetBrains Mono',monospace}.g4p-result>p:not(.g4p-result-kicker):not(.g4p-note){color:${T.ink2}}.g4p-stat{display:flex;width:min(330px,100%);align-items:center;justify-content:space-between;padding:12px 14px;border-radius:13px;background:${T.cyanSoft};color:${T.cyan}}.g4p-stat b{font:800 20px 'JetBrains Mono',monospace}
 @media(max-width:560px){.g4p-options{grid-template-columns:1fr}.g4p-slots{grid-template-columns:repeat(2,minmax(0,1fr))}.g4p-setup{line-height:1.4}.g4p-visual{padding:12px}.g4p-result{min-height:360px;padding:18px 12px}}@media(max-width:380px){.g4p-slots{grid-template-columns:1fr}.g4p-head-row{align-items:flex-start}.g4p-title{font-size:14px}}
 @media(prefers-reduced-motion:reduce){.g4p-root *,.g4p-root *::before,.g4p-root *::after{animation:none!important;scroll-behavior:auto!important;transition:none!important}.g4p-options button:hover:not(:disabled){transform:none}}
+
+/* PRACTICE-FIX boshlanishi — metodist qarori 2026-08-21.
+   1) Tekshirish tugmasi o'ngda (2-dars etaloni).
+   2) Moslashtirishda ikki tomondagi kartochkalar bir xil o'lchamda: ustun grid
+      bo'ladi va qatorlari 1fr, shuning uchun juftlar qator bo'yicha tekislanadi.
+   Bu blok har darsda takrorlanadi ATAYLAB: LMS avtonom fayl talab qiladi. */
+.p4-actions, .g4p-actions { justify-content: flex-end; }
+.p4-match-cols, .g4p-match-cols { align-items: stretch; }
+.p4-match-col, .g4p-match-col { display: grid; grid-auto-rows: 1fr; align-content: stretch; }
+/* PRACTICE-FIX tugashi */
+/* NOSCROLL boshlanishi — metodist qarori 2026-08-21.
+   Past ekranda (1280x720 noutbuk, 360x640 telefon) topshiriq skrollga
+   ketmasligi kerak: bola «Tekshirish» tugmasini ko'rmasa, uni bosmaydi.
+   Faqat BO'SH JOY qisqaradi — bosiladigan maydon 44 px dan kichraymaydi
+   (MOBIL_DESKTOP_MOSLASH.md). Blok har darsda takrorlanadi ATAYLAB: LMS
+   avtonom fayl talab qiladi. */
+@media (max-height:820px){
+.p4-root,.g4p-root{padding-bottom:12px}
+.p4-head,.g4p-head{padding-top:52px;padding-bottom:4px}
+.p4-task,.g4p-task{gap:8px}
+.p4-eyebrow,.g4p-eyebrow{margin-top:0}
+.p4-ask,.g4p-ask{margin-top:0}
+.p4-note,.g4p-note{margin-top:4px}
+.p4-actions,.g4p-actions{margin-top:0}
+.p4-figure{padding-top:8px;padding-bottom:8px}
+.p4-pad,.g4p-pad{padding:8px;gap:6px}
+.p4-pad-display,.g4p-pad-display{min-height:44px}
+.p4-pad-keys,.g4p-pad-keys{gap:5px}
+.p4-options,.g4p-options{gap:7px}
+.p4-match-cols,.g4p-match-cols{gap:8px;margin-top:4px}
+.p4-match-col,.g4p-match-col{gap:6px}
+.p4-header,.g4p-header{margin-bottom:4px}
+.p4-header h1,.g4p-header h1{margin-top:2px}
+.p4-task-top{margin-bottom:2px}
+.p4-setup,.g4p-setup{line-height:1.4}
+.p4-match-item,.g4p-match-item{min-height:44px;padding-top:5px;padding-bottom:5px}
+.p4-match button,.g4p-match button{min-height:44px;padding-top:5px;padding-bottom:5px}
+.p4-fb,.p4-feedback,.g4p-feedback{padding-top:9px;padding-bottom:9px}
+.p4-rule,.g4p-rule{margin-top:6px}
+.p4-cells,.p4-grid{gap:4px}
+.p4-card-bank,.p4-order-slots,.p4-slot-list,.p4-sort-pool{gap:6px}
+}
+@media (max-height:760px){
+.p4-head,.g4p-head{padding-bottom:0}
+.p4-main,.g4p-main{padding-top:0;padding-bottom:0}
+.p4-root,.g4p-root{padding-bottom:8px}
+.p4-task,.g4p-task{gap:5px}
+.p4-figure{padding-top:4px;padding-bottom:4px}
+.p4-eyebrow,.g4p-eyebrow{font-size:10px}
+.p4-setup,.g4p-setup{font-size:clamp(13px,1.8vw,14px)}
+.p4-ask,.g4p-ask{font-size:clamp(15px,2.2vw,18px)}
+.p4-pad,.g4p-pad{padding:4px;gap:4px}
+.p4-pad-keys,.g4p-pad-keys{gap:4px}
+.p4-pad-display,.g4p-pad-display{min-height:40px}
+.p4-visual,.g4p-visual{padding-top:8px;padding-bottom:8px;min-height:0}
+.p4-svg,.g4p-svg{max-height:96px}
+}
+@media (max-height:700px){
+.p4-head,.g4p-head{padding-top:52px;padding-bottom:2px}
+.p4-task,.g4p-task{gap:6px}
+.p4-figure{padding-top:6px;padding-bottom:6px}
+.p4-bignum,.g4p-bignum{font-size:clamp(20px,4.4vw,30px)}
+.p4-pad,.g4p-pad{padding:6px;gap:5px}
+.p4-match-col,.g4p-match-col{gap:5px}
+}
+/* NOSCROLL tugashi */
 `;

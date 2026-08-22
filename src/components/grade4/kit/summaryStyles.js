@@ -403,7 +403,6 @@ export const SUMMARY_STYLES = `
   font-weight: 900;
 }
 .reflection-correct { color: ${T.success}; background: ${T.successSoft}; }
-.reflection-wrong { color: ${T.warn}; background: ${T.warnSoft}; }
 .reflection-solved {
   min-height: 42px;
   padding: 9px 11px;

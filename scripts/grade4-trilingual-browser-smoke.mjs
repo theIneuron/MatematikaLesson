@@ -39,9 +39,19 @@ const registry = await readFile(registryPath, 'utf8');
 const registeredLessons = [...registry.matchAll(/slug:\s*'([^']+)'[\s\S]*?Component:\s*lazy\(\(\)\s*=>\s*import\('\.\.\/components\/grade4\/(Dars\d{2}(Practice)?\.jsx)'\)\)/g)]
   .map((match) => ({ slug: match[1], file: match[2], section: match[3] ? 'amaliy' : 'nazariy' }));
 const numberedFile = (number, suffix = '') => 'Dars' + String(number).padStart(2, '0') + suffix + '.jsx';
+// Nazariy qamrov Dars01-30 da qoladi: 31-51 nazariy darslari boshqa, 15 slayd va
+// 50 freym kontrakti bilan yuradi. Amaliyot qamrovi esa 31-40 blokiga ochildi —
+// lekin faqat REYESTRDA bor va fayli mavjud darslar qo'shiladi. Aks holda blok
+// to'lmagan paytda smoke hali yozilmagan Dars32Practice ni talab qilib yiqilardi.
+const blockPracticeFiles = Array.from({ length: 10 }, (_, index) => numberedFile(index + 31, 'Practice'))
+  .filter((file) => (
+    registeredLessons.some((lesson) => lesson.file === file)
+    && existsSync(path.join(ROOT, 'src/components/grade4', file))
+  ));
 const targetLessonFiles = new Set([
   ...Array.from({ length: 30 }, (_, index) => numberedFile(index + 1)),
   ...Array.from({ length: 30 }, (_, index) => numberedFile(index + 1, 'Practice')),
+  ...blockPracticeFiles,
 ]);
 const allLessons = registeredLessons.filter((lesson) => targetLessonFiles.has(lesson.file));
 const registryOnlyLessons = registeredLessons.filter((lesson) => !targetLessonFiles.has(lesson.file));
@@ -73,8 +83,10 @@ if (unexpectedUnavailable.length) {
   console.error('Grade 4 registryda kutilmagan mavjud bo\'lmagan componentlar: ' + unexpectedUnavailable.join(', ') + '.');
   process.exit(1);
 }
-if ((requested.size === 0 && lessons.length !== 60) || (requested.size > 0 && lessons.length !== requested.size)) {
-  console.error('Grade 4 registrydan ' + lessons.length + ' mavjud route topildi, kutilgan ' + (requested.size || 60) + '.');
+const expectedRouteCount = targetLessonFiles.size;
+if ((requested.size === 0 && lessons.length !== expectedRouteCount)
+  || (requested.size > 0 && lessons.length !== requested.size)) {
+  console.error('Grade 4 registrydan ' + lessons.length + ' mavjud route topildi, kutilgan ' + (requested.size || expectedRouteCount) + '.');
   process.exit(1);
 }
 if (registryOnlyLessons.length) {
@@ -156,15 +168,41 @@ async function extractPracticeTasks(lesson) {
     wrong: wrongRu ? b(wrongRu, wrongUz, wrongEn) : null,
   });
   const decimal = (comma, point) => b(comma, comma, point);
-  const expression = source.slice(initializer.start, initializer.end);
-  const tasks = runInNewContext('(' + expression + ')', {
+  const context = {
     addEnglish: (value) => value,
     b,
     d: decimal,
     dec: decimal,
     decimal,
     option,
-  }, { timeout: 2_000 });
+  };
+  // TASKS o'zidan oldingi yordamchi doimiylarga murojaat qilishi mumkin (masalan
+  // burchak turlari nomlari bir marta e'lon qilinib, juftlarda va qutilarda qayta
+  // ishlatiladi). Shu doimiylar ham xuddi shu kontekstga baholanadi, aks holda
+  // extractor «is not defined» bilan yiqilib, muallifni matnni nusxalashga
+  // majbur qilardi.
+  for (const statement of ast.program.body) {
+    const declaration = statement.type === 'VariableDeclaration' ? statement : null;
+    if (!declaration) continue;
+    let reachedTasks = false;
+    for (const declarator of declaration.declarations) {
+      if (declarator.id?.name === 'TASKS') { reachedTasks = true; break; }
+      if (!declarator.id?.name || !declarator.init) continue;
+      if (!['ObjectExpression', 'ArrayExpression'].includes(declarator.init.type)) continue;
+      try {
+        context[declarator.id.name] = runInNewContext(
+          '(' + source.slice(declarator.init.start, declarator.init.end) + ')',
+          { ...context },
+          { timeout: 2_000 },
+        );
+      } catch {
+        // Solverga kerak bo'lmagan doimiy baholanmasa, jimgina o'tkazib yuboriladi.
+      }
+    }
+    if (reachedTasks) break;
+  }
+  const expression = source.slice(initializer.start, initializer.end);
+  const tasks = runInNewContext('(' + expression + ')', context, { timeout: 2_000 });
   if (!Array.isArray(tasks) || tasks.length !== 10) {
     throw new Error(lesson.file + ': TASKS soni ' + (Array.isArray(tasks) ? tasks.length : 'array emas') + ', kutilgan 10');
   }

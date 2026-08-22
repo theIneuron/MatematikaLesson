@@ -10,6 +10,7 @@ import React, {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { canUseGrade4TheoryContinue } from './theoryNavigation.js';
+import { WRONG_FLASH_CSS, useWrongFlash } from './wrongAnswerFlash.js';
 import { Grade4Finale, useGrade4TitleClaim } from './Grade4Finale.jsx';
 
 const readPoint = (element, board, side) => {
@@ -1612,6 +1613,7 @@ const Screen0 = ({ screen, storedAnswer, onPrev, onNext, onAnswer }) => {
   const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0);
   const [solved, setSolved] = useState(storedAnswer?.correct === true);
   const optionOrder = buildOptionOrder(c.options.length, 0, LESSON_META.lessonId, 0);
+  const [wrongFlash, flashWrong] = useWrongFlash();
   const [audio] = useNarratedSequence(screen, c.audio, 3, 1250);
   const canChoose = audio.muted || audio.completed;
   const narrationLocked = !canChoose && !solved;
@@ -1622,6 +1624,7 @@ const Screen0 = ({ screen, storedAnswer, onPrev, onNext, onAnswer }) => {
     setPicked(index);
     setAttempts(nextAttempts);
     setSolved(isCorrect);
+    if (!isCorrect) flashWrong(index);
     playSfx(isCorrect ? 'correct' : 'wrong');
     const feedbackAudio = isCorrect
       ? B('Верно. Сначала нужно проверить место каждой цифры. Ответ найдём в конце урока.', "To'g'ri. Avval har bir raqamning o'rnini tekshirish kerak. Javobni dars oxirida topamiz.", 'Correct. First, check the place of each digit. We will find the answer at the end of the lesson.')
@@ -1658,14 +1661,15 @@ const Screen0 = ({ screen, storedAnswer, onPrev, onNext, onAnswer }) => {
           <button
             type="button"
             key={sourceIndex}
-            className={`choice-card ${picked === sourceIndex ? 'choice-picked' : ''} ${solved && sourceIndex === 0 ? 'choice-correct' : ''}`}
+            data-g4-wrong-flash={wrongFlash === sourceIndex ? 'true' : undefined}
+            className={`choice-card ${solved && picked === sourceIndex ? 'choice-picked' : ''} ${solved && sourceIndex === 0 ? 'choice-correct' : ''}`}
             data-g4-role="answer-card"
             data-g4-branch="choice"
             data-g4-source-index={sourceIndex}
             data-g4-correct={sourceIndex === 0 ? 'true' : 'false'}
             data-g4-narration-locked={narrationLocked ? 'true' : undefined}
             aria-pressed={picked === sourceIndex}
-            disabled={!canChoose || solved}
+            disabled={!canChoose || solved || wrongFlash !== null}
             onClick={() => choose(sourceIndex)}
           >
             <span className="choice-letter">{String.fromCharCode(65 + displayIndex)}</span>
@@ -2093,6 +2097,7 @@ const ChoicePractice = ({ screen, contentScreen = screen, choiceOrdinal, storedA
   const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0);
   const [audio] = useNarratedSequence(screen, c.audio, Array.isArray(t(c.audio)) ? t(c.audio).length : 1, 1200);
   const correct = storedAnswer?.correct === true || picked === c.correct;
+  const [wrongFlash, flashWrong] = useWrongFlash();
   const canChoose = correct || audio.muted || audio.completed;
   const optionOrder = buildOptionOrder(c.options.length, c.correct, LESSON_META.lessonId, choiceOrdinal);
 
@@ -2102,6 +2107,7 @@ const ChoicePractice = ({ screen, contentScreen = screen, choiceOrdinal, storedA
     const isCorrect = index === c.correct;
     setAttempts(nextAttempts);
     setPicked(index);
+    if (!isCorrect) flashWrong(index);
     playSfx(isCorrect ? 'correct' : 'wrong');
     const audioLines = t(c.feedbackAudio);
     audio.pushOneOff(Array.isArray(audioLines) ? audioLines[index] : audioLines);
@@ -2127,9 +2133,10 @@ const ChoicePractice = ({ screen, contentScreen = screen, choiceOrdinal, storedA
             data-g4-source-index={sourceIndex}
             data-g4-correct={sourceIndex === c.correct ? 'true' : 'false'}
             data-g4-narration-locked={!canChoose && !correct ? 'true' : undefined}
-            className={`choice-card ${picked === sourceIndex ? 'choice-picked' : ''} ${correct && sourceIndex === c.correct ? 'choice-correct' : ''}`}
+            data-g4-wrong-flash={wrongFlash === sourceIndex ? 'true' : undefined}
+            className={`choice-card ${correct && picked === sourceIndex ? 'choice-picked' : ''} ${correct && sourceIndex === c.correct ? 'choice-correct' : ''}`}
             aria-pressed={picked === sourceIndex}
-            disabled={!canChoose || correct}
+            disabled={!canChoose || correct || wrongFlash !== null}
             onClick={() => choose(sourceIndex)}
           >
             <span className="choice-letter">{String.fromCharCode(65 + displayIndex)}</span><span>{t(c.options[sourceIndex])}</span>
@@ -2666,6 +2673,7 @@ export default function Grade4Dars07({
 }
 
 const STYLES = `
+${WRONG_FLASH_CSS}
 html:has(.lesson-root), body:has(.lesson-root), #root:has(.lesson-root),
 .lesson-page:has(.lesson-root), .lesson-frame:has(.lesson-root) {
   width: 100%; height: 100%; min-height: 0 !important; overflow: hidden !important;
@@ -2725,6 +2733,10 @@ html, body { margin: 0; padding: 0; }
 .btn-white-accent:hover, .btn-check:hover { color: white; background: ${T.accent}; transform: translateY(-2px); box-shadow: 0 8px 0 rgba(185,53,23,.28), 0 15px 28px rgba(255,91,53,.21); }
 .btn-white-accent:active, .btn-check:active { transform: translateY(3px); box-shadow: 0 3px 0 rgba(185,53,23,.28); }
 .btn-check:disabled { opacity: .36; cursor: default; transform: none; box-shadow: none; }
+/* .btn-ready boshqa darslarda tayyor tugmani to'ldirilgan holatga o'tkazadi;
+   bu darsda qoida yo'q edi va tugma "dizaynsiz" ko'rinardi. */
+.btn-white-accent.btn-ready { color: ${T.paper}; background: ${T.accent}; box-shadow: 0 7px 0 rgba(185,53,23,.30), 0 13px 28px rgba(255,91,53,.24); }
+.btn-white-accent.btn-ready:hover { transform: translateY(-2px); box-shadow: 0 8px 0 rgba(185,53,23,.34), 0 15px 28px rgba(255,91,53,.28); }
 .nav-hidden { visibility: hidden; pointer-events: none; }
 
 .hook-scene { margin-top: 10px; min-height: 226px; padding: 20px clamp(18px, 4vw, 46px); border-radius: 28px; display: grid; grid-template-columns: minmax(92px,1fr) minmax(180px,1.18fr) minmax(92px,1fr); align-items: center; gap: 22px; overflow: hidden; position: relative; background: radial-gradient(circle at 78% 48%, rgba(91,214,242,.13), transparent 34%), ${T.navy}; box-shadow: 0 18px 44px rgba(23,59,82,.22); }

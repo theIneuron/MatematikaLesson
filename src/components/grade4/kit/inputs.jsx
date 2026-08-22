@@ -9,6 +9,7 @@ import { canUseGrade4TheoryContinue } from '../theoryNavigation.js';
 import {
   playSfx, useCanAnswer, useLesson, useNarration, useT,
 } from '../theoryShell/runtime.js';
+import { useWrongFlash } from '../wrongAnswerFlash.js';
 import { FeedbackBlock, ModelCard, Stage } from './ui.jsx';
 // Yordamchi bitta joyda turadi: nusxa qilinса, audit paketida ikki marta
 // e'lon qilinib, parse xatosi beradi (CLAUDE.md 5-bo'lim).
@@ -35,12 +36,12 @@ export function SpanSelect({ screen, storedAnswer, onAnswer, onPrev, onNext, fig
   const digits = String(c.digits).split('');
   const [picked, setPicked] = useState(storedAnswer?.solved ? c.correctEnd : null);
   const [solved, setSolved] = useState(Boolean(storedAnswer?.solved));
-  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const [flashKey, flashWrong] = useWrongFlash();
   const firstTry = useRef(storedAnswer?.firstTry ?? null);
   const attempts = useRef(storedAnswer?.attempts ?? 0);
 
   const pick = (index) => {
-    if (!canAnswer || solved || wrongSet.has(index)) return;
+    if (!canAnswer || solved) return;
     const right = index === c.correctEnd;
     attempts.current += 1;
     if (firstTry.current === null) firstTry.current = right;
@@ -48,7 +49,7 @@ export function SpanSelect({ screen, storedAnswer, onAnswer, onPrev, onNext, fig
     playSfx(right ? 'correct' : 'wrong');
     audio.pushOneOff(t(right ? c.correctText : (c.wrong?.[index] ?? c.correctText)));
     if (right) setSolved(true);
-    else setWrongSet((prev) => new Set([...prev, index]));
+    else flashWrong(index);
     onAnswer(makeAnswer({
       screen,
       meta,
@@ -62,7 +63,10 @@ export function SpanSelect({ screen, storedAnswer, onAnswer, onPrev, onNext, fig
     }));
   };
 
-  const shown = solved ? c.correctEnd : picked;
+  // Xato tanlov flash davomida ko'rinib turadi, so'ng NEYTRAL holatga qaytadi
+  // (metodist qarori 2026-08-21). Aks holda tanlangan bo'lak ajratilgan holda
+  // qolib, bola xatosini "qabul qilingan javob" deb o'ylaydi.
+  const shown = solved ? c.correctEnd : (flashKey !== null ? picked : null);
   return (
     <Stage
       screen={screen}
@@ -79,9 +83,9 @@ export function SpanSelect({ screen, storedAnswer, onAnswer, onPrev, onNext, fig
           <div className="span-row" role="group" aria-label={t(c.question ?? c.title)}>
             {digits.map((digit, index) => {
               const inSpan = shown !== null && index <= shown;
-              const state = solved && inSpan ? 'span-done'
-                : wrongSet.has(index) ? 'span-bad'
-                  : inSpan ? 'span-active' : '';
+              // `shown` yechilmagan holatda faqat flash davomida to'ldiriladi,
+              // shuning uchun `inSpan` ham o'zi neytralga qaytadi.
+              const state = solved && inSpan ? 'span-done' : inSpan ? 'span-active' : '';
               return (
                 <button
                   type="button"
@@ -90,7 +94,8 @@ export function SpanSelect({ screen, storedAnswer, onAnswer, onPrev, onNext, fig
                   data-g4-branch="span"
                   data-g4-source-index={index}
                   data-g4-correct={index === c.correctEnd ? 'true' : 'false'}
-                  disabled={!canAnswer || solved || wrongSet.has(index)}
+                  data-g4-wrong-flash={flashKey === index ? 'true' : undefined}
+                  disabled={!canAnswer || solved}
                   onClick={() => pick(index)}
                 >
                   {digit}
@@ -226,12 +231,12 @@ export function TableFill({ screen, storedAnswer, onAnswer, onPrev, onNext, figu
 
   const [picked, setPicked] = useState(storedAnswer?.solved ? c.correctChip : null);
   const [solved, setSolved] = useState(Boolean(storedAnswer?.solved));
-  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const [flashKey, flashWrong] = useWrongFlash();
   const firstTry = useRef(storedAnswer?.firstTry ?? null);
   const attempts = useRef(storedAnswer?.attempts ?? 0);
 
   const pick = (index) => {
-    if (!canAnswer || solved || wrongSet.has(index)) return;
+    if (!canAnswer || solved) return;
     const right = index === c.correctChip;
     attempts.current += 1;
     if (firstTry.current === null) firstTry.current = right;
@@ -239,7 +244,7 @@ export function TableFill({ screen, storedAnswer, onAnswer, onPrev, onNext, figu
     playSfx(right ? 'correct' : 'wrong');
     audio.pushOneOff(t(right ? c.correctText : (c.wrong?.[index] ?? c.correctText)));
     if (right) setSolved(true);
-    else setWrongSet((prev) => new Set([...prev, index]));
+    else flashWrong(index);
     onAnswer(makeAnswer({
       screen,
       meta,
@@ -272,11 +277,13 @@ export function TableFill({ screen, storedAnswer, onAnswer, onPrev, onNext, figu
               <button
                 type="button"
                 key={index}
-                className={`chip ${wrongSet.has(index) ? 'chip-bad' : ''} ${solved && index === c.correctChip ? 'chip-done' : ''}`}
+                className={`chip ${solved && index === c.correctChip ? 'chip-done' : ''}`}
                 data-g4-branch="chip"
                 data-g4-source-index={index}
                 data-g4-correct={index === c.correctChip ? 'true' : 'false'}
-                disabled={!canAnswer || solved || wrongSet.has(index)}
+                data-g4-wrong-flash={flashKey === index ? 'true' : undefined}
+                data-g4-answer-dim={solved && index !== c.correctChip ? 'true' : undefined}
+                disabled={!canAnswer || solved}
                 onClick={() => pick(index)}
               >
                 {t(chip)}

@@ -99,6 +99,16 @@
   padding-top: 76px;
 }
 
+/* Past ekranda (1280x720 noutbuk, 360x640 telefon) bu 76 px topshiriqni
+   skrollga chiqarib yuboradi: LMS ichida sarlavha 46 px, saytda esa 30 px
+   ko'proq. Til paneli 44 px + 8 px chegara — 56 px yetadi, qolgani bo'sh joy. */
+@media (max-height: 820px) {
+  .lesson-page-grade4 .lesson-frame .p4-head,
+  .lesson-page-grade4 .lesson-frame .g4p-head {
+    padding-top: 56px;
+  }
+}
+
 @media (max-width: 1100px) {
   .lesson-page-grade4 .lesson-frame .stage-header {
     padding-top: 70px;
@@ -116,6 +126,13 @@
     white-space: normal;
     text-overflow: clip;
     line-height: 1.2;
+  }
+}
+
+@media (max-height: 760px) {
+  .lesson-page-grade4 .lesson-frame .p4-head,
+  .lesson-page-grade4 .lesson-frame .g4p-head {
+    padding-top: 50px;
   }
 }
 

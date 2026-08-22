@@ -58,6 +58,7 @@ This glossary is the source of truth for English wording inside Grade 4 lessons.
 | shkala | scale |
 | belgi / bo'linma | mark / interval |
 | bo'linma qiymati | value of one interval |
+| butun oraliq | whole range |
 | sonlar nuri | number line |
 | uzunlik | length |
 | massa | mass |

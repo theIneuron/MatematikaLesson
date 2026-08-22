@@ -564,6 +564,38 @@ export function useGrade4FinaleReveal({ audio, count = 4, interval = 500 }) {
   return visible;
 }
 
+// Раскрытие финала по озвучке, а не по таймеру.
+//
+// useGrade4FinaleReveal показывает блоки через фиксированные 500 мс: к концу
+// первой секунды на экране уже всё, а диктор только начал первую фразу. Здесь
+// блок N появляется вместе с N-м сегментом озвучки, поэтому итог собирается
+// на глазах ученика ровно под то, что он слышит.
+//
+// Отдельный хук, а не флаг в старом: остальные уроки продолжают работать как
+// раньше, пока их отдельно не переведут.
+export function useGrade4FinaleAudioReveal({ audio, count = 4, fallbackInterval = 2600 }) {
+  const reduced = usePrefersReducedMotion();
+  const safeCount = Number.isFinite(count) ? Math.max(0, Math.floor(count)) : 4;
+  const completed = audio?.completed === true;
+  // Страховка: если озвучка не двигается (нет TTS, Web Speech в превью молчит),
+  // блоки всё равно откроются. Без неё звание нельзя было бы получить и урок
+  // не завершался бы вовсе.
+  const [floor, setFloor] = useState(1);
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    if (reduced || completed || safeCount === 0) return undefined;
+    const timers = [];
+    for (let index = 1; index < safeCount; index += 1) {
+      timers.push(window.setTimeout(() => setFloor(index + 1), index * fallbackInterval));
+    }
+    return () => timers.forEach((timer) => window.clearTimeout(timer));
+  }, [completed, fallbackInterval, reduced, safeCount]);
+
+  if (reduced || completed) return safeCount;
+  const beat = Number.isFinite(audio?.beat) ? audio.beat : 0;
+  return Math.max(1, floor, Math.min(safeCount, beat + 1));
+}
+
 export function useGrade4TitleClaim({ storedAnswer, audio, onClaim }) {
   const reduced = usePrefersReducedMotion();
   const [titleClaimed, setTitleClaimed] = useState(() => storedAnswer?.titleClaimed === true);

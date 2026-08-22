@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { canUseGrade4TheoryContinue } from './theoryNavigation.js';
+import { WRONG_FLASH_CSS, useWrongFlash } from './wrongAnswerFlash.js';
 import { Grade4Finale, useGrade4TitleClaim } from './Grade4Finale.jsx';
 
 const G4_TITLE_STYLES = `
@@ -1407,20 +1408,6 @@ function useAdvanceGate(solved, audio) {
   return !audio.isPlaying;
 }
 
-const WRONG_ANSWER_FLASH_MS = 2000;
-
-function useWrongAnswerFlash() {
-  const [wrongFlashIndex, setWrongFlashIndex] = useState(null);
-
-  useEffect(() => {
-    if (wrongFlashIndex === null || typeof window === 'undefined') return undefined;
-    const timer = window.setTimeout(() => setWrongFlashIndex(null), WRONG_ANSWER_FLASH_MS);
-    return () => window.clearTimeout(timer);
-  }, [wrongFlashIndex]);
-
-  return [wrongFlashIndex, setWrongFlashIndex];
-}
-
 const playSfx = (kind) => {
   const url = kind === 'correct' ? runtimeConfig.correctSoundUrl : runtimeConfig.wrongSoundUrl;
   if (!url || typeof window === 'undefined') return;
@@ -1935,7 +1922,7 @@ const StoryHookScreen = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => 
   const [attempted, setAttempted] = useState(storedAnswer?.attempted ?? []);
   const [solved, setSolved] = useState(storedAnswer?.correct === true);
   const [wrongIndex, setWrongIndex] = useState(storedAnswer?.correct === true ? null : storedAnswer?.lastWrong ?? null);
-  const [wrongFlashIndex, setWrongFlashIndex] = useWrongAnswerFlash();
+  const [wrongFlashIndex, flashWrong] = useWrongFlash();
   const order = useMemo(
     () => buildOptionOrder(c.options.length, c.correctIndex, LESSON_META.lessonId, 0),
     [c.options.length, c.correctIndex],
@@ -1944,13 +1931,12 @@ const StoryHookScreen = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => 
   const canNext = useAdvanceGate(solved, audio);
 
   const pick = (sourceIndex) => {
-    if (!canChoose || solved || attempted.includes(sourceIndex)) return;
+    if (!canChoose || solved) return;
     const nextAttempted = [...attempted, sourceIndex];
     setAttempted(nextAttempted);
     if (sourceIndex === c.correctIndex) {
       setSolved(true);
       setWrongIndex(null);
-      setWrongFlashIndex(null);
       playSfx('correct');
       audio.pushOneOff(t(c.feedbackAudio.on_correct));
       onAnswer({
@@ -1966,7 +1952,7 @@ const StoryHookScreen = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => 
       });
     } else {
       setWrongIndex(sourceIndex);
-      setWrongFlashIndex(sourceIndex);
+      flashWrong(sourceIndex);
       playSfx('wrong');
       audio.pushOneOff(t(c.feedbackAudio.on_wrong[sourceIndex]));
       onAnswer({
@@ -2017,7 +2003,6 @@ const StoryHookScreen = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => 
           <strong id="d4-hook-question">{t(c.hookQuestion)}</strong>
           <div className="hook-answer-grid" role="group" aria-label={t(c.hookQuestion)}>
             {order.map((sourceIndex, displayIndex) => {
-              const inactiveWrong = attempted.includes(sourceIndex) && sourceIndex !== c.correctIndex;
               const wrongFlash = !solved && wrongFlashIndex === sourceIndex;
               const correctReveal = solved && sourceIndex === c.correctIndex;
               return (
@@ -2027,10 +2012,11 @@ const StoryHookScreen = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => 
                   data-g4-branch="choice"
                   data-g4-source-index={sourceIndex}
                   data-g4-correct={sourceIndex === c.correctIndex ? 'true' : 'false'}
-                  className={`option ${inactiveWrong ? 'option-wrong' : ''} ${wrongFlash ? 'option-wrong-flash' : ''} ${correctReveal ? 'option-correct-reveal' : ''}`}
+                  data-g4-wrong-flash={wrongFlash ? 'true' : undefined}
+                  className={`option ${correctReveal ? 'option-correct-reveal' : ''}`}
                   key={sourceIndex}
                   onClick={() => pick(sourceIndex)}
-                  disabled={!canChoose || solved || inactiveWrong}
+                  disabled={!canChoose || solved || wrongFlashIndex !== null}
                 >
                   <span className="option-letter">{String.fromCharCode(65 + displayIndex)}</span>
                   <span>{t(c.options[sourceIndex])}</span>
@@ -2170,7 +2156,7 @@ const ChoiceScreen = ({ screen, c, choiceOrdinal, storedAnswer, onAnswer, onNext
   const [attempted, setAttempted] = useState(storedAnswer?.attempted ?? []);
   const [solved, setSolved] = useState(storedAnswer?.correct === true);
   const [wrongIndex, setWrongIndex] = useState(storedAnswer?.lastWrong ?? null);
-  const [wrongFlashIndex, setWrongFlashIndex] = useWrongAnswerFlash();
+  const [wrongFlashIndex, flashWrong] = useWrongFlash();
   const order = useMemo(
     () => buildOptionOrder(c.options.length, c.correctIndex, LESSON_META.lessonId, choiceOrdinal),
     [c.options.length, c.correctIndex, choiceOrdinal],
@@ -2179,13 +2165,12 @@ const ChoiceScreen = ({ screen, c, choiceOrdinal, storedAnswer, onAnswer, onNext
   const canNext = useAdvanceGate(solved, audio);
 
   const pick = (sourceIndex) => {
-    if (!canChoose || solved || attempted.includes(sourceIndex)) return;
+    if (!canChoose || solved) return;
     const nextAttempted = [...attempted, sourceIndex];
     setAttempted(nextAttempted);
     if (sourceIndex === c.correctIndex) {
       setSolved(true);
       setWrongIndex(null);
-      setWrongFlashIndex(null);
       playSfx('correct');
       audio.pushOneOff(t(c.audio.on_correct));
       onAnswer({
@@ -2201,7 +2186,7 @@ const ChoiceScreen = ({ screen, c, choiceOrdinal, storedAnswer, onAnswer, onNext
       });
     } else {
       setWrongIndex(sourceIndex);
-      setWrongFlashIndex(sourceIndex);
+      flashWrong(sourceIndex);
       playSfx('wrong');
       audio.pushOneOff(t(c.audio.on_wrong[sourceIndex]));
       onAnswer({
@@ -2234,7 +2219,6 @@ const ChoiceScreen = ({ screen, c, choiceOrdinal, storedAnswer, onAnswer, onNext
         <div className="answer-stage">
           <div className={`options-grid ${solved ? 'options-solved' : ''}`} role="group" aria-labelledby={`d4-choice-${screen}`}>
             {order.map((sourceIndex, displayIndex) => {
-              const inactiveWrong = attempted.includes(sourceIndex) && sourceIndex !== c.correctIndex;
               const wrongFlash = !solved && wrongFlashIndex === sourceIndex;
               const correctReveal = solved && sourceIndex === c.correctIndex;
               return (
@@ -2243,10 +2227,11 @@ const ChoiceScreen = ({ screen, c, choiceOrdinal, storedAnswer, onAnswer, onNext
                   data-g4-branch="choice"
                   data-g4-source-index={sourceIndex}
                   data-g4-correct={sourceIndex === c.correctIndex ? 'true' : 'false'}
-                  className={`option ${inactiveWrong ? 'option-wrong' : ''} ${wrongFlash ? 'option-wrong-flash' : ''} ${correctReveal ? 'option-correct-reveal' : ''}`}
+                  data-g4-wrong-flash={wrongFlash ? 'true' : undefined}
+                  className={`option ${correctReveal ? 'option-correct-reveal' : ''}`}
                   key={sourceIndex}
                   onClick={() => pick(sourceIndex)}
-                  disabled={!canChoose || solved || inactiveWrong}
+                  disabled={!canChoose || solved || wrongFlashIndex !== null}
                 >
                   <span className="option-letter">{String.fromCharCode(65 + displayIndex)}</span>
                   <span>{t(c.options[sourceIndex])}</span>
@@ -2679,6 +2664,7 @@ export default function Grade4Dars04({ studentName, lang: langProp, ttsApiBase, 
 }
 
 const STYLES = `
+${WRONG_FLASH_CSS}
 html:has(.lesson-root),
 body:has(.lesson-root),
 #root:has(.lesson-root),

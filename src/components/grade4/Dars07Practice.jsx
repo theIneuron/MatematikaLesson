@@ -12,6 +12,67 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+// ---- MATCH-FIX (metodist qarori 2026-08-21) --------------------------------
+// Juftlashtirish uch narsani kafolatlaydi:
+//   1) juftlikning ikki tomoni bir xil rang va bir xil belgi oladi — uchta
+//      qator uchta rangda ko'rinadi va bola nimani nima bilan bog'laganini
+//      ko'zi bilan ko'radi;
+//   2) band kartochkani boshqa qatorga berish mumkin, shuning uchun hammasini
+//      juftlagandan keyin ham xatoni tuzatish yo'li bor — tupik yo'q;
+//   3) o'ng ustun chap ustun bilan bir qatorga tushmaydi: to'g'ri javob
+//      qarshisida turib qolsa, bola o'ylamay bir qatorga bosadi.
+// Blok har darsda takrorlanadi ATAYLAB: LMS avtonom fayl talab qiladi
+// (scripts/build-grade4-practice-lms.mjs — lokal import yo'q).
+const MATCH_TONES = 6;
+// Chap ustundagi qatorlarning kaliti = `pairs` obyektining kaliti.
+const matchRows = (task) => (task.pairs || task.left || []).map((item, row) => row);
+const matchTone = (rows, key) => {
+  const row = rows.findIndex((item) => String(item) === String(key));
+  return row < 0 ? '' : ` p4-tone${(row % MATCH_TONES) + 1}`;
+};
+const matchToneLeft = (task, pairs, rowKey) => (
+  pairs[rowKey] === undefined ? '' : matchTone(matchRows(task), rowKey)
+);
+const matchToneRight = (task, pairs, rightKey) => {
+  const rows = matchRows(task);
+  const owner = rows.find(
+    (key) => pairs[key] !== undefined && String(pairs[key]) === String(rightKey),
+  );
+  return owner === undefined ? '' : matchTone(rows, owner);
+};
+// Kartochka band bo'lsa, eski juftlik bo'shatiladi: bitta kartochka bir vaqtda
+// faqat bitta qatorga tegishli bo'ladi.
+const matchTie = (pairs, rowKey, rightKey) => {
+  const next = {};
+  Object.keys(pairs).forEach((key) => {
+    if (String(pairs[key]) !== String(rightKey)) next[key] = pairs[key];
+  });
+  next[rowKey] = rightKey;
+  return next;
+};
+// O'ng ustunni shunday joylaydi, ki hech bir karta o'z juftining qarshisida
+// turmaydi. Aralashtirish tasodifiy, lekin natijasi tekshiriladi.
+const matchSpread = (cards, aligned) => {
+  const list = Array.isArray(cards) ? [...cards] : [];
+  if (list.length < 2) return list;
+  const stuck = () => list.some((card, row) => aligned(card, row));
+  for (let attempt = 0; attempt < 24 && stuck(); attempt += 1) {
+    for (let i = list.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [list[i], list[j]] = [list[j], list[i]];
+    }
+  }
+  for (let pass = 0; pass <= list.length && stuck(); pass += 1) {
+    for (let i = 0; i < list.length; i += 1) {
+      if (!aligned(list[i], i)) continue;
+      const j = (i + 1) % list.length;
+      [list[i], list[j]] = [list[j], list[i]];
+    }
+  }
+  return list;
+};
+// ---- MATCH-FIX tugashi ----------------------------------------------------
+
 const T = {
   bg: '#F5F5F0',
   paper: '#FFFFFF',
@@ -380,14 +441,9 @@ const Feedback = ({ ok, text, rule, lang, feedbackRef }) => (
 );
 
 function MatchTask({ task, lang, pairs, setPairs, activeLeft, setActiveLeft, solved, firstWrong }) {
-  const rightPairs = useMemo(() => shuffle(task.pairs), [task]);
+  const rightPairs = useMemo(() => matchSpread(task.pairs, (card, row) => card.id === task.pairs[row]?.id), [task]);
 
   const chooseLeft = (index) => {
-    setPairs((old) => {
-      const next = { ...old };
-      delete next[index];
-      return next;
-    });
     setActiveLeft(index);
   };
 
@@ -400,7 +456,7 @@ function MatchTask({ task, lang, pairs, setPairs, activeLeft, setActiveLeft, sol
             <button
               key={pair.id}
               type="button"
-              className={`p4-match-item ${activeLeft === index ? 'is-active' : ''} ${pairs[index] ? 'is-tied' : ''} ${firstWrong === index ? 'is-no' : ''}`}
+              className={`p4-match-item ${activeLeft === index ? 'is-active' : ''} ${pairs[index] ? 'is-tied' : ''} ${firstWrong === index ? 'is-no' : ''}${matchToneLeft(task, pairs, index)}`}
               disabled={solved}
               aria-pressed={activeLeft === index}
               onClick={() => chooseLeft(index)}
@@ -412,17 +468,16 @@ function MatchTask({ task, lang, pairs, setPairs, activeLeft, setActiveLeft, sol
         </div>
         <div className="p4-match-col">
           {rightPairs.map((pair) => {
-            const usedByOther = Object.entries(pairs).some(([index, id]) => id === pair.id && Number(index) !== activeLeft);
             return (
               <button
                 key={pair.id}
                 type="button"
-                className="p4-match-item p4-match-right"
-                disabled={solved || activeLeft === null || usedByOther}
+                className={`p4-match-item p4-match-right${matchToneRight(task, pairs, pair.id)}`}
+                disabled={solved || activeLeft === null}
                 aria-pressed={activeLeft !== null && pairs[activeLeft] === pair.id}
                 onClick={() => {
                   if (activeLeft === null) return;
-                  setPairs((old) => ({ ...old, [activeLeft]: pair.id }));
+                  setPairs((old) => matchTie(old, activeLeft, pair.id));
                   setActiveLeft(null);
                 }}
               >{tx(pair.right, lang)}</button>
@@ -543,8 +598,15 @@ function SortTask({ task, lang, assignments, setAssignments, active, setActive, 
   );
 }
 
-function Task({ task, lang, isLast, onSolved }) {
-  const options = useMemo(() => task.kind === 'mc' ? shuffle(task.options) : [], [task]);
+// `platform` berilganda tugma qatori chizilmaydi: uni LMS o'zi beradi va
+// tekshiruvni `registerCheck` orqali chaqiradi (LMS kontrakti).
+function Task({ task, lang, isLast, onSolved ,
+  platform = false, mode, onReady, registerCheck, onSubmit, playCorrect, playWrong,
+}) {
+  // Xato javobdan keyin variantlar qayta aralashadi (metodist qarori 2026-08-21).
+  const [wrongRound, setWrongRound] = useState(0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- wrongRound ataylab yangi tartib beradi
+  const options = useMemo(() => task.kind === 'mc' ? shuffle(task.options) : [], [task, wrongRound]);
   const [picked, setPicked] = useState(null);
   const [typed, setTyped] = useState('');
   const [pairs, setPairs] = useState({});
@@ -561,13 +623,16 @@ function Task({ task, lang, isLast, onSolved }) {
   const sequence = task.kind === 'construct'
     ? slots.map((id) => task.cards.find((card) => card.id === id)?.symbol || '').join('')
     : '';
-  const solved = checked && (
-    (task.kind === 'mc' && options[picked]?.correct === true)
+  // Javobning to'g'riligi `checked` dan ALOHIDA hisoblanadi: tekshirishda
+  // xato bo'lsa variantlar qayta aralashtiriladi.
+  const answerCorrect = (
+    (task.kind === 'mc' && picked?.correct === true)
     || (task.kind === 'numpad' && typed === task.answer)
     || (task.kind === 'match' && task.pairs.every((pair, index) => pairs[index] === pair.id))
     || (task.kind === 'construct' && sequence === task.answer.join(''))
     || (task.kind === 'sort' && task.items.every((item) => assignments[item.id] === item.bin))
   );
+  const solved = checked && answerCorrect;
   const canCheck = (task.kind === 'mc' && picked !== null)
     || (task.kind === 'numpad' && typed !== '')
     || (task.kind === 'match' && Object.keys(pairs).length === task.pairs.length)
@@ -598,7 +663,7 @@ function Task({ task, lang, isLast, onSolved }) {
   }, [checked]);
 
   const wrongText = (() => {
-    if (task.kind === 'mc') return options[picked]?.wrong;
+    if (task.kind === 'mc') return picked?.wrong;
     if (task.kind === 'numpad') {
       return task.wrongByAnswer?.[typed]
         || task.hints[Math.min(Math.max(attempts - 1, 0), task.hints.length - 1)];
@@ -621,6 +686,28 @@ function Task({ task, lang, isLast, onSolved }) {
     setChecked(false);
   };
 
+  // Tekshirish bir joyda: lokal tugma ham, platforma ham shuni chaqiradi.
+  const check = () => { if (mode === 'review') return; setChecked(true); setAttempts((count) => count + 1); if (!answerCorrect) setWrongRound((old) => old + 1); };
+  // --- LMS platforma kontrakti ------------------------------------------
+  // Mexanikaga tegilmaydi: natija mavjud holatlardan o'qiladi.
+  useEffect(() => { onReady?.(Boolean(canCheck) && !solved && mode !== 'review'); },
+    [canCheck, solved, mode, onReady]);
+  const checkRef = useRef(check);
+  useEffect(() => { checkRef.current = check; });
+  useEffect(() => { registerCheck?.(() => checkRef.current?.()); }, [registerCheck]);
+  const reportedRef = useRef(-1);
+  useEffect(() => {
+    if (!checked) return;
+    if (reportedRef.current === attempts) return;
+    reportedRef.current = attempts;
+    (solved ? playCorrect : playWrong)?.();
+    onSubmit?.({
+      questionText: typeof task.prompt === 'object' ? task.prompt.uz : String(task.prompt ?? ''),
+      correct: Boolean(solved),
+      meta: { taskId: task.id, kind: task.kind, attempts: attempts },
+    });
+  }, [attempts, checked, solved, onSubmit, playCorrect, playWrong, task]);
+  // ----------------------------------------------------------------------
   return (
     <section className="p4-task" aria-labelledby={`p4-question-${task.id}`}>
       <p className="p4-eyebrow">{task.level} {tx(UI.task, lang)} {task.id}</p>
@@ -638,10 +725,10 @@ function Task({ task, lang, isLast, onSolved }) {
             <button
               key={`${task.id}-${index}`}
               type="button"
-              className={`p4-option ${picked === index ? (checked ? (option.correct ? 'is-ok' : 'is-no') : 'is-on') : ''}`}
+              className={`p4-option ${picked === option ? (checked ? (option.correct ? 'is-ok' : 'is-no') : 'is-on') : ''}`}
               disabled={solved}
-              aria-pressed={picked === index}
-              onClick={() => markChanged(() => setPicked(index))}
+              aria-pressed={picked === option}
+              onClick={() => markChanged(() => setPicked(option))}
             >
               <span className="p4-letter">{'ABCD'[index]}</span>
               <span>{tx(option.text, lang)}</span>
@@ -706,13 +793,13 @@ function Task({ task, lang, isLast, onSolved }) {
         />
       )}
 
-      <div className="p4-actions">
+      {!platform && <div className="p4-actions">
         {!solved && (
           <button
             type="button"
             className="p4-btn"
             disabled={!canCheck}
-            onClick={() => { setChecked(true); setAttempts((count) => count + 1); }}
+            onClick={check}
           >{tx(UI.check, lang)}</button>
         )}
         {checked && !solved && (
@@ -733,7 +820,7 @@ function Task({ task, lang, isLast, onSolved }) {
             }}
           >{tx(isLast ? UI.finish : UI.next, lang)}</button>
         )}
-      </div>
+      </div>}
     </section>
   );
 }
@@ -848,4 +935,96 @@ const STYLES = `
 @keyframes p4-rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:520px){.p4-options{grid-template-columns:1fr}.p4-match-cols{gap:8px}.p4-match-item{font-size:12px;padding:7px}.p4-sort-bins{grid-template-columns:1fr}.p4-slot,.p4-symbol-card{width:50px;min-height:52px}}
 @media(prefers-reduced-motion:reduce){.p4-root *,.p4-root *::before,.p4-root *::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+
+/* PRACTICE-FIX boshlanishi — metodist qarori 2026-08-21.
+   1) Tekshirish tugmasi o'ngda (2-dars etaloni).
+   2) Moslashtirishda ikki tomondagi kartochkalar bir xil o'lchamda: ustun grid
+      bo'ladi va qatorlari 1fr, shuning uchun juftlar qator bo'yicha tekislanadi.
+   Bu blok har darsda takrorlanadi ATAYLAB: LMS avtonom fayl talab qiladi. */
+.p4-actions, .g4p-actions { justify-content: flex-end; }
+.p4-match-cols, .g4p-match-cols { align-items: stretch; }
+.p4-match-col, .g4p-match-col { display: grid; grid-auto-rows: 1fr; align-content: stretch; }
+/* PRACTICE-FIX tugashi */
+
+/* MATCH-FIX boshlanishi — metodist qarori 2026-08-21.
+   Juftlikning ikki tomoni bir xil rang va bir xil belgi oladi: uchta qator
+   uchta rangda ko'rinadi. Rang tanlangan (is-active) va band (is-used)
+   holatlaridan ustun turishi kerak, shuning uchun !important. Tanlov va
+   tekshiruv holatlari esa rangdan ustun: ular pastda, keyingi qatorlarda.
+   Blok har darsda takrorlanadi ATAYLAB: LMS avtonom fayl talab qiladi. */
+.p4-match [class*="p4-tone"],.g4p-match [class*="p4-tone"]{position:relative;opacity:1!important}
+.p4-match [class*="p4-tone"]::before,.g4p-match [class*="p4-tone"]::before{position:absolute;top:2px;left:4px;font-size:9px;line-height:1;opacity:.9;pointer-events:none}
+.p4-match [class*="p4-tone"] b,.g4p-match [class*="p4-tone"] b,.p4-match [class*="p4-tone"] small,.g4p-match [class*="p4-tone"] small{color:inherit!important}
+.p4-match .p4-tone1,.g4p-match .p4-tone1{background:#DCF0F3!important;border-color:#0E7C8F!important;box-shadow:inset 0 0 0 2px #0E7C8F!important;color:#0B5A68!important}
+.p4-match .p4-tone1::before,.g4p-match .p4-tone1::before{content:"●";color:#0E7C8F}
+.p4-match .p4-tone2,.g4p-match .p4-tone2{background:#E9E4F7!important;border-color:#5E45AD!important;box-shadow:inset 0 0 0 2px #5E45AD!important;color:#3E2E75!important}
+.p4-match .p4-tone2::before,.g4p-match .p4-tone2::before{content:"■";color:#5E45AD}
+.p4-match .p4-tone3,.g4p-match .p4-tone3{background:#FBE2EA!important;border-color:#AE3760!important;box-shadow:inset 0 0 0 2px #AE3760!important;color:#77223F!important}
+.p4-match .p4-tone3::before,.g4p-match .p4-tone3::before{content:"◆";color:#AE3760}
+.p4-match .p4-tone4,.g4p-match .p4-tone4{background:#E2E8F0!important;border-color:#3C5A80!important;box-shadow:inset 0 0 0 2px #3C5A80!important;color:#27405C!important}
+.p4-match .p4-tone4::before,.g4p-match .p4-tone4::before{content:"★";color:#3C5A80}
+.p4-match .p4-tone5,.g4p-match .p4-tone5{background:#EFE6DA!important;border-color:#6B4A2B!important;box-shadow:inset 0 0 0 2px #6B4A2B!important;color:#4A3219!important}
+.p4-match .p4-tone5::before,.g4p-match .p4-tone5::before{content:"▲";color:#6B4A2B}
+.p4-match .p4-tone6,.g4p-match .p4-tone6{background:#FBEBCB!important;border-color:#A2690F!important;box-shadow:inset 0 0 0 2px #A2690F!important;color:#6E4708!important}
+.p4-match .p4-tone6::before,.g4p-match .p4-tone6::before{content:"✚";color:#A2690F}
+.p4-match .is-active,.g4p-match .is-active{background:#FFF0EA!important;border-color:#FF5B35!important;box-shadow:inset 0 0 0 2px #FF5B35!important;color:#12212C!important}
+.p4-match .is-ok,.g4p-match .is-ok{background:#E7F3EC!important;border-color:#227A53!important;box-shadow:inset 0 0 0 2px #227A53!important;color:#1B5E40!important}
+.p4-match .is-no,.g4p-match .is-no{background:#FFF5D9!important;border-color:#A96F13!important;box-shadow:inset 0 0 0 2px #A96F13!important;color:#7C5210!important}
+/* MATCH-FIX tugashi */
+/* NOSCROLL boshlanishi — metodist qarori 2026-08-21.
+   Past ekranda (1280x720 noutbuk, 360x640 telefon) topshiriq skrollga
+   ketmasligi kerak: bola «Tekshirish» tugmasini ko'rmasa, uni bosmaydi.
+   Faqat BO'SH JOY qisqaradi — bosiladigan maydon 44 px dan kichraymaydi
+   (MOBIL_DESKTOP_MOSLASH.md). Blok har darsda takrorlanadi ATAYLAB: LMS
+   avtonom fayl talab qiladi. */
+@media (max-height:820px){
+.p4-root,.g4p-root{padding-bottom:12px}
+.p4-head,.g4p-head{padding-top:52px;padding-bottom:4px}
+.p4-task,.g4p-task{gap:8px}
+.p4-eyebrow,.g4p-eyebrow{margin-top:0}
+.p4-ask,.g4p-ask{margin-top:0}
+.p4-note,.g4p-note{margin-top:4px}
+.p4-actions,.g4p-actions{margin-top:0}
+.p4-figure{padding-top:8px;padding-bottom:8px}
+.p4-pad,.g4p-pad{padding:8px;gap:6px}
+.p4-pad-display,.g4p-pad-display{min-height:44px}
+.p4-pad-keys,.g4p-pad-keys{gap:5px}
+.p4-options,.g4p-options{gap:7px}
+.p4-match-cols,.g4p-match-cols{gap:8px;margin-top:4px}
+.p4-match-col,.g4p-match-col{gap:6px}
+.p4-header,.g4p-header{margin-bottom:4px}
+.p4-header h1,.g4p-header h1{margin-top:2px}
+.p4-task-top{margin-bottom:2px}
+.p4-setup,.g4p-setup{line-height:1.4}
+.p4-match-item,.g4p-match-item{min-height:44px;padding-top:5px;padding-bottom:5px}
+.p4-match button,.g4p-match button{min-height:44px;padding-top:5px;padding-bottom:5px}
+.p4-fb,.p4-feedback,.g4p-feedback{padding-top:9px;padding-bottom:9px}
+.p4-rule,.g4p-rule{margin-top:6px}
+.p4-cells,.p4-grid{gap:4px}
+.p4-card-bank,.p4-order-slots,.p4-slot-list,.p4-sort-pool{gap:6px}
+}
+@media (max-height:760px){
+.p4-head,.g4p-head{padding-bottom:0}
+.p4-main,.g4p-main{padding-top:0;padding-bottom:0}
+.p4-root,.g4p-root{padding-bottom:8px}
+.p4-task,.g4p-task{gap:5px}
+.p4-figure{padding-top:4px;padding-bottom:4px}
+.p4-eyebrow,.g4p-eyebrow{font-size:10px}
+.p4-setup,.g4p-setup{font-size:clamp(13px,1.8vw,14px)}
+.p4-ask,.g4p-ask{font-size:clamp(15px,2.2vw,18px)}
+.p4-pad,.g4p-pad{padding:4px;gap:4px}
+.p4-pad-keys,.g4p-pad-keys{gap:4px}
+.p4-pad-display,.g4p-pad-display{min-height:40px}
+.p4-visual,.g4p-visual{padding-top:8px;padding-bottom:8px;min-height:0}
+.p4-svg,.g4p-svg{max-height:96px}
+}
+@media (max-height:700px){
+.p4-head,.g4p-head{padding-top:52px;padding-bottom:2px}
+.p4-task,.g4p-task{gap:6px}
+.p4-figure{padding-top:6px;padding-bottom:6px}
+.p4-bignum,.g4p-bignum{font-size:clamp(20px,4.4vw,30px)}
+.p4-pad,.g4p-pad{padding:6px;gap:5px}
+.p4-match-col,.g4p-match-col{gap:5px}
+}
+/* NOSCROLL tugashi */
 `;

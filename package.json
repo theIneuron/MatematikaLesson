@@ -13,12 +13,21 @@
     "audit:grade4:trilingual": "node scripts/check-grade4.mjs --through=30 && node scripts/grade4-lessons-02-16-rules-audit.mjs && node scripts/grade4-lessons-17-21-audit.mjs && node scripts/grade4-lessons-22-30-audit.mjs && node scripts/grade4-practice-17-21-audit.mjs && node scripts/grade4-practice-22-30-audit.mjs && node scripts/grade4-trilingual-audit.mjs",
     "audit:grade4:contract": "npm run guard:grade4:migration && node scripts/grade4-etalon-contract-audit.mjs && node scripts/grade4-i18n-audit.mjs && npm run guard:grade4:migration",
     "audit:grade4:legacy-layout": "node scripts/grade4-lessons-02-16-rules-audit.mjs && node scripts/grade4-lessons-17-21-audit.mjs && node scripts/grade4-lessons-22-30-audit.mjs && node scripts/grade4-lessons-31-51-audit.mjs",
-    "audit:grade4": "npm run guard:grade4:migration && node scripts/check-grade4.mjs --from=2 --through=51 && node scripts/grade4-etalon-contract-audit.mjs && node scripts/grade4-practice-17-21-audit.mjs && node scripts/grade4-practice-22-30-audit.mjs && node scripts/grade4-i18n-audit.mjs && npm run guard:grade4:migration",
+    "audit:grade4": "npm run guard:grade4:migration && node scripts/check-grade4.mjs --from=2 --through=51 && node scripts/grade4-etalon-contract-audit.mjs && node scripts/grade4-practice-17-21-audit.mjs && node scripts/grade4-practice-22-30-audit.mjs && npm run audit:grade4:practice-31-40 && node scripts/grade4-practice-match-audit.mjs && node scripts/grade4-i18n-audit.mjs && npm run guard:grade4:migration",
     "audit:grade4:batch1": "npm run guard:grade4:migration && node scripts/grade4-etalon-contract-audit.mjs Dars02 Dars03 Dars04 Dars05 Dars06 Dars07 Dars08 Dars09 Dars10 Dars11 && node scripts/grade4-lessons-02-16-rules-audit.mjs Dars02 Dars03 Dars04 Dars05 Dars06 Dars07 Dars08 Dars09 Dars10 Dars11 && node scripts/grade4-batch1-math-audit.mjs Dars02 Dars03 Dars04 Dars05 Dars06 Dars07 Dars08 Dars09 Dars10 Dars11 && node scripts/grade4-i18n-audit.mjs Dars02 Dars03 Dars04 Dars05 Dars06 Dars07 Dars08 Dars09 Dars10 Dars11 && npm run guard:grade4:migration",
     "test:grade4:browser": "npm run guard:grade4:migration && node scripts/grade4-browser-smoke.mjs && npm run guard:grade4:migration",
     "test:grade4:browser:trilingual": "node scripts/grade4-trilingual-browser-smoke.mjs",
     "preview": "vite preview",
-    "guard:grade4:kit": "node scripts/grade4-kit-lesson-guard.mjs"
+    "guard:grade4:kit": "node scripts/grade4-kit-lesson-guard.mjs",
+    "audit:grade4:practice-31-40": "node scripts/grade4-practice-31-40-layout.mjs --check && node scripts/grade4-practice-31-40-audit.mjs",
+    "lms:grade4": "node scripts/build-grade4-lms.mjs",
+    "lms:grade4:practice": "node scripts/build-grade4-lms.mjs --practice",
+    "lms:grade4:all": "node scripts/build-grade4-lms.mjs --all",
+    "lms:grade4:check": "node scripts/build-grade4-lms.mjs --check",
+    "audit:grade4:answer-lock": "node scripts/grade4-answer-lock-audit.mjs",
+    "audit:grade4:frames": "node scripts/grade4-frame-gap-audit.mjs",
+    "audit:grade4:rule-rows": "node scripts/grade4-rule-rows-audit.mjs",
+    "audit:grade4:match": "node scripts/grade4-practice-match-audit.mjs"
   },
   "dependencies": {
     "framer-motion": "^12.42.2",

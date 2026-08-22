@@ -9,6 +9,7 @@ import React, {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { canUseGrade4TheoryContinue } from './theoryNavigation.js';
+import { WRONG_FLASH_CSS, useWrongFlash } from './wrongAnswerFlash.js';
 import { Grade4Finale, useGrade4TitleClaim } from './Grade4Finale.jsx';
 
 const selectLocale = (lang, values) => values[lang] ?? values.uz;
@@ -1845,16 +1846,18 @@ const OptionalPrediction = ({ options, selected, onSelect, correctIndex, choiceO
       ? storedAnswer.wrongAnswerIndexes
       : (selected !== null && selected !== correctIndex ? [selected] : []),
   ));
+  const [wrongFlash, flashWrong] = useWrongFlash();
   const selectedIndex = selected;
   const solved = selectedIndex === correctIndex;
   const optionOrder = buildOptionOrder(options.length, correctIndex, LESSON_META.lessonId, choiceOrdinal);
   const choose = (sourceIndex) => {
-    if (!ready || solved || wrongAnswers.has(sourceIndex)) return;
+    if (!ready || solved) return;
     const nextWrongAnswers = sourceIndex === correctIndex
       ? wrongAnswers
       : new Set([...wrongAnswers, sourceIndex]);
     if (sourceIndex !== correctIndex) {
       setWrongAnswers(nextWrongAnswers);
+      flashWrong(sourceIndex);
     }
     onSelect(sourceIndex, [...nextWrongAnswers]);
   };
@@ -1865,10 +1868,10 @@ const OptionalPrediction = ({ options, selected, onSelect, correctIndex, choiceO
         <button
           type="button"
           key={sourceIndex}
+          data-g4-wrong-flash={wrongFlash === sourceIndex ? 'true' : undefined}
           className={
             'choice-card prediction-chip'
-            + (selectedIndex === sourceIndex ? ' choice-selected' : '')
-            + (wrongAnswers.has(sourceIndex) ? ' choice-wrong' : '')
+            + (solved && selectedIndex === sourceIndex ? ' choice-selected' : '')
             + (solved && sourceIndex === correctIndex ? ' choice-correct' : '')
           }
           data-g4-role="answer-card"
@@ -1876,7 +1879,7 @@ const OptionalPrediction = ({ options, selected, onSelect, correctIndex, choiceO
           data-g4-source-index={sourceIndex}
           data-g4-correct={sourceIndex === correctIndex ? 'true' : 'false'}
           aria-pressed={selectedIndex === sourceIndex}
-          disabled={!ready || solved || wrongAnswers.has(sourceIndex)}
+          disabled={!ready || solved || wrongFlash !== null}
           onClick={() => choose(sourceIndex)}
         >
           <span className="option-letter">{String.fromCharCode(65 + displayIndex)}</span>
@@ -1975,9 +1978,10 @@ const ScoredChoice = ({
     ? buildOptionOrder(options.length, correctIndex, LESSON_META.lessonId, choiceOrdinal)
     : options.map((_, index) => index);
   const ready = Boolean(audio?.completed || audio?.muted);
+  const [wrongFlash, flashWrong] = useWrongFlash();
 
   const choose = (index) => {
-    if (!ready || solved || wrongAnswers.has(index)) return;
+    if (!ready || solved) return;
     const nextAttempts = attempts + 1;
     const correct = index === correctIndex;
     const nextWrongAnswers = correct ? wrongAnswers : new Set([...wrongAnswers, index]);
@@ -1990,6 +1994,7 @@ const ScoredChoice = ({
     setMessage(nextMessage);
     if (!correct) {
       setWrongAnswers(nextWrongAnswers);
+      flashWrong(index);
     }
     playSfx(correct ? 'correct' : 'wrong');
     audio?.pushOneOff(t(nextMessage));
@@ -2024,15 +2029,15 @@ const ScoredChoice = ({
             data-g4-branch="choice"
             data-g4-source-index={sourceIndex}
             data-g4-correct={sourceIndex === correctIndex ? 'true' : 'false'}
+            data-g4-wrong-flash={wrongFlash === sourceIndex ? 'true' : undefined}
             className={
               'choice-card'
-              + (selected === sourceIndex ? ' choice-selected' : '')
-              + (wrongAnswers.has(sourceIndex) ? ' choice-wrong' : '')
+              + (solved && selected === sourceIndex ? ' choice-selected' : '')
               + (solved && sourceIndex === correctIndex ? ' choice-correct' : '')
             }
             aria-pressed={selected === sourceIndex}
             onClick={() => choose(sourceIndex)}
-            disabled={!ready || solved || wrongAnswers.has(sourceIndex)}
+            disabled={!ready || solved || wrongFlash !== null}
           >
             <span className="option-letter">{String.fromCharCode(65 + displayIndex)}</span>
             <b>{t(options[sourceIndex])}</b>
@@ -2062,8 +2067,9 @@ function HookScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finishLess
         : []),
   ));
   const optionOrder = buildOptionOrder(c.options.length, correctIndex, LESSON_META.lessonId, 0);
+  const [wrongFlash, flashWrong] = useWrongFlash();
   const pick = (index) => {
-    if (!ready || picked === correctIndex || wrongAnswers.has(index)) return;
+    if (!ready || picked === correctIndex) return;
     const nextWrongAnswers = index === correctIndex
       ? wrongAnswers
       : new Set([...wrongAnswers, index]);
@@ -2071,6 +2077,7 @@ function HookScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finishLess
     const feedbackAudio = index === correctIndex ? c.audio.on_correct : c.audio.on_wrong[index];
     if (index !== correctIndex) {
       setWrongAnswers(nextWrongAnswers);
+      flashWrong(index);
     }
     audio.pushOneOff(t(feedbackAudio));
     onAnswer({
@@ -2122,10 +2129,10 @@ function HookScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finishLess
         {optionOrder.map((sourceIndex, displayIndex) => (
           <button
             type="button"
+            data-g4-wrong-flash={wrongFlash === sourceIndex ? 'true' : undefined}
             className={
               'choice-card'
-              + (picked === sourceIndex ? ' choice-selected' : '')
-              + (wrongAnswers.has(sourceIndex) ? ' choice-wrong' : '')
+              + (picked === correctIndex && picked === sourceIndex ? ' choice-selected' : '')
               + (picked === correctIndex && sourceIndex === correctIndex ? ' choice-correct' : '')
             }
             key={sourceIndex}
@@ -2134,7 +2141,7 @@ function HookScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finishLess
             data-g4-source-index={sourceIndex}
             data-g4-correct={sourceIndex === correctIndex ? 'true' : 'false'}
             aria-pressed={picked === sourceIndex}
-            disabled={!ready || picked === correctIndex || wrongAnswers.has(sourceIndex)}
+            disabled={!ready || picked === correctIndex || wrongFlash !== null}
             onClick={() => pick(sourceIndex)}
           >
             <span className="option-letter hook-option-letter">{String.fromCharCode(65 + displayIndex)}</span>
@@ -2599,10 +2606,27 @@ function MatchingScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finish
   };
   const allPaired = Object.values(pairs).every(Boolean);
 
+  // Metodist qarori (2026-08-21): tuzilgan juftlikni o'zgartirish mumkin bo'lishi
+  // kerak. Band o'ng karta yangi chap kartaga o'tadi, chap kartani bosish esa
+  // juftlikni bo'shatadi.
   const chooseRight = (value) => {
-    if (!ready || solved || activeLeft === null || Object.values(pairs).includes(value)) return;
-    setPairs((currentPairs) => ({ ...currentPairs, [activeLeft]: value }));
+    if (!ready || solved || activeLeft === null) return;
+    setPairs((currentPairs) => {
+      const next = { ...currentPairs };
+      for (const key of Object.keys(next)) {
+        if (next[key] === value) next[key] = null;
+      }
+      next[activeLeft] = value;
+      return next;
+    });
     setActiveLeft(null);
+    setMessage(null);
+  };
+
+  const releaseLeft = (key) => {
+    if (!ready || solved) return;
+    setPairs((currentPairs) => ({ ...currentPairs, [key]: null }));
+    setActiveLeft(key);
     setMessage(null);
   };
 
@@ -2672,8 +2696,11 @@ function MatchingScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finish
               className={'match-endpoint ' + (activeLeft === key ? 'match-endpoint-active' : '') + (pairs[key] !== null ? ' match-endpoint-complete' : '')}
               data-match-left={key}
               aria-pressed={activeLeft === key}
-              disabled={!ready || solved || pairs[key] !== null}
-              onClick={() => { setActiveLeft(key); setMessage(null); }}
+              disabled={!ready || solved}
+              onClick={() => {
+                if (pairs[key] !== null) releaseLeft(key);
+                else { setActiveLeft(key); setMessage(null); }
+              }}
             >
               <span>{t(item.kicker)}</span>
               <strong>{item.formula}</strong>
@@ -2688,8 +2715,14 @@ function MatchingScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finish
               className={'match-endpoint match-endpoint-right ' + (Object.values(pairs).includes(value) ? 'match-endpoint-complete' : '')}
               data-match-right={value}
               aria-pressed={Object.values(pairs).includes(value)}
-              disabled={!ready || solved || Object.values(pairs).includes(value)}
-              onClick={() => chooseRight(value)}
+              disabled={!ready || solved}
+              onClick={() => {
+                if (activeLeft !== null) chooseRight(value);
+                else {
+                  const owner = Object.keys(pairs).find((key) => pairs[key] === value);
+                  if (owner) releaseLeft(owner);
+                }
+              }}
             >
               {t(label)}
             </button>
@@ -2775,7 +2808,7 @@ function ConstructionScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, fi
               if (event.key === 'Enter') submit();
             }}
           />
-          <button type="button" className="primary-action" onClick={submit} disabled={!String(value).trim() || solved}>
+          <button type="button" className="btn btn-white-accent numeric-check" onClick={submit} disabled={!String(value).trim() || solved}>
             {t({ ru: 'Проверить', uz: 'Tekshirish' , en: "Check"})}
           </button>
         </div>
@@ -3226,6 +3259,7 @@ export default function Grade4Dars10({ studentName, lang: langProp, ttsApiBase, 
 }
 
 const STYLES = `
+${WRONG_FLASH_CSS}
 .feedback-bit{width:50px;height:62px;display:block;overflow:visible}.feedback-bit .g1-char{width:100%;height:100%}.feedback>span:last-child{display:grid;gap:6px}.feedback>span:last-child>strong{color:${T.success};font:900 10px/1.2 'JetBrains Mono',monospace;letter-spacing:.08em}
 html:has(.lesson-root),
 body:has(.lesson-root),
