@@ -1,10 +1,47 @@
-// Dars01 amaliyoti — 10 topshiriq (osondan qiyinga). Mavzu: SONLI IFODALAR.
-// Bu 1-darsning HAQIQIY amaliyoti (metodist qarori 2026-08-20): ilgari
-// shu yerda boshqa to'plam turgan edi, u olib tashlandi.
-// Tuzilma, uslub va jsx-question kontrakti 5-sinf amaliyotidan olingan,
-// matematikasi esa 7-sinfning. 5-sinfning O'ZIGA tegilmagan.
-// Syujet YO'Q: 7-sinfda sahna yozuvning o'zi (metodist qarori 2026-08-19).
-// Har topshiriq mustaqil jsx-question fayli; bu yerda PracticeHost bilan prokliklab ko'riladi.
+// Dars01 amaliyoti — 10 topshiriq. Mavzu: RATSIONAL IFODALAR VA KASRLAR.
+// Kontrakt: src/books/grade8/TIPLAR_AMALIYOT_8SINF.md
+//
+// Tiplar ("birinchi to'lqin", metodist qarori 2026-08-21; +Fix, Zones,
+// Cancel 2026-08-22): Abcd, YesNo, Input, Counter, Fix, Audit, Zones,
+// Cancel. Har topshiriq fayli faqat MA'LUMOT, mexanikalar
+// `practice/kit.jsx` da.
+//
+// UCHTA ALMASHTIRISH (metodist qarori 2026-08-22):
+//   SlotsBank ISHLATILMAYDI: sinfning O'Z `slots`/`fill` asbobi bilan bir
+//   xil shakl -- "kartani bosib uyani to'ldirish". 4-topshiriq Fix'ga
+//   o'tkazildi: xato belgi yozuv ICHIDA topiladi.
+//   8-topshiriq endi Build EMAS, Zones: o'quvchi TO'G'RI va NOTO'G'RI
+//   qiymatlarni O'ZI ikki korzinaga (ruhsat etilgan / taqiqlangan) ajratadi.
+//   6-topshiriq endi Why EMAS, Cancel: "tayyor gaplardan tanlash qiziq
+//   emas" (metodist so'zi) -- o'quvchi mos ko'paytuvchini QO'L bilan
+//   surat va maxrajda bosib chizib tashlaydi, keyin shartni yozadi.
+//
+// QOBIQ, USLUB VA XATTI-HARAKAT — 7-sinf amaliyotidan o'zgartirilmagan
+// nusxa: PracticeHost, chip qatori, rang palitrasi (S/C), «Tekshirish»
+// tugmasi bir marta bosiladi.
+//
+// QOPLASH (amaliyot 1-darsning HAMMA tasdig'i va HAMMA adashishini yopadi):
+//   Tasdiq 1 (songa bo'linsa butun, harfga bo'linsa kasr)  -> 01
+//   Tasdiq 2 (shartni maxraj beradi, nollari mumkin emas)  -> 04, 07, 08, 09
+//   Tasdiq 3 (suratdagi nol / maxrajdagi nol)              -> 02, 05, 09
+//   Z2  shart topilmadi yoki yo'qoldi                      -> 06, 07, 09
+//   Z16 javob son bilan tekshirilmadi                      -> 05, 09
+//   Z18 suratdagi va maxrajdagi nol aralashtirildi          -> 02
+//   Z19 songa bo'lish harfga bo'lish deb olindi             -> 01
+//
+// NAZARIYADAN FARQLANADI (metodist qarori 2026-08-21, ikki muammo): dastlab
+// 4-, 6-, 8-, 9-topshiriqlarda nazariya darsining O'Z misollari va O'Z savol
+// FORMASI ishlatilgan edi — o'quvchi ularni IKKI marta ko'rar edi.
+//   1. SONLAR: (x·x-4)/(x-2), x/(x-6), x(x-3) -> endi 49/7, 8, 9.
+//   2. FORMA: 4-topshiriq nazariyaning aynan o'zi qiladigan uch qadamli
+//      savolni takrorlardi (birinchi ko'paytuvchi -> ikkinchi -> birlashtirish,
+//      screen (x+1)/((x-2)(x+5))). Endi 4-topshiriq BOSHQA holat: ikki
+//      ko'paytuvchi BIR XIL, ya'ni bosqichma-bosqich emas — bitta hal
+//      qiluvchi qadam va boshqa adashish (ikki emas, bitta taqiq).
+//
+// TIPLAR TARTIBI: yonma-yon bir xil tip turmaydi, isinish (Abcd/YesNo)
+// faqat 1-2 pozitsiyada. QIYINLIK: 3 oson (01-03) · 4 o'rta (04-07) ·
+// 3 qiyin (08-10).
 import React, { useState } from 'react';
 import PracticeHost, { usePracticeZoom } from '../PracticeHost.jsx';
 import D01_01 from './D01_01.jsx';
@@ -18,36 +55,25 @@ import D01_08 from './D01_08.jsx';
 import D01_09 from './D01_09.jsx';
 import D01_10 from './D01_10.jsx';
 
-// Metodik xarita (o'quvchiga ko'rsatilmaydi): mavzu · qiyinlik · teg
-// Barcha topshiriqlar darslik §1 (sonli ifodalar, amallar tartibi) mavzusida.
-// Sonlar 7-sinf darajasida: manfiy sonlar, o'nli va oddiy kasrlar, uch-to'rt xonali sonlar.
-// 03, 04, 08 -- harfli ifodalar (metodist topshirigi 2026-08-20, ikkinchi tur).
-// Qiyinlik: 2 oson (01,02) · 4 o'rta (03–06) · 4 qiyin (07–10). Aldov (trap) variantlar bilan.
-// Sarlavha uch tilda: chip nomlari ham (metodist 2026-08-20 -- sayt RU ga
-// o'tganda amaliyot ham RU bo'lishi kerak, chip qatori esa sarlavhaning qismi).
 const HEAD = {
-  uz: "Dars 1 amaliyoti — 10 topshiriq (sonli ifodalar)",
-  ru: 'Практика урока 1 — 10 заданий (числовые выражения)',
-  en: 'Lesson 1 practice — 10 tasks (numeric expressions)',
+  uz: "Dars 1 amaliyoti — 10 topshiriq (ratsional ifodalar va kasrlar)",
+  ru: 'Практика урока 1 — 10 заданий (рациональные выражения и дроби)',
+  en: 'Lesson 1 practice — 10 tasks (rational expressions and fractions)',
 };
 
 const ITEMS = [
-  { id: '01', label: { uz: "Tartib", ru: 'Порядок', en: 'Order' }, C: D01_01 },     // uchta o'qishdan to'g'risini tanlash 🟢 read_order
-  { id: '02', label: { uz: "Birinchi amal", ru: 'Первое действие', en: 'First step' }, C: D01_02 },// birinchi bajariladigan amalni tanlash 🟢 first_step
-  { id: '03', label: { uz: "Yig'indi", ru: 'Сумма', en: 'Sum' }, C: D01_03 },       // harfli ifodalarni qo'shish 🟡 add_expressions
-  { id: '04', label: { uz: "Ochish", ru: 'Знаки', en: 'Signs' }, C: D01_04 },       // qavs ochilganda ishora 🟡 open_bracket_signs
-  { id: '05', label: { uz: "Qiymat", ru: 'Значение', en: 'Value' }, C: D01_05 },    // qiymatni hisoblab yozish 🟡 write_value
-  { id: '06', label: { uz: "Tuzatish", ru: 'Ошибка', en: 'Fix' }, C: D01_06 },      // xato qatorni topib tuzatish 🟡 fix_line
-  { id: '07', label: { uz: "Zanjir", ru: 'Цепочка', en: 'Chain' }, C: D01_07 },     // oraliq qiymatlar zanjiri 🔴 value_chain
-  { id: '08', label: { uz: "Harflar", ru: 'Буквы', en: 'Letters' }, C: D01_08 },    // harf o'rniga son, qiymati 12 🔴 substitute_value
-  { id: '09', label: { uz: "Yig'ish", ru: 'Сборка', en: 'Assemble' }, C: D01_09 },  // kartalardan yozuv yig'ish 🔴 build_value
-  { id: '10', label: { uz: "Ishora", ru: 'Знак', en: 'Sign' }, C: D01_10 },         // qiymat ishorasi bo'yicha zonalarga 🔴 sort_by_sign
+  { id: '01', label: { uz: 'Butun yoki kasr', ru: 'Целое или дробное', en: 'Integral or fractional' }, C: D01_01 },
+  { id: '02', label: { uz: 'Surat va maxraj', ru: 'Числитель и знаменатель', en: 'Numerator and denominator' }, C: D01_02 },
+  { id: '03', label: { uz: 'Qiymat', ru: 'Значение', en: 'Value' }, C: D01_03 },
+  { id: '04', label: { uz: 'Bir xil ko\'paytuvchi', ru: 'Одинаковый множитель', en: 'Identical factor' }, C: D01_04 },
+  { id: '05', label: { uz: 'Ikki yozuv', ru: 'Две записи', en: 'Two records' }, C: D01_05 },
+  { id: '06', label: { uz: 'Qisqartirish', ru: 'Сокращение', en: 'Reduction' }, C: D01_06 },
+  { id: '07', label: { uz: 'Ikki kasr', ru: 'Две дроби', en: 'Two fractions' }, C: D01_07 },
+  { id: '08', label: { uz: 'Ruhsat etilganmi', ru: 'Разрешено или нет', en: 'Allowed or not' }, C: D01_08 },
+  { id: '09', label: { uz: 'Tayyor yechim', ru: 'Готовое решение', en: 'A ready solution' }, C: D01_09 },
+  { id: '10', label: { uz: 'Taqiq bormi', ru: 'Есть ли запрет', en: 'Is there a restriction' }, C: D01_10 },
 ];
 
-// Til PLATFORMADAN keladi: LessonPage `lang` propini beradi (uz|ru|en).
-// O'z almashtirgichimiz YO'Q: sayt qobig'ida allaqachon UZ/RU/EN turadi, va
-// ikkita almashtirgich bir-biri bilan kelishmasdi -- yuqoridagisi bosilsa
-// topshiriq o'zbekchada qolardi (metodist 2026-08-20).
 export default function Dars01Practice({ lang = 'uz' }) {
   usePracticeZoom();
   const [idx, setIdx] = useState(0);
@@ -62,10 +88,8 @@ export default function Dars01Practice({ lang = 'uz' }) {
 
   return (
     <div className="pq-fixroot" style={{ fontFamily: "'Manrope', system-ui, sans-serif" }}>
-      {/* MOBIL_DESKTOP_MOSLASH.md naqshi: fixed root — body-skroll yo'q, tugma joyida;
-          <640px da layout 390px etalon + zoom bilan real ekranga masshtablanadi. */}
       <style>{`
-        .pq-fixroot{position:fixed;inset:0;overflow:hidden;background:#fff7ed;display:flex;flex-direction:column;zoom:var(--pqz,1);}
+        .pq-fixroot{position:fixed;inset:0;overflow:hidden;background:#fff;display:flex;flex-direction:column;zoom:var(--pqz,1);}
         @media (max-width:639.98px){.pq-fixroot{width:390px;}}
       `}</style>
       <div style={{

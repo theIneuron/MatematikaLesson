@@ -1,28 +1,59 @@
-// 7-SINF AMALIYOTINING UMUMIY QATLAMI — MEXANIKALAR BIR JOYDA.
+// 8-SINF AMALIYOTINING UMUMIY QATLAMI — MEXANIKALAR BIR JOYDA.
 //
-// NEGA. 1-dars amaliyotida har topshiriq fayli o'z ichida bir xil 60 satrni
-// takrorlaydi: uslublar, razbor bloki, `registerCheck` ulanishi, ikonkalar.
-// Bitta darsda bu ko'rinmaydi, 13 darsda esa 130 fayl va bitta nuqsonni 130
-// joyda tuzatish degani. CLAUDE.md §5: umumiy kod ko'chirilmaydi, umumiy
-// modulga chiqariladi.
+// ASOS 7-sinf amaliyotidan olingan (qobiq, uslub, rang palitrasi
+// o'zgartirilmagan), lekin tarkib 8-sinfning O'Z tasdiqlangan sakkiz tipiga
+// moslashtirilgan (metodist qarori 2026-08-21). 7-sinfning o'z vazifasi
+// endi boshqa tip tomonidan bajarilgan uchta mexanikasi — `Choice`,
+// `TapTerms`, `MarkAll`, `BuildLine` (+ `evalSeq`) — O'CHIRILDI: ularning
+// o'rnini `Abcd` va `Build` egalladi. `TypeValue` va `Zones` ATAYLAB
+// qoldirildi: ishlatilmagan bo'lsa ham, ular keyingi darslarda kerak
+// bo'ladigan tayyor zaxira (`TypeValue` — sof butun son so'ralganda
+// `Input`dan yengilroq; `Zones` — ikkinchi to'lqinning `zones` tipi).
+//
+// NEGA UMUMIY QATLAM. Sinfda 55 dars, har darsda 10 topshiriq — 550 fayl.
+// Agar har fayl o'z ichida uslub, razbor bloki, `registerCheck` ulanishini
+// takrorlasa, bitta nuqsonni 550 joyda tuzatish kerak bo'ladi (CLAUDE.md §5).
 //
 // NIMA QOLADI TOPSHIRIQDA. Faqat MA'LUMOT: yozuv, variantlar, kartalar,
 // to'g'ri javob, har xato yo'lga razbor va uch til. Ya'ni metodik ish.
 //
-// MUHIM QOIDA (2026-08-20 da qimmatga tushgan xato): MATEMATIKA til blokining
-// ICHIDA turmaydi. Yozuv, variant, karta -- bu tarjima emas, matematikaning
-// o'zi. Uchta nusxa birinchi tahrirda ajralib ketadi va rus tilidagi
-// topshiriq yechilmas bo'lib qoladi. Shuning uchun `expr`, `opts`, `cards`,
-// `items` -- til bloklaridan TASHQARIDA, `L()` esa faqat SO'ZLAR uchun.
+// MUHIM QOIDA (7-sinfda 2026-08-20 da qimmatga tushgan xato): MATEMATIKA
+// til blokining ICHIDA turmaydi. Yozuv, variant, karta -- bu tarjima emas,
+// matematikaning o'zi. Uchta nusxa birinchi tahrirda ajralib ketadi va rus
+// tilidagi topshiriq yechilmas bo'lib qoladi. Shuning uchun `expr`, `opts`,
+// `cards`, `answer`, `excluded` -- til bloklaridan TASHQARIDA, `L()` esa
+// faqat SO'ZLAR uchun.
 //
-// MEXANIKALAR (1-dars amaliyotidan olindi, xatti-harakati o'sha):
-//   Choice     -- uchta-to'rtta o'qishdan bittasi (faqat 1-2 «isinish» uchun)
-//   TypeValue  -- javob klaviaturadan, manfiy son ham mumkin
-//   SlotsBank  -- uyalar va kartalar banki; bir yoki bir necha qator
-//   TapTerms   -- yozuvning O'ZIDA hadlarni belgilash
-//   MarkAll    -- bir nechta yozuvni belgilash, «hammasi yoki hech narsa»
-//   BuildLine  -- kartalardan yozuv yig'ish, kursor istalgan joyga
-//   Zones      -- yozuvlarni zonalarga taqsimlash
+// TASDIQLANGAN TIPLAR ("birinchi to'lqin", 2026-08-21, +Fix 2026-08-22):
+//   TypeValue  -- javob klaviaturadan, manfiy son ham mumkin (zaxira, §yuqori)
+//   SlotsBank  -- uyalar va kartalar banki; bir yoki bir necha qator (zaxira,
+//                 sinfning O'Z `slots`/`fill` asbobi bilan bir xil shakl —
+//                 shuning uchun amaliyotda hozircha ISHLATILMAYDI, §yuqori)
+//   Zones      -- qiymatlarni ikki korzinaga taqsimlash (2026-08-22 dan
+//                 ishlatiladi: TO'G'RI va NOTO'G'RI o'quvchi o'zi ajratadi)
+//   Input      -- javobni yozadi: ifoda, son yoki ODZ (8-sinfning O'Z judge'i)
+//   Build      -- teskari topshiriq: berilgan xossaga ega yozuv yig'iladi
+//   Why        -- amal VA asos: ikkalasi birga tekshiriladi (zaxira,
+//                 2026-08-22 dan ISHLATILMAYDI -- metodist: tayyor gaplardan
+//                 tanlash qiziq emas, o'rnini Cancel egalladi)
+//   Audit      -- birinchi noto'g'ri satr + kontrprimer
+//   Counter    -- kontrprimer son bilan: da'vo qayerda buziladi
+//   YesNo      -- ha/yo'q + dalil son bilan (50% dan chiqarish uchun)
+//   Abcd       -- to'rttadan bittasi yoki ikkitasi, faqat isinish uchun
+//   Fix        -- yozuv ICHIDAGI xato belgini topib, tuzatishni yozadi
+//   Cancel     -- surat va maxrajda mos ko'paytuvchini QO'L bilan chizib
+//                 tashlaydi (gap tanlamaydi), keyin shartni yozadi
+//
+// QABUL QILINGAN, LEKIN HALI YOZILMAGAN (metodist 2026-08-22 tasdiqladi,
+// o'z darsi kelganda yoziladi — CLAUDE.md tekshirilmagan mexanika
+// tekshirilmagan qolgan mexanikadan yomonroq degan qoidasiga ko'ra):
+//   Bracket     -- javob ANIQ son emas, ikki CHEGARA (masalan «...dan tashqari»)
+//   CounterBuild-- kontrprimer SON emas, kartalardan YIG'ILGAN butun misol
+//   ProofOrder  -- tayyor gaplar mulohaza TARTIBIGA qo'yiladi
+//
+// YANGI QOIDA (metodist qarori, variant A): javob NOTO'G'RI bo'lganda
+// TO'G'RI JAVOB HECH QACHON KO'RSATILMAYDI — faqat maslahat, u belgini
+// yoki joyni ataydi, sonni yoki amalni bermaydi.
 //
 // HAR MEXANIKA jsx-question kontraktini bajaradi: `onReady`, `registerCheck`,
 // `onSubmit`. O'z «Tekshirish» tugmasi YO'Q -- uni PracticeHost beradi.
@@ -33,6 +64,8 @@
 // ixcham qilingan (`practice/PracticeHost.jsx` dagi izohga qarang).
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Frac, Row } from './frac.jsx';
+import { judgeExpr, judgeOdz } from '../math.jsx';
+import { parse, evaluate, domainHoles } from '../mathcore.js';
 
 export { Frac, Row };
 
@@ -134,76 +167,7 @@ const Given = ({ data, lang }) => {
   );
 };
 
-// ============================================================ 1. CHOICE
-// Tayyor javobni tanlash. Etalon §1.1 ga ko'ra bu KUCHSIZ tekshiruv,
-// shuning uchun faqat isinish uchun (amaliyotda bir-ikkitasi).
-export function Choice({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
-  const [picked, setPicked] = useState(null);
-  const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa?.idx != null) setPicked(sa.idx); } });
-  useEffect(() => { onReady?.(picked != null && !A.checked); }, [picked, A.checked, onReady]);
-
-  // AMALIYOT_GLOBAL_STANDART.md 5-band: variantlar har ochilganda
-  // aralashtiriladi, to'g'ri javob doimiy joyda turmaydi. Aralashtirish faqat
-  // KO'RSATISH tartibini o'zgartiradi: `data-opt`, `picked` va razbor shartlari
-  // (`s.picked === 1`) ma'lumotdagi ASL raqamda qoladi, ya'ni topshiriq
-  // fayllarini va tekshiruvlarni o'zgartirish kerak emas.
-  const order = useMemo(() => {
-    const idx = (data.opts || []).map((_, i) => i);
-    if (data.noShuffle) return idx;
-    for (let i = idx.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      const t = idx[i]; idx[i] = idx[j]; idx[j] = t;
-    }
-    return idx;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data]);
-
-  const check = useCallback(() => {
-    const correct = picked === data.correct;
-    A.setFb({ correct, why: correct ? null : pickWhy(data, { picked }, lang) });
-    A.setChecked(true);
-    correct ? playCorrect?.() : playWrong?.();
-    onSubmit?.(submitPayload(data, {
-      questionText: tr(data.ask, lang),
-      options: data.opts.map((o, i) => ({ id: String(i), label: tr(o.label, lang) })),
-      studentAnswer: { idx: picked }, correctAnswer: { idx: data.correct }, correct,
-    }));
-  }, [picked, data, lang, playCorrect, playWrong, onSubmit]);
-  useRegister(check, registerCheck);
-
-  return (
-    <div style={S.wrap}>
-      <Head data={data} lang={lang} />
-      {data.expr ? (
-        <div style={{ textAlign: 'center', margin: '4px 0 10px' }}>
-          <Row tokens={data.expr} size={data.exprSize || 30} />
-        </div>
-      ) : null}
-      <Given data={data} lang={lang} />
-      <p style={S.ask}>{tr(data.ask, lang)}</p>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(' + (data.optCols || 1) + ', minmax(0, 1fr))', gap: 7 }}>
-        {order.map((i) => {
-          const o = data.opts[i];
-          const active = picked === i;
-          const short = (data.optCols || 1) > 1;
-          let bg = '#fff'; let bd = '#d6dae3'; let col = C.soft;
-          if (active) { bg = C.hotBg; bd = C.hot; col = C.ink; }
-          if (A.checked && active) { const good = i === data.correct; bg = good ? C.okBg : C.noBg; bd = good ? C.ok : C.no; col = good ? C.ok : C.no; }
-          if (A.checked && !active && i === data.correct) { bd = C.ok; col = C.ok; }
-          return (
-            <button key={i} type="button" data-opt={i} disabled={A.locked} onClick={() => setPicked(i)}
-              style={{ display: 'flex', alignItems: 'center', justifyContent: short ? 'center' : 'flex-start', width: '100%', minHeight: short ? 50 : 0, padding: '11px 15px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 15.5, fontWeight: 600, cursor: A.locked ? 'default' : 'pointer', fontFamily: 'inherit', textAlign: short ? 'center' : 'left' }}>
-              {typeof o.label === 'object' && Array.isArray(o.label) ? <Row tokens={o.label} size={20} /> : tr(o.label, lang)}
-            </button>
-          );
-        })}
-      </div>
-      {A.fb && <HFB ok={A.fb.correct} text={A.fb.correct ? tr(data.correctText, lang) : A.fb.why} />}
-    </div>
-  );
-}
-
-// ============================================================ 2. TYPEVALUE
+// ============================================================ 1. TYPEVALUE
 // Javob klaviaturadan. Manfiy son ham kiritiladi (`allowNeg`), aks holda
 // 7-sinf misollarining yarmi kiritib bo'lmaydigan bo'lib qolardi.
 export function TypeValue({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
@@ -247,7 +211,7 @@ export function TypeValue({ data, lang = 'uz', mode = 'answer', initialAnswer = 
   );
 }
 
-// ============================================================ 3. SLOTSBANK
+// ============================================================ 2. SLOTSBANK
 // Uyalar va kartalar banki. `rows` — yozuvning qatorlari; qatorda tokenlar
 // yoki `{ slot: n }`. Kartani bosasiz, keyin uyani bosasiz.
 // «Hammasi yoki hech narsa»: uyalarning hammasi to'g'ri bo'lishi kerak.
@@ -325,245 +289,18 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
   );
 }
 
-// ============================================================ 4. TAPTERMS
-// Yozuvning O'ZIDA belgilash. `parts`: `{ k: 'txt'|'op'|'term', v, id }`.
-// Bosiladigan joy KO'RINIB turishi kerak (METODIK_PROFIL: «видимая зона
-// клика») -- shuning uchun had punktir ramkada turadi.
-export function TapTerms({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
-  const [marked, setMarked] = useState([]);
-  const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa?.marked) setMarked(sa.marked); } });
-  useEffect(() => { onReady?.(marked.length > 0 && !A.checked); }, [marked, A.checked, onReady]);
-
-  const toggle = (id) => { if (!A.locked) setMarked((m) => (m.indexOf(id) === -1 ? m.concat(id) : m.filter((x) => x !== id))); };
-  const check = useCallback(() => {
-    const extra = marked.filter((id) => data.want.indexOf(id) === -1);
-    const miss = data.want.filter((id) => marked.indexOf(id) === -1);
-    const correct = !extra.length && !miss.length;
-    A.setFb({ correct, why: correct ? null : pickWhy(data, { marked, extra, miss }, lang) });
-    A.setChecked(true);
-    correct ? playCorrect?.() : playWrong?.();
-    onSubmit?.(submitPayload(data, {
-      questionText: tr(data.ask, lang), studentAnswer: { marked: marked.slice() }, correctAnswer: { marked: data.want }, correct,
-    }));
-  }, [marked, data, lang, playCorrect, playWrong, onSubmit]);
-  useRegister(check, registerCheck);
-
-  const size = data.exprSize || 30;
-  return (
-    <div style={S.wrap}>
-      <Head data={data} lang={lang} />
-      <Given data={data} lang={lang} />
-      <p style={S.ask}>{tr(data.ask, lang)}</p>
-      {data.note ? <div style={S.note}>{tr(data.note, lang)}</div> : null}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 2, margin: '8px 0 4px' }}>
-        {data.parts.map((p, i) => {
-          if (p.k === 'txt') return <span key={i} style={{ ...S.mono, fontSize: size, color: C.brace, padding: '0 3px' }}>{p.v}</span>;
-          if (p.k === 'op') return <span key={i} style={{ ...S.mono, fontSize: size + 4, color: C.stage1, padding: '2px 12px', margin: '0 4px', borderRadius: 9, background: '#f3eefa' }}>{p.v}</span>;
-          // 'sign' — oddiy amal belgisi: bosilmaydi, lekin ta'kidlanmaydi ham.
-          if (p.k === 'sign') return <span key={i} style={{ ...S.mono, fontSize: size, color: (p.v === '·' || p.v === ':') ? C.stage2 : C.stage1, padding: '0 7px' }}>{p.v}</span>;
-          const on = marked.indexOf(p.id) !== -1;
-          let bd = C.line; let bg = C.bg; let col = C.ink; let dash = 'dashed';
-          if (on) { bd = C.hot; bg = C.hotBg; dash = 'solid'; }
-          if (A.checked) {
-            dash = 'solid';
-            const right = on === (data.want.indexOf(p.id) !== -1);
-            if (on || data.want.indexOf(p.id) !== -1) { bd = right ? C.ok : C.no; bg = right ? C.okBg : C.noBg; col = right ? C.ok : C.no; }
-            else { bd = C.pale; bg = '#fff'; }
-          }
-          return (
-            <button key={i} type="button" aria-pressed={on} data-term={p.id} disabled={A.locked} onClick={() => toggle(p.id)}
-              style={{ ...S.mono, fontSize: size, color: col, padding: '6px 10px', margin: '0 1px', borderRadius: 10, border: '2px ' + dash + ' ' + bd, background: bg, cursor: A.locked ? 'default' : 'pointer' }}>
-              {p.v}
-            </button>
-          );
-        })}
-      </div>
-      {A.fb && <HFB ok={A.fb.correct} text={A.fb.correct ? tr(data.correctText, lang) : A.fb.why} />}
-    </div>
-  );
-}
-
-// ============================================================ 5. MARKALL
-// Bir nechta yozuvni belgilash. Katakcha-belgi YO'Q (3-sinf kanoni §3.3):
-// tanlangan yozuv ramka va to'ldirish bilan ko'rinadi.
-export function MarkAll({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
-  const [marked, setMarked] = useState([]);
-  const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa?.marked) setMarked(sa.marked); } });
-  useEffect(() => { onReady?.(marked.length > 0 && !A.checked); }, [marked, A.checked, onReady]);
-
-  const want = data.items.filter((i) => i.hit).map((i) => i.id);
-  const toggle = (id) => { if (!A.locked) setMarked((m) => (m.indexOf(id) === -1 ? m.concat(id) : m.filter((x) => x !== id))); };
-  const check = useCallback(() => {
-    const extra = marked.filter((id) => want.indexOf(id) === -1);
-    const miss = want.filter((id) => marked.indexOf(id) === -1);
-    const correct = !extra.length && !miss.length;
-    A.setFb({ correct, why: correct ? null : pickWhy(data, { marked, extra, miss }, lang) });
-    A.setChecked(true);
-    correct ? playCorrect?.() : playWrong?.();
-    onSubmit?.(submitPayload(data, {
-      questionText: tr(data.ask, lang), options: data.items.map((i) => ({ id: i.id })),
-      studentAnswer: { marked: marked.slice() }, correctAnswer: { marked: want }, correct,
-    }));
-  }, [marked, data, lang, playCorrect, playWrong, onSubmit]);
-  useRegister(check, registerCheck);
-
-  return (
-    <div style={S.wrap}>
-      <Head data={data} lang={lang} />
-      <Given data={data} lang={lang} />
-      <p style={S.ask}>{tr(data.ask, lang)} {data.note ? <span style={{ fontSize: 13, color: C.mute, fontWeight: 600 }}>{tr(data.note, lang)}</span> : null}</p>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(' + (data.col || 180) + 'px, 1fr))', gap: 7 }}>
-        {data.items.map((it) => {
-          const on = marked.indexOf(it.id) !== -1;
-          let bd = '#d6dae3'; let bg = '#fff';
-          if (on) { bd = C.hot; bg = C.hotBg; }
-          if (A.checked) { const right = on === !!it.hit; bd = right ? C.ok : C.no; bg = right ? C.okBg : C.noBg; }
-          return (
-            <button key={it.id} type="button" aria-pressed={on} data-item={it.id} disabled={A.locked} onClick={() => toggle(it.id)}
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 52, padding: '5px 10px', borderRadius: 13, border: '2px solid ' + bd, background: bg, cursor: A.locked ? 'default' : 'pointer' }}>
-              {it.tokens ? <Row tokens={it.tokens} size={data.itemSize || 23} /> : <span style={{ fontSize: 15, fontWeight: 700, color: C.ink }}>{tr(it.label, lang)}</span>}
-            </button>
-          );
-        })}
-      </div>
-      {A.fb && <HFB ok={A.fb.correct} text={A.fb.correct ? tr(data.correctText, lang) : A.fb.why} />}
-    </div>
-  );
-}
-
-// ============================================================ 6. BUILDLINE
-// Kartalardan yozuv yig'ish. KURSOR istalgan joyga ko'chadi: aks holda
-// «(60 − 20)» ni olish uchun qavsni oldin bosish kerak bo'lardi, odam esa
-// avval «60 − 20» ni yozadi.
-//
-// Ikki rejim:
-//   target     -- yig'ilgan yozuvning QIYMATI berilgan songa teng bo'lsin
-//   answerSeq  -- karta id lari aynan shu KETMA-KETLIKDA bo'lsin (harfli
-//                 yozuvda qiymatni hisoblab bo'lmaydi)
-// QIYMAT faqat tekshirishdan keyin ko'rinadi (etalon §8.1): jonli o'lchagich
-// topshiriqni «sonni tutib olish» ga aylantirardi.
-const PREC = { '·': 2, ':': 2, '+': 1, '−': 1 };
-export const evalSeq = (items) => {
-  const out = []; const ops = [];
-  let expectNum = true;
-  const apply = () => {
-    const op = ops.pop(); const b = out.pop(); const a = out.pop();
-    if (op === undefined || a === undefined || b === undefined) return false;
-    if (op === '+') { out.push(a + b); return true; }
-    if (op === '−') { out.push(a - b); return true; }
-    if (op === '·') { out.push(a * b); return true; }
-    if (op === ':') { if (b === 0) return false; out.push(a / b); return true; }
-    return false;
-  };
-  for (const it of items) {
-    if (!it) return null;
-    if (it.kind === 'num') { if (!expectNum) return null; out.push(it.value !== undefined ? it.value : Number(it.label)); expectNum = false; }
-    else if (it.kind === 'op') {
-      if (expectNum) return null;
-      while (ops.length && PREC[ops[ops.length - 1]] >= PREC[it.label]) { if (!apply()) return null; }
-      ops.push(it.label); expectNum = true;
-    } else if (it.kind === 'open') { if (!expectNum) return null; ops.push('('); }
-    else if (it.kind === 'close') {
-      if (expectNum) return null;
-      while (ops.length && ops[ops.length - 1] !== '(') { if (!apply()) return null; }
-      if (!ops.length) return null;
-      ops.pop(); expectNum = false;
-    }
-  }
-  if (expectNum) return null;
-  while (ops.length) { if (ops[ops.length - 1] === '(') return null; if (!apply()) return null; }
-  return out.length === 1 ? out[0] : null;
-};
-
-export function BuildLine({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
-  const [seq, setSeq] = useState([]);      // karta id lari
-  const [pos, setPos] = useState(0);       // kursor o'rni
-  const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa?.seq) { setSeq(sa.seq); setPos(sa.seq.length); } } });
-  const byId = (id) => data.cards.find((c) => c.id === id);
-  const items = seq.map(byId);
-  const left = data.cards.length - seq.length;
-  const value = evalSeq(items);
-  const ready = data.answerSeq ? seq.length > 0 : value !== null;
-  const enough = data.useAll ? (left === 0 && ready) : ready;
-  useEffect(() => { onReady?.(enough && !A.checked); }, [enough, A.checked, onReady]);
-
-  const put = (id) => { if (A.locked) return; setSeq((s) => { const x = s.slice(); x.splice(pos, 0, id); return x; }); setPos((p) => p + 1); };
-  const undo = () => { if (A.locked || pos === 0) return; setSeq((s) => { const x = s.slice(); x.splice(pos - 1, 1); return x; }); setPos((p) => p - 1); };
-  const check = useCallback(() => {
-    const correct = data.answerSeq ? seq.join('|') === data.answerSeq.join('|') : value === data.target;
-    A.setFb({ correct, why: correct ? null : pickWhy(data, { seq, value, line: items.map((i) => i && i.label).join(' ') }, lang) });
-    A.setChecked(true);
-    correct ? playCorrect?.() : playWrong?.();
-    onSubmit?.(submitPayload(data, {
-      questionText: tr(data.setup, lang), studentAnswer: { seq: seq.slice(), value },
-      correctAnswer: data.answerSeq ? { seq: data.answerSeq } : { value: data.target }, correct,
-    }));
-  }, [seq, value, items, data, lang, playCorrect, playWrong, onSubmit]);
-  useRegister(check, registerCheck);
-
-  const caret = (i) => (
-    <button key={'c' + i} type="button" disabled={A.locked} onClick={() => setPos(i)} aria-label="kursor"
-      style={{ width: 10, minHeight: 32, border: 0, background: 'none', padding: 0, cursor: A.locked ? 'default' : 'pointer', position: 'relative' }}>
-      <span style={{ position: 'absolute', left: '50%', top: '12%', bottom: '12%', width: 2, transform: 'translateX(-50%)', borderRadius: 2, background: pos === i && !A.locked ? C.hot : 'transparent' }} />
-    </button>
-  );
-  const toneOf = (lab) => (lab === '·' || lab === ':' ? C.stage2 : (lab === '+' || lab === '−' ? C.stage1 : (lab === '(' || lab === ')' ? C.brace : C.ink)));
-
-  return (
-    <div style={S.wrap}>
-      <Head data={data} lang={lang} />
-      <Given data={data} lang={lang} />
-      <div style={{ minHeight: data.fieldH || 68, borderRadius: 16, border: '2px solid ' + C.pale, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6px 12px', margin: '4px 0 8px', flexWrap: 'wrap' }}>
-        {seq.length === 0 ? (
-          <>{caret(0)}<span style={{ fontSize: 15, fontWeight: 600, color: C.mute }}>{tr(data.empty, lang)}</span></>
-        ) : (
-          <>
-            {items.map((it, i) => (
-              <React.Fragment key={i}>
-                {caret(i)}
-                <button type="button" disabled={A.locked} onClick={() => setPos(i)}
-                  style={{ border: 0, background: 'none', padding: '0 2px', ...S.mono, fontSize: 27, color: toneOf(it && it.label), cursor: A.locked ? 'default' : 'pointer' }}>
-                  {it && it.label}
-                </button>
-              </React.Fragment>
-            ))}
-            {caret(items.length)}
-          </>
-        )}
-      </div>
-      {A.checked && !data.answerSeq ? (
-        <div style={{ textAlign: 'center', marginBottom: 4 }}>
-          <span style={{ fontSize: 12, fontWeight: 700, color: C.mute, letterSpacing: '.05em', textTransform: 'uppercase' }}>{tr(data.valueLabel, lang)} </span>
-          <span style={{ ...S.mono, fontSize: 26, color: A.fb?.correct ? C.ok : C.no }}>{value === null ? '—' : value}</span>
-        </div>
-      ) : null}
-      <div style={S.note}>{tr(data.ask, lang)}</div>
-      <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap', alignItems: 'center' }}>
-        {data.cards.map((c) => {
-          const used = seq.indexOf(c.id) !== -1;
-          return (
-            <button key={c.id} type="button" data-card={c.id} disabled={used || A.locked} onClick={() => put(c.id)}
-              style={{ minWidth: 52, padding: '0 9px', height: 48, borderRadius: 13, border: '2px solid ' + (used ? '#eef0f4' : C.line), background: used ? C.bg : '#fff', ...S.mono, fontSize: 23, color: used ? C.line : toneOf(c.label), cursor: (used || A.locked) ? 'default' : 'pointer' }}>
-              {c.label}
-            </button>
-          );
-        })}
-        <button type="button" disabled={A.locked || pos === 0} onClick={undo}
-          style={{ marginLeft: 6, padding: '8px 14px', borderRadius: 12, border: '1.5px solid #d6dae3', background: '#fff', color: (A.locked || pos === 0) ? '#c2c8d2' : C.soft, fontSize: 13.5, fontWeight: 700, cursor: (A.locked || pos === 0) ? 'default' : 'pointer', fontFamily: 'inherit' }}>
-          {tr(data.undo, lang)}
-        </button>
-      </div>
-      {A.fb && <HFB ok={A.fb.correct} text={A.fb.correct ? tr(data.correctText, lang) : A.fb.why} />}
-    </div>
-  );
-}
-
-// ============================================================ 7. ZONES
+// ============================================================ 3. ZONES
 // Yozuvlarni zonalarga taqsimlash. BOSISH bilan, tortish bilan emas:
 // telefonda barmoq zonadan chetga tushadi (3-sinf kanoni §3.6).
 export function Zones({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
   const [place, setPlace] = useState({});
   const [picked, setPicked] = useState(null);
+  // Metodist so'rovi 2026-08-22: TORTIB TASHLASH (native HTML5 drag-and-drop)
+  // qo'shildi kompyuter uchun. TAP eski yo'l SAQLANGAN va o'chirilmagan --
+  // sensorli ekranlarda brauzerlararo drag ISHONCHSIZ (3-sinf kanoni §3.6:
+  // barmoq zonadan chetga tushadi), shuning uchun telefon TAP orqali ishlaydi,
+  // sichqoncha esa ikkisidan istaganini tanlaydi.
+  const [dragOver, setDragOver] = useState(null);
   const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa?.place) setPlace(sa.place); } });
   const pool = data.items.filter((it) => !place[it.id]);
   const all = data.items.every((it) => place[it.id]);
@@ -578,6 +315,31 @@ export function Zones({ data, lang = 'uz', mode = 'answer', initialAnswer = null
     setPicked(picked === id ? null : id);
   };
   const tapZone = (z) => { if (!A.locked && picked) { setPlace((p) => ({ ...p, [picked]: z })); setPicked(null); } };
+
+  const dragStart = (id) => (e) => {
+    if (A.locked) { e.preventDefault(); return; }
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', id);
+  };
+  const dragOverZone = (key) => (e) => { e.preventDefault(); if (!A.locked) setDragOver(key); };
+  const dragLeaveZone = (key) => () => setDragOver((d) => (d === key ? null : d));
+  const dropOnZone = (zoneId) => (e) => {
+    e.preventDefault();
+    setDragOver(null);
+    const id = e.dataTransfer.getData('text/plain');
+    if (!id || A.locked) return;
+    setPlace((p) => ({ ...p, [id]: zoneId }));
+    setPicked(null);
+  };
+  const dropOnPool = (e) => {
+    e.preventDefault();
+    setDragOver(null);
+    const id = e.dataTransfer.getData('text/plain');
+    if (!id || A.locked) return;
+    setPlace((p) => { const n = { ...p }; delete n[id]; return n; });
+    setPicked(null);
+  };
+
   const check = useCallback(() => {
     const bad = data.items.filter((it) => place[it.id] !== it.zone).map((it) => it.id);
     const correct = bad.length === 0;
@@ -591,16 +353,20 @@ export function Zones({ data, lang = 'uz', mode = 'answer', initialAnswer = null
   }, [place, data, lang, playCorrect, playWrong, onSubmit]);
   useRegister(check, registerCheck);
 
+  // Metodist qarori 2026-08-22 (variant A): TO'G'RI joylashtirilgan chip
+  // yashilga AYLANMAYDI -- faqat XATO chip qizil bo'ladi (Audit/Fix bilan
+  // bir xil qoida). Aks holda qisman to'g'ri javobda qaysi chip to'g'ri
+  // ekani ko'rinib, javob qisman oshkor bo'lardi.
   const chip = (it) => {
     const bad = A.checked && wrongIds.indexOf(it.id) !== -1;
-    const good = A.checked && place[it.id] && !bad;
     let bd = C.line; let bg = '#fff';
     if (picked === it.id) { bd = C.hot; bg = C.hotBg; }
+    else if (A.checked && place[it.id] && !bad) { bd = C.mute; bg = C.bg; }
     if (bad) { bd = C.no; bg = C.noBg; }
-    if (good) { bd = C.ok; bg = C.okBg; }
     return (
       <button key={it.id} type="button" disabled={A.locked} data-item={it.id} onClick={(e) => tapItem(it.id, e)}
-        style={{ padding: '5px 9px', borderRadius: 10, border: '2px solid ' + bd, background: bg, cursor: A.locked ? 'default' : 'pointer', lineHeight: 1 }}>
+        draggable={!A.locked} onDragStart={dragStart(it.id)}
+        style={{ padding: '5px 9px', borderRadius: 10, border: '2px solid ' + bd, background: bg, cursor: A.locked ? 'default' : 'grab', lineHeight: 1 }}>
         <Row tokens={it.tokens} size={data.itemSize || 17} color={bad ? C.no : C.ink} tone={!bad} />
       </button>
     );
@@ -610,22 +376,624 @@ export function Zones({ data, lang = 'uz', mode = 'answer', initialAnswer = null
       <Head data={data} lang={lang} />
       <Given data={data} lang={lang} />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 5, margin: '2px 0' }}>
-        {data.zones.map((z) => (
-          <div key={z.id} style={{ display: 'flex', alignItems: 'stretch', gap: 8 }}>
-            <div style={{ width: data.zoneLbl || 104, flex: '0 0 ' + (data.zoneLbl || 104) + 'px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', fontSize: 10.5, fontWeight: 800, color: C.mute, letterSpacing: '.03em', textAlign: 'right' }}>{tr(z.label, lang)}</div>
-            <div data-zone={z.id} onClick={() => tapZone(z.id)}
-              style={{ flex: 1, minHeight: 42, borderRadius: 13, padding: 6, border: '2px dashed ' + (picked ? C.hot : C.pale), background: picked ? '#fff7f2' : C.bg, display: 'flex', flexWrap: 'wrap', gap: 6, alignContent: 'center', justifyContent: 'center', cursor: picked && !A.locked ? 'pointer' : 'default' }}>
-              {data.items.filter((it) => place[it.id] === z.id).map(chip)}
+        {data.zones.map((z) => {
+          // Zona "nishonlangan" ko'rinadi ikki holatda: tap bilan bir dona
+          // tanlangan (`picked`) YOKI ustidan tortib kelinayotgan bo'lsa
+          // (`dragOver`) -- ikkisi bir xil "mumkin" belgisini beradi.
+          const targetable = picked || dragOver === z.id;
+          return (
+            <div key={z.id} style={{ display: 'flex', alignItems: 'stretch', gap: 8 }}>
+              <div style={{ width: data.zoneLbl || 104, flex: '0 0 ' + (data.zoneLbl || 104) + 'px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', fontSize: 10.5, fontWeight: 800, color: C.mute, letterSpacing: '.03em', textAlign: 'right' }}>{tr(z.label, lang)}</div>
+              <div data-zone={z.id} onClick={() => tapZone(z.id)}
+                onDragOver={dragOverZone(z.id)} onDragLeave={dragLeaveZone(z.id)} onDrop={dropOnZone(z.id)}
+                style={{ flex: 1, minHeight: 42, borderRadius: 13, padding: 6, border: '2px dashed ' + (targetable ? C.hot : C.pale), background: targetable ? '#fff7f2' : C.bg, display: 'flex', flexWrap: 'wrap', gap: 6, alignContent: 'center', justifyContent: 'center', cursor: picked && !A.locked ? 'pointer' : 'default' }}>
+                {data.items.filter((it) => place[it.id] === z.id).map(chip)}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
       <div style={S.note}>{tr(data.ask, lang)}</div>
-      <div style={{ borderTop: '1px dashed ' + C.pale, paddingTop: 8 }}>
+      <div style={{ borderTop: '1px dashed ' + (dragOver === 'pool' ? C.hot : C.pale), paddingTop: 8 }}
+        onDragOver={dragOverZone('pool')} onDragLeave={dragLeaveZone('pool')} onDrop={dropOnPool}>
         <div style={S.bankLbl}>{String(tr(data.bank, lang)).toUpperCase()}</div>
         <div style={{ display: 'flex', gap: 7, justifyContent: 'center', minHeight: 36, alignItems: 'center', flexWrap: 'wrap' }}>
           {pool.length === 0 && <span style={{ fontSize: 13, color: C.line, fontWeight: 700 }}>—</span>}
           {pool.map(chip)}
+        </div>
+      </div>
+      {A.fb && <HFB ok={A.fb.correct} text={A.fb.correct ? tr(data.correctText, lang) : A.fb.why} />}
+    </div>
+  );
+}
+
+// ============================================================================
+// 8-SINF UCHUN QO'SHILGAN SAKKIZ TIP (metodist 2026-08-21, "birinchi to'lqin").
+// Dizayn va rang O'ZGARTIRILMAGAN: yuqoridagi S/C palitrasi, HFB, Head, Given
+// aynan shu tiplarda ham ishlatiladi -- 7-sinf amaliyoti bilan bir xil ko'rinish.
+//
+// YANGI QOIDA (metodist qarori, variant A): javob NOTO'G'RI bo'lganda TO'G'RI
+// JAVOB KO'RSATILMAYDI. Faqat maslahat -- belgi yoki joyni ataydi, sonni yoki
+// amalni bermaydi. Shuning uchun bu yerda hech qanday "unpicked-correct"
+// yashil bo'lib yonmaydi: faqat o'quvchi TANLAGAN narsa qizil yoki yashil.
+//
+// Matematikani baholash 8-sinfning O'Z judge'laridan olinadi (`judgeExpr`,
+// `judgeOdz` -- math.jsx; `parse`/`evaluate`/`domainHoles` -- mathcore.js),
+// UI esa 7-sinf uslubida yozilgan -- ikkisi mustaqil.
+
+// ---- umumiy: bitta "son" maydoni, sinfning matematik yadrosi bilan ----
+// `numeric` -- telefonda RAQAM klaviaturasi chiqadi (harf-belgi klaviaturasi
+// emas). Faqat sof songa mo'ljallangan maydonlarda ishlatiladi.
+//
+// GOTCHA (metodist, 2026-08-23): bo'sh maydon -- necha xonali, ishorami,
+// nima yozish kerakligi ko'rinmaydi. Shuning uchun `numeric` maydonda
+// placeholder BERILMASA, umumiy "faqat son" ko'rsatmasi ko'rinadi -- javobni
+// oshkor qilmaydi, lekin format nima ekanini aytadi.
+const NUM_PLACEHOLDER = { uz: 'faqat son', ru: 'только число', en: 'number only' };
+const NumField = ({ value, onChange, locked, placeholder, numeric, lang }) => (
+  <input data-input="1" value={value} onChange={(e) => onChange(e.target.value)} disabled={locked}
+    placeholder={placeholder || (numeric ? (NUM_PLACEHOLDER[lang] || NUM_PLACEHOLDER.uz) : '')} autoComplete="off" spellCheck="false"
+    inputMode={numeric ? 'numeric' : 'text'} pattern={numeric ? '-?[0-9]*' : undefined}
+    style={{ width: '100%', boxSizing: 'border-box', fontSize: 22, fontWeight: 800, textAlign: 'center', padding: '11px 14px', borderRadius: 14, border: '2px solid ' + C.line, background: locked ? '#fff' : C.bg, outline: 'none', fontFamily: S.mono.fontFamily, color: C.ink }} />
+);
+
+// ============================================================ 4. INPUT
+// Javobni O'ZI yozadi: ifoda, son yoki ODZ. `kind`: 'expr' | 'number' | 'odz'.
+// TypeValue (1) dan farqi -- javob FAQAT butun son emas, ifoda va shart ham
+// bo'lishi mumkin (masalan `x != 3`, `(x+2)/(x-1)`).
+export function Input({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
+  const [val, setVal] = useState('');
+  const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa?.value != null) setVal(String(sa.value)); } });
+  useEffect(() => { onReady?.(val.trim() !== '' && !A.checked); }, [val, A.checked, onReady]);
+  const kind = data.kind || 'expr';
+
+  const check = useCallback(() => {
+    const res = kind === 'odz'
+      ? judgeOdz(val, { excluded: data.excluded, varName: data.varName })
+      : judgeExpr(val, { answer: data.answer });
+    const correct = !!res.ok;
+    const keyed = data.hints && data.hints[val.trim()];
+    A.setFb({ correct, why: correct ? null : (keyed ? tr(keyed, lang) : pickWhy(data, { val, res }, lang)) });
+    A.setChecked(true);
+    correct ? playCorrect?.() : playWrong?.();
+    onSubmit?.(submitPayload(data, { questionText: tr(data.ask, lang), studentAnswer: { value: val }, correct }));
+  }, [val, kind, data, lang, playCorrect, playWrong, onSubmit]);
+  useRegister(check, registerCheck);
+
+  return (
+    <div style={S.wrap}>
+      <Head data={data} lang={lang} />
+      <Given data={data} lang={lang} />
+      {data.expr ? <div style={{ textAlign: 'center', margin: '6px 0 12px' }}><Row tokens={data.expr} size={data.exprSize || 30} /></div> : null}
+      <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: C.soft, marginBottom: 6 }}>{tr(data.label, lang)}</label>
+      <NumField value={val} onChange={setVal} locked={A.locked} placeholder={tr(data.placeholder, lang)} />
+      {A.fb && <HFB ok={A.fb.correct} text={A.fb.correct ? tr(data.correctText, lang) : A.fb.why} />}
+    </div>
+  );
+}
+
+// ============================================================ 5. BUILD
+// TESKARI topshiriq: berilgan XOSSAGA ega yozuv kartalardan yig'iladi.
+// `wrap` -- '5 / (%s)' andozasi: o'quvchi faqat MAXRAJNI yig'adi, `want.holes`
+// -- shu maxraj nolga aylanishi kerak bo'lgan qiymatlar ro'yxati.
+export function Build({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
+  const [seq, setSeq] = useState([]);
+  const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa?.seq) setSeq(sa.seq); } });
+  const built = seq.join(' ');
+  useEffect(() => { onReady?.(seq.length > 0 && !A.checked); }, [seq, A.checked, onReady]);
+
+  const check = useCallback(() => {
+    const full = data.wrap ? data.wrap.replace('%s', built) : built;
+    const P = parse(full);
+    let correct = false; let why = null;
+    if (P.error) { why = tr(data.parseWrong, lang) || null; }
+    else {
+      const holes = (domainHoles(full, data.varName).holes || []).slice().sort((a, b) => a - b);
+      const want = (data.want.holes || []).slice().sort((a, b) => a - b);
+      const isFrac = full.indexOf('/') !== -1;
+      correct = isFrac && holes.length === want.length && holes.every((v, i) => Math.abs(v - want[i]) < 1e-9);
+      if (!correct) why = pickWhy(data, { holes, isFrac, built }, lang);
+    }
+    A.setFb({ correct, why });
+    A.setChecked(true);
+    correct ? playCorrect?.() : playWrong?.();
+    onSubmit?.(submitPayload(data, { questionText: tr(data.ask, lang), studentAnswer: { built }, correct }));
+  }, [built, data, lang, playCorrect, playWrong, onSubmit]);
+  useRegister(check, registerCheck);
+
+  return (
+    <div style={S.wrap}>
+      <Head data={data} lang={lang} />
+      <div style={{ minHeight: 56, borderRadius: 16, border: '2px solid ' + C.pale, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6px 12px', margin: '4px 0 8px' }}>
+        {built ? <span style={{ ...S.mono, fontSize: 24 }}>{data.frame ? data.frame(built) : built}</span> : <span style={{ fontSize: 14, color: C.mute, fontWeight: 600 }}>{tr(data.placeholder, lang)}</span>}
+      </div>
+      <div style={S.note}>{tr(data.ask, lang)}</div>
+      <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
+        {data.cards.map((c, i) => (
+          <button key={c + i} type="button" data-card={c} disabled={A.locked} onClick={() => setSeq((s) => s.concat(c))}
+            style={{ minWidth: 52, padding: '0 12px', height: 46, borderRadius: 12, border: '2px solid ' + C.line, background: '#fff', ...S.mono, fontSize: 20, color: C.ink, cursor: A.locked ? 'default' : 'pointer' }}>
+            {c}
+          </button>
+        ))}
+        <button type="button" disabled={A.locked || !seq.length} onClick={() => setSeq((s) => s.slice(0, -1))}
+          style={{ marginLeft: 6, padding: '8px 14px', borderRadius: 12, border: '1.5px solid #d6dae3', background: '#fff', color: C.soft, fontSize: 13.5, fontWeight: 700, cursor: A.locked ? 'default' : 'pointer' }}>
+          BACKSPACE
+        </button>
+      </div>
+      {A.fb && <HFB ok={A.fb.correct} text={A.fb.correct ? tr(data.correctText, lang) : A.fb.why} />}
+    </div>
+  );
+}
+
+// ============================================================ 6. WHY
+// Amal VA asos: ikkita tanlov birga tekshiriladi. 8-sinfning asosiy balosi --
+// natija to'g'ri, ASOS noto'g'ri -- shuning uchun ikkisi ham kerak.
+export function Why({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
+  const [act, setAct] = useState(null);
+  const [reason, setReason] = useState(null);
+  const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa) { setAct(sa.act); setReason(sa.reason); } } });
+  useEffect(() => { onReady?.(act != null && reason != null && !A.checked); }, [act, reason, A.checked, onReady]);
+
+  const check = useCallback(() => {
+    const actOk = act === data.answerAction;
+    const reasonOk = reason === data.answerReason;
+    const correct = actOk && reasonOk;
+    let why = null;
+    if (!correct) {
+      why = !actOk
+        ? (tr(data.hintsAction && data.hintsAction[act], lang) || pickWhy(data, { act, reason }, lang))
+        : (tr(data.hintsReason && data.hintsReason[reason], lang) || pickWhy(data, { act, reason }, lang));
+    }
+    A.setFb({ correct, why });
+    A.setChecked(true);
+    correct ? playCorrect?.() : playWrong?.();
+    onSubmit?.(submitPayload(data, { questionText: tr(data.ask, lang), studentAnswer: { act, reason }, correct }));
+  }, [act, reason, data, lang, playCorrect, playWrong, onSubmit]);
+  useRegister(check, registerCheck);
+
+  const pillGroup = (items, val, setVal, answerKey) => (
+    <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap', justifyContent: 'center', margin: '4px 0 10px' }}>
+      {items.map((o) => {
+        const active = val === o.id;
+        const bad = A.checked && active && val !== data[answerKey];
+        const good = A.checked && active && !bad;
+        let bg = '#fff'; let bd = C.line; let col = C.soft;
+        if (active) { bg = C.hotBg; bd = C.hot; col = C.ink; }
+        if (bad) { bg = C.noBg; bd = C.no; col = C.no; }
+        if (good) { bg = C.okBg; bd = C.ok; col = C.ok; }
+        return (
+          <button key={o.id} type="button" data-opt={o.id} disabled={A.locked} onClick={() => setVal(o.id)}
+            style={{ padding: '9px 14px', borderRadius: 12, border: '2px solid ' + bd, background: bg, color: col, fontSize: 14.5, fontWeight: 700, cursor: A.locked ? 'default' : 'pointer', fontFamily: 'inherit' }}>
+            {tr(o.label, lang)}
+          </button>
+        );
+      })}
+    </div>
+  );
+
+  return (
+    <div style={S.wrap}>
+      <Head data={data} lang={lang} />
+      {data.expr ? <div style={{ textAlign: 'center', margin: '4px 0 10px' }}><Row tokens={data.expr} size={data.exprSize || 30} /></div> : null}
+      <p style={S.ask}>{tr(data.ask, lang)}</p>
+      {pillGroup(data.actions, act, setAct, 'answerAction')}
+      <div style={S.note}>{tr(data.reasonAsk, lang)}</div>
+      {pillGroup(data.reasons, reason, setReason, 'answerReason')}
+      {A.fb && <HFB ok={A.fb.correct} text={A.fb.correct ? tr(data.correctText, lang) : A.fb.why} />}
+    </div>
+  );
+}
+
+// ============================================================ 7. AUDIT
+// BIRINCHI noto'g'ri satr + kontrprimer. Har satr TO'G'RIDEK ko'rinadi.
+// Ball FAQAT ikkisi ham to'g'ri bo'lsa: satr VA sonning ikkisi ham.
+export function Audit({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
+  const [row, setRow] = useState(null);
+  const [num, setNum] = useState('');
+  const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa) { setRow(sa.row); setNum(sa.num || ''); } } });
+  useEffect(() => { onReady?.(row != null && num.trim() !== '' && !A.checked); }, [row, num, A.checked, onReady]);
+
+  const check = useCallback(() => {
+    const rowOk = row === data.answerId;
+    const n = Number(String(num).replace(',', '.'));
+    const but = data.proof.but || [];
+    const already = but.some((v) => Math.abs(v - n) < 1e-9);
+    let proofOk = false;
+    if (Number.isFinite(n) && !already) {
+      const P = parse(data.proof.of);
+      if (!P.error) {
+        const env = {}; env[data.proof.varName || 'x'] = n;
+        proofOk = evaluate(P.node, env) === null;
+      }
+    }
+    const correct = rowOk && proofOk;
+    let why = null;
+    if (!rowOk) why = tr(data.hints && data.hints[row], lang) || pickWhy(data, { row, n }, lang);
+    else if (already) why = tr(data.proofAlready, lang);
+    else if (!proofOk) why = tr(data.proofWrong, lang);
+    A.setFb({ correct, why });
+    A.setChecked(true);
+    correct ? playCorrect?.() : playWrong?.();
+    onSubmit?.(submitPayload(data, { questionText: tr(data.ask, lang), studentAnswer: { row, num }, correct }));
+  }, [row, num, data, lang, playCorrect, playWrong, onSubmit]);
+  useRegister(check, registerCheck);
+
+  return (
+    <div style={S.wrap}>
+      <Head data={data} lang={lang} />
+      {data.expr ? <div style={{ textAlign: 'center', margin: '4px 0 10px' }}><Row tokens={data.expr} size={data.exprSize || 30} /></div> : null}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, margin: '4px 0 10px' }}>
+        {data.rows.map((r, i) => {
+          const active = row === r.id;
+          const bad = A.checked && active && r.id !== data.answerId;
+          let bd = C.line; let bg = '#fff';
+          if (active) { bd = C.hot; bg = C.hotBg; }
+          if (bad) { bd = C.no; bg = C.noBg; }
+          return (
+            <button key={r.id} type="button" data-row={r.id} disabled={A.locked} onClick={() => setRow(r.id)}
+              style={{ display: 'flex', alignItems: 'center', gap: 10, textAlign: 'left', padding: '7px 12px', borderRadius: 11, border: '2px solid ' + bd, background: bg, cursor: A.locked ? 'default' : 'pointer' }}>
+              <span style={{ fontSize: 11, fontWeight: 800, color: C.mute }}>{i + 1}</span>
+              <span style={{ ...S.mono, fontSize: 17, color: C.ink }}>{React.isValidElement(r.show) ? r.show : tr(r.show, lang)}</span>
+            </button>
+          );
+        })}
+      </div>
+      <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: C.soft, marginBottom: 6 }}>{tr(data.proof.label, lang)}</label>
+      <NumField value={num} onChange={setNum} locked={A.locked} />
+      {A.fb && <HFB ok={A.fb.correct} text={A.fb.correct ? tr(data.correctText, lang) : A.fb.why} />}
+    </div>
+  );
+}
+
+// ============================================================ 8. COUNTER
+// Da'vo umumiy holatda to'g'ri, biror qiymatda BUZILADI. Javob -- SON, u
+// yerda ikki taraf teng bo'lmaydi (yoki bittasi qiymatga ega bo'lmaydi).
+export function Counter({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
+  const [num, setNum] = useState('');
+  const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa?.value != null) setNum(String(sa.value)); } });
+  useEffect(() => { onReady?.(num.trim() !== '' && !A.checked); }, [num, A.checked, onReady]);
+
+  const check = useCallback(() => {
+    const n = Number(String(num).replace(',', '.'));
+    let correct = false;
+    if (Number.isFinite(n)) {
+      const L = parse(data.left); const R = parse(data.right);
+      if (!L.error && !R.error) {
+        const env = {}; env[data.varName || 'x'] = n;
+        const lv = evaluate(L.node, env); const rv = evaluate(R.node, env);
+        correct = (lv === null) !== (rv === null) || (lv !== null && rv !== null && Math.abs(lv - rv) > 1e-9);
+      }
+    }
+    const keyed = data.hints && data.hints[String(n)];
+    A.setFb({ correct, why: correct ? null : (tr(keyed, lang) || pickWhy(data, { n }, lang)) });
+    A.setChecked(true);
+    correct ? playCorrect?.() : playWrong?.();
+    onSubmit?.(submitPayload(data, { questionText: tr(data.ask, lang), studentAnswer: { value: n }, correct }));
+  }, [num, data, lang, playCorrect, playWrong, onSubmit]);
+  useRegister(check, registerCheck);
+
+  return (
+    <div style={S.wrap}>
+      <Head data={data} lang={lang} />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, margin: '6px 0 12px' }}>
+        <Row tokens={data.leftShow} size={data.exprSize || 26} />
+        <span style={{ ...S.mono, fontSize: 22, color: C.mute }}>=</span>
+        <Row tokens={data.rightShow} size={data.exprSize || 26} />
+      </div>
+      <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: C.soft, marginBottom: 6 }}>{tr(data.label, lang)}</label>
+      <NumField value={num} onChange={setNum} locked={A.locked} />
+      {A.fb && <HFB ok={A.fb.correct} text={A.fb.correct ? tr(data.correctText, lang) : A.fb.why} />}
+    </div>
+  );
+}
+
+// ============================================================ 9. YESNO
+// Ha/Yo'q + DALIL: tanlov o'zi 50% dan chiqib ketishi mumkin, shuning uchun
+// ikkinchi qadam har doim SON bilan tasdiqlanadi (Counter bilan bir xil yadro).
+// `right` -- da'vo TO'G'RImi (bool). `proofRef` -- taqqoslanadigan ifoda.
+export function YesNo({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
+  const [pick, setPick] = useState(null);
+  const [num, setNum] = useState('');
+  const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa) { setPick(sa.pick); setNum(sa.value != null ? String(sa.value) : ''); } } });
+  useEffect(() => { onReady?.(pick != null && num.trim() !== '' && !A.checked); }, [pick, num, A.checked, onReady]);
+
+  const check = useCallback(() => {
+    const pickOk = pick === data.right;
+    const n = Number(String(num).replace(',', '.'));
+    let proofOk = false;
+    if (Number.isFinite(n)) {
+      const L = parse(data.left);
+      if (!L.error) {
+        const env = {}; env[data.varName || 'x'] = n;
+        const lv = evaluate(L.node, env);
+        const P = parse(data.proofRef);
+        const rv = P.error ? null : evaluate(P.node, env);
+        proofOk = data.right
+          ? (lv !== null && rv !== null && Math.abs(lv - rv) < 1e-9)
+          : ((lv === null) !== (rv === null) || (lv !== null && rv !== null && Math.abs(lv - rv) > 1e-9));
+      }
+    }
+    const correct = pickOk && proofOk;
+    let why = null;
+    if (!pickOk) why = tr(data.hintsPick && data.hintsPick[pick ? 'yes' : 'no'], lang) || pickWhy(data, { pick, n }, lang);
+    else if (!proofOk) why = tr(data.proofWrong, lang);
+    A.setFb({ correct, why });
+    A.setChecked(true);
+    correct ? playCorrect?.() : playWrong?.();
+    onSubmit?.(submitPayload(data, { questionText: tr(data.claim, lang), studentAnswer: { pick, value: n }, correct }));
+  }, [pick, num, data, lang, playCorrect, playWrong, onSubmit]);
+  useRegister(check, registerCheck);
+
+  const btn = (val, label) => {
+    const active = pick === val;
+    const bad = A.checked && active && val !== data.right;
+    const good = A.checked && active && !bad;
+    let bg = '#fff'; let bd = C.line; let col = C.soft;
+    if (active) { bg = C.hotBg; bd = C.hot; col = C.ink; }
+    if (bad) { bg = C.noBg; bd = C.no; col = C.no; }
+    if (good) { bg = C.okBg; bd = C.ok; col = C.ok; }
+    return (
+      <button type="button" data-pick={val ? 'yes' : 'no'} disabled={A.locked} onClick={() => setPick(val)}
+        style={{ padding: '10px 22px', borderRadius: 12, border: '2px solid ' + bd, background: bg, color: col, fontSize: 15, fontWeight: 800, cursor: A.locked ? 'default' : 'pointer', fontFamily: 'inherit' }}>
+        {label}
+      </button>
+    );
+  };
+
+  return (
+    <div style={S.wrap}>
+      <Head data={data} lang={lang} />
+      {data.expr ? <div style={{ textAlign: 'center', margin: '4px 0 8px' }}><Row tokens={data.expr} size={data.exprSize || 28} /></div> : null}
+      <p style={S.ask}>{tr(data.claim, lang)}</p>
+      <div style={{ display: 'flex', gap: 10, justifyContent: 'center', margin: '6px 0 12px' }}>
+        {btn(true, tr(data.yesLabel, lang) || 'Ha')}
+        {btn(false, tr(data.noLabel, lang) || "Yo'q")}
+      </div>
+      <div style={S.note}>{tr(data.proofAsk, lang)}</div>
+      <NumField value={num} onChange={setNum} locked={A.locked} />
+      {A.fb && <HFB ok={A.fb.correct} text={A.fb.correct ? tr(data.correctText, lang) : A.fb.why} />}
+    </div>
+  );
+}
+
+// ============================================================ 10. ABCD
+// To'rttadan bittasi yoki ikkitasi (`data.pickTwo`). Etalon §1.1: bu ZAIF
+// tekshiruv, shuning uchun faqat "isinish" va usul nomini so'rash uchun.
+// TO'G'RI JAVOB HECH QACHON KO'RSATILMAYDI: faqat tanlanganlar rangga kiradi.
+export function Abcd({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
+  const [picked, setPicked] = useState([]);
+  const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa?.picked) setPicked(sa.picked); } });
+  const need = data.pickTwo ? 2 : 1;
+  useEffect(() => { onReady?.(picked.length === need && !A.checked); }, [picked, need, A.checked, onReady]);
+
+  const order = useMemo(() => {
+    const idx = data.opts.map((_, i) => i);
+    for (let i = idx.length - 1; i > 0; i -= 1) { const j = Math.floor(Math.random() * (i + 1)); const t = idx[i]; idx[i] = idx[j]; idx[j] = t; }
+    return idx;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
+
+  const toggle = (i) => {
+    if (A.locked) return;
+    setPicked((p) => {
+      if (p.indexOf(i) !== -1) return p.filter((x) => x !== i);
+      if (need === 1) return [i];
+      return p.length < need ? p.concat(i) : p;
+    });
+  };
+  const check = useCallback(() => {
+    const want = data.pickTwo ? data.correct.slice().sort() : [data.correct];
+    const mine = picked.slice().sort();
+    const correct = mine.length === want.length && mine.every((v, i) => v === want[i]);
+    A.setFb({ correct, why: correct ? null : pickWhy(data, { picked: mine }, lang) });
+    A.setChecked(true);
+    correct ? playCorrect?.() : playWrong?.();
+    onSubmit?.(submitPayload(data, { questionText: tr(data.ask, lang), studentAnswer: { picked: mine.slice() }, correct }));
+  }, [picked, data, lang, playCorrect, playWrong, onSubmit]);
+  useRegister(check, registerCheck);
+
+  return (
+    <div style={S.wrap}>
+      <Head data={data} lang={lang} />
+      {data.expr ? <div style={{ textAlign: 'center', margin: '4px 0 10px' }}><Row tokens={data.expr} size={data.exprSize || 30} /></div> : null}
+      <p style={S.ask}>{tr(data.ask, lang)}</p>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(' + (data.optCols || 1) + ', minmax(0, 1fr))', gap: 7 }}>
+        {order.map((i) => {
+          const o = data.opts[i];
+          const active = picked.indexOf(i) !== -1;
+          const want = data.pickTwo ? data.correct : [data.correct];
+          const bad = A.checked && active && want.indexOf(i) === -1;
+          const good = A.checked && active && !bad;
+          let bg = '#fff'; let bd = '#d6dae3'; let col = C.soft;
+          if (active) { bg = C.hotBg; bd = C.hot; col = C.ink; }
+          if (bad) { bg = C.noBg; bd = C.no; col = C.no; }
+          if (good) { bg = C.okBg; bd = C.ok; col = C.ok; }
+          return (
+            <button key={i} type="button" data-opt={i} disabled={A.locked} onClick={() => toggle(i)}
+              style={{ display: 'flex', alignItems: 'center', width: '100%', padding: '11px 15px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 15.5, fontWeight: 600, cursor: A.locked ? 'default' : 'pointer', fontFamily: 'inherit', textAlign: 'left' }}>
+              {typeof o.label === 'object' && Array.isArray(o.label) ? <Row tokens={o.label} size={20} /> : tr(o.label, lang)}
+            </button>
+          );
+        })}
+      </div>
+      {A.fb && <HFB ok={A.fb.correct} text={A.fb.correct ? tr(data.correctText, lang) : A.fb.why} />}
+    </div>
+  );
+}
+
+
+// ============================================================ 11. FIX
+// Metodist qarori 2026-08-22: "birinchi to'lqin" ga qo'shildi, chunki
+// sinfning O'Z asbob to'plamida (`screens.jsx` -> `slots`/`fill`) xuddi
+// SHUNDAY "kartani bosib uyani to'ldirish" bor edi -- amaliyot uni
+// takrorlagan bo'lardi. `Fix` esa BOSHQA ish qiladi: tayyor (NOTO'G'RI)
+// yozuvning O'ZIDA xato joyni ko'rsatib, keyin TUZATISHNI yozadi. Bitta
+// joyni tanlash (Audit kabi) EMAS -- yozuvning ICHIDAGI aniq belgi.
+//
+// data.statement: token qatori. Har biri `{ id, v }` -- bosiladi -- yoki
+// oddiy satr/{n,d} -- bosilmaydi, kontekst uchun. `data.wrongId` -- xato
+// TOKENNING id'si. `data.correct` -- o'sha joyga yozilishi kerak bo'lgan
+// qiymat (SON yoki ifoda, `judgeExpr` bilan solishtiriladi).
+export function Fix({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
+  const [picked, setPicked] = useState(null);
+  const [val, setVal] = useState('');
+  const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa) { setPicked(sa.picked); setVal(sa.value || ''); } } });
+  useEffect(() => { onReady?.(picked != null && val.trim() !== '' && !A.checked); }, [picked, val, A.checked, onReady]);
+
+  const check = useCallback(() => {
+    const pickOk = picked === data.wrongId;
+    const res = pickOk ? judgeExpr(val, { answer: data.correct }) : { ok: false };
+    const correct = pickOk && !!res.ok;
+    let why = null;
+    if (!pickOk) why = tr(data.hintsPick && data.hintsPick[picked], lang) || pickWhy(data, { picked }, lang);
+    else if (!correct) why = tr(data.hints && data.hints[val.trim()], lang) || tr(data.fixWrong, lang);
+    A.setFb({ correct, why });
+    A.setChecked(true);
+    correct ? playCorrect?.() : playWrong?.();
+    onSubmit?.(submitPayload(data, { questionText: tr(data.ask, lang), studentAnswer: { picked, value: val }, correct }));
+  }, [picked, val, data, lang, playCorrect, playWrong, onSubmit]);
+  useRegister(check, registerCheck);
+
+  return (
+    <div style={S.wrap}>
+      <Head data={data} lang={lang} />
+      <Given data={data} lang={lang} />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 2, margin: '8px 0 4px' }}>
+        {data.statement.map((tok, i) => {
+          if (typeof tok !== 'object' || tok.id === undefined) {
+            return (typeof tok === 'string' || (tok && tok.n !== undefined))
+              ? <Row key={i} tokens={[tok]} size={data.exprSize || 28} />
+              : null;
+          }
+          const active = picked === tok.id;
+          // Audit bilan bir xil qoida: FAQAT xato tanlov qizil bo'ladi.
+          // To'g'ri tanlov -- hatto tekshirilgandan keyin ham -- shunchaki
+          // "faol" (hot) rangda qoladi, yashilga aylanmaydi: aks holda
+          // to'g'ri joy o'zi javobni ko'rsatib qo'yardi.
+          const bad = A.checked && active && tok.id !== data.wrongId;
+          let bd = C.line; let bg = C.bg; let dash = 'dashed';
+          if (active) { bd = C.hot; bg = C.hotBg; dash = 'solid'; }
+          if (bad) { bd = C.no; bg = C.noBg; }
+          return (
+            <button key={i} type="button" data-tok={tok.id} disabled={A.locked} onClick={() => setPicked(tok.id)}
+              style={{ ...S.mono, fontSize: data.exprSize || 28, padding: '4px 9px', margin: '0 1px', borderRadius: 10, border: '2px ' + dash + ' ' + bd, background: bg, color: C.ink, cursor: A.locked ? 'default' : 'pointer' }}>
+              {tok.v}
+            </button>
+          );
+        })}
+      </div>
+      <p style={S.ask}>{tr(data.ask, lang)}</p>
+      <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: C.soft, marginBottom: 6 }}>{tr(data.label, lang)}</label>
+      <NumField value={val} onChange={setVal} locked={A.locked} placeholder={tr(data.placeholder, lang)} />
+      {A.fb && <HFB ok={A.fb.correct} text={A.fb.correct ? tr(data.correctText, lang) : A.fb.why} />}
+    </div>
+  );
+}
+
+
+// ============================================================ 13. CANCEL
+// Metodist qarori 2026-08-22: `Why` (tayyor gaplardan tanlash) qiziqarli
+// emas edi. `Cancel` boshqacha ishlaydi: o'quvchi TAYYOR GAPNI TANLAMAYDI,
+// balki yozuvning O'ZIDA mos ko'paytuvchini SURAT va MAXRAJDA bosib
+// ZACHYORKAYDI (chizib tashlaydi) -- keyin qolgan shartni yozadi. Bir
+// gapni ham o'qimaydi, faqat qo'l bilan ishlaydi.
+//
+// data.numerator / data.denominator: `{ id, v }` ko'paytuvchilar qatori.
+// `data.matchNum` / `data.matchDen` -- to'g'ri chizib tashlanadigan
+// ko'paytuvchi. Ikkalasi tanlangach chiziq CHIQADI (to'g'ri yoki noto'g'ri
+// bo'lsa ham -- tekshirish faqat "Tekshirish" bosilganda). Shundan keyin
+// shart maydoni ochiladi.
+// Chizib tashlangandan keyingi savol IKKI SON bilan (matn maydoni EMAS):
+// metodist qarori 2026-08-23 -- "x != 2" kabi yozuv telefonda yozish
+// noqulay (maxsus belgi kerak), ustiga u chizib tashlangan bo'lakning
+// SONINI shunchaki KO'CHIRIB YOZISH bo'lib qolardi -- juda oddiy.
+//   1. `forbid`   -- taqiqlangan qiymat, SON (chizib tashlangan ko'paytuvchi
+//      qaysi qiymatda nolga aylarga TENGLASHTIRILADI, ko'chirib emas).
+//   2. `checkAt` / `checkAnswer` -- SODDALASHTIRILGAN yozuvni berilgan x da
+//      HISOBLASH: ekranda ko'rinmagan, hisoblash kerak bo'lgan son.
+export function Cancel({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
+  const [numPick, setNumPick] = useState(null);
+  const [denPick, setDenPick] = useState(null);
+  const [forbid, setForbid] = useState('');
+  const [checkVal, setCheckVal] = useState('');
+  const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa) { setNumPick(sa.numPick); setDenPick(sa.denPick); setForbid(sa.forbid || ''); setCheckVal(sa.checkVal || ''); } } });
+  const bothPicked = numPick != null && denPick != null;
+  const filled = forbid.trim() !== '' && checkVal.trim() !== '';
+  useEffect(() => { onReady?.(bothPicked && filled && !A.checked); }, [bothPicked, filled, A.checked, onReady]);
+
+  const check = useCallback(() => {
+    const cutOk = numPick === data.matchNum && denPick === data.matchDen;
+    // "3+7" ham TO'G'RI ish -- son ko'rinishida yozilmagan xolos. Avval
+    // bevosita songa o'girishga urinadi, chiqmasa IFODA sifatida hisoblaydi
+    // (metodist, 2026-08-23: "3+7" ni "javob emas" deb rad etish xato edi).
+    const asNumber = (raw) => {
+      const s = String(raw).trim();
+      if (!s) return null;
+      const n = Number(s.replace(',', '.'));
+      if (Number.isFinite(n)) return n;
+      const P = parse(s);
+      if (P.error) return null;
+      const v = evaluate(P.node, {});
+      return v;
+    };
+    const forbidOk = asNumber(forbid) === data.forbid;
+    const checkOk = asNumber(checkVal) === data.checkAnswer;
+    const correct = cutOk && forbidOk && checkOk;
+    let why = null;
+    if (!cutOk) {
+      why = tr((data.hintsNum && data.hintsNum[numPick]) || (data.hintsDen && data.hintsDen[denPick]), lang) || pickWhy(data, { numPick, denPick }, lang);
+    } else if (!forbidOk) {
+      why = tr(data.hintsForbid && data.hintsForbid[forbid.trim()], lang) || tr(data.forbidWrong, lang);
+    } else if (!checkOk) {
+      why = tr(data.hintsCheck && data.hintsCheck[checkVal.trim()], lang) || tr(data.checkWrong, lang);
+    }
+    A.setFb({ correct, why });
+    A.setChecked(true);
+    correct ? playCorrect?.() : playWrong?.();
+    onSubmit?.(submitPayload(data, { questionText: tr(data.ask, lang), studentAnswer: { numPick, denPick, forbid, checkVal }, correct }));
+  }, [numPick, denPick, forbid, checkVal, data, lang, playCorrect, playWrong, onSubmit]);
+  useRegister(check, registerCheck);
+
+  const tok = (t, picked, setPicked) => {
+    const active = picked === t.id;
+    const cut = bothPicked && active; // ikkalasi tanlangach -- chiziq
+    const bad = A.checked && active && (numPick !== data.matchNum || denPick !== data.matchDen);
+    let bd = C.line; let bg = '#fff';
+    if (active) { bd = C.hot; bg = C.hotBg; }
+    if (bad) { bd = C.no; bg = C.noBg; }
+    return (
+      <button key={t.id} type="button" disabled={A.locked} data-tok={t.id}
+        onClick={() => setPicked(picked === t.id ? null : t.id)}
+        style={{ ...S.mono, fontSize: data.exprSize || 26, padding: '5px 10px', borderRadius: 10, border: '2px solid ' + bd, background: bg, color: C.ink, cursor: A.locked ? 'default' : 'pointer', position: 'relative' }}>
+        {t.v}
+        {cut ? <span style={{ position: 'absolute', left: 2, right: 2, top: '50%', height: 2, background: bad ? C.no : C.soft, transform: 'translateY(-50%) rotate(-6deg)' }} /> : null}
+      </button>
+    );
+  };
+
+  // BITTA BOSQICH (metodist qarori 2026-08-23): chizib tashlash va ikki
+  // son maydoni BIR VAQTNING O'ZIDA ko'rinadi, biri ikkinchisini ochmaydi
+  // -- xuddi Fix/Audit/YesNo da bo'lgani kabi. O'quvchi ularni istalgan
+  // tartibda to'ldiradi, tekshirish esa BIR marta, hammasi birga.
+  return (
+    <div style={S.wrap}>
+      <Head data={data} lang={lang} />
+      <p style={S.ask}>{tr(data.ask, lang)}</p>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, margin: '6px 0 10px' }}>
+        <div style={{ display: 'flex', gap: 4 }}>{data.numerator.map((t) => tok(t, numPick, setNumPick))}</div>
+        <div style={{ width: '100%', maxWidth: 260, height: 2, background: C.ink, margin: '4px 0' }} />
+        <div style={{ display: 'flex', gap: 4 }}>{data.denominator.map((t) => tok(t, denPick, setDenPick))}</div>
+      </div>
+      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+        <div style={{ flex: '1 1 160px' }}>
+          <div style={S.note}>{tr(data.forbidAsk, lang)}</div>
+          <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: C.soft, marginBottom: 6 }}>{tr(data.forbidLabel, lang)}</label>
+          <NumField value={forbid} onChange={setForbid} locked={A.locked} numeric lang={lang} placeholder={tr(data.forbidPlaceholder, lang)} />
+        </div>
+        <div style={{ flex: '1 1 160px' }}>
+          <div style={S.note}>{tr(data.checkAsk, lang)}</div>
+          <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: C.soft, marginBottom: 6 }}>{tr(data.checkLabel, lang)}</label>
+          <NumField value={checkVal} onChange={setCheckVal} locked={A.locked} numeric lang={lang} placeholder={tr(data.checkPlaceholder, lang)} />
         </div>
       </div>
       {A.fb && <HFB ok={A.fb.correct} text={A.fb.correct ? tr(data.correctText, lang) : A.fb.why} />}

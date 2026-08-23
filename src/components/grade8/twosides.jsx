@@ -62,6 +62,7 @@ function Line({ from = -6, to = 6, set, flash }) {
   let band = null
   let dot = null
   let dots = null
+  let edges = null
   let open = true
   if (s.none) band = null
   else if (s.all) band = [from, to]
@@ -70,7 +71,16 @@ function Line({ from = -6, to = 6, set, flash }) {
   else if (s.le !== undefined) { band = [from, s.le]; dot = s.le; open = false }
   else if (s.gt !== undefined) { band = [s.gt, to]; dot = s.gt }
   else if (s.ge !== undefined) { band = [s.ge, to]; dot = s.ge; open = false }
-  else if (s.between) { band = s.between; open = false }
+  // ДВЕ ГРАНИЦЫ РАЗНЫЕ: kesma [a;b] ikkalasi to'la, interval (a;b) ikkalasi
+  // ochiq, yarim-interval bitta to'la bitta ochiq — shuning uchun HAR BIR
+  // chegara o'z ochiq/to'la holatiga ega (Б4, 26-27-darslar, sonli oraliqlar).
+  else if (s.between) {
+    band = s.between
+    edges = [
+      { v: s.between[0], open: !!s.openLeft },
+      { v: s.between[1], open: !!s.openRight },
+    ]
+  }
   else if (s.point !== undefined) { dot = s.point; open = false }
 
   return (
@@ -95,6 +105,10 @@ function Line({ from = -6, to = 6, set, flash }) {
       ) : null}
       {dots ? dots.map((v, i) => (
         <circle key={'d' + i} cx={px(v)} cy={AX} r="5.5" className="g8-ts-dot"/>
+      )) : null}
+      {edges ? edges.map((e, i) => (
+        <circle key={'e' + i} cx={px(e.v)} cy={AX} r="5.5"
+          className={'g8-ts-dot' + (e.open ? ' is-open' : '')}/>
       )) : null}
       {s.none ? (
         <text x={VB / 2} y={AX - 12} textAnchor="middle" fontFamily={MATH_FONT}

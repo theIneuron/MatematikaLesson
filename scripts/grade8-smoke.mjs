@@ -432,6 +432,184 @@ FIXTURES['dars14-irratsional-sonlar'] = [
   {},                                                                    // 15 итог
 ]
 
+// УРОК 15. Блок Б3. Пятый экран — TwoSides: приведение к стандартному виду,
+// два шага, quiz:2 (та же механика, что у уроков 10-13). Третий экран —
+// steppers, крутим ТОЛЬКО минусом: 6 -> 3 -> 2 -> 1 -> 0 (три цели плюс обрыв).
+FIXTURES['dars15-kvadrat-tenglama-va-uning-elementlari'] = [
+  { cards: 2 },                                                          // 1 хук: одно ли это действие
+  { cards: 4 },                                                          // 2 опора: скрытый минус один
+  { dial: { moves: [[0, '-', 3], [0, '-', 1], [0, '-', 1], [0, '-', 1]] } }, // 3 крути a: 6→3→2→1→0
+  { cards: 4 },                                                          // 4 какая запись — квадратное уравнение
+  { quiz: 2 },                                                           // 5 TwoSides — механика блока
+  { wait: 11000 },                                                       // 6 два способа назвать a, b, c
+  { wait: 8000 },                                                        // 7 по частям: почему a не нуль
+  { chips: ['f1', 'f2', 'f3', 'f4'] },                                   // 8 правило
+  { drill: 5 },                                                          // 9 назови a, b, c
+  { drill: 3 },                                                          // 10 квадратное или нет
+  { drill: 3 },                                                          // 11 корень подстановкой
+  { drill: 2 },                                                          // 12 ловушка: знак при переносе
+  {
+    cells: [                                                             // 13 три задачи по клеткам
+      ['5', '6', '6'], ['1', '20', '20'], ['6', '7', '7'],
+    ],
+  },
+  { blitz: true, tiles: ['5', '3'] },                                    // 14 блиц и сборка
+  {},                                                                    // 15 итог
+]
+
+// УРОК 16. Пятый экран — TwoSides (общий цикл `s.twosides`, 3 шага). Третий —
+// steppers, крутим только минусом: 16→9→4→1, потом обрыв (корень из отрицательного).
+FIXTURES['dars16-chala-kvadrat-tenglamalar'] = [
+  { cards: 2 },                                                          // 1 хук: прогноз
+  { cards: 4 },                                                          // 2 опора: разложение на множители
+  { dial: { moves: [[0, '-', 7], [0, '-', 5], [0, '-', 3], [0, '-', 2]] } }, // 3 крути d: 16→9→4→1→обрыв
+  { cards: 4 },                                                          // 4 верная запись
+  { twosides: true },                                                    // 5 TwoSides — механика блока, 3 шага
+  { wait: 9000 },                                                        // 6 два способа: показ по таймеру
+  { wait: 8000 },                                                        // 7 по частям: показ по таймеру
+  { chips: ['f1', 'f2', 'f3', 'f4'] },                                  // 8 правило: сборка
+  { drill: 5 },                                                          // 9 пять примеров
+  { drill: 3 },                                                          // 10 три шага выбором
+  { drill: 3 },                                                          // 11 сам
+  { drill: 2 },                                                          // 12 ловушка
+  { cells: [['16', '4'], ['9', '3'], ['25', '5']] },                     // 13 три записи по клеткам
+  { blitz: true, tiles: ['2', '−2'] },                                  // 14 блиц и сборка
+  {},                                                                    // 15 итог
+]
+
+// УРОК 17. Пятый экран — SquareCut (достроение до квадрата), новая механика:
+// два тапа ("Kesish", "Biriktirish"), потом числовое поле дыры. Третий экран —
+// steppers с шагом 0,5: 4→2→1→0,5→0 (обрыв на делении на нуль).
+FIXTURES['dars17-kvadrat-tenglama-ildizlari-formulasi'] = [
+  { cards: 2 },                                                          // 1 хук: прогноз
+  { cards: 4 },                                                          // 2 опора: полный квадрат
+  { dial: { moves: [[0, '-', 4], [0, '-', 2], [0, '-', 1], [0, '-', 1]] } }, // 3 крути a (шаг 0,5): 4→2→1→0,5→0
+  { cards: 4 },                                                          // 4 верные a, b, c
+  { squarecut: true, fields: ['1'] },                                   // 5 SquareCut — механика блока
+  { wait: 9000 },                                                        // 6 два способа: показ по таймеру
+  { wait: 8000 },                                                        // 7 по частям: показ по таймеру
+  { chips: ['f1', 'f2', 'f3', 'f4'] },                                  // 8 правило: сборка
+  { drill: 5 },                                                          // 9 пять примеров
+  { drill: 3 },                                                          // 10 три шага выбором
+  { drill: 3 },                                                          // 11 сам
+  { drill: 2 },                                                          // 12 ловушка
+  {
+    cells: [                                                             // 13 три записи по клеткам
+      ['24', '25', '8', '3'], ['15', '4', '5', '3'], ['40', '9', '8', '5'],
+    ],
+  },
+  { blitz: true, tiles: ['4', '−2'] },                                  // 14 блиц и сборка
+  {},                                                                    // 15 итог
+]
+
+// УРОК 18. Пятый экран — ParamPlot (ползунок по дискриминанту), доводим до 9.
+// Третий экран — steppers плюсом: 0→5→8→9→обрыв (D уходит в минус).
+FIXTURES['dars18-diskriminant-va-ildizlar-soni'] = [
+  { cards: 2 },                                                          // 1 хук: прогноз
+  { cards: 4 },                                                          // 2 опора: формула D
+  { dial: { moves: [[0, '+', 5], [0, '+', 3], [0, '+', 1], [0, '+', 1]] } }, // 3 крути c: 0→5→8→9→обрыв
+  { cards: 4 },                                                          // 4 верная запись
+  { slider: { to: 9 } },                                                 // 5 ParamPlot — механика блока
+  { wait: 9000 },                                                        // 6 два способа: показ по таймеру
+  { wait: 8000 },                                                        // 7 по частям: показ по таймеру
+  { chips: ['f1', 'f2', 'f3', 'f4'] },                                  // 8 правило: сборка
+  { drill: 5 },                                                          // 9 пять примеров
+  { drill: 3 },                                                          // 10 три шага выбором
+  { drill: 3 },                                                          // 11 сам
+  { drill: 2 },                                                          // 12 ловушка
+  {
+    cells: [                                                             // 13 три записи по клеткам
+      ['15', '4', '5', '3'], ['10', '−15'], ['24', '25', '8', '3'],
+    ],
+  },
+  { blitz: true, tiles: ['0', '−1'] },                             // 14 блиц и сборка
+  {},                                                                    // 15 итог
+]
+
+// УРОК 19. Пятый экран — FactorPair (сумма и произведение), механика блока.
+// Третий экран — steppers минусом: 6→4→3→2→обрыв (деление на нуль).
+FIXTURES['dars19-viyet-teoremasi'] = [
+  { cards: 2 },                                                          // 1 хук: прогноз
+  { cards: 4 },                                                          // 2 опора: сумма и произведение корней
+  { dial: { moves: [[0, '-', 2], [0, '-', 1], [0, '-', 1], [0, '-', 2]] } }, // 3 крути x1: 6→4→3→2→обрыв
+  { cards: 4 },                                                          // 4 верные p, q
+  { factorpair: [2, 3] },                                               // 5 FactorPair — механика блока
+  { wait: 9000 },                                                        // 6 два способа: показ по таймеру
+  { wait: 8000 },                                                        // 7 по частям: показ по таймеру
+  { chips: ['f1', 'f2', 'f3', 'f4'] },                                  // 8 правило: сборка
+  { drill: 5 },                                                          // 9 пять примеров
+  { drill: 3 },                                                          // 10 три шага выбором
+  { drill: 3 },                                                          // 11 сам
+  { drill: 2 },                                                          // 12 ловушка
+  { cells: [['12', 'musbat'], ['12', 'manfiy'], ['-20', 'manfiy']] },    // 13 три записи по клеткам
+  { blitz: true, tiles: ['2', '5'] },                                    // 14 блиц и сборка
+  {},                                                                    // 15 итог
+]
+
+// УРОК 20. Пятый экран — TwoSides (та же общая механика, 4 шага). Третий —
+// steppers 1/(x−2): 7→6→3→2 (два обрыв на цели, третий обрыв). Цель −1
+// была недостижима при min=2 и снята правкой методической ошибки — теперь
+// целей две (0,25 и 1), см. Dars20.jsx.
+FIXTURES['dars20-kasr-ratsional-tenglamalar'] = [
+  { cards: 2 },                                                          // 1 хук: прогноз
+  { cards: 4 },                                                          // 2 опора: x не равно 5
+  { dial: { moves: [[0, '-', 1], [0, '-', 3], [0, '-', 1]] } },          // 3 крути x: 7→6→3→обрыв на 2
+  { cards: 4 },                                                          // 4 верная запись, x≠1, x≠−1
+  { twosides: true },                                                    // 5 TwoSides — механика блока, 4 шага
+  { wait: 9000 },                                                        // 6 два способа: показ по таймеру
+  { wait: 8000 },                                                        // 7 по частям: показ по таймеру
+  { chips: ['f1', 'f2', 'f3', 'f4'] },                                  // 8 правило: сборка
+  { drill: 5 },                                                          // 9 пять примеров
+  { drill: 3 },                                                          // 10 три шага выбором
+  { drill: 3 },                                                          // 11 сам
+  { drill: 2 },                                                          // 12 ловушка
+  { cells: [['55', '-11'], ['21', '-7'], ['78', '-13']] },               // 13 три записи по клеткам
+  { blitz: true, tiles: ['−2'] },                                   // 14 блиц и сборка
+  {},                                                                    // 15 итог
+]
+
+// УРОК 21. Пятый экран — FourWindows, но экран решается числовым полем
+// (`fields`), как в уроке 7: k=60, дырка на x=20, ответ 3. Третий — steppers
+// минусом: 15→12→10→5→обрыв (деление на нуль).
+FIXTURES['dars21-kvadrat-tenglamalar-yordamida-masalalar-yechish'] = [
+  { cards: 2 },                                                          // 1 хук: прогноз
+  { cards: 4 },                                                          // 2 опора: t = 40/x
+  { dial: { moves: [[0, '-', 3], [0, '-', 2], [0, '-', 5], [0, '-', 5]] } }, // 3 крути x: 15→12→10→5→обрыв
+  { cards: 4 },                                                          // 4 верное уравнение
+  { fields: ['3'] },                                                     // 5 FourWindows: 60/20 = 3
+  { wait: 7500 },                                                        // 6 два способа: показ по таймеру
+  { wait: 7000 },                                                        // 7 по частям: показ по таймеру
+  { chips: ['f1', 'f2', 'f3', 'f4'] },                                  // 8 правило: сборка
+  { drill: 5 },                                                          // 9 пять примеров
+  { drill: 3 },                                                          // 10 три шага выбором
+  { drill: 3 },                                                          // 11 сам
+  { drill: 2 },                                                          // 12 ловушка
+  { cells: [['45', '5'], ['24', '6'], ['30', '10']] },                   // 13 три записи по клеткам
+  { blitz: true, tiles: ['5'] },                                        // 14 блиц и сборка (пятая задача — одна клетка)
+  {},                                                                    // 15 итог
+]
+
+// УРОК 22. Пятый экран — FactorPair с нецелой суммой/произведением (0,5 и −3).
+// SquareCut в этом уроке НЕ используется (см. комментарий в шапке файла).
+// Третий экран — steppers минусом: тот же профиль, что у урока 16 (16→9→4→1→обрыв).
+FIXTURES['dars22-kopaytuvchilarga-ajratish-va-bikvadrat-tenglamalar'] = [
+  { cards: 2 },                                                          // 1 хук: прогноз
+  { cards: 4 },                                                          // 2 опора: сумма и произведение корней t
+  { dial: { moves: [[0, '-', 7], [0, '-', 5], [0, '-', 3], [0, '-', 2]] } }, // 3 крути t: 16→9→4→1→обрыв
+  { cards: 4 },                                                          // 4 верная запись биквадратного уравнения
+  { factorpair: [0.5, -3] },                                            // 5 FactorPair — механика блока
+  { wait: 9000 },                                                        // 6 два способа: показ по таймеру
+  { wait: 8000 },                                                        // 7 по частям: показ по таймеру
+  { chips: ['f1', 'f2', 'f3', 'f4'] },                                  // 8 правило: сборка
+  { drill: 5 },                                                          // 9 пять примеров
+  { drill: 3 },                                                          // 10 три шага выбором
+  { drill: 3 },                                                          // 11 сам
+  { drill: 2 },                                                          // 12 ловушка
+  { cells: [['15', '5', '3'], ['12', '2'], ['12', '2', '3']] },          // 13 три записи по клеткам
+  { blitz: true, tiles: ['2', '1'] },                                    // 14 блиц и сборка
+  {},                                                                    // 15 итог
+]
+
 const SOLVE = FIXTURES[slug]
 if (!SOLVE) {
   console.log(`  ✗ фикстуры для урока «${slug}» нет. Прогон без неё пролистал бы урок,`)
@@ -464,6 +642,19 @@ const STYLE_FILES = [
   ['src/components/grade8/method.jsx', 'METHOD_STYLES'],
   ['src/components/grade8/twosides.jsx', 'TWOSIDES_STYLES'],
   ['src/components/grade8/math.jsx', 'MATH_STYLES'],
+  ['src/components/grade8/squarecut.jsx', 'SQUARECUT_STYLES'],
+  ['src/components/grade8/factorpair.jsx', 'FACTORPAIR_STYLES'],
+  ['src/components/grade8/modulusfold.jsx', 'MODULUSFOLD_STYLES'],
+  ['src/components/grade8/standardform.jsx', 'STANDARDFORM_STYLES'],
+  ['src/components/grade8/freqtable.jsx', 'FREQTABLE_STYLES'],
+  ['src/components/grade8/datadrag.jsx', 'DATADRAG_STYLES'],
+  ['src/components/grade8/treebuild.jsx', 'TREEBUILD_STYLES'],
+  ['src/components/grade8/geofigure.jsx', 'GEOFIGURE_STYLES'],
+  ['src/components/grade8/prooflines.jsx', 'PROOFLINES_STYLES'],
+  ['src/components/grade8/areacut.jsx', 'AREACUT_STYLES'],
+  ['src/components/grade8/squareswap.jsx', 'SQUARESWAP_STYLES'],
+  ['src/components/grade8/circlefigure.jsx', 'CIRCLEFIGURE_STYLES'],
+  ['src/components/grade8/vectorfigure.jsx', 'VECTORFIGURE_STYLES'],
 ]
 let styleBroken = 0
 for (const [file, name] of STYLE_FILES) {
@@ -507,12 +698,26 @@ const measure = (page) => page.evaluate(() => {
     if (r.height > 0) deepest = Math.max(deepest, r.bottom)
   }
   // Обрезка ВНУТРИ карточек — отдельная проверка (§20 п. 35а).
+  // DEBUG_CLIP=1 node scripts/grade8-smoke.mjs ... называет сам режущий
+  // элемент (тег, класс, размер, текст), а не только число «режущих 1»:
+  // без этого приходилось гадать вручную (урок 15, 2026-08-22). По
+  // умолчанию флаг выключен и ни на что не влияет.
   let clipped = 0
+  const clipDetail = []
   for (const el of document.querySelectorAll('.lesson-root *')) {
     const st = getComputedStyle(el)
     if (st.overflow !== 'clip' && st.overflow !== 'hidden') continue
-    if (el.scrollHeight - el.clientHeight > 2 || el.scrollWidth - el.clientWidth > 2) clipped += 1
+    if (el.scrollHeight - el.clientHeight > 2 || el.scrollWidth - el.clientWidth > 2) {
+      clipped += 1
+      if (window.__DEBUG_CLIP__) {
+        clipDetail.push(el.tagName + '.' + String(el.className).slice(0, 60)
+          + ' dy=' + (el.scrollHeight - el.clientHeight) + ' dx=' + (el.scrollWidth - el.clientWidth)
+          + ' c=' + el.clientWidth + 'x' + el.clientHeight
+          + ' txt=' + (el.textContent || '').trim().slice(0, 60))
+      }
+    }
   }
+  if (window.__DEBUG_CLIP__ && clipDetail.length) console.log('CLIP_DETAIL', JSON.stringify(clipDetail))
   return {
     cut: Math.round(deepest - b.bottom),
     hScroll: document.documentElement.scrollWidth - document.documentElement.clientWidth,
@@ -569,6 +774,7 @@ const clickOpt = async (page, id, where) => {
 for (const size of SIZES) {
   const browser = await chromium.launch()
   const page = await browser.newPage({ viewport: { width: size.w, height: size.h } })
+  if (process.env.DEBUG_CLIP) await page.addInitScript(() => { window.__DEBUG_CLIP__ = true })
   // 404 без адреса — бесполезная строка. В headless Chromium это почти
   // всегда шрифты Google, которых на машине нет; урок к ним отношения не
   // имеет. Пишем АДРЕС и внешние шрифты не считаем ошибкой урока.
@@ -579,6 +785,10 @@ for (const size of SIZES) {
     errors.push(`${size.name}: ${r.status()} ${u.slice(0, 110)}`)
   })
   page.on('console', (m) => {
+    if (process.env.DEBUG_CLIP && m.text().startsWith('CLIP_DETAIL')) {
+      console.log(size.name, m.text())
+      return
+    }
     if (m.type() !== 'error') return
     const txt = m.text()
     if (/Failed to load resource/.test(txt)) return   // адрес пишет обработчик выше
@@ -857,10 +1067,35 @@ for (const size of SIZES) {
       }
       const track = page.locator('.g8-pl-track input')
       if (await track.count()) {
-        const min = await track.first().getAttribute('min')
-        await track.first().fill(String(min)).catch(() => {})
+        // По умолчанию (`slider: true`) едем к минимуму. `slider: { to }` —
+        // до конкретного значения: ParamPlot фиксирует слайдер по `checkAt`,
+        // и не всякий урок ждёт именно край дорожки (18-й ждёт ровно 9).
+        const target = (s.slider === true || s.slider.to === undefined)
+          ? await track.first().getAttribute('min')
+          : String(s.slider.to)
+        await track.first().fill(target).catch(() => {})
         await page.waitForTimeout(400)
       }
+    }
+    // ДОСТРОЕНИЕ ДО КВАДРАТА: "Kesish", потом "Biriktirish" — оба доступны
+    // по порядку, второй разблокируется только после первого.
+    if (s.squarecut) {
+      await tap(page.locator('.g8-sc-btn').nth(0), at)
+      await page.waitForTimeout(700)
+      await tap(page.locator('.g8-sc-btn').nth(1), at)
+      await page.waitForTimeout(700)
+    }
+    // ПАРА ПО СУММЕ И ПРОИЗВЕДЕНИЮ: два поля без своей кнопки, общая кнопка
+    // "Tekshirish" отдельно — генеральный `typeField` тут не подходит,
+    // потому что он ищет `.g8-field-go` у КАЖДОГО поля.
+    if (s.factorpair) {
+      const inputs = page.locator('.g8-fp-cells .g8-input')
+      for (let i = 0; i < s.factorpair.length; i += 1) {
+        await inputs.nth(i).fill(String(s.factorpair[i])).catch(() => {})
+      }
+      await page.waitForTimeout(200)
+      await tap(page.locator('.g8-fp-go'), at)
+      await page.waitForTimeout(500)
     }
     // ШАГИ ПРИБОРА ПО ПОРЯДКУ. У `Transform` с WhyStep на каждый шаг идёт
     // действие, потом ОСНОВАНИЕ (тот же `.g8-act`), потом запись. Отдельными
