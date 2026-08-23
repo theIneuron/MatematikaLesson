@@ -16,6 +16,7 @@
 //   npx vite --port 5261 --strictPort
 //   node scripts/grade7-overflow-audit.mjs            -- hamma darslar
 //   GRADE7_ONLY=dars28-formulalarni-qollash node ...   -- bitta dars
+//   GRADE7_W=390 GRADE7_H=745 node ...                 -- telefon
 //
 // Til: GRADE7_LANGS=uz,ru,en (defolt uz -- so'zlari eng uzun).
 // ============================================================================
@@ -27,6 +28,11 @@ const LANGS = (process.env.GRADE7_LANGS || 'uz').split(',')
 const ONLY = process.env.GRADE7_ONLY || ''
 const SLIDES = 15
 const H = Number(process.env.GRADE7_H || 768)
+// KENGLIK ham sozlanadi: telefon (390) mobil kontraktning o'zi
+// (src/books/MOBIL_DESKTOP_MOSLASH.md), va uni ham shu o'lchov bilan
+// tekshirish kerak. Ilgari kenglik 1366 da qotib turardi, ya'ni tekshiruv
+// FAQAT noutbukni ko'rardi.
+const W = Number(process.env.GRADE7_W || 1366)
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
 // Darslar ro'yxati reyestrdan olinadi: qo'lda yozilgan ro'yxat eskiradi.
@@ -46,7 +52,7 @@ for (const lang of LANGS) {
     let browser
     try {
     browser = await chromium.launch()
-    page = await browser.newPage({ viewport: { width: 1366, height: H } })
+    page = await browser.newPage({ viewport: { width: W, height: H } })
     await page.goto(`http://localhost:${PORT}/7-sinf/matematika/nazariy/${slug}?lang=${lang}`, { waitUntil: 'networkidle' })
     await sleep(600)
     for (let s = 1; s <= SLIDES; s += 1) {

@@ -184,9 +184,9 @@ const S3 = {
   fn: [{ id: 'l', f: (x) => 2 * x }],
   pick: { x: 0, y: 0 },
   caption: L(
-    "y = 2x grafigi chizilgan. Unda x nolga teng bo'lgan nuqtani belgilang.",
-    'График y = 2x нарисован. Отметь на нём точку, у которой x равен нулю.',
-    'The graph of y = 2x is drawn. Mark the point on it where x equals zero.',
+    "y = 2x grafigi chizilgan. x o'rniga nolni qo'ying, y ni toping, nuqtani grafikda belgilang.",
+    'График y = 2x нарисован. Подставь вместо x ноль, найди y, отметь точку на графике.',
+    'The graph of y = 2x is drawn. Put zero in place of x, find y, mark the point on the graph.',
   ),
   options: [
     { id: 'a', label: L('koordinatalar boshi', 'начало координат', 'the origin') },
@@ -207,7 +207,7 @@ const S3 = {
   ),
   audio: [
     A('mount', "Bu formulada faqat bitta had bor: k karra x. Qo'shiluvchi yo'q.", 'В этой формуле только один член: k на x. Слагаемого нет.', 'This formula has one term only: k times x. There is no addend.'),
-    A('mount', "x nolga teng bo'lgan nuqtani belgilang.", 'Отметь точку, у которой x равен нулю.', 'Mark the point where x equals zero.'),
+    A('mount', "x o'rniga nolni qo'ying, y ni toping va nuqtani grafikda belgilang.", 'Подставь вместо x ноль, найди y и отметь точку на графике.', 'Put zero in place of x, find y and mark the point on the graph.'),
     A('dot', "Nuqta ikki o'qning kesishgan joyiga tushdi.", 'Точка легла в место пересечения осей.', 'The point landed where the axes cross.'),
   ],
 }
@@ -304,9 +304,9 @@ const S6 = {
   fn: [{ id: 'p', f: (x) => -x }],
   pick: { x: 2, y: -2 },
   caption: L(
-    "y = −x grafigi chizilgan. x ikkiga teng bo'lgan nuqtani belgilang.",
-    'График y = −x нарисован. Отметь точку, у которой x равен двум.',
-    'The graph of y = −x is drawn. Mark the point where x equals two.',
+    "y = −x grafigi chizilgan. x o'rniga ikkini qo'ying, y ni toping, nuqtani grafikda belgilang.",
+    'График y = −x нарисован. Подставь вместо x двойку, найди y, отметь точку на графике.',
+    'The graph of y = −x is drawn. Put two in place of x, find y, mark the point on the graph.',
   ),
   options: [
     { id: 'a', label: L("ikkinchi va to'rtinchi chorak", 'вторая и четвёртая четверти', 'the second and fourth quadrants') },
@@ -327,7 +327,7 @@ const S6 = {
   ),
   audio: [
     A('mount', "Bu safar k manfiy bir. Chiziq pastga qiyalab ketadi.", 'На этот раз k равен минус одному. Прямая наклонена вниз.', 'This time k is minus one. The line tilts downward.'),
-    A('mount', "x ikkiga teng bo'lgan nuqtani belgilang.", 'Отметь точку, у которой x равен двум.', 'Mark the point where x equals two.'),
+    A('mount', "x o'rniga ikkini qo'ying, y ni toping va nuqtani grafikda belgilang.", 'Подставь вместо x двойку, найди y и отметь точку на графике.', 'Put two in place of x, find y and mark the point on the graph.'),
     A('dot', "Nuqta pastda chiqdi. Endi choraklarni ayting.", 'Точка вышла снизу. Теперь назови четверти.', 'The point came out below. Now name the quadrants.'),
   ],
 }

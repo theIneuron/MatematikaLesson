@@ -184,9 +184,9 @@ const S3 = {
   fn: [{ id: 'l', f: (x) => x - 2 }],
   pick: { x: 4, y: 2 },
   caption: L(
-    "y = x − 2 grafigi chizilgan. Unda x to'rtga teng bo'lgan nuqtani belgilang.",
-    'График y = x − 2 нарисован. Отметь на нём точку, у которой x равен четырём.',
-    'The graph of y = x − 2 is drawn. Mark the point on it where x equals four.',
+    "y = x − 2 grafigi chizilgan. x o'rniga to'rtni qo'ying, y ni toping, nuqtani grafikda belgilang.",
+    'График y = x − 2 нарисован. Подставь вместо x четвёрку, найди y, отметь точку на графике.',
+    'The graph of y = x − 2 is drawn. Put four in place of x, find y, mark the point on the graph.',
   ),
   options: [
     { id: 'a', label: L("formula ham xuddi shuni beradi", 'формула даёт то же самое', 'the formula gives the same') },
@@ -207,7 +207,7 @@ const S3 = {
   ),
   audio: [
     A('mount', "Birinchi yo'nalish -- qurish. Formula bor, nuqtani chizmaga qo'yamiz.", 'Первое направление это построение. Формула есть, точку ставим на чертёж.', 'The first direction is building. The formula is there, we place the point on the drawing.'),
-    A('mount', "x to'rtga teng bo'lgan nuqtani belgilang.", 'Отметь точку, у которой x равен четырём.', 'Mark the point where x equals four.'),
+    A('mount', "x o'rniga to'rtni qo'ying, y ni toping va nuqtani grafikda belgilang.", 'Подставь вместо x четвёрку, найди y и отметь точку на графике.', 'Put four in place of x, find y and mark the point on the graph.'),
     A('dot', "Endi tekshiring: formula ham xuddi shu qiymatni beradimi.", 'Теперь проверь: даёт ли формула то же значение.', 'Now check: does the formula give the same value.'),
   ],
 }
@@ -219,7 +219,7 @@ const S3 = {
 const S4 = {
   kind: 'plane',
   eyebrow: L("O'QIYMIZ", 'ЧИТАЕМ', 'READING'),
-  title: L('Chizmadan juftlikka', 'От чертежа к паре', 'From the drawing to the pair'),
+  title: L('Chizmadan koordinatalarga', 'От чертежа к координатам', 'From the drawing to the coordinates'),
   range: BOX,
   fn: [{ id: 'l', f: (x) => x - 2 }],
   dots: [{ x: -1, y: -3 }],
@@ -304,9 +304,9 @@ const S6 = {
   fn: [{ id: 'l', f: (x) => -2 * x + 2 }],
   pick: { x: 1, y: 0 },
   caption: L(
-    "y = −2x + 2 grafigi chizilgan. x birga teng bo'lgan nuqtani belgilang.",
-    'График y = −2x + 2 нарисован. Отметь точку, у которой x равен единице.',
-    'The graph of y = −2x + 2 is drawn. Mark the point where x equals one.',
+    "y = −2x + 2 grafigi chizilgan. x o'rniga birni qo'ying, y ni toping, nuqtani grafikda belgilang.",
+    'График y = −2x + 2 нарисован. Подставь вместо x единицу, найди y, отметь точку на графике.',
+    'The graph of y = −2x + 2 is drawn. Put one in place of x, find y, mark the point on the graph.',
   ),
   options: [
     { id: 'a', label: L("nuqta x o'qida turibdi", 'точка стоит на оси x', 'the point sits on the x axis') },
@@ -327,7 +327,7 @@ const S6 = {
   ),
   audio: [
     A('mount', "Bu safar k manfiy, va chiziq pastga qiyalab ketadi.", 'На этот раз k отрицательный, и прямая наклонена вниз.', 'This time k is negative, and the line tilts downward.'),
-    A('mount', "x birga teng bo'lgan nuqtani belgilang va u qayerga tushishini ko'ring.", 'Отметь точку при x равном единице и посмотри, куда она попадёт.', 'Mark the point at x equal to one and see where it lands.'),
+    A('mount', "x o'rniga birni qo'ying, y ni toping va nuqta qayerga tushishini ko'ring.", 'Подставь вместо x единицу, найди y и посмотри, куда попадёт точка.', 'Put one in place of x, find y and see where the point lands.'),
     A('dot', "Nuqta o'qning ustiga tushdi.", 'Точка легла на саму ось.', 'The point landed on the axis itself.'),
   ],
 }
@@ -340,7 +340,7 @@ const S7 = {
   kind: 'plane',
   role: 'explain',
   eyebrow: L('CHEGARAVIY HOLAT', 'ГРАНИЧНЫЙ СЛУЧАЙ', 'THE EDGE CASE'),
-  title: L('Kadr tugadi, grafik yo\'q', 'Кадр кончился, график нет', 'The frame ends, the graph does not'),
+  title: L('Chiziq kadr chetida tugaydimi', 'Кончается ли график у края кадра', 'Does the graph end at the frame edge'),
   range: BOX,
   fn: [{ id: 'l', f: (x) => x + 1 }],
   caption: L(
@@ -818,7 +818,7 @@ const S14 = {
 const S15 = {
   kind: 'wrap',
   eyebrow: L('YAKUN', 'ИТОГ', 'WRAP-UP'),
-  title: L('Ikki yo\'nalish', 'Два направления', 'Two directions'),
+  title: L("Qurish va o'qish -- teskari yo'llar", 'Построение и чтение — обратные пути', 'Building and reading are inverse paths'),
   gate: S1.gate,
   fix: {
     tokens: ['y', '=', '3'],

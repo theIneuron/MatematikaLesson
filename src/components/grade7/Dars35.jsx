@@ -186,9 +186,9 @@ const S3 = {
   fn: [{ id: 'l', f: (x) => x + 1 }],
   pick: { x: 2, y: 3 },
   caption: L(
-    "y = x + 1 grafigi chizilgan. Unda x ikkiga teng bo'lgan nuqtani belgilang.",
-    'График y = x + 1 нарисован. Отметь на нём точку, у которой x равен двум.',
-    'The graph of y = x + 1 is drawn. Mark the point on it where x equals two.',
+    "y = x + 1 grafigi chizilgan. x o'rniga ikkini qo'ying, y ni toping, nuqtani grafikda belgilang.",
+    'График y = x + 1 нарисован. Подставь вместо x двойку, найди y, отметь точку на графике.',
+    'The graph of y = x + 1 is drawn. Put two in place of x, find y, mark the point on the graph.',
   ),
   options: [
     { id: 'a', label: '3' },
@@ -209,7 +209,7 @@ const S3 = {
   ),
   audio: [
     A('mount', "Formulaning grafigi to'g'ri chiziq bo'ladi.", 'График формулы это прямая.', 'The graph of the formula is a straight line.'),
-    A('mount', "Chiziq ustida x ikkiga teng bo'lgan nuqtani belgilang.", 'Отметь на прямой точку, у которой x равен двум.', 'Mark the point on the line where x equals two.'),
+    A('mount', "x o'rniga ikkini qo'ying, y ni toping va nuqtani chiziq ustida belgilang.", 'Подставь вместо x двойку, найди y и отметь точку на прямой.', 'Put two in place of x, find y and mark the point on the line.'),
     A('dot', "Nuqta qo'yildi. Endi shu qiymatni formuladan ham oling.", 'Точка поставлена. Теперь получи это же значение из формулы.', 'The point is placed. Now get the same value from the formula.'),
   ],
 }
@@ -304,9 +304,9 @@ const S6 = {
   fn: [{ id: 'l', f: (x) => 2 * x - 3 }],
   pick: { x: 3, y: 3 },
   caption: L(
-    "y = 2x − 3 grafigi chizilgan. x uchga teng bo'lgan nuqtani belgilang.",
-    'График y = 2x − 3 нарисован. Отметь точку, у которой x равен трём.',
-    'The graph of y = 2x − 3 is drawn. Mark the point where x equals three.',
+    "y = 2x − 3 grafigi chizilgan. x o'rniga uchni qo'ying, y ni toping, nuqtani grafikda belgilang.",
+    'График y = 2x − 3 нарисован. Подставь вместо x тройку, найди y, отметь точку на графике.',
+    'The graph of y = 2x − 3 is drawn. Put three in place of x, find y, mark the point on the graph.',
   ),
   options: [
     { id: 'a', label: L('(3; 4) chiziqda turmaydi', '(3; 4) на прямой не лежит', '(3; 4) does not lie on the line') },
@@ -327,7 +327,7 @@ const S6 = {
   ),
   audio: [
     A('mount', "Bu safar koeffitsiyent ikki, va chiziq tikroq ketadi.", 'На этот раз коэффициент два, и прямая идёт круче.', 'This time the coefficient is two, and the line runs steeper.'),
-    A('mount', "x uchga teng bo'lgan nuqtani belgilang.", 'Отметь точку, у которой x равен трём.', 'Mark the point where x equals three.'),
+    A('mount', "x o'rniga uchni qo'ying, y ni toping va nuqtani grafikda belgilang.", 'Подставь вместо x тройку, найди y и отметь точку на графике.', 'Put three in place of x, find y and mark the point on the graph.'),
     A('dot', "Endi savolga javob bering: yaqin nuqta ham chiziqda turadimi.", 'Теперь ответь на вопрос: лежит ли на прямой соседняя точка.', 'Now answer: does the neighbouring point lie on the line.'),
   ],
 }

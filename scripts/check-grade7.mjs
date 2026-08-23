@@ -75,6 +75,15 @@ const listJsx = async (dir, prefix = '') => {
 
 const all = await listJsx(DIR)
 const skipped = all.filter((f) => SKIP.has(f))
+
+//
+// 2026-08-22 da bu xato uch marta takrorlandi: CSS izohida teskari apostrof
+// yozilgan, shablon satri uzilgan, va `.g7-dl` yoki `.g7-expr` kabi yozuv
+// JS ifodasi bo'lib qolgan -- «dl is not defined», «expr is not defined».
+// Dars BO'SH SAHIFA bo'ladi. `npm run build` bunda muvaffaqiyatli tugaydi,
+// chunki chiqqan ifoda sintaktik jihatdan to'g'ri. Shuning uchun qo'riqchi
+// STATIK tekshiruvda turadi.
+// ============================================================================
 const files = all.filter((f) => !SKIP.has(f))
 
 // STYLES ichida TESKARI APOSTROF. `export const STYLES = ` ... ` ` -- shablon
