@@ -252,6 +252,35 @@ SCREENS.forEach((s, i) => {
   })
 })
 
+// ПРОИЗНОСИМЫЕ ПОЛЯ ВНЕ audio[]. hint / after / broke / zeroNote / ok /
+// wrongHint / nextSay и содержимое словаря hints читаются вслух самим
+// прибором (audio.say), а не только сегменты из audio[] — запрет на
+// символы обязан работать и здесь. Проверка выше его не видела: уроки
+// 15-22 (2026-08-22) везли десятки скрытых нарушений именно в hint у
+// неверных вариантов. Список — не выдумка, а сверка с audio.say(...) в
+// каждом приборе слоя.
+const SPOKEN_PROP_KEYS = new Set([
+  'after', 'broke', 'zeroNote', 'hint', 'hintSumOff', 'hintProductOff',
+  'hintBothOff', 'wrongHint', 'ok', 'nextSay', 'afterSay',
+])
+SCREENS.forEach((s, i) => {
+  walk(s, (l, trail) => {
+    // Обычное поле: путь кончается на .hint / .after / ... Словарь hints
+    // с ключами-числами ('1.5', '4'): путь проходит ЧЕРЕЗ .hints., ключ
+    // самого поля тут не важен — вложенное значение говорится целиком.
+    const lastKey = (trail.match(/\.([A-Za-z]+)(?:\[\d+\])?$/) || [])[1]
+    const direct = lastKey && SPOKEN_PROP_KEYS.has(lastKey)
+    const viaHints = /\.hints\.|\.hints\[/.test(trail)
+    if (!direct && !viaHints) return
+    for (const lang of LANGS) {
+      const text = String(l[lang] || '')
+      const m = text.match(AUDIO_BAN)
+      if (m) bad(`экран ${i + 1}${trail} (${lang}): в произносимом поле символ «${m[0]}» (§20 п. 26)`)
+      if (PRAISE.test(text)) bad(`экран ${i + 1}${trail} (${lang}): похвала в произносимом поле (§20 п. 28)`)
+    }
+  })
+})
+
 // Сегмент, который ждёт события, обязан иметь СВОЁ событие: имя должно
 // встречаться в приборах. Иначе он молчит навсегда (10 класс, 2026-08-12).
 const TOOLS_SRC = fs.readFileSync(path.resolve('src/components/grade8/tools.jsx'), 'utf8')
@@ -259,6 +288,28 @@ const EVENT_OK = new Set([
   'guess', 'sub1', 'sub2', 'ask', 'card', 'proof',
   // TapPart: qismni bosish, sonni qo'yish, chiziqning uzilishi, savol, ODZ
   'p1', 'p2', 'p3', 'p4', 'odz',
+  // SquareCut: kesish va biriktirish (Б3, уроки 17, 22)
+  'cut', 'attach',
+  // ModulusFold: rastvor maqsadga tortildi (Б4, урок 29)
+  'fold',
+  // StandardForm: vergul maqsad joyiga tushdi (Б5, урок 33)
+  'point',
+  // FreqTable: barcha xom qiymatlar ustunlarga tarqaldi (Б5, урок 34)
+  'tally',
+  // DataDrag: mediana nihoyat siljidi (Б5, урок 35)
+  'shift',
+  // TreeBuild: shoxlardan biri nolga tushib, yaproq qolmadi (Б5, урок 36)
+  'branch',
+  // GeoFigure: nishon belgilandi; ProofLines: asos tanlandi (Б6, урок 37+)
+  'mark', 'reason',
+  // AreaCut: uchburchak to'liq ko'chirildi, to'rtburchak hosil bo'ldi (Б6, урок 40+)
+  'cut',
+  // SquareSwap: to'rt uchburchak qayta joylashtirildi, a² va b² ochildi (Б7, урок 44+)
+  'swap',
+  // CircleFigure: to'g'ri yoy bosildi (Б7, aylana qismi, урок 48+)
+  'arc',
+  // VectorFigure: to'g'ri vektor bosildi (Б7, vektor qismi, урок 53+)
+  'vec',
 ])
 SCREENS.forEach((s, i) => {
   (s.audio || []).forEach((seg) => {
@@ -274,6 +325,7 @@ SCREENS.forEach((s, i) => {
       || /^c\d+$/.test(seg.on)   // Chain: звено цепочки
       || /^w\d+$/.test(seg.on)   // TwoWays: кадр способа
       || /^d\d+$/.test(seg.on)   // Drill: задание цепочки
+      || /^v\d+$/.test(seg.on)   // FactorPair: попытка подбора пары
     if (!known) bad(`экран ${i + 1}: сегмент «${seg.on}» ждёт события, которого приборы не посылают`)
   })
 })
@@ -410,6 +462,177 @@ SCREENS.forEach((s, i) => {
       const v = Math.pow(p.base, r.e)
       if (!isFinite(v)) bad(`${at}, ступень ${k + 1}: значение не считается (основание ${p.base}, показатель ${r.e})`)
     })
+  }
+  // ДОСТРОЕНИЕ ДО КВАДРАТА: b обязан быть числом, кнопки подписаны, а
+  // числовое поле «чему равна дырка» идёт через p.fields — его ОБЩИЙ цикл
+  // выше уже прогнал через ядро, здесь только структура самого прибора.
+  if (s.tool === 'squarecut') {
+    if (typeof p.b !== 'number' || !isFinite(p.b) || p.b <= 0) {
+      bad(`${at}: у SquareCut нет положительного числового b`)
+    }
+    if (!p.cutLabel) bad(`${at}: не подписана кнопка «разрезать»`)
+    if (!p.attachLabel) bad(`${at}: не подписана кнопка «приложить»`)
+    if (!Array.isArray(p.fields) || !p.fields.length) {
+      bad(`${at}: у SquareCut нет поля «чему равна дырка» (p.fields)`)
+    }
+  }
+  // ПАРА ПО СУММЕ И ПРОИЗВЕДЕНИЮ: цель числовая, и на КАЖДЫЙ из трёх исходов
+  // подбора — сумма мимо, произведение мимо, оба мимо — должен быть свой
+  // разбор (§2.2.3, диагностика точечная).
+  if (s.tool === 'factorpair') {
+    if (!p.target || typeof p.target.sum !== 'number' || typeof p.target.product !== 'number') {
+      bad(`${at}: у FactorPair нет числовой цели target.sum/target.product`)
+    }
+    if (!p.ask) bad(`${at}: у FactorPair нет вопроса`)
+    if (!p.hintSumOff) bad(`${at}: нет разбора на случай «сумма мимо»`)
+    if (!p.hintProductOff) bad(`${at}: нет разбора на случай «произведение мимо»`)
+    if (!p.hintBothOff) bad(`${at}: нет разбора на случай «оба мимо»`)
+  }
+  // МОДУЛЬ КАК РАССТОЯНИЕ: центр и цель числовые, режим один из трёх, и
+  // числовое поле ответа задано (p.fields — общий цикл выше уже прогнал его
+  // через ядро, здесь только структура самого прибора).
+  if (s.tool === 'modulusfold') {
+    if (typeof p.c !== 'number' || !isFinite(p.c)) bad(`${at}: у ModulusFold нет числового центра c`)
+    if (typeof p.target !== 'number' || !isFinite(p.target) || p.target <= 0) {
+      bad(`${at}: у ModulusFold нет положительной числовой цели target (радиус)`)
+    }
+    if (typeof p.min !== 'number' || typeof p.max !== 'number' || p.min >= p.max) {
+      bad(`${at}: у ModulusFold нет корректных границ min/max числовой прямой`)
+    }
+    if (['eq', 'lt', 'gt'].indexOf(p.mode || 'eq') === -1) {
+      bad(`${at}: у ModulusFold mode должен быть eq, lt или gt`)
+    }
+    if (!Array.isArray(p.fields) || !p.fields.length) {
+      bad(`${at}: у ModulusFold нет поля ответа (p.fields)`)
+    }
+  }
+  // ЗАПЯТАЯ ДВИГАЕТСЯ САМА: цифры — непустой массив однозначных строк, режим
+  // big/small, start/target — позиции внутри digits, и цель обязана быть
+  // ДОСТИЖИМА (в границах 0..digits.length, а не за ними).
+  if (s.tool === 'standardform') {
+    if (!Array.isArray(p.digits) || !p.digits.length) {
+      bad(`${at}: у StandardForm нет цифр (p.digits)`)
+    } else {
+      if (['big', 'small'].indexOf(p.mode || 'big') === -1) {
+        bad(`${at}: у StandardForm mode должен быть big или small`)
+      }
+      if (typeof p.start !== 'number' || p.start < 0 || p.start > p.digits.length) {
+        bad(`${at}: у StandardForm start вне границ 0..digits.length`)
+      }
+      if (typeof p.target !== 'number' || p.target < 0 || p.target > p.digits.length) {
+        bad(`${at}: у StandardForm target вне границ 0..digits.length`)
+      }
+      if (p.start === p.target) bad(`${at}: у StandardForm start совпадает с target, шага нет`)
+    }
+    if (!Array.isArray(p.fields) || !p.fields.length) {
+      bad(`${at}: у StandardForm нет поля ответа (p.fields)`)
+    }
+  }
+  // ЧАСТОТЫ ПО СТОЛБЦАМ: сырые данные и столбцы согласованы (каждое сырое
+  // значение обязано найтись среди значений столбцов, иначе тап никуда не
+  // попадёт и экран не соберётся), и поле ответа задано.
+  if (s.tool === 'freqtable') {
+    if (!Array.isArray(p.raw) || !p.raw.length) {
+      bad(`${at}: у FreqTable нет сырых данных (p.raw)`)
+    }
+    if (!Array.isArray(p.values) || !p.values.length) {
+      bad(`${at}: у FreqTable нет списка значений столбцов (p.values)`)
+    }
+    if (Array.isArray(p.raw) && Array.isArray(p.values)) {
+      const miss = p.raw.filter((v) => p.values.indexOf(v) === -1)
+      if (miss.length) bad(`${at}: у FreqTable сырое значение ${miss[0]} не входит в p.values`)
+    }
+    if (!Array.isArray(p.fields) || !p.fields.length) {
+      bad(`${at}: у FreqTable нет поля ответа (p.fields)`)
+    }
+  }
+  // СРЕДНЕЕ УЕЗЖАЕТ, МЕДИАНА СТОИТ: фиксированные точки заданы, движение
+  // одной точки задано границами, и цель по среднему числовая.
+  if (s.tool === 'datadrag') {
+    if (!Array.isArray(p.fixed) || !p.fixed.length) {
+      bad(`${at}: у DataDrag нет фиксированных точек (p.fixed)`)
+    }
+    if (typeof p.start !== 'number' || typeof p.min !== 'number' || typeof p.max !== 'number' || p.min > p.max) {
+      bad(`${at}: у DataDrag неверные границы start/min/max`)
+    }
+    if (!Array.isArray(p.goals) || !p.goals.length) {
+      bad(`${at}: у DataDrag нет целей по среднему (p.goals)`)
+    }
+    if (!Array.isArray(p.fields) || !p.fields.length) {
+      bad(`${at}: у DataDrag нет поля ответа (p.fields)`)
+    }
+  }
+  // ДЕРЕВО ВАРИАНТОВ: цели по произведению веток числовые, и поле ответа
+  // задано.
+  if (s.tool === 'treebuild') {
+    if (!Array.isArray(p.goals) || !p.goals.length) {
+      bad(`${at}: у TreeBuild нет целей по числу листьев (p.goals)`)
+    }
+    if (!Array.isArray(p.fields) || !p.fields.length) {
+      bad(`${at}: у TreeBuild нет поля ответа (p.fields)`)
+    }
+  }
+  // ЧЕРТЁЖ С ТАПОМ: вершины и порядок обхода заданы, и хотя бы один шаг
+  // разметки описан.
+  if (s.tool === 'geofigure') {
+    if (!p.points || typeof p.points !== 'object') bad(`${at}: у GeoFigure нет вершин (p.points)`)
+    if (!Array.isArray(p.order) || p.order.length < 3) bad(`${at}: у GeoFigure нет порядка обхода (p.order)`)
+    if (!Array.isArray(p.steps) || !p.steps.length) bad(`${at}: у GeoFigure нет ни одного шага разметки (p.steps)`)
+  }
+  // ДОКАЗАТЕЛЬСТВО НА ЧЕРТЕЖЕ: дано и цель заданы, и хотя бы одна строка
+  // с обоснованием, где верный вариант присутствует.
+  if (s.tool === 'prooflines') {
+    if (!p.points || typeof p.points !== 'object') bad(`${at}: у ProofLines нет вершин (p.points)`)
+    if (!Array.isArray(p.given) || !p.given.length) bad(`${at}: у ProofLines нет условия «дано» (p.given)`)
+    if (!p.goal) bad(`${at}: у ProofLines нет условия «доказать» (p.goal)`)
+    if (!Array.isArray(p.lines) || !p.lines.length) {
+      bad(`${at}: у ProofLines нет строк доказательства (p.lines)`)
+    } else {
+      p.lines.forEach((ln, k) => {
+        if (!Array.isArray(ln.options) || !ln.options.some((o) => o.right)) {
+          bad(`${at}: у ProofLines строка ${k + 1} без верного обоснования`)
+        }
+      })
+    }
+  }
+  // ПЛОЩАДЬ ПЕРЕКРОЙКОЙ: основание и высота числовые и положительные, диапазон
+  // сдвига заведён, и поле ответа задано.
+  if (s.tool === 'areacut') {
+    if (typeof p.base !== 'number' || p.base <= 0) bad(`${at}: у AreaCut нет положительного числового основания (p.base)`)
+    if (typeof p.height !== 'number' || p.height <= 0) bad(`${at}: у AreaCut нет положительной числовой высоты (p.height)`)
+    if (typeof p.shiftStart !== 'number' || typeof p.shiftMax !== 'number' || p.shiftStart > p.shiftMax) {
+      bad(`${at}: у AreaCut неверный диапазон сдвига (shiftStart/shiftMax)`)
+    }
+    if (!Array.isArray(p.fields) || !p.fields.length) bad(`${at}: у AreaCut нет поля ответа (p.fields)`)
+  }
+  // PIFAGOR KVADRATI: katetlar musbat sonli, va javob maydoni berilgan.
+  if (s.tool === 'squareswap') {
+    if (typeof p.a !== 'number' || p.a <= 0) bad(`${at}: у SquareSwap нет положительного числового катета (p.a)`)
+    if (typeof p.b !== 'number' || p.b <= 0) bad(`${at}: у SquareSwap нет положительного числового катета (p.b)`)
+    if (!Array.isArray(p.fields) || !p.fields.length) bad(`${at}: у SquareSwap нет поля ответа (p.fields)`)
+  }
+  // AYLANA CHERTYOZHI: nuqtalar bor, tanlangan juft ham shu nuqtalar ichida.
+  if (s.tool === 'circlefigure') {
+    if (!p.points || typeof p.points !== 'object' || Object.keys(p.points).length < 2) {
+      bad(`${at}: у CircleFigure меньше двух точек (p.points)`)
+    }
+    if (!Array.isArray(p.pair) || p.pair.length !== 2) bad(`${at}: у CircleFigure нет пары точек для дуги (p.pair)`)
+    else if (p.points && (!(p.pair[0] in p.points) || !(p.pair[1] in p.points))) {
+      bad(`${at}: у CircleFigure пара (p.pair) ссылается на несуществующую точку`)
+    }
+    if (p.target !== 'minor' && p.target !== 'major') bad(`${at}: у CircleFigure p.target бывает только minor или major`)
+  }
+  // VEKTOR CHERTYOZHI: nuqtalar bor, vektorlar ro'yxati va target shu
+  // nuqtalarga ishora qiladi.
+  if (s.tool === 'vectorfigure') {
+    if (!p.points || typeof p.points !== 'object' || Object.keys(p.points).length < 2) {
+      bad(`${at}: у VectorFigure меньше двух точек (p.points)`)
+    }
+    if (!Array.isArray(p.vectors) || !p.vectors.length) bad(`${at}: у VectorFigure нет списка векторов (p.vectors)`)
+    if (!Array.isArray(p.target) || p.target.length !== 2) bad(`${at}: у VectorFigure нет цели (p.target)`)
+    else if (p.points && (!(p.target[0] in p.points) || !(p.target[1] in p.points))) {
+      bad(`${at}: у VectorFigure цель (p.target) ссылается на несуществующую точку`)
+    }
   }
   // ЧЕТЫРЕ ОКНА: связь одна, и разбор не должен срабатывать на верном числе.
   // Проверять `accepts` тут нечего — ответ ЧИСЛО, а не запись; поэтому

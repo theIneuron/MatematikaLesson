@@ -1,51 +1,76 @@
-// Dars40 · Amaliyot 06 — Harf bilan · 🟡 · build · tag: seg_letter
-// Mexanika: kit.jsx -> BuildLine. Raskladka: 6-o'rin.
-// AC = 3x, CB = 12, AB = 27 -> 3x + 12 = 27 -> 3x = 15 -> x = 5.
+// Dars40 · Amaliyot 06 — Bissektrisa va qo'shni · 🟡 · build · tag: ang_bisector
+// Mexanika: kit.jsx -> BuildLine. Raskladka: 6-o'rin `build`.
+// AOB = 124° -> bissektrisa 62° -> uning qo'shnisi 180 − 62 = 118°.
 import React from 'react';
 import { BuildLine, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'seg_letter', level: '🟡',
-  eyebrow: L('Harf bilan', 'С буквой', 'With a letter'),
+  tag: 'ang_bisector',
+  level: '🟡',
+  eyebrow: L(
+    'Bissektrisa',
+    'Биссектриса',
+    'The bisector'),
   setup: L(
-    "Bo'laklardan biri harf bilan berilgan. Kesma tengligi tenglama beradi va uni yechish kerak.",
-    'Одна из частей задана буквой. Равенство отрезков даёт уравнение, его надо решить.',
-    'One part carries a letter. The segment equality gives an equation to solve.'),
-  given: [['AC', '=', '3x'], ['CB', '=', '12'], ['AB', '=', '27']],
-  givenLabel: L('Berilgan:', 'Дано:', 'Given:'),
+    "Bissektrisa burchakni ikki teng bo'lakka bo'ladi. Ikki qiymat so'raladi: bissektrisa bergan burchak va uning qo'shnisi.",
+    'Биссектриса делит угол на две равные части. Спрашивают два значения: угол от биссектрисы и его смежный.',
+    'A bisector splits the angle in half. Two values are asked: the half-angle and its adjacent angle.'),
+  given: [['124°']],
+  givenLabel: L(
+    'Burchak AOB:',
+    'Угол AOB:',
+    'Angle AOB:'),
   cards: [
-    { id: 'a', label: '3x + 12 = 27' },
-    { id: 'b', label: '3x = 15' },
-    { id: 'c', label: 'x = 5' },
-    { id: 'd', label: '3x = 39' },
-    { id: 'e', label: 'x = 13' },
+    { id: 'a', label: '62°' },
+    { id: 'b', label: '118°' },
+    { id: 'c', label: '56°' },
+    { id: 'd', label: '28°' },
   ],
-  answerSeq: ['a', 'b', 'c'],
-  empty: L("Uch qadamni tartib bilan qo'ying", 'Поставь три шага по порядку', 'Place the three steps in order'),
-  ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+  answerSeq: ['a', 'b'],
+  fieldH: 44,
+  ask: L(
+    "Kartani bosish uni chiziqqa qo'yadi.",
+    'Нажатие на карточку ставит её в строку.',
+    'Tapping a card puts it in the line.'),
+  empty: L(
+    'Kartalarni bosib javobni tuzing',
+    'Нажимай карточки и собери ответ',
+    'Tap the cards to build the answer'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. 3x + 12 = 27 -> 3x = 15 -> x = 5. Tekshirish: AC = 15, 15 + 12 = 27.",
-    'Верно. 3x + 12 = 27 → 3x = 15 → x = 5. Проверка: AC = 15, 15 + 12 = 27.',
-    'Correct. 3x + 12 = 27 → 3x = 15 → x = 5. Check: AC = 15 and 15 + 12 = 27.'),
+    "To'g'ri. 124 : 2 = 62, keyin 180 − 62 = 118.",
+    'Верно. 124 : 2 = 62, затем 180 − 62 = 118.',
+    'Correct. 124 : 2 = 62, then 180 − 62 = 118.'),
   wrongs: [
-    { when: (s) => s.seq.indexOf('d') !== -1 || s.seq.indexOf('e') !== -1, text: L(
-      "Ko'chirishda ishora almashadi: 12 o'ng tomonga o'tsa ayiriladi, 27 − 12 = 15.",
-      'При переносе знак меняется: 12 справа вычитается, 27 − 12 = 15.',
-      'Moving flips the sign: the 12 is subtracted on the right, 27 − 12 = 15.') },
-    { when: (s) => s.seq.length === 3, text: L(
-      "Qadamlar to'g'ri, tartibi boshqa: tenglama, ko'chirish, ildiz.",
-      'Шаги верные, но порядок другой: уравнение, перенос, корень.',
-      'The steps are right but the order is not: equation, move, root.') },
-    { when: (s) => s.seq.length < 3, text: L(
-      "Uch qadam bo'lishi kerak.",
-      'Должно быть три шага.',
-      'There must be three steps.') },
+    {
+      when: (s) => s.seq.indexOf('c') !== -1,
+      text: L(
+        "56° bu 180 − 124, ya'ni butun burchakning qo'shnisi. Bissektrisadan keyin 62 bilan ishlanadi.",
+        '56° это 180 − 124, смежный целого угла. После биссектрисы работаем с 62.',
+        '56° is 180 − 124, adjacent to the whole angle. After the bisector we work with 62.'),
+    },
+    {
+      when: (s) => s.seq.indexOf('d') !== -1,
+      text: L(
+        "28° chiqishi uchun 56 ikkiga bo'lingan. Bissektrisa berilgan burchakni bo'ladi: 124 : 2.",
+        'Чтобы вышло 28, делили 56. Биссектриса делит данный угол: 124 : 2.',
+        '28° halves 56. The bisector halves the given angle: 124 : 2.'),
+    },
+    {
+      when: (s) => s.seq.length < 2,
+      text: L(
+        "Ikki karta kerak: bissektrisa bergan burchak va uning qo'shnisi.",
+        'Нужны две карточки: угол от биссектрисы и его смежный.',
+        'Two cards are needed: the half-angle and its adjacent angle.'),
+    },
   ],
   wrongText: L(
-    "AC + CB = AB tengligini yozing va tenglamani yeching.",
-    'Запиши равенство AC + CB = AB и реши уравнение.',
-    'Write AC + CB = AB and solve the equation.'),
+    "Avval 124 ni ikkiga bo'ling, keyin chiqqan burchakni 180 dan ayiring.",
+    'Сначала раздели 124 на два, потом вычти полученный угол из 180.',
+    'Halve 124 first, then subtract that angle from 180.'),
 };
 
 export default function D40_06(props) { return <BuildLine data={DATA} {...props} />; }

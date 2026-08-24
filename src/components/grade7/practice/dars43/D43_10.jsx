@@ -1,47 +1,76 @@
-// Dars43 · Amaliyot 10 — Moslikni yozish · 🔴 · bracket · tag: eq_bracket
-// Mexanika: kit.jsx -> BuildLine (qavs kartalari). Raskladka: 10-o'rin.
-// Teng uchburchaklarda mos tomonlar tengligi: AB = A₁B₁.
-// Tuzoq: AB = B₁C₁ -- mos bo'lmagan tomonlar.
+// Dars43 · Amaliyot 10 — Xossani yozish · 🔴 · bracket · tag: iso_bracket
+// Mexanika: kit.jsx -> BuildLine. Raskladka: 10-o'rin `bracket`.
+// Asosi AC bo'lgan teng yonli uchburchakda asosdagi burchaklar A va C: burchak A = burchak C.
 import React from 'react';
 import { BuildLine, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'eq_bracket', level: '🔴',
-  eyebrow: L('Moslik', 'Соответствие', 'Correspondence'),
+  tag: 'iso_bracket',
+  level: '🔴',
+  eyebrow: L(
+    'Xossani yozish',
+    'Записать свойство',
+    'Write the property'),
   setup: L(
-    "Teng uchburchaklarda MOS tomonlar teng bo'ladi. Harflar tartibi mosligni ko'rsatadi: A ga A₁, B ga B₁.",
-    'У равных треугольников равны СООТВЕТСТВЕННЫЕ стороны. Порядок букв показывает соответствие: A с A₁, B с B₁.',
-    'Equal triangles have equal CORRESPONDING sides. The letter order shows the match: A with A₁, B with B₁.'),
-  given: [['ABC', '=', 'A₁B₁C₁']],
-  givenLabel: L('Berilgan:', 'Дано:', 'Given:'),
+    "Asos AC, ya'ni asosdagi burchaklar A va C uchida turadi. B esa uchidagi burchak.",
+    'Основание AC, значит углы при основании стоят при A и C. А B это угол при вершине.',
+    'The base is AC, so the base angles sit at A and C. B is the apex angle.'),
+  given: [['asos', '=', 'AC']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
   cards: [
-    { id: 'a', label: 'AB' },
-    { id: 'b', label: '= A₁B₁' },
-    { id: 'c', label: '= B₁C₁' },
-    { id: 'd', label: 'BC' },
+    { id: 'a', label: 'burchak A' },
+    { id: 'b', label: '= burchak C' },
+    { id: 'c', label: '= burchak B' },
+    { id: 'd', label: '= 90°' },
   ],
   answerSeq: ['a', 'b'],
-  empty: L("Tenglikni tuzing", 'Составь равенство', 'Build the equality'),
-  ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+  fieldH: 44,
+  ask: L(
+    "Kartani bosish uni chiziqqa qo'yadi.",
+    'Нажатие на карточку ставит её в строку.',
+    'Tapping a card puts it in the line.'),
+  empty: L(
+    'Kartalarni bosib javobni tuzing',
+    'Нажимай карточки и собери ответ',
+    'Tap the cards to build the answer'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. AB = A₁B₁: harflar joyi bir xil, ya'ni tomonlar mos.",
-    'Верно. AB = A₁B₁: буквы на тех же местах, значит стороны соответственные.',
-    'Correct. AB = A₁B₁: the letters sit in the same places, so the sides correspond.'),
+    "To'g'ri. Asos AC bo'lsa, asosdagi burchaklar A va C, ya'ni burchak A = burchak C.",
+    'Верно. Если основание AC, то углы при основании это A и C, значит угол A = угол C.',
+    'Correct. With base AC the base angles are A and C, so angle A equals angle C.'),
   wrongs: [
-    { when: (s) => s.seq.indexOf('c') !== -1 && s.seq.indexOf('a') !== -1, text: L(
-      "AB va B₁C₁ mos tomonlar emas: AB ga A₁B₁ mos keladi, BC ga esa B₁C₁.",
-      'AB и B₁C₁ не соответственные: AB отвечает A₁B₁, а BC отвечает B₁C₁.',
-      'AB and B₁C₁ do not correspond: AB matches A₁B₁, and BC matches B₁C₁.') },
-    { when: (s) => s.seq.length < 2, text: L(
-      "Tenglik ikki bo'lakdan iborat.",
-      'Равенство состоит из двух частей.',
-      'The equality has two parts.') },
+    {
+      when: (s) => s.seq.indexOf('c') !== -1,
+      text: L(
+        'B -- uchidagi burchak, u asosdagi burchaklardan farq qiladi.',
+        'B это угол при вершине, он отличается от углов при основании.',
+        'B is the apex angle and differs from the base angles.'),
+    },
+    {
+      when: (s) => s.seq.indexOf('d') !== -1,
+      text: L(
+        "90° hech qanday shartda berilmagan: teng yonli uchburchak to'g'ri burchakli bo'lishi shart emas.",
+        '90° нигде не дано: равнобедренный не обязан быть прямоугольным.',
+        '90° is nowhere given: an isosceles triangle need not be right-angled.'),
+    },
+    {
+      when: (s) => s.seq.length < 2,
+      text: L(
+        'Ikki karta kerak.',
+        'Нужны две карточки.',
+        'Two cards are needed.'),
+    },
   ],
   wrongText: L(
-    "Uchburchaklar yozuvidagi harflar tartibiga qarang: AB ga qaysi tomon mos keladi?",
-    'Смотри на порядок букв в записи треугольников: какая сторона отвечает AB?',
-    'Look at the letter order in the triangle names: which side matches AB?'),
+    'Asosning uchlarini qarang: qaysi harflar asosda turibdi?',
+    'Посмотри на концы основания: какие буквы стоят при нём?',
+    'Look at the ends of the base: which letters sit there?'),
 };
 
 export default function D43_10(props) { return <BuildLine data={DATA} {...props} />; }

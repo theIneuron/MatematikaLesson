@@ -1,45 +1,67 @@
-// Dars48 · Amaliyot 09 — Ikkiga bo'lish tashlab ketilgan · 🔴 · fix · tag: area_fix
-// Mexanika: kit.jsx -> TapTerms. Raskladka: 9-o'rin.
-// Uchburchak asos 10, balandlik 4: S = 20. Chuqur javob 40 -- ikkiga bo'lish
-// tashlab ketilgan.
+// Dars48 · Amaliyot 09 — Bo'lmaydigan uchburchak · 🔴 · fix · tag: rev_fix
+// Mexanika: kit.jsx -> TapTerms. Raskladka: 9-o'rin `fix`.
+// Teng yonli uchburchakda asos burchagi 100° bo'lolmaydi: 100 + 100 = 200 > 180. Xato qadam -- birinchisi.
 import React from 'react';
 import { TapTerms, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'area_fix', level: '🔴',
-  eyebrow: L('Xato bo\'lak', 'Неверная часть', 'The wrong part'),
+  tag: 'rev_fix',
+  level: '🔴',
+  eyebrow: L(
+    'Xato qadam',
+    'Неверный шаг',
+    'The wrong step'),
   setup: L(
-    "Boshqa o'quvchi uchburchak yuzasini hisobladi. Ko'paytirish to'g'ri, oxirgi qadam esa tushib qolgan.",
-    'Другой ученик посчитал площадь треугольника. Умножение верное, а последний шаг потерян.',
-    'Another pupil found a triangle area. The multiplication is right; the last step went missing.'),
-  given: [['asos', '=', '10'], ['balandlik', '=', '4']],
-  givenLabel: L('Berilgan:', 'Дано:', 'Given:'),
-  ask: L("NOTO'G'RI bo'lakni belgilang.", 'Отметь НЕВЕРНУЮ часть.', 'Mark the WRONG part.'),
-  note: L('Bitta bo\'lak.', 'Одна часть.', 'One part.'),
+    "O'quvchi teng yonli uchburchak bilan ishladi. Uch qadamdan biri boshidan noto'g'ri: shunday uchburchak mavjud emas.",
+    'Ученик работал с равнобедренным треугольником. Один из трёх шагов неверен с самого начала: такого треугольника нет.',
+    'A pupil worked with an isosceles triangle. One of the three steps is wrong from the start: no such triangle exists.'),
+  ask: L(
+    "NOTO'G'RI qadamni belgilang.",
+    'Отметь НЕВЕРНЫЙ шаг.',
+    'Mark the WRONG step.'),
+  note: L(
+    'Bitta qadam.',
+    'Один шаг.',
+    'One step.'),
   parts: [
-    { k: 'term', id: 't1', v: '10 · 4 = 40' },
-    { k: 'sign', v: '→' },
-    { k: 'term', id: 't2', v: 'S = 40' },
+    { k: 'term', id: 't1', v: 'asos burchagi 100°' },
+    { k: 'sign', v: ' ' },
+    { k: 'term', id: 't2', v: 'ikkinchi asos burchagi ham 100°' },
+    { k: 'sign', v: ' ' },
+    { k: 'term', id: 't3', v: 'uchidagi burchak 180 − 200' },
   ],
-  want: ['t2'],
+  want: ['t1'],
   correctText: L(
-    "To'g'ri. 40 bu to'rtburchak yuzasi. Uchburchak uning yarmi: S = 20.",
-    'Верно. 40 это площадь прямоугольника. Треугольник это половина: S = 20.',
-    'Correct. 40 is the rectangle area. The triangle is half: S = 20.'),
+    "To'g'ri. Xato boshida: asos burchagi 100 bo'lsa, ikkinchisi ham 100 va yig'indi 180 dan oshadi. Asos burchagi 90 dan kichik bo'lishi kerak.",
+    'Верно. Ошибка в начале: если угол при основании 100, второй тоже 100 и сумма превысит 180. Угол при основании должен быть меньше 90.',
+    'Correct. The flaw is at the start: a base angle of 100 forces another 100 and the sum exceeds 180. A base angle must be below 90.'),
   wrongs: [
-    { when: (s) => s.extra.indexOf('t1') !== -1, text: L(
-      "10 · 4 = 40 to'g'ri hisoblangan: xato keyingi qadamda.",
-      '10 · 4 = 40 посчитано верно: ошибка на следующем шаге.',
-      '10 · 4 = 40 is right: the error is in the next step.') },
-    { when: (s) => s.miss.length > 0, text: L(
-      "Uchburchak formulasini eslang: oxirida qanday amal turadi?",
-      'Вспомни формулу треугольника: какое действие стоит в конце?',
-      'Recall the triangle formula: which action comes last?') },
+    {
+      when: (s) => s.extra.indexOf('t2') !== -1,
+      text: L(
+        'Ikkinchi asos burchagi birinchisiga teng -- bu qadam xossaga mos, xato bundan oldinda.',
+        'Второй угол при основании равен первому — этот шаг по свойству верен, ошибка раньше.',
+        'The second base angle equals the first, which follows the property; the flaw is earlier.'),
+    },
+    {
+      when: (s) => s.extra.indexOf('t3') !== -1,
+      text: L(
+        'Uchinchi qadam ikkinchisidan mantiqan chiqadi. Sabab esa BIRINCHI qadamda.',
+        'Третий шаг логично следует из второго. А причина в ПЕРВОМ шаге.',
+        'The third step follows from the second. The cause sits in the FIRST step.'),
+    },
+    {
+      when: (s) => s.miss.length > 0,
+      text: L(
+        "Ikki asos burchagini qo'shib ko'ring va 180 bilan solishtiring.",
+        'Сложи два угла при основании и сравни с 180.',
+        'Add the two base angles and compare with 180.'),
+    },
   ],
   wrongText: L(
-    "Uchburchak yuzasi to'rtburchakning qanchasi? Formulada oxirgi amal qanday?",
-    'Какую часть прямоугольника составляет треугольник? Какое действие в формуле последнее?',
-    'What part of a rectangle is a triangle? What is the last step in the formula?'),
+    "Asos burchaklari teng. Ikkitasi birga 180 dan kam bo'lishi kerak.",
+    'Углы при основании равны. Вдвоём они должны быть меньше 180.',
+    'The base angles are equal, and together they must stay below 180.'),
 };
 
 export default function D48_09(props) { return <TapTerms data={DATA} {...props} />; }

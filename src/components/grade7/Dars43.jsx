@@ -243,7 +243,7 @@ const S3 = {
     'In an isosceles triangle the BASE angles are equal. That is not a number on a drawing but a property: it holds in every isosceles triangle. The number on the drawing is a measurement, a guess.',
   ),
   audio: [
-    A('mount', "Asbob tomonlarni va burchaklarni o'lchadi.", 'Прибор измерил стороны и углы.', 'The tool measured the sides and the angles.'),
+    A('mount', "Chizmada tomonlar va burchaklar o'lchandi.", 'На чертеже измерены стороны и углы.', 'On the drawing the sides and the angles are measured.'),
     A('mount', "Yon tomonlar teng chiqdi. Yoritilgan burchaklarga qarang.", 'Боковые стороны вышли равными. Посмотри на подсвеченные углы.', 'The legs came out equal. Look at the highlighted angles.'),
   ],
 }
@@ -679,23 +679,23 @@ const S12 = {
   step1Cap: L('1-QADAM', 'ШАГ 1', 'STEP 1'),
   step2Cap: L('2-QADAM', 'ШАГ 2', 'STEP 2'),
   ask: L(
-    "Xossa to'g'ri aytilgan. Shunday bo'lsa ham, qaysi qator xato?",
-    'Свойство названо верно. И всё же какая строка ошибочна?',
-    'The property is stated correctly. Even so, which line is wrong?',
+    "Shart to'g'ri yozilgan. Shunday bo'lsa ham, qaysi qator xato?",
+    'Условие записано верно. И всё же какая строка ошибочна?',
+    'The condition is written correctly. Even so, which line is wrong?',
   ),
   rows: [
     { id: 'r1', text: L('uchburchak teng yonli', 'треугольник равнобедренный', 'the triangle is isosceles') },
     { id: 'r2', text: L('uchdagi burchak 40°', 'угол при вершине 40°', 'the apex angle is 40°') },
-    { id: 'r3', text: L('teng burchaklar teng tomonlar qarshisida', 'равные углы против равных сторон', 'equal angles lie opposite equal sides') },
+    { id: 'r3', text: L("40° ning juft burchagi bor", 'у угла 40° есть равная пара', 'the 40° angle has an equal partner') },
     { id: 'r4', text: L('javob: ikkinchi burchak ham 40°', 'ответ: второй угол тоже 40°', 'answer: the second angle is 40° too') },
   ],
-  answerId: 'r4',
+  answerId: 'r3',
   hints: {
     r1: L("Bu shart.", 'Это условие.', 'That is the condition.'),
     r2: L("Bu ham shart: uchdagi burchak berilgan.", 'Это тоже условие: дан угол при вершине.', 'That is the condition too: the apex angle is given.'),
-    r3: L("To'g'ri: xossa aynan shunday.", 'Верно: свойство именно такое.', 'Right: that is exactly the property.'),
+    r4: L("Bu qator oldingisidan chiqqan. Xato esa undan YUQORIDA.", 'Эта строка выходит из предыдущей. А ошибка ВЫШЕ неё.', 'This line follows from the one before. The mistake is ABOVE it.'),
   },
-  tags: { r1: 'Z2', r2: 'Z2', r3: 'Z1' },
+  tags: { r1: 'Z2', r2: 'Z2', r4: 'Z1' },
   proofFill: {
     template: ['40°  ', { slot: 0 }, '   →   ', { slot: 1 }],
     parts: [

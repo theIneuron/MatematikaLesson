@@ -1,51 +1,71 @@
-// Dars42 · Amaliyot 10 — Nisbat bilan · 🔴 · order · tag: tri_ratio
-// Mexanika: kit.jsx -> BuildLine (tartib muhim). Raskladka: 10-o'rin.
-// Burchaklar 1 : 2 : 3 -> x + 2x + 3x = 180 -> x = 30 -> 30°, 60°, 90°.
+// Dars42 · Amaliyot 10 — Isbot qadamlari · 🔴 · order · tag: eq_order
+// Mexanika: kit.jsx -> BuildLine. Raskladka: 10-o'rin `order`.
+// Isbot tartibi: ikki tomon teng -> orasidagi burchak teng -> uchburchaklar teng. Tuzoq: perimetrdan boshlash.
 import React from 'react';
 import { BuildLine, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'tri_ratio', level: '🔴',
-  eyebrow: L('Nisbat', 'Отношение', 'A ratio'),
+  tag: 'eq_order',
+  level: '🔴',
+  eyebrow: L(
+    'Isbot qadamlari',
+    'Шаги доказательства',
+    'Steps of a proof'),
   setup: L(
-    "Burchaklar nisbati 1 : 2 : 3. Jami olti qism 180 gradusni beradi, ya'ni bitta qism 30 gradus.",
-    'Отношение углов 1 : 2 : 3. Всего шесть долей дают 180 градусов, значит одна доля 30.',
-    'The angles are as 1 : 2 : 3. Six shares make 180, so one share is 30.'),
-  given: [['1', ':', '2', ':', '3']],
-  givenLabel: L('Nisbat:', 'Отношение:', 'Ratio:'),
+    "Isbot elementlardan boshlanadi va xulosa bilan tugaydi. Uch qadamni tartib bilan qo'ying.",
+    'Доказательство начинается с элементов и кончается выводом. Поставь три шага по порядку.',
+    'A proof starts from the elements and ends with the conclusion. Place the three steps in order.'),
   cards: [
-    { id: 'a', label: 'x + 2x + 3x = 180°' },
-    { id: 'b', label: 'x = 30°' },
-    { id: 'c', label: '30°, 60°, 90°' },
-    { id: 'd', label: 'x = 60°' },
-    { id: 'e', label: '60°, 120°, 180°' },
+    { id: 'a', label: 'AB = A₁B₁ va AC = A₁C₁' },
+    { id: 'b', label: 'burchak A = burchak A₁' },
+    { id: 'c', label: 'uchburchaklar teng' },
+    { id: 'd', label: 'perimetrlar teng' },
+    { id: 'e', label: 'BC = B₁C₁' },
   ],
   answerSeq: ['a', 'b', 'c'],
-  empty: L("Uch qadamni tartib bilan qo'ying", 'Поставь три шага по порядку', 'Place the three steps in order'),
-  ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+  ask: L(
+    "Kartani bosish uni chiziqqa qo'yadi.",
+    'Нажатие на карточку ставит её в строку.',
+    'Tapping a card puts it in the line.'),
+  empty: L(
+    'Kartalarni bosib javobni tuzing',
+    'Нажимай карточки и собери ответ',
+    'Tap the cards to build the answer'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. 6x = 180 -> x = 30, burchaklar 30°, 60°, 90°: bu to'g'ri burchakli uchburchak.",
-    'Верно. 6x = 180 → x = 30, углы 30°, 60°, 90°: это прямоугольный треугольник.',
-    'Correct. 6x = 180 → x = 30, giving 30°, 60°, 90° — a right triangle.'),
+    "To'g'ri. Ikki tomon, keyin ular orasidagi burchak, keyin xulosa. Uchinchi tomon va perimetr esa xulosadan KEYIN chiqadi.",
+    'Верно. Две стороны, потом угол между ними, потом вывод. Третья сторона и периметр следуют ПОСЛЕ вывода.',
+    'Correct. Two sides, then the included angle, then the conclusion. The third side and the perimeter follow AFTER.'),
   wrongs: [
-    { when: (s) => s.seq.indexOf('d') !== -1 || s.seq.indexOf('e') !== -1, text: L(
-      "x = 60 bo'lsa burchaklar yig'indisi 360 chiqadi. Qismlar soni olti: 1 + 2 + 3.",
-      'При x = 60 сумма углов выйдет 360. А долей шесть: 1 + 2 + 3.',
-      'With x = 60 the sum becomes 360. There are six shares: 1 + 2 + 3.') },
-    { when: (s) => s.seq.length === 3, text: L(
-      "Qadamlar to'g'ri, tartibi boshqa: tenglama, qism, burchaklar.",
-      'Шаги верные, но порядок другой: уравнение, доля, углы.',
-      'The steps are right but the order is not: equation, share, angles.') },
-    { when: (s) => s.seq.length < 3, text: L(
-      "Uch qadam bo'lishi kerak.",
-      'Должно быть три шага.',
-      'There must be three steps.') },
+    {
+      when: (s) => s.seq.indexOf('d') !== -1 || s.seq.indexOf('e') !== -1,
+      text: L(
+        'Perimetr va uchinchi tomon -- bu tenglikning NATIJASI, dalil emas. Ular isbotdan keyin aytiladi.',
+        'Периметр и третья сторона это СЛЕДСТВИЕ равенства, а не доказательство. Они идут после.',
+        'The perimeter and the third side are CONSEQUENCES, not evidence. They come afterwards.'),
+    },
+    {
+      when: (s) => s.seq.length === 3,
+      text: L(
+        "Qadamlar to'g'ri, tartibi boshqa: avval tomonlar, keyin burchak, oxirida xulosa.",
+        'Шаги верные, но порядок другой: сначала стороны, потом угол, в конце вывод.',
+        'The steps are right but the order is not: sides, then the angle, then the conclusion.'),
+    },
+    {
+      when: (s) => s.seq.length < 3,
+      text: L(
+        'Uch karta kerak.',
+        'Нужны три карточки.',
+        'Three cards are needed.'),
+    },
   ],
   wrongText: L(
-    "Jami nechta qism bor? 180 ni shu songa bo'ling.",
-    'Сколько всего долей? Раздели 180 на это число.',
-    'How many shares in total? Divide 180 by that.'),
+    'Alomat uchta elementni talab qiladi. Xulosa esa oxirida turadi.',
+    'Признак требует трёх элементов. А вывод стоит в конце.',
+    'The criterion needs three elements. The conclusion comes last.'),
 };
 
 export default function D42_10(props) { return <BuildLine data={DATA} {...props} />; }

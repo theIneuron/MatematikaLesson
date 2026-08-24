@@ -858,7 +858,7 @@ const S11 = {
     { key: '*', tag: 'Z1', hint: L("Ikkinchi qavsning ikki hadi ham ishorasini almashtiradi.", 'Оба члена второй скобки меняют знак.', 'Both terms of the second bracket flip their sign.') },
   ],
   audio: [
-    A('mount', "Bu safar asbob yo'q. Ayirma so'ralgan, ya'ni ikkinchi qavs oldida minus turadi.", 'На этот раз прибора нет. Спрошена разность, значит перед второй скобкой минус.', 'This time there is no instrument. A difference is asked for, so the second bracket takes a minus.'),
+    A('mount', "Bu safar yordamsiz. Ayirma so'ralgan, ya'ni ikkinchi qavs oldida minus turadi.", 'На этот раз без подсказки. Спрошена разность, значит перед второй скобкой минус.', 'This time with no prompt. A difference is asked for, so the second bracket takes a minus.'),
   ],
 }
 

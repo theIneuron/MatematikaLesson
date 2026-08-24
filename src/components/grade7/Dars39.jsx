@@ -630,23 +630,23 @@ const S12 = {
   step1Cap: L('1-QADAM', 'ШАГ 1', 'STEP 1'),
   step2Cap: L('2-QADAM', 'ШАГ 2', 'STEP 2'),
   ask: L(
-    "Guruhlar to'g'ri sanalgan. Shunday bo'lsa ham, qaysi qator xato?",
-    'Группы посчитаны верно. И всё же какая строка ошибочна?',
-    'The groups are counted right. Even so, which line is wrong?',
+    "Qo'shish to'g'ri bajarilgan. Shunday bo'lsa ham, qaysi qator xato?",
+    'Сложение выполнено верно. И всё же какая строка ошибочна?',
+    'The addition is done right. Even so, which line is wrong?',
   ),
   rows: [
     { id: 'r1', text: L("4 ko'ylak VA 3 shim", '4 рубашки И 3 брюк', '4 shirts AND 3 trousers') },
-    { id: 'r2', text: L("ko'ylaklar: 4", 'рубашек: 4', 'shirts: 4') },
-    { id: 'r3', text: L('shimlar: 3', 'брюк: 3', 'trousers: 3') },
-    { id: 'r4', text: L("javob: 4 + 3 = 7", 'ответ: 4 + 3 = 7', 'answer: 4 + 3 = 7') },
+    { id: 'r2', text: L("variantlar soni: 4 qo'shuv 3", 'число вариантов: 4 плюс 3', 'the count: 4 plus 3') },
+    { id: 'r3', text: '4 + 3 = 7' },
+    { id: 'r4', text: L('javob: 7', 'ответ: 7', 'answer: 7') },
   ],
-  answerId: 'r4',
+  answerId: 'r2',
   hints: {
     r1: L("Bu shartning o'zi.", 'Это само условие.', 'That is the condition itself.'),
-    r2: L("To'g'ri: ko'ylaklar to'rtta.", 'Верно: рубашек четыре.', 'Right: there are four shirts.'),
-    r3: L("To'g'ri: shimlar uchta.", 'Верно: брюк три.', 'Right: there are three trousers.'),
+    r3: L("Hisob to'g'ri: to'rt qo'shuv uch yetti.", 'Счёт верен: четыре плюс три семь.', 'The arithmetic is right: four plus three is seven.'),
+    r4: L("Bu qator oldingisidan chiqqan. Xato esa undan YUQORIDA.", 'Эта строка выходит из предыдущей. А ошибка ВЫШЕ неё.', 'This line follows from the one before. The mistake is ABOVE it.'),
   },
-  tags: { r1: 'Z1', r2: 'Z1', r3: 'Z1' },
+  tags: { r1: 'Z1', r3: 'Z1', r4: 'Z1' },
   proofFill: {
     template: ['4 ', { slot: 0 }, ' 3 = ', { slot: 1 }],
     parts: [

@@ -1,54 +1,92 @@
-// Dars32 · Amaliyot 10 — Qisqaradimi yoki yo'q · 🔴 · sort · tag: frac_zones
-// Mexanika: kit.jsx -> Zones. Raskladka: 10-o'rin.
-// (x² − 16) : (x − 4) = x + 4
-// (x² − 16) : (x + 4) = x − 4
-// (x² + 16) : (x + 4) -- qisqarmaydi: yig'indi ko'paytuvchilarga ajralmaydi.
+// Dars32 · Amaliyot 10 — Uch juftlik, uch maxraj · 🔴 · sort · tag: frac_denom_zones
+// Mexanika: kit.jsx -> Zones. Raskladka: 10-o'rin `sort`.
+// MAVZU TO'LDIRILDI (metodist qarori 2026-08-22): darsning mavzusi «qisqartirish VA
+// umumiy maxraj», shuning uchun 4, 6, 7 va 10-topshiriqlar umumiy maxrajga bag'ishlandi.
+// Maxraj `:` bilan yoziladi -- sinf amaliyotidagi yozuv.
+// (4; 6) -> 12; (3; 5) -> 15; (4; 10) -> 20. Ko'paytma har doim eng kichik maxraj bermaydi.
 import React from 'react';
 import { Zones, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'frac_zones', level: '🔴', itemSize: 18, zoneLbl: 92,
-  eyebrow: L('Qisqaradimi', 'Сокращается ли', 'Does it cancel'),
+  tag: 'frac_denom_zones',
+  level: '🔴',
+  eyebrow: L(
+    'Uch juftlik',
+    'Три пары',
+    'Three pairs'),
   setup: L(
-    "Uch yozuvda 16 turadi. Ikkitasi qisqaradi, bittasi esa yo'q: kvadratlar YIG'INDISI ko'paytuvchilarga ajralmaydi.",
-    'В трёх записях есть 16. Две сокращаются, а одна нет: СУММА квадратов на множители не разлагается.',
-    'All three hold 16. Two cancel and one does not: a SUM of squares has no factorisation.'),
+    "Har juftlik uchun eng kichik umumiy maxrajni toping. Ba'zi juftlikda u ko'paytmaga teng, ba'zisida esa kichikroq.",
+    'Для каждой пары найди наименьший общий знаменатель. У одних пар он равен произведению, у других меньше.',
+    'Find the least common denominator for each pair. For some it equals the product, for others it is smaller.'),
+  itemSize: 20,
+  zoneLbl: 100,
   zones: [
-    { id: 'zp', label: L('x + 4', 'x + 4', 'x + 4') },
-    { id: 'zm', label: L('x − 4', 'x − 4', 'x − 4') },
-    { id: 'zn', label: L('Qisqarmaydi', 'Не сокращается', 'Does not cancel') },
+    {
+      id: 'z12',
+      label: L(
+        '12',
+        '12',
+        '12'),
+    },
+    {
+      id: 'z15',
+      label: L(
+        '15',
+        '15',
+        '15'),
+    },
+    {
+      id: 'z20',
+      label: L(
+        '20',
+        '20',
+        '20'),
+    },
   ],
   items: [
-    { id: 'i1', tokens: ['(x²', '−', '16)', ':', '(x', '−', '4)'], zone: 'zp' },
-    { id: 'i2', tokens: ['(x²', '−', '16)', ':', '(x', '+', '4)'], zone: 'zm' },
-    { id: 'i3', tokens: ['(x²', '+', '16)', ':', '(x', '+', '4)'], zone: 'zn' },
+    { id: 'i1', tokens: ['4 va 6'], zone: 'z12' },
+    { id: 'i2', tokens: ['3 va 5'], zone: 'z15' },
+    { id: 'i3', tokens: ['4 va 10'], zone: 'z20' },
   ],
-  ask: L('Kartani bosing, keyin zonani bosing. Zonadagi kartani bosish uni qaytarib oladi.',
+  bank: L(
+    'Juftliklar',
+    'Пары',
+    'Pairs'),
+  ask: L(
+    'Kartani bosing, keyin zonani bosing. Zonadagi kartani bosish uni qaytarib oladi.',
     'Нажми карточку, затем зону. Нажатие на карточку в зоне возвращает её обратно.',
     'Tap a card, then tap a zone. Tapping a card inside a zone takes it back.'),
-  bank: L('Yozuvlar', 'Записи', 'Records'),
   correctText: L(
-    "To'g'ri. x² − 16 = (x − 4)(x + 4), shuning uchun ikki holatda qisqaradi. x² + 16 esa ajralmaydi.",
-    'Верно. x² − 16 = (x − 4)(x + 4), поэтому в двух случаях сокращается. А x² + 16 не разлагается.',
-    'Correct. x² − 16 = (x − 4)(x + 4), so two of them cancel. But x² + 16 does not split.'),
+    "To'g'ri. 4 va 6 -> 12 (ko'paytma 24 dan kichik); 3 va 5 -> 15 (aynan ko'paytma); 4 va 10 -> 20 (ko'paytma 40 dan kichik).",
+    'Верно. 4 и 6 → 12 (меньше произведения 24); 3 и 5 → 15 (ровно произведение); 4 и 10 → 20 (меньше произведения 40).',
+    'Correct. 4 and 6 give 12 (below the product 24); 3 and 5 give 15 (the product itself); 4 and 10 give 20 (below 40).'),
   wrongs: [
-    { when: (s) => s.bad.indexOf('i3') !== -1, text: L(
-      "x² + 16 kvadratlar YIG'INDISI: uni ko'paytuvchilarga ajratib bo'lmaydi, ya'ni qisqartirish ham yo'q.",
-      'x² + 16 это СУММА квадратов: на множители она не разлагается, значит и сокращения нет.',
-      'x² + 16 is a SUM of squares: it does not factorise, so there is nothing to cancel.') },
-    { when: (s) => s.bad.indexOf('i1') !== -1, text: L(
-      "(x − 4) qisqarsa (x + 4) qoladi.",
-      'Если сокращается (x − 4), остаётся (x + 4).',
-      'If (x − 4) cancels, (x + 4) remains.') },
-    { when: (s) => s.bad.indexOf('i2') !== -1, text: L(
-      "(x + 4) qisqarsa (x − 4) qoladi.",
-      'Если сокращается (x + 4), остаётся (x − 4).',
-      'If (x + 4) cancels, (x − 4) remains.') },
+    {
+      when: (s) => s.bad.indexOf('i1') !== -1,
+      text: L(
+        "4 ning karralilari: 4, 8, 12. 12 oltiga ham bo'linadi.",
+        'Кратные 4: 4, 8, 12. Двенадцать делится и на шесть.',
+        'Multiples of 4: 4, 8, 12. Twelve divides by six too.'),
+    },
+    {
+      when: (s) => s.bad.indexOf('i2') !== -1,
+      text: L(
+        "3 va 5 da umumiy bo'luvchi yo'q, ya'ni maxraj ko'paytmaga teng: 15.",
+        'У 3 и 5 нет общего делителя, значит знаменатель равен произведению: 15.',
+        '3 and 5 share no divisor, so the denominator is the product: 15.'),
+    },
+    {
+      when: (s) => s.bad.indexOf('i3') !== -1,
+      text: L(
+        "4 va 10: 20 ikkoviga ham bo'linadi, 40 esa ortiqcha katta.",
+        '4 и 10: двадцать делится на оба, а 40 избыточно велико.',
+        '4 and 10: twenty divides by both, while 40 is needlessly large.'),
+    },
   ],
   wrongText: L(
-    "Har bo'linuvchini ajratib ko'ring: ayirma ajraladi, yig'indi esa yo'q.",
-    'Попробуй разложить каждое делимое: разность разлагается, а сумма нет.',
-    'Try factorising each dividend: a difference splits, a sum does not.'),
+    "Katta maxrajning karralilarini sanab, kichigiga bo'linadiganini toping.",
+    'Перебирай кратные большего знаменателя и найди делящееся на меньший.',
+    'Run through multiples of the larger denominator and find one divisible by the smaller.'),
 };
 
 export default function D32_10(props) { return <Zones data={DATA} {...props} />; }

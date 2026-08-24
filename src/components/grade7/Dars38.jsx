@@ -701,15 +701,17 @@ const S12 = {
     { id: 'r1', text: 'x − y = 1' },
     { id: 'r2', text: 'x + y = 3' },
     { id: 'r3', text: L('chizmadan: (3; 1)', 'с чертежа: (3; 1)', 'from the drawing: (3; 1)') },
-    { id: 'r4', text: L('javob: (3; 1)', 'ответ: (3; 1)', 'answer: (3; 1)') },
+    { id: 'r4', text: L('tekshirish shart emas', 'проверять не нужно', 'no check is needed') },
+    { id: 'r5', text: L('javob: (3; 1)', 'ответ: (3; 1)', 'answer: (3; 1)') },
   ],
-  answerId: 'r4',
+  answerId: 'r3',
   hints: {
     r1: L("Bu birinchi tenglama.", 'Это первое уравнение.', 'That is the first equation.'),
     r2: L("Bu ikkinchi tenglama.", 'Это второе уравнение.', 'That is the second equation.'),
-    r3: L("Chizmadan shunday o'qildi, va bu hali javob emas.", 'С чертежа прочитали так, и это ещё не ответ.', 'That is what was read off the drawing, and it is not the answer yet.'),
+    r4: L("Bu qator oldingisidan chiqqan. Xato esa undan YUQORIDA.", 'Эта строка выходит из предыдущей. А ошибка ВЫШЕ неё.', 'This line follows from the one before. The mistake is ABOVE it.'),
+    r5: L("Bu qator oldingisidan chiqqan. Xato esa undan YUQORIDA.", 'Эта строка выходит из предыдущей. А ошибка ВЫШЕ неё.', 'This line follows from the one before. The mistake is ABOVE it.'),
   },
-  tags: { r1: 'Z2', r2: 'Z2', r3: 'Z2' },
+  tags: { r1: 'Z2', r2: 'Z2', r4: 'Z2', r5: 'Z2' },
   proofFill: {
     template: ['3 + 1 = ', { slot: 0 }, '   →   ', { slot: 1 }],
     parts: [

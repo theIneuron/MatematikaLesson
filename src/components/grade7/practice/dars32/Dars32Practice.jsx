@@ -1,14 +1,16 @@
-// Dars32 amaliyoti — 10 topshiriq. Mavzu: ALGEBRAIK KASRLAR.
+// Dars32 amaliyoti — 10 topshiriq. Mavzu: ALGEBRAIK KASRLAR: QISQARTIRISH VA UMUMIY MAXRAJ.
 // Topshiriq fayllarida FAQAT ma'lumot; mexanikalar `practice/kit.jsx` da,
 // qobiq `practice/PracticeHost.jsx` da (CLAUDE.md §5).
 //
 // MEXANIKALAR RASKLADKADAN: node scripts/grade7-practice-layout.mjs --json
+// 32-dars raskladkasi: choice, chain, build, bracket, order, build, slots, fix, build, sort
 // Raskladka nomlari mavjud mexanikalarga solishtirildi (metodist qarori
 // 2026-08-21): build/order/bracket -> BuildLine, slots/chain -> SlotsBank,
 // fix -> TapTerms, sort -> Zones, choice -> Choice (faqat isinish uchun).
-// 32-dars raskladkasi: choice, chain, build, bracket, order, build, slots, fix, build, sort
 //
-// Darsning O'Z misollari ((2a + 2) : 2, (2x + 4) : 2, (3 + x) : 3, (2a + 2b) : (a + b)) ataylab takrorlanmadi.
+// MAVZU DARS BILAN SVERKA QILINDI (metodist qarori 2026-08-22): amaliyot
+// mavzusi `src/lessons/grade7.js` dagi nazariy darsning mavzusiga mos.
+
 import React, { useState } from 'react';
 import PracticeHost, { usePracticeZoom } from '../PracticeHost.jsx';
 import D32_01 from './D32_01.jsx';
@@ -23,22 +25,22 @@ import D32_09 from './D32_09.jsx';
 import D32_10 from './D32_10.jsx';
 
 const HEAD = {
-  uz: "Dars 32 amaliyoti — 10 topshiriq (algebraik kasrlar)",
-  ru: 'Практика урока 32 — 10 заданий (алгебраические дроби)',
-  en: 'Lesson 32 practice — 10 tasks (algebraic fractions)',
+  uz: 'Dars 32 amaliyoti — 10 topshiriq (algebraik kasrlar: qisqartirish va umumiy maxraj)',
+  ru: 'Практика урока 32 — 10 заданий (алгебраические дроби: сокращение и общий знаменатель)',
+  en: 'Lesson 32 practice — 10 tasks (algebraic fractions and common denominators)',
 };
 
 const ITEMS = [
-  { id: '01', label: { uz: "Mumkinmi", ru: 'Можно ли', en: 'Is it allowed' }, C: D32_01 },  // choice 🟢 (x + 3) : 3
-  { id: '02', label: { uz: "Ikki qadam", ru: 'Два шага', en: 'Two steps' }, C: D32_02 },  // chain 🟢 (4a + 6) : 2
-  { id: '03', label: { uz: "Har had", ru: 'Каждый член', en: 'Every term' }, C: D32_03 },  // build 🟢 (5x + 15) : 5
-  { id: '04', label: { uz: "Ko'paytma", ru: 'Произведение', en: 'Product form' }, C: D32_04 },  // bracket 🟡 (6y + 9) : 3
-  { id: '05', label: { uz: "Uch qadam", ru: 'Три шага', en: 'Three steps' }, C: D32_05 },  // order 🟡 (a² − 9) : (a + 3)
-  { id: '06', label: { uz: "Bir hadga", ru: 'На одночлен', en: 'By a monomial' }, C: D32_06 },  // build 🟡 (2m² + 8m) : 2m
-  { id: '07', label: { uz: "Ikki bo'luvchi", ru: 'Два делителя', en: 'Two divisors' }, C: D32_07 },  // slots 🟡 (x² − 25)
-  { id: '08', label: { uz: "Xato had", ru: 'Неверный член', en: 'Wrong term' }, C: D32_08 },  // fix 🔴 (3a + 6) : 3
-  { id: '09', label: { uz: "Kvadrat bilan", ru: 'С квадратом', en: 'With a square' }, C: D32_09 },  // build 🔴 (m² + 6m + 9) : (m + 3)
-  { id: '10', label: { uz: "Qisqaradimi", ru: 'Сокращается ли', en: 'Does it cancel' }, C: D32_10 },  // sort 🔴 x² ± 16
+  { id: '01', label: { uz: 'Qisqartirish', ru: 'Сокращение', en: 'Cancelling' }, C: D32_01 },  // choice 🟢 frac_can_cancel
+  { id: '02', label: { uz: 'Ikki qadam', ru: 'Два шага', en: 'Two steps' }, C: D32_02 },  // chain 🟢 frac_chain
+  { id: '03', label: { uz: "Bo\\'lish", ru: 'Деление', en: 'Division' }, C: D32_03 },  // build 🟢 frac_build
+  { id: '04', label: { uz: 'Umumiy maxraj', ru: 'Общий знаменатель', en: 'Common denominator' }, C: D32_04 },  // bracket 🟡 frac_common_denom
+  { id: '05', label: { uz: 'Uch qadam', ru: 'Три шага', en: 'Three steps' }, C: D32_05 },  // order 🟡 frac_order
+  { id: '06', label: { uz: 'Bir xil maxraj', ru: 'Одинаковый знаменатель', en: 'Same denominator' }, C: D32_06 },  // build 🟡 frac_add_same
+  { id: '07', label: { uz: 'Keltirish', ru: 'Приведение', en: 'Bringing to one denominator' }, C: D32_07 },  // slots 🟡 frac_to_common
+  { id: '08', label: { uz: 'Xato had', ru: 'Неверный член', en: 'The wrong term' }, C: D32_08 },  // fix 🔴 frac_fix
+  { id: '09', label: { uz: 'Kvadrat bilan', ru: 'С квадратом', en: 'With a square' }, C: D32_09 },  // build 🔴 frac_square
+  { id: '10', label: { uz: 'Uch juftlik', ru: 'Три пары', en: 'Three pairs' }, C: D32_10 },  // sort 🔴 frac_denom_zones
 ];
 
 export default function Dars32Practice({ lang = 'uz' }) {

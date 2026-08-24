@@ -1,43 +1,67 @@
-// Dars44 · Amaliyot 03 — Ikki burchakni topish · 🟢 · slots · tag: iso_slots
-// Mexanika: kit.jsx -> SlotsBank. Raskladka: 3-o'rin.
-// Asos burchagi 40° -> ikkinchi asos burchagi ham 40°, uchi 180 − 80 = 100°.
+// Dars44 · Amaliyot 03 — Uchinchi va tashqi · 🟢 · slots · tag: sum_third_ext
+// Mexanika: kit.jsx -> SlotsBank. Raskladka: 3-o'rin `slots`.
+// 55° va 65° -> uchinchisi 180 − 120 = 60°; uning tashqi burchagi 180 − 60 = 120°.
 import React from 'react';
 import { SlotsBank, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'iso_slots', level: '🟢',
-  eyebrow: L('Ikki burchak', 'Два угла', 'Two angles'),
+  tag: 'sum_third_ext',
+  level: '🟢',
+  eyebrow: L(
+    'Uchinchi burchak',
+    'Третий угол',
+    'The third angle'),
   setup: L(
-    "Bitta asos burchagi ma'lum. Ikkinchisi unga teng, uchi esa 180 dan ikkovini ayirish bilan topiladi.",
-    'Известен один угол при основании. Второй равен ему, а угол при вершине это 180 минус два первых.',
-    'One base angle is known. The other equals it, and the apex is 180 minus both.'),
-  given: [['asos', 'burchagi', '=', '40°']],
-  givenLabel: L('Berilgan:', 'Дано:', 'Given:'),
-  rows: [
-    [{ t: ['ikkinchi', 'asos', 'burchagi', '='] }, { slot: 0 }, { t: ['uchi', '='] }, { slot: 1 }],
-  ],
-  cards: ['40°', '100°', '140°', '50°'],
-  answer: ['40°', '100°'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+    "Ikki burchak berilgan. Uchinchisini toping, keyin uning tashqi burchagini yozing: tashqi burchak ichkisining qo'shnisi.",
+    'Даны два угла. Найди третий, потом запиши его внешний угол: внешний это смежный с внутренним.',
+    'Two angles are given. Find the third, then its exterior angle: the exterior is adjacent to the interior.'),
+  given: [['55°', 'va', '65°']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
+  rows: [[{ t: ['uchinchi', '='] }, { slot: 0 }, { t: ['tashqi', '='] }, { slot: 1 }]],
+  cards: ['60°', '120°', '70°', '110°'],
+  answer: ['60°', '120°'],
+  ask: L(
+    'Kartani bosing, keyin uyani bosing.',
+    'Нажми карточку, затем клетку.',
+    'Tap a card, then tap a cell.'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. Ikkinchi asos burchagi ham 40°, uchi esa 180 − 80 = 100°.",
-    'Верно. Второй угол при основании тоже 40°, а угол при вершине 180 − 80 = 100°.',
-    'Correct. The second base angle is 40° too, and the apex is 180 − 80 = 100°.'),
+    "To'g'ri. 55 + 65 = 120, ya'ni uchinchisi 180 − 120 = 60. Tashqi burchak 180 − 60 = 120.",
+    'Верно. 55 + 65 = 120, значит третий 180 − 120 = 60. Внешний угол 180 − 60 = 120.',
+    'Correct. 55 + 65 = 120, so the third is 180 − 120 = 60. The exterior is 180 − 60 = 120.'),
   wrongs: [
-    { when: (s) => s.slots[1] === '140°', text: L(
-      "140 chiqishi uchun faqat bitta 40 ayirilgan. Asos burchagi IKKITA.",
-      'Чтобы вышло 140, вычли только одну сорокаградусную. Углов при основании ДВА.',
-      'To get 140 only one 40 was subtracted. There are TWO base angles.') },
-    { when: (s) => s.slots[0] === '50°' || s.slots[1] === '50°', text: L(
-      "50 bu 90 − 40. Bu yerda to'g'ri burchak yo'q, uchburchak burchaklari 180 beradi.",
-      '50 это 90 − 40. Здесь нет прямого угла, а сумма углов треугольника 180.',
-      '50 is 90 − 40. There is no right angle here; the angles sum to 180.') },
+    {
+      when: (s) => s.slots[0] === '70°',
+      text: L(
+        "70° chiqishi uchun ayirish 190 dan qilingan. Yig'indi 180.",
+        'Чтобы вышло 70, вычитали из 190. Сумма равна 180.',
+        '70° subtracts from 190. The sum is 180.'),
+    },
+    {
+      when: (s) => s.slots[1] === '110°',
+      text: L(
+        "110° bu 180 − 70. Tashqi burchak uchinchi burchakning (60) qo'shnisi.",
+        '110° это 180 − 70. Внешний угол смежный с третьим углом (60).',
+        '110° is 180 − 70. The exterior is adjacent to the third angle (60).'),
+    },
+    {
+      when: (s) => s.slots.indexOf(null) !== -1,
+      text: L(
+        "Hamma uya to'ldirilishi kerak.",
+        'Надо заполнить все клетки.',
+        'Every cell must be filled.'),
+    },
   ],
   wrongText: L(
-    "Asosdagi ikki burchak teng. Ularni qo'shib 180 dan ayiring.",
-    'Два угла при основании равны. Сложи их и вычти из 180.',
-    'The two base angles are equal. Add them and subtract from 180.'),
+    "Ikki burchakni qo'shib 180 dan ayiring, keyin natijani yana 180 dan ayiring.",
+    'Сложи два угла, вычти из 180, потом полученное снова вычти из 180.',
+    'Add the two angles, subtract from 180, then subtract that result from 180 again.'),
 };
 
 export default function D44_03(props) { return <SlotsBank data={DATA} {...props} />; }

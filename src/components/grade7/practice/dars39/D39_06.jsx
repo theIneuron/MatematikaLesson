@@ -1,45 +1,74 @@
-// Dars39 · Amaliyot 06 — Qo'shib yuborgan · 🟡 · fix · tag: comb_fix
-// Mexanika: kit.jsx -> TapTerms. Raskladka: 6-o'rin.
-// 4 ta kitobdan 3 tasini tanlash yo'llari: 4 · 3 = 12. Chuqur javob 7 --
-// ko'paytirish o'rniga qo'shgan.
+// Dars39 · Amaliyot 06 — Nol birinchi o'rinda · 🟡 · fix · tag: comb_fix
+// Mexanika: kit.jsx -> TapTerms. Raskladka: 6-o'rin `fix`.
+// DARAJA KO'TARILDI (metodist qarori 2026-08-22): manfiy va kasr koeffitsiyent,
+// ikki qadamli savol, yaqin tuzoq -- PODXOD_7SINF.md 13-band.
+// 0, 1, 2, 3 raqamlaridan takrorsiz ikki xonali son: birinchi o'rinda NOL bo'lmaydi, ya'ni 3 · 3 = 9, 4 · 3 = 12 emas.
 import React from 'react';
 import { TapTerms, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'comb_fix', level: '🟡',
-  eyebrow: L('Xato bo\'lak', 'Неверная часть', 'The wrong part'),
+  tag: 'comb_fix',
+  level: '🟡',
+  eyebrow: L(
+    'Xato qadam',
+    'Неверный шаг',
+    'The wrong step'),
   setup: L(
-    "Boshqa o'quvchi yozuvni to'g'ri tuzdi, lekin natijani xato hisobladi.",
-    'Другой ученик верно составил запись, но неверно посчитал результат.',
-    'Another pupil set the record up correctly but miscounted the result.'),
-  given: [['4', 'kitob,', '2', "o'rin"]],
-  givenLabel: L('Masala:', 'Задание:', 'The task:'),
-  ask: L("NOTO'G'RI bo'lakni belgilang.", 'Отметь НЕВЕРНУЮ часть.', 'Mark the WRONG part.'),
-  note: L('Bitta bo\'lak.', 'Одна часть.', 'One part.'),
+    "O'quvchi 0, 1, 2, 3 raqamlaridan takrorsiz ikki xonali son sanadi. Uch qadamdan biri noto'g'ri: nol birinchi o'rinda turolmaydi.",
+    'Ученик считал двузначные числа без повторений из 0, 1, 2, 3. Один из трёх шагов неверный: ноль не может стоять первым.',
+    'A pupil counted two-digit numbers from 0, 1, 2, 3 without repeats. One step is wrong: zero cannot lead.'),
+  given: [['0, 1, 2, 3']],
+  givenLabel: L(
+    'Raqamlar:',
+    'Цифры:',
+    'Digits:'),
+  ask: L(
+    "NOTO'G'RI qadamni belgilang.",
+    'Отметь НЕВЕРНЫЙ шаг.',
+    'Mark the WRONG step.'),
+  note: L(
+    'Bitta qadam.',
+    'Один шаг.',
+    'One step.'),
   parts: [
-    { k: 'term', id: 't1', v: '4 · 3' },
-    { k: 'sign', v: '=' },
-    { k: 'term', id: 't2', v: '7' },
+    { k: 'term', id: 't1', v: "birinchi o'rin: 4 variant" },
+    { k: 'sign', v: ' ' },
+    { k: 'term', id: 't2', v: "ikkinchi o'rin: 3 variant" },
+    { k: 'sign', v: ' ' },
+    { k: 'term', id: 't3', v: 'jami 12' },
   ],
-  want: ['t2'],
+  want: ['t1'],
   correctText: L(
-    "To'g'ri. 4 · 3 = 12, 7 emas. Yetti bu 4 + 3, ya'ni qo'shish natijasi.",
-    'Верно. 4 · 3 = 12, а не 7. Семь это 4 + 3, результат сложения.',
-    'Correct. 4 · 3 = 12, not 7. Seven is 4 + 3, the result of adding.'),
+    "To'g'ri. Birinchi o'rinda nol turolmaydi, ya'ni 3 variant: 3 · 3 = 9.",
+    'Верно. На первом месте ноль стоять не может, значит 3 варианта: 3 · 3 = 9.',
+    'Correct. Zero cannot lead, so the first place has 3 options: 3 · 3 = 9.'),
   wrongs: [
-    { when: (s) => s.extra.indexOf('t1') !== -1, text: L(
-      "4 · 3 to'g'ri tuzilgan: birinchi o'ringa to'rt kitob, ikkinchisiga qolgan uchtasi.",
-      '4 · 3 составлено верно: на первое место четыре книги, на второе оставшиеся три.',
-      '4 · 3 is set up right: four books for the first place, the remaining three for the second.') },
-    { when: (s) => s.miss.length > 0, text: L(
-      "Natijani hisoblang: 4 · 3 nechchi?",
-      'Посчитай результат: сколько 4 · 3?',
-      'Work out the result: what is 4 · 3?') },
+    {
+      when: (s) => s.extra.indexOf('t2') !== -1,
+      text: L(
+        "Ikkinchi o'rinda uch variant qoladi (bitta raqam ishlatilgan) -- bu qadam to'g'ri.",
+        'На втором месте остаётся три варианта (одна цифра занята) — шаг верный.',
+        'The second place keeps three options once one digit is used: right.'),
+    },
+    {
+      when: (s) => s.extra.indexOf('t3') !== -1,
+      text: L(
+        '12 birinchi qadamdan chiqdi. Sabab birinchi qadamda.',
+        '12 вытекает из первого шага. Причина в первом шаге.',
+        '12 follows the first step, where the flaw sits.'),
+    },
+    {
+      when: (s) => s.miss.length > 0,
+      text: L(
+        'Ikki xonali son nol bilan boshlanishi mumkinmi?',
+        'Может ли двузначное число начинаться с нуля?',
+        'Can a two-digit number start with zero?'),
+    },
   ],
   wrongText: L(
-    "Yozuvda ko'paytirish turibdi. 4 · 3 nechchi bo'ladi?",
-    'В записи стоит умножение. Чему равно 4 · 3?',
-    'The record shows a multiplication. What is 4 · 3?'),
+    "Birinchi o'rinda qaysi raqam turolmaydi?",
+    'Какая цифра не может стоять на первом месте?',
+    'Which digit cannot lead?'),
 };
 
 export default function D39_06(props) { return <TapTerms data={DATA} {...props} />; }

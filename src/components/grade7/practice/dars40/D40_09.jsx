@@ -1,51 +1,76 @@
-// Dars40 · Amaliyot 09 — Nisbat bilan · 🔴 · build · tag: seg_ratio
-// Mexanika: kit.jsx -> BuildLine. Raskladka: 9-o'rin.
-// AC : CB = 2 : 3, AB = 25 -> 2x + 3x = 25 -> x = 5 -> AC = 10.
+// Dars40 · Amaliyot 09 — Nisbat bilan · 🔴 · build · tag: ang_ratio
+// Mexanika: kit.jsx -> BuildLine. Raskladka: 9-o'rin `build`.
+// Qo'shni burchaklar 4 : 5 nisbatda: 4x + 5x = 180 -> x = 20 -> 80° va 100°.
 import React from 'react';
 import { BuildLine, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'seg_ratio', level: '🔴',
-  eyebrow: L('Nisbat', 'Отношение', 'A ratio'),
+  tag: 'ang_ratio',
+  level: '🔴',
+  eyebrow: L(
+    'Nisbat bilan',
+    'По отношению',
+    'By ratio'),
   setup: L(
-    "Bo'laklar nisbati berilgan: biri ikki qism, ikkinchisi uch qism. Jami besh qism butun kesmani beradi.",
-    'Дано отношение частей: одна две доли, другая три. Вместе пять долей дают весь отрезок.',
-    'The parts are given as a ratio: two shares and three. Together five shares make the whole.'),
-  given: [['AC', ':', 'CB', '=', '2', ':', '3'], ['AB', '=', '25']],
-  givenLabel: L('Berilgan:', 'Дано:', 'Given:'),
+    "Qo'shni burchaklar 4 : 5 nisbatda. Nisbat bo'laklarni beradi: 4x va 5x, ularning yig'indisi esa 180 gradus.",
+    'Смежные углы в отношении 4 : 5. Отношение задаёт части: 4x и 5x, а их сумма 180 градусов.',
+    'The adjacent angles are in ratio 4 : 5. The ratio gives parts 4x and 5x whose sum is 180 degrees.'),
+  given: [['4 : 5']],
+  givenLabel: L(
+    'Nisbat:',
+    'Отношение:',
+    'Ratio:'),
   cards: [
-    { id: 'a', label: '2x + 3x = 25' },
-    { id: 'b', label: 'x = 5' },
-    { id: 'c', label: 'AC = 10' },
-    { id: 'd', label: 'x = 12,5' },
-    { id: 'e', label: 'AC = 5' },
+    { id: 'a', label: '80°' },
+    { id: 'b', label: '100°' },
+    { id: 'c', label: '72°' },
+    { id: 'd', label: '90°' },
   ],
-  answerSeq: ['a', 'b', 'c'],
-  empty: L("Uch qadamni tartib bilan qo'ying", 'Поставь три шага по порядку', 'Place the three steps in order'),
-  ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+  answerSeq: ['a', 'b'],
+  fieldH: 44,
+  ask: L(
+    "Kartani bosish uni chiziqqa qo'yadi.",
+    'Нажатие на карточку ставит её в строку.',
+    'Tapping a card puts it in the line.'),
+  empty: L(
+    'Kartalarni bosib javobni tuzing',
+    'Нажимай карточки и собери ответ',
+    'Tap the cards to build the answer'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. 5x = 25 -> x = 5, ya'ni AC = 2 · 5 = 10 va CB = 15. Tekshirish: 10 + 15 = 25.",
-    'Верно. 5x = 25 → x = 5, значит AC = 2 · 5 = 10 и CB = 15. Проверка: 10 + 15 = 25.',
-    'Correct. 5x = 25 → x = 5, so AC = 2 · 5 = 10 and CB = 15. Check: 10 + 15 = 25.'),
+    "To'g'ri. 4x + 5x = 180, ya'ni 9x = 180 va x = 20. Burchaklar 80 va 100 gradus.",
+    'Верно. 4x + 5x = 180, значит 9x = 180 и x = 20. Углы 80 и 100 градусов.',
+    'Correct. 4x + 5x = 180, so 9x = 180 and x = 20. The angles are 80 and 100 degrees.'),
   wrongs: [
-    { when: (s) => s.seq.indexOf('d') !== -1, text: L(
-      "12,5 chiqishi uchun ikkiga bo'lingan. Qismlar soni esa besh: 2 + 3.",
-      'Чтобы вышло 12,5, разделили на два. А долей пять: 2 + 3.',
-      'To get 12.5 it was halved. But there are five shares: 2 + 3.') },
-    { when: (s) => s.seq.indexOf('e') !== -1, text: L(
-      "5 bu bitta qism. AC esa IKKI qism: 2 · 5 = 10.",
-      '5 это одна доля. А AC это ДВЕ доли: 2 · 5 = 10.',
-      '5 is one share. AC is TWO shares: 2 · 5 = 10.') },
-    { when: (s) => s.seq.length < 3, text: L(
-      "Uch qadam bo'lishi kerak: tenglama, qism, javob.",
-      'Должно быть три шага: уравнение, доля, ответ.',
-      'Three steps: equation, share, answer.') },
+    {
+      when: (s) => s.seq.indexOf('c') !== -1,
+      text: L(
+        "72° chiqishi uchun 360 ga bo'lingan. Qo'shni burchaklar yig'indisi 180.",
+        'Чтобы вышло 72, делили 360. Сумма смежных углов 180.',
+        '72° comes from dividing 360. Adjacent angles add to 180.'),
+    },
+    {
+      when: (s) => s.seq.indexOf('d') !== -1,
+      text: L(
+        "90° teng bo'linishni beradi, lekin nisbat 4 : 5 -- burchaklar teng emas.",
+        '90° это равное деление, но отношение 4 : 5 значит углы не равны.',
+        '90° means an equal split, yet the ratio 4 : 5 says the angles differ.'),
+    },
+    {
+      when: (s) => s.seq.length < 2,
+      text: L(
+        "Ikki burchak so'raladi: kichigi va kattasi.",
+        'Спрашивают два угла: меньший и больший.',
+        'Two angles are asked: the smaller and the larger.'),
+    },
   ],
   wrongText: L(
-    "Jami nechta qism bor? Bitta qism nechchi? AC nechta qism oladi?",
-    'Сколько всего долей? Чему равна одна? Сколько долей берёт AC?',
-    'How many shares in total? What is one worth? How many does AC take?'),
+    "Bo'laklar sonini qo'shing: 4 + 5 = 9. 180 ni 9 ga bo'lib, bir bo'lakni toping.",
+    'Сложи части: 4 + 5 = 9. Раздели 180 на 9 и найди одну часть.',
+    'Add the parts: 4 + 5 = 9. Divide 180 by 9 to get one part.'),
 };
 
 export default function D40_09(props) { return <BuildLine data={DATA} {...props} />; }

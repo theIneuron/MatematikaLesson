@@ -1,44 +1,70 @@
-// Dars47 · Amaliyot 10 — Katta sonlar bilan · 🔴 · chain · tag: pyth_big
-// Mexanika: kit.jsx -> SlotsBank (ikki qator). Raskladka: 10-o'rin.
-// Katetlar 20 va 21: c² = 400 + 441 = 841, c = 29.
+// Dars47 · Amaliyot 10 — Transportirsiz 45 gradus · 🔴 · chain · tag: comp_45_chain
+// Mexanika: kit.jsx -> SlotsBank. Raskladka: 10-o'rin `chain`.
+// To'g'ri burchakning bissektrisasi 45° beradi: 90 : 2 = 45, transportir kerak emas.
 import React from 'react';
 import { SlotsBank, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'pyth_big', level: '🔴',
-  eyebrow: L('Katta sonlar', 'Большие числа', 'Bigger numbers'),
+  tag: 'comp_45_chain',
+  level: '🔴',
+  eyebrow: L(
+    'Transportirsiz',
+    'Без транспортира',
+    'Without a protractor'),
   setup: L(
-    "Katetlar yaqin va katta. Kvadratlar to'rt xonali chiqadi, lekin qoida o'zgarmaydi.",
-    'Катеты близкие и большие. Квадраты выходят трёхзначными, но правило то же.',
-    'The legs are close and large. The squares grow, but the rule is unchanged.'),
-  given: [['katetlar', '20', 'va', '21']],
-  givenLabel: L('Berilgan:', 'Дано:', 'Given:'),
+    "Yasash o'lchamaydi, u tenglikdan foydalanadi. To'g'ri burchakka bissektrisa o'tkazsak, o'lchamasdan aniq burchak chiqadi.",
+    'Построение не измеряет, оно опирается на равенство. Биссектриса прямого угла даёт точный угол без измерения.',
+    'A construction does not measure, it uses equality. Bisecting a right angle gives an exact angle with no measuring.'),
+  given: [['90°']],
+  givenLabel: L(
+    'Burchak:',
+    'Угол:',
+    'Angle:'),
   rows: [
-    [{ t: ['c²', '='] }, { slot: 0 }],
-    [{ t: ['c', '='] }, { slot: 1 }],
+    [{ t: ['bissektrisa', 'beradi'] }, { slot: 0 }],
+    [{ t: ['yana', 'bir', 'marta', 'bissektrisa'] }, { slot: 1 }],
   ],
-  cards: ['841', '29', '41', '1681'],
-  answer: ['841', '29'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+  cards: ['45°', '22,5°', '90°', '30°'],
+  answer: ['45°', '22,5°'],
+  ask: L(
+    'Kartani bosing, keyin uyani bosing.',
+    'Нажми карточку, затем клетку.',
+    'Tap a card, then tap a cell.'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. 400 + 441 = 841, keyin c = 29, chunki 29² = 841.",
-    'Верно. 400 + 441 = 841, потом c = 29, ведь 29² = 841.',
-    'Correct. 400 + 441 = 841, then c = 29 since 29² = 841.'),
+    "To'g'ri. 90 : 2 = 45, keyin 45 : 2 = 22,5. Ikkovi ham o'lchovsiz chiqadi.",
+    'Верно. 90 : 2 = 45, затем 45 : 2 = 22,5. И то и другое получается без измерения.',
+    'Correct. 90 : 2 = 45, then 45 : 2 = 22.5. Both come without measuring.'),
   wrongs: [
-    { when: (s) => s.slots[1] === '41', text: L(
-      "41 bu 20 + 21. Gipotenuza katetlar yig'indisi emas: 841 dan ildiz 29.",
-      '41 это 20 + 21. Гипотенуза не сумма катетов: корень из 841 равен 29.',
-      '41 is 20 + 21. The hypotenuse is not the sum: the root of 841 is 29.') },
-    { when: (s) => s.slots[0] === '1681', text: L(
-      "1681 bu 41². Kvadratlar yig'indisi esa 400 + 441 = 841.",
-      '1681 это 41². А сумма квадратов 400 + 441 = 841.',
-      '1681 is 41². The sum of squares is 400 + 441 = 841.') },
+    {
+      when: (s) => s.slots[0] === '30°',
+      text: L(
+        "30 chiqishi uchun 90 uchga bo'lingan. Bissektrisa esa IKKIGA bo'ladi.",
+        'Чтобы вышло 30, делили 90 на три. А биссектриса делит на ДВА.',
+        '30 divides 90 by three. A bisector divides by TWO.'),
+    },
+    {
+      when: (s) => s.slots[1] === '45°',
+      text: L(
+        "Ikkinchi bissektrisa 45 ni bo'ladi: 45 : 2 = 22,5.",
+        'Вторая биссектриса делит 45: 45 : 2 = 22,5.',
+        'The second bisector halves 45: 45 : 2 = 22.5.'),
+    },
+    {
+      when: (s) => s.slots.indexOf(null) !== -1,
+      text: L(
+        "Hamma uya to'ldirilishi kerak.",
+        'Надо заполнить все клетки.',
+        'Every cell must be filled.'),
+    },
   ],
   wrongText: L(
-    "20² va 21² ni qo'shing, keyin natijaning ildizini toping.",
-    'Сложи 20² и 21², потом найди корень результата.',
-    'Add 20² and 21², then find the root.'),
+    "Har bissektrisa burchakni ikkiga bo'ladi. Ikki marta bo'lsa nima chiqadi?",
+    'Каждая биссектриса делит угол на два. Что будет после двух раз?',
+    'Each bisector halves the angle. What comes after two of them?'),
 };
 
 export default function D47_10(props) { return <SlotsBank data={DATA} {...props} />; }

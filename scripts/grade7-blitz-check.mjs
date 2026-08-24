@@ -105,6 +105,32 @@ const LESSONS = {
     ring: false,
     readySel: '.g7-readyline',
   },
+  'dars04-ayniyat': {
+    right: ['Да', 'Нет', '10x − 13', 'Нет, нужно преобразование'],
+    noGap: /Пробелов нет/i,
+    ring: false,
+    readySel: '.g7-readyline',
+  },
+  'dars20-kophadni-birhadga-kopaytirish': {
+    // innerText: `Fx` ustki ko'rsatkichni <sup> qiladi, ya'ni 6a2 + 15a.
+    right: ['6a2 + 15a', '−28a5b − 5a4b', '3', 'x10 − x9 + x7'],
+    noGap: /Пробелов нет/i,
+    ring: false,
+    readySel: '.g7-readyline',
+  },
+  'dars19-kophadlarni-qoshish': {
+    right: ['9a − 11b', '−2a − 1', 'Знак каждого члена меняется', '8'],
+    noGap: /Пробелов нет/i,
+    ring: false,
+    readySel: '.g7-readyline',
+  },
+  'dars18-kophad-va-turlari': {
+    // innerText: `Fx` ustki ko'rsatkichni <sup> qiladi, ya'ni −2a3bc4.
+    right: ['4', '−2a3bc4', 'Одночлен', '10'],
+    noGap: /Пробелов нет/i,
+    ring: false,
+    readySel: '.g7-readyline',
+  },
   'dars06-oxshash-hadlar': {
     right: ['9a', '6b', 'Нет, буквы разные', 'Складывают'],
     noGap: /Пробелов нет/i,

@@ -900,7 +900,7 @@ function Screen10({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S11 = {
   eyebrow: L("FAQAT O'ZINGIZ", 'ТОЛЬКО САМ', 'ON YOUR OWN ONLY'),
-  title: L('Asbobsiz', 'Без прибора', 'Without the tool'),
+  title: L("Yozuvni o'zingiz yig'ing", 'Собери запись сам', 'Build the record yourself'),
   template: ['=  ', { slot: 0 }, 'x + ', { slot: 1 }],
   parts: [
     { id: 'p3', label: '3' },
@@ -963,23 +963,25 @@ const S12 = {
   step1Cap: L('1-QADAM', 'ШАГ 1', 'STEP 1'),
   step2Cap: L('2-QADAM', 'ШАГ 2', 'STEP 2'),
   ask: L(
-    "Yuqoridagi qatordan kelib chiqmagan qatorni toping.",
-    'Найди строку, которая не следует из строки над ней.',
-    'Find the line that does not follow from the line above it.',
+    "Ixchamlash to'g'ri bajarilgan. Shunday bo'lsa ham, qaysi qator xato?",
+    'Приведение выполнено верно. И всё же какая строка ошибочна?',
+    'The collecting is done right. Even so, which line is wrong?',
   ),
   rows: [
     { id: 'r1', text: '5x + 3 − 2x + 1' },
     { id: 'r2', text: '5x − 2x + 3 + 1' },
     { id: 'r3', text: '3x + 4' },
-    { id: 'r4', text: '7x' },
+    { id: 'r4', text: L("3x va 4 o'xshash hadlar", '3x и 4 подобны', '3x and 4 are like terms') },
+    { id: 'r5', text: '7x' },
   ],
   answerId: 'r4',
   hints: {
     r1: L("Bu boshlang'ich yozuv, unda hali hech nima ixchamlanmagan.", 'Это исходная запись, в ней ещё ничего не приведено.', 'That is the original expression, nothing has been collected yet.'),
     r2: L("Bu yerda hadlar faqat o'rin almashdi, va har biri O'Z ishorasi bilan ko'chdi. Tekshiring.", 'Здесь слагаемые только поменялись местами, и каждое переехало со СВОИМ знаком. Проверь.', 'Here the terms only swapped places, each moving with its OWN sign. Check it.'),
     r3: L("Bu qator ikkinchisidan to'g'ri kelib chiqadi: 5 ayirish 2 bu 3, va 3 qo'shuv 1 bu 4.", 'Эта строка верно следует из второй: 5 минус 2 это 3, а 3 плюс 1 это 4.', 'This line follows correctly from the second: 5 minus 2 is 3, and 3 plus 1 is 4.'),
+      r5: L("Bu qator oldingisidan chiqqan. Xato esa undan YUQORIDA.", 'Эта строка выходит из предыдущей. А ошибка ВЫШЕ неё.', 'This line follows from the one before. The mistake is ABOVE it.'),
   },
-  tags: { r1: 'Z2', r2: 'Z2', r3: 'Z2' },
+  tags: { r1: 'Z2', r2: 'Z2', r3: 'Z2' , r5: 'Z2' },
   proofFill: {
     template: ['x = 2:    3x + 4 = ', { slot: 0 }, ',    7x = ', { slot: 1 }],
     parts: [{ id: 'v10', label: '10' }, { id: 'v14', label: '14' }, { id: 'v7', label: '7' }, { id: 'v20', label: '20' }],

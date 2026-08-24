@@ -889,24 +889,24 @@ const S12 = {
   step1Cap: L('1-QADAM', 'ШАГ 1', 'STEP 1'),
   step2Cap: L('2-QADAM', 'ШАГ 2', 'STEP 2'),
   ask: L(
-    "Qaysi qator yuqorisidan kelib chiqmaydi?",
-    'Какая строка не следует из строки над ней?',
-    'Which line does not follow from the one above?',
+    "Hisob to'g'ri bajarilgan. Shunday bo'lsa ham, qaysi qator xato?",
+    'Счёт выполнен верно. И всё же какая строка ошибочна?',
+    'The arithmetic is done right. Even so, which line is wrong?',
   ),
   // UCH QATOR, to'rtta emas: 12-ekranda ikki asbob turadi (qatorlar va
   // isbot), va to'rtinchi qator 488 px budjetidan chiqib ketardi. Qadamlar
   // MAZMUNI o'zgarmadi: ikkinchi qatorda ikki amal birga hisoblangan.
   rows: [
-    { id: 'r1', text: '4x · x − x² + 7 − 7' },
-    { id: 'r2', text: '4x² − x² + 7 − 7 = 3x² + 0' },
+    { id: 'r1', text: '4x · x − x² + 7 − 7 = 3x² + 0' },
+    { id: 'r2', text: L('nol ham had bo\'lib qoladi', 'ноль тоже остаётся членом', 'the zero stays a term too') },
     { id: 'r3', text: L('javob: ikkihad', 'ответ: двучлен', 'answer: a binomial') },
   ],
-  answerId: 'r3',
+  answerId: 'r2',
   hints: {
-    r1: L("Bu boshlang'ich yozuv.", 'Это исходная запись.', 'That is the original record.'),
-    r2: L("To'g'ri: ko'paytma hisoblandi, to'rttadan bittasi ayrildi, yettidan yetti nol berdi.", 'Верно: произведение посчитано, из четырёх вычли один, семь минус семь дало ноль.', 'Right: the product is worked out, one was taken from four, and seven minus seven gave zero.'),
+    r1: L("To'g'ri: ko'paytma hisoblandi, to'rttadan bittasi ayrildi, yettidan yetti nol berdi.", 'Верно: произведение посчитано, из четырёх вычли один, семь минус семь дало ноль.', 'Right: the product is worked out, one was taken from four, and seven minus seven gave zero.'),
+    r3: L("Bu qator oldingisidan chiqqan. Xato esa undan YUQORIDA.", 'Эта строка выходит из предыдущей. А ошибка ВЫШЕ неё.', 'This line follows from the one before. The mistake is ABOVE it.'),
   },
-  tags: { r1: 'Z1', r2: 'Z1' },
+  tags: { r1: 'Z1', r3: 'Z1' },
   proofFill: {
     template: ['4x · x − x² + 7 − 7  =  ', { slot: 0 }, ',  ya\'ni  ', { slot: 1 }],
     parts: [

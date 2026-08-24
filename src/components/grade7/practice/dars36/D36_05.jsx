@@ -1,53 +1,91 @@
-// Dars36 · Amaliyot 05 — Ikki nuqta va formula · 🟡 · sort · tag: graph_zones
-// Mexanika: kit.jsx -> Zones. Raskladka: 5-o'rin.
-// (0; 2) va (1; 3) -> y = x + 2;  (0; −2) va (1; −1) -> y = x − 2;
-// (0; 2) va (1; 1) -> y = −x + 2.
+// Dars36 · Amaliyot 05 — Ikki nuqtadan formula · 🟡 · sort · tag: graph_zones
+// Mexanika: kit.jsx -> Zones. Raskladka: 5-o'rin `sort`.
+// DARAJA KO'TARILDI (metodist qarori 2026-08-22): k manfiy va kasr bo'ladi,
+// savol ikki qadamli -- PODXOD_7SINF.md 13-band.
+// (0; 3) va (1; 5) -> y = 2x + 3; (0; 3) va (1; 1) -> y = −2x + 3; (0; −3) va (1; −1) -> y = 2x − 3.
 import React from 'react';
 import { Zones, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'graph_zones', level: '🟡', itemSize: 18, zoneLbl: 92,
-  eyebrow: L('Qaysi formula', 'Какая формула', 'Which rule'),
+  tag: 'graph_zones',
+  level: '🟡',
+  eyebrow: L(
+    'Uch juftlik',
+    'Три пары',
+    'Three pairs'),
   setup: L(
-    "Har juftlikda birinchi nuqta x = 0 da turadi -- u b ni beradi. Ikkinchi nuqta y qanday o'zgarganini ko'rsatadi.",
-    'В каждой паре первая точка при x = 0 — она даёт b. Вторая показывает, как изменился y.',
-    'In each pair the first point sits at x = 0 and gives b. The second shows how y changed.'),
+    "Har juftlik bitta formulaga to'g'ri keladi. b ni birinchi nuqta beradi, k esa ikkinchi nuqtaga o'tishdagi o'zgarish.",
+    'Каждая пара отвечает одной формуле. b даёт первая точка, а k это изменение при переходе ко второй.',
+    'Each pair matches one formula. The first point gives b, the step to the second gives k.'),
+  itemSize: 17,
+  zoneLbl: 108,
   zones: [
-    { id: 'z1', label: L('y = x + 2', 'y = x + 2', 'y = x + 2') },
-    { id: 'z2', label: L('y = x − 2', 'y = x − 2', 'y = x − 2') },
-    { id: 'z3', label: L('y = −x + 2', 'y = −x + 2', 'y = −x + 2') },
+    {
+      id: 'z1',
+      label: L(
+        'y = 2x + 3',
+        'y = 2x + 3',
+        'y = 2x + 3'),
+    },
+    {
+      id: 'z2',
+      label: L(
+        'y = −2x + 3',
+        'y = −2x + 3',
+        'y = −2x + 3'),
+    },
+    {
+      id: 'z3',
+      label: L(
+        'y = 2x − 3',
+        'y = 2x − 3',
+        'y = 2x − 3'),
+    },
   ],
   items: [
-    { id: 'i1', tokens: ['(0;', '2)', 'va', '(1;', '3)'], zone: 'z1' },
-    { id: 'i2', tokens: ['(0;', '−2)', 'va', '(1;', '−1)'], zone: 'z2' },
-    { id: 'i3', tokens: ['(0;', '2)', 'va', '(1;', '1)'], zone: 'z3' },
+    { id: 'i1', tokens: ['(0; 3), (1; 5)'], zone: 'z1' },
+    { id: 'i2', tokens: ['(0; 3), (1; 1)'], zone: 'z2' },
+    { id: 'i3', tokens: ['(0; −3), (1; −1)'], zone: 'z3' },
   ],
-  ask: L('Kartani bosing, keyin zonani bosing. Zonadagi kartani bosish uni qaytarib oladi.',
+  bank: L(
+    'Juftliklar',
+    'Пары',
+    'Pairs'),
+  ask: L(
+    'Kartani bosing, keyin zonani bosing. Zonadagi kartani bosish uni qaytarib oladi.',
     'Нажми карточку, затем зону. Нажатие на карточку в зоне возвращает её обратно.',
     'Tap a card, then tap a zone. Tapping a card inside a zone takes it back.'),
-  bank: L('Nuqta juftlari', 'Пары точек', 'Point pairs'),
   correctText: L(
-    "To'g'ri. Birinchi va uchinchi juftlikda b = 2, lekin biri o'sadi, ikkinchisi kamayadi. Ikkinchisida esa b = −2.",
-    'Верно. В первой и третьей паре b = 2, но одна растёт, другая убывает. А во второй b = −2.',
-    'Correct. The first and third pairs share b = 2 but one grows and the other falls. The second has b = −2.'),
+    "To'g'ri. Birinchi juftlikda qiymat 2 ga o'sdi, ikkinchisida 2 ga kamaydi, uchinchisida b manfiy.",
+    'Верно. В первой паре значение выросло на 2, во второй убыло на 2, в третьей b отрицательный.',
+    'Correct. The first pair grows by 2, the second falls by 2, the third has a negative b.'),
   wrongs: [
-    { when: (s) => s.bad.indexOf('i3') !== -1, text: L(
-      "(0; 2) dan (1; 1) ga y KAMAYDI, ya'ni k manfiy: y = −x + 2.",
-      'От (0; 2) к (1; 1) значение y УБЫЛО, значит k отрицательный: y = −x + 2.',
-      'From (0; 2) to (1; 1) the y FELL, so k is negative: y = −x + 2.') },
-    { when: (s) => s.bad.indexOf('i2') !== -1, text: L(
-      "Bu juftlikda b = −2: birinchi nuqta noldan pastda.",
-      'В этой паре b = −2: первая точка ниже нуля.',
-      'This pair has b = −2: the first point sits below zero.') },
-    { when: (s) => s.bad.indexOf('i1') !== -1, text: L(
-      "(0; 2) dan (1; 3) ga y bittaga oshdi: k = 1, b = 2.",
-      'От (0; 2) к (1; 3) значение выросло на один: k = 1, b = 2.',
-      'From (0; 2) to (1; 3) y grew by one: k = 1, b = 2.') },
+    {
+      when: (s) => s.bad.indexOf('i2') !== -1,
+      text: L(
+        "3 dan 1 ga -- qiymat KAMAYDI, ya'ni k manfiy.",
+        'От 3 к 1 значение УБЫЛО, значит k отрицательный.',
+        'From 3 to 1 the value FALLS, so k is negative.'),
+    },
+    {
+      when: (s) => s.bad.indexOf('i3') !== -1,
+      text: L(
+        'Bu juftlikda b = −3: x = 0 dagi qiymat manfiy.',
+        'В этой паре b = −3: значение при x = 0 отрицательное.',
+        'This pair has b = −3: the value at x = 0 is negative.'),
+    },
+    {
+      when: (s) => s.bad.indexOf('i1') !== -1,
+      text: L(
+        "3 dan 5 ga -- o'sish 2 ga, b = 3.",
+        'От 3 к 5 рост на 2, b = 3.',
+        'From 3 to 5 the growth is 2, with b = 3.'),
+    },
   ],
   wrongText: L(
-    "Har juftlikda ikki savolga javob bering: b nechchi, va y oshdimi yoki kamaydi?",
-    'В каждой паре ответь на два вопроса: чему равен b и вырос ли y?',
-    'For each pair answer two questions: what is b, and did y grow or fall?'),
+    'x = 0 dagi qiymat b ni beradi, keyingi qadam k ni.',
+    'Значение при x = 0 даёт b, следующий шаг даёт k.',
+    'The value at x = 0 gives b, the next step gives k.'),
 };
 
 export default function D36_05(props) { return <Zones data={DATA} {...props} />; }

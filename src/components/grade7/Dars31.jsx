@@ -679,15 +679,17 @@ const S12 = {
     { id: 'r1', text: 'x³ + 27' },
     { id: 'r2', text: '27 = 3 · 3 · 3' },
     { id: 'r3', text: L('ildizlar: x va 3', 'корни: x и 3', 'roots: x and 3') },
-    { id: 'r4', text: L('javob: (x + 3)³', 'ответ: (x + 3)³', 'answer: (x + 3)³') },
+    { id: 'r4', text: L("yig'indining kubi formulasi kerak", 'нужна формула куба суммы', 'the cube-of-a-sum formula is needed') },
+    { id: 'r5', text: L('javob: (x + 3)³', 'ответ: (x + 3)³', 'answer: (x + 3)³') },
   ],
   answerId: 'r4',
   hints: {
     r1: L("Bu boshlang'ich yozuv.", 'Это исходная запись.', 'That is the original record.'),
     r2: L("To'g'ri: yigirma yetti uchning kubi.", 'Верно: двадцать семь это куб трёх.', 'Right: twenty seven is three cubed.'),
     r3: L("To'g'ri: ildizlar x va uch.", 'Верно: корни x и три.', 'Right: the roots are x and three.'),
+    r5: L("Bu qator oldingisidan chiqqan. Xato esa undan YUQORIDA.", 'Эта строка выходит из предыдущей. А ошибка ВЫШЕ неё.', 'This line follows from the one before. The mistake is ABOVE it.'),
   },
-  tags: { r1: 'Z1', r2: 'Z1', r3: 'Z1' },
+  tags: { r1: 'Z1', r2: 'Z1', r3: 'Z1', r5: 'Z1' },
   proofFill: {
     template: ['(x + 3)³  =  x³ + 9x² + 27x + 27   →   x³ + 27  =  (x + 3)(', { slot: 0 }, ' − 3x + ', { slot: 1 }, ')'],
     parts: [

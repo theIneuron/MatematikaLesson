@@ -1,50 +1,76 @@
-// Dars41 · Amaliyot 09 — Vertikal burchak va harf · 🔴 · order · tag: ang_vert_letter
-// Mexanika: kit.jsx -> BuildLine (tartib muhim). Raskladka: 9-o'rin.
-// Vertikal burchaklar teng: 3x = 75 -> x = 25.
+// Dars41 · Amaliyot 09 — Yon tomonni topish · 🔴 · order · tag: kind_leg_from_p
+// Mexanika: kit.jsx -> BuildLine. Raskladka: 9-o'rin `order`.
+// Teng yonli, P = 40, asos 16 -> 40 − 16 = 24 -> 24 : 2 = 12. Uch qadam tartib bilan.
 import React from 'react';
 import { BuildLine, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'ang_vert_letter', level: '🔴',
-  eyebrow: L('Vertikal va harf', 'Вертикальные и буква', 'Vertical with a letter'),
+  tag: 'kind_leg_from_p',
+  level: '🔴',
+  eyebrow: L(
+    'Uch qadam',
+    'Три шага',
+    'Three steps'),
   setup: L(
-    "Vertikal burchaklar teng bo'lgani uchun tenglama tuziladi. Uni yechish oddiy: bir bo'lish yetadi.",
-    'Вертикальные углы равны, поэтому составляется уравнение. Решается оно одним делением.',
-    'Vertical angles are equal, so an equation appears. One division solves it.'),
-  given: [['∠1', '=', '3x'], ['∠2', '=', '75°']],
-  givenLabel: L('Vertikal burchaklar:', 'Вертикальные углы:', 'Vertical angles:'),
+    'Teng yonli uchburchakning perimetri va asosi berilgan. Yon tomonni uch qadamda toping: qadamlar tartibi muhim.',
+    'Даны периметр и основание равнобедренного треугольника. Найди боковую сторону в три шага: порядок важен.',
+    'The perimeter and base of an isosceles triangle are given. Find the leg in three ordered steps.'),
+  given: [['P = 40', ',', 'asos 16']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
   cards: [
-    { id: 'a', label: '3x = 75°' },
-    { id: 'b', label: 'x = 25°' },
-    { id: 'c', label: '3x + 75° = 180°' },
-    { id: 'd', label: 'x = 35°' },
+    { id: 'a', label: '40 − 16 = 24' },
+    { id: 'b', label: '24 : 2 = 12' },
+    { id: 'c', label: 'yon tomon 12' },
+    { id: 'd', label: '40 : 2 = 20' },
+    { id: 'e', label: 'yon tomon 24' },
   ],
-  answerSeq: ['a', 'b'],
-  empty: L("Qadamlarni tartib bilan qo'ying", 'Поставь шаги по порядку', 'Place the steps in order'),
-  ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+  answerSeq: ['a', 'b', 'c'],
+  ask: L(
+    "Kartani bosish uni chiziqqa qo'yadi.",
+    'Нажатие на карточку ставит её в строку.',
+    'Tapping a card puts it in the line.'),
+  empty: L(
+    'Kartalarni bosib javobni tuzing',
+    'Нажимай карточки и собери ответ',
+    'Tap the cards to build the answer'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. Vertikal burchaklar teng: 3x = 75 -> x = 25.",
-    'Верно. Вертикальные углы равны: 3x = 75 → x = 25.',
-    'Correct. Vertical angles are equal: 3x = 75 → x = 25.'),
+    "To'g'ri. Asosni ayirsak ikki yon tomon qoladi: 24. Ular teng, ya'ni har biri 12.",
+    'Верно. Вычли основание — остались две боковые: 24. Они равны, значит каждая 12.',
+    'Correct. Removing the base leaves the two legs: 24. They are equal, so each is 12.'),
   wrongs: [
-    { when: (s) => s.seq.indexOf('c') !== -1, text: L(
-      "180 gradus QO'SHNI burchaklar uchun. Vertikal burchaklar esa TENG.",
-      '180 градусов для СМЕЖНЫХ углов. А вертикальные РАВНЫ.',
-      '180 is for ADJACENT angles. Vertical ones are EQUAL.') },
-    { when: (s) => s.seq.indexOf('d') !== -1, text: L(
-      "35 emas: 75 : 3 = 25.",
-      'Не 35: 75 : 3 = 25.',
-      'Not 35: 75 : 3 = 25.') },
-    { when: (s) => s.seq.length < 2, text: L(
-      "Ikki qadam kerak: tenglama va ildiz.",
-      'Нужны два шага: уравнение и корень.',
-      'Two steps: the equation and the root.') },
+    {
+      when: (s) => s.seq.indexOf('d') !== -1,
+      text: L(
+        '40 : 2 = 20 -- perimetrning yarmi, lekin asos hisobga olinmagan. Avval asosni ayirish kerak.',
+        '40 : 2 = 20 это половина периметра, но основание не учли. Сначала вычти основание.',
+        '40 : 2 = 20 halves the perimeter without removing the base first.'),
+    },
+    {
+      when: (s) => s.seq.indexOf('e') !== -1,
+      text: L(
+        '24 bu IKKI yon tomon birga. Bittasi 24 : 2 = 12.',
+        '24 это ДВЕ боковые вместе. Одна равна 24 : 2 = 12.',
+        '24 is BOTH legs together. One of them is 24 : 2 = 12.'),
+    },
+    {
+      when: (s) => s.seq.length < 3,
+      text: L(
+        'Uch karta kerak.',
+        'Нужны три карточки.',
+        'Three cards are needed.'),
+    },
   ],
   wrongText: L(
-    "Vertikal burchaklar teng bo'lsa, qanday tenglama chiqadi?",
-    'Если вертикальные углы равны, какое выйдет уравнение?',
-    'If vertical angles are equal, what equation appears?'),
+    "Perimetrdan asosni ayiring, qolganini ikkiga bo'ling.",
+    'Вычти из периметра основание, остаток раздели на два.',
+    'Subtract the base from the perimeter, then halve the rest.'),
 };
 
 export default function D41_09(props) { return <BuildLine data={DATA} {...props} />; }

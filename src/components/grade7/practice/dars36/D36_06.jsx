@@ -1,50 +1,78 @@
 // Dars36 · Amaliyot 06 — Grafikdan formula · 🟡 · build · tag: read_graph
-// Mexanika: kit.jsx -> BuildLine. Raskladka: 6-o'rin.
-// To'g'ri chiziq (0; −4) va (2; 0) dan o'tadi: b = −4, k = 2.
+// Mexanika: kit.jsx -> BuildLine. Raskladka: 6-o'rin `build`.
+// DARAJA KO'TARILDI (metodist qarori 2026-08-22): k manfiy va kasr bo'ladi,
+// savol ikki qadamli -- PODXOD_7SINF.md 13-band.
+// To'g'ri chiziq (0; −6) va (3; 0) dan o'tadi: b = −6, k = 6 : 3 = 2.
 import React from 'react';
 import { BuildLine, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'read_graph', level: '🟡',
-  eyebrow: L('Grafikdan o\'qish', 'Прочитать по графику', 'Read from the graph'),
+  tag: 'read_graph',
+  level: '🟡',
+  eyebrow: L(
+    'Grafikdan formula',
+    'Формула по графику',
+    'Formula from a graph'),
   setup: L(
-    "To'g'ri chiziq ikki nuqtada berilgan. Birinchisi y o'qini kesish nuqtasi, ikkinchisi x o'qini kesish nuqtasi.",
-    'Прямая задана двумя точками. Первая это пересечение с осью y, вторая с осью x.',
-    'The line is given by two points: the y intercept and the x intercept.'),
-  given: [['(0;', '−4)'], ['(2;', '0)']],
-  givenLabel: L('Nuqtalar:', 'Точки:', 'Points:'),
+    "Chiziq ikki nuqtadan o'tadi. b -- y o'qidagi qiymat, k esa o'zgarishlar nisbati.",
+    'Прямая проходит через две точки. b это значение на оси y, а k отношение изменений.',
+    'The line passes two points. b is the value on the y axis, k the ratio of changes.'),
+  given: [['(0; −6)', 'va', '(3; 0)']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
   cards: [
-    { id: 'a', label: 'k = 2' },
-    { id: 'b', label: 'b = −4' },
-    { id: 'c', label: 'k = −2' },
-    { id: 'd', label: 'b = 2' },
+    { id: 'a', label: 'y = 2x − 6' },
+    { id: 'b', label: 'y = −2x + 6' },
+    { id: 'c', label: 'y = 2x + 6' },
+    { id: 'd', label: 'y = 6x − 2' },
   ],
-  answerSeq: ['a', 'b'],
-  empty: L("k va b ni toping", 'Найди k и b', 'Find k and b'),
-  ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+  answerSeq: ['a'],
+  fieldH: 44,
+  ask: L(
+    "Kartani bosish uni chiziqqa qo'yadi.",
+    'Нажатие на карточку ставит её в строку.',
+    'Tapping a card puts it in the line.'),
+  empty: L(
+    'Kartalarni bosib javobni tuzing',
+    'Нажимай карточки и собери ответ',
+    'Tap the cards to build the answer'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. b = −4, chunki x = 0 da y = −4. Ikki qadamda y −4 dan 0 ga o'sdi, ya'ni bir qadamda 2: k = 2.",
-    'Верно. b = −4, потому что при x = 0 выходит y = −4. За два шага y вырос с −4 до 0, значит за шаг на 2: k = 2.',
-    'Correct. b = −4 since y = −4 at x = 0. Over two steps y rose from −4 to 0, so 2 per step: k = 2.'),
+    "To'g'ri. b = −6, o'zgarish 0 − (−6) = 6 ni 3 ga bo'lsak k = 2.",
+    'Верно. b = −6, изменение 0 − (−6) = 6 делим на 3 и получаем k = 2.',
+    'Correct. b = −6, and the change 0 − (−6) = 6 over 3 gives k = 2.'),
   wrongs: [
-    { when: (s) => s.seq.indexOf('c') !== -1, text: L(
-      "y o'sdi: −4 dan 0 ga. O'sish k ni musbat qiladi.",
-      'Значение выросло: с −4 до 0. Рост делает k положительным.',
-      'The value grew from −4 to 0. Growth makes k positive.') },
-    { when: (s) => s.seq.indexOf('d') !== -1, text: L(
-      "b = 2 emas: 2 bu ikkinchi nuqtaning abssissasi. b esa x = 0 dagi qiymat, ya'ni −4.",
-      'b не 2: двойка это абсцисса второй точки. А b это значение при x = 0, то есть −4.',
-      'b is not 2: that is the second abscissa. b is the value at x = 0, which is −4.') },
-    { when: (s) => s.seq.length < 2, text: L(
-      "Ikki son kerak: k va b.",
-      'Нужны два числа: k и b.',
-      'Two numbers are needed: k and b.') },
+    {
+      when: (s) => s.seq.indexOf('b') !== -1,
+      text: L(
+        "Qiymat −6 dan 0 ga O'SDI, ya'ni k musbat.",
+        'Значение ВЫРОСЛО от −6 до 0, значит k положительный.',
+        'The value GREW from −6 to 0, so k is positive.'),
+    },
+    {
+      when: (s) => s.seq.indexOf('c') !== -1,
+      text: L(
+        "b ning ishorasi yo'qolgan: x = 0 da qiymat −6.",
+        'Потерян знак b: при x = 0 значение −6.',
+        'The sign of b is lost: at x = 0 the value is −6.'),
+    },
+    {
+      when: (s) => s.seq.indexOf('d') !== -1,
+      text: L(
+        'k va b joyini almashtirgan: k -- x oldidagi son.',
+        'k и b поменялись местами: k это число перед x.',
+        'k and b swapped: k is the number before x.'),
+    },
   ],
   wrongText: L(
-    "x = 0 dagi qiymat b ni beradi. Keyin x ikki oshganda y qancha o'sganini ikkiga bo'ling.",
-    'Значение при x = 0 даёт b. Потом раздели прирост y на два шага x.',
-    'The value at x = 0 gives b. Then divide the rise in y by the two steps in x.'),
+    "Avval b ni oling, keyin ordinatalar o'zgarishini abssissalar o'zgarishiga bo'ling.",
+    'Сначала возьми b, потом раздели изменение ординат на изменение абсцисс.',
+    'Take b first, then divide the change in y by the change in x.'),
 };
 
 export default function D36_06(props) { return <BuildLine data={DATA} {...props} />; }

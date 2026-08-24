@@ -1,44 +1,70 @@
-// Dars48 · Amaliyot 06 — Tomonni ikki barobar · 🟡 · chain · tag: area_chain
-// Mexanika: kit.jsx -> SlotsBank (ikki qator). Raskladka: 6-o'rin.
-// To'rtburchak 8 va 15: S = 120. Bir tomon ikki barobar bo'lsa S = 240.
+// Dars48 · Amaliyot 06 — Tengsizlik va chegara · 🟡 · chain · tag: rev_ineq_chain
+// Mexanika: kit.jsx -> SlotsBank. Raskladka: 6-o'rin `chain`.
+// Tomonlar 5 va 9: uchinchi tomon 4 dan katta va 14 dan kichik.
 import React from 'react';
 import { SlotsBank, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'area_chain', level: '🟡',
-  eyebrow: L('Ikki barobar', 'Вдвое больше', 'Twice as long'),
+  tag: 'rev_ineq_chain',
+  level: '🟡',
+  eyebrow: L(
+    'Ikki chegara',
+    'Две границы',
+    'Two bounds'),
   setup: L(
-    "Avval yuza topiladi. Keyin bir tomon ikki barobar oshsa, yuza ham ikki barobar oshadi.",
-    'Сначала находится площадь. Если одна сторона увеличится вдвое, площадь тоже вырастет вдвое.',
-    'First the area. Doubling one side doubles the area too.'),
-  given: [['8', 'va', '15']],
-  givenLabel: L('Tomonlar:', 'Стороны:', 'Sides:'),
+    "Ikki tomon berilgan. Uchburchak tengsizligi uchinchi tomonga ikki chegara qo'yadi.",
+    'Даны две стороны. Неравенство треугольника ставит третьей стороне две границы.',
+    'Two sides are given. The triangle inequality puts two bounds on the third.'),
+  given: [['5', 'va', '9']],
+  givenLabel: L(
+    'Tomonlar:',
+    'Стороны:',
+    'Sides:'),
   rows: [
-    [{ t: ['S', '='] }, { slot: 0 }],
-    [{ t: ['bir', 'tomon', 'ikki', 'barobar', '→', 'S', '='] }, { slot: 1 }],
+    [{ t: ['uchinchi', 'tomon', '>'] }, { slot: 0 }],
+    [{ t: ['uchinchi', 'tomon', '<'] }, { slot: 1 }],
   ],
-  cards: ['120', '240', '23', '480'],
-  answer: ['120', '240'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+  cards: ['4', '14', '5', '45'],
+  answer: ['4', '14'],
+  ask: L(
+    'Kartani bosing, keyin uyani bosing.',
+    'Нажми карточку, затем клетку.',
+    'Tap a card, then tap a cell.'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. S = 8 · 15 = 120. Bir tomon ikki barobar bo'lsa 16 · 15 = 240.",
-    'Верно. S = 8 · 15 = 120. При удвоении одной стороны 16 · 15 = 240.',
-    'Correct. S = 8 · 15 = 120. Doubling one side gives 16 · 15 = 240.'),
+    "To'g'ri. 9 − 5 = 4 va 9 + 5 = 14. Uchinchi tomon shu chegaralar orasida.",
+    'Верно. 9 − 5 = 4 и 9 + 5 = 14. Третья сторона между этими границами.',
+    'Correct. 9 − 5 = 4 and 9 + 5 = 14. The third side lies between them.'),
   wrongs: [
-    { when: (s) => s.slots[0] === '23', text: L(
-      "23 bu 8 + 15. Yuza uchun tomonlar ko'paytiriladi.",
-      '23 это 8 + 15. Для площади стороны перемножаются.',
-      '23 is 8 + 15. Area multiplies the sides.') },
-    { when: (s) => s.slots[1] === '480', text: L(
-      "480 chiqishi uchun IKKI tomon ham ikki barobar bo'lgan. Bizda esa faqat bittasi.",
-      'Чтобы вышло 480, удвоили ОБЕ стороны. А у нас только одна.',
-      'To get 480 BOTH sides were doubled. Only one is.') },
+    {
+      when: (s) => s.slots[0] === '5',
+      text: L(
+        "5 bu tomonning o'zi. Pastki chegara ayirma: 9 − 5 = 4.",
+        '5 это сама сторона. Нижняя граница это разность: 9 − 5 = 4.',
+        '5 is a side itself. The lower bound is the difference: 9 − 5 = 4.'),
+    },
+    {
+      when: (s) => s.slots[1] === '45',
+      text: L(
+        "45 bu 5 · 9. Yuqori chegara yig'indi: 14.",
+        '45 это 5 · 9. Верхняя граница это сумма: 14.',
+        '45 is 5 · 9. The upper bound is the sum: 14.'),
+    },
+    {
+      when: (s) => s.slots.indexOf(null) !== -1,
+      text: L(
+        "Hamma uya to'ldirilishi kerak.",
+        'Надо заполнить все клетки.',
+        'Every cell must be filled.'),
+    },
   ],
   wrongText: L(
-    "Yuzani toping, keyin bitta ko'paytuvchini ikki barobar oshiring.",
-    'Найди площадь, потом удвой один множитель.',
-    'Find the area, then double one factor.'),
+    "Ayirma va yig'indini hisoblang.",
+    'Посчитай разность и сумму.',
+    'Compute the difference and the sum.'),
 };
 
 export default function D48_06(props) { return <SlotsBank data={DATA} {...props} />; }

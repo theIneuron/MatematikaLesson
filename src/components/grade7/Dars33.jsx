@@ -668,15 +668,17 @@ const S12 = {
     { id: 'r1', text: L('nuqta: (0; −4)', 'точка: (0; −4)', 'point: (0; −4)') },
     { id: 'r2', text: 'x = 0' },
     { id: 'r3', text: 'y = −4' },
-    { id: 'r4', text: L("javob: to'rtinchi chorak", 'ответ: четвёртая четверть', 'answer: the fourth quadrant') },
+    { id: 'r4', text: L('nuqta chorakda yotadi', 'точка лежит в четверти', 'the point lies in a quadrant') },
+    { id: 'r5', text: L("javob: to'rtinchi chorak", 'ответ: четвёртая четверть', 'answer: the fourth quadrant') },
   ],
   answerId: 'r4',
   hints: {
     r1: L("Bu boshlang'ich yozuv.", 'Это исходная запись.', 'That is the original record.'),
     r2: L("To'g'ri: birinchi son nol.", 'Верно: первое число ноль.', 'Right: the first number is zero.'),
     r3: L("To'g'ri: ikkinchi son manfiy to'rt.", 'Верно: второе число минус четыре.', 'Right: the second number is minus four.'),
+      r5: L("Bu qator oldingisidan chiqqan. Xato esa undan YUQORIDA.", 'Эта строка выходит из предыдущей. А ошибка ВЫШЕ неё.', 'This line follows from the one before. The mistake is ABOVE it.'),
   },
-  tags: { r1: 'Z2', r2: 'Z2', r3: 'Z2' },
+  tags: { r1: 'Z2', r2: 'Z2', r3: 'Z2' , r5: 'Z2' },
   proofFill: {
     template: ['x = 0   →   ', { slot: 0 }],
     parts: [

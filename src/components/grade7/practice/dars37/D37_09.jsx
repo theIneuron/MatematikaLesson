@@ -1,46 +1,73 @@
-// Dars37 · Amaliyot 09 — Manfiy nuqtadan formula · 🔴 · build · tag: prop_neg_build
-// Mexanika: kit.jsx -> BuildLine. Raskladka: 9-o'rin.
-// (−4; 20): k = 20 : (−4) = −5, ya'ni y = −5x.
+// Dars37 · Amaliyot 09 — Necha barobar · 🔴 · build · tag: prop_times
+// Mexanika: kit.jsx -> BuildLine. Raskladka: 9-o'rin `build`.
+// DARAJA KO'TARILDI (metodist qarori 2026-08-22): manfiy va kasr koeffitsiyent,
+// ikki qadamli savol, yaqin tuzoq -- PODXOD_7SINF.md 13-band.
+// Proporsionallikda x uch barobar oshsa y ham uch barobar oshadi: x = 4 da y = 18 -> x = 12 da y = 54.
 import React from 'react';
 import { BuildLine, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'prop_neg_build', level: '🔴',
-  eyebrow: L('Manfiy nuqta', 'Отрицательная точка', 'A negative point'),
+  tag: 'prop_times',
+  level: '🔴',
+  eyebrow: L(
+    'Necha barobar',
+    'Во сколько раз',
+    'How many times'),
   setup: L(
-    "Abssissa manfiy, ordinata musbat: bo'linma manfiy chiqadi. Grafik ikkinchi va to'rtinchi chorakdan o'tadi.",
-    'Абсцисса отрицательная, ордината положительная: частное выходит отрицательным. График идёт через вторую и четвёртую четверти.',
-    'Negative abscissa, positive ordinate: the quotient is negative. The graph runs through quadrants II and IV.'),
-  given: [['(−4;', '20)']],
-  givenLabel: L('Nuqta:', 'Точка:', 'The point:'),
-  cards: [
-    { id: 'a', label: 'k = −5' },
-    { id: 'b', label: 'y = −5x' },
-    { id: 'c', label: 'k = 5' },
-    { id: 'd', label: 'y = 5x' },
-  ],
-  answerSeq: ['a', 'b'],
-  empty: L("k ni topib formulani yozing", 'Найди k и запиши формулу', 'Find k and write the rule'),
-  ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+    "To'g'ri proporsionallikda x necha barobar oshsa, y ham shuncha barobar oshadi. Koeffitsiyentni hisoblash SHART emas.",
+    'В прямой пропорциональности во сколько раз растёт x, во столько же растёт y. Считать коэффициент НЕ обязательно.',
+    'In direct proportion y grows by the same factor as x. The coefficient need NOT be computed.'),
+  given: [['x = 4', 'da', 'y = 18', ';', 'x = 12']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
+  cards: [{ id: 'a', label: 'y = 54' }, { id: 'b', label: 'y = 26' }, { id: 'c', label: 'y = 6' }],
+  answerSeq: ['a'],
+  fieldH: 44,
+  ask: L(
+    "Kartani bosish uni chiziqqa qo'yadi.",
+    'Нажатие на карточку ставит её в строку.',
+    'Tapping a card puts it in the line.'),
+  empty: L(
+    'Kartalarni bosib javobni tuzing',
+    'Нажимай карточки и собери ответ',
+    'Tap the cards to build the answer'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. k = 20 : (−4) = −5, ya'ni y = −5x. Tekshirish: −5 · (−4) = 20.",
-    'Верно. k = 20 : (−4) = −5, значит y = −5x. Проверка: −5 · (−4) = 20.',
-    'Correct. k = 20 : (−4) = −5, so y = −5x. Check: −5 · (−4) = 20.'),
+    "To'g'ri. 12 : 4 = 3, ya'ni x uch barobar oshdi va y ham: 18 · 3 = 54.",
+    'Верно. 12 : 4 = 3, значит x вырос втрое и y тоже: 18 · 3 = 54.',
+    'Correct. 12 : 4 = 3, so x tripled and y with it: 18 · 3 = 54.'),
   wrongs: [
-    { when: (s) => s.seq.indexOf('c') !== -1 || s.seq.indexOf('d') !== -1, text: L(
-      "Ishorani tekshiring: 5 · (−4) = −20, bizda esa +20. Ya'ni k manfiy bo'lishi kerak.",
-      'Проверь знак: 5 · (−4) = −20, а у нас +20. Значит k должен быть отрицательным.',
-      'Check the sign: 5 · (−4) = −20, but we need +20. So k must be negative.') },
-    { when: (s) => s.seq.length < 2, text: L(
-      "Ikki bo'lak kerak: k va formula.",
-      'Нужны две части: k и формула.',
-      'Two parts are needed: k and the rule.') },
+    {
+      when: (s) => s.seq.indexOf('b') !== -1,
+      text: L(
+        "26 chiqishi uchun 18 ga 8 qo'shilgan. Proporsionallikda KO'PAYTIRILADI, qo'shilmaydi.",
+        'Чтобы вышло 26, к 18 прибавили 8. В пропорциональности УМНОЖАЮТ, а не прибавляют.',
+        '26 adds 8 to 18. Proportion MULTIPLIES rather than adds.'),
+    },
+    {
+      when: (s) => s.seq.indexOf('c') !== -1,
+      text: L(
+        "6 chiqishi uchun 18 uchga bo'lingan. x OSHDI, ya'ni y ham oshadi.",
+        'Чтобы вышло 6, делили 18 на три. x ВЫРОС, значит и y растёт.',
+        '6 divides 18 by three. x GREW, so y grows too.'),
+    },
+    {
+      when: (s) => s.seq.length < 1,
+      text: L(
+        'Bitta karta kerak.',
+        'Нужна одна карточка.',
+        'One card is needed.'),
+    },
   ],
   wrongText: L(
-    "20 ni −4 ga bo'ling: musbatni manfiyga bo'lsa qanday ishora chiqadi?",
-    'Раздели 20 на −4: какой знак даёт положительное, делённое на отрицательное?',
-    'Divide 20 by −4: what sign does a positive over a negative give?'),
+    'x necha barobar oshdi? Shuncha barobar y ni oshiring.',
+    'Во сколько раз вырос x? Во столько же увеличь y.',
+    'By what factor did x grow? Grow y by the same.'),
 };
 
 export default function D37_09(props) { return <BuildLine data={DATA} {...props} />; }

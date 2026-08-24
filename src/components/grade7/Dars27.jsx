@@ -619,17 +619,17 @@ const S12 = {
     { id: 'r1', text: '(a + b)³' },
     { id: 'r2', text: 'a · a² = a³' },
     { id: 'r3', text: 'a · 2ab = 2a²b' },
-    { id: 'r4', text: 'b · a² = a²b' },
+    { id: 'r4', text: L("boshqa ko'paytma yo'q", 'других произведений нет', 'there are no other products') },
     { id: 'r5', text: L('javob: a³ + 3a²b + b³', 'ответ: a³ + 3a²b + b³', 'answer: a³ + 3a²b + b³') },
   ],
-  answerId: 'r5',
+  answerId: 'r4',
   hints: {
     r1: L("Bu boshlang'ich yozuv.", 'Это исходная запись.', 'That is the original record.'),
     r2: L("To'g'ri: a karra a kvadrat a kub beradi.", 'Верно: a на a в квадрате это a в кубе.', 'Right: a times a squared is a cubed.'),
     r3: L("To'g'ri: a karra ikki ab ikki a kvadrat b beradi.", 'Верно: a на два ab это два a в квадрате b.', 'Right: a times two ab is two a squared b.'),
-    r4: L("To'g'ri: b karra a kvadrat a kvadrat b beradi.", 'Верно: b на a в квадрате это a в квадрате b.', 'Right: b times a squared is a squared b.'),
+    r5: L("Bu qator oldingisidan chiqqan. Xato esa undan YUQORIDA.", 'Эта строка выходит из предыдущей. А ошибка ВЫШЕ неё.', 'This line follows from the one before. The mistake is ABOVE it.'),
   },
-  tags: { r1: 'Z1', r2: 'Z1', r3: 'Z1', r4: 'Z1' },
+  tags: { r1: 'Z1', r2: 'Z1', r3: 'Z1', r5: 'Z1' },
   proofFill: {
     template: ['a · b² + b · 2ab  =  ', { slot: 0 }, '   →   a³ + 3a²b + ', { slot: 1 }],
     parts: [

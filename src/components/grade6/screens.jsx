@@ -2812,7 +2812,10 @@ const FinalPanel = (props) => {
       <NavNext disabled={navLocked(!done || !audio.canAdvance)} label={<NextLabel/>} onClick={onNext}/>
     </>
   );
-  const mcOpts = it.opts_i18n ? pickL({ ru: it.opts_i18n.map((o) => o.ru), uz: it.opts_i18n.map((o) => o.uz), en: it.opts_i18n.map((o) => o.en) }, lang) : it.opts;
+  // `opts` бывает и массивом строк, и массивом объектов {ru,uz,en} — раньше
+  // объектный случай без opts_i18n летел в кнопку сырым и ронял экран
+  // (React error #31). t() понимает оба вида, поэтому строк через него.
+  const mcOpts = (it.opts_i18n || it.opts || []).map((o) => t(o));
   const lastWrong = dead.length ? (it.wrong && it.wrong[dead[dead.length - 1]]) : null;
 
   return (

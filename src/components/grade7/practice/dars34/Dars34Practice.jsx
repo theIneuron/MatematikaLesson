@@ -3,12 +3,14 @@
 // qobiq `practice/PracticeHost.jsx` da (CLAUDE.md §5).
 //
 // MEXANIKALAR RASKLADKADAN: node scripts/grade7-practice-layout.mjs --json
+// 34-dars raskladkasi: choice, sort, bracket, build, slots, build, fix, order, build, chain
 // Raskladka nomlari mavjud mexanikalarga solishtirildi (metodist qarori
 // 2026-08-21): build/order/bracket -> BuildLine, slots/chain -> SlotsBank,
 // fix -> TapTerms, sort -> Zones, choice -> Choice (faqat isinish uchun).
-// 34-dars raskladkasi: choice, sort, bracket, build, slots, build, fix, order, build, chain
 //
-// Darsning O'Z misollari ((1; 1), (1; 2), (1; 3), (0; 1), (0; 2)) ataylab takrorlanmadi.
+// MAVZU DARS BILAN SVERKA QILINDI (metodist qarori 2026-08-22): amaliyot
+// mavzusi `src/lessons/grade7.js` dagi nazariy darsning mavzusiga mos.
+
 import React, { useState } from 'react';
 import PracticeHost, { usePracticeZoom } from '../PracticeHost.jsx';
 import D34_01 from './D34_01.jsx';
@@ -23,22 +25,22 @@ import D34_09 from './D34_09.jsx';
 import D34_10 from './D34_10.jsx';
 
 const HEAD = {
-  uz: "Dars 34 amaliyoti — 10 topshiriq (funksiya tushunchasi)",
+  uz: 'Dars 34 amaliyoti — 10 topshiriq (funksiya tushunchasi)',
   ru: 'Практика урока 34 — 10 заданий (понятие функции)',
   en: 'Lesson 34 practice — 10 tasks (the idea of a function)',
 };
 
 const ITEMS = [
-  { id: '01', label: { uz: "Funksiyami", ru: 'Функция ли', en: 'Is it a function' }, C: D34_01 },  // choice 🟢 jadval
-  { id: '02', label: { uz: "Qiymatlar", ru: 'Значения', en: 'Values' }, C: D34_02 },  // sort 🟢 f(x) = 2x
-  { id: '03', label: { uz: "Qo'yish", ru: 'Подстановка', en: 'Substitute' }, C: D34_03 },  // bracket 🟢 f(x) = 3x + 1
-  { id: '04', label: { uz: "Kvadrat", ru: 'Квадрат', en: 'Square' }, C: D34_04 },  // build 🟡 f(x) = x² − 1
-  { id: '05', label: { uz: "Jadval", ru: 'Таблица', en: 'Table' }, C: D34_05 },  // slots 🟡 f(x) = 5 − 2x
-  { id: '06', label: { uz: "Teskari", ru: 'Обратно', en: 'Reverse' }, C: D34_06 },  // build 🟡 f(x) = 0
-  { id: '07', label: { uz: "Manfiy son", ru: 'Отрицательное', en: 'Negative' }, C: D34_07 },  // fix 🟡 f(−3) = x²
-  { id: '08', label: { uz: "Qadamlar", ru: 'Шаги', en: 'Steps' }, C: D34_08 },  // order 🔴 3x² + 1
-  { id: '09', label: { uz: "Harfli argument", ru: 'Буквенный аргумент', en: 'Letter argument' }, C: D34_09 },  // build 🔴 f(a + 1)
-  { id: '10', label: { uz: "Zanjir", ru: 'Цепочка', en: 'Chain' }, C: D34_10 },  // chain 🔴 f(f(4))
+  { id: '01', label: { uz: 'Funksiyami', ru: 'Функция ли', en: 'Is it a function' }, C: D34_01 },  // choice 🟢 is_function
+  { id: '02', label: { uz: 'Uch qiymat', ru: 'Три значения', en: 'Three values' }, C: D34_02 },  // sort 🟢 fn_values_zones
+  { id: '03', label: { uz: "Qo'yish yozuvi", ru: 'Запись подстановки', en: 'The substitution' }, C: D34_03 },  // bracket 🟢 fn_substitute
+  { id: '04', label: { uz: 'Ikki had', ru: 'Два члена', en: 'Two terms' }, C: D34_04 },  // build 🟡 fn_two_terms
+  { id: '05', label: { uz: 'Jadval', ru: 'Таблица', en: 'The table' }, C: D34_05 },  // slots 🟡 fn_table
+  { id: '06', label: { uz: 'Teskari savol', ru: 'Обратный вопрос', en: 'The reverse question' }, C: D34_06 },  // build 🟡 fn_reverse
+  { id: '07', label: { uz: 'Xato qadam', ru: 'Неверный шаг', en: 'The wrong step' }, C: D34_07 },  // fix 🟡 fn_neg_fix
+  { id: '08', label: { uz: 'Hisoblash tartibi', ru: 'Порядок вычисления', en: 'Order of computing' }, C: D34_08 },  // order 🔴 fn_order
+  { id: '09', label: { uz: 'Harfli argument', ru: 'Буквенный аргумент', en: 'A letter argument' }, C: D34_09 },  // build 🔴 fn_letter_arg
+  { id: '10', label: { uz: 'Zanjir', ru: 'Цепочка', en: 'A chain' }, C: D34_10 },  // chain 🔴 fn_chain
 ];
 
 export default function Dars34Practice({ lang = 'uz' }) {

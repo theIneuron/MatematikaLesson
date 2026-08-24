@@ -209,10 +209,20 @@ export const DARS07_BANK = {
           op: 'add',
           cols: 3,
           rows: [
-            { id: 'carry', kind: 'carry', cells: ['', '1', ''], fill: 'all' },
+            // fill faqat [1]: ko'chirish YO'Q joyda (sotni, birlik) katak umuman
+            // bosilmaydi — aks holda bola "ko'chirish yo'q" deb 0 yozadi va xato
+            // hisoblanadi, garchi tushunchasi to'g'ri bo'lsa ham (metodist, 2026-08-24).
+            { id: 'carry', kind: 'carry', cells: ['', '1', ''], fill: [1] },
             { id: 'a', cells: ['4', '3', '6'] },
             { id: 'b', sign: true, cells: ['3', '4', '5'], line: true },
             { id: 'sum', cells: ['7', '8', '1'], fill: 'all' },
+          ],
+          // O'ngdan chapga: avval birlik natijasi, keyin undan chiqqan o'tkazish,
+          // keyin o'nlik, oxirida yuzlik — darsda o'rgatilgan tartib bilan bir xil.
+          fillOrder: [
+            ['sum', 2],
+            ['carry', 1], ['sum', 1],
+            ['sum', 0],
           ],
         },
       }),
@@ -281,7 +291,7 @@ export const DARS07_BANK = {
       {
         e: 'Ustunda ayirish', s: "856 dan 477 ni ayiramiz. Bu yerda qarz ikki marta kerak bo'ladi.",
         a: '856 − 477 ni ustunda hisoblang.',
-        gridHint: "Katakni bosing va raqamni tanlang. Qarz olingan xonani yuqoridagi katakda belgilang.",
+        gridHint: "Katakni bosing va sonni yozing. Xona yetmasa, ustiga o'nlik qo'shilgan ikki xonali sonni yozing (masalan, 16).",
         y: "Birliklar: 16 − 7 = 9 (o'nlikdan qarz). O'nliklar: 14 − 7 = 7 (yuzlikdan qarz). Yuzliklar: 7 − 4 = 3.",
         n: "6 dan 7 ayrilmaydi — o'nlikdan qarz oling. Endi o'nlik 4 bo'ldi, undan ham 7 ayrilmaydi.",
         r: "Qarz ketma-ket bo'lishi mumkin: har safar qo'shni xona 1 ga kamayadi.",
@@ -289,7 +299,7 @@ export const DARS07_BANK = {
       {
         e: 'Вычитание столбиком', s: 'Из 856 вычитаем 477. Здесь заём понадобится дважды.',
         a: 'Вычисли 856 − 477 столбиком.',
-        gridHint: 'Нажми клетку и выбери цифру. Разряд, из которого занимали, отметь в верхней клетке.',
+        gridHint: 'Нажми клетку и впиши число. Если в разряде не хватает, впиши над ним двузначное число с добавленным десятком (например, 16).',
         y: 'Единицы: 16 − 7 = 9 (заём у десятка). Десятки: 14 − 7 = 7 (заём у сотни). Сотни: 7 − 4 = 3.',
         n: 'Из 6 не вычесть 7 — займи у десятка. Теперь десяток стал 4, из него тоже не вычесть 7.',
         r: 'Заём может идти подряд: каждый раз соседний разряд уменьшается на 1.',
@@ -297,7 +307,7 @@ export const DARS07_BANK = {
         en: {
           e: 'Subtracting in a column', s: 'We subtract 477 from 856. Here a borrow is needed twice.',
           a: 'Work out 856 − 477 in a column.',
-          gridHint: 'Tap a cell and pick a digit. Mark the place you borrowed from in the top cell.',
+          gridHint: 'Tap a cell and type the number. If a place is short, write the two-digit number with the extra ten above it (for example, 16).',
           y: 'Ones: 16 − 7 = 9 (borrowed from the tens). Tens: 14 − 7 = 7 (borrowed from the hundreds). Hundreds: 7 − 4 = 3.',
           n: '7 cannot be taken from 6 — borrow from the tens. Now the tens are 4, and 7 cannot be taken from that either.',
           r: 'Borrows can come one after another: each time the neighbour place goes down by 1.',
@@ -306,11 +316,21 @@ export const DARS07_BANK = {
           op: 'sub',
           cols: 3,
           rows: [
-            // Ko'chirish qatori bu yerda QARZni belgilaydi: qaysi xona 1 ga kamaygan.
-            { id: 'borrow', kind: 'carry', cells: ['7', '4', ''], fill: 'all' },
+            // Maktabda o'rgatilgan usul: xona yetmasa, uning ustiga O'NLIK QO'SHILGAN
+            // ikki xonali son yoziladi (6 -> 16, 4 -> 14). Qo'shni xona esa faqat 1 ga
+            // kamayadi va bitta raqam bilan yoziladi (8 -> 7) — ikkinchi marta qarz
+            // bermasa, ikki xonali bo'lishga hojat yo'q.
+            { id: 'borrow', kind: 'carry', cells: ['7', '14', '16'], fill: 'all', struckRow: 'a' },
             { id: 'a', cells: ['8', '5', '6'] },
             { id: 'b', sign: true, cells: ['4', '7', '7'], line: true },
             { id: 'res', cells: ['3', '7', '9'], fill: 'all' },
+          ],
+          // O'ngdan chapga, xona-baxona: avval shu xonaning (kerak bo'lsa ikki xonali)
+          // yozuvi, keyin o'sha xonaning natijasi — qo'shish itemidagi bilan bir xil qolip.
+          fillOrder: [
+            ['borrow', 2], ['res', 2],
+            ['borrow', 1], ['res', 1],
+            ['borrow', 0], ['res', 0],
           ],
         },
       }),

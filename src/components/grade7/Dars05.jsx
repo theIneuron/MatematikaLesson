@@ -913,7 +913,7 @@ function Screen10({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S11 = {
   eyebrow: L("FAQAT O'ZINGIZ", 'ТОЛЬКО САМ', 'ON YOUR OWN ONLY'),
-  title: L('Asbobsiz', 'Без прибора', 'Without the tool'),
+  title: L("Ishoralarni o'zingiz qo'ying", 'Расставь знаки сам', 'Place the signs yourself'),
   template: ['x ', { slot: 0 }, ' y ', { slot: 1 }, ' z ', { slot: 2 }, ' 2'],
   parts: [{ id: 'plus', label: '+' }, { id: 'minus', label: '−' }],
   answer: ['minus', 'plus', 'minus'],

@@ -182,9 +182,9 @@ const S3 = {
   show: { sides: true, angles: true, sum: true },
   guess: true,
   caption: L(
-    "Asbob uchta burchakni o'lchadi va ularni qo'shdi. Yig'indi chizmaning ostida turadi.",
-    'Прибор измерил три угла и сложил их. Сумма стоит под чертежом.',
-    'The tool measured the three angles and added them. The sum is under the drawing.',
+    "Uchta burchak o'lchandi va qo'shildi. Yig'indi chizmaning ostida turadi.",
+    'Три угла измерены и сложены. Сумма стоит под чертежом.',
+    'The three angles are measured and added. The sum is under the drawing.',
   ),
   options: [
     { id: 'a', label: '180' },
@@ -204,7 +204,7 @@ const S3 = {
     'The sum came out 180. But careful: that is a MEASUREMENT, a guess. One drawing proves nothing — so on the next screen we change the triangle.',
   ),
   audio: [
-    A('mount', "Asbob uchta burchakni o'lchadi.", 'Прибор измерил три угла.', 'The tool measured the three angles.'),
+    A('mount', "Uchta burchak o'lchandi.", 'Три угла измерены.', 'The three angles are measured.'),
     A('mount', "Chizma ostida yig'indi turadi, va u taxmin deb imzolangan.", 'Под чертежом стоит сумма, и она подписана как предположение.', 'The sum is under the drawing, marked as a guess.'),
   ],
 }
@@ -632,16 +632,16 @@ const S12 = {
   rows: [
     { id: 'r1', text: L('ikki burchak 50° va 60°', 'два угла 50° и 60°', 'two angles are 50° and 60°') },
     { id: 'r2', text: '180 − 50 − 60 = 70' },
-    { id: 'r3', text: L('uchinchi burchak 70°', 'третий угол 70°', 'the third angle is 70°') },
-    { id: 'r4', text: L("javob: uchinchi burchakning qo'shnisi ham 70°", 'ответ: смежный с третьим углом тоже 70°', 'answer: the angle adjacent to it is 70° too') },
+    { id: 'r3', text: L("70° ning qo'shnisi ham 70°", 'смежный с 70° тоже 70°', 'the angle adjacent to 70° is 70° too') },
+    { id: 'r4', text: L("javob: qo'shni burchak 70°", 'ответ: смежный угол 70°', 'answer: the adjacent angle is 70°') },
   ],
-  answerId: 'r4',
+  answerId: 'r3',
   hints: {
     r1: L("Bu berilgan burchaklar.", 'Это данные углы.', 'Those are the given angles.'),
-    r2: L("To'g'ri: yig'indi ishlatilgan va ayirma to'g'ri.", 'Верно: сумма использована и разность правильна.', 'Right: the sum was used and the difference is correct.'),
-    r3: L("To'g'ri: uchinchi burchak aynan 70 daraja.", 'Верно: третий угол именно 70 градусов.', 'Right: the third angle is exactly 70 degrees.'),
+    r2: L("To'g'ri: yig'indi ishlatilgan, uchinchi burchak 70 daraja.", 'Верно: сумма использована, третий угол 70 градусов.', 'Right: the sum was used, the third angle is 70 degrees.'),
+    r4: L("Bu qator oldingisidan chiqqan. Xato esa undan YUQORIDA.", 'Эта строка выходит из предыдущей. А ошибка ВЫШЕ неё.', 'This line follows from the one before. The mistake is ABOVE it.'),
   },
-  tags: { r1: 'Z1', r2: 'Z1', r3: 'Z2' },
+  tags: { r1: 'Z1', r2: 'Z1', r4: 'Z2' },
   proofFill: {
     template: ['180 − 70 = ', { slot: 0 }, '   →   ', { slot: 1 }],
     parts: [

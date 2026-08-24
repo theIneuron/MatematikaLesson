@@ -403,6 +403,45 @@ export function useMobileZoom(breakpoint = 640) {
 // ============================================================
 // QULFLAR. Ovoz o'chiq bo'lsa HAM ochilishi shart.
 // ============================================================
+
+// ============================================================
+// TUSHUNTIRISH O'ZI O'YNAYDI (10-sinf naqshi, `grade10/core.jsx`).
+// Faza ikki manbadan siljiydi va SEKINROG'I yetakchi:
+//   1) ovoz bo'lagi almashdi -- demak keyingi fikr aytilyapti;
+//   2) taymer: gap uzunligiga qarab (uzun gap -- sekin ochilish).
+// Ovoz bo'lmasa (TTS ulanmagan, brauzer ovoz bermadi) segmentlar bir zumda
+// «tugaydi», shuning uchun taymer HAR DOIM yuradi -- aks holda butun
+// tushuntirish ko'z ochib yumguncha o'tib ketardi.
+// Faza MONOTON: orqaga qaytmaydi.
+// ============================================================
+export function estimateSpeech(text) {
+  const words = String(text || '').trim().split(/\s+/).filter(Boolean).length
+  return Math.min(30000, Math.max(1600, 900 + words * 400))
+}
+
+export function useNarratedSteps(audio, texts) {
+  const total = Math.max(1, (texts || []).length)
+  const [tick, setTick] = useState(0)
+  const [peak, setPeak] = useState(0)
+  const seen = useRef([])
+  useEffect(() => {
+    const id = audio && audio.currentSegment
+    if (!id) return
+    if (seen.current.indexOf(id) === -1) seen.current.push(id)
+    const now = Math.min(seen.current.length - 1, total - 1)
+    setPeak((v) => (now > v ? now : v))
+  }, [audio && audio.currentSegment, total]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (tick >= total - 1) return undefined
+    const ms = Math.min(7000, estimateSpeech((texts || [])[tick]))
+    const timer = setTimeout(() => setTick((v) => v + 1), ms)
+    return () => clearTimeout(timer)
+  }, [tick, total]) // eslint-disable-line react-hooks/exhaustive-deps
+  if (audio && audio.muted) return Math.min(tick, total - 1)
+  const lead = audio && audio.completed ? total - 1 : peak
+  return Math.min(lead, tick, total - 1)
+}
+
 export function useCanAnswer(audio) {
   const [timedOut, setTimedOut] = useState(false)
   useEffect(() => {

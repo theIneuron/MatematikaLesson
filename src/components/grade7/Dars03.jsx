@@ -948,7 +948,7 @@ function Screen10({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S11 = {
   eyebrow: L("FAQAT O'ZINGIZ", 'ТОЛЬКО САМ', 'ON YOUR OWN ONLY'),
-  title: L('Asbobsiz', 'Без прибора', 'Without the tool'),
+  title: L("Qiymatni o'zingiz yig'ing", 'Собери значение сам', 'Build the value yourself'),
   template: ['145 · ', { slot: 0 }, '  =  ', { slot: 1 }],
   parts: [
     { id: 'p100', label: '100' },
@@ -969,7 +969,7 @@ const S11 = {
     { key: '*', tag: 'Z6', hint: L("Ikkala qismda ham 145 turibdi. Uni tashqariga oling.", 'В обеих частях стоит 145. Вынеси его.', 'Both parts have 145 in them. Take it out.') },
   ],
   audio: [
-    A('mount', "Endi yordamchi asbobsiz. Yo'lak ham, qadamlar ham ko'rinmaydi.", 'Теперь без вспомогательного прибора. Ни дорожки, ни шагов не будет.', 'Now with no helper tool. No track and no steps.'),
+    A('mount', "Endi ekranda yordam yo'q. Yo'lak ham, qadamlar ham ko'rinmaydi.", 'Теперь помощи на экране нет. Ни дорожки, ни шагов не будет.', 'Now there is no help on the screen. No track and no steps.'),
     A('mount', "Ikki qismga qarang va ularda umumiy nima borligini toping.", 'Посмотри на две части и найди, что в них общего.', 'Look at the two parts and find what they share.'),
   ],
 }

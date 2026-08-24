@@ -1,42 +1,70 @@
-// Dars40 · Amaliyot 02 — Kesma va o'rta nuqta · 🟢 · chain · tag: seg_chain
-// Mexanika: kit.jsx -> SlotsBank (ikki qator). Raskladka: 2-o'rin.
-// AC = 5, CB = 9 -> AB = 14. AB ning o'rtasi M: AM = 7.
+// Dars40 · Amaliyot 02 — Qo'shnisi, keyin yarmi · 🟢 · chain · tag: ang_chain
+// Mexanika: kit.jsx -> SlotsBank. Raskladka: 2-o'rin `chain`.
+// 118° -> qo'shnisi 62° -> bissektrisa 31°. Ikki qadam ketma-ket.
 import React from 'react';
 import { SlotsBank, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'seg_chain', level: '🟢',
-  eyebrow: L("O'rta nuqta", 'Середина', 'The midpoint'),
+  tag: 'ang_chain',
+  level: '🟢',
+  eyebrow: L(
+    'Ikki qadam',
+    'Два шага',
+    'Two steps'),
   setup: L(
-    "Avval butun kesma topiladi, keyin uning o'rtasi. O'rta nuqta kesmani teng ikkiga bo'ladi.",
-    'Сначала находится весь отрезок, потом его середина. Середина делит отрезок на две равные части.',
-    'First the whole segment, then its midpoint. The midpoint splits it into two equal halves.'),
+    "Avval qo'shni burchak topiladi, keyin unga bissektrisa o'tkaziladi: bissektrisa burchakni ikki teng bo'lakka bo'ladi.",
+    'Сначала находим смежный угол, потом проводим его биссектрису: она делит угол на две равные части.',
+    'First find the adjacent angle, then draw its bisector: it splits the angle into two equal parts.'),
+  given: [['118°']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
   rows: [
-    [{ t: ['AC', '=', '5,', 'CB', '=', '9', '→', 'AB', '='] }, { slot: 0 }],
-    [{ t: ['AM', '='] }, { slot: 1 }],
+    [{ t: ["qo'shni", 'burchak', '='] }, { slot: 0 }],
+    [{ t: ['bissektrisa', 'bergan', 'burchak', '='] }, { slot: 1 }],
   ],
-  cards: ['14', '7', '4', '28'],
-  answer: ['14', '7'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+  cards: ['62°', '31°', '59°', '29°'],
+  answer: ['62°', '31°'],
+  ask: L(
+    'Kartani bosing, keyin uyani bosing.',
+    'Нажми карточку, затем клетку.',
+    'Tap a card, then tap a cell.'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. AB = 5 + 9 = 14, o'rtasi esa 14 : 2 = 7.",
-    'Верно. AB = 5 + 9 = 14, а середина 14 : 2 = 7.',
-    'Correct. AB = 5 + 9 = 14 and the half is 14 : 2 = 7.'),
+    "To'g'ri. 180 − 118 = 62, keyin 62 : 2 = 31.",
+    'Верно. 180 − 118 = 62, затем 62 : 2 = 31.',
+    'Correct. 180 − 118 = 62, then 62 : 2 = 31.'),
   wrongs: [
-    { when: (s) => s.slots[0] === '4', text: L(
-      "4 bu 9 − 5. C nuqta kesma ICHIDA, ya'ni bo'laklar qo'shiladi.",
-      '4 это 9 − 5. Точка C лежит ВНУТРИ отрезка, значит части складываются.',
-      '4 is 9 − 5. C lies INSIDE the segment, so the parts add.') },
-    { when: (s) => s.slots[1] === '28', text: L(
-      "28 bu 14 · 2. O'rta nuqta kesmani BO'LADI, ko'paytirmaydi.",
-      '28 это 14 · 2. Середина ДЕЛИТ отрезок, а не умножает.',
-      '28 is 14 · 2. The midpoint DIVIDES the segment.') },
+    {
+      when: (s) => s.slots[0] === '59°',
+      text: L(
+        "59° bu 118 : 2, ya'ni berilgan burchakning yarmi. Avval QO'SHNI burchak kerak.",
+        '59° это 118 : 2, половина данного угла. Сначала нужен СМЕЖНЫЙ угол.',
+        '59° is 118 : 2, half of the given angle. The ADJACENT angle comes first.'),
+    },
+    {
+      when: (s) => s.slots[1] === '29°',
+      text: L(
+        "29° chiqishi uchun 58 ikkiga bo'lingan. Qo'shni burchak 62, uning yarmi 31.",
+        'Чтобы вышло 29, делили 58. Смежный угол 62, его половина 31.',
+        'To get 29 the halving used 58. The adjacent angle is 62 and its half is 31.'),
+    },
+    {
+      when: (s) => s.slots.indexOf(null) !== -1,
+      text: L(
+        "Ikki uya ham to'ldirilishi kerak.",
+        'Надо заполнить обе клетки.',
+        'Both cells must be filled.'),
+    },
   ],
   wrongText: L(
-    "Ikki bo'lakni qo'shing, keyin natijani ikkiga bo'ling.",
-    'Сложи две части, потом раздели результат на два.',
-    'Add the two parts, then halve the result.'),
+    "Birinchi qatorda 180 dan ayiring, ikkinchi qatorda chiqqan sonni ikkiga bo'ling.",
+    'В первой строке вычти из 180, во второй раздели полученное на два.',
+    'Subtract from 180 in the first row, then halve that result in the second.'),
 };
 
 export default function D40_02(props) { return <SlotsBank data={DATA} {...props} />; }

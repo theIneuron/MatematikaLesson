@@ -1,46 +1,69 @@
-// Dars48 · Amaliyot 05 — Kvadrat yuzasi · 🟡 · order · tag: area_square
-// Mexanika: kit.jsx -> BuildLine (tartib muhim). Raskladka: 5-o'rin.
-// Tomoni 9 bo'lgan kvadrat: 9 · 9 = 81, S = 81.
+// Dars48 · Amaliyot 05 — To'g'ri burchakli va teng yonli · 🟡 · order · tag: rev_rt_iso
+// Mexanika: kit.jsx -> BuildLine. Raskladka: 5-o'rin `order`.
+// To'g'ri burchakli teng yonli uchburchak: 180 − 90 = 90 -> 90 : 2 = 45. O'tkir burchaklar 45° va 45°.
 import React from 'react';
 import { BuildLine, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'area_square', level: '🟡',
-  eyebrow: L('Kvadrat yuzasi', 'Площадь квадрата', 'Area of a square'),
+  tag: 'rev_rt_iso',
+  level: '🟡',
+  eyebrow: L(
+    'Uch qadam',
+    'Три шага',
+    'Three steps'),
   setup: L(
-    "Kvadratda hamma tomon teng, ya'ni yuza tomonning kvadratiga teng bo'ladi.",
-    'В квадрате все стороны равны, значит площадь это квадрат стороны.',
-    'A square has equal sides, so the area is the side squared.'),
-  given: [['tomon', '=', '9']],
-  givenLabel: L('Berilgan:', 'Дано:', 'Given:'),
+    "Uchburchak ham to'g'ri burchakli, ham teng yonli. O'tkir burchaklarni uch qadamda toping.",
+    'Треугольник и прямоугольный, и равнобедренный. Найди острые углы в три шага.',
+    'The triangle is both right-angled and isosceles. Find the acute angles in three steps.'),
+  given: [["to'g'ri burchakli", ',', 'teng yonli']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
   cards: [
-    { id: 'a', label: '9 · 9' },
-    { id: 'b', label: '81' },
-    { id: 'c', label: '9 · 4' },
-    { id: 'd', label: '36' },
+    { id: 'a', label: '180 − 90 = 90' },
+    { id: 'b', label: '90 : 2 = 45' },
+    { id: 'c', label: "o'tkir burchaklar 45°" },
+    { id: 'd', label: '180 : 2 = 90' },
+    { id: 'e', label: "o'tkir burchaklar 90°" },
   ],
-  answerSeq: ['a', 'b'],
-  empty: L("Hisoblab yozing", 'Запиши вычисление', 'Write the working'),
-  ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+  answerSeq: ['a', 'b', 'c'],
+  ask: L(
+    "Kartani bosish uni chiziqqa qo'yadi.",
+    'Нажатие на карточку ставит её в строку.',
+    'Tapping a card puts it in the line.'),
+  empty: L(
+    'Kartalarni bosib javobni tuzing',
+    'Нажимай карточки и собери ответ',
+    'Tap the cards to build the answer'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. S = 9 · 9 = 81.",
-    'Верно. S = 9 · 9 = 81.',
-    'Correct. S = 9 · 9 = 81.'),
+    "To'g'ri. To'g'ri burchak 90 ni oladi, qolgan 90 esa teng ikki burchakka bo'linadi: 45 va 45.",
+    'Верно. Прямой угол забирает 90, а остальные 90 делятся на два равных: 45 и 45.',
+    'Correct. The right angle takes 90 and the remaining 90 splits into 45 and 45.'),
   wrongs: [
-    { when: (s) => s.seq.indexOf('c') !== -1 || s.seq.indexOf('d') !== -1, text: L(
-      "9 · 4 = 36 bu PERIMETR: to'rt tomonning yig'indisi. Yuza esa tomonning kvadrati.",
-      '9 · 4 = 36 это ПЕРИМЕТР: сумма четырёх сторон. А площадь это квадрат стороны.',
-      '9 · 4 = 36 is the PERIMETER: four sides. Area is the side squared.') },
-    { when: (s) => s.seq.length < 2, text: L(
-      "Ikki bo'lak kerak: hisoblash va natija.",
-      'Нужны две части: вычисление и результат.',
-      'Two parts are needed: the working and the result.') },
+    {
+      when: (s) => s.seq.indexOf('d') !== -1 || s.seq.indexOf('e') !== -1,
+      text: L(
+        "90 gradusli o'tkir burchak bo'lmaydi: o'tkir burchak 90 dan kichik.",
+        'Острого угла в 90 градусов не бывает: острый меньше 90.',
+        'A 90 degree acute angle cannot exist: acute means below 90.'),
+    },
+    {
+      when: (s) => s.seq.length < 3,
+      text: L(
+        'Uch karta kerak.',
+        'Нужны три карточки.',
+        'Three cards are needed.'),
+    },
   ],
   wrongText: L(
-    "Kvadrat yuzasi uchun tomon nechchi marta ko'paytiriladi?",
-    'Сколько раз умножается сторона для площади квадрата?',
-    'How many times is the side multiplied for the area?'),
+    "Avval to'g'ri burchakni 180 dan ayiring, keyin qolganini teng ikkiga bo'ling.",
+    'Сначала вычти прямой угол из 180, потом раздели остаток на два.',
+    'Subtract the right angle from 180 first, then halve the remainder.'),
 };
 
 export default function D48_05(props) { return <BuildLine data={DATA} {...props} />; }

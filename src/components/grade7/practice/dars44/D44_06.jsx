@@ -1,46 +1,71 @@
-// Dars44 · Amaliyot 06 — Uchidagi burchak · 🟡 · build · tag: iso_apex
-// Mexanika: kit.jsx -> BuildLine. Raskladka: 6-o'rin.
-// Asos burchagi 65° -> uchi 180 − 130 = 50°.
+// Dars44 · Amaliyot 06 — Teng yonli va yig'indi · 🟡 · build · tag: sum_iso
+// Mexanika: kit.jsx -> BuildLine. Raskladka: 6-o'rin `build`.
+// Uchidagi burchak 100° -> asosdagi burchaklar (180 − 100) : 2 = 40°.
 import React from 'react';
 import { BuildLine, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'iso_apex', level: '🟡',
-  eyebrow: L('Uchidagi burchak', 'Угол при вершине', 'The apex angle'),
+  tag: 'sum_iso',
+  level: '🟡',
+  eyebrow: L(
+    'Teng yonli',
+    'Равнобедренный',
+    'Isosceles'),
   setup: L(
-    "Asosdagi ikki burchak teng va ma'lum. Uchidagi burchak 180 dan ikkovini ayirish bilan topiladi.",
-    'Два угла при основании равны и известны. Угол при вершине это 180 минус оба.',
-    'Both base angles are known and equal. The apex is 180 minus both.'),
-  given: [['asos', 'burchagi', '=', '65°']],
-  givenLabel: L('Berilgan:', 'Дано:', 'Given:'),
-  cards: [
-    { id: 'a', label: '180° − 130°' },
-    { id: 'b', label: '50°' },
-    { id: 'c', label: '180° − 65°' },
-    { id: 'd', label: '115°' },
-  ],
-  answerSeq: ['a', 'b'],
-  empty: L("Hisoblab yozing", 'Запиши вычисление', 'Write the working'),
-  ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+    'Teng yonli uchburchakda asosdagi burchaklar teng. Uchidagi burchak berilgan, asosdagi burchakni toping.',
+    'В равнобедренном углы при основании равны. Дан угол при вершине, найди угол при основании.',
+    'The base angles are equal. The apex angle is given; find a base angle.'),
+  given: [['uchidagi burchak = 100°']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
+  cards: [{ id: 'a', label: '40°' }, { id: 'b', label: '80°' }, { id: 'c', label: '50°' }],
+  answerSeq: ['a'],
+  fieldH: 44,
+  ask: L(
+    "Kartani bosish uni chiziqqa qo'yadi.",
+    'Нажатие на карточку ставит её в строку.',
+    'Tapping a card puts it in the line.'),
+  empty: L(
+    'Kartalarni bosib javobni tuzing',
+    'Нажимай карточки и собери ответ',
+    'Tap the cards to build the answer'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. 65 + 65 = 130, keyin 180 − 130 = 50.",
-    'Верно. 65 + 65 = 130, потом 180 − 130 = 50.',
-    'Correct. 65 + 65 = 130, then 180 − 130 = 50.'),
+    "To'g'ri. 180 − 100 = 80, bu ikki teng burchakka bo'linadi: 80 : 2 = 40.",
+    'Верно. 180 − 100 = 80, это делится на два равных угла: 80 : 2 = 40.',
+    'Correct. 180 − 100 = 80, split between two equal angles: 80 : 2 = 40.'),
   wrongs: [
-    { when: (s) => s.seq.indexOf('c') !== -1 || s.seq.indexOf('d') !== -1, text: L(
-      "Bitta 65 ayirilgan. Asosda ikki burchak bor, ikkovi ham 65°.",
-      'Вычли одну 65. При основании два угла, и оба по 65°.',
-      'Only one 65 was subtracted. There are two base angles, both 65°.') },
-    { when: (s) => s.seq.length < 2, text: L(
-      "Ikki bo'lak kerak: hisoblash va natija.",
-      'Нужны две части: вычисление и результат.',
-      'Two parts are needed: the working and the result.') },
+    {
+      when: (s) => s.seq.indexOf('b') !== -1,
+      text: L(
+        "80 bu IKKI burchakning yig'indisi. Ular teng, ya'ni bittasi 40.",
+        '80 это сумма ДВУХ углов. Они равны, значит один 40.',
+        '80 is the sum of BOTH angles. They are equal, so one is 40.'),
+    },
+    {
+      when: (s) => s.seq.indexOf('c') !== -1,
+      text: L(
+        "50 chiqishi uchun 100 ikkiga bo'lingan. Avval 180 dan ayirish kerak.",
+        'Чтобы вышло 50, делили 100. Сначала надо вычесть из 180.',
+        '50 halves 100. The subtraction from 180 comes first.'),
+    },
+    {
+      when: (s) => s.seq.length < 1,
+      text: L(
+        'Bitta karta kerak.',
+        'Нужна одна карточка.',
+        'One card is needed.'),
+    },
   ],
   wrongText: L(
-    "65 gradusli burchak nechta? Yig'indini 180 dan ayiring.",
-    'Сколько углов по 65 градусов? Вычти их сумму из 180.',
-    'How many 65-degree angles are there? Subtract their sum from 180.'),
+    "180 dan uchidagi burchakni ayiring, qolganini ikkiga bo'ling.",
+    'Вычти из 180 угол при вершине, остаток раздели на два.',
+    'Subtract the apex angle from 180 and halve the rest.'),
 };
 
 export default function D44_06(props) { return <BuildLine data={DATA} {...props} />; }

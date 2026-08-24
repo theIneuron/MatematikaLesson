@@ -184,9 +184,9 @@ const S3 = {
   fn: [{ id: 'l', f: (x) => 2 * x }],
   pick: { x: 0, y: 0 },
   caption: L(
-    "y = 2x grafigi chizilgan. Unda x nolga teng bo'lgan nuqtani belgilang.",
-    'График y = 2x нарисован. Отметь на нём точку, у которой x равен нулю.',
-    'The graph of y = 2x is drawn. Mark the point on it where x equals zero.',
+    "y = 2x grafigi chizilgan. x o'rniga nolni qo'ying, y ni toping, nuqtani grafikda belgilang.",
+    'График y = 2x нарисован. Подставь вместо x ноль, найди y, отметь точку на графике.',
+    'The graph of y = 2x is drawn. Put zero in place of x, find y, mark the point on the graph.',
   ),
   options: [
     { id: 'a', label: L('koordinatalar boshi', 'начало координат', 'the origin') },
@@ -207,7 +207,7 @@ const S3 = {
   ),
   audio: [
     A('mount', "Bu formulada faqat bitta had bor: k karra x. Qo'shiluvchi yo'q.", 'В этой формуле только один член: k на x. Слагаемого нет.', 'This formula has one term only: k times x. There is no addend.'),
-    A('mount', "x nolga teng bo'lgan nuqtani belgilang.", 'Отметь точку, у которой x равен нулю.', 'Mark the point where x equals zero.'),
+    A('mount', "x o'rniga nolni qo'ying, y ni toping va nuqtani grafikda belgilang.", 'Подставь вместо x ноль, найди y и отметь точку на графике.', 'Put zero in place of x, find y and mark the point on the graph.'),
     A('dot', "Nuqta ikki o'qning kesishgan joyiga tushdi.", 'Точка легла в место пересечения осей.', 'The point landed where the axes cross.'),
   ],
 }
@@ -304,9 +304,9 @@ const S6 = {
   fn: [{ id: 'p', f: (x) => -x }],
   pick: { x: 2, y: -2 },
   caption: L(
-    "y = −x grafigi chizilgan. x ikkiga teng bo'lgan nuqtani belgilang.",
-    'График y = −x нарисован. Отметь точку, у которой x равен двум.',
-    'The graph of y = −x is drawn. Mark the point where x equals two.',
+    "y = −x grafigi chizilgan. x o'rniga ikkini qo'ying, y ni toping, nuqtani grafikda belgilang.",
+    'График y = −x нарисован. Подставь вместо x двойку, найди y, отметь точку на графике.',
+    'The graph of y = −x is drawn. Put two in place of x, find y, mark the point on the graph.',
   ),
   options: [
     { id: 'a', label: L("ikkinchi va to'rtinchi chorak", 'вторая и четвёртая четверти', 'the second and fourth quadrants') },
@@ -327,7 +327,7 @@ const S6 = {
   ),
   audio: [
     A('mount', "Bu safar k manfiy bir. Chiziq pastga qiyalab ketadi.", 'На этот раз k равен минус одному. Прямая наклонена вниз.', 'This time k is minus one. The line tilts downward.'),
-    A('mount', "x ikkiga teng bo'lgan nuqtani belgilang.", 'Отметь точку, у которой x равен двум.', 'Mark the point where x equals two.'),
+    A('mount', "x o'rniga ikkini qo'ying, y ni toping va nuqtani grafikda belgilang.", 'Подставь вместо x двойку, найди y и отметь точку на графике.', 'Put two in place of x, find y and mark the point on the graph.'),
     A('dot', "Nuqta pastda chiqdi. Endi choraklarni ayting.", 'Точка вышла снизу. Теперь назови четверти.', 'The point came out below. Now name the quadrants.'),
   ],
 }
@@ -633,15 +633,17 @@ const S12 = {
     { id: 'r1', text: 'y = 2x + 1' },
     { id: 'r2', text: 'x = 1   →   y = 3' },
     { id: 'r3', text: 'x = 2   →   y = 5' },
-    { id: 'r4', text: L("javob: to'g'ri proporsionallik", 'ответ: прямая пропорциональность', 'answer: a direct proportionality') },
+    { id: 'r4', text: L("x nol bo'lganda y ham nol", 'при x = 0 выходит y = 0', 'at x = 0 the y comes out 0') },
+    { id: 'r5', text: L("javob: to'g'ri proporsionallik", 'ответ: прямая пропорциональность', 'answer: a direct proportionality') },
   ],
   answerId: 'r4',
   hints: {
     r1: L("Bu berilgan formula.", 'Это данная формула.', 'That is the given formula.'),
     r2: L("To'g'ri: ikki karra bir qo'shuv bir uch.", 'Верно: два на один плюс один три.', 'Right: two times one plus one is three.'),
     r3: L("To'g'ri: ikki karra ikki qo'shuv bir besh.", 'Верно: два на два плюс один пять.', 'Right: two times two plus one is five.'),
+      r5: L("Bu qator oldingisidan chiqqan. Xato esa undan YUQORIDA.", 'Эта строка выходит из предыдущей. А ошибка ВЫШЕ неё.', 'This line follows from the one before. The mistake is ABOVE it.'),
   },
-  tags: { r1: 'Z1', r2: 'Z1', r3: 'Z1' },
+  tags: { r1: 'Z1', r2: 'Z1', r3: 'Z1' , r5: 'Z1' },
   proofFill: {
     template: ['x = 0   →   y = ', { slot: 0 }, '   →   ', { slot: 1 }],
     parts: [

@@ -30,6 +30,7 @@ import React, {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -717,7 +718,19 @@ const mathMinus = (txt) => txt.replace(MINUS_RE, '$1\u2212')
 // Yorliq matematikami: raqam yoki amal belgisi bormi. Proza variantlarda
 // («ikkisi ham», «ни один») bunday belgi yo'q -- ular Manrope da qoladi.
 const MATHY_RE = /[0-9=<>+\u2212\u221e\u00b7\u00d7\u2264\u2265\u2260]/
-export const looksMath = (v) => typeof v === 'string' && MATHY_RE.test(v)
+// Mezon "raqam bormi" O'ZI yetarli emas. "Bitta harf ishlatgani: ikkinchi
+// kattalik 40 ayirish x" yorlig'ida bitta 40 bor, va shu bitta son butun
+// GAPNI monoshriftga olib ketardi (metodist, 2026-08-22). Shuning uchun
+// ikkinchi mezon: matnda IKKI yoki undan ortiq SO'Z bo'lsa -- bu proza.
+// Funksiya nomlari so'z hisoblanmaydi, aks holda "log(x) < 1" ham proza
+// bo'lib qolardi.
+const FUNC_WORDS = new Set(['log', 'ln', 'lg', 'sin', 'cos', 'tg', 'ctg'])
+const WORDS_RE = /[A-Za-z\u0400-\u04ff']{2,}/g
+export const looksMath = (v) => {
+  if (typeof v !== 'string' || !MATHY_RE.test(v)) return false
+  const words = (v.match(WORDS_RE) || []).filter((w) => !FUNC_WORDS.has(w.toLowerCase()))
+  return words.length < 2
+}
 
 // ISO 80000-2: o'zgaruvchi KURSIV, funksiya nomi va son TIK.
 //
@@ -1122,6 +1135,113 @@ export const Expr = ({ children, size = 'mid', tone, pop, style, className, plai
   </div>
 )
 
+// ============================================================
+// FitRow -- YOZUV QATORGA SIG'ADI, KO'CHIRILMAYDI.
+//
+// Uzun yozuv bilan ikki xato bo'lardi, ikkalasini ham QA topdi (2026-08-22):
+//   1) SlotFill panelida yozuv so'z chegarasida KO'CHIRILARDI, va ko'chirish
+//      joyi ma'nosiz chiqardi -- "= 5x ayirish" birinchi qatorda, "4y" esa
+//      ikkinchisida yolg'iz qolardi. O'quvchi uchun bu bitta yozuv emas,
+//      uchta parcha bo'lib ko'rinadi.
+//   2) SubstituteRows qatorida ustunlar ULUSH bilan berilgandi (1fr) va
+//      qator eni 620 px bilan qotirilgandi. Yozuv 558 px, katak esa 250 px:
+//      `nowrap` tufayli u ko'chmasdan, QO'SHNI kataklar USTIGA chizilardi --
+//      strelka bilan tenglik belgisi yozuv ostida ko'rinmay ketardi.
+//
+// Yechim ikkalasiga bitta: yozuv AVVAL bir qatorda sig'diriladi -- butun
+// qator bir xil koeffitsiyent bilan kichrayadi. Kichraytirish o'lchovdan
+// chiqadi, taxmindan emas, shuning uchun uchinchi til yoki uzunroq misol
+// qo'shilganda ham o'zi moslashadi.
+//
+// AMMO KICHRAYTIRISH HAMMA JOYDA YETMAYDI. 19-darsning 7-ekranida qator
+// shunday uzunki, sig'dirish uchun uni 0,34 ga kichraytirish kerak bo'lardi
+// -- 30 px shrift 10 px ga tushardi, ya'ni o'qib bo'lmasdi. Shuning uchun
+// pol bor: pastida yozuv KO'CHIRILADI, lekin shu paytda ham u pol
+// koeffitsiyentida turadi, ya'ni ko'chirish uch qator emas, ikki qator
+// beradi. Tartib shunday: sig'dirish, keyin pol, keyin ko'chirish.
+//
+// O'LCHOV ETALON HOLATDA olinadi: shrift 1em, ko'chirish o'chirilgan.
+// Joriy holatda o'lchash beqaror edi -- ko'chirilgan yozuv doim sig'ib
+// turadi, va o'lchov "joy bor" deb yolg'on aytardi, koeffitsiyent esa
+// ko'tarilib, yozuv yana ko'chirilardi va hokazo.
+//
+// TELEFON (640 dan tor) BUNDAN MUSTASNO: u yerda shrift kichraytirilmaydi,
+// ko'chirish qoladi. Sahifaning o'zi 390 px ga moslanadi (`--g7z`), va
+// yozuvni yana kichraytirish o'qishni butunlay buzardi.
+// ============================================================
+const FIT_NARROW = 640
+export function FitRow({ children, min = 0.62, className, style }) {
+  const host = useRef(null)
+  const inner = useRef(null)
+  const stRef = useRef({ k: 1, wrap: false })
+  const [st, setSt] = useState({ k: 1, wrap: false })
+  const runRef = useRef(null)
+  runRef.current = () => {
+    const h = host.current
+    const i = inner.current
+    if (!h || !i) return
+    const avail = h.clientWidth
+    if (avail <= 0) return
+    if (typeof window !== 'undefined' && window.innerWidth <= FIT_NARROW) {
+      if (stRef.current.k !== 1 || !stRef.current.wrap) {
+        stRef.current = { k: 1, wrap: true }
+        setSt(stRef.current)
+      }
+      return
+    }
+    // ETALON O'LCHOV: shrift 1em va KO'CHIRISHSIZ holat. Buning uchun
+    // `is-wrap` sinfi vaqtincha OLINADI va o'sha effekt ichida qaytariladi
+    // -- ekranga chiqmaydi.
+    //
+    // NEGA AYNAN SHUNDAY. Avval o'lchov JORIY holatda olingandi, va bu
+    // cheksiz sikl berardi: ko'chirilgan yozuv doim sig'ib turadi, o'lchov
+    // "joy bor" deb aytardi, koeffitsiyent ko'tarilardi, ko'chirish
+    // o'chardi, yozuv yana sig'masdi -- va hokazo, React "Maximum update
+    // depth" bilan yiqilardi.
+    const hadWrap = i.classList.contains('is-wrap')
+    const prevFs = i.style.fontSize
+    if (hadWrap) i.classList.remove('is-wrap')
+    i.style.fontSize = ''
+    const natural = i.getBoundingClientRect().width
+    i.style.fontSize = prevFs
+    if (hadWrap) i.classList.add('is-wrap')
+    if (natural <= 0) return
+    // Zahira: yumaloqlash va piksel bilan berilgan chekkalar tufayli
+    // aniq 1.0 da yozuv bir-ikki piksel oshib ketishi mumkin.
+    const ratio = (avail / natural) * 0.995
+    const wrap = ratio < min
+    const k = wrap ? min : Math.min(1, ratio)
+    if (Math.abs(k - stRef.current.k) > 0.006 || wrap !== stRef.current.wrap) {
+      stRef.current = { k, wrap }
+      setSt(stRef.current)
+    }
+  }
+  // Har chizilishdan keyin o'lchanadi: til almashdi, katak to'ldi, qator
+  // ochildi -- hammasi yozuvning enini o'zgartiradi.
+  useLayoutEffect(() => { runRef.current() })
+  useEffect(() => {
+    if (typeof ResizeObserver === 'undefined' || !host.current) return undefined
+    let raf = 0
+    const ro = new ResizeObserver(() => {
+      cancelAnimationFrame(raf)
+      raf = requestAnimationFrame(() => runRef.current())
+    })
+    ro.observe(host.current)
+    return () => { ro.disconnect(); cancelAnimationFrame(raf) }
+  }, [])
+  return (
+    <div ref={host} className={'g7-fitrow' + (className ? ' ' + className : '')} style={style}>
+      <div
+        ref={inner}
+        className={'g7-fitrow-in' + (st.wrap ? ' is-wrap' : '')}
+        style={st.k < 1 ? { fontSize: st.k.toFixed(3) + 'em' } : undefined}
+      >
+        {children}
+      </div>
+    </div>
+  )
+}
+
 // Ish yuzasi. `tone`: paper (asosiy), quiet (fon), teal (grafik/ma'no), dark.
 export const Panel = ({ children, style, className, tone = 'paper', pad }) => (
   <div
@@ -1196,14 +1316,91 @@ const BADGES = ['A', 'B', 'C', 'D', 'E', 'F']
 // Ustunlar SONI variantlar soniga qarab: uchta bo'lsa BITTA qatorda, to'rtta
 // bo'lsa 2x2 (metodist qarori 2026-08-13). Ilgari uchta variant 2 va 1 bo'lib
 // buzilib turardi -- oxirgisi yolg'iz qolardi va «boshqacha» ko'rinardi.
+// ============================================================================
+// VARIANTLAR ARALASHADI (§8.3).
+//
+// QA topgan nuqson 2026-08-22: to'g'ri javob HAR DOIM birinchi turardi --
+// 650 savolning 650 tasida, blits ham shu bilan yig'ilardi. Ya'ni bola
+// matematikani bilmasdan, «chapdagi birinchisini bosaman» degan qoida bilan
+// butun kursdan o'tib ketardi.
+//
+// ARALASHTIRISH ID LAR BO'YICHA ESLAB QOLINADI, massiv bo'yicha emas: ba'zi
+// asboblar har render da yangi massiv yasaydi (`items.map(...)` to'g'ridan-
+// to'g'ri JSX ichida), va massiv o'ziga bog'lansa variantlar bola ko'z
+// oldida SAKRAB turardi. ID lar o'zgarmaguncha tartib qotib turadi, savol
+// almashganda esa yangidan aralashadi.
+// ============================================================================
+// KALIT ID LAR BO'YICHA EMAS, MAZMUN BO'YICHA. Birinchi urinishda kalit
+// faqat ID lardan yig'ilgan edi, va zanjirdagi hamma savolda ID lar bir
+// xil: a, b, c, d. Natijada `useMemo` ikkinchi savolga BIRINCHISINING
+// variantlarini qaytardi -- brauzerda tekshirilib topildi (2026-08-22).
+// Endi kalit yorliq matnini ham oladi, ya'ni savol o'zgarsa kalit o'zgaradi.
+function sigOf(items) {
+  return (items || []).map((x) => {
+    const l = x && x.label
+    let s = ''
+    if (typeof l === 'string' || typeof l === 'number') s = String(l)
+    else if (l && typeof l === 'object') s = String(l.uz || l.ru || l.en || '')
+    return ((x && x.id) || '') + ':' + s
+  }).join('|')
+}
+
+function hash32(str) {
+  let h = 2166136261
+  for (let i = 0; i < str.length; i += 1) {
+    h ^= str.charCodeAt(i)
+    h = Math.imul(h, 16777619)
+  }
+  return h >>> 0
+}
+
+// TARTIB MAZMUNDAN HISOBLANADI, tasodifiy holat saqlanmaydi. Shuning uchun
+// bir xil savol bir xil tartib beradi -- ya'ni «eskirgan ro'yxat» xatosi
+// TAKRORLANISHI MUMKIN EMAS. Sahifa har ochilganda SALT yangilanadi, demak
+// yangi kirishda tartib boshqacha bo'ladi.
+const SALT = Math.floor(Math.random() * 1e9)
+
+function shuffleSeeded(list, seed) {
+  const out = list.slice()
+  let st = (seed ^ SALT) >>> 0 || 1
+  for (let i = out.length - 1; i > 0; i -= 1) {
+    st = (Math.imul(st, 1664525) + 1013904223) >>> 0
+    const j = st % (i + 1)
+    const tmp = out[i]
+    out[i] = out[j]
+    out[j] = tmp
+  }
+  return out
+}
+
+export function useShuffled(items) {
+  const sig = sigOf(items)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  return useMemo(() => shuffleSeeded(items || [], hash32(sig)), [sig])
+}
+
 export const Options = ({ items, picked, wrong, onPick, disabled, cols = 2, minH, collapse = true, badges = true, dense = false, neutral = false }) => {
+  // Tartib bir marta aralashadi va savol almashgunicha qotib turadi.
+  items = useShuffled(items)
   // SON javoblari BITTA QATORDA va YIRIK shriftda (metodist 2026-08-14:
   // «to'rt variant bir qatorda bo'lsin, shrift ancha kattaroq, ko'rinmayapti»).
   // Qisqa javob 2x2 panjarada ikki qator egallardi va o'sha ikki qatorda
   // to'rtta son mayda yozilardi. Bir qatorda esa balandlik ham KAMAYADI --
   // shu bo'shagan joy shriftga beriladi.
   const numeric = items.length === 4 && items.every((x) => String(x.label).trim().length <= 5 && !/[a-zA-Zа-яА-Я]/.test(String(x.label)))
+  // SHRIFT QARORI SAVOL DARAJASIDA, VARIANT DARAJASIDA EMAS. Ilgari har
+  // yorliq o'zicha hal qilinardi, va bitta raqam yetardi: bitta variant
+  // monoshriftda, qolganlari proza bo'lib chiqardi -- bir savol ichida ikki
+  // xil shrift (metodist 2026-08-22). Endi qaror bitta: YO HAMMASI
+  // matematik, YO hammasi proza.
+  const mathSet = numeric || (items.length > 0 && items.every((x) => looksMath(x.label)))
   cols = numeric ? 4 : (items.length === 3 ? 3 : (items.length === 4 ? 2 : cols))
+  // SON QATORIDA USTUN ENI MAZMUNDAN OLINADI, teng ulushdan emas. Teng
+  // ulushga bo'linganda tor telefonda katakka sonning O'ZI sig'masdi:
+  // to'rtta teng ustun 85 px, son esa yorlig'i va bo'shliqlari bilan birga
+  // undan kengroq -- va chetidan qirqilardi. Mazmun bo'yicha esa to'rttasi
+  // birgalikda 311 px oladi va bemalol sig'adi.
+  const numCols = numeric ? 'repeat(4, minmax(0, max-content))' : null
   const solved = !!picked
   const shrink = solved && collapse
   // YIG'ILISH IKKI FAZADA. Javob berilgach panjara DARROV bitta ustunga
@@ -1222,7 +1419,8 @@ export const Options = ({ items, picked, wrong, onPick, disabled, cols = 2, minH
     <div
       className={'g7-options' + (dense ? ' g7-options-dense' : '')}
       style={{
-        gridTemplateColumns: tight ? '1fr' : 'repeat(' + cols + ', minmax(0, 1fr))',
+        gridTemplateColumns: tight ? '1fr' : (numCols || 'repeat(' + cols + ', minmax(0, 1fr))'),
+        justifyContent: !tight && numCols ? 'center' : undefined,
         justifyItems: tight ? 'center' : 'stretch',
         gap: shrink ? 0 : undefined,
       }}
@@ -1232,6 +1430,9 @@ export const Options = ({ items, picked, wrong, onPick, disabled, cols = 2, minH
         const isWrong = wrong && wrong.indexOf(item.id) !== -1
         const gone = shrink && !isPicked
         const cls = ['g7-opt']
+        // SON QATORI ALOHIDA SINF OLADI: telefonda unga tor ichki bo'shliq
+        // va kichik yorliq kerak, prozali variantga esa yo'q.
+        if (numeric) cls.push('g7-opt-numbox')
         if (isPicked) cls.push(neutral ? 'g7-opt-neutral' : 'g7-opt-ok')
         else if (isWrong) cls.push('g7-opt-tip')
         return (
@@ -1259,7 +1460,7 @@ export const Options = ({ items, picked, wrong, onPick, disabled, cols = 2, minH
                 {isPicked ? (neutral ? BADGES[i] : '✓') : isWrong ? '↺' : BADGES[i]}
               </span>
             ) : null}
-            <span className={'g7-opt-text' + (looksMath(item.label) || numeric ? ' g7-opt-math' : '') + (numeric ? ' g7-opt-num' : '')}>
+            <span className={'g7-opt-text' + (mathSet ? ' g7-opt-math' : '') + (numeric ? ' g7-opt-num' : '')}>
               <Fx>{item.label}</Fx>
             </span>
           </button>
@@ -1914,7 +2115,40 @@ html, body { margin: 0; padding: 0; }
 /* O'zgaruvchi KURSIV, funksiya nomi va raqam TIK (ISO 80000-2). */
 .g7-var { font-style: italic; font-synthesis: none; }
 .g7-expr { text-align: center; white-space: nowrap; }
+/* YOZUV PANELI SIG'MASA IKKINCHI QATORGA TUSHADI. g7-expr dagi
+   nowrap uzun yozuvni qirqib tashlardi (QA nuqsoni 2026-08-22,
+   28-dars 13-slayd). Panel flex va wrap bilan, shuning uchun
+   ko'chirish bo'laklar chegarasida va probel joyida bo'ladi. */
+.g7-slotfill-panel { white-space: normal; }
 .g7-wrap { white-space: normal; overflow-wrap: anywhere; }
+/* SIG'DIRISH QATORI (FitRow). Ichki tugun kengligi MAZMUNIDAN keladi va
+   qatordan oshib ketishi mumkin -- aynan shu eni o'lchanadi, shundan
+   koeffitsiyent chiqadi. Tashqi tugun kengligi joyni beradi. */
+.g7-fitrow { display: flex; justify-content: center; width: 100%; min-width: 0; }
+.g7-fitrow-in { flex: 0 0 auto; white-space: nowrap; }
+/* POLDAN PASTDA KO'CHIRISH. Kichraytirish o'qishni buzadigan joyda yozuv
+   ko'chadi, va shu paytda ichkaridagi hamma nowrap ochiladi -- aks holda
+   katak ichidagi matn ko'chmasdan chetiga chiqib ketardi. */
+.g7-fitrow-in.is-wrap { flex: 1 1 auto; min-width: 0; white-space: normal; }
+.g7-fitrow-in.is-wrap .g7-expr,
+.g7-fitrow-in.is-wrap .g7-sub-row > * { white-space: normal; }
+.g7-fitrow-in.is-wrap .g7-fitflex { flex-wrap: wrap; }
+/* ALMASHTIRISH JADVALI IKKI QAVATGA CHIQADI. Bitta qatorga ifoda ham,
+   qo'yish ham sig'maganda ular yonma-yon EMAS, biri ikkinchisining ostida
+   turadi: ifoda o'z qatorida, keyingi qatorda strelka bilan qo'yish va
+   qiymat. Shunda ko'chirish YOZUV ICHIDA bo'lmaydi -- qavsning o'rtasidan
+   sinmaydi, va aynan shu ko'rinish metodistga tushunarsiz ko'ringandi.
+   Bu yerda important kerak: ustunlar inline uslubda beriladi. */
+.g7-fitrow-in.is-wrap .g7-subgrid { display: flex !important; flex-direction: column; align-items: center; gap: 11px; }
+.g7-fitrow-in.is-wrap .g7-sub-row {
+  display: flex !important; flex-wrap: wrap; align-items: center; justify-content: center;
+  gap: 0 .3em; width: 100%;
+}
+.g7-fitrow-in.is-wrap .g7-sub-row > :first-child { flex: 0 0 100%; text-align: center; }
+/* Oraliq ham em birligida: yozuv kichrayganda bo'shliq ham kichrayadi, aks holda
+   kichraygan yozuvda bo'laklar orasi haddan tashqari keng ko'rinardi. */
+.g7-fitflex { display: flex; align-items: center; justify-content: center; gap: .28em; flex-wrap: nowrap; }
+
 .g7-expr-hero { font-size: clamp(26px, 3.1vw, 40px); letter-spacing: -.02em; }
 /* Yozuvning HAMMA ko'rinishi bitta o'lchamda: metodist 2026-08-14 --
    «sonlar va amal belgilari hammasi bir xil kattalikda bo'lsin». */
@@ -2071,6 +2305,12 @@ sup.g7-idx { vertical-align: .46em; }
 /* Past noutbukda (615px) yoy qatori sig'maydi: 4-ekran 71px oshib ketardi.
    Yoy -- tushuntirishning YORDAMCHISI, matn va natija ASOSIY. */
 @media (max-height: 660px) {
+  /* CHIZMA PAST EKRANDA KICHRAYADI. Bandlik ham bo'shatiladi: Slot ni
+     inline min-height bilan chizadi, shuning uchun !important kerak. */
+  .g7-drawslot { min-height: 0 !important; }
+  .g7-fg-svg, .g7-pl-svg { max-height: 150px; width: auto; }
+  /* Tuzoq qatorlari: besh qator past ekranda 20px oshib ketardi. */
+  .g7-auditrows .g7-opt { padding-top: 4px; padding-bottom: 4px; }
   .g7-cmp-arc { display: none; }
   .g7-cmp { padding: 7px 11px; gap: 2px; }
   .g7-cmp-expr { font-size: clamp(16px, 1.9vw, 20px); }
@@ -2175,13 +2415,31 @@ sup.g7-idx { vertical-align: .46em; }
 .g7-options-dense .g7-opt { min-height: clamp(38px, 2.9vw, 44px); padding: 7px 12px; font-size: clamp(12px, 1vw, 13.5px); }
 .g7-opt:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 14px 26px -14px rgba(${T.shadow},.5), inset 0 0 0 1px ${T.line}; }
 .g7-opt:disabled { cursor: default; }
+/* JAVOB TUGMASINING VAZNI BITTA: 500, hamma joyda (QA 2026-08-22:
+   «javoblarda bazilari bold, bazilari oddiy -- bir xil oddiy bo'lgani
+   yaxshi»). Ilgari uch xil vazn yonma-yon turardi: proza 500, yozuv 600,
+   son 800. Ajratish endi SHRIFT va O'LCHAM bilan beriladi, qalinlik bilan
+   emas -- son baribir yirik, yozuv baribir monoshriftda. */
 .g7-opt-math {
   font-family: ${MATH_FONT};
-  font-weight: 600;
   letter-spacing: 0;
   word-spacing: .1em;
   font-variant-numeric: tabular-nums lining-nums;
   font-size: 1.06em;
+}
+/* TUZOQ QATORI -- YOZUV, ya'ni yozuv panelidagi bilan BIR XIL terilishi
+   kerak: o'sha vazn, o'sha jadval raqamlari, o'sha so'z oralig'i. Ilgari
+   qatorga faqat shrift oilasi berilardi, qolganini g7-opt bosib qolardi.
+   Tanlagichda ikki sinf: g7-opt keyinroq e'lon qilingan va bitta sinfli
+   qoidani bosib qo'yardi. */
+.g7-auditrows.is-math .g7-opt {
+  font-family: ${MATH_FONT};
+  font-weight: 600;
+  letter-spacing: 0;
+  word-spacing: .12em;
+  font-variant-ligatures: none;
+  font-feature-settings: 'liga' 0;
+  font-variant-numeric: tabular-nums lining-nums;
 }
 .g7-opt-badge { flex-shrink: 0; min-width: 20px; font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 700; }
 /* SON javobi: yirik va markazda. Harf yo'q, ya'ni kenglik ham kerak emas --
@@ -2189,9 +2447,28 @@ sup.g7-idx { vertical-align: .46em; }
 /* Javob bo'laklari qatori: markazda, belgi bilan birga. */
 /* PROZADAGI SON. Matematik shrift, biroz yirikroq va qalinroq -- shu
    bilan u pastdagi yozuvdagi son bilan BIR OILADAN bo'lib ko'rinadi. */
+/* YON ZAZOR SHART. Son proza ichiga BOSHQA shriftda kiradi: qalinroq va
+   16% yirikroq. Metrikalar mos kelmaydi, va gorizontal zazor bo'lmaganda
+   glif qo'shnisiga tegib turadi -- "5x" da beshlik bilan iks yopishib
+   qolgandi (metodist 2026-08-22, o'zbekcha: u yerda ulanish ko'proq).
+   Zazor so'z ichidagi bo'shliqdan ancha kichik, ya'ni son so'zdan
+   uzilmaydi, ammo tegish yo'qoladi. */
 .g7-fxnum { font-family: ${MATH_FONT}; font-weight: 800; }
 .g7-ask .g7-fxnum, .g7-qpill .g7-fxnum, .g7-hint .g7-fxnum,
-.g7-fb-body .g7-fxnum, .g7-sumcard-ul .g7-fxnum { font-size: 1.16em; }
+.g7-fb-body .g7-fxnum, .g7-sumcard-ul .g7-fxnum { font-size: 1.16em; margin-inline: .07em; }
+/* JAVOB TUGMASI ICHIDA SON AJRATILMAYDI. Prozada son boshqa shriftda va
+   qalinroq chiqadi -- tushuntirish matnida bu foydali, javob variantida esa
+   yo'q: bitta qisqa javob ichida ikki xil yozuv paydo bo'lardi va qator
+   ola-bula ko'rinardi (QA 2026-08-22: «javoblarda bazilari bold, bazilari
+   oddiy»). Variant ichida son atrofdagi matn bilan BIR XIL teriladi.
+   Tushuntirish matnida (savol, razbor, xulosa) ajratish qoladi. */
+.g7-opt-text .g7-fxnum {
+  font-family: inherit;
+  font-weight: inherit;
+  font-size: inherit;
+  margin-inline: 0;
+}
+.g7-done-text.is-prose .g7-fxnum { margin-inline: .05em; }
 /* ============ YOZUVNI O'QISH NAMOYISHI (ReadViz) ============ */
 .g7-rv {
   display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: center;
@@ -2274,19 +2551,41 @@ sup.g7-idx { vertical-align: .46em; }
 .g7-opt.g7-part {
   min-height: 48px; min-width: 60px; width: auto;
   padding: 4px 16px;
-  font-family: ${MATH_FONT};
-  font-size: var(--g7-num); font-weight: 800;
   display: inline-flex; justify-content: center; align-items: center;
+}
+/* SON bo'lagi yirik va qalin -- yechim satridagidek. */
+.g7-opt.g7-part.is-math {
+  font-family: ${MATH_FONT};
+  font-size: var(--g7-num);
+}
+/* SO'Z bo'lagi esa oddiy variant o'lchamida: 30 px da 800 vaznda terilgan
+   uzun so'z ekranda qichqirib turardi (QA 2026-08-22). */
+.g7-opt.g7-part.is-prose {
+  font-size: clamp(15.5px, 2.1vw, 19px);
 }
 .g7-opt-num {
   flex: none; text-align: center;
-  font-size: var(--g7-num); font-weight: 800;
+  font-size: var(--g7-num);
+  /* SON IKKIGA BO'LINMAYDI. Umumiy qoidada overflow-wrap: anywhere turadi
+     -- u uzun o'zbekcha so'z tugmadan chiqib ketmasin deb qo'yilgan, ammo
+     u ISTALGAN joydan uzadi, jumladan sonning O'RTASIDAN: telefonda 12
+     bir va ikki bo'lib, 335 daraja esa 33 va 5 daraja bo'lib ikki qatorga
+     tushardi (QA 2026-08-22). Sonda uzish joyi yo'q. */
+  white-space: nowrap;
+  overflow-wrap: normal;
 }
 /* min-width 0 va overflow-wrap: flex-element min-content dan kichrayolmaydi,
    ya'ni UZUN SO'Z tugmadan chiqib ketadi va overflow hidden uni JIMGINA
    kesadi -- 390 da o'zbekcha qo'shiluvchining shunday kesilgan.
    anywhere min-content hisobiga ham kiradi, break-word esa kirmaydi. */
 .g7-opt-text { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+/* SON O'Z ENIDAN KICHRAYMAYDI. Bitta span da ikkala sinf turadi, va
+   g7-opt-text keyinroq e'lon qilingani uchun flex bilan eng kam kenglikni
+   bosib qo'yardi: son katakka sig'masa SIQILARDI, va
+   ko'chirish taqiqlangani uchun chetidan qirqilardi -- 412 px li telefonda
+   «335 daraja» dan «335» qolib, daraja belgisi kesilardi (QA 2026-08-22).
+   Ikki sinfli tanlagich buni qaytaradi. */
+.g7-opt-text.g7-opt-num { flex: 0 0 auto; min-width: max-content; }
 /* YASHIL faqat tasdiqdan keyin. */
 .g7-opt-ok { background: ${T.okSoft}; color: ${T.ok}; box-shadow: 0 10px 24px -14px rgba(40,119,74,.5), inset 0 0 0 1px rgba(40,119,74,.3); }
 /* Xato urinish AMBER, qizil EMAS. */
@@ -4360,6 +4659,11 @@ sup.g7-idx { vertical-align: .46em; }
 .g7-pl-guide { stroke: ${T.ink3}; stroke-width: 1; stroke-dasharray: 3 3; }
 .g7-pl-dot { fill: ${T.graph}; stroke: ${T.paperSolid}; stroke-width: 1.6; }
 .g7-pl-dotg.is-mine .g7-pl-dot { fill: ${T.accent}; }
+/* Noto'g'ri qo'yilgan nuqta: ko'rinadi, lekin xato rangida va o'zi
+   so'nadi. O'quvchi qayerga bosganini ko'rishi kerak. */
+.g7-pl-dotg.is-miss .g7-pl-dot { fill: ${T.tip}; }
+.g7-pl-dotg.is-miss .g7-pl-guide { stroke: ${T.tip}; }
+.g7-pl-dotg.is-miss .g7-pl-lab { fill: ${T.tip}; }
 .g7-pl-dotg.is-mine .g7-pl-guide { stroke: ${T.accent}; }
 .g7-pl-lab { font-family: ${MATH_FONT}; font-weight: 700; font-size: 12.5px; fill: ${T.ink}; }
 .g7-pl-dotg { animation: g7-pop .34s cubic-bezier(.22,.9,.3,1.2) both; }
@@ -4390,7 +4694,11 @@ sup.g7-idx { vertical-align: .46em; }
 .g7-fg-ang.is-dim { fill: ${T.ink3}; }
 .g7-fg-sum { font-family: ${MATH_FONT}; font-weight: 700; font-size: 14px; color: ${T.ink}; }
 .g7-fg-sum.is-guess { color: ${T.tip}; }
-.g7-ts-cap { text-align: center; font-size: 13.5px; color: ${T.ink2}; }
+/* SARLAVHA OSTIDAGI IZOH. 13,5 px va och kulrang edi: QA uni ekranda
+   umuman ajrata olmadi (2026-08-22). Izoh ekranning SHARTINI aytadi --
+   uni o'qimasdan topshiriq tushunilmaydi, ya'ni u bezak emas. Endi
+   asosiy matn rangida va bir yarim pog'ona yirikroq. */
+.g7-ts-cap { text-align: center; font-size: 15px; line-height: 1.35; color: ${T.ink}; }
 @keyframes g7-ts-in { 0% { opacity: 0; transform: translateY(-5px); } 100% { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .g7-ts-chip { animation-duration: .01ms; } }
 
@@ -4520,9 +4828,14 @@ sup.g7-idx { vertical-align: .46em; }
    ustida son. Javob emas, o'lchov.
    DIQQAT: bu izohda TESKARI APOSTROF bo'lishi mumkin emas.
    ============================================================ */
-.g7-dl { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.g7-dl { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+/* O'RAM SVG NING O'LCHAMIDA. Zonalar inset nol bilan aynan svg ustiga
+   tushishi kerak: ilgari ular butun g7-dl blokini qoplardi, o'q esa markazda
+   620px bilan cheklangan edi -- foizlar boshqa kenglikdan hisoblanib, zona
+   o'z belgisidan chetga ketardi (QA nuqsoni 2026-08-22). */
+.g7-dl-box { position: relative; width: 100%; max-width: 620px; }
 .g7-dl-zones { position: absolute; inset: 0; }
-.g7-dl-svg { width: 100%; max-width: 620px; height: auto; display: block; }
+.g7-dl-svg { width: 100%; height: auto; display: block; }
 .g7-dl-axis { stroke: ${T.ink}; stroke-width: 2; }
 .g7-dl-tick { stroke: ${T.ink3}; stroke-width: 1.5; }
 .g7-dl-num {
@@ -4739,4 +5052,26 @@ sup.g7-idx { vertical-align: .46em; }
 .g7-ride-run { animation: g7-ridein .42s ease both; }
 @keyframes g7-ridein { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .g7-ride-run { animation-duration: .01ms; } }
+
+/* ============================================================
+   TELEFON. BLOK ATAYIN ENG OXIRIDA.
+   Sinfda telefonga tegishli qoidalar uch joyda tarqalgan: 660 balandlik,
+   639.98 kenglik va 390 kenglik. Ikkita tuzoq shundan chiqadi:
+     1. 390 li blok FAQAT eng tor telefonni tutadi. Son qatorining ixchamligi
+        o'sha yerda edi, va 412 px li telefonda (Galaxy S20 Ultra -- QA aynan
+        shunda ko'rgan) umuman ishlamasdi: o'lchov 390 da toza, jonli
+        qurilmada esa son chetidan qirqilardi.
+     2. 639.98 li blok asosiy g7-opt qoidalaridan OLDIN turadi, ya'ni bir
+        sinfli qoidada undan kuchsizroq. Shuning uchun bu blok eng oxirida.
+   ============================================================ */
+@media (max-width: 639.98px) {
+  .g7-opt { padding: 8px 12px; min-height: 46px; gap: 9px; }
+  /* Son qatori: yorliq va ichki bo'shliq sonning joyini yemasin. */
+  .g7-opt-numbox { padding-left: 6px; padding-right: 6px; gap: 4px; }
+  .g7-opt-numbox .g7-opt-badge { min-width: 10px; font-size: 11px; }
+  /* Chizma telefonda ham kichrayadi: past noutbukda bu bor (max-height 660),
+     telefonda esa balandlik katta va o'sha qoida ishlamasdi. */
+  .g7-fg-svg, .g7-pl-svg { max-height: 180px; width: auto; }
+  .g7-drawslot { min-height: 0 !important; }
+}
 `

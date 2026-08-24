@@ -1,50 +1,76 @@
-// Dars41 · Amaliyot 08 — Biri ikki barobar · 🔴 · build · tag: ang_double
-// Mexanika: kit.jsx -> BuildLine. Raskladka: 8-o'rin.
-// Qo'shni burchaklardan biri ikkinchisidan ikki barobar katta:
-// x + 2x = 180 -> x = 60, burchaklar 60° va 120°.
+// Dars41 · Amaliyot 08 — Nom va uzun perimetr · 🔴 · build · tag: kind_long_p
+// Mexanika: kit.jsx -> BuildLine. Raskladka: 8-o'rin `build`.
+// 8, 8, 15 -- teng yonli, P = 31. Tuzoq: 24 (uch tomon 8 deb olingan).
 import React from 'react';
 import { BuildLine, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'ang_double', level: '🔴',
-  eyebrow: L('Ikki barobar', 'Вдвое больше', 'Twice as big'),
+  tag: 'kind_long_p',
+  level: '🔴',
+  eyebrow: L(
+    'Nom va perimetr',
+    'Имя и периметр',
+    'Name and perimeter'),
   setup: L(
-    "Bir burchak x, ikkinchisi 2x. Qo'shni bo'lgani uchun yig'indisi 180 gradus -- tenglama shundan chiqadi.",
-    'Один угол x, второй 2x. Они смежные, значит сумма 180 градусов — отсюда уравнение.',
-    'One angle is x, the other 2x. Being adjacent they add to 180, giving the equation.'),
+    "Tomonlar yaqin, lekin teng emas. Ikki javob kerak: tomonlar bo'yicha nom va perimetr.",
+    'Стороны близки, но не равны. Нужны два ответа: имя по сторонам и периметр.',
+    'The sides are close but not equal. Two answers are needed: the side name and the perimeter.'),
+  given: [['8, 8, 15']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
   cards: [
-    { id: 'a', label: '3x = 180°' },
-    { id: 'b', label: 'x = 60°' },
-    { id: 'c', label: '60° va 120°' },
-    { id: 'd', label: '2x = 180°' },
-    { id: 'e', label: 'x = 90°' },
+    { id: 'a', label: 'teng yonli' },
+    { id: 'b', label: 'P = 31' },
+    { id: 'c', label: 'har xil tomonli' },
+    { id: 'd', label: 'P = 24' },
   ],
-  answerSeq: ['a', 'b', 'c'],
-  empty: L("Uch qadamni tartib bilan qo'ying", 'Поставь три шага по порядку', 'Place the three steps in order'),
-  ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+  answerSeq: ['a', 'b'],
+  fieldH: 44,
+  ask: L(
+    "Kartani bosish uni chiziqqa qo'yadi.",
+    'Нажатие на карточку ставит её в строку.',
+    'Tapping a card puts it in the line.'),
+  empty: L(
+    'Kartalarni bosib javobni tuzing',
+    'Нажимай карточки и собери ответ',
+    'Tap the cards to build the answer'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. x + 2x = 3x = 180 -> x = 60. Burchaklar 60° va 120°: yig'indisi 180.",
-    'Верно. x + 2x = 3x = 180 → x = 60. Углы 60° и 120°: сумма 180.',
-    'Correct. x + 2x = 3x = 180 → x = 60. The angles are 60° and 120°, summing to 180.'),
+    "To'g'ri. 8 = 8, ya'ni teng yonli; 8 + 8 + 15 = 31.",
+    'Верно. 8 = 8, значит равнобедренный; 8 + 8 + 15 = 31.',
+    'Correct. 8 = 8 makes it isosceles; 8 + 8 + 15 = 31.'),
   wrongs: [
-    { when: (s) => s.seq.indexOf('d') !== -1 || s.seq.indexOf('e') !== -1, text: L(
-      "2x emas, 3x: x va 2x birga uch x beradi.",
-      'Не 2x, а 3x: x и 2x вместе дают три x.',
-      'Not 2x but 3x: x and 2x together make three x.') },
-    { when: (s) => s.seq.length === 3, text: L(
-      "Qadamlar to'g'ri, tartibi boshqa: tenglama, ildiz, ikki burchak.",
-      'Шаги верные, но порядок другой: уравнение, корень, два угла.',
-      'The steps are right but the order is not: equation, root, the two angles.') },
-    { when: (s) => s.seq.length < 3, text: L(
-      "Uch qadam bo'lishi kerak.",
-      'Должно быть три шага.',
-      'There must be three steps.') },
+    {
+      when: (s) => s.seq.indexOf('c') !== -1,
+      text: L(
+        'Har xil tomonlida uch tomon ham boshqa-boshqa. Bu yerda ikkitasi 8.',
+        'У разностороннего все три стороны разные. Здесь две по 8.',
+        'A scalene triangle has three different sides. Here two of them are 8.'),
+    },
+    {
+      when: (s) => s.seq.indexOf('d') !== -1,
+      text: L(
+        "24 bu 8 · 3. Uchinchi tomon 15, ya'ni 8 + 8 + 15 = 31.",
+        '24 это 8 · 3. Третья сторона 15, значит 8 + 8 + 15 = 31.',
+        '24 is 8 · 3. The third side is 15, so 8 + 8 + 15 = 31.'),
+    },
+    {
+      when: (s) => s.seq.length < 2,
+      text: L(
+        'Ikki karta kerak.',
+        'Нужны две карточки.',
+        'Two cards are needed.'),
+    },
   ],
   wrongText: L(
-    "x va 2x ni qo'shsangiz nechta x chiqadi? Yig'indi nechchiga teng?",
-    'Сколько x выйдет из x и 2x? Чему равна сумма?',
-    'How many x come from x and 2x? What is the sum?'),
+    "Ikki bir xil son bor, uchinchisi boshqa. Perimetr uchtasining yig'indisi.",
+    'Есть два одинаковых числа и третье другое. Периметр это сумма всех трёх.',
+    'Two numbers match and the third differs. The perimeter adds all three.'),
 };
 
 export default function D41_08(props) { return <BuildLine data={DATA} {...props} />; }

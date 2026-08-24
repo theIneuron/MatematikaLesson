@@ -666,15 +666,17 @@ const S12 = {
     { id: 'r1', text: L('ikki chiziqni kesuvchi kesdi', 'секущая пересекла две прямые', 'a transversal crossed two lines') },
     { id: 'r2', text: L('chiziqlar parallelligi ma\'lum emas', 'о параллельности прямых не сказано', 'nothing is said about them being parallel') },
     { id: 'r3', text: L('bu burchaklar mos burchaklar', 'эти углы соответственные', 'these angles are corresponding') },
-    { id: 'r4', text: L('javob: demak ular teng', 'ответ: значит они равны', 'answer: so they are equal') },
+    { id: 'r4', text: L('chiziqlar parallel', 'прямые параллельны', 'the lines are parallel') },
+    { id: 'r5', text: L('javob: demak ular teng', 'ответ: значит они равны', 'answer: so they are equal') },
   ],
   answerId: 'r4',
   hints: {
     r1: L("Bu shart.", 'Это условие.', 'That is the condition.'),
     r2: L("To'g'ri: parallellik haqida hech narsa aytilmagan.", 'Верно: про параллельность ничего не сказано.', 'Right: nothing was said about parallelism.'),
     r3: L("To'g'ri: joylashuvi bo'yicha ular haqiqatda mos burchaklar.", 'Верно: по расположению это действительно соответственные углы.', 'Right: by position they really are corresponding angles.'),
+      r5: L("Bu qator oldingisidan chiqqan. Xato esa undan YUQORIDA.", 'Эта строка выходит из предыдущей. А ошибка ВЫШЕ неё.', 'This line follows from the one before. The mistake is ABOVE it.'),
   },
-  tags: { r1: 'Z4', r2: 'Z4', r3: 'Z1' },
+  tags: { r1: 'Z4', r2: 'Z4', r3: 'Z1' , r5: 'Z4' },
   proofFill: {
     template: [{ slot: 0 }, '   →   ', { slot: 1 }],
     parts: [

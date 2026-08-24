@@ -370,15 +370,23 @@ const FX = `
   .g3-grid-line.is-carry { margin-bottom: -1px; }
   .g3-grid-sign { color: ${COLORS.muted}; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 24px; font-weight: 800; }
   .g3-grid-fixed {
-    font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 26px; font-weight: 800; color: ${COLORS.ink};
+    position: relative; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 26px; font-weight: 800; color: ${COLORS.ink};
   }
   .g3-grid-fixed.is-carry { font-size: 15px; color: ${COLORS.accent}; }
+  .g3-grid-fixed.is-struck { color: ${COLORS.muted}; text-decoration: line-through; text-decoration-color: ${COLORS.no}; text-decoration-thickness: 3px; text-decoration-skip-ink: none; }
+  .g3-grid-reduced {
+    position: absolute; top: 50%; right: -12px; transform: translateY(-50%);
+    font-size: 14px; font-weight: 800; color: ${COLORS.no}; background: #FFFFFF;
+    padding: 0 2px; border-radius: 5px; line-height: 1.1;
+    box-shadow: 0 0 0 1px rgba(185, 56, 47, .25);
+  }
   .g3-grid-cell {
     width: 38px; height: 46px; padding: 0; border: 2px solid #D6DAE3; border-radius: 10px;
     background: #F8FAFC; color: ${COLORS.ink}; font-family: 'JetBrains Mono', ui-monospace, monospace;
     font-size: 25px; font-weight: 800; cursor: pointer;
   }
   .g3-grid-cell.is-carry { width: 26px; height: 26px; border-radius: 7px; font-size: 15px; border-style: dashed; color: ${COLORS.accent}; }
+  .g3-grid-cell.is-carry.is-wide { width: 34px; font-size: 13px; letter-spacing: -0.5px; }
   .g3-grid-cell.is-active { border-color: ${COLORS.accent}; background: ${COLORS.accentSoft}; box-shadow: 0 0 0 3px rgba(255, 79, 40, .16); }
   .g3-grid-cell.is-ok { border-color: ${COLORS.ok}; background: ${COLORS.okSoft}; color: ${COLORS.ok}; }
   .g3-grid-cell.is-no { border-color: ${COLORS.no}; background: ${COLORS.noSoft}; color: ${COLORS.no}; }
@@ -391,8 +399,10 @@ const FX = `
   @media (max-width: 719.98px) {
     .g3-grid-cell { width: 31px; height: 38px; font-size: 20px; }
     .g3-grid-cell.is-carry { width: 22px; height: 22px; font-size: 13px; }
+    .g3-grid-cell.is-carry.is-wide { width: 29px; font-size: 11px; }
     .g3-grid-fixed { font-size: 21px; }
     .g3-grid-fixed.is-carry { font-size: 13px; }
+    .g3-grid-reduced { right: -9px; font-size: 11px; }
     .g3-grid { column-gap: 8px; }
     .g3-grid-board { padding: 4px 0; }
     .g3-grid .g3-lesson-numpad { width: min(186px, 100%); padding: 13px 7px 8px; gap: 5px; }
@@ -525,9 +535,16 @@ function hasAnswer(spec, answer) {
   if (spec.type === 'multi') return answer.length > 0;
   if (spec.type === 'order') return answer.length === spec.correct.length;
   if (spec.type === 'match' || spec.type === 'dnd') return pairCount(answer) === spec.correct.length;
-  // Ustunda bo'sh katak "ko'chirish yo'q" degani — to'la to'ldirish talab qilinmaydi,
-  // aks holda ko'chirishsiz misolni yakunlab bo'lmaydi. Kamida bitta katak to'ldirilsin.
-  if (spec.type === 'grid') return Array.isArray(answer) && answer.some((cell) => String(cell ?? '') !== '');
+  // Ustunda bo'sh katak "ko'chirish yo'q" degani — bo'sh javob kutilgan kataklarni
+  // to'ldirish shart emas. Lekin javob kutilgan HAR bir katak to'lmaguncha "Tekshirish"
+  // faollashmasin — aks holda bitta raqamdan keyin butun misol chala tekshirilib, xato
+  // hisoblanadi (metodist reporti, 2026-08-24: dars07 6- va 9-topshiriqlar).
+  // Ikki xonali javob kutilgan katak (masalan "16") ikkala raqami kiritilmaguncha
+  // to'lgan hisoblanmaydi — aks holda bitta raqamdan keyin ham "Tekshirish" ochilib qoladi.
+  if (spec.type === 'grid') {
+    const expected = gridExpected(spec.grid);
+    return Array.isArray(answer) && expected.every((exp, i) => exp === '' || String(answer[i] ?? '').length >= exp.length);
+  }
   return false;
 }
 
@@ -1008,7 +1025,7 @@ function DropZones({ spec, text, answer, setAnswer, locked, status }) {
 // shuning uchun div uchun ham "−".
 const GRID_SIGN = { add: '+', sub: '−', mul: '×', div: '−' };
 
-function GridRow({ row, cols, op, slotIndexOf, answer, cellState, onPick, active }) {
+function GridRow({ row, cols, op, slotIndexOf, answer, cellState, onPick, active, struckRowId, struckCols, reducedValues }) {
   const cells = row.cells || [];
   const offset = row.offset || 0;
   const start = 2 + (cols - offset - cells.length);
@@ -1016,6 +1033,7 @@ function GridRow({ row, cols, op, slotIndexOf, answer, cellState, onPick, active
   const fill = row.fill === 'all' ? cells.map((_, i) => i) : (row.fill || []);
   // sign: true — amal belgisi op dan olinadi (muallif "−" ni "-" bilan chalkashtirmasin).
   const sign = row.sign === true ? GRID_SIGN[op] : row.sign;
+  const struck = row.id === struckRowId;
   return (
     <>
       <div className={`g3-grid-line${carry ? ' is-carry' : ''}`} style={{ gridTemplateColumns: `28px repeat(${cols}, var(--g3-grid-cw))` }}>
@@ -1023,13 +1041,27 @@ function GridRow({ row, cols, op, slotIndexOf, answer, cellState, onPick, active
         {cells.map((value, cellIndex) => {
           const column = start + cellIndex;
           if (!fill.includes(cellIndex)) {
-            return <span key={cellIndex} className={`g3-grid-fixed${carry ? ' is-carry' : ''}`} style={{ gridColumn: column }}>{value}</span>;
+            // Qarz olingan xona: ustiga yangi son yozilgach, pastdagi asl raqam
+            // qog'ozdagidek chizib tashlanadi (metodist so'rovi, 2026-08-24). Shu xona
+            // o'ng qo'shnisiga QARZ BERGAN bo'lsa (reducedValues da bor), chizilgan
+            // raqam yonida 1 ga kamaygan yangi qiymat ko'rinadi — "5 endi 4 bo'ldi".
+            const isStruck = struck && struckCols?.has(cellIndex);
+            const reduced = isStruck ? reducedValues?.get(cellIndex) : undefined;
+            return (
+              <span key={cellIndex} className={`g3-grid-fixed${carry ? ' is-carry' : ''}${isStruck ? ' is-struck' : ''}`} style={{ gridColumn: column }}>
+                {value}
+                {reduced !== undefined && <span className="g3-grid-reduced">{reduced}</span>}
+              </span>
+            );
           }
           const slot = slotIndexOf(row.id, cellIndex);
           const state = cellState(slot);
+          // Kutilgan javob ikki xonali bo'lsa (masalan "16", o'nlik qo'shilgan qarz),
+          // katak kengroq chiziladi — aks holda ikkinchi raqam sig'maydi.
+          const wide = String(value ?? '').length > 1;
           return (
             <button key={cellIndex} type="button" style={{ gridColumn: column }}
-              className={`g3-grid-cell${carry ? ' is-carry' : ''}${active === slot ? ' is-active' : ''}${state ? ` is-${state}` : ''}`}
+              className={`g3-grid-cell${carry ? ' is-carry' : ''}${wide ? ' is-wide' : ''}${active === slot ? ' is-active' : ''}${state ? ` is-${state}` : ''}`}
               onClick={() => onPick(slot)}>
               {answer[slot] || ''}
             </button>
@@ -1066,25 +1098,66 @@ function NumGrid({ spec, text, answer, setAnswer, locked, status, lang }) {
     [answer, revealed, slots],
   );
 
+  // Ba'zi katakcha qarz/o'nlik qo'shilgan ikki xonali sonni kutadi (masalan "16"):
+  // shu katakning maksimal uzunligi muallif yozgan javobning uzunligiga teng.
+  // Katak to'lguncha keyingi raqam UNING ichiga qo'shiladi, to'lgach faol katak siljiydi.
+  const maxLenOf = (slotIndex) => Math.max(1, (slots[slotIndex]?.expected || '').length);
   const writeDigit = (digit) => {
-    setAnswer((current) => {
-      const next = [...current];
-      next[active] = digit;
+    const maxLen = maxLenOf(active);
+    const current = String(answer[active] || '');
+    const nextValue = current.length >= maxLen ? digit : current + digit;
+    setAnswer((prev) => {
+      const next = [...prev];
+      next[active] = nextValue;
       return next;
     });
-    setActive((current) => Math.min(current + 1, slots.length - 1));
+    if (nextValue.length >= maxLen) setActive((prev) => Math.min(prev + 1, slots.length - 1));
   };
   const eraseDigit = () => {
-    setAnswer((current) => {
-      const next = [...current];
-      if (next[active]) { next[active] = ''; return next; }
+    const current = String(answer[active] || '');
+    setAnswer((prev) => {
+      const next = [...prev];
+      next[active] = current.slice(0, -1);
       return next;
     });
-    setActive((current) => (answer[current] ? current : Math.max(current - 1, 0)));
+    setActive((prev) => (current ? prev : Math.max(prev - 1, 0)));
   };
 
   const rows = grid.rows || [];
-  const rowProps = { cols, op: grid.op, slotIndexOf, answer, cellState, onPick: setActive, active };
+
+  // Qarz olingan xona: qog'ozdagidek, pastdagi asl raqam chizib tashlanadi va (agar shu
+  // xona o'ng qo'shnisiga qarz bergan bo'lsa) yoniga 1 ga kamaygan qiymat chiqadi.
+  // Muallif buni carry qatorida `struckRow: 'a'` bilan yoqadi.
+  //
+  // MUHIM: agar xona qarz BERGAN bo'lsa (o'ng qo'shnisining belgisi ikki xonali),
+  // chizish O'SHA QO'SHNI raqamni yozib bo'lgan zahoti chiqishi kerak — "16" yozilgani
+  // zahoti 5 -> 4 bo'lishi shart, o'zining "14" katakchasini kutib turmasin. Faqat eng
+  // o'ngdagi (hech kimga qarz bermaydigan) xona o'zining katakchasi to'lgani bilan chiziladi.
+  const struckRow = rows.find((row) => row.kind === 'carry' && row.struckRow);
+  const struckRowId = struckRow?.struckRow || null;
+  const targetRow = rows.find((row) => row.id === struckRowId);
+  const { struckCols, reducedValues } = useMemo(() => {
+    const struck = new Set();
+    const reduced = new Map();
+    if (!struckRow || !targetRow) return { struckCols: struck, reducedValues: reduced };
+    const borrowCells = struckRow.cells || [];
+    const targetCells = targetRow.cells || [];
+    targetCells.forEach((original, i) => {
+      const rightMark = borrowCells[i + 1];
+      const lends = rightMark !== undefined && String(rightMark).length > 1;
+      const triggerCellIndex = lends ? i + 1 : i;
+      const slot = slotIndexOf(struckRow.id, triggerCellIndex);
+      const expectedLen = slot >= 0 ? (slots[slot]?.expected || '').length : 0;
+      const filled = slot >= 0 && expectedLen > 0 && String(answer[slot] ?? '').length >= expectedLen;
+      if (filled) {
+        struck.add(i);
+        if (lends) reduced.set(i, String(Number(original) - 1));
+      }
+    });
+    return { struckCols: struck, reducedValues: reduced };
+  }, [struckRow, targetRow, answer, slotIndexOf, slots]);
+
+  const rowProps = { cols, op: grid.op, slotIndexOf, answer, cellState, onPick: setActive, active, struckRowId, struckCols, reducedValues };
 
   const body = (
     <div className="g3-grid-body" style={{ '--g3-grid-cw': '42px' }}>

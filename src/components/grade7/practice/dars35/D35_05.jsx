@@ -1,50 +1,74 @@
 // Dars35 · Amaliyot 05 — Kesish nuqtasida xato · 🟡 · fix · tag: lin_fix
-// Mexanika: kit.jsx -> TapTerms. Raskladka: 5-o'rin.
-// y = 4x − 3. y o'qini kesish nuqtasi (0; −3), (0; 3) emas.
+// Mexanika: kit.jsx -> TapTerms. Raskladka: 5-o'rin `fix`.
+// DARAJA KO'TARILDI (metodist qarori 2026-08-22): k manfiy va kasr bo'ladi,
+// savol ikki qadamli -- PODXOD_7SINF.md 13-band.
+// Chuqur yechim: y = 7x − 12 grafigi y o'qini (0; 12) da kesadi -- XATO, (0; −12).
 import React from 'react';
 import { TapTerms, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'lin_fix', level: '🟡',
-  eyebrow: L('Xato bo\'lak', 'Неверная часть', 'The wrong part'),
+  tag: 'lin_fix',
+  level: '🟡',
+  eyebrow: L(
+    'Xato qadam',
+    'Неверный шаг',
+    'The wrong step'),
   setup: L(
-    "Boshqa o'quvchi k va b ni to'g'ri ko'rsatdi, lekin kesish nuqtasini ishorasiz yozdi.",
-    'Другой ученик верно указал k и b, но точку пересечения записал без знака.',
-    'Another pupil found k and b correctly but wrote the crossing point without its sign.'),
-  given: [['y', '=', '4x', '−', '3']],
-  givenLabel: L('Formula:', 'Формула:', 'The rule:'),
-  ask: L("NOTO'G'RI bo'lakni belgilang.", 'Отметь НЕВЕРНУЮ часть.', 'Mark the WRONG part.'),
-  note: L('Bitta bo\'lak.', 'Одна часть.', 'One part.'),
+    "Uch qadamdan biri noto'g'ri. y o'qini kesish nuqtasi b ning o'zi bo'ladi, ishorasi bilan.",
+    'Один из трёх шагов неверный. Точка пересечения с осью y это сам b, вместе со знаком.',
+    'One of the three steps is wrong. The y intercept is b itself, sign included.'),
+  given: [['y = 7x − 12']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
+  ask: L(
+    "NOTO'G'RI qadamni belgilang.",
+    'Отметь НЕВЕРНЫЙ шаг.',
+    'Mark the WRONG step.'),
+  note: L(
+    'Bitta qadam.',
+    'Один шаг.',
+    'One step.'),
   parts: [
-    { k: 'term', id: 't1', v: 'k = 4' },
+    { k: 'term', id: 't1', v: "x = 0 qo'yiladi" },
     { k: 'sign', v: ' ' },
-    { k: 'term', id: 't2', v: 'b = −3' },
+    { k: 'term', id: 't2', v: 'y = 7 · 0 − 12' },
     { k: 'sign', v: ' ' },
-    { k: 'term', id: 't3', v: '(0; 3)' },
+    { k: 'term', id: 't3', v: 'nuqta (0; 12)' },
   ],
   want: ['t3'],
   correctText: L(
-    "To'g'ri. x = 0 bo'lganda y = −3, ya'ni kesish nuqtasi (0; −3). U b bilan bir xil ishorada bo'ladi.",
-    'Верно. При x = 0 выходит y = −3, значит точка пересечения (0; −3). Её знак совпадает с b.',
-    'Correct. At x = 0, y = −3, so the crossing point is (0; −3). It carries the sign of b.'),
+    "To'g'ri. 7 · 0 − 12 = −12, ya'ni nuqta (0; −12). Minus yo'qolgan.",
+    'Верно. 7 · 0 − 12 = −12, значит точка (0; −12). Минус потерялся.',
+    'Correct. 7 · 0 − 12 = −12, so the point is (0; −12). The minus was dropped.'),
   wrongs: [
-    { when: (s) => s.extra.indexOf('t1') !== -1, text: L(
-      "k = 4 to'g'ri: x oldida 4 turibdi.",
-      'k = 4 верно: перед x стоит 4.',
-      'k = 4 is right: the 4 stands before x.') },
-    { when: (s) => s.extra.indexOf('t2') !== -1, text: L(
-      "b = −3 ham to'g'ri: ozod had minus bilan.",
-      'b = −3 тоже верно: свободный член с минусом.',
-      'b = −3 is right too: the free term is negative.') },
-    { when: (s) => s.miss.length > 0, text: L(
-      "Kesish nuqtasini tekshiring: x = 0 qo'yilganda y qanday chiqadi?",
-      'Проверь точку пересечения: что выходит при x = 0?',
-      'Check the crossing point: what does x = 0 give?') },
+    {
+      when: (s) => s.extra.indexOf('t1') !== -1,
+      text: L(
+        "y o'qida abssissa nol, ya'ni x = 0 qo'yish to'g'ri.",
+        'На оси y абсцисса ноль, значит подстановка x = 0 верна.',
+        'On the y axis the abscissa is zero, so x = 0 is right.'),
+    },
+    {
+      when: (s) => s.extra.indexOf('t2') !== -1,
+      text: L(
+        "Qo'yish to'g'ri yozilgan: 7 · 0 − 12. Xato natijada.",
+        'Подстановка записана верно: 7 · 0 − 12. Ошибка в результате.',
+        'The substitution is written right: 7 · 0 − 12. The flaw is in the result.'),
+    },
+    {
+      when: (s) => s.miss.length > 0,
+      text: L(
+        'Natijaning ishorasini tekshiring: 0 − 12 qancha?',
+        'Проверь знак результата: сколько будет 0 − 12?',
+        'Check the sign of the result: what is 0 − 12?'),
+    },
   ],
   wrongText: L(
-    "x = 0 qo'yib y ni hisoblang: u b ga teng bo'ladi.",
-    'Подставь x = 0 и посчитай y: он равен b.',
-    'Put x = 0 and work out y: it equals b.'),
+    "b ning ishorasi kesish nuqtasiga ko'chadi.",
+    'Знак b переходит в точку пересечения.',
+    'The sign of b carries into the intercept.'),
 };
 
 export default function D35_05(props) { return <TapTerms data={DATA} {...props} />; }

@@ -1,12 +1,15 @@
-// Dars48 amaliyoti — 10 topshiriq. Mavzu: YUZALAR.
+// Dars48 amaliyoti — 10 topshiriq. Mavzu: YAKUNIY TAKRORLASH.
 // Topshiriq fayllarida FAQAT ma'lumot; mexanikalar `practice/kit.jsx` da,
 // qobiq `practice/PracticeHost.jsx` da (CLAUDE.md §5).
 //
 // MEXANIKALAR RASKLADKADAN: node scripts/grade7-practice-layout.mjs --json
+// 48-dars raskladkasi: choice, bracket, slots, build, order, chain, slots, sort, fix, build
 // Raskladka nomlari mavjud mexanikalarga solishtirildi (metodist qarori
 // 2026-08-21): build/order/bracket -> BuildLine, slots/chain -> SlotsBank,
 // fix -> TapTerms, sort -> Zones, choice -> Choice (faqat isinish uchun).
-// 48-dars raskladkasi: choice, bracket, slots, build, order, chain, slots, sort, fix, build
+//
+// MAVZU DARS BILAN SVERKA QILINDI (metodist qarori 2026-08-22): amaliyot
+// mavzusi `src/lessons/grade7.js` dagi nazariy darsning mavzusiga mos.
 
 import React, { useState } from 'react';
 import PracticeHost, { usePracticeZoom } from '../PracticeHost.jsx';
@@ -22,22 +25,22 @@ import D48_09 from './D48_09.jsx';
 import D48_10 from './D48_10.jsx';
 
 const HEAD = {
-  uz: "Dars 48 amaliyoti — 10 topshiriq (yuzalar)",
-  ru: 'Практика урока 48 — 10 заданий (площади)',
-  en: 'Lesson 48 practice — 10 tasks (areas)',
+  uz: 'Dars 48 amaliyoti — 10 topshiriq (yakuniy takrorlash)',
+  ru: 'Практика урока 48 — 10 заданий (итоговое повторение)',
+  en: 'Lesson 48 practice — 10 tasks (final revision)',
 };
 
 const ITEMS = [
-  { id: '01', label: { uz: "Yuza", ru: 'Площадь', en: 'Area' }, C: D48_01 },  // choice 🟢 a · b
-  { id: '02', label: { uz: "Uchburchak", ru: 'Треугольник', en: 'Triangle' }, C: D48_02 },  // bracket 🟢 a · h : 2
-  { id: '03', label: { uz: "Yuza va perimetr", ru: 'Площадь и периметр', en: 'Area and perimeter' }, C: D48_03 },  // slots 🟢 12 va 5
-  { id: '04', label: { uz: "Uchburchak yuzasi", ru: 'Площадь треугольника', en: 'Triangle area' }, C: D48_04 },  // build 🟡 10 va 6
-  { id: '05', label: { uz: "Kvadrat", ru: 'Квадрат', en: 'Square' }, C: D48_05 },  // order 🟡 tomon 9
-  { id: '06', label: { uz: "Ikki barobar", ru: 'Вдвое', en: 'Twice' }, C: D48_06 },  // chain 🟡 8 va 15
-  { id: '07', label: { uz: "Teskari masala", ru: 'Обратная задача', en: 'Reverse task' }, C: D48_07 },  // slots 🟡 S = 24
-  { id: '08', label: { uz: "Uch yuza", ru: 'Три площади', en: 'Three areas' }, C: D48_08 },  // sort 🔴 24 / 48 / 12
-  { id: '09', label: { uz: "Ikkiga bo'lish", ru: 'Деление на два', en: 'The halving' }, C: D48_09 },  // fix 🔴 10 va 4
-  { id: '10', label: { uz: "Tomonni topish", ru: 'Найти сторону', en: 'Find the side' }, C: D48_10 },  // build 🔴 S = 45
+  { id: '01', label: { uz: 'Ikki fakt birga', ru: 'Два факта вместе', en: 'Two facts at once' }, C: D48_01 },  // choice 🟢 rev_ext_sum
+  { id: '02', label: { uz: 'Tenglikni yozish', ru: 'Записать равенство', en: 'Write the equality' }, C: D48_02 },  // bracket 🟢 rev_bracket
+  { id: '03', label: { uz: 'Ikki fakt birga', ru: 'Два факта вместе', en: 'Two facts at once' }, C: D48_03 },  // slots 🟢 rev_iso_sum
+  { id: '04', label: { uz: 'Parallel chiziqlar', ru: 'Параллельные прямые', en: 'Parallel lines' }, C: D48_04 },  // build 🟡 rev_par_letter
+  { id: '05', label: { uz: 'Uch qadam', ru: 'Три шага', en: 'Three steps' }, C: D48_05 },  // order 🟡 rev_rt_iso
+  { id: '06', label: { uz: 'Ikki chegara', ru: 'Две границы', en: 'Two bounds' }, C: D48_06 },  // chain 🟡 rev_ineq_chain
+  { id: '07', label: { uz: 'Tenglik va perimetr', ru: 'Равенство и периметр', en: 'Equality and perimeter' }, C: D48_07 },  // slots 🟡 rev_eq_perimeter
+  { id: '08', label: { uz: "Nega bo'lmaydi", ru: 'Почему нельзя', en: 'Why not' }, C: D48_08 },  // sort 🔴 rev_zones
+  { id: '09', label: { uz: 'Xato qadam', ru: 'Неверный шаг', en: 'The wrong step' }, C: D48_09 },  // fix 🔴 rev_fix
+  { id: '10', label: { uz: 'Uch fakt birga', ru: 'Три факта вместе', en: 'Three facts at once' }, C: D48_10 },  // build 🔴 rev_iso_ext
 ];
 
 export default function Dars48Practice({ lang = 'uz' }) {

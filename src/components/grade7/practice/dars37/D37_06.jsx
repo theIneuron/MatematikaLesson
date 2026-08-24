@@ -1,44 +1,74 @@
-// Dars37 · Amaliyot 06 — Ishorada xato · 🟡 · fix · tag: prop_fix
-// Mexanika: kit.jsx -> TapTerms. Raskladka: 6-o'rin.
-// y = 3x, x = −2: 3 · (−2) = −6. Chuqur javob 6 -- ishora yo'qolgan.
+// Dars37 · Amaliyot 06 — Kasr k bilan xato · 🟡 · fix · tag: prop_fix
+// Mexanika: kit.jsx -> TapTerms. Raskladka: 6-o'rin `fix`.
+// DARAJA KO'TARILDI (metodist qarori 2026-08-22): manfiy va kasr koeffitsiyent,
+// ikki qadamli savol, yaqin tuzoq -- PODXOD_7SINF.md 13-band.
+// Chuqur yechim: y = 0,5x, x = −8 -> 0,5 · (−8) = −4. Xato javob 4: ishora tashlab ketilgan.
 import React from 'react';
 import { TapTerms, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'prop_fix', level: '🟡',
-  eyebrow: L('Xato bo\'lak', 'Неверная часть', 'The wrong part'),
+  tag: 'prop_fix',
+  level: '🟡',
+  eyebrow: L(
+    'Xato qadam',
+    'Неверный шаг',
+    'The wrong step'),
   setup: L(
-    "Boshqa o'quvchi qiymat hisobladi. Qo'yish to'g'ri, natijada esa ishora yo'qolgan.",
-    'Другой ученик посчитал значение. Подстановка верная, а в результате потерялся знак.',
-    'Another pupil worked out the value. The substitution is right; the result lost its sign.'),
-  given: [['y', '=', '3x'], ['x', '=', '−2']],
-  givenLabel: L('Berilgan:', 'Дано:', 'Given:'),
-  ask: L("NOTO'G'RI bo'lakni belgilang.", 'Отметь НЕВЕРНУЮ часть.', 'Mark the WRONG part.'),
-  note: L('Bitta bo\'lak.', 'Одна часть.', 'One part.'),
+    "Uch qadamdan biri noto'g'ri. Kasr koeffitsiyent manfiy songa ko'paytirilganda natija manfiy bo'ladi.",
+    'Один из трёх шагов неверный. Дробный коэффициент, умноженный на отрицательное число, даёт отрицательный результат.',
+    'One step is wrong. A fractional coefficient times a negative number gives a negative result.'),
+  given: [['y = 0,5x', ',', 'x = −8']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
+  ask: L(
+    "NOTO'G'RI qadamni belgilang.",
+    'Отметь НЕВЕРНЫЙ шаг.',
+    'Mark the WRONG step.'),
+  note: L(
+    'Bitta qadam.',
+    'Один шаг.',
+    'One step.'),
   parts: [
-    { k: 'term', id: 't1', v: '3 · (−2)' },
-    { k: 'sign', v: '=' },
-    { k: 'term', id: 't2', v: '6' },
+    { k: 'term', id: 't1', v: "x = −8 qo'yiladi" },
+    { k: 'sign', v: ' ' },
+    { k: 'term', id: 't2', v: '0,5 · (−8) = 4' },
+    { k: 'sign', v: ' ' },
+    { k: 'term', id: 't3', v: 'y = 4' },
   ],
   want: ['t2'],
   correctText: L(
-    "To'g'ri. 3 · (−2) = −6: musbatni manfiyga ko'paytirsa manfiy chiqadi. Nuqta (−2; −6).",
-    'Верно. 3 · (−2) = −6: положительное на отрицательное даёт отрицательное. Точка (−2; −6).',
-    'Correct. 3 · (−2) = −6: positive times negative is negative. The point is (−2; −6).'),
+    "To'g'ri. 0,5 · (−8) = −4: musbatni manfiyga ko'paytirsak manfiy chiqadi.",
+    'Верно. 0,5 · (−8) = −4: положительное на отрицательное даёт отрицательное.',
+    'Correct. 0.5 · (−8) = −4: positive times negative is negative.'),
   wrongs: [
-    { when: (s) => s.extra.indexOf('t1') !== -1, text: L(
-      "Qo'yish to'g'ri: x o'rniga −2 qo'yilgan va qavsga olingan.",
-      'Подстановка верная: вместо x поставлено −2 и взято в скобки.',
-      'The substitution is right: −2 replaced x, in brackets.') },
-    { when: (s) => s.miss.length > 0, text: L(
-      "Natijani tekshiring: musbatni manfiyga ko'paytirsa qanday ishora chiqadi?",
-      'Проверь результат: какой знак даёт положительное на отрицательное?',
-      'Check the result: what sign comes from positive times negative?') },
+    {
+      when: (s) => s.extra.indexOf('t1') !== -1,
+      text: L(
+        "x = −8 shartda berilgan, uni qo'yish to'g'ri.",
+        'x = −8 дано в условии, подстановка верна.',
+        'x = −8 is given, so the substitution is right.'),
+    },
+    {
+      when: (s) => s.extra.indexOf('t3') !== -1,
+      text: L(
+        'y = 4 ikkinchi qadamdan chiqdi. Sabab ikkinchi qadamda.',
+        'y = 4 вытекает из второго шага. Причина во втором шаге.',
+        'y = 4 follows the second step, where the flaw sits.'),
+    },
+    {
+      when: (s) => s.miss.length > 0,
+      text: L(
+        "Ko'paytmaning ishorasini tekshiring.",
+        'Проверь знак произведения.',
+        'Check the sign of the product.'),
+    },
   ],
   wrongText: L(
-    "Bitta minus bor: natija musbatmi yoki manfiy?",
-    'Минус один: результат положительный или отрицательный?',
-    'There is one minus: is the result positive or negative?'),
+    "Kasr son ham ishorani o'zgartirmaydi: minus qoladi.",
+    'Дробное число знак не отменяет: минус остаётся.',
+    'A fraction does not cancel the sign: the minus stays.'),
 };
 
 export default function D37_06(props) { return <TapTerms data={DATA} {...props} />; }

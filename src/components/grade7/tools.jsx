@@ -39,7 +39,9 @@ import {
   T,
   Expr,
   Feedback,
+  FitRow,
   Fx,
+  looksMath,
   Hint,
   L,
   MATH_FONT,
@@ -53,6 +55,7 @@ import {
   useNarratedSteps,
   useSfx,
   useT,
+  useShuffled,
 } from './core.jsx'
 
 export const UI = {
@@ -62,6 +65,13 @@ export const UI = {
   pickPart: L('Qismni tanlang', 'Выберите часть', 'Pick a part'),
   nextRow: L('Keyingi qatorni hisoblash', 'Посчитать следующую строку', 'Compute the next row'),
   whichNum: L("Qaysi sonni qo'yamiz?", 'Какое число подставить?', 'Which number shall we substitute?'),
+  // Nuqta noto'g'ri qo'yilganda. Javobni AYTMAYDI -- qaysi nuqta kerakligini
+  // emas, shartga QAYTARADI (asbob nazoratchi, oracle emas).
+  missPoint: L(
+    "Bu boshqa nuqta. Shartni yana bir bor o'qing va qaytadan belgilang.",
+    'Это другая точка. Перечитай условие и отметь заново.',
+    'That is a different point. Read the condition again and mark it once more.',
+  ),
   askPart: L("Nimani birinchi hisoblaymiz? Yozuvdagi amal belgisini bosing.", 'Что считаем первым? Нажми на знак действия в записи.', 'What do we do first? Tap an operation sign in the expression.'),
   askAct: L('Bu qaysi bosqich amali?', 'Какой это ступени действие?', 'Which stage is this operation?'),
   ruleFirst: L('Qoidada nima BIRINCHI keladi?', 'Что в правиле идёт первым?', 'What comes first in the rule?'),
@@ -406,6 +416,8 @@ export function RuleGate({ probe, rule, swap, onSolved, onStep, disabled, audio 
 // Tekshiruv SON QO'YIB bajariladi.
 // ============================================================
 export function SlotFill({ template, parts, answer, checkNote, wrongs, onSolved, onStep, prompt, promptCap, tightAsk, wide, noReset, disabled, audio }) {
+  // Bo'laklar banki ham aralashadi: to'g'ri bo'lak birinchi turmasin (§8.3).
+  parts = useShuffled(parts)
   const t = useT()
   const fx = useAnswerFx(audio)
   const [filled, setFilled] = useState(() => answer.map(() => null))
@@ -455,6 +467,13 @@ export function SlotFill({ template, parts, answer, checkNote, wrongs, onSolved,
     setHint(null)
   }
 
+  // BO'LAKLARNING SHRIFTI HAM BUTUN NABORGA (metodist qoidasi 2026-08-22).
+  // Bo'laklar doim matematik monoshriftda va 800 vaznda terilardi. Son uchun
+  // bu to'g'ri, ammo «proporsionallik emas» kabi SO'Z bo'lak yirik va o'ta
+  // qalin bo'lib chiqardi -- QA aynan shuni ko'rsatdi. Endi qoida javob
+  // variantlaridagi bilan bir xil: yo hammasi yozuv, yo hammasi proza.
+  const partsMath = parts.length > 0 && parts.every((p) => looksMath(t(p.label)))
+
   const labelOf = (id) => {
     const p = parts.find((x) => x.id === id)
     return p ? t(p.label) : ''
@@ -469,7 +488,15 @@ export function SlotFill({ template, parts, answer, checkNote, wrongs, onSolved,
           joyda turadi, ilgari o'sha razmetka bu yerda va `BracketGap` da
           ikki marta ko'chirilgan edi. */}
       <Ask kind="task" tight={tightAsk} cap={promptCap ? t(promptCap) : undefined}>{prompt ? t(prompt) : null}</Ask>
-      <div className="g7-panel g7-panel-paper g7-expr g7-expr-big g7-slotfill-panel" style={{ display: 'flex', flexWrap: 'wrap', gap: 5, justifyContent: 'center', alignItems: 'center', minHeight: 48 }}>
+      {/* YOZUV KO'CHIRILMAYDI, KICHRAYADI (QA 2026-08-22, 19-dars 10-slayd).
+          Ilgari panel `flex-wrap` bilan edi, va uzun yozuv so'z chegarasida
+          uchga bo'linib ketardi: "= 5x ayirish" birinchi qatorda, "4y"
+          ikkinchisida yolg'iz, kataklar esa uchinchisida. Endi butun yozuv
+          bitta qatorda turadi va joyga qarab bir xil koeffitsiyent bilan
+          kichrayadi (`FitRow`). Telefonda ko'chirish qoladi. */}
+      <div className="g7-panel g7-panel-paper g7-expr g7-expr-big g7-slotfill-panel" style={{ display: 'flex', alignItems: 'center', minHeight: 48 }}>
+        <FitRow min={0.56}>
+          <div className="g7-fitflex">
         {template.map((piece, i) => {
           if (typeof piece === 'string') return <span key={i}>{piece}</span>
           const idx = piece.slot
@@ -481,9 +508,13 @@ export function SlotFill({ template, parts, answer, checkNote, wrongs, onSolved,
               onClick={() => { setActive(idx); setHint(null) }}
               className={'g7-frame' + (active === idx && !correct ? ' g7-picked' : '')}
               style={{
-                minWidth: 46,
-                minHeight: 44,
-                padding: '0 8px',
+                // O'LCHAM `em` DA, PIKSELDA EMAS: yozuv sig'dirish uchun
+                // kichrayganda katak ham u bilan birga kichrayishi kerak.
+                // Piksel bilan berilgan katak kichraymay qolib, yonidagi
+                // harfning ustiga chiqib turardi.
+                minWidth: '1.53em',
+                minHeight: '1.47em',
+                padding: '0 .27em',
                 cursor: 'pointer',
                 font: 'inherit',
                 color: value ? (correct ? '#1F7A4D' : '#14161A') : '#9AA1AC',
@@ -494,6 +525,8 @@ export function SlotFill({ template, parts, answer, checkNote, wrongs, onSolved,
             </button>
           )
         })}
+          </div>
+        </FitRow>
       </div>
 
       <Slot mh={50}>
@@ -506,7 +539,7 @@ export function SlotFill({ template, parts, answer, checkNote, wrongs, onSolved,
             <button
               type="button"
               key={p.id}
-              className="g7-opt g7-part"
+              className={'g7-opt g7-part ' + (partsMath ? 'is-math' : 'is-prose')}
               disabled={correct || disabled}
               onClick={() => put(p.id)}
             >
@@ -637,6 +670,17 @@ export function AuditRows({ rows, answerId, hints, tags, proof, prompt, promptCa
   const [hitTags, setHitTags] = useState([])
   const solved = picked === answerId
 
+  // SHRIFT QARORI BUTUN TUZOQQA, QATORGA EMAS (metodist qarori 2026-08-22).
+  // Qoida javob variantlaridagi bilan bir xil: yo HAMMA qator yozuv
+  // shriftida, yo hammasi proza shriftida. Aralashtirish taqiqlanadi --
+  // ilgari tuzoqning hamma qatori, jumladan «juftlikning birinchi soni y»
+  // kabi GAPLAR ham, matematik monoshriftda terilardi, va bitta sinfning
+  // bitta prozasi ikki ekranda ikki xil ko'rinardi.
+  // Qator matni Fx dan O'TKAZILMAYDI: Fx son va harfni boshqa shriftga
+  // olib chiqadi, ya'ni blok ichiga IKKINCHI shrift kirardi -- aynan shu
+  // rad etilgan.
+  const mathRows = rows.length > 0 && rows.every((r) => looksMath(t(r.text)))
+
   const pick = (id) => {
     if (solved) return
     if (id === answerId) {
@@ -657,7 +701,7 @@ export function AuditRows({ rows, answerId, hints, tags, proof, prompt, promptCa
   return (
     <>
       {!solved ? <Ask kind="task" tight cap={promptCap ? t(promptCap) : undefined}>{prompt ? t(prompt) : null}</Ask> : null}
-      <div className="g7-panel g7-panel-paper" style={{ display: 'flex', flexDirection: 'column', gap: solved ? 2 : 4 }}>
+      <div className={'g7-panel g7-panel-paper g7-auditrows' + (mathRows ? ' is-math' : '')} style={{ display: 'flex', flexDirection: 'column', gap: solved ? 2 : 4 }}>
         {/* Qator topilgach ekranda FAQAT IKKI qator qoladi: boshlang'ich
             yozuv va topilgan qator. Qolganlari kerak emas -- isbot aynan
             shu ikkitasini solishtiradi, va ular ketgach isbot shakli
@@ -672,7 +716,14 @@ export function AuditRows({ rows, answerId, hints, tags, proof, prompt, promptCa
               key={row.id}
               className={'g7-opt' + (isAnswer ? ' g7-opt-ok' : '') + (isWrongPick ? ' g7-opt-tip' : '')}
               style={{
-                fontFamily: MATH_FONT,
+                // SHRIFT INLINE DA EMAS, USLUBDA. Ilgari bu yerda faqat
+                // shrift OILASI ko'chirilardi, yozuvning qolgan sozlamalari
+                // esa yo'q edi: vazn 500 (panelda 600), jadval raqamlari
+                // yo'q, so'z oralig'i yo'q. Natijada bitta sinfning bitta
+                // yozuvi ikki ekranda ikki xil ko'rinardi (metodist
+                // 2026-08-22, ikki surat yonma-yon). Endi sozlama
+                // `.g7-auditrows .g7-opt` da, va u yozuv paneli bilan bir xil.
+
                 /* yechilgach qatorlar KOMPAKT: ikkinchi savolga joy bo'shaydi.
                    2026-08-13: 26 -> 23. Tuzoq ekranida qatorlar ustiga qarshi
                    misol yig'ilishi qo'shiladi va noutbukda 12px oshib ketardi.
@@ -880,39 +931,61 @@ export function SubstituteRows({ rows, numbers, question, options, onSolved, onS
           esa darrov chiqsa, o'sha lahzada ekran 30px oshib ketadi. */}
       <div className="g7-zone" style={{ gap: 4, display: (askFirst && !rowsIn) || (runs > 1 && runsDone) ? 'none' : undefined }}>
         <span className="g7-zone-cap">{t(UI_TXT.zoneCheck)}</span>
-        {rows.map((row, i) => {
-          const isDone = i < shown
-          const val = n !== null ? row.val(n) : null
-          const matches = row.role === 'source' || (isDone && val === sourceVal)
-          return (
-            <div
-              key={row.id}
-              className="g7-expr g7-expr-row g7-sub-row"
-              style={{
-                display: 'grid',
-                // Qator butun kenglikka CHO'ZILMASIN: 1130px da ifoda chapda,
-                // natija esa o'ng chekkada qolib, o'rtada ulkan bo'shliq
-                // paydo bo'lardi (2026-08-10 suratlar). Endi 620px chegara.
-                maxWidth: 620,
-                gridTemplateColumns: 'minmax(0,1fr) 22px minmax(0,1.1fr) 14px auto',
-                alignItems: 'center',
-                gap: 4,
-                minHeight: 32,
-              }}
-            >
-              <span>{row.expr}</span>
-              <span style={{ opacity: n === null ? 0.25 : 0.5 }}>→</span>
-              <span className={n === null ? 'g7-dim' : 'g7-in'}>{n === null ? '' : row.sub(n)}</span>
-              <span style={{ opacity: isDone ? 0.5 : 0.15 }}>=</span>
-              <span
-                className={isDone ? (matches ? 'g7-num g7-pop' : 'g7-pop') : ''}
-                style={{ minWidth: 44, textAlign: 'right', opacity: isDone ? 1 : 0.15 }}
-              >
-                {isDone ? val : '?'}
-              </span>
-            </div>
-          )
-        })}
+        {/* USTUNLAR MAZMUNDAN, ULUSHDAN EMAS.
+            Ilgari qator o'zi panjara edi: ustunlar ulush bilan (1fr) va eni
+            620 px bilan qotirilgan. Uzun yozuv katakka sig'masdi va `nowrap`
+            tufayli QO'SHNI kataklar ustiga chizilardi -- strelka bilan
+            tenglik yozuv ostida yo'qolardi (QA 2026-08-22, 19-dars 7-slayd,
+            558 px yozuv 250 px katakda).
+            Endi panjara BITTA, hamma qatorlarga umumiy, va ustun eni eng
+            uzun mazmundan chiqadi. Qatorlar `display: contents` bilan
+            panjaraga tushadi -- shu tufayli strelkalar va tenglik belgilari
+            qatorlar bo'ylab bir o'qda turadi, ilgari buni 620 px chegarasi
+            ushlab turgandi. Sig'masa -- butun jadval birgalikda kichrayadi
+            (`FitRow`), qator qatorga ko'chmaydi. */}
+        {/* SHRIFT O'LCHAMI TASHQI TUGUNDA. `g7-expr-row` o'lchamni piksel
+            bilan qotiradi, va u jadvalning O'ZIDA turganda sig'dirish
+            koeffitsiyenti umuman ta'sir qilmasdi: koeffitsiyent hisoblanardi,
+            eni esa o'zgarmasdi (31-dars 7-ekran, ingliz tili). Endi o'lcham
+            sig'diruvchining USTIDA turadi, jadval esa uni MEROS qilib oladi. */}
+        <FitRow min={0.7} className="g7-expr-row">
+          <div
+            className="g7-expr g7-subgrid"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'minmax(0, max-content) max-content minmax(0, max-content) max-content max-content',
+              alignItems: 'center',
+              // O'LCHAMLAR `em` DA: sig'dirish shriftni kichraytiradi, va
+              // piksel bilan berilgan bo'shliq bilan eng kam kenglik u bilan
+              // birga kichraymay qolardi. O'shanda o'lchov yolg'on chiqardi
+              // -- koeffitsiyent hisoblanardi, yozuv esa baribir chetidan
+              // ellik piksel oshib turardi (31-dars, 7-ekran, ingliz tili).
+              columnGap: '.13em',
+              rowGap: '.07em',
+              gridAutoRows: 'minmax(1.07em, auto)',
+            }}
+          >
+            {rows.map((row, i) => {
+              const isDone = i < shown
+              const val = n !== null ? row.val(n) : null
+              const matches = row.role === 'source' || (isDone && val === sourceVal)
+              return (
+                <div key={row.id} className="g7-sub-row" style={{ display: 'contents' }}>
+                  <span>{row.expr}</span>
+                  <span style={{ opacity: n === null ? 0.25 : 0.5 }}>→</span>
+                  <span className={n === null ? 'g7-dim' : 'g7-in'}>{n === null ? '' : row.sub(n)}</span>
+                  <span style={{ opacity: isDone ? 0.5 : 0.15 }}>=</span>
+                  <span
+                    className={isDone ? (matches ? 'g7-num g7-pop' : 'g7-pop') : ''}
+                    style={{ minWidth: '1.47em', textAlign: 'right', opacity: isDone ? 1 : 0.15 }}
+                  >
+                    {isDone ? val : '?'}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        </FitRow>
       </div>
 
       {/* Slot FAQAT compareNote bor ekranda: bo'sh holda ham 40px egallardi,
@@ -2702,7 +2775,11 @@ export function DistanceLine({ center = 0, dist, from, to, audio, onSolved, onSt
     <>
       <Slot mh={150} style={{ alignItems: 'stretch' }}>
         <div className={'g7-dl' + (shake ? ' g7-shakebox' : '')}>
-          {/* O'q va tugmalar BITTA qatlamda turadi, shuning uchun o'ram. */}
+          {/* O'q va bosish zonalari BITTA o'ramda: o'ram svg ning o'lchamini
+              oladi, shuning uchun foizlar aynan svg ga tushadi. Hisoblagich
+              satri o'ramdan TASHQARIDA qoladi -- aks holda vertikal foiz
+              undan ham hisoblanardi. */}
+          <div className="g7-dl-box">
           <svg viewBox={'0 0 ' + W + ' 128'} className={'g7-dl-svg' + (shake && miss ? ' g7-shake' : '')} role="img" aria-label={String(dist)}>
             <line className="g7-dl-axis" x1={pad} y1="82" x2={W - pad} y2="82" />
             {marks.map((v) => (
@@ -2753,6 +2830,7 @@ export function DistanceLine({ center = 0, dist, from, to, audio, onSolved, onSt
                 onClick={() => tap(v)}
               />
             ))}
+          </div>
           </div>
           <span className="g7-dl-cnt">{t(label)} {hits.length} / {need}</span>
         </div>
@@ -2814,6 +2892,29 @@ export function SolutionSet({ kind, caption }) {
 //
 // Faqat SVG, rasm fayli yo'q (CLAUDE.md §5).
 // ============================================================================
+// BO'LAKLAR KENGLIK BO'YICHA TERILADI, QOTIB QOLGAN QADAM BO'YICHA EMAS.
+// Ilgari har bo'lak qo'shnisidan 34 px narida turardi, kengligi qanday
+// bo'lishidan qat'i nazar. Bir belgili bo'lak uchun bu yetarli edi, ammo
+// «jami» to'rt belgi, ya'ni 60 px: u yonidagi «40» ustiga chiqib ketardi va
+// yozuv «jam40 kg» bo'lib o'qilardi (metodist 2026-08-22, o'zbekcha).
+// Monoshriftda belgi kengligi 0.6em, shuning uchun bo'lakning kengligi ANIQ
+// hisoblanadi. Qator maydonga sig'masa, u SIQILADI (shrift ham, oraliq ham),
+// ustma-ust tushmaydi.
+const MONO_CH = 0.6
+const monoRow = (tokens, fs, cx, maxW) => {
+  const ws = tokens.map((tok) => Array.from(String(tok)).length * fs * MONO_CH)
+  const gap = fs * 0.42
+  const full = ws.reduce((a, b) => a + b, 0) + gap * Math.max(0, tokens.length - 1)
+  const k = maxW && full > maxW ? maxW / full : 1
+  let x = cx - (full * k) / 2
+  const xs = ws.map((w) => {
+    const c = x + (w * k) / 2
+    x += (w + gap) * k
+    return c
+  })
+  return { xs, fs: fs * k }
+}
+
 export function TwoRoutes({ source, rows, sign = '≠', fix }) {
   const t = useT()
   const [fixed, setFixed] = useState(false)
@@ -2838,16 +2939,15 @@ export function TwoRoutes({ source, rows, sign = '≠', fix }) {
   const numCx = lcdX + lcdW / 2
 
   const rowText = (tokens, y) => {
-    const step = 27
-    const x0 = 340 + (lcdX - 340) / 2 - ((tokens.length - 1) * step) / 2
+    const row = monoRow(tokens, 21, 340 + (lcdX - 340) / 2, lcdX - 340 - 18)
     return tokens.map((tok, i) => (
       <text
         key={i}
         className={'g7-gt-tok' + stageOf(tok)}
-        x={x0 + i * step}
+        x={row.xs[i]}
         y={y}
         textAnchor="middle"
-        style={{ animationDelay: (1.15 + 0.06 * i).toFixed(2) + 's' }}
+        style={{ fontSize: row.fs.toFixed(1) + 'px', animationDelay: (1.15 + 0.06 * i).toFixed(2) + 's' }}
       >
         {tok}
       </text>
@@ -2869,37 +2969,42 @@ export function TwoRoutes({ source, rows, sign = '≠', fix }) {
                 <rect className="g7-gt-box" x="114" y="54" width="152" height="68" rx="16" />
                 <text className="g7-gt-par" x="128" y="101" textAnchor="middle">(</text>
                 <text className="g7-gt-par" x="254" y="101" textAnchor="middle">)</text>
-                {source.inner.map((tok, i) => (
-                  <text
-                    key={i}
-                    className={'g7-gt-in' + stageOf(tok)}
-                    x={160 + i * 30}
-                    y="99"
-                    textAnchor="middle"
-                    style={{ animationDelay: (0.18 + 0.09 * i).toFixed(2) + 's' }}
-                  >
-                    {tok}
-                  </text>
-                ))}
+                {(() => {
+                  // Qavs ichi: ikki qavs ORASIDAGI maydon, 132 dan 250 gacha.
+                  const row = monoRow(source.inner, 25, 191, 88)
+                  return source.inner.map((tok, i) => (
+                    <text
+                      key={i}
+                      className={'g7-gt-in' + stageOf(tok)}
+                      x={row.xs[i]}
+                      y="99"
+                      textAnchor="middle"
+                      style={{ fontSize: row.fs.toFixed(1) + 'px', animationDelay: (0.18 + 0.09 * i).toFixed(2) + 's' }}
+                    >
+                      {tok}
+                    </text>
+                  ))
+                })()}
               </>
             ) : (
               <>
                 <rect className="g7-gt-box" x="16" y="58" width="248" height="60" rx="14" />
-                {source.tokens.map((tok, i) => {
-                  const x0 = 140 - ((source.tokens.length - 1) * 34) / 2
-                  return (
+                {(() => {
+                  // Ramka x = 16, kengligi 248: markaz 140, ichki maydon 224.
+                  const row = monoRow(source.tokens, 25, 140, 224)
+                  return source.tokens.map((tok, i) => (
                     <text
                       key={i}
                       className={'g7-gt-in' + stageOf(tok)}
-                      x={x0 + i * 34}
+                      x={row.xs[i]}
                       y="97"
                       textAnchor="middle"
-                      style={{ animationDelay: (0.18 + 0.09 * i).toFixed(2) + 's' }}
+                      style={{ fontSize: row.fs.toFixed(1) + 'px', animationDelay: (0.18 + 0.09 * i).toFixed(2) + 's' }}
                     >
                       {tok}
                     </text>
-                  )
-                })}
+                  ))
+                })()}
               </>
             )}
           </g>
@@ -3960,6 +4065,10 @@ export function BuildValue({
 //   wrongs: [{ key?, hint, tag }]       -- `key` -- xato joylashganlar id lari
 // ============================================================================
 export function SortZones({ zones, items, prompt, promptCap, wrongs, okNote, onSolved, onStep, disabled, audio }) {
+  // Kartochkalar ham aralashadi (§8.3). Ilgari ular ZONA bo'yicha guruh
+  // bo'lib turardi -- 12 ekrandan 8 tasida «birinchi yarmi chapga» degan
+  // qoida javob berardi, mazmunga qaramasdan.
+  items = useShuffled(items)
   const t = useT()
   const fx = useAnswerFx(audio)
   const [place, setPlace] = useState({})   // itemId -> zoneId
@@ -4600,6 +4709,12 @@ export function Plane({
   // masshtabni teng saqlaydi -- shunda tekislik kvadrat bo'lib chiqadi.
   const R = { x0: -7, x1: 7, y0: -4, y1: 4, ...(range || {}) }
   const [put, setPut] = useState(null)      // o'quvchi qo'ygan nuqta
+  // NOTO'G'RI QO'YILGAN nuqta: ko'rsatiladi va o'chadi. Ilgari asbob HAR
+  // QANDAY tugunni qabul qilardi -- «kesishgan nuqtani belgilang» topshirig'i
+  // bajarilmagan bo'lsa ham ekran ochilaverardi va keyingi savol ma'nosini
+  // yo'qotardi (QA 2026-08-22, 38-dars). Sinf qoidasi: noto'g'ri javob
+  // OLDINGA O'TKAZMAYDI.
+  const [miss, setMiss] = useState(null)
   const [picked, setPicked] = useState(null)
   const [wrong, setWrong] = useState([])
   const [hint, setHint] = useState(null)
@@ -4643,15 +4758,43 @@ export function Plane({
     if (!box.width || !box.height) return
     const vx = ((e.clientX - box.left) / box.width) * VW
     const vy = ((e.clientY - box.top) / box.height) * VH
-    const mx = R.x0 + ((vx - P.l) / w) * (R.x1 - R.x0)
-    const my = R.y0 + ((VH - P.b - vy) / h) * (R.y1 - R.y0)
+    // TESKARI HISOB `sx` va `sy` NING AYNAN TESKARISI bo'lishi shart.
+    // Ilgari bu yerda kadrning chap MAYDONI (P.l) turardi, tekislikning
+    // boshi esa `ox` da: maydon kadrga to'liq sig'masa, asbob uni MARKAZGA
+    // qo'yadi va ox P.l dan katta bo'ladi. 12 ga 8 oynada farq 27,5 piksel,
+    // ya'ni ROSA BIR birlik: o'quvchi to'rtga bosardi, nuqta esa beshga
+    // tushardi (QA 2026-08-22, 36-dars 3-slayd). Vertikal bo'yicha ham
+    // shunday: pastki chegara VH - P.b emas, oy + h.
+    // `Figure` asbobida bu allaqachon to'g'ri yozilgan, `Plane` esa eski
+    // ko'rinishda qolib ketgan edi.
+    const mx = R.x0 + ((vx - ox) / w) * (R.x1 - R.x0)
+    const my = R.y0 + ((oy + h - vy) / h) * (R.y1 - R.y0)
     const gx = Math.round(mx)
     const gy = Math.round(my)
     if (gx < R.x0 || gx > R.x1 || gy < R.y0 || gy > R.y1) return
+    // TEGDIMI. `pick` topshiriqning javobi, va u TEKSHIRILADI. Nuqta baribir
+    // ko'rsatiladi -- o'quvchi qayerga bosganini ko'rishi kerak, -- lekin
+    // noto'g'ri bo'lsa o'chadi va ekran ochilmaydi.
+    if (gx !== pick.x || gy !== pick.y) {
+      setMiss({ x: gx, y: gy })
+      setHint(UI.missPoint)
+      fx.wrong(UI.missPoint)
+      return
+    }
+    setMiss(null)
+    setHint(null)
     fx.tap()
     setPut({ x: gx, y: gy })
     if (onStep) onStep('dot')
   }
+
+  // Noto'g'ri nuqta chizmada QOLMAYDI: ko'rsatiladi va so'nadi, chizma esa
+  // yana toza bo'ladi.
+  useEffect(() => {
+    if (!miss) return undefined
+    const tmr = setTimeout(() => setMiss(null), 1400)
+    return () => clearTimeout(tmr)
+  }, [miss])
 
   const choose = (o) => {
     if (picked || disabled) return
@@ -4690,13 +4833,26 @@ export function Plane({
     return runs
   }
 
-  const shown = (put ? [{ x: put.x, y: put.y, mine: true }] : []).concat(dots || [])
+  const shown = (put ? [{ x: put.x, y: put.y, mine: true }] : [])
+    .concat(miss ? [{ x: miss.x, y: miss.y, mine: true, miss: true }] : [])
+    .concat(dots || [])
 
   return (
     <>
-      {caption ? <div className="g7-ts-cap">{t(caption)}</div> : null}
+      {/* TOPSHIRIQ EKRANIDA MATN TOPSHIRIQ SHAKLIDA. Nuqta QO'YILADIGAN
+          ekranda yozuv 13,5 px va och kulrang edi: QA uni umuman payqamadi
+          va «belgilash kerakligi bilinib tursin» dedi (2026-08-22). Endi
+          bunday ekranda u sinfning odatiy topshiriq shaklida turadi --
+          TOPSHIRIQ yorlig'i va qora qalin matn, xuddi SlotFill dagidek.
+          O'qish ekranida (nuqta tayyor) yozuv izohligicha qoladi: u yerda
+          harakat talab qilinmaydi. */}
+      {caption ? (
+        pick
+          ? <Ask kind="task" tight>{t(caption)}</Ask>
+          : <div className="g7-ts-cap">{t(caption)}</div>
+      ) : null}
 
-      <Slot mh={VH + 6} style={{ alignItems: 'center' }}>
+      <Slot mh={VH + 6} className="g7-drawslot" style={{ alignItems: 'center' }}>
         <div className="g7-pl-wrap">
           <svg
             viewBox={'0 0 ' + VW + ' ' + VH}
@@ -4744,7 +4900,7 @@ export function Plane({
             )))}
 
             {shown.map((d, i) => (
-              <g key={'d' + i} className={'g7-pl-dotg' + (d.mine ? ' is-mine' : '')}>
+              <g key={'d' + i} className={'g7-pl-dotg' + (d.mine ? ' is-mine' : '') + (d.miss ? ' is-miss' : '')}>
                 <line className="g7-pl-guide" x1={sx(d.x)} y1={sy(d.y)} x2={sx(d.x)} y2={sy(0)} />
                 <line className="g7-pl-guide" x1={sx(d.x)} y1={sy(d.y)} x2={sx(0)} y2={sy(d.y)} />
                 <circle className="g7-pl-dot" cx={sx(d.x)} cy={sy(d.y)} r="5" />
@@ -4754,11 +4910,26 @@ export function Plane({
                     topshirig'ida imzo javobni BERIB QO'YARDI. Imzo kerak
                     bo'lsa, dars `labels` beradi -- masalan avvalgi ekranda
                     allaqachon topilgan nuqta uchun. */}
-                {d.mine || labels ? (
-                  <text className="g7-pl-lab" x={sx(d.x) + 8} y={sy(d.y) - 8}>
-                    {'(' + d.x + '; ' + d.y + ')'}
-                  </text>
-                ) : null}
+                {d.mine || labels ? (() => {
+                  // IMZO KADRDAN CHIQMASIN. Nuqta o'ng chekkada bo'lsa imzo
+                  // ramkadan oshib ketardi, tepada bo'lsa -- yuqoridan.
+                  // Shrift monoshirift, ya'ni imzo eni ANIQ hisoblanadi:
+                  // belgi eni 0,6em, o'lchami 12,5 px.
+                  const txt = '(' + d.x + '; ' + d.y + ')'
+                  const wLab = txt.length * 12.5 * 0.6
+                  const left = sx(d.x) + 10 + wLab > VW - P.r
+                  const top = sy(d.y) - 8 < P.t + 4
+                  return (
+                    <text
+                      className="g7-pl-lab"
+                      x={left ? sx(d.x) - 10 : sx(d.x) + 10}
+                      y={top ? sy(d.y) + 18 : sy(d.y) - 8}
+                      textAnchor={left ? 'end' : 'start'}
+                    >
+                      {txt}
+                    </text>
+                  )
+                })() : null}
               </g>
             ))}
           </svg>
@@ -4882,6 +5053,16 @@ export function Figure({
     const gx = Math.round(mx)
     const gy = Math.round(my)
     if (gx < R.x0 || gx > R.x1 || gy < R.y0 || gy > R.y1) return
+    // TEGDIMI. Topshiriq tugunni ATAB aytadi («C ni nol ikki tuguniga
+    // ko'chiring»), ya'ni javob ma'lum va TEKSHIRILADI. Ilgari uch ISTALGAN
+    // tugunga ko'chardi, va undan keyingi xulosa ma'nosini yo'qotardi
+    // (QA 2026-08-22: «belgilashi ishlamayapti, hamma joyda»).
+    if (pick && (gx !== pick.x || gy !== pick.y)) {
+      setHint(UI.missPoint)
+      fx.wrong(UI.missPoint)
+      return
+    }
+    setHint(null)
     fx.tap()
     setMoved({ x: gx, y: gy })
     if (onStep) onStep('move')
@@ -4945,6 +5126,95 @@ export function Figure({
     angles = { [A]: a1, [B]: a2, [C]: 180 - a1 - a2 }
   }
 
+  // IMZOLARNING JOYI CHIZMADAN HISOBLANADI, KOORDINATA ISHORASIDAN EMAS.
+  //
+  // Ilgari uzunlik kesmaning O'RTASIDAN olti piksel YUQORIGA qo'yilardi, va
+  // bu faqat GORIZONTAL tomon uchun to'g'ri edi: qiya tomonda imzo chiziqning
+  // USTIGA tushardi va uni kesib o'tardi. Burchak esa uchning yoniga «x
+  // musbatmi» degan qoida bilan qo'yilardi -- ya'ni chizmaning shakliga
+  // umuman qaramasdan, va tomonga yopishib qolardi (QA 2026-08-22, 41-dars:
+  // «sonlar chiziq ustida yoki zich joylashib qolgan»).
+  //
+  // Endi: uzunlik tomonning NORMALI bo'yicha va figuradan TASHQARIGA,
+  // burchak esa bissektrisa bo'yicha ICHKARIGA, uch nomi -- markazdan
+  // TASHQARIGA. Uchtasi uch tomonga ketadi va bir-biriga tegmaydi.
+  const cxs = names.reduce((acc, n) => acc + sx(now[n].x), 0) / (names.length || 1)
+  const cys = names.reduce((acc, n) => acc + sy(now[n].y), 0) / (names.length || 1)
+
+  // Tomon imzosi: o'rta nuqta va tashqariga qaragan normal.
+  const sideLabelAt = (a, b) => {
+    const x1 = sx(now[a].x)
+    const y1 = sy(now[a].y)
+    const x2 = sx(now[b].x)
+    const y2 = sy(now[b].y)
+    const mx = (x1 + x2) / 2
+    const my = (y1 + y2) / 2
+    let nx = -(y2 - y1)
+    let ny = x2 - x1
+    const ln = Math.hypot(nx, ny) || 1
+    nx /= ln
+    ny /= ln
+    // Markazdan NARIGA: ichkariga qaragan bo'lsa, teskarisiga aylantiramiz.
+    // YASSI chizmada markaz chiziqning O'ZIDA yotadi va «tashqari» degan
+    // yo'nalish yo'q -- proyeksiya nolga yaqin bo'ladi va ishora tasodifiy
+    // chiqadi. Shunday holatda uzunliklar YUQORIGA olinadi, burchaklar esa
+    // pastga: ikkalasi har xil tomonga ketadi va ustma-ust tushmaydi.
+    const proj = (mx - cxs) * nx + (my - cys) * ny
+    if (Math.abs(proj) < 1) { if (ny > 0) { nx = -nx; ny = -ny } }
+    else if (proj < 0) { nx = -nx; ny = -ny }
+    return { x: mx + nx * 19, y: my + ny * 19 }
+  }
+
+  // Burchak imzosi: bissektrisa bo'yicha ichkariga. Burchak nolga yoki 180 ga
+  // yaqin bo'lsa (yassi uchburchak, 41-darsning 7-ekrani) bissektrisa
+  // tomonning O'ZI bo'ylab ketadi va imzo uzunlik imzosining ustiga tushadi --
+  // shunday holatda perpendikulyar olinadi va imzo PASTGA chiqadi, uzunliklar
+  // esa yuqorida qoladi.
+  const angLabelAt = (n) => {
+    const rest = names.filter((m) => m !== n)
+    const px = sx(now[n].x)
+    const py = sy(now[n].y)
+    if (rest.length < 2) return { x: px, y: py + 20 }
+    let ux = sx(now[rest[0]].x) - px
+    let uy = sy(now[rest[0]].y) - py
+    let vx = sx(now[rest[1]].x) - px
+    let vy = sy(now[rest[1]].y) - py
+    const lu = Math.hypot(ux, uy) || 1
+    const lv = Math.hypot(vx, vy) || 1
+    ux /= lu; uy /= lu; vx /= lv; vy /= lv
+    const dot = ux * vx + uy * vy
+    let bx
+    let by
+    let off = 22
+    if (dot > 0.94 || dot < -0.94) {
+      bx = -uy
+      by = ux
+      if (by < 0) { bx = -bx; by = -by }
+      // Yassi chizmada uchning NOMI ham pastda turadi, shuning uchun burchak
+      // undan pastroqqa tushadi.
+      off = 34
+    } else {
+      bx = ux + vx
+      by = uy + vy
+      const lb = Math.hypot(bx, by) || 1
+      bx /= lb; by /= lb
+    }
+    return { x: px + bx * off, y: py + by * off }
+  }
+
+  // Uch nomi: markazdan tashqariga. Uch markazning O'ZIDA bo'lsa (yassi
+  // chizmadagi o'rta nuqta) yo'nalish yo'q -- nom pastga tushadi.
+  const nameLabelAt = (n) => {
+    const px = sx(now[n].x)
+    const py = sy(now[n].y)
+    let dx = px - cxs
+    let dy = py - cys
+    const ld = Math.hypot(dx, dy)
+    if (ld < 2) return { x: px, y: py + 16 }
+    dx /= ld; dy /= ld
+    return { x: px + dx * 15, y: py + dy * 15 }
+  }
+
   const isMark = (id) => (mark || []).indexOf(id) !== -1
   const isDim = (id) => (dim || []).indexOf(id) !== -1
   const segId = (a, b) => a + b
@@ -4959,9 +5229,20 @@ export function Figure({
 
   return (
     <>
-      {caption ? <div className="g7-ts-cap">{t(caption)}</div> : null}
+      {/* TOPSHIRIQ EKRANIDA MATN TOPSHIRIQ SHAKLIDA. Nuqta QO'YILADIGAN
+          ekranda yozuv 13,5 px va och kulrang edi: QA uni umuman payqamadi
+          va «belgilash kerakligi bilinib tursin» dedi (2026-08-22). Endi
+          bunday ekranda u sinfning odatiy topshiriq shaklida turadi --
+          TOPSHIRIQ yorlig'i va qora qalin matn, xuddi SlotFill dagidek.
+          O'qish ekranida (nuqta tayyor) yozuv izohligicha qoladi: u yerda
+          harakat talab qilinmaydi. */}
+      {caption ? (
+        pick
+          ? <Ask kind="task" tight>{t(caption)}</Ask>
+          : <div className="g7-ts-cap">{t(caption)}</div>
+      ) : null}
 
-      <Slot mh={VH + 6} style={{ alignItems: 'center' }}>
+      <Slot mh={VH + 6} className="g7-drawslot" style={{ alignItems: 'center' }}>
         <div className="g7-pl-wrap">
           <svg
             viewBox={'0 0 ' + VW + ' ' + VH}
@@ -4987,30 +5268,38 @@ export function Figure({
             ))}
 
             {/* Tomon uzunliklari: o'rtasida, chiziqdan bir oz nariroqda. */}
-            {show && show.sides ? links.map(([a, b], i) => (
-              <text
-                key={'l' + i}
-                className={'g7-fg-len' + (isDim(segId(a, b)) ? ' is-dim' : '')}
-                x={(sx(now[a].x) + sx(now[b].x)) / 2}
-                y={(sy(now[a].y) + sy(now[b].y)) / 2 - 6}
-                textAnchor="middle"
-              >
-                {lenTxt(a, b)}
-              </text>
-            )) : null}
+            {show && show.sides ? links.map(([a, b], i) => {
+              const p = sideLabelAt(a, b)
+              return (
+                <text
+                  key={'l' + i}
+                  className={'g7-fg-len' + (isDim(segId(a, b)) ? ' is-dim' : '')}
+                  x={p.x}
+                  y={p.y}
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                >
+                  {lenTxt(a, b)}
+                </text>
+              )
+            }) : null}
 
             {/* Burchaklar: uchning yonida. */}
-            {show && show.angles && angles ? names.map((n) => (
-              <text
-                key={'a' + n}
-                className={'g7-fg-ang' + (isMark(n) ? ' is-mark' : '') + (isDim(n) ? ' is-dim' : '')}
-                x={sx(now[n].x) + (now[n].x >= 0 ? -16 : 16)}
-                y={sy(now[n].y) + (now[n].y >= 0 ? 18 : -10)}
-                textAnchor="middle"
-              >
-                {angles[n]}
-              </text>
-            )) : null}
+            {show && show.angles && angles ? names.map((n) => {
+              const p = angLabelAt(n)
+              return (
+                <text
+                  key={'a' + n}
+                  className={'g7-fg-ang' + (isMark(n) ? ' is-mark' : '') + (isDim(n) ? ' is-dim' : '')}
+                  x={p.x}
+                  y={p.y}
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                >
+                  {angles[n]}
+                </text>
+              )
+            }) : null}
 
             {(notes || []).map((nt, i) => (
               <text
@@ -5029,9 +5318,10 @@ export function Figure({
                 <circle className="g7-fg-pt" cx={sx(now[n].x)} cy={sy(now[n].y)} r="4.5" />
                 <text
                   className="g7-fg-name"
-                  x={sx(now[n].x) + (now[n].x >= 0 ? 10 : -10)}
-                  y={sy(now[n].y) + (now[n].y >= 0 ? -8 : 16)}
+                  x={nameLabelAt(n).x}
+                  y={nameLabelAt(n).y}
                   textAnchor="middle"
+                  dominantBaseline="central"
                 >
                   {n}
                 </text>

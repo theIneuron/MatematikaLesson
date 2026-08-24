@@ -1,43 +1,67 @@
-// Dars42 · Amaliyot 05 — To'g'ri burchakli uchburchak · 🟡 · slots · tag: tri_right
-// Mexanika: kit.jsx -> SlotsBank. Raskladka: 5-o'rin.
-// 90° va 35° -> uchinchisi 55°. Uning tashqi burchagi 180 − 55 = 125°.
+// Dars42 · Amaliyot 05 — Mos elementlar · 🟡 · slots · tag: eq_slots
+// Mexanika: kit.jsx -> SlotsBank. Raskladka: 5-o'rin `slots`.
+// Teng uchburchaklar: AB = 8 -> A₁B₁ = 8; burchak C = 55° -> burchak C₁ = 55°.
 import React from 'react';
 import { SlotsBank, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'tri_right', level: '🟡',
-  eyebrow: L("To'g'ri burchakli", 'Прямоугольный', 'Right-angled'),
+  tag: 'eq_slots',
+  level: '🟡',
+  eyebrow: L(
+    'Mos elementlar',
+    'Соответственные элементы',
+    'Matching elements'),
   setup: L(
-    "Bir burchak 90 gradus bo'lsa, qolgan ikkovi birga 90 beradi. Tashqi burchak esa qo'shni burchak sifatida topiladi.",
-    'Если один угол 90 градусов, два остальных вместе дают 90. А внешний угол находится как смежный.',
-    'With one angle at 90, the other two make 90 together. The exterior angle comes as the adjacent one.'),
-  given: [['90°', 'va', '35°']],
-  givenLabel: L('Berilgan:', 'Дано:', 'Given:'),
-  rows: [
-    [{ t: ['uchinchisi', '='] }, { slot: 0 }, { t: ['tashqi', 'burchagi', '='] }, { slot: 1 }],
-  ],
-  cards: ['55°', '125°', '145°', '35°'],
-  answer: ['55°', '125°'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+    "Uchburchaklar teng. Mos elementlarni to'ldiring: tomon tomonga, burchak burchakka.",
+    'Треугольники равны. Заполни соответственные элементы: сторона к стороне, угол к углу.',
+    'The triangles are equal. Fill in the matching elements: side to side, angle to angle.'),
+  given: [['AB = 8', ',', 'burchak C = 55°']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
+  rows: [[{ t: ['A₁B₁', '='] }, { slot: 0 }, { t: ['burchak', 'C₁', '='] }, { slot: 1 }]],
+  cards: ['8', '55°', '16', '35°'],
+  answer: ['8', '55°'],
+  ask: L(
+    'Kartani bosing, keyin uyani bosing.',
+    'Нажми карточку, затем клетку.',
+    'Tap a card, then tap a cell.'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. 180 − 90 − 35 = 55, keyin 180 − 55 = 125.",
-    'Верно. 180 − 90 − 35 = 55, потом 180 − 55 = 125.',
-    'Correct. 180 − 90 − 35 = 55, then 180 − 55 = 125.'),
+    "To'g'ri. Teng uchburchaklarda mos tomonlar va mos burchaklar aynan teng.",
+    'Верно. В равных треугольниках соответственные стороны и углы в точности равны.',
+    'Correct. In equal triangles matching sides and angles are exactly equal.'),
   wrongs: [
-    { when: (s) => s.slots[0] === '145°', text: L(
-      "145 chiqishi uchun faqat 35 ayirilgan. To'g'ri burchak ham hisobga olinishi kerak.",
-      'Чтобы вышло 145, вычли только 35. Прямой угол тоже надо учесть.',
-      'To get 145 only the 35 was subtracted. The right angle counts too.') },
-    { when: (s) => s.slots[1] === '35°', text: L(
-      "Tashqi burchak uchinchi burchakning qo'shnisi: 180 − 55 = 125.",
-      'Внешний угол смежный третьему: 180 − 55 = 125.',
-      'The exterior angle is adjacent to the third: 180 − 55 = 125.') },
+    {
+      when: (s) => s.slots[0] === '16',
+      text: L(
+        "16 bu 8 · 2. Teng uchburchaklar kattalashmaydi: tomon o'sha 8 bo'lib qoladi.",
+        '16 это 8 · 2. Равные треугольники не увеличиваются: сторона остаётся 8.',
+        '16 is 8 · 2. Equal triangles are not scaled: the side stays 8.'),
+    },
+    {
+      when: (s) => s.slots[1] === '35°',
+      text: L(
+        "35° bu 90 − 55. Mos burchak aynan 55 gradus bo'ladi.",
+        '35° это 90 − 55. Соответственный угол в точности 55 градусов.',
+        '35° is 90 − 55. The matching angle is exactly 55 degrees.'),
+    },
+    {
+      when: (s) => s.slots.indexOf(null) !== -1,
+      text: L(
+        "Hamma uya to'ldirilishi kerak.",
+        'Надо заполнить все клетки.',
+        'Every cell must be filled.'),
+    },
   ],
   wrongText: L(
-    "180 dan ikki burchakni ayiring, keyin natijaning qo'shnisini toping.",
-    'Вычти из 180 два угла, потом найди смежный к результату.',
-    'Subtract both angles from 180, then take the adjacent of the result.'),
+    'Teng degani -- aynan bir xil son. Hech narsani hisoblash kerak emas.',
+    'Равные значит в точности те же числа. Ничего вычислять не надо.',
+    'Equal means exactly the same numbers. Nothing needs computing.'),
 };
 
 export default function D42_05(props) { return <SlotsBank data={DATA} {...props} />; }

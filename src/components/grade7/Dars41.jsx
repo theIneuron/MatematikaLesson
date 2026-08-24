@@ -241,9 +241,9 @@ const S3 = {
   show: { sides: true, angles: true },
   mark: ['A', 'B'],
   caption: L(
-    "Asbob tomonlarni to'r birligida, burchaklarni esa darajada o'lchadi.",
-    'Прибор измерил стороны в клетках сетки, а углы в градусах.',
-    'The tool measured the sides in grid units and the angles in degrees.',
+    "Chizmada tomonlar to'r birligida, burchaklar esa darajada o'lchandi.",
+    'На чертеже стороны измерены в клетках сетки, а углы в градусах.',
+    'On the drawing the sides are measured in grid units and the angles in degrees.',
   ),
   options: [
     { id: 'a', label: L('teng tomonlar qarshisidagi burchaklar teng', 'углы против равных сторон равны', 'the angles opposite equal sides are equal') },
@@ -263,7 +263,7 @@ const S3 = {
     'A triangle with two equal sides is called ISOSCELES. The angles at its base are equal too, and that is always so.',
   ),
   audio: [
-    A('mount', "Chizmada uchburchak turibdi, va asbob uning tomonlarini o'lchadi.", 'На чертеже треугольник, и прибор измерил его стороны.', 'A triangle is on the drawing, and the tool measured its sides.'),
+    A('mount', "Chizmada uchburchak turibdi, va uning tomonlari o'lchandi.", 'На чертеже треугольник, и его стороны измерены.', 'A triangle is on the drawing, and its sides are measured.'),
     A('mount', "Ikki tomon bir xil chiqdi. Burchaklarga qarang: nima ko'rinadi.", 'Две стороны вышли одинаковыми. Посмотри на углы: что видно.', 'Two sides came out the same. Look at the angles: what do you see.'),
   ],
 }
@@ -687,16 +687,16 @@ const S12 = {
   rows: [
     { id: 'r1', text: L('tomonlar: 3, 4, 5', 'стороны: 3, 4, 5', 'sides: 3, 4, 5') },
     { id: 'r2', text: '3 + 4 > 5' },
-    { id: 'r3', text: L('uchburchak bor', 'треугольник существует', 'the triangle exists') },
+    { id: 'r3', text: L('ikki tomon teng', 'две стороны равны', 'two sides are equal') },
     { id: 'r4', text: L('javob: teng yonli', 'ответ: равнобедренный', 'answer: isosceles') },
   ],
-  answerId: 'r4',
+  answerId: 'r3',
   hints: {
     r1: L("Bu berilgan tomonlar.", 'Это данные стороны.', 'Those are the given sides.'),
     r2: L("To'g'ri: uch qo'shuv to'rt yetti, u esa beshdan katta.", 'Верно: три плюс четыре это семь, а это больше пяти.', 'Right: three plus four is seven, more than five.'),
-    r3: L("To'g'ri: shart bajarildi, demak uchburchak bor.", 'Верно: условие выполнено, значит треугольник есть.', 'Right: the condition holds, so the triangle exists.'),
+    r4: L("Bu qator oldingisidan chiqqan. Xato esa undan YUQORIDA.", 'Эта строка выходит из предыдущей. А ошибка ВЫШЕ неё.', 'This line follows from the one before. The mistake is ABOVE it.'),
   },
-  tags: { r1: 'Z1', r2: 'Z4', r3: 'Z4' },
+  tags: { r1: 'Z1', r2: 'Z4', r4: 'Z1' },
   proofFill: {
     template: ['3 ≠ 4 ≠ 5  →  ', { slot: 0 }, ',   ', { slot: 1 }],
     parts: [

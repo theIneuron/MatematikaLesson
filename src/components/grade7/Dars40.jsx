@@ -676,16 +676,16 @@ const S12 = {
   rows: [
     { id: 'r1', text: L('berilgan burchak: 60°', 'дан угол: 60°', 'given angle: 60°') },
     { id: 'r2', text: '180 − 60 = 120' },
-    { id: 'r3', text: L("qo'shni burchak: 120°", 'смежный угол: 120°', 'adjacent angle: 120°') },
-    { id: 'r4', text: L('javob: vertikal burchak 120°', 'ответ: вертикальный угол 120°', 'answer: the vertical angle is 120°') },
+    { id: 'r3', text: L('vertikal burchak: 120°', 'вертикальный угол: 120°', 'vertical angle: 120°') },
+    { id: 'r4', text: L('javob: 120°', 'ответ: 120°', 'answer: 120°') },
   ],
-  answerId: 'r4',
+  answerId: 'r3',
   hints: {
     r1: L("Bu berilgan burchak.", 'Это данный угол.', 'That is the given angle.'),
     r2: L("To'g'ri: bir yuz sakson dan oltmish ayirilsa bir yuz yigirma.", 'Верно: сто восемьдесят минус шестьдесят это сто двадцать.', 'Right: one hundred eighty minus sixty is one hundred twenty.'),
-    r3: L("To'g'ri: qo'shni burchak aynan shunday topiladi.", 'Верно: смежный угол находится именно так.', 'Right: that is exactly how the adjacent angle is found.'),
+    r4: L("Bu qator oldingisidan chiqqan. Xato esa undan YUQORIDA.", 'Эта строка выходит из предыдущей. А ошибка ВЫШЕ неё.', 'This line follows from the one before. The mistake is ABOVE it.'),
   },
-  tags: { r1: 'Z2', r2: 'Z2', r3: 'Z2' },
+  tags: { r1: 'Z2', r2: 'Z2', r4: 'Z2' },
   proofFill: {
     template: ['∠ = ', { slot: 0 }, '   →   ', { slot: 1 }],
     parts: [

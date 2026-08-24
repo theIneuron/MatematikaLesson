@@ -998,7 +998,7 @@ function Screen10({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S11 = {
   eyebrow: L("FAQAT O'ZINGIZ", 'ТОЛЬКО САМ', 'ON YOUR OWN ONLY'),
-  title: L('Asbobsiz', 'Без прибора', 'Without the tool'),
+  title: L("Qiymatni o'zingiz yig'ing", 'Собери значение сам', 'Build the value yourself'),
   template: ['2 · 2 + ', { slot: 0 }, ' = ', { slot: 1 }],
   parts: [
     { id: 'mp', label: '(−1)' },
@@ -1023,7 +1023,7 @@ const S11 = {
     { key: '*', tag: 'Z5', hint: L("Birinchi katakka y ning soni tushadi, ikkinchisiga butun yozuvning qiymati.", 'В первую клетку идёт число для y, во вторую значение всей записи.', 'The first box takes the number for y, the second the value of the whole expression.') },
   ],
   audio: [
-    A('mount', "Endi yordamchi asbobsiz. Jadval ham, qadamlar ham ekranda ko'rinmaydi.", 'Теперь без вспомогательного прибора. Ни таблицы, ни шагов на экране не будет.', 'Now with no helper tool. Neither a table nor the steps will appear on screen.'),
+    A('mount', "Endi ekranda yordam yo'q. Jadval ham, qadamlar ham ko'rinmaydi.", 'Теперь помощи на экране нет. Ни таблицы, ни шагов не будет.', 'Now there is no help on the screen. Neither a table nor the steps will appear.'),
     A('mount', "Diqqat qiling, y manfiy son. Uni qanday qo'yish kerakligini o'ylang.", 'Обрати внимание, y отрицательное число. Подумай, как его подставить.', 'Note that y is a negative number. Think how to substitute it.'),
   ],
 }

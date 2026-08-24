@@ -1,51 +1,76 @@
-// Dars40 · Amaliyot 08 — Ikki marta yarim · 🔴 · order · tag: seg_half_twice
-// Mexanika: kit.jsx -> BuildLine (tartib muhim). Raskladka: 8-o'rin.
-// AB = 36, M -- AB ning o'rtasi, K -- AM ning o'rtasi -> AK = 9.
+// Dars40 · Amaliyot 08 — Ikki marta o'rta nuqta · 🔴 · order · tag: seg_half_twice
+// Mexanika: kit.jsx -> BuildLine. Raskladka: 8-o'rin `order`.
+// AB = 48, M -- AB o'rtasi (MB = 24), K -- MB o'rtasi (MK = 12) -> AK = 24 + 12 = 36.
 import React from 'react';
 import { BuildLine, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'seg_half_twice', level: '🔴',
-  eyebrow: L('Ikki marta yarim', 'Дважды половина', 'Halved twice'),
+  tag: 'seg_half_twice',
+  level: '🔴',
+  eyebrow: L(
+    'Uch qadam',
+    'Три шага',
+    'Three steps'),
   setup: L(
-    "M nuqta AB ni teng ikkiga bo'ladi, K nuqta esa AM ni. Ya'ni yarim ikki marta olinadi.",
-    'Точка M делит AB пополам, а точка K делит AM. То есть половина берётся дважды.',
-    'M halves AB and K halves AM. The halving happens twice.'),
-  given: [['AB', '=', '36']],
-  givenLabel: L('Berilgan:', 'Дано:', 'Given:'),
+    "M nuqta AB ning o'rtasi, K nuqta esa MB ning o'rtasi. Uch qadamni tartib bilan qo'ying: har qadam keyingisiga kerak.",
+    'Точка M середина AB, а K середина MB. Поставь три шага по порядку: каждый нужен следующему.',
+    'M is the midpoint of AB and K the midpoint of MB. Place the three steps in order: each feeds the next.'),
+  given: [['AB = 48']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
   cards: [
-    { id: 'a', label: '36 : 2 = 18' },
-    { id: 'b', label: '18 : 2 = 9' },
-    { id: 'c', label: 'AK = 9' },
-    { id: 'd', label: '36 : 4 = 9' },
-    { id: 'e', label: 'AK = 18' },
+    { id: 'a', label: 'MB = 24' },
+    { id: 'b', label: 'MK = 12' },
+    { id: 'c', label: 'AK = 36' },
+    { id: 'd', label: 'AK = 24' },
+    { id: 'e', label: 'MK = 24' },
   ],
   answerSeq: ['a', 'b', 'c'],
-  empty: L("Uch qadamni tartib bilan qo'ying", 'Поставь три шага по порядку', 'Place the three steps in order'),
-  ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+  ask: L(
+    "Kartani bosish uni chiziqqa qo'yadi.",
+    'Нажатие на карточку ставит её в строку.',
+    'Tapping a card puts it in the line.'),
+  empty: L(
+    'Kartalarni bosib javobni tuzing',
+    'Нажимай карточки и собери ответ',
+    'Tap the cards to build the answer'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. AM = 18, keyin AK = 9. Ikki marta yarimga bo'lish to'rtga bo'lishga teng.",
-    'Верно. AM = 18, потом AK = 9. Двукратное деление пополам равно делению на четыре.',
-    'Correct. AM = 18, then AK = 9. Halving twice equals dividing by four.'),
+    "To'g'ri. 48 : 2 = 24, keyin 24 : 2 = 12, va AK = AM + MK = 24 + 12 = 36.",
+    'Верно. 48 : 2 = 24, затем 24 : 2 = 12, и AK = AM + MK = 24 + 12 = 36.',
+    'Correct. 48 : 2 = 24, then 24 : 2 = 12, and AK = AM + MK = 24 + 12 = 36.'),
   wrongs: [
-    { when: (s) => s.seq.indexOf('e') !== -1, text: L(
-      "18 bu AM, ya'ni M gacha masofa. K esa AM ning o'rtasida: AK = 9.",
-      '18 это AM, расстояние до M. А K лежит в середине AM: AK = 9.',
-      '18 is AM, the distance to M. K is the midpoint of AM: AK = 9.') },
-    { when: (s) => s.seq.indexOf('d') !== -1, text: L(
-      "36 : 4 = 9 javob to'g'ri, lekin bu bitta qadam: masalada ikki bo'lish ketma-ket bajariladi.",
-      '36 : 4 = 9 даёт верный ответ, но это один шаг: в задаче два деления подряд.',
-      '36 : 4 = 9 gives the right answer but skips a step: the task has two halvings.') },
-    { when: (s) => s.seq.length < 3, text: L(
-      "Uch qadam bo'lishi kerak: ikki bo'lish va javob.",
-      'Должно быть три шага: два деления и ответ.',
-      'Three steps: two halvings and the answer.') },
+    {
+      when: (s) => s.seq.indexOf('d') !== -1,
+      text: L(
+        "AK = 24 bu AM ning o'zi. K nuqta M dan o'ngda, ya'ni AK dan MK ham qo'shiladi.",
+        'AK = 24 это сам AM. Точка K правее M, значит к AK добавляется ещё MK.',
+        'AK = 24 is AM itself. K lies right of M, so MK is added on top.'),
+    },
+    {
+      when: (s) => s.seq.indexOf('e') !== -1,
+      text: L(
+        "MK = 24 bu MB. K MB ning o'rtasi, ya'ni MK = 24 : 2 = 12.",
+        'MK = 24 это MB. K середина MB, значит MK = 24 : 2 = 12.',
+        'MK = 24 is MB. K is the midpoint of MB, so MK = 24 : 2 = 12.'),
+    },
+    {
+      when: (s) => s.seq.length < 3,
+      text: L(
+        'Uch qadam kerak: MB, keyin MK, keyin AK.',
+        'Нужны три шага: MB, затем MK, затем AK.',
+        'Three steps are needed: MB, then MK, then AK.'),
+    },
   ],
   wrongText: L(
-    "Avval AB ni ikkiga bo'ling, keyin natijani yana ikkiga.",
-    'Сначала раздели AB на два, потом результат ещё на два.',
-    'Halve AB first, then halve the result again.'),
+    "Ikki marta ikkiga bo'ling, keyin AM va MK ni qo'shing.",
+    'Дважды раздели на два, потом сложи AM и MK.',
+    'Halve twice, then add AM and MK.'),
 };
 
 export default function D40_08(props) { return <BuildLine data={DATA} {...props} />; }

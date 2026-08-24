@@ -1,47 +1,73 @@
 // Dars39 · Amaliyot 05 — Takrorlash mumkin · 🟡 · build · tag: comb_repeat
-// Mexanika: kit.jsx -> BuildLine. Raskladka: 5-o'rin.
-// 1, 2, 3 raqamlaridan ikki xonali son: raqam TAKRORLANISHI mumkin,
-// ya'ni 3 · 3 = 9 ta son.
+// Mexanika: kit.jsx -> BuildLine. Raskladka: 5-o'rin `build`.
+// DARAJA KO'TARILDI (metodist qarori 2026-08-22): manfiy va kasr koeffitsiyent,
+// ikki qadamli savol, yaqin tuzoq -- PODXOD_7SINF.md 13-band.
+// 1, 2, 3, 4 raqamlaridan ikki xonali son, raqam takrorlanishi mumkin: 4 · 4 = 16.
 import React from 'react';
 import { BuildLine, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'comb_repeat', level: '🟡',
-  eyebrow: L('Takrorlash mumkin', 'Повтор разрешён', 'Repeats allowed'),
+  tag: 'comb_repeat',
+  level: '🟡',
+  eyebrow: L(
+    'Takrorlash mumkin',
+    'С повторением',
+    'Repeats allowed'),
   setup: L(
-    "Ikki xonali son tuzilyapti va raqamlar takrorlanishi mumkin: 11 ham son. Har o'rin uchun uch variant bor.",
-    'Составляется двузначное число, и цифры могут повторяться: 11 тоже число. Для каждого разряда три варианта.',
-    'A two-digit number is built and digits may repeat: 11 counts. Each place has three options.'),
-  given: [['1,', '2,', '3']],
-  givenLabel: L('Raqamlar:', 'Цифры:', 'Digits:'),
-  cards: [
-    { id: 'a', label: '3 · 3' },
-    { id: 'b', label: '9' },
-    { id: 'c', label: '3 · 2' },
-    { id: 'd', label: '6' },
-  ],
-  answerSeq: ['a', 'b'],
-  empty: L("Hisoblab yozing", 'Запиши вычисление', 'Write the working'),
-  ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+    "To'rt raqamdan ikki xonali son tuziladi va raqam TAKRORLANISHI mumkin, ya'ni ikkinchi o'rinda ham to'rt variant qoladi.",
+    'Из четырёх цифр составляют двузначное число, и цифра МОЖЕТ повторяться, значит на втором месте тоже четыре варианта.',
+    'A two-digit number is built from four digits and repeats ARE allowed, so the second place still has four options.'),
+  given: [['1, 2, 3, 4']],
+  givenLabel: L(
+    'Raqamlar:',
+    'Цифры:',
+    'Digits:'),
+  cards: [{ id: 'a', label: '16' }, { id: 'b', label: '12' }, { id: 'c', label: '8' }],
+  answerSeq: ['a'],
+  fieldH: 44,
+  ask: L(
+    "Kartani bosish uni chiziqqa qo'yadi.",
+    'Нажатие на карточку ставит её в строку.',
+    'Tapping a card puts it in the line.'),
+  empty: L(
+    'Kartalarni bosib javobni tuzing',
+    'Нажимай карточки и собери ответ',
+    'Tap the cards to build the answer'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. Birinchi raqam uch xil, ikkinchisi ham uch xil: 3 · 3 = 9. 11, 22, 33 ham hisobga kiradi.",
-    'Верно. Первая цифра три варианта, вторая тоже три: 3 · 3 = 9. Числа 11, 22, 33 тоже считаются.',
-    'Correct. Three choices for the first digit and three for the second: 3 · 3 = 9, including 11, 22, 33.'),
+    "To'g'ri. 4 · 4 = 16: har o'rinda to'rt variant.",
+    'Верно. 4 · 4 = 16: на каждом месте четыре варианта.',
+    'Correct. 4 · 4 = 16: four options in each place.'),
   wrongs: [
-    { when: (s) => s.seq.indexOf('c') !== -1 || s.seq.indexOf('d') !== -1, text: L(
-      "3 · 2 raqam takrorlanmasa to'g'ri bo'lardi. Bu yerda esa 11 kabi sonlar ham mumkin.",
-      '3 · 2 было бы верно, если цифры не повторяются. А здесь допустимы и числа вида 11.',
-      '3 · 2 would fit if digits could not repeat. Here numbers like 11 are allowed.') },
-    { when: (s) => s.seq.length < 2, text: L(
-      "Ikki bo'lak kerak: hisoblash va natija.",
-      'Нужны две части: вычисление и результат.',
-      'Two parts are needed: the working and the result.') },
+    {
+      when: (s) => s.seq.indexOf('b') !== -1,
+      text: L(
+        "12 bu 4 · 3, ya'ni takrorlash TAQIQLANGAN holat. Bu yerda takrorlash mumkin.",
+        '12 это 4 · 3, случай БЕЗ повторений. А здесь повторять можно.',
+        '12 is 4 · 3, the no-repeat case. Here repeats are allowed.'),
+    },
+    {
+      when: (s) => s.seq.indexOf('c') !== -1,
+      text: L(
+        "8 bu 4 + 4. O'rinlar ketma-ket, ya'ni ko'paytiriladi.",
+        '8 это 4 + 4. Места идут подряд, значит умножаем.',
+        '8 is 4 + 4. The places follow each other, so multiply.'),
+    },
+    {
+      when: (s) => s.seq.length < 1,
+      text: L(
+        'Bitta karta kerak.',
+        'Нужна одна карточка.',
+        'One card is needed.'),
+    },
   ],
   wrongText: L(
-    "Birinchi raqam uchun nechta variant bor? Ikkinchisi uchun-chi, agar takrorlash mumkin bo'lsa?",
-    'Сколько вариантов для первой цифры? А для второй, если повтор разрешён?',
-    'How many choices for the first digit? And for the second, with repeats allowed?'),
+    "Ikkinchi o'rinda nechta variant qoladi, agar takrorlash mumkin bo'lsa?",
+    'Сколько вариантов на втором месте, если повторять можно?',
+    'How many options remain in the second place when repeats are allowed?'),
 };
 
 export default function D39_05(props) { return <BuildLine data={DATA} {...props} />; }

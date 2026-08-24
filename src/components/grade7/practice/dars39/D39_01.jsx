@@ -1,45 +1,72 @@
-// Dars39 · Amaliyot 01 — Ko'paytirish qoidasi · 🟢 · slots · tag: comb_slots
-// Mexanika: kit.jsx -> SlotsBank. Raskladka: 39-dars, 1-o'rin.
-// 3 ko'ylak va 4 shim: 3 · 4 = 12 variant.
+// Dars39 · Amaliyot 01 — Ikki bosqich · 🟢 · slots · tag: comb_slots
+// Mexanika: kit.jsx -> SlotsBank. Raskladka: 1-o'rin `slots`.
+// DARAJA KO'TARILDI (metodist qarori 2026-08-22): manfiy va kasr koeffitsiyent,
+// ikki qadamli savol, yaqin tuzoq -- PODXOD_7SINF.md 13-band.
+// 4 ko'ylak va 6 shim -> 24; ustiga 2 shlyapa -> 48.
 import React from 'react';
 import { SlotsBank, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'comb_slots', level: '🟢',
-  eyebrow: L("Variantlar soni", 'Число вариантов', 'Number of options'),
+  tag: 'comb_slots',
+  level: '🟢',
+  eyebrow: L(
+    'Ikki bosqich',
+    'Два этапа',
+    'Two stages'),
   setup: L(
-    "Har ko'ylakka har shim mos keladi. Shuning uchun variantlar soni ko'paytirish bilan topiladi, qo'shish bilan emas.",
-    'К каждой рубашке подходят любые брюки. Поэтому число вариантов находят умножением, а не сложением.',
-    'Each shirt pairs with any trousers, so the count comes from multiplying, not adding.'),
+    "Har bosqichdagi variantlar KO'PAYTIRILADI. Ikki uyani to'ldiring: avval ikki bosqich, keyin uchinchisi qo'shilgan holat.",
+    'Варианты каждого этапа УМНОЖАЮТСЯ. Заполни две клетки: сначала два этапа, потом с добавленным третьим.',
+    'Choices at each stage MULTIPLY. Fill both cells: two stages first, then with a third added.'),
+  given: [['4', ',', '6', ',', '2']],
+  givenLabel: L(
+    'Variantlar:',
+    'Варианты:',
+    'Choices:'),
   rows: [
-    [{ t: ['3', '·', '4', '='] }, { slot: 0 }],
+    [{ t: ["ko'ylak", 'va', 'shim', '='] }, { slot: 0 }],
+    [{ t: ['shlyapa', 'bilan', '='] }, { slot: 1 }],
   ],
-  cards: ['12', '7', '34', '1'],
-  answer: ['12'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+  cards: ['24', '48', '10', '12'],
+  answer: ['24', '48'],
+  ask: L(
+    'Kartani bosing, keyin uyani bosing.',
+    'Нажми карточку, затем клетку.',
+    'Tap a card, then tap a cell.'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. Har uch ko'ylakka to'rt shim: 3 · 4 = 12 variant.",
-    'Верно. К каждой из трёх рубашек четыре брюк: 3 · 4 = 12 вариантов.',
-    'Correct. Each of the three shirts meets four trousers: 3 · 4 = 12 options.'),
+    "To'g'ri. 4 · 6 = 24, keyin 24 · 2 = 48.",
+    'Верно. 4 · 6 = 24, затем 24 · 2 = 48.',
+    'Correct. 4 · 6 = 24, then 24 · 2 = 48.'),
   wrongs: [
-    { when: (s) => s.slots[0] === '7', text: L(
-      "7 bu 3 + 4. Qo'shish faqat «yoki» holatida bo'ladi. Bu yerda esa har juftlik alohida variant.",
-      '7 это 3 + 4. Сложение бывает при «или». А здесь каждая пара это отдельный вариант.',
-      '7 is 3 + 4. Adding fits an "or" case. Here every pair is a separate option.') },
-    { when: (s) => s.slots[0] === '34', text: L(
-      "Sonlarni yonma-yon yozib bo'lmaydi: ular ko'paytiriladi.",
-      'Числа нельзя писать рядом: их перемножают.',
-      'The numbers cannot be stuck together: they are multiplied.') },
-    { when: (s) => s.slots[0] === '1', text: L(
-      "Bitta variant emas: ko'ylakni almashtirsa yangi kiyim chiqadi.",
-      'Не один вариант: сменив рубашку, получаем новый комплект.',
-      'Not one option: changing the shirt gives a new outfit.') },
+    {
+      when: (s) => s.slots[0] === '10',
+      text: L(
+        "10 bu 4 + 6. Bosqichlar KO'PAYTIRILADI, qo'shilmaydi.",
+        '10 это 4 + 6. Этапы УМНОЖАЮТСЯ, а не складываются.',
+        '10 is 4 + 6. Stages MULTIPLY, not add.'),
+    },
+    {
+      when: (s) => s.slots[1] === '12',
+      text: L(
+        "12 bu 4 · 2 yoki 6 · 2. Uchinchi bosqich JAMI variantga ko'paytiriladi: 24 · 2.",
+        '12 это 4 · 2 или 6 · 2. Третий этап умножается на ВСЁ количество: 24 · 2.',
+        '12 is 4 · 2 or 6 · 2. The third stage multiplies the WHOLE count: 24 · 2.'),
+    },
+    {
+      when: (s) => s.slots.indexOf(null) !== -1,
+      text: L(
+        "Hamma uya to'ldirilishi kerak.",
+        'Надо заполнить все клетки.',
+        'Every cell must be filled.'),
+    },
   ],
   wrongText: L(
-    "Bitta ko'ylakka nechta variant bor? Uchta ko'ylakka-chi?",
-    'Сколько вариантов у одной рубашки? А у трёх?',
-    'How many options for one shirt? And for three?'),
+    "Har bosqichda variantlar ko'paytiriladi.",
+    'На каждом этапе варианты умножаются.',
+    'Each stage multiplies the count.'),
 };
 
 export default function D39_01(props) { return <SlotsBank data={DATA} {...props} />; }

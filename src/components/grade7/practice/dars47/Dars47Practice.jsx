@@ -1,12 +1,15 @@
-// Dars47 amaliyoti — 10 topshiriq. Mavzu: PIFAGOR TEOREMASI.
+// Dars47 amaliyoti — 10 topshiriq. Mavzu: SIRKUL VA CHIZG'ICH BILAN YASASHLAR.
 // Topshiriq fayllarida FAQAT ma'lumot; mexanikalar `practice/kit.jsx` da,
 // qobiq `practice/PracticeHost.jsx` da (CLAUDE.md §5).
 //
 // MEXANIKALAR RASKLADKADAN: node scripts/grade7-practice-layout.mjs --json
+// 47-dars raskladkasi: slots, choice, bracket, chain, fix, sort, build, order, build, chain
 // Raskladka nomlari mavjud mexanikalarga solishtirildi (metodist qarori
 // 2026-08-21): build/order/bracket -> BuildLine, slots/chain -> SlotsBank,
 // fix -> TapTerms, sort -> Zones, choice -> Choice (faqat isinish uchun).
-// 47-dars raskladkasi: slots, choice, bracket, chain, fix, sort, build, order, build, chain
+//
+// MAVZU DARS BILAN SVERKA QILINDI (metodist qarori 2026-08-22): amaliyot
+// mavzusi `src/lessons/grade7.js` dagi nazariy darsning mavzusiga mos.
 
 import React, { useState } from 'react';
 import PracticeHost, { usePracticeZoom } from '../PracticeHost.jsx';
@@ -22,22 +25,22 @@ import D47_09 from './D47_09.jsx';
 import D47_10 from './D47_10.jsx';
 
 const HEAD = {
-  uz: "Dars 47 amaliyoti — 10 topshiriq (Pifagor teoremasi)",
-  ru: 'Практика урока 47 — 10 заданий (теорема Пифагора)',
-  en: 'Lesson 47 practice — 10 tasks (the Pythagorean theorem)',
+  uz: "Dars 47 amaliyoti — 10 topshiriq (sirkul va chizg'ich bilan yasashlar)",
+  ru: 'Практика урока 47 — 10 заданий (построения циркулем и линейкой)',
+  en: 'Lesson 47 practice — 10 tasks (compass and ruler constructions)',
 };
 
 const ITEMS = [
-  { id: '01', label: { uz: "Gipotenuza", ru: 'Гипотенуза', en: 'Hypotenuse' }, C: D47_01 },  // slots 🟢 6 va 8
-  { id: '02', label: { uz: "Nimaga teng", ru: 'Чему равен', en: 'What it equals' }, C: D47_02 },  // choice 🟢 c²
-  { id: '03', label: { uz: "Formula", ru: 'Формула', en: 'Formula' }, C: D47_03 },  // bracket 🟢 c² = a² + b²
-  { id: '04', label: { uz: "Ikki qadam", ru: 'Два шага', en: 'Two steps' }, C: D47_04 },  // chain 🟡 9 va 12
-  { id: '05', label: { uz: "Xato bo'lak", ru: 'Неверная часть', en: 'Wrong part' }, C: D47_05 },  // fix 🟡 5 va 12
-  { id: '06', label: { uz: "Uch juftlik", ru: 'Три пары', en: 'Three pairs' }, C: D47_06 },  // sort 🟡 5 / 13 / 25
-  { id: '07', label: { uz: "Katetni topish", ru: 'Найти катет', en: 'Find the leg' }, C: D47_07 },  // build 🟡 c = 13, a = 5
-  { id: '08', label: { uz: "Uch qadam", ru: 'Три шага', en: 'Three steps' }, C: D47_08 },  // order 🔴 8 va 17
-  { id: '09', label: { uz: "Teskari teorema", ru: 'Обратная теорема', en: 'The converse' }, C: D47_09 },  // build 🔴 9, 40, 41
-  { id: '10', label: { uz: "Katta sonlar", ru: 'Большие числа', en: 'Bigger numbers' }, C: D47_10 },  // chain 🔴 20 va 21
+  { id: '01', label: { uz: 'Sirkulning ishi', ru: 'Работа циркуля', en: 'What the compass does' }, C: D47_01 },  // slots 🟢 comp_meaning
+  { id: '02', label: { uz: 'Yoy', ru: 'Дуга', en: 'The arc' }, C: D47_02 },  // choice 🟢 comp_arc
+  { id: '03', label: { uz: 'Tenglikni yozish', ru: 'Записать равенство', en: 'Write the equality' }, C: D47_03 },  // bracket 🟢 comp_bracket
+  { id: '04', label: { uz: 'Bissektrisa yasash', ru: 'Построение биссектрисы', en: 'Building a bisector' }, C: D47_04 },  // chain 🟡 comp_bisector_chain
+  { id: '05', label: { uz: 'Yasashdagi xato', ru: 'Ошибка в построении', en: 'A flaw in the construction' }, C: D47_05 },  // fix 🟡 comp_fix
+  { id: '06', label: { uz: 'Nima yasaldi', ru: 'Что построено', en: 'What was built' }, C: D47_06 },  // sort 🟡 comp_zones
+  { id: '07', label: { uz: "Kesmani ko'chirish", ru: 'Перенос отрезка', en: 'Copying a segment' }, C: D47_07 },  // build 🟡 comp_copy
+  { id: '08', label: { uz: 'Yasash tartibi', ru: 'Порядок построения', en: 'Order of construction' }, C: D47_08 },  // order 🔴 comp_order
+  { id: '09', label: { uz: 'Yasash mumkinmi', ru: 'Можно ли построить', en: 'Can it be built' }, C: D47_09 },  // build 🔴 comp_possible
+  { id: '10', label: { uz: 'Transportirsiz', ru: 'Без транспортира', en: 'Without a protractor' }, C: D47_10 },  // chain 🔴 comp_45_chain
 ];
 
 export default function Dars47Practice({ lang = 'uz' }) {

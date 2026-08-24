@@ -1,46 +1,77 @@
 // Dars33 · Amaliyot 01 — Nuqtaning yozuvi · 🟢 · build · tag: point_write
-// Mexanika: kit.jsx -> BuildLine. Raskladka: 33-dars, 1-o'rin.
-// Abssissa 4, ordinata −7 -> (4; −7). Tartib muhim: avval x, keyin y.
+// Mexanika: kit.jsx -> BuildLine. Raskladka: 1-o'rin `build`.
+// DARAJA KO'TARILDI (metodist qarori 2026-08-22): sonlar ikki xonali va manfiy,
+// qadamlar soni ikkitadan boshlanadi -- PODXOD_7SINF.md 13-band.
+// Abssissa −12, ordinata 25 -> (−12; 25). Tartib muhim.
 import React from 'react';
 import { BuildLine, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'point_write', level: '🟢',
-  eyebrow: L('Nuqtaning koordinatalari', 'Координаты точки', 'Coordinates of a point'),
+  tag: 'point_write',
+  level: '🟢',
+  eyebrow: L(
+    'Nuqtaning yozuvi',
+    'Запись точки',
+    'Writing a point'),
   setup: L(
-    "Nuqta yozuvida tartib qat'iy: avval abssissa (x), keyin ordinata (y). O'rin almashsa boshqa nuqta chiqadi.",
-    'В записи точки порядок строгий: сначала абсцисса (x), потом ордината (y). При перестановке выйдет другая точка.',
-    "A point's record has a strict order: the abscissa (x) first, then the ordinate (y). Swapping gives another point."),
-  given: [['x', '=', '4'], ['y', '=', '−7']],
-  givenLabel: L('Berilgan:', 'Дано:', 'Given:'),
+    'Nuqta yozuvida avval abssissa (x), keyin ordinata (y) turadi. Tartib almashsa boshqa nuqta chiqadi.',
+    'В записи точки сначала абсцисса (x), потом ордината (y). Если поменять порядок, выйдет другая точка.',
+    'A point is written abscissa (x) first, ordinate (y) second. Swapping them gives a different point.'),
+  given: [['abssissa −12', ',', 'ordinata 25']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
   cards: [
-    { id: 'a', label: '(4;' },
-    { id: 'b', label: '−7)' },
-    { id: 'c', label: '(−7;' },
-    { id: 'd', label: '4)' },
+    { id: 'a', label: '(−12; 25)' },
+    { id: 'b', label: '(25; −12)' },
+    { id: 'c', label: '(12; 25)' },
   ],
-  answerSeq: ['a', 'b'],
-  empty: L("Nuqtaning yozuvini tuzing", 'Составь запись точки', 'Build the point record'),
-  ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+  answerSeq: ['a'],
+  fieldH: 44,
+  ask: L(
+    "Kartani bosish uni chiziqqa qo'yadi.",
+    'Нажатие на карточку ставит её в строку.',
+    'Tapping a card puts it in the line.'),
+  empty: L(
+    'Kartalarni bosib javobni tuzing',
+    'Нажимай карточки и собери ответ',
+    'Tap the cards to build the answer'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. (4; −7): birinchi son o'ngga siljish, ikkinchisi pastga.",
-    'Верно. (4; −7): первое число это сдвиг вправо, второе вниз.',
-    'Correct. (4; −7): the first number moves right, the second down.'),
+    "To'g'ri. Avval abssissa −12, keyin ordinata 25.",
+    'Верно. Сначала абсцисса −12, потом ордината 25.',
+    'Correct. Abscissa −12 first, then ordinate 25.'),
   wrongs: [
-    { when: (s) => s.seq.indexOf('c') !== -1 || s.seq.indexOf('d') !== -1, text: L(
-      "Koordinatalar almashib ketdi: (−7; 4) boshqa nuqta -- u chapda va tepada turadi.",
-      'Координаты перепутаны: (−7; 4) это другая точка — она слева и выше.',
-      'The coordinates got swapped: (−7; 4) is another point — left and above.') },
-    { when: (s) => s.seq.length < 2, text: L(
-      "Yozuv ikki bo'lakdan iborat: abssissa va ordinata.",
-      'Запись состоит из двух частей: абсцисса и ордината.',
-      'The record has two parts: abscissa and ordinate.') },
+    {
+      when: (s) => s.seq.indexOf('b') !== -1,
+      text: L(
+        "Tartib almashgan: (25; −12) da abssissa 25 bo'lib qoladi.",
+        'Порядок поменялся: в (25; −12) абсциссой становится 25.',
+        'The order flipped: in (25; −12) the abscissa becomes 25.'),
+    },
+    {
+      when: (s) => s.seq.indexOf('c') !== -1,
+      text: L(
+        "Ishora yo'qolgan: abssissa MANFIY, ya'ni −12.",
+        'Потерян знак: абсцисса ОТРИЦАТЕЛЬНАЯ, то есть −12.',
+        'The sign is gone: the abscissa is NEGATIVE, −12.'),
+    },
+    {
+      when: (s) => s.seq.length < 1,
+      text: L(
+        'Bitta karta kerak.',
+        'Нужна одна карточка.',
+        'One card is needed.'),
+    },
   ],
   wrongText: L(
-    "Qaysi son birinchi yoziladi -- x mi yoki y?",
-    'Какое число пишется первым — x или y?',
-    'Which number comes first — x or y?'),
+    'Avval x, keyin y. Ishoralarni saqlang.',
+    'Сначала x, потом y. Сохрани знаки.',
+    'x first, then y. Keep the signs.'),
 };
 
 export default function D33_01(props) { return <BuildLine data={DATA} {...props} />; }

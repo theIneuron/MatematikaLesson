@@ -1,47 +1,72 @@
 // Dars36 · Amaliyot 07 — Jadval · 🟡 · slots · tag: graph_table
-// Mexanika: kit.jsx -> SlotsBank. Raskladka: 7-o'rin.
-// y = 4 − x: x = 0 -> 4, x = 4 -> 0, x = 6 -> −2.
+// Mexanika: kit.jsx -> SlotsBank. Raskladka: 7-o'rin `slots`.
+// DARAJA KO'TARILDI (metodist qarori 2026-08-22): k manfiy va kasr bo'ladi,
+// savol ikki qadamli -- PODXOD_7SINF.md 13-band.
+// y = 12 − 3x: x = −2 -> 18, x = 4 -> 0, x = 7 -> −9.
 import React from 'react';
 import { SlotsBank, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'graph_table', level: '🟡',
-  eyebrow: L('Jadval', 'Таблица', 'A table'),
+  tag: 'graph_table',
+  level: '🟡',
+  eyebrow: L(
+    'Jadval',
+    'Таблица',
+    'The table'),
   setup: L(
-    "Uch nuqta uchun qiymat hisoblanadi. x to'rtdan katta bo'lsa y manfiy tomonga o'tadi.",
-    'Считаются значения для трёх точек. Если x больше четырёх, y уходит в отрицательную сторону.',
-    'Values for three points. Once x passes four, y goes negative.'),
-  given: [['y', '=', '4', '−', 'x']],
-  givenLabel: L('Formula:', 'Формула:', 'The rule:'),
+    "Uch qiymatni hisoblang. Manfiy x da natija o'sadi, katta x da esa manfiy chiqadi.",
+    'Посчитай три значения. При отрицательном x результат растёт, при большом x становится отрицательным.',
+    'Compute three values. A negative x raises the result, a large x makes it negative.'),
+  given: [['y = 12 − 3x']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
   rows: [
-    [{ t: ['x', '=', '0', '→'] }, { slot: 0 }, { t: ['x', '=', '4', '→'] }, { slot: 1 }, { t: ['x', '=', '6', '→'] }, { slot: 2 }],
+    [{ t: ['x = −2', '->'] }, { slot: 0 }, { t: ['x = 4', '->'] }, { slot: 1 }],
+    [{ t: ['x = 7', '->'] }, { slot: 2 }],
   ],
-  cards: ['4', '0', '−2', '−4', '8', '2'],
-  answer: ['4', '0', '−2'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
-  bank: L('Kartalar', 'Карточки', 'Cards'),
+  cards: ['18', '0', '−9', '6', '33'],
+  answer: ['18', '0', '−9'],
+  ask: L(
+    'Kartani bosing, keyin uyani bosing.',
+    'Нажми карточку, затем клетку.',
+    'Tap a card, then tap a cell.'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. 4 − 0 = 4, 4 − 4 = 0, 4 − 6 = −2. Grafik x o'qini x = 4 da kesadi.",
-    'Верно. 4 − 0 = 4, 4 − 4 = 0, 4 − 6 = −2. График пересекает ось x при x = 4.',
-    'Correct. 4 − 0 = 4, 4 − 4 = 0, 4 − 6 = −2. The graph meets the x axis at x = 4.'),
+    "To'g'ri. 12 + 6 = 18; 12 − 12 = 0; 12 − 21 = −9.",
+    'Верно. 12 + 6 = 18; 12 − 12 = 0; 12 − 21 = −9.',
+    'Correct. 12 + 6 = 18; 12 − 12 = 0; 12 − 21 = −9.'),
   wrongs: [
-    { when: (s) => s.slots[0] === '−4', text: L(
-      "x = 0 bo'lganda 4 − 0 = 4: ozod had o'zi qoladi.",
-      'При x = 0 выходит 4 − 0 = 4: свободный член остаётся сам.',
-      'At x = 0 we get 4 − 0 = 4: the free term stays.') },
-    { when: (s) => s.slots[2] === '2' || s.slots[2] === '8', text: L(
-      "x = 6 bo'lganda 4 − 6 = −2: javob manfiy.",
-      'При x = 6 выходит 4 − 6 = −2: ответ отрицательный.',
-      'At x = 6 we get 4 − 6 = −2: the answer is negative.') },
-    { when: (s) => s.slots[1] !== '0' && s.slots[1] != null, text: L(
-      "x = 4 bo'lganda 4 − 4 = 0: aynan bu nuqtada grafik x o'qini kesadi.",
-      'При x = 4 выходит 4 − 4 = 0: именно здесь график пересекает ось x.',
-      'At x = 4 we get 4 − 4 = 0: exactly where the graph meets the x axis.') },
+    {
+      when: (s) => s.slots[0] === '6',
+      text: L(
+        '6 chiqishi uchun 12 − 6 hisoblangan. x manfiy: −3 · (−2) = +6.',
+        'Чтобы вышло 6, считали 12 − 6. x отрицательный: −3 · (−2) = +6.',
+        '6 comes from 12 − 6, yet −3 · (−2) = +6.'),
+    },
+    {
+      when: (s) => s.slots.indexOf('33') !== -1,
+      text: L(
+        '33 chiqishi uchun 12 + 21 hisoblangan. x = 7 da 21 AYIRILADI.',
+        'Чтобы вышло 33, считали 12 + 21. При x = 7 двадцать один ВЫЧИТАЕТСЯ.',
+        '33 adds 12 and 21. At x = 7 the 21 is SUBTRACTED.'),
+    },
+    {
+      when: (s) => s.slots.indexOf(null) !== -1,
+      text: L(
+        "Hamma uya to'ldirilishi kerak.",
+        'Надо заполнить все клетки.',
+        'Every cell must be filled.'),
+    },
   ],
   wrongText: L(
-    "Har x uchun to'rtdan uni ayiring: natija musbat, nol yoki manfiy bo'lishi mumkin.",
-    'Для каждого x вычитай его из четырёх: результат может быть положительным, нулём или отрицательным.',
-    'For each x subtract it from four: the result may be positive, zero or negative.'),
+    "Har x ni 3 ga ko'paytirib 12 dan ayiring, ishorani saqlang.",
+    'Каждый x умножь на 3 и вычти из 12, следи за знаком.',
+    'Multiply each x by 3, subtract from 12, keep the sign.'),
 };
 
 export default function D36_07(props) { return <SlotsBank data={DATA} {...props} />; }

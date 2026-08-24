@@ -1,50 +1,78 @@
 // Dars36 · Amaliyot 02 — Qurish qadamlari · 🟢 · order · tag: draw_order
-// Mexanika: kit.jsx -> BuildLine (tartib muhim). Raskladka: 2-o'rin.
-// y = 2x + 3: x = 0 -> y = 3; x = 1 -> y = 5; ikki nuqtadan chiziq.
+// Mexanika: kit.jsx -> BuildLine. Raskladka: 2-o'rin `order`.
+// DARAJA KO'TARILDI (metodist qarori 2026-08-22): k manfiy va kasr bo'ladi,
+// savol ikki qadamli -- PODXOD_7SINF.md 13-band.
+// y = −2x + 6: x = 0 -> y = 6; x = 3 -> y = 0; ikki nuqtadan chiziq.
 import React from 'react';
 import { BuildLine, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'draw_order', level: '🟢',
-  eyebrow: L('Qadamlar', 'Шаги', 'The steps'),
+  tag: 'draw_order',
+  level: '🟢',
+  eyebrow: L(
+    'Qurish qadamlari',
+    'Шаги построения',
+    'Steps of drawing'),
   setup: L(
-    "Grafik qurish tartibi: bir nuqta, ikkinchi nuqta, keyin ular orqali to'g'ri chiziq.",
-    'Порядок построения: одна точка, вторая точка, потом прямая через них.',
-    'The order: one point, a second point, then the line through them.'),
-  given: [['y', '=', '2x', '+', '3']],
-  givenLabel: L('Formula:', 'Формула:', 'The rule:'),
+    "Grafik qurish tartibi: qulay ikki nuqta hisoblanadi, keyin chiziq o'tkaziladi. k manfiy, ya'ni chiziq pastga ketadi.",
+    'Порядок построения: считаем две удобные точки, потом проводим прямую. k отрицательный, значит прямая идёт вниз.',
+    'Order of drawing: compute two handy points, then draw the line. k is negative, so the line falls.'),
+  given: [['y = −2x + 6']],
+  givenLabel: L(
+    'Berilgan:',
+    'Дано:',
+    'Given:'),
   cards: [
-    { id: 'a', label: '(0; 3)' },
-    { id: 'b', label: '(1; 5)' },
-    { id: 'c', label: '(0; 2)' },
-    { id: 'd', label: '(1; 3)' },
+    { id: 'a', label: 'x = 0 -> y = 6' },
+    { id: 'b', label: 'x = 3 -> y = 0' },
+    { id: 'c', label: 'ikki nuqtadan chiziq' },
+    { id: 'd', label: 'x = 3 -> y = 12' },
+    { id: 'e', label: 'bitta nuqtadan chiziq' },
   ],
-  answerSeq: ['a', 'b'],
-  empty: L("Ikki nuqtani toping", 'Найди две точки', 'Find two points'),
-  ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
-  bank: L('Nuqtalar', 'Точки', 'Points'),
+  answerSeq: ['a', 'b', 'c'],
+  ask: L(
+    "Kartani bosish uni chiziqqa qo'yadi.",
+    'Нажатие на карточку ставит её в строку.',
+    'Tapping a card puts it in the line.'),
+  empty: L(
+    'Kartalarni bosib javobni tuzing',
+    'Нажимай карточки и собери ответ',
+    'Tap the cards to build the answer'),
+  bank: L(
+    'Kartalar',
+    'Карточки',
+    'Cards'),
   correctText: L(
-    "To'g'ri. x = 0 da y = 3, x = 1 da y = 5. Shu ikki nuqtadan to'g'ri chiziq o'tkaziladi.",
-    'Верно. При x = 0 выходит y = 3, при x = 1 выходит y = 5. Через эти точки проводится прямая.',
-    'Correct. At x = 0, y = 3; at x = 1, y = 5. The line goes through those points.'),
+    "To'g'ri. x = 0 da y = 6, x = 3 da y = −6 + 6 = 0, keyin ikki nuqta ulanadi.",
+    'Верно. При x = 0 y = 6, при x = 3 y = −6 + 6 = 0, потом соединяем две точки.',
+    'Correct. At x = 0 y = 6, at x = 3 y = −6 + 6 = 0, then join the two points.'),
   wrongs: [
-    { when: (s) => s.seq.indexOf('c') !== -1, text: L(
-      "(0; 2) noto'g'ri: x = 0 da y = 3, ozod had 3 ga teng.",
-      '(0; 2) неверно: при x = 0 выходит y = 3, свободный член равен 3.',
-      '(0; 2) is wrong: at x = 0, y = 3, the free term is 3.') },
-    { when: (s) => s.seq.indexOf('d') !== -1, text: L(
-      "(1; 3) noto'g'ri: x = 1 da 2 · 1 + 3 = 5.",
-      '(1; 3) неверно: при x = 1 выходит 2 · 1 + 3 = 5.',
-      '(1; 3) is wrong: at x = 1 we get 2 · 1 + 3 = 5.') },
-    { when: (s) => s.seq.length < 2, text: L(
-      "Ikki nuqta kerak.",
-      'Нужны две точки.',
-      'Two points are needed.') },
+    {
+      when: (s) => s.seq.indexOf('d') !== -1,
+      text: L(
+        "12 chiqishi uchun 6 + 6 hisoblangan. k manfiy: −2 · 3 = −6, ya'ni y = 0.",
+        'Чтобы вышло 12, считали 6 + 6. k отрицательный: −2 · 3 = −6, значит y = 0.',
+        '12 adds 6 and 6. k is negative: −2 · 3 = −6, so y = 0.'),
+    },
+    {
+      when: (s) => s.seq.indexOf('e') !== -1,
+      text: L(
+        "Bitta nuqta to'g'ri chiziqni bermaydi.",
+        'Одна точка не задаёт прямую.',
+        'One point does not fix a line.'),
+    },
+    {
+      when: (s) => s.seq.length < 3,
+      text: L(
+        'Uch karta kerak.',
+        'Нужны три карточки.',
+        'Three cards are needed.'),
+    },
   ],
   wrongText: L(
-    "x = 0 va x = 1 uchun y ni hisoblang.",
-    'Посчитай y для x = 0 и x = 1.',
-    'Work out y for x = 0 and x = 1.'),
+    "x = 0 va y = 0 bo'lgan nuqtalar eng qulay.",
+    'Удобнее всего точки при x = 0 и при y = 0.',
+    'The handiest points are at x = 0 and y = 0.'),
 };
 
 export default function D36_02(props) { return <BuildLine data={DATA} {...props} />; }

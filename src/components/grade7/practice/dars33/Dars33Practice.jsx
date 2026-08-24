@@ -3,12 +3,14 @@
 // qobiq `practice/PracticeHost.jsx` da (CLAUDE.md §5).
 //
 // MEXANIKALAR RASKLADKADAN: node scripts/grade7-practice-layout.mjs --json
+// 33-dars raskladkasi: build, choice, fix, chain, build, order, bracket, build, sort, slots
 // Raskladka nomlari mavjud mexanikalarga solishtirildi (metodist qarori
 // 2026-08-21): build/order/bracket -> BuildLine, slots/chain -> SlotsBank,
 // fix -> TapTerms, sort -> Zones, choice -> Choice (faqat isinish uchun).
-// 33-dars raskladkasi: build, choice, fix, chain, build, order, bracket, build, sort, slots
 //
-// Darsning O'Z misollari ((0; 3), (2; 5), (3; 2), (5; 2), (−2; −3)) ataylab takrorlanmadi.
+// MAVZU DARS BILAN SVERKA QILINDI (metodist qarori 2026-08-22): amaliyot
+// mavzusi `src/lessons/grade7.js` dagi nazariy darsning mavzusiga mos.
+
 import React, { useState } from 'react';
 import PracticeHost, { usePracticeZoom } from '../PracticeHost.jsx';
 import D33_01 from './D33_01.jsx';
@@ -23,22 +25,22 @@ import D33_09 from './D33_09.jsx';
 import D33_10 from './D33_10.jsx';
 
 const HEAD = {
-  uz: "Dars 33 amaliyoti — 10 topshiriq (koordinatalar tekisligi)",
+  uz: 'Dars 33 amaliyoti — 10 topshiriq (koordinatalar tekisligi)',
   ru: 'Практика урока 33 — 10 заданий (координатная плоскость)',
   en: 'Lesson 33 practice — 10 tasks (the coordinate plane)',
 };
 
 const ITEMS = [
-  { id: '01', label: { uz: "Yozuv", ru: 'Запись', en: 'Record' }, C: D33_01 },  // build 🟢 x = 4, y = −7
-  { id: '02', label: { uz: "Qayerda", ru: 'Где', en: 'Where' }, C: D33_02 },  // choice 🟢 (0; −6)
-  { id: '03', label: { uz: "Xato yozuv", ru: 'Неверная запись', en: 'Wrong record' }, C: D33_03 },  // fix 🟢 y o'qi
-  { id: '04', label: { uz: "Simmetriya", ru: 'Симметрия', en: 'Symmetry' }, C: D33_04 },  // chain 🟡 (3; −2)
-  { id: '05', label: { uz: "y o'qiga", ru: 'Относительно y', en: 'Across y' }, C: D33_05 },  // build 🟡 (−5; 2)
-  { id: '06', label: { uz: "Tartib", ru: 'Порядок', en: 'Order' }, C: D33_06 },  // order 🟡 abssissa bo'yicha
-  { id: '07', label: { uz: "O'qdagi nuqta", ru: 'Точка на оси', en: 'On an axis' }, C: D33_07 },  // bracket 🟡 x = −6
-  { id: '08', label: { uz: "Boshga nisbatan", ru: 'Относительно начала', en: 'About origin' }, C: D33_08 },  // build 🔴 (4; −3)
-  { id: '09', label: { uz: "Choraklar", ru: 'Четверти', en: 'Quadrants' }, C: D33_09 },  // sort 🔴 2 va 5
-  { id: '10', label: { uz: "O'qish", ru: 'Прочитать', en: 'Read' }, C: D33_10 },  // slots 🔴 A(−4; 7)
+  { id: '01', label: { uz: 'Nuqtaning yozuvi', ru: 'Запись точки', en: 'Writing a point' }, C: D33_01 },  // build 🟢 point_write
+  { id: '02', label: { uz: 'Nuqta qayerda', ru: 'Где точка', en: 'Where the point is' }, C: D33_02 },  // choice 🟢 point_where
+  { id: '03', label: { uz: "y o'qi", ru: 'Ось y', en: 'The y axis' }, C: D33_03 },  // fix 🟢 axis_fix
+  { id: '04', label: { uz: 'Ikki qadam', ru: 'Два шага', en: 'Two steps' }, C: D33_04 },  // chain 🟡 point_chain
+  { id: '05', label: { uz: 'Kesma uzunligi', ru: 'Длина отрезка', en: 'Length of a segment' }, C: D33_05 },  // build 🟡 point_distance
+  { id: '06', label: { uz: 'Tartib', ru: 'Порядок', en: 'Order' }, C: D33_06 },  // order 🟡 point_order
+  { id: '07', label: { uz: "O'qdagi nuqta", ru: 'Точка на оси', en: 'A point on an axis' }, C: D33_07 },  // bracket 🟡 point_on_axis
+  { id: '08', label: { uz: "To'rtinchi uch", ru: 'Четвёртая вершина', en: 'The fourth vertex' }, C: D33_08 },  // build 🔴 point_fourth
+  { id: '09', label: { uz: 'Uch chorak', ru: 'Три четверти', en: 'Three quadrants' }, C: D33_09 },  // sort 🔴 quadrant_zones
+  { id: '10', label: { uz: "Kesmaning o'rtasi", ru: 'Середина отрезка', en: 'Midpoint' }, C: D33_10 },  // slots 🔴 point_middle
 ];
 
 export default function Dars33Practice({ lang = 'uz' }) {
