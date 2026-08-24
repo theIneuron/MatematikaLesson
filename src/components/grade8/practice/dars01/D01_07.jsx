@@ -1,176 +1,63 @@
-// Dars01 · Amaliyot 07 — Qadamlar zanjiri · 🔴 · tag: value_chain
-// Metodist qarori 2026-08-20: tip o'zgartirildi -- ilgari bu «to'rt
-// variantdan bittasi» edi. Endi o'quvchi ORALIQ qiymatlarni to'ldiradi.
+// Dars01 · Amaliyot 07 — Kod · 🟡 · tag: code_bans
+// Faqat MA'LUMOT. Mexanika: `practice/kit.jsx` -> CodeLock (yangi, 24-tip).
+// Kontent: src/books/grade8/DARS01_AMALIYOT_KONTENT.md §07
 //
-// NEGA KERAK. Qolgan topshiriqlar YAKUNIY javobni so'raydi, va yakuniy
-// javobni ba'zan taxmin bilan ham topib olish mumkin. Bu topshiriq
-// qadamlarni so'raydi: o'quvchi hisoblab chiqqanini KO'RSATADI.
-//
-// −2100 : 30 + (3/5) · 250. Qoida: avval ikkinchi bosqich chapdan o'ngga
-// (−2100 : 30 = −70, keyin uch beshdan ikki yuz ellik = 150), so'ng
-// birinchi bosqich: −70 + 150 = 80.
-//
-// Kartalar orasida 70 va −150 turadi -- ishorani chalkashtirganning javobi,
-// hamda 220: bu −70 ni +70 deb olganda chiqadi.
-//
-// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Row } from '../frac.jsx';
+// Ko'paytma nolga aylanadi, agar bitta ko'paytuvchi nolga aylansa: uchta
+// ko'paytuvchi — uchta taqiq. Kod O'SISH tartibida yoziladi, ya'ni javob
+// KETMA-KETLIK: −2, 0, 4.
+// Bankdagi uch tuzoq: 2 (2a + 4 ning ishorasi), −4 (12 − 3a ning ishorasi),
+// 12 (yozuvdagi son). Syujet bir gap: 7-sinf qarori — sahna yozuvning o'zi.
+// `import React` SHART: LMS xom jsx ni klassik rejimda yuklaydi.
+// eslint-disable-next-line no-unused-vars
+import React from 'react';
+import { CodeLock, L } from '../kit.jsx';
 
-const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
-const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
-const S = {
-  wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
-  setup: { fontSize: 16, lineHeight: 1.5, margin: '6px 0 12px', color: '#374151' },
-  ask: { fontSize: 17, fontWeight: 700, margin: '14px 0 12px' },
-};
-const HFB = ({ ok, text }) => (
-  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 10, padding: '10px 13px', borderRadius: 12, fontSize: 14.5, lineHeight: 1.4, fontWeight: 600, background: ok ? '#e8f7ee' : '#fdecec', color: ok ? '#1a7f43' : '#c0392b' }}>
-    {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
-  </div>
-);
-function useRegister(check, registerCheck) {
-  const ref = useRef(check); ref.current = check;
-  useEffect(() => { registerCheck?.(() => ref.current()); }, [registerCheck]);
-}
-
-const F35 = { n: 3, d: 5 };
-// Uch qator: har birida bitta uya. Uya to'ldirilgach yozuv qisqaradi.
-const LINES = [
-  { before: ['−2100', ':', '30', '+', F35, '·', '250', '='], after: ['+', F35, '·', '250'] },
-  { before: [], after: [] },   // ikkinchi qator: −70 + [uya]
-  { before: [], after: [] },   // uchinchi qator: [uya]
-];
-const ANSWER = ['−70', '150', '80'];
-const CARDS = ['−70', '150', '80', '70', '−150', '220'];
-
-const T = {
-  uz: {
-    eyebrow: 'Qadamlar zanjiri', title: 'Oraliq qiymatlar',
-    setup: 'Yechim uch qadamda yoziladi. Har qatorda BITTA amal hisoblanadi.',
-    ask: 'Uyalarni to\'ldiring: kartani bosing, keyin uyani bosing.',
-    slot: 'uya', bank: 'Kartalar',
-    correct: 'To\'g\'ri. Avval ikkinchi bosqich: −2100 : 30 = −70 va uch beshdan ikki yuz ellik 150. So\'ng −70 + 150 = 80.',
-    wrongSign: 'Ishoraga qarang: −2100 ni 30 ga bo\'lganda manfiy son chiqadi. Manfiy va musbat sonni qo\'shganda katta modul yutadi.',
-    wrongFrac: 'Uch beshdan ikki yuz ellikni hisoblang: ikki yuz ellikni beshga bo\'lib, uchga ko\'paytirasiz.',
-    wrongOther: 'Birinchi qatorda eng chapdagi ikkinchi bosqich amali hisoblanadi -- bu bo\'lish. Uchinchi qatorda esa oldingi ikki natija qo\'shiladi.',
-  },
-  ru: {
-    eyebrow: 'Цепочка шагов', title: 'Промежуточные значения',
-    setup: 'Решение записывается в три шага. В каждой строке считается ОДНО действие.',
-    ask: 'Заполни клетки: нажми карточку, затем клетку.',
-    slot: 'клетка', bank: 'Карточки',
-    correct: 'Верно. Сначала вторая ступень: −2100 : 30 = −70 и три пятых от двухсот пятидесяти — 150. Затем −70 + 150 = 80.',
-    wrongSign: 'Посмотри на знак: −2100 разделить на 30 даёт отрицательное число. При сложении числа с разными знаками побеждает большее по модулю.',
-    wrongFrac: 'Посчитай три пятых от двухсот пятидесяти: делишь на пять и умножаешь на три.',
-    wrongOther: 'В первой строке считается самое левое действие второй ступени — это деление. А в третьей строке складываются два предыдущих результата.',
-  },
-  en: {
-    eyebrow: 'Chain of steps', title: 'Intermediate values',
-    setup: 'The solution is written in three steps. ONE operation is worked out in each line.',
-    ask: 'Fill the cells: tap a card, then tap a cell.',
-    slot: 'cell', bank: 'Cards',
-    correct: 'Correct. Second stage first: −2100 : 30 = −70 and three fifths of two hundred fifty is 150. Then −70 + 150 = 80.',
-    wrongSign: 'Look at the sign: −2100 divided by 30 gives a negative number. When adding numbers of different signs, the larger magnitude wins.',
-    wrongFrac: 'Work out three fifths of two hundred fifty: divide by five and multiply by three.',
-    wrongOther: 'In the first line the leftmost second-stage operation is worked out — the division. And in the third line the two previous results are added.',
-  },
+const DATA = {
+  tag: 'code_bans', level: '🟡',
+  expr: [{ n: '5', d: 'a(2a + 4)(12 − 3a)' }], exprSize: 22,
+  cards: ['−4', '−2', '0', '2', '4', '12'],
+  answer: ['−2', '0', '4'],
+  eyebrow: L('Kod', 'Код', 'Code'),
+  setup: L(
+    "Xonada seyf turadi, kodi uch xonali. Kodni yozuvning o'zi beradi: maxraj uchta ko'paytuvchidan yig'ilgan.",
+    'В комнате сейф, код трёхзначный. Код даёт сама запись: знаменатель собран из трёх множителей.',
+    'There is a safe in the room and its code has three places. The record itself gives the code: the denominator is built from three factors.'),
+  slotLabel: L('Kod', 'Код', 'Code'),
+  ask: L(
+    "Kasr qaysi qiymatlarda ma'noga ega emasligini toping va kodga o'sha sonlarni o'sish tartibida yozing.",
+    'Найди, при каких значениях дробь не имеет смысла, и запиши эти числа в код по возрастанию.',
+    'Find the values at which the fraction has no value and write those numbers into the code in increasing order.'),
+  bank: L('Sonlar', 'Числа', 'Numbers'),
+  correctText: L(
+    "To'g'ri. Ko'paytma nolga aylanishi uchun bitta ko'paytuvchining nolga aylanishi kifoya. a nolda, ikki a qo'shuv to'rt minus ikkida, o'n ikki minus uch a esa to'rtda. O'sish tartibida: minus ikki, nol, to'rt. Har birini qo'yib ko'ring — maxraj nolga aylanadi.",
+    'Верно. Чтобы произведение обратилось в нуль, достаточно одного нулевого множителя. a — при нуле, два a плюс четыре — при минус двух, двенадцать минус три a — при четырёх. По возрастанию: минус два, нуль, четыре. Подставь каждое — знаменатель обращается в нуль.',
+    'Correct. One zero factor is enough for the product to become zero. a at zero, two a plus four at minus two, twelve minus three a at four. In increasing order: minus two, zero, four. Substitute each and the denominator becomes zero.'),
+  wrongs: [
+    { when: (s) => s.slots.indexOf('2') !== -1, text: L(
+      "Ikki a qo'shuv to'rt nolga ikkida emas, MINUS ikkida aylanadi: ikkida u sakkizga teng. Tenglamani yechib ko'ring.",
+      'Два a плюс четыре обращается в нуль не при двух, а при МИНУС двух: при двух он равен восьми. Реши уравнение.',
+      'Two a plus four becomes zero not at two but at MINUS two: at two it equals eight. Solve the equation.') },
+    { when: (s) => s.slots.indexOf('−4') !== -1, text: L(
+      "O'n ikki minus uch a nolga ARTI to'rtda aylanadi: minus to'rtda u yigirma to'rtga teng. Ishorani qo'yib tekshiring.",
+      'Двенадцать минус три a обращается в нуль при ПЛЮС четырёх: при минус четырёх он равен двадцати четырём. Проверь знак подстановкой.',
+      'Twelve minus three a becomes zero at PLUS four: at minus four it equals twenty four. Check the sign by substituting.') },
+    { when: (s) => s.slots.indexOf('12') !== -1, text: L(
+      "O'n ikki — yozuvdagi son, ildiz emas. O'n ikkida bu ko'paytuvchi o'n ikki minus o'ttiz olti, ya'ni minus yigirma to'rt bo'ladi.",
+      'Двенадцать — число из записи, а не корень. При двенадцати этот множитель равен двенадцать минус тридцать шесть, то есть минус двадцать четыре.',
+      'Twelve is a number from the record, not a root. At twelve this factor is twelve minus thirty six, that is minus twenty four.') },
+    { when: (s) => s.set, text: L(
+      "Sonlar to'g'ri topilgan, tartib esa buzilgan. O'sish tartibi eng kichigidan boshlanadi, va manfiy son noldan kichik.",
+      'Числа найдены верно, а порядок нет. Возрастание начинается с наименьшего, и отрицательное число меньше нуля.',
+      'The numbers are right, the order is not. Increasing starts from the smallest, and a negative number is smaller than zero.') },
+    { when: (s) => s.slots.indexOf('0') === -1, text: L(
+      "Birinchi ko'paytuvchi — a ning o'zi. U nolda nolga aylanadi, ya'ni nol ham kodning bir raqami.",
+      'Первый множитель — сама a. Она обращается в нуль при нуле, значит нуль тоже цифра кода.',
+      'The first factor is a itself. It becomes zero at zero, so zero is one of the code digits too.') },
+  ],
+  wrongText: L(
+    "Uch ko'paytuvchining har birini alohida nolga tenglang. Uch yechim chiqadi — ularni kichikdan kattaga qarab yozing.",
+    'Приравняй к нулю каждый из трёх множителей по отдельности. Выйдут три решения — запиши их от меньшего к большему.',
+    'Set each of the three factors to zero separately. Three solutions come out — write them from smallest to largest.'),
 };
 
-export default function D01_07(props) {
-  const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
-  const t = T[lang] || T.uz;
-  const isReview = mode === 'review';
-  const [slots, setSlots] = useState([null, null, null]);
-  const [picked, setPicked] = useState(null);
-  const [fb, setFb] = useState(null);
-  const [checked, setChecked] = useState(false);
-
-  const locked = isReview || checked;
-  const used = slots.filter(Boolean);
-  const pool = CARDS.filter((c) => used.indexOf(c) === -1);
-  const full = slots.every(Boolean);
-
-  useEffect(() => {
-    const sa = initialAnswer?.studentAnswer;
-    if (sa?.slots) {
-      setSlots(sa.slots);
-      if (typeof initialAnswer.correct === 'boolean') { setFb({ correct: initialAnswer.correct }); setChecked(true); }
-    }
-  }, [initialAnswer]);
-  useEffect(() => { onReady?.(full && !checked); }, [full, checked, onReady]);
-
-  const tapSlot = (i) => {
-    if (locked) return;
-    if (picked) { setSlots((s) => { const n = s.slice(); n[i] = picked; return n; }); setPicked(null); return; }
-    if (slots[i]) setSlots((s) => { const n = s.slice(); n[i] = null; return n; });
-  };
-
-  const check = useCallback(() => {
-    const correct = slots.join('|') === ANSWER.join('|');
-    let why = 'wrongOther';
-    if (slots[0] === '70' || slots[2] === '220') why = 'wrongSign';
-    else if (slots[1] === '−150' || (slots[1] && slots[1] !== '150')) why = 'wrongFrac';
-    setFb({ correct, why }); setChecked(true);
-    correct ? playCorrect?.() : playWrong?.();
-    onSubmit?.({
-      questionText: t.ask, options: [],
-      studentAnswer: { slots: slots.slice() },
-      correctAnswer: { slots: ANSWER },
-      correct, meta: { tag: 'value_chain', level: '🔴' },
-    });
-  }, [slots, t, playCorrect, playWrong, onSubmit]);
-  useRegister(check, registerCheck);
-
-  const bd = checked ? (fb?.correct ? '#1a7f43' : '#c0392b') : '#cbd5e1';
-  const slotBox = (i) => (
-    <button type="button" disabled={locked} data-slot={i} onClick={() => tapSlot(i)}
-      style={{
-        minWidth: 74, height: 48, borderRadius: 10, margin: '0 4px',
-        border: '2px ' + (slots[i] ? 'solid' : 'dashed') + ' ' + (slots[i] ? bd : (picked ? '#fe5b1a' : '#cbd5e1')),
-        background: slots[i] ? '#fff' : (picked ? '#fff7f2' : '#f8fafc'),
-        fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: 24, fontWeight: 800,
-        color: '#1f2430', cursor: locked ? 'default' : 'pointer',
-      }}>
-      {slots[i] || ''}
-    </button>
-  );
-
-  return (
-    <div style={S.wrap}>
-      <div style={S.eyebrow}>{t.eyebrow}</div>
-      <p style={S.setup}>{t.setup}</p>
-
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center', margin: '14px 0 10px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
-          <Row tokens={LINES[0].before} size={26} />
-          {slotBox(0)}
-          <Row tokens={LINES[0].after} size={26} />
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
-          <Row tokens={['−70', '+']} size={26} />
-          {slotBox(1)}
-          <Row tokens={['=']} size={26} />
-          {slotBox(2)}
-        </div>
-      </div>
-
-      <p style={S.ask}>{t.ask}</p>
-      <div style={{ borderTop: '1px dashed #e2e8f0', paddingTop: 12 }}>
-        <div style={{ fontSize: 12, fontWeight: 800, color: '#9aa1ad', letterSpacing: '.04em', marginBottom: 8 }}>{t.bank.toUpperCase()}</div>
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', minHeight: 52, alignItems: 'center', flexWrap: 'wrap' }}>
-          {pool.length === 0 && <span style={{ fontSize: 13, color: '#cbd5e1', fontWeight: 700 }}>—</span>}
-          {pool.map((c) => (
-            <button key={c} type="button" disabled={locked} onClick={() => setPicked(picked === c ? null : c)}
-              style={{ minWidth: 70, height: 52, borderRadius: 12, border: '2px solid ' + (picked === c ? '#fe5b1a' : '#cbd5e1'), background: picked === c ? '#fff0e8' : '#fff', fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: 22, fontWeight: 800, color: '#1f2430', cursor: locked ? 'default' : 'pointer' }}>
-              {c}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {fb && <HFB ok={fb.correct} text={fb.correct ? t.correct : t[fb.why]} />}
-    </div>
-  );
-}
+export default function D01_07(props) { return <CodeLock data={DATA} {...props} />; }

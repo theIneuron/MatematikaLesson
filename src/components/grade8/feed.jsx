@@ -200,7 +200,7 @@ export function FeedNumber({
 // razbor YO'Q, yashil ham yo'q. Taxmin 15-ekranga uzatiladi (`predicted`),
 // javobini o'quvchi 6-ekranda O'ZI topadi. Bu rejim bo'lmaganda xuk faqat
 // `right: true` variant bilan yopilardi, ya'ni taxmin baholanardi.
-export function PickBroken({ items, ask, after, afterSay, proof, predict, onSolved, audio }) {
+export function PickBroken({ items, ask, askClass, cardsClass, after, afterSay, proof, predict, onSolved, audio }) {
   const t = useT()
   const sfx = useSfx()
   const [picked, setPicked] = useState(null)
@@ -248,11 +248,11 @@ export function PickBroken({ items, ask, after, afterSay, proof, predict, onSolv
 
   return (
     <>
-      <Ask>{t(ask)}</Ask>
+      <Ask className={askClass}>{t(ask)}</Ask>
       {/* Место под подпись резервируется СРАЗУ, до ответа: иначе подпись
           выезжает на знаменатель, а карточка дёргается по высоте. */}
       <div
-        className={'g8-pb' + (items.some((x) => x.name) ? ' has-names' : '')}
+        className={'g8-pb' + (items.some((x) => x.name) ? ' has-names' : '') + (cardsClass ? ' ' + cardsClass : '')}
         style={swap ? { display: 'none' } : undefined}>
         {items.map((it) => (
           <button

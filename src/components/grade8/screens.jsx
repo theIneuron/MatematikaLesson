@@ -36,6 +36,19 @@ import { METHOD_STYLES, MethodCard, SolveTogether } from './method.jsx'
 import { FourWindows, PLOT_STYLES, ParamPlot, Plot, PlotTap } from './plot.jsx'
 import { TWOSIDES_STYLES, TwoSides } from './twosides.jsx'
 import { ZOOM_STYLES, ZoomLine } from './zoom.jsx'
+import { SQUARECUT_STYLES, SquareCut } from './squarecut.jsx'
+import { FACTORPAIR_STYLES, FactorPair } from './factorpair.jsx'
+import { MODULUSFOLD_STYLES, ModulusFold } from './modulusfold.jsx'
+import { STANDARDFORM_STYLES, StandardForm } from './standardform.jsx'
+import { FREQTABLE_STYLES, FreqTable } from './freqtable.jsx'
+import { DATADRAG_STYLES, DataDrag } from './datadrag.jsx'
+import { TREEBUILD_STYLES, TreeBuild } from './treebuild.jsx'
+import { GEOFIGURE_STYLES, GeoFigure } from './geofigure.jsx'
+import { PROOFLINES_STYLES, ProofLines } from './prooflines.jsx'
+import { AREACUT_STYLES, AreaCut } from './areacut.jsx'
+import { SQUARESWAP_STYLES, SquareSwap } from './squareswap.jsx'
+import { CIRCLEFIGURE_STYLES, CircleFigure } from './circlefigure.jsx'
+import { VECTORFIGURE_STYLES, VectorFigure } from './vectorfigure.jsx'
 import {
   Audit, Blitz, Boundary, Fields, Film, Inverse, PlotVsTable, PowerLadder, Reveal,
   RuleBlock, RuleBuilder, SoloTask, Substitute, TOOLS_STYLES, TapPart, TaskChain,
@@ -312,6 +325,42 @@ export function ScreenBody(props) {
     // и метка ни разу не ложится на деление.
     case 'zoom':
       return <ZoomLine {...p} audio={audio} onSolved={onSolved} onStep={step} />
+    // ДОСТРОЕНИЕ ДО ПОЛНОГО КВАДРАТА: механика блока Б3 (уроки 17, 22).
+    case 'squarecut':
+      return <SquareCut {...p} audio={audio} onSolved={onSolved} onStep={step} />
+    // ПАРА ПО СУММЕ И ПРОИЗВЕДЕНИЮ: механика блока Б3 (уроки 19, 22).
+    case 'factorpair':
+      return <FactorPair {...p} audio={audio} onSolved={onSolved} onStep={step} />
+    // МОДУЛЬ КАК РАССТОЯНИЕ: механика блока Б4 (урок 29).
+    case 'modulusfold':
+      return <ModulusFold {...p} audio={audio} onSolved={onSolved} onStep={step} />
+    // ЗАПЯТАЯ ДВИГАЕТСЯ, ПОКАЗАТЕЛЬ МЕНЯЕТСЯ САМ: механика блока Б5 (урок 33).
+    case 'standardform':
+      return <StandardForm {...p} audio={audio} onSolved={onSolved} onStep={step} />
+    // СЫРЫЕ ДАННЫЕ РАЗБИРАЮТСЯ ПО СТОЛБЦАМ: механика блока Б5 (урок 34).
+    case 'freqtable':
+      return <FreqTable {...p} audio={audio} onSolved={onSolved} onStep={step} />
+    // O'RTA QIYMAT KETADI, MEDIANA TURADI: механика блока Б5 (урок 35).
+    case 'datadrag':
+      return <DataDrag {...p} audio={audio} onSolved={onSolved} onStep={step} />
+    // DARAXT SHOXLARI KO'PAYADI: механика блока Б5 (урок 36).
+    case 'treebuild':
+      return <TreeBuild {...p} audio={audio} onSolved={onSolved} onStep={step} />
+    // CHERTYOZH TAP BILAN: геометрия, блок Б6 (урок 37+).
+    case 'geofigure':
+      return <GeoFigure {...p} audio={audio} onSolved={onSolved} onStep={step} />
+    // ISBOTNI ASOSLAB TO'LDIRISH: геометрия, блок Б6 (урок 37+).
+    case 'prooflines':
+      return <ProofLines {...p} audio={audio} onSolved={onSolved} onStep={step} />
+    // KESIB, KO'CHIRIB, TO'RTBURCHAK: геометрия, блок Б6 (урок 40+).
+    case 'areacut':
+      return <AreaCut {...p} audio={audio} onSolved={onSolved} onStep={step} />
+    case 'squareswap':
+      return <SquareSwap {...p} audio={audio} onSolved={onSolved} onStep={step} />
+    case 'circlefigure':
+      return <CircleFigure {...p} audio={audio} onSolved={onSolved} onStep={step} />
+    case 'vectorfigure':
+      return <VectorFigure {...p} audio={audio} onSolved={onSolved} onStep={step} />
     // ЛЕСТНИЦА СТЕПЕНЕЙ: ученик продолжает ряд и получает новый показатель
     // как продолжение закономерности, а не как соглашение.
     case 'ladder':
@@ -420,7 +469,7 @@ export function makeLesson({ META, STATEMENTS, MISS, SCREENS, styles }) {
 
     return (
       <LangProvider value={lang}>
-        <style>{STYLES}{MATH_STYLES}{TOOLS_STYLES}{PLOT_STYLES}{METHOD_STYLES}{TWOSIDES_STYLES}{ZOOM_STYLES}{FEED_STYLES}{styles || ''}</style>
+        <style>{STYLES}{MATH_STYLES}{TOOLS_STYLES}{PLOT_STYLES}{METHOD_STYLES}{TWOSIDES_STYLES}{ZOOM_STYLES}{SQUARECUT_STYLES}{FACTORPAIR_STYLES}{MODULUSFOLD_STYLES}{STANDARDFORM_STYLES}{FREQTABLE_STYLES}{DATADRAG_STYLES}{TREEBUILD_STYLES}{GEOFIGURE_STYLES}{PROOFLINES_STYLES}{AREACUT_STYLES}{SQUARESWAP_STYLES}{CIRCLEFIGURE_STYLES}{VECTORFIGURE_STYLES}{FEED_STYLES}{styles || ''}</style>
         <div className="lesson-root">
           <Frame
             key={screen}

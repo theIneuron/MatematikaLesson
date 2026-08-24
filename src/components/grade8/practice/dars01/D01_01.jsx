@@ -1,135 +1,72 @@
-// Dars01 · Amaliyot 01 — Amallar tartibini o'qish · 🟢 · tag: read_order
-// 5-sinf amaliyotidan KO'CHIRILGAN fayl, matematikasi 7-sinfga o'tkazildi
-// (metodist topshirigi 2026-08-20). Tuzilma, uslub, animatsiya va
-// jsx-question kontrakti O'ZGARMADI: onReady/registerCheck/onSubmit,
-// o'z «Tekshirish» tugmasi yo'q -- uni PracticeHost beradi.
+// Dars01 · Amaliyot 01 — Fikr · 🟢 · tag: which_claim
+// Faqat MA'LUMOT. Mexanika: `practice/kit.jsx` -> Choice.
+// Kontent: src/books/grade8/DARS01_AMALIYOT_KONTENT.md §01
 //
-// 1500 − 24 · (85 − 3 · 25). Misolning DARAJASI ko'tarildi (metodist qarori
-// 2026-08-20: oldingi misollarni boshlang'ich sinf ham yechardi). Endi
-// yozuvda ichma-ich tartib bor: avval qavs ICHIDAGI ikkinchi bosqich,
-// keyin qavs ichidagi ayirish, so'ng tashqi ko'paytirish, oxirida ayirish.
-// 3 · 25 = 75, 85 − 75 = 10, 24 · 10 = 240, 1500 − 240 = 1260.
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+// METODIST QARORI 2026-08-22: 1-topshiriq TEST bo'ladi, savol MANTIQIY —
+// misol emas. `TIPLAR_AMALIYOT_8SINF.md` §5.11 tayyor javobni tanlashni
+// pul'dan chiqargan («yechish emas, yechim haqida gapirish»), lekin bu yerda
+// tanlanadigan narsa javob emas, MULOHAZA: to'rt fikrdan bittasi har qanday
+// kasr uchun to'g'ri, uchtasi esa aniq bir misolda buziladi. Chetlanish
+// ochiq: kontent faylining §0a da yozilgan.
+//
+// Uchta noto'g'ri fikr — uchta adashish: «harf bor, demak taqiq bor» (a²+1
+// bilan rad etiladi), З18 (surat noli), З19 (maxrajda son).
+// `import React` SHART: LMS xom jsx ni klassik rejimda yuklaydi.
+// eslint-disable-next-line no-unused-vars
+import React from 'react';
+import { Choice, L } from '../kit.jsx';
 
-const DATA = { expr: '1500 − 24 · (85 − 3 · 25)', correct: 0, tag: 'read_order', level: '🟢' };
-const T = {
-  uz: {
-    eyebrow: 'Amallar tartibi', title: "Yozuvni o'qish",
-    setup: "Yozuvda qavs bor va to'rtta amal. Ular qanday tartibda bajariladi?",
-    ask: "Qaysi o'qish to'g'ri?",
-    opts: [
-      "avval qavs ichida: 3 · 25, keyin 85 − 75; so'ng 24 · 10, oxirida ayirish",
-      "avval 1500 − 24, keyin qavs",
-      "avval qavs ichidagi 85 − 3, keyin ko'paytirishlar",
-    ],
-    correct: "To'g'ri. Qavs ichida ham o'sha qoida: 3 · 25 = 75, 85 − 75 = 10. So'ng 24 · 10 = 240 va 1500 − 240 = 1260.",
-    wrongMsg: "Maslahat: qavs ichidagisi HAMMASIDAN oldin hisoblanadi, va qavs ichida ham o'sha tartib ishlaydi: avval ikkinchi bosqich.",
-  },
-  ru: {
-    eyebrow: 'Порядок действий', title: 'Чтение записи',
-    setup: 'В записи есть скобка и четыре действия. В каком порядке они выполняются?',
-    ask: 'Какое чтение верное?',
-    opts: [
-      'сначала в скобке: 3 · 25, потом 85 − 75; затем 24 · 10, в конце вычитание',
-      'сначала 1500 − 24, потом скобка',
-      'сначала 85 − 3 в скобке, потом умножения',
-    ],
-    correct: 'Верно. Внутри скобки то же правило: 3 · 25 = 75, 85 − 75 = 10. Затем 24 · 10 = 240 и 1500 − 240 = 1260.',
-    wrongMsg: 'Подсказка: то, что в скобке, считается РАНЬШЕ всего, и внутри скобки работает тот же порядок: сначала вторая ступень.',
-  },
-  en: {
-    eyebrow: 'Order of operations', title: 'Reading a record',
-    setup: 'The record has a bracket and four operations. In what order do they run?',
-    ask: 'Which reading is right?',
-    opts: [
-      'inside the bracket first: 3 · 25, then 85 − 75; then 24 · 10, subtraction last',
-      'first 1500 − 24, then the bracket',
-      'first 85 − 3 inside the bracket, then the multiplications',
-    ],
-    correct: 'Correct. The same rule holds inside the bracket: 3 · 25 = 75, 85 − 75 = 10. Then 24 · 10 = 240 and 1500 − 240 = 1260.',
-    wrongMsg: 'Hint: what is inside the bracket is worked out FIRST of all, and inside the bracket the same order applies: second stage first.',
-  },
+const DATA = {
+  tag: 'which_claim', level: '🟢',
+  correct: 1, optCols: 1,
+  eyebrow: L('Fikr', 'Утверждение', 'Claim'),
+  // Matn qisqa: telefonda RU razbor bilan 26px kadrdan chiqib ketardi
+  // (o'lchov 2026-08-22, grade8-practice-check.mjs).
+  setup: L(
+    "To'rt fikr kasr haqida. Bittasi har doim to'g'ri, uchtasi misolda buziladi.",
+    'Четыре утверждения про дробь. Одно верно всегда, три ломаются на примере.',
+    'Four claims about fractions. One is always true, three break on an example.'),
+  ask: L("Qaysi fikr har doim to'g'ri?", 'Какое утверждение верно всегда?', 'Which claim is always true?'),
+  opts: [
+    { label: L(
+      "Maxrajda harf bo'lsa, kasr albatta biror qiymatda ma'noga ega bo'lmaydi.",
+      'Если в знаменателе есть буква, дробь где-то обязательно не имеет смысла.',
+      'If the denominator contains a letter, the fraction must fail at some value.') },
+    { label: L(
+      "Kasr ma'noga ega bo'lmasligi uchun uning maxraji nolga aylanishi kerak.",
+      'Чтобы дробь не имела смысла, её знаменатель должен обратиться в нуль.',
+      'For a fraction to have no value, its denominator must become zero.') },
+    { label: L(
+      "Surat nolga aylansa, kasr ma'noga ega bo'lmaydi.",
+      'Если числитель обращается в нуль, дробь не имеет смысла.',
+      'If the numerator becomes zero, the fraction has no value.') },
+    { label: L(
+      "Maxrajda son turgan kasr ham ba'zi qiymatlarda ma'noga ega bo'lmaydi.",
+      'Дробь с числом в знаменателе тоже где-то не имеет смысла.',
+      'A fraction with a number in the denominator also fails at some values.') },
+  ],
+  correctText: L(
+    "To'g'ri. Ma'noga ega bo'lmaslikning bitta sababi bor — nolga bo'lish. Demak savol ham doim bitta: maxraj qachon nolga aylanadi. Maxrajda harf turishining o'zi hech narsani hal qilmaydi: a kvadrat qo'shuv bir eng kichik holatda birga teng, ya'ni nolga hech qachon aylanmaydi.",
+    'Верно. У «не имеет смысла» одна причина — деление на нуль. Значит вопрос всегда один: когда знаменатель обращается в нуль. Буква сама ничего не решает: a в квадрате плюс один не меньше единицы.',
+    'Correct. Having no value has one cause — division by zero. So the question is always the same: when does the denominator become zero. A letter alone settles nothing: a squared plus one is one at its smallest, so it never becomes zero.'),
+  wrongs: [
+    { when: (s) => s.picked === 0, text: L(
+      "Harf bor, lekin taqiq bo'lmasligi ham mumkin. a kvadrat qo'shuv birni nolga tenglashga urinib ko'ring: kvadrat manfiy bo'lmaydi, demak yig'indi kamida bir. Harfning borligi emas, maxrajning noli hal qiladi.",
+      'Буква есть, а запрета может и не быть. Попробуй приравнять a в квадрате плюс один к нулю: квадрат неотрицателен, значит сумма не меньше единицы. Решает не наличие буквы, а нуль знаменателя.',
+      'The letter is there, but the ban need not be. Try setting a squared plus one to zero: a square is never negative, so the sum is at least one. What decides is the zero of the denominator, not the letter.') },
+    { when: (s) => s.picked === 2, text: L(
+      "Bu yerda suratdagi nol maxrajdagi nol bilan aralashib ketdi. Nolni minus ikkiga bo'lsangiz nol chiqadi — qiymat bor, u nolga teng. Qiymat faqat chiziqning TAGIDA nol paydo bo'lganda yo'qoladi.",
+      'Здесь нуль числителя спутан с нулём знаменателя. Нуль разделить на минус два — нуль: значение есть. Оно исчезает только когда нуль появляется ПОД чертой.',
+      'Here the zero of the numerator is confused with the zero of the denominator. Zero divided by minus two is zero: the value exists and it is zero. The value disappears only when a zero appears BELOW the bar.') },
+    { when: (s) => s.picked === 3, text: L(
+      "Maxrajda son turganda kasr harfning har qanday qiymatida hisoblanadi: yetti nolga aylanmaydi, u o'zgarmaydi ham. Harf faqat suratda qolsa, taqiq qo'yadigan narsa yo'q.",
+      'Когда в знаменателе число, дробь считается при любом значении буквы: семь в нуль не обращается и вообще не меняется. Если буква осталась только в числителе, запрещать нечего.',
+      'With a number in the denominator the fraction is computed for every value of the letter: seven never becomes zero and never changes. If the letter stays only in the numerator, there is nothing to forbid.') },
+  ],
+  wrongText: L(
+    "Bitta savol bering: bu kasrning maxraji qachon nolga aylanadi? Har to'rt fikrni shu savol bilan tekshiring.",
+    'Задай один вопрос: когда знаменатель этой дроби обращается в нуль? Проверь этим вопросом все четыре утверждения.',
+    'Ask one question: when does the denominator of this fraction become zero? Test all four claims with it.'),
 };
 
-const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
-const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
-
-export default function D01_01(props) {
-  const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
-  const t = T[lang] || T.uz;
-  const isReview = mode === 'review';
-  const [picked, setPicked] = useState(null);
-  const [feedback, setFeedback] = useState(null);
-  const [checked, setChecked] = useState(false);
-
-  useEffect(() => {
-    if (initialAnswer && initialAnswer.studentAnswer && initialAnswer.studentAnswer.idx != null) {
-      setPicked(initialAnswer.studentAnswer.idx);
-      if (typeof initialAnswer.correct === 'boolean') { setFeedback({ correct: initialAnswer.correct }); setChecked(true); }
-    }
-  }, [initialAnswer]);
-  useEffect(() => { onReady?.(picked != null && !checked); }, [picked, checked, onReady]);
-
-  const check = useCallback(() => {
-    const correct = picked === DATA.correct;
-    setFeedback({ correct }); setChecked(true);
-    if (correct) playCorrect?.(); else playWrong?.();
-    onSubmit?.({
-      questionText: t.ask, options: t.opts.map((l, i) => ({ id: String(i), label: l })),
-      studentAnswer: { idx: picked, label: t.opts[picked] }, correctAnswer: { idx: DATA.correct, label: t.opts[DATA.correct] },
-      correct, meta: { tag: DATA.tag, level: DATA.level, expr: DATA.expr },
-    });
-  }, [picked, playCorrect, playWrong, onSubmit, t]);
-  const checkRef = useRef(check); checkRef.current = check;
-  useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
-
-  const optStyle = (i) => {
-    const active = picked === i; const show = checked && active;
-    let bg = '#fff', bd = '#d6dae3', col = '#374151';
-    if (active) { bg = '#fff0e8'; bd = '#fe5b1a'; col = '#1f2430'; }
-    if (show) { const ok = i === DATA.correct; bg = ok ? '#e8f7ee' : '#fdecec'; bd = ok ? '#1a7f43' : '#c0392b'; col = ok ? '#1a7f43' : '#c0392b'; }
-    let anim;
-    if (!checked) anim = `pqUp .45s cubic-bezier(.22,1,.36,1) ${(0.22 + i * 0.07).toFixed(2)}s both`;
-    else if (i === DATA.correct) anim = 'pqPop .5s cubic-bezier(.34,1.56,.64,1) both';
-    else if (active) anim = 'pqShake .4s both';
-    else anim = 'none';
-    return { display: 'block', width: '100%', textAlign: 'left', padding: '11px 15px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 15.5, fontWeight: 600, cursor: (isReview || checked) ? 'default' : 'pointer', marginBottom: 7, fontFamily: 'inherit', animation: anim, transition: 'background .3s, border-color .3s, color .3s' };
-  };
-
-  return (
-    <div className="pq pq01">
-      <style>{`
-        .pq01 { max-width:640px; margin:0 auto; padding:4px 2px 8px; font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:#1f2430; }
-        .pq01 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#fe5b1a; text-transform:uppercase; }
-        .pq01 .pq-setup { font-size:16px; line-height:1.45; margin:5px 0 8px; color:#374151; }
-        .pq01 .pq-num { text-align:center; font-size:33px; font-weight:800; color:#fe5b1a; letter-spacing:0; font-variant-numeric:tabular-nums; margin:4px 0 12px; font-family:'JetBrains Mono','SFMono-Regular',Consolas,monospace; white-space:nowrap; overflow-x:auto; }
-        .pq01 .pq-ask { font-size:17px; font-weight:700; margin:0 0 12px; }
-        .pq01 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:10px; padding:10px 13px; border-radius:12px; font-size:14.5px; line-height:1.4; font-weight:600; animation:pqIn .45s ease both; }
-        .pq01 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
-        .pq01 .pq-fb.no { background:#fdecec; color:#c0392b; }
-        @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }
-        .pq01 .a { opacity:0; animation:pqUp .5s cubic-bezier(.22,1,.36,1) forwards; }
-        .pq01 .a2 { animation-delay:.08s; }
-        .pq01 .a3 { animation-delay:.16s; }
-        @keyframes pqUp { from { opacity:0; transform:translateY(12px);} to { opacity:1; transform:translateY(0);} }
-        .pq01 .pq-num { animation:pqReveal .6s cubic-bezier(.22,1,.36,1) both; animation-delay:.1s; }
-        @keyframes pqReveal { from { opacity:0; transform:scale(.82);} to { opacity:1; transform:scale(1);} }
-        @keyframes pqPop { 0%{transform:scale(1);} 45%{transform:scale(1.05);} 100%{transform:scale(1);} }
-        @media (max-width:700px){ .pq01 .pq-num { font-size:21px; } }
-        @keyframes pqShake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
-      `}</style>
-      <div className="pq-eyebrow a">{t.eyebrow}</div>
-      <p className="pq-setup a a2">{t.setup}</p>
-      <div className="pq-num">{DATA.expr}</div>
-      <p className="pq-ask a a3">{t.ask}</p>
-      {t.opts.map((o, i) => (
-        <button key={i} type="button" style={optStyle(i)} onClick={() => { if (!isReview && !checked) setPicked(i); }} disabled={isReview || checked}>{o}</button>
-      ))}
-      {feedback && (
-        <div className={`pq-fb ${feedback.correct ? 'ok' : 'no'}`}>
-          {feedback.correct ? <IconOk /> : <IconNo />}<span>{feedback.correct ? t.correct : t.wrongMsg}</span>
-        </div>
-      )}
-    </div>
-  );
-}
+export default function D01_01(props) { return <Choice data={DATA} {...props} />; }

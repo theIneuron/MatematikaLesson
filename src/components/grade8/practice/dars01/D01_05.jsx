@@ -1,127 +1,59 @@
-// Dars01 · Amaliyot 05 — Qiymatni yozish · 🟡 · tag: write_value
-// 5-sinf faylining nusxasi, matematikasi 7-sinfga o'tkazildi. MEXANIKA
-// O'ZGARMADI: javob klaviaturadan kiritiladi (raqamli klaviatura, sistema
-// klaviaturasi ko'tarilmaydi). 5-sinfda so'z bilan aytilgan son yozilardi,
-// bu yerda esa YOZUVNING QIYMATI.
+// Dars01 · Amaliyot 05 — Eng katta · 🟡 · tag: largest_ban
+// Faqat MA'LUMOT. Mexanika: `practice/kit.jsx` -> TypeValue.
+// Kontent: src/books/grade8/DARS01_AMALIYOT_KONTENT.md §05
 //
-// Kiritilgan sonning JONLI ko'rinishi olib tashlandi: 5-sinfda kiritilgan
-// raqamlar pastda bo'shliqlar bilan qayta ko'rsatilardi, bu yerda esa u
-// javobni ikki marta yozish bo'lardi.
-// jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q. Faqat react importi.
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+// 8a − 2a² = 2a(4 − a): nollari 0 va 4, eng kattasi 4. Topshiriq aynan
+// IKKINCHI nolni ko'rishga majbur qiladi — З2 shu yerda tutiladi.
+// Razborlar har xato javobni SON bilan rad etadi (З16).
+// `import React` SHART: LMS xom jsx ni klassik rejimda yuklaydi.
+// eslint-disable-next-line no-unused-vars
+import React from 'react';
+import { TypeValue, L } from '../kit.jsx';
 
-const TARGET = 700; // 12,5 · 40 − 1800 : (−9) = 500 − (−200) = 700
-const DATA = { tag: 'write_value', level: '🟡', expr: '12,5 · 40 − 1800 : (−9)' };
-const T = {
-  uz: {
-    eyebrow: 'Qiymatni topish', title: 'Qiymatni yozish',
-    setup: 'Yozuvning qiymatini hisoblab, javobni raqam bilan kiriting:',
-    label: 'Qiymatni yozing:',
-    live: 'Sizning javobingiz:',
-    correct: "To'g'ri. Avval ikkinchi bosqich: 12,5 · 40 = 500 va 1800 : (−9) = −200. So'ng 500 − (−200) = 700.",
-    wrong: "Maslahat: avval ko'paytirish va bo'lishni hisoblang. Manfiy sonni ayirish -- uni qo'shish bilan bir xil: 500 − (−200) = 500 + 200.",
-  },
-  ru: {
-    eyebrow: 'Найти значение', title: 'Записать значение',
-    setup: 'Посчитай значение записи и введи ответ цифрами:',
-    label: 'Запиши значение:',
-    live: 'Твой ответ:',
-    correct: 'Верно. Сначала вторая ступень: 12,5 · 40 = 500 и 1800 : (−9) = −200. Затем 500 − (−200) = 700.',
-    wrong: 'Подсказка: сначала посчитай умножение и деление. Вычесть отрицательное — то же, что прибавить: 500 − (−200) = 500 + 200.',
-  },
-  en: {
-    eyebrow: 'Find the value', title: 'Write the value',
-    setup: 'Work out the value of the record and type the answer in digits:',
-    label: 'Write the value:',
-    live: 'Your answer:',
-    correct: 'Correct. Second stage first: 12,5 · 40 = 500 and 1800 : (−9) = −200. Then 500 − (−200) = 700.',
-    wrong: 'Hint: work out the multiplication and the division first. Subtracting a negative is the same as adding: 500 − (−200) = 500 + 200.',
-  },
+const DATA = {
+  tag: 'largest_ban', level: '🟡',
+  target: 4, allowNeg: true,
+  expr: [{ n: 'a + 3', d: '8a − 2a²' }], exprSize: 30,
+  eyebrow: L('Eng katta', 'Наибольшее', 'Largest'),
+  setup: L(
+    "Maxrajda ikkita had turadi va ularning umumiy ko'paytuvchisi bor. Umumiy ko'paytuvchini qavsdan chiqaring — nol qayerda paydo bo'lishi ko'rinadi.",
+    'В знаменателе два слагаемых, и у них есть общий множитель. Вынеси его за скобку — станет видно, где появляется нуль.',
+    'The denominator has two terms with a common factor. Take it out of the bracket and you will see where the zero appears.'),
+  label: L("a ning eng katta qiymati", 'наибольшее значение a', 'the largest value of a'),
+  ask: L(
+    "a ning qanday eng katta qiymatida kasr qiymatga ega emas?",
+    'При каком наибольшем значении a дробь не имеет значения?',
+    'At which largest value of a does the fraction have no value?'),
+  correctText: L(
+    "To'g'ri. Sakkiz a minus ikki a kvadrat — bu ikki a karra to'rt minus a. Ko'paytma nolga ikki joyda aylanadi: a nolda va a to'rtda. Kattasi to'rt. Tekshiring: to'rtda maxraj o'ttiz ikki minus o'ttiz ikki, ya'ni nol.",
+    'Верно. Восемь a минус два a в квадрате — это два a на четыре минус a. Произведение обращается в нуль в двух местах: при a равном нулю и при a равном четырём. Наибольшее — четыре. Проверь: при четырёх знаменатель тридцать два минус тридцать два, то есть нуль.',
+    'Correct. Eight a minus two a squared is two a times four minus a. The product becomes zero in two places: at a equal to zero and at a equal to four. The larger is four. Check: at four the denominator is thirty two minus thirty two, that is zero.'),
+  wrongs: [
+    { when: (s) => s.value === 0, text: L(
+      "Nol ham taqiqlangan, lekin savol eng KATTAsini so'radi. Ikkinchi ko'paytuvchini nolga tenglang: to'rt minus a qachon nolga aylanadi?",
+      'Нуль тоже запрещён, но спрошено НАИБОЛЬШЕЕ. Приравняй к нулю второй множитель: когда четыре минус a обращается в нуль?',
+      'Zero is banned too, but the question asked for the LARGEST. Set the second factor to zero: when does four minus a become zero?') },
+    { when: (s) => s.value === 8, text: L(
+      "Sakkiz — yozuvdagi son, ildiz emas. Qo'yib ko'ring: sakkiz karra sakkiz oltmish to'rt, ikki karra oltmish to'rt bir yuz yigirma sakkiz, ayirmasi minus oltmish to'rt — nol emas.",
+      'Восемь — число из записи, а не корень. Подставь: восемь на восемь — шестьдесят четыре, два на шестьдесят четыре — сто двадцать восемь, разность минус шестьдесят четыре, а не нуль.',
+      'Eight is a number from the record, not a root. Substitute: eight times eight is sixty four, two times sixty four is one hundred twenty eight, the difference is minus sixty four, not zero.') },
+    { when: (s) => s.value === 2, text: L(
+      "Ikki — qavsdan chiqarilgan son, ildiz emas. Ikki a nolga a nolda aylanadi. Ikkida maxraj o'n olti minus sakkiz, ya'ni sakkiz.",
+      'Два — вынесенное число, а не корень. Два a обращается в нуль при a равном нулю. При двух знаменатель шестнадцать минус восемь, то есть восемь.',
+      'Two is the factor taken out, not a root. Two a becomes zero at a equal to zero. At two the denominator is sixteen minus eight, that is eight.') },
+    { when: (s) => s.value === -4, text: L(
+      "Ishora teskari: to'rt minus a nolga ARTI to'rtda aylanadi. Minus to'rtda maxraj minus o'ttiz ikki minus o'ttiz ikki, ya'ni minus oltmish to'rt.",
+      'Знак наоборот: четыре минус a обращается в нуль при ПЛЮС четырёх. При минус четырёх знаменатель минус тридцать два минус тридцать два, то есть минус шестьдесят четыре.',
+      'The sign is reversed: four minus a becomes zero at PLUS four. At minus four the denominator is minus thirty two minus thirty two, that is minus sixty four.') },
+    { when: (s) => s.value === -3, text: L(
+      "Minus uch — suratning noli. U yerda kasrning qiymati nolga teng bo'ladi, lekin qiymat BOR. Savol chiziqning tagi haqida.",
+      'Минус три — нуль числителя. Там значение дроби равно нулю, но оно ЕСТЬ. Вопрос про то, что под чертой.',
+      'Minus three is the zero of the numerator. There the value of the fraction is zero, but it EXISTS. The question is about what is below the bar.') },
+  ],
+  wrongText: L(
+    "Maxrajni ko'paytuvchilarga ajratib nolga tenglang: ikki a karra to'rt minus a. Ikkita nol chiqadi, kattasini yozing.",
+    'Разложи знаменатель на множители и приравняй к нулю: два a на четыре минус a. Выйдут два нуля — запиши больший.',
+    'Factor the denominator and set it to zero: two a times four minus a. Two zeros come out — write the larger one.'),
 };
 
-const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
-const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
-const cleanInt = (raw) => String(raw).replace(/[^0-9]/g, '');
-const groupSpaces = (s) => s.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-
-export default function D01_05(props) {
-  const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
-  const t = T[lang] || T.uz;
-  const isReview = mode === 'review';
-  const [val, setVal] = useState('');
-  const [feedback, setFeedback] = useState(null);
-  const [checked, setChecked] = useState(false);
-
-  useEffect(() => {
-    if (initialAnswer && initialAnswer.studentAnswer && initialAnswer.studentAnswer.value != null) {
-      setVal(String(initialAnswer.studentAnswer.value));
-      if (typeof initialAnswer.correct === 'boolean') { setFeedback({ correct: initialAnswer.correct }); setChecked(true); }
-    }
-  }, [initialAnswer]);
-  useEffect(() => { onReady?.(val.trim() !== '' && !checked); }, [val, checked, onReady]);
-
-  const check = useCallback(() => {
-    const v = parseInt(cleanInt(val) || '-1', 10);
-    const correct = v === TARGET;
-    setFeedback({ correct }); setChecked(true);
-    if (correct) playCorrect?.(); else playWrong?.();
-    onSubmit?.({
-      questionText: t.setup + ' ' + DATA.expr, options: [],
-      studentAnswer: { value: v }, correctAnswer: { value: TARGET },
-      correct, meta: { tag: DATA.tag, level: DATA.level },
-    });
-  }, [val, playCorrect, playWrong, onSubmit, t.setup]);
-  const checkRef = useRef(check); checkRef.current = check;
-  useEffect(() => { registerCheck?.(() => checkRef.current()); }, [registerCheck]);
-
-  const preview = cleanInt(val) ? groupSpaces(cleanInt(val)) : '—';
-  return (
-    <div className="pq pq05">
-      <style>{`
-        .pq05 { max-width:640px; margin:0 auto; padding:4px 2px 8px; font-family:'Manrope',system-ui,-apple-system,Segoe UI,Roboto,sans-serif; color:#1f2430; }
-        .pq05 .pq-eyebrow { font-size:12px; font-weight:800; letter-spacing:.04em; color:#fe5b1a; text-transform:uppercase; }
-        .pq05 .pq-setup { font-size:16px; line-height:1.5; margin:6px 0 6px; color:#374151; }
-        .pq05 .pq-words { font-size:22px; font-weight:800; color:#fe5b1a; margin:2px 0 18px; }
-        .pq05 .pq-label { display:block; font-size:14px; font-weight:600; color:#374151; margin-bottom:6px; }
-        .pq05 input.pq-input { width:100%; box-sizing:border-box; font-size:24px; font-weight:800; text-align:center; padding:13px 14px; border-radius:14px; border:2px solid #d6dae3; background:#f8fafc; outline:none; font-variant-numeric:tabular-nums; }
-        .pq05 input.pq-input:focus { border-color:#fb7a45; background:#fff; }
-        .pq05 input.pq-input:disabled { opacity:.85; }
-        .pq05 .pq-live { text-align:center; margin:12px 0 2px; }
-        .pq05 .pq-live-lbl { font-size:13px; color:#9aa1ad; font-weight:600; }
-        .pq05 .pq-live-num { font-size:26px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:.02em; }
-        .pq05 .pq-fb { display:flex; align-items:flex-start; gap:10px; margin-top:10px; padding:10px 13px; border-radius:12px; font-size:14.5px; line-height:1.4; font-weight:600; animation:pqIn .45s ease both; }
-        .pq05 .pq-fb.ok { background:#e8f7ee; color:#1a7f43; }
-        .pq05 .pq-fb.no { background:#fdecec; color:#c0392b; }
-        @keyframes pqIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:translateY(0);} }
-        .pq05 .a { opacity:0; animation:pqUp .5s cubic-bezier(.22,1,.36,1) forwards; }
-        .pq05 .a2 { animation-delay:.08s; }
-        .pq05 .a3 { animation-delay:.16s; }
-        @keyframes pqUp { from { opacity:0; transform:translateY(12px);} to { opacity:1; transform:translateY(0);} }
-        @keyframes pqReveal { from { opacity:0; transform:scale(.82);} to { opacity:1; transform:scale(1);} }
-        @keyframes pqPop { 0%{transform:scale(1);} 45%{transform:scale(1.05);} 100%{transform:scale(1);} }
-        @keyframes pqShake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
-      `}</style>
-      <div className="pq-eyebrow a">{t.eyebrow}</div>
-      <p className="pq-setup a a2">{t.setup}</p>
-      <p className="pq-words a a3">{DATA.expr}</p>
-      <label className="pq-label" htmlFor="pq05-in">{t.label}</label>
-      <input id="pq05-in" className="pq-input" value={val} onChange={(e) => setVal(cleanInt(e.target.value))} inputMode="numeric" pattern="[0-9]*" disabled={isReview || checked} placeholder="0" />
-      {/* Kiritilgan sonni pastda QAYTA ko'rsatish takror bo'lardi: u
-          maydonning o'zida turadi. Shuning uchun bu blok faqat
-          tekshirishdan keyin, va u javobni EMAS, natijani bildiradi. */}
-      <div className="pq-live">
-        {checked ? (
-          <>
-            <div className="pq-live-lbl">{t.live}</div>
-            <div className="pq-live-num" style={{ color: feedback?.correct ? '#1a7f43' : '#c0392b' }}>{preview}</div>
-          </>
-        ) : null}
-      </div>
-      {feedback && (
-        <div className={`pq-fb ${feedback.correct ? 'ok' : 'no'}`}>
-          {feedback.correct ? <IconOk /> : <IconNo />}<span>{feedback.correct ? t.correct : t.wrong}</span>
-        </div>
-      )}
-    </div>
-  );
-}
+export default function D01_05(props) { return <TypeValue data={DATA} {...props} />; }

@@ -411,22 +411,18 @@ function ChainItem({ item, onOk, audio }) {
 //    keyingisi ochilmaydi. ODZ satri maxrajda harf bo'lsa turadi.
 //    fields: [{ label, ask, kind, answer|of|excluded, hints }]
 // ============================================================
-// ODZ satri IKKI holatda turadi:
-//   `odz` berilgan   -- satr TAYYOR: bu ekranda ODZ shart, javob emas;
-//   `odz` YO'Q, lekin maydonlar orasida kind 'odz' bor -- satr BO'SH turadi
-//   va O'QUVCHI javob berganda to'ladi (§4: «Pishet ee uchenik, pribor ne
-//   zapolnyaet»). Oldin bunday emas edi: javobni so'raydigan ekranda satr
-//   javobni O'ZI ko'rsatib turardi, ya'ni asbob orakul bo'lib qolardi.
+// ODZ satri `odz` berilganda TAYYOR turadi: bu ekranda ODZ shart, javob
+// emas. `odz` YO'Q holatda hech qanday echo-qator ko'rsatilmaydi (metodist
+// qarori 2026-08-24): javobni so'raydigan maydonning O'ZIDA tekshiruv va
+// natija bor, tepada bo'sh «ODZ» yozib turadigan qator hech narsaga
+// ishlatilmay osilib qolardi.
 export function Fields({ show, odz, fields, onSolved, onStep, audio, note }) {
   const t = useT()
   const [step, setStep] = useState(0)
-  const [written, setWritten] = useState(null)
-  const asksOdz = fields.some((f) => f.kind === 'odz')
 
-  const done = (i, res) => {
+  const done = (i) => {
     const next = i + 1
     setStep(next)
-    if (fields[i].kind === 'odz' && res && res.value) setWritten(res.value)
     if (onStep) onStep('f' + next)
     if (next >= fields.length && onSolved) onSolved({ correct: true })
   }
@@ -435,14 +431,13 @@ export function Fields({ show, odz, fields, onSolved, onStep, audio, note }) {
     <>
       {show ? <div className="g8-frame g8-work">{show}</div> : null}
       {odz ? <OdzLine value={odz} /> : null}
-      {!odz && asksOdz ? <OdzLine value={written} empty={!written} /> : null}
       {fields.map((f, i) => (
         <Slot key={i} mh={i <= step ? 66 : 0}>
           {i <= step ? (
             <FieldOne
               field={f}
               audio={audio}
-              onOk={(res) => done(i, res)}
+              onOk={() => done(i)}
             />
           ) : null}
         </Slot>

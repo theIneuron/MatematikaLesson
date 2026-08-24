@@ -1,10 +1,33 @@
-// Dars01 amaliyoti — 10 topshiriq (osondan qiyinga). Mavzu: SONLI IFODALAR.
-// Bu 1-darsning HAQIQIY amaliyoti (metodist qarori 2026-08-20): ilgari
-// shu yerda boshqa to'plam turgan edi, u olib tashlandi.
-// Tuzilma, uslub va jsx-question kontrakti 5-sinf amaliyotidan olingan,
-// matematikasi esa 7-sinfning. 5-sinfning O'ZIGA tegilmagan.
-// Syujet YO'Q: 7-sinfda sahna yozuvning o'zi (metodist qarori 2026-08-19).
-// Har topshiriq mustaqil jsx-question fayli; bu yerda PracticeHost bilan prokliklab ko'riladi.
+// Dars01 amaliyoti — 10 topshiriq, 10 XIL MEXANIKA. Mavzu: RATSIONAL
+// IFODALAR VA KASRLAR, ya'ni kasr qaysi qiymatda ma'noga ega emas.
+//
+// METODIST QARORI 2026-08-22 (ikkinchi): 1-dars amaliyoti QAYTA yaratildi.
+// Ilgari bu yerda 7-sinf amaliyotining aynan nusxasi (sonli ifodalar)
+// turgan edi — u olib tashlandi, chunki 8-sinfning 1-darsi boshqa narsani
+// o'rgatadi. O'nta topshiriqning tipini metodist bir-bir ko'rsatdi.
+// Dizayn va ranglar O'ZGARMADI: fon #fff7ed, urg'u #fe5b1a, kit.jsx palitrasi.
+//
+// Kontent: src/books/grade8/DARS01_AMALIYOT_KONTENT.md
+// Mexanikalar: `practice/kit.jsx` (umumiy qatlam, nusxa YO'Q). Beshtasi shu
+// dars uchun qo'shildi: TrueFalse, PairSlots, CodeLock, ClozeBank, SwapOrder.
+// Amaliyotda ovoz yo'q.
+//
+// Metodik xarita (o'quvchiga ko'rsatilmaydi): mexanika · qiyinlik · teg
+//   01 Choice     🟢 which_claim        06 MarkAll     🟡 always_defined
+//   02 Zones      🟢 same_value_groups  07 CodeLock    🟡 code_bans
+//   03 TrueFalse  🟢 true_or_false      08 ClozeBank   🔴 rule_words
+//   04 PairSlots  🟡 pair_ban           09 SwapOrder   🔴 order_steps
+//   05 TypeValue  🟡 largest_ban        10 MatchPairs  🔴 info_to_frac
+// Qiyinlik o'qi: 🟢🟢🟢 🟡🟡🟡🟡 🔴🔴🔴 (TIPLAR §7). Yonma-yon bir xil tip yo'q.
+//
+// IKKI CHETLANISH, ochiq yozilgan (kontent fayli §0a):
+//   1) 01 — tayyor to'rt variantdan tanlash: TIPLAR §5.11 bu tipni pul'dan
+//      chiqargan. Metodist topshirigi bilan qaytarildi, savol MANTIQIY.
+//   2) §6 dagi majburiy janr tarkibi (odz, audit, build, boundary) bu darsda
+//      bajarilmaydi: tiplarni metodist aniq ko'rsatdi. Boshqa darslarda §6
+//      o'z kuchida qoladi.
+// `import React` SHART: LMS xom jsx ni klassik rejimda yuklaydi.
+// eslint-disable-next-line no-unused-vars
 import React, { useState } from 'react';
 import PracticeHost, { usePracticeZoom } from '../PracticeHost.jsx';
 import D01_01 from './D01_01.jsx';
@@ -18,36 +41,27 @@ import D01_08 from './D01_08.jsx';
 import D01_09 from './D01_09.jsx';
 import D01_10 from './D01_10.jsx';
 
-// Metodik xarita (o'quvchiga ko'rsatilmaydi): mavzu · qiyinlik · teg
-// Barcha topshiriqlar darslik §1 (sonli ifodalar, amallar tartibi) mavzusida.
-// Sonlar 7-sinf darajasida: manfiy sonlar, o'nli va oddiy kasrlar, uch-to'rt xonali sonlar.
-// 03, 04, 08 -- harfli ifodalar (metodist topshirigi 2026-08-20, ikkinchi tur).
-// Qiyinlik: 2 oson (01,02) · 4 o'rta (03–06) · 4 qiyin (07–10). Aldov (trap) variantlar bilan.
-// Sarlavha uch tilda: chip nomlari ham (metodist 2026-08-20 -- sayt RU ga
-// o'tganda amaliyot ham RU bo'lishi kerak, chip qatori esa sarlavhaning qismi).
 const HEAD = {
-  uz: "Dars 1 amaliyoti — 10 topshiriq (sonli ifodalar)",
-  ru: 'Практика урока 1 — 10 заданий (числовые выражения)',
-  en: 'Lesson 1 practice — 10 tasks (numeric expressions)',
+  uz: "Dars 1 amaliyoti — 10 topshiriq (ratsional ifodalar va kasrlar)",
+  ru: 'Практика урока 1 — 10 заданий (рациональные выражения и дроби)',
+  en: 'Lesson 1 practice — 10 tasks (rational expressions and fractions)',
 };
 
 const ITEMS = [
-  { id: '01', label: { uz: "Tartib", ru: 'Порядок', en: 'Order' }, C: D01_01 },     // uchta o'qishdan to'g'risini tanlash 🟢 read_order
-  { id: '02', label: { uz: "Birinchi amal", ru: 'Первое действие', en: 'First step' }, C: D01_02 },// birinchi bajariladigan amalni tanlash 🟢 first_step
-  { id: '03', label: { uz: "Yig'indi", ru: 'Сумма', en: 'Sum' }, C: D01_03 },       // harfli ifodalarni qo'shish 🟡 add_expressions
-  { id: '04', label: { uz: "Ochish", ru: 'Знаки', en: 'Signs' }, C: D01_04 },       // qavs ochilganda ishora 🟡 open_bracket_signs
-  { id: '05', label: { uz: "Qiymat", ru: 'Значение', en: 'Value' }, C: D01_05 },    // qiymatni hisoblab yozish 🟡 write_value
-  { id: '06', label: { uz: "Tuzatish", ru: 'Ошибка', en: 'Fix' }, C: D01_06 },      // xato qatorni topib tuzatish 🟡 fix_line
-  { id: '07', label: { uz: "Zanjir", ru: 'Цепочка', en: 'Chain' }, C: D01_07 },     // oraliq qiymatlar zanjiri 🔴 value_chain
-  { id: '08', label: { uz: "Harflar", ru: 'Буквы', en: 'Letters' }, C: D01_08 },    // harf o'rniga son, qiymati 12 🔴 substitute_value
-  { id: '09', label: { uz: "Yig'ish", ru: 'Сборка', en: 'Assemble' }, C: D01_09 },  // kartalardan yozuv yig'ish 🔴 build_value
-  { id: '10', label: { uz: "Ishora", ru: 'Знак', en: 'Sign' }, C: D01_10 },         // qiymat ishorasi bo'yicha zonalarga 🔴 sort_by_sign
+  { id: '01', label: { uz: 'Fikr', ru: 'Утверждение', en: 'Claim' }, C: D01_01 },
+  { id: '02', label: { uz: 'Guruhlar', ru: 'Группы', en: 'Groups' }, C: D01_02 },
+  { id: '03', label: { uz: "Ha yoki yo'q", ru: 'Да или нет', en: 'Yes or no' }, C: D01_03 },
+  { id: '04', label: { uz: 'Pazl', ru: 'Пазл', en: 'Puzzle' }, C: D01_04 },
+  { id: '05', label: { uz: 'Eng katta', ru: 'Наибольшее', en: 'Largest' }, C: D01_05 },
+  { id: '06', label: { uz: 'Belgilash', ru: 'Отметить', en: 'Mark' }, C: D01_06 },
+  { id: '07', label: { uz: 'Kod', ru: 'Код', en: 'Code' }, C: D01_07 },
+  { id: '08', label: { uz: "So'zlar", ru: 'Слова', en: 'Words' }, C: D01_08 },
+  { id: '09', label: { uz: 'Tartib', ru: 'Порядок', en: 'Order' }, C: D01_09 },
+  { id: '10', label: { uz: 'Moslashtirish', ru: 'Соответствие', en: 'Match' }, C: D01_10 },
 ];
 
 // Til PLATFORMADAN keladi: LessonPage `lang` propini beradi (uz|ru|en).
-// O'z almashtirgichimiz YO'Q: sayt qobig'ida allaqachon UZ/RU/EN turadi, va
-// ikkita almashtirgich bir-biri bilan kelishmasdi -- yuqoridagisi bosilsa
-// topshiriq o'zbekchada qolardi (metodist 2026-08-20).
+// O'z almashtirgichimiz YO'Q -- sayt qobig'ida allaqachon UZ/RU/EN turadi.
 export default function Dars01Practice({ lang = 'uz' }) {
   usePracticeZoom();
   const [idx, setIdx] = useState(0);
@@ -74,7 +88,7 @@ export default function Dars01Practice({ lang = 'uz' }) {
       }}>
         <strong style={{ fontSize: 14, color: '#1f2430', width: '100%' }}>{HEAD[lang] || HEAD.uz}</strong>
         {ITEMS.map((item, i) => (
-          <button key={item.id} type="button" style={chip(i === idx)} onClick={() => setIdx(i)}>
+          <button key={item.id} type="button" data-q={item.id} style={chip(i === idx)} onClick={() => setIdx(i)}>
             {i + 1} · {item.label[lang] || item.label.uz}
           </button>
         ))}

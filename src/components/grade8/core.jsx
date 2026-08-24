@@ -727,7 +727,9 @@ export const Lead = ({ children }) => (children ? <p className="g8-lead">{childr
 // chetga chiqadi va SHUNCHAKI YO'Q BO'LADI -- prokrutka yo'q, `.g8-body` da
 // `overflow: clip`. 11-sinfda bu 557 piksel vylet bergan (§14).
 // Monoshirinali FAQAT matematika uchun.
-export const Ask = ({ children }) => (children ? <p className="g8-ask">{children}</p> : null)
+export const Ask = ({ children, className }) => (
+  children ? <p className={'g8-ask' + (className ? ' ' + className : '')}>{children}</p> : null
+)
 
 // Matematik satr. tone: 'ink' | 'accent' | 'dim' | 'none'
 export const Row = ({ children, size = 'row', tone, align, pop }) => (
