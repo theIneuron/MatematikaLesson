@@ -8,9 +8,9 @@
 > foydalanadi, har darsda boshqa ketma-ketlikda. `TypeExpr` (ifodani yozish) o'nlikda yo'q,
 > shuning uchun u 2-darsdan ham chiqdi.
 >
-> **Bu fayl `DARS02_AMALIYOT_KONTENT.md` ni almashtiradi.** Eski fayl mexanikalarning
-> avvalgi avlodini (`input`, `sort`, `slots`, `odz` …) tasvirlaydi va yig'ilgan darsga
-> allaqachon mos emas edi; tarix sifatida joyida qoladi, qoida sifatida ishlamaydi.
+> **Bu fayl eski `DARS02_AMALIYOT_KONTENT.md` ni almashtirdi.** Eski fayl mexanikalarning
+> avvalgi avlodini (`input`, `sort`, `slots`, `odz` …) tasvirlardi va yig'ilgan darsga mos
+> emas edi — metodist qarori bilan 2026-08-24 da o'chirildi, git tarixida qoladi.
 >
 > Dizayn tegilmadi: fon `#fff7ed`, urg'u `#fe5b1a`, `kit.jsx` palitrasi, chip qatori.
 

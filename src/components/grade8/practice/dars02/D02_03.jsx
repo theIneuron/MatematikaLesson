@@ -4,7 +4,7 @@
 // turgan, endi 3-o'rinda. Mexanikasi va matematikasi o'sha — 2-6 darslar
 // 1-darsning o'nta mexanikasidan har xil tartibda foydalanadi (skelet §2).
 // Faqat MA'LUMOT. Mexanika: `practice/kit.jsx` -> Zones.
-// Kontent: src/books/grade8/DARS02_AMALIYOT_KONTENT.md §02
+// Kontent: src/books/grade8/DARS02_AMALIYOT_KONTENT_V2.md §03
 //
 // a/(a + 3) dan sakkizta yozuv. To'rttasida xossa bajarilgan, to'rttasida yo'q.
 // Eng qimmat ikkitasi:
