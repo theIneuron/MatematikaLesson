@@ -487,8 +487,8 @@ export function RecallMC({ intro, formula, steps, ask, items, after, cols = 1, a
   return (
     <>
       {steps && steps.length ? (
-        <div className="g9-scatter">
-          {intro ? <div className="g9-theory-line is-note">{t(intro)}</div> : null}
+        <div className={'g9-scatter' + (note ? ' is-compact' : '')}>
+          {intro && !note ? <div className="g9-theory-line is-note">{t(intro)}</div> : null}
           {formula ? (
             <div className="g9-hformula" style={{ fontFamily: MATH_FONT }}>{formula}</div>
           ) : null}
@@ -512,10 +512,12 @@ export function RecallMC({ intro, formula, steps, ask, items, after, cols = 1, a
           </div>
           {/* AKKORDEON: faqat OXIRGI bosilgan qadamning yechimi ko'rinadi —
               uchtasi birga chiqsa, 615px balandlikda savol pastki panel
-              ostiga chiqib ketardi (o'lchandi 2026-08-24). */}
+              ostiga chiqib ketardi (o'lchandi 2026-08-24). MC javob kartochkasi
+              (note) chiqganda bu ham qisqaradi — ikkisi birga sig'maydi
+              (metodist QA, 2026-08-25). */}
           {(() => {
             const openStep = steps.find((s) => s.id === openId)
-            return openStep ? (
+            return openStep && !note ? (
               <div className="g9-hderiv">
                 {openStep.lines.map((line, i) => (
                   <div
@@ -1381,8 +1383,8 @@ export function Gate({
           va jadval chiqsin» — tushuntirish kartochkasi hal bo'lgach ENDI
           KERAK EMAS, joyni grafik-jadvalga bo'shatadi. */}
       {warmup && !done ? (
-        <div className="g9-scatter">
-          {warmup.intro ? <div className="g9-theory-line is-note">{t(warmup.intro)}</div> : null}
+        <div className={'g9-scatter' + (explained ? ' is-compact' : '')}>
+          {warmup.intro && !explained ? <div className="g9-theory-line is-note">{t(warmup.intro)}</div> : null}
           <button
             type="button"
             className={'g9-hstep' + (explained ? ' is-open' : '')}
@@ -1393,7 +1395,10 @@ export function Gate({
               {explained ? (warmup.result || warmup.lines[warmup.lines.length - 1]) : warmup.head}
             </span>
           </button>
-          {explained ? (
+          {/* 615px balandlikda joy tanqis: xato javob kartochkasi (shown)
+              chiqganda bu qator qisqaradi, aks holda ikkisi birga sig'may,
+              pastki qator ko'rinmay qoladi (metodist QA, 2026-08-24). */}
+          {explained && !shown ? (
             <div className="g9-hderiv">
               {warmup.lines.map((line, i) => (
                 <div
@@ -1699,6 +1704,14 @@ export const G9_STYLES = `
   display: flex; align-items: center; justify-content: center; text-align: center;
 }
 
+/* SAHNA TORAYADI (1-ekran, metodist QA 2026-08-25): jadval o'z qatorini
+   kesib qo'ymasin deb endi siqilmaydi, shuning uchun taqchillikda faqat
+   sahna qisqarishi kerak — lekin sahna o'zining tabiiy balandligida
+   qotib qolgan edi (kenglik 100%, aspekt nisbat balandlikni belgilardi).
+   Kenglik cheklansa, aspekt nisbat balandlikni ham kichraytiradi. */
+.g9-scene-compact { max-width: 640px; }
+.g9-scene-compact svg { width: auto; max-width: 100%; height: auto; max-height: 122px; }
+
 /* ---------- JARAYON KO'ZGA KO'RINADI ----------
    Metodist 2026-08-21: «предложи другую структура это не понятно». Sababi
    chuqurroq edi: jarayon ekranda YO'Q, u faqat matn qatorlari bilan berilgan.
@@ -1876,6 +1889,7 @@ export const G9_STYLES = `
   padding: 18px 22px; border-radius: 18px;
   background: ${T.paper};
   box-shadow: 0 10px 26px -14px rgba(${T.shadow},.2), inset 0 0 0 1px ${T.line}; }
+.g9-scatter.is-compact { padding: 8px 22px; }
 .g9-theory-line.is-note { font-family: 'Manrope', system-ui, sans-serif;
   font-weight: 600; font-size: clamp(13px, 1.5vw, 15px); color: ${T.ink3}; margin-bottom: 4px; }
 /* 2026-08-24: metodist «buncha aniqmas, chin YECHIM ko'rsat, qayerdan

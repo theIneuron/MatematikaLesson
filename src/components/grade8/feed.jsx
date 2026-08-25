@@ -304,7 +304,7 @@ export function PickBroken({ items, ask, askClass, cardsClass, after, afterSay, 
         </div>
       ) : null}
 
-      <Slot mh={64}>
+      <Slot mh={46}>
         <Note kind={picked ? (predict ? 'plain' : 'ok') : 'no'}>{note ? t(note) : null}</Note>
       </Slot>
     </>
@@ -2105,8 +2105,16 @@ export const FEED_STYLES = `
    читались как колонки. Теперь это одна карточка с линиями, ряды равной
    высоты, шапка приклеена к телу. Дроби внутри идут малым кеглем, поэтому
    ряд с дробью не выше остальных. */
-.g8-pf { width: 100%; max-width: 560px; margin: 12px auto 0; border-radius: 16px;
-  overflow: hidden; background: ${T.paper};
+/* flex-shrink:0 — bu kartochka overflow:hidden, shuning uchun taqchil
+   ekranda flex-siqilish uni QATOR TASHLAB emas, QATORLARNI KESIB siqardi
+   (qatorlar joyida qoladi, pastki qatori ko'rinmay qoladi — jadval oxirigacha
+   ochilmaydi, metodist QA, 2026-08-25, MacBook M1). Endi bu karta hech qachon
+   siqilmaydi. GOTCHA: sahna (agar bor bo'lsa) buni AVTOMATIK zimmasiga
+   olmaydi — SVG o'zining aspekt nisbati bo'yicha o'z balandligida qotib
+   qoladi. Taqchillik qolsa, ekran kengligini maxsus klass bilan toraytirish
+   kerak (grade9/Dars01.jsx: g9-scene-compact namunasi). */
+.g8-pf { width: 100%; max-width: 560px; margin: 0 auto; border-radius: 16px;
+  overflow: hidden; background: ${T.paper}; flex-shrink: 0;
   box-shadow: 0 2px 14px rgba(23,26,29,.06), inset 0 0 0 1px rgba(23,26,29,.10); }
 .g8-pf-row { display: grid; grid-template-columns: 0.8fr 1.1fr 1.1fr; align-items: center;
   min-height: 54px; padding: 0 10px; font-size: 22px; font-family: ${MATH_FONT};
@@ -2139,7 +2147,7 @@ export const FEED_STYLES = `
   letter-spacing: .01em; }
 @keyframes g8-pf-in { 0% { opacity: 0; transform: translateY(-6px); } 100% { opacity: 1; transform: none; } }
 @media (max-width: 760px), (max-height: 820px) {
-  .g8-pf { margin-top: 8px; max-width: 480px; }
+  .g8-pf { margin-top: 0; max-width: 480px; }
   .g8-pf-row, .g8-pf-row > span { min-height: 44px; }
   .g8-pf-row.is-head, .g8-pf-row.is-head > span { min-height: 46px; }
   .g8-pf-row { font-size: 18px; }
