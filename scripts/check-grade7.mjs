@@ -164,7 +164,7 @@ for (const file of files) {
   })
 
   // 4. L(...) uchligida bo'sh til
-  const lRe = /\bL\(\s*(['"])((?:\\.|(?!\1)[^\\])*)\1\s*,\s*(['"])((?:\\.|(?!\3)[^\\])*)\3\s*,\s*(['"])((?:\\.|(?!\5)[^\\])*)\5\s*\)/g
+  const lRe = /\bL\(\s*(['"])((?:\\.|(?!\1)[^\\])*)\1\s*,\s*(['"])((?:\\.|(?!\3)[^\\])*)\3\s*,\s*(['"])((?:\\.|(?!\5)[^\\])*)\5\s*,?\s*\)/g
   let m
   while ((m = lRe.exec(text)) !== null) {
     const trio = [m[2], m[4], m[6]]
@@ -183,6 +183,15 @@ for (const file of files) {
     if (CYR.test(enS)) problems.push(`${file}:${upto} EN satrida kirill -- ${enS.slice(0, 40)}`)
     if (hasWord(ruS) && !CYR.test(ruS)) problems.push(`${file}:${upto} RU satri kirillsiz -- ${ruS.slice(0, 40)}`)
     if (uzS === ruS && hasWord(uzS)) problems.push(`${file}:${upto} UZ va RU bir xil -- ${uzS.slice(0, 40)}`)
+    // O'ZBEKCHA «SIZ» DA (CLAUDE.md § 1). Ota-onalar ohangga sezgir, shuning
+    // uchun sinfda «sen» yo'q. Tekshiruv olmoshni ham, fe'lning ikkinchi
+    // shaxs birlik shaklini ham ko'radi: «bo'lasan», «o'tsang», «qo'yding».
+    if (/\b(sen|senga|sening|seni|senda|sendan)\b/i.test(uzS)) {
+      problems.push(`${file}:${upto} UZ da «sen» -- «siz» kerak: ${uzS.slice(0, 40)}`)
+    }
+    if (/\b[a-z'\u2018\u2019]+(asan|ysan|ibsan|gansan|yapsan|ding|dingmi|sang|santi)\b/i.test(uzS)) {
+      problems.push(`${file}:${upto} UZ da 2-shaxs birlik fe'l -- «siz» kerak: ${uzS.slice(0, 40)}`)
+    }
   }
 }
 

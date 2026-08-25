@@ -402,9 +402,9 @@ const S4 = {
   after: {
     title: L('Al-jabr', 'Аль-джабр', 'Al-jabr'),
     text: L(
-      "Al-Xorazmiy buni shunday aytardi: 3x, chapga o'tsang minus 3x bo'lasan. Minus 4, sen esa plyus 4 bo'lib o'tasan.",
-      'Аль-Хорезми говорил так: 3x, влево перейдёшь как минус 3x. Минус 4, ты перейдёшь как плюс 4.',
-      'Al-Khwarizmi put it this way: 3x, cross to the left and you become minus 3x. Minus 4, you cross as plus 4.',
+      "Al-Xorazmiy buni shunday aytardi: 3x chapga o'tsa, minus 3x bo'ladi. Minus 4 esa plyus 4 bo'lib o'tadi.",
+      'Аль-Хорезми говорил так: 3x переходит влево и становится минус 3x. А минус 4 переходит как плюс 4.',
+      'Al-Khwarizmi put it this way: 3x crosses to the left and becomes minus 3x. And minus 4 crosses as plus 4.',
     ),
   },
   audio: [
