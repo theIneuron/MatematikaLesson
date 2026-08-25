@@ -277,7 +277,13 @@ export function ProbeChain({ items, cols = 4, question, onSolved, onStep, onItem
       setHint(current.ok || null)
       fx.right()
       if (audio && audio.say && current.ok) audio.say(t(current.ok))
-      const row = t(current.prompt) + ' ' + t(src.label)
+      // YIG'ILGAN QATOR MATN EMAS, MANBA bo'lib saqlanadi. Ilgari bu yerda
+      // `t(prompt) + ' ' + t(label)` turardi, ya'ni satr JAVOB BERILGAN
+      // paytdagi tilda muzlab qolardi: o'quvchi tilni almashtirsa, tepadagi
+      // yashil qatorlar eski tilda qolaverardi (QA 2026-08-25: ruscha
+      // ekranda o'zbekcha va inglizcha qatorlar turardi). Endi til
+      // CHIZILAYOTGANDA hal qilinadi.
+      const row = { prompt: current.prompt, label: src.label }
       if (onItem) onItem({ index: idx, id: opt.id, correct: true, attempts: wrong.length + 1, tags: qTags })
       setTimeout(() => {
         setDone((prev) => prev.concat(row))
@@ -306,7 +312,7 @@ export function ProbeChain({ items, cols = 4, question, onSolved, onStep, onItem
   return (
     <>
       {done.map((row, i) => (
-        <DoneRow key={i}>{row}</DoneRow>
+        <DoneRow key={i}>{t(row.prompt) + ' ' + t(row.label)}</DoneRow>
       ))}
       {current ? (
         <div className="g7-in" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -1802,7 +1808,9 @@ export function BracketGap({ rounds, onSolved, onStep, disabled, audio }) {
     const hit = from === r.answer.from && to === r.answer.to
     if (hit) {
       fx.right()
-      const row = '( ' + exprText(r.nums.slice(from, to + 1), r.ops.slice(from, to), r.labels && r.labels.slice(from, to + 1)) + ' ) → ' + fmtNum(value, lang)
+      // Qator MANBA bo'lib saqlanadi: sonning yozilishi tilga bog'liq
+      // (fmtNum), tayyor satr esa tilni almashtirganda o'zgarmasdi.
+      const row = { expr: exprText(r.nums.slice(from, to + 1), r.ops.slice(from, to), r.labels && r.labels.slice(from, to + 1)), value }
       setOkRounds((prev) => prev.concat(row))
       setHint(null)
       setOpen(null)
@@ -1826,7 +1834,7 @@ export function BracketGap({ rounds, onSolved, onStep, disabled, audio }) {
 
   return (
     <>
-      {okRounds.map((row, i) => <DoneRow key={i}>{row}</DoneRow>)}
+      {okRounds.map((row, i) => <DoneRow key={i}>{'( ' + row.expr + ' ) → ' + fmtNum(row.value, lang)}</DoneRow>)}
 
       {!finished ? (
         <>

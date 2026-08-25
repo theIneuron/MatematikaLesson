@@ -438,7 +438,7 @@ const S4 = {
         'Поставь знак между двумя записями.',
         'Put the sign between the two expressions.',
       ),
-      checkNote: L('6 va минус 6. Ayirishda sonlar almashmaydi', '6 и минус 6. В вычитании числа не меняются местами', '6 and minus 6. In subtraction the numbers do not swap'),
+      checkNote: L('6 va minus 6. Ayirishda sonlar almashmaydi', '6 и минус 6. В вычитании числа не меняются местами', '6 and minus 6. In subtraction the numbers do not swap'),
       wrongs: [
         { key: 'eq', tag: 'Z2', hint: L("Ikkala yozuvni hisoblang: 6 va minus 6. Bu ikki xil son, demak belgi boshqa.", 'Посчитай обе записи: 6 и минус 6. Это два разных числа, значит знак другой.', 'Work out both: 6 and minus 6. Two different numbers, so the sign is the other one.') },
       ],

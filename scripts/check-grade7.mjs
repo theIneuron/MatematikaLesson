@@ -168,10 +168,21 @@ for (const file of files) {
   let m
   while ((m = lRe.exec(text)) !== null) {
     const trio = [m[2], m[4], m[6]]
-    if (trio.some((s) => s.trim() === '')) {
-      const upto = text.slice(0, m.index).split(/\r?\n/).length
+    const upto = text.slice(0, m.index).split(/\r?\n/).length
+    if (trio.some((x) => x.trim() === '')) {
       problems.push(`${file}:${upto} L(...) da bo'sh til`)
     }
+    // TIL O'Z KATAKCHASIDA TURSIN. Uchlik to'la bo'lishi yetmaydi: 3-darsda
+    // o'zbekcha satr ichida kirillcha "minus" turardi, ya'ni uchlik to'la
+    // ko'rinardi, ekranda esa til aralashardi (QA 2026-08-25). Faqat SO'Z
+    // tekshiriladi: matematik yozuv uch tilda bir xil.
+    const [uzS, ruS, enS] = trio
+    const hasWord = (v) => /[A-Za-zЀ-ӿ']{3,}/.test(v)
+    const CYR = /[Ѐ-ӿ]/
+    if (CYR.test(uzS)) problems.push(`${file}:${upto} UZ satrida kirill -- ${uzS.slice(0, 40)}`)
+    if (CYR.test(enS)) problems.push(`${file}:${upto} EN satrida kirill -- ${enS.slice(0, 40)}`)
+    if (hasWord(ruS) && !CYR.test(ruS)) problems.push(`${file}:${upto} RU satri kirillsiz -- ${ruS.slice(0, 40)}`)
+    if (uzS === ruS && hasWord(uzS)) problems.push(`${file}:${upto} UZ va RU bir xil -- ${uzS.slice(0, 40)}`)
   }
 }
 
