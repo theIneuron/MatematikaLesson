@@ -1,47 +1,33 @@
-// Dars01 amaliyoti — 10 topshiriq. Mavzu: RATSIONAL IFODALAR VA KASRLAR.
-// Kontrakt: src/books/grade8/TIPLAR_AMALIYOT_8SINF.md
+// Dars01 amaliyoti — 10 topshiriq, 10 XIL MEXANIKA. Mavzu: RATSIONAL
+// IFODALAR VA KASRLAR, ya'ni kasr qaysi qiymatda ma'noga ega emas.
 //
-// Tiplar ("birinchi to'lqin", metodist qarori 2026-08-21; +Fix, Zones,
-// Cancel 2026-08-22): Abcd, YesNo, Input, Counter, Fix, Audit, Zones,
-// Cancel. Har topshiriq fayli faqat MA'LUMOT, mexanikalar
-// `practice/kit.jsx` da.
+// METODIST QARORI 2026-08-22 (ikkinchi): 1-dars amaliyoti QAYTA yaratildi.
+// Ilgari bu yerda 7-sinf amaliyotining aynan nusxasi (sonli ifodalar)
+// turgan edi — u olib tashlandi, chunki 8-sinfning 1-darsi boshqa narsani
+// o'rgatadi. O'nta topshiriqning tipini metodist bir-bir ko'rsatdi.
+// Dizayn va ranglar O'ZGARMADI: fon #fff7ed, urg'u #fe5b1a, kit.jsx palitrasi.
 //
-// UCHTA ALMASHTIRISH (metodist qarori 2026-08-22):
-//   SlotsBank ISHLATILMAYDI: sinfning O'Z `slots`/`fill` asbobi bilan bir
-//   xil shakl -- "kartani bosib uyani to'ldirish". 4-topshiriq Fix'ga
-//   o'tkazildi: xato belgi yozuv ICHIDA topiladi.
-//   8-topshiriq endi Build EMAS, Zones: o'quvchi TO'G'RI va NOTO'G'RI
-//   qiymatlarni O'ZI ikki korzinaga (ruhsat etilgan / taqiqlangan) ajratadi.
-//   6-topshiriq endi Why EMAS, Cancel: "tayyor gaplardan tanlash qiziq
-//   emas" (metodist so'zi) -- o'quvchi mos ko'paytuvchini QO'L bilan
-//   surat va maxrajda bosib chizib tashlaydi, keyin shartni yozadi.
+// Kontent: src/books/grade8/DARS01_AMALIYOT_KONTENT.md
+// Mexanikalar: `practice/kit.jsx` (umumiy qatlam, nusxa YO'Q). Beshtasi shu
+// dars uchun qo'shildi: TrueFalse, PairSlots, CodeLock, ClozeBank, SwapOrder.
+// Amaliyotda ovoz yo'q.
 //
-// QOBIQ, USLUB VA XATTI-HARAKAT — 7-sinf amaliyotidan o'zgartirilmagan
-// nusxa: PracticeHost, chip qatori, rang palitrasi (S/C), «Tekshirish»
-// tugmasi bir marta bosiladi.
+// Metodik xarita (o'quvchiga ko'rsatilmaydi): mexanika · qiyinlik · teg
+//   01 Choice     🟢 which_claim        06 MarkAll     🟡 always_defined
+//   02 Zones      🟢 same_value_groups  07 CodeLock    🟡 code_bans
+//   03 TrueFalse  🟢 true_or_false      08 ClozeBank   🔴 rule_words
+//   04 PairSlots  🟡 pair_ban           09 SwapOrder   🔴 order_steps
+//   05 TypeValue  🟡 largest_ban        10 MatchPairs  🔴 info_to_frac
+// Qiyinlik o'qi: 🟢🟢🟢 🟡🟡🟡🟡 🔴🔴🔴 (TIPLAR §7). Yonma-yon bir xil tip yo'q.
 //
-// QOPLASH (amaliyot 1-darsning HAMMA tasdig'i va HAMMA adashishini yopadi):
-//   Tasdiq 1 (songa bo'linsa butun, harfga bo'linsa kasr)  -> 01
-//   Tasdiq 2 (shartni maxraj beradi, nollari mumkin emas)  -> 04, 07, 08, 09
-//   Tasdiq 3 (suratdagi nol / maxrajdagi nol)              -> 02, 05, 09
-//   Z2  shart topilmadi yoki yo'qoldi                      -> 06, 07, 09
-//   Z16 javob son bilan tekshirilmadi                      -> 05, 09
-//   Z18 suratdagi va maxrajdagi nol aralashtirildi          -> 02
-//   Z19 songa bo'lish harfga bo'lish deb olindi             -> 01
-//
-// NAZARIYADAN FARQLANADI (metodist qarori 2026-08-21, ikki muammo): dastlab
-// 4-, 6-, 8-, 9-topshiriqlarda nazariya darsining O'Z misollari va O'Z savol
-// FORMASI ishlatilgan edi — o'quvchi ularni IKKI marta ko'rar edi.
-//   1. SONLAR: (x·x-4)/(x-2), x/(x-6), x(x-3) -> endi 49/7, 8, 9.
-//   2. FORMA: 4-topshiriq nazariyaning aynan o'zi qiladigan uch qadamli
-//      savolni takrorlardi (birinchi ko'paytuvchi -> ikkinchi -> birlashtirish,
-//      screen (x+1)/((x-2)(x+5))). Endi 4-topshiriq BOSHQA holat: ikki
-//      ko'paytuvchi BIR XIL, ya'ni bosqichma-bosqich emas — bitta hal
-//      qiluvchi qadam va boshqa adashish (ikki emas, bitta taqiq).
-//
-// TIPLAR TARTIBI: yonma-yon bir xil tip turmaydi, isinish (Abcd/YesNo)
-// faqat 1-2 pozitsiyada. QIYINLIK: 3 oson (01-03) · 4 o'rta (04-07) ·
-// 3 qiyin (08-10).
+// IKKI CHETLANISH, ochiq yozilgan (kontent fayli §0a):
+//   1) 01 — tayyor to'rt variantdan tanlash: TIPLAR §5.11 bu tipni pul'dan
+//      chiqargan. Metodist topshirigi bilan qaytarildi, savol MANTIQIY.
+//   2) §6 dagi majburiy janr tarkibi (odz, audit, build, boundary) bu darsda
+//      bajarilmaydi: tiplarni metodist aniq ko'rsatdi. Boshqa darslarda §6
+//      o'z kuchida qoladi.
+// `import React` SHART: LMS xom jsx ni klassik rejimda yuklaydi.
+// eslint-disable-next-line no-unused-vars
 import React, { useState } from 'react';
 import PracticeHost, { usePracticeZoom } from '../PracticeHost.jsx';
 import D01_01 from './D01_01.jsx';
@@ -62,18 +48,20 @@ const HEAD = {
 };
 
 const ITEMS = [
-  { id: '01', label: { uz: 'Butun yoki kasr', ru: 'Целое или дробное', en: 'Integral or fractional' }, C: D01_01 },
-  { id: '02', label: { uz: 'Surat va maxraj', ru: 'Числитель и знаменатель', en: 'Numerator and denominator' }, C: D01_02 },
-  { id: '03', label: { uz: 'Qiymat', ru: 'Значение', en: 'Value' }, C: D01_03 },
-  { id: '04', label: { uz: 'Bir xil ko\'paytuvchi', ru: 'Одинаковый множитель', en: 'Identical factor' }, C: D01_04 },
-  { id: '05', label: { uz: 'Ikki yozuv', ru: 'Две записи', en: 'Two records' }, C: D01_05 },
-  { id: '06', label: { uz: 'Qisqartirish', ru: 'Сокращение', en: 'Reduction' }, C: D01_06 },
-  { id: '07', label: { uz: 'Ikki kasr', ru: 'Две дроби', en: 'Two fractions' }, C: D01_07 },
-  { id: '08', label: { uz: 'Ruhsat etilganmi', ru: 'Разрешено или нет', en: 'Allowed or not' }, C: D01_08 },
-  { id: '09', label: { uz: 'Tayyor yechim', ru: 'Готовое решение', en: 'A ready solution' }, C: D01_09 },
-  { id: '10', label: { uz: 'Taqiq bormi', ru: 'Есть ли запрет', en: 'Is there a restriction' }, C: D01_10 },
+  { id: '01', label: { uz: 'Fikr', ru: 'Утверждение', en: 'Claim' }, C: D01_01 },
+  { id: '02', label: { uz: 'Guruhlar', ru: 'Группы', en: 'Groups' }, C: D01_02 },
+  { id: '03', label: { uz: "Ha yoki yo'q", ru: 'Да или нет', en: 'Yes or no' }, C: D01_03 },
+  { id: '04', label: { uz: 'Pazl', ru: 'Пазл', en: 'Puzzle' }, C: D01_04 },
+  { id: '05', label: { uz: 'Eng katta', ru: 'Наибольшее', en: 'Largest' }, C: D01_05 },
+  { id: '06', label: { uz: 'Belgilash', ru: 'Отметить', en: 'Mark' }, C: D01_06 },
+  { id: '07', label: { uz: 'Kod', ru: 'Код', en: 'Code' }, C: D01_07 },
+  { id: '08', label: { uz: "So'zlar", ru: 'Слова', en: 'Words' }, C: D01_08 },
+  { id: '09', label: { uz: 'Tartib', ru: 'Порядок', en: 'Order' }, C: D01_09 },
+  { id: '10', label: { uz: 'Moslashtirish', ru: 'Соответствие', en: 'Match' }, C: D01_10 },
 ];
 
+// Til PLATFORMADAN keladi: LessonPage `lang` propini beradi (uz|ru|en).
+// O'z almashtirgichimiz YO'Q -- sayt qobig'ida allaqachon UZ/RU/EN turadi.
 export default function Dars01Practice({ lang = 'uz' }) {
   usePracticeZoom();
   const [idx, setIdx] = useState(0);
@@ -88,8 +76,10 @@ export default function Dars01Practice({ lang = 'uz' }) {
 
   return (
     <div className="pq-fixroot" style={{ fontFamily: "'Manrope', system-ui, sans-serif" }}>
+      {/* MOBIL_DESKTOP_MOSLASH.md naqshi: fixed root — body-skroll yo'q, tugma joyida;
+          <640px da layout 390px etalon + zoom bilan real ekranga masshtablanadi. */}
       <style>{`
-        .pq-fixroot{position:fixed;inset:0;overflow:hidden;background:#fff;display:flex;flex-direction:column;zoom:var(--pqz,1);}
+        .pq-fixroot{position:fixed;inset:0;overflow:hidden;background:#fff7ed;display:flex;flex-direction:column;zoom:var(--pqz,1);}
         @media (max-width:639.98px){.pq-fixroot{width:390px;}}
       `}</style>
       <div style={{
@@ -98,7 +88,7 @@ export default function Dars01Practice({ lang = 'uz' }) {
       }}>
         <strong style={{ fontSize: 14, color: '#1f2430', width: '100%' }}>{HEAD[lang] || HEAD.uz}</strong>
         {ITEMS.map((item, i) => (
-          <button key={item.id} type="button" style={chip(i === idx)} onClick={() => setIdx(i)}>
+          <button key={item.id} type="button" data-q={item.id} style={chip(i === idx)} onClick={() => setIdx(i)}>
             {i + 1} · {item.label[lang] || item.label.uz}
           </button>
         ))}

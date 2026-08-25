@@ -1,71 +1,59 @@
-// Dars01 * Amaliyot 04 -- Bir xil ko'paytuvchi, xato joy * 🟡 * tag: odz_repeated_factor
-// Faqat MA'LUMOT. Tip: kit.jsx -> Fix (yozuv ICHIDAGI xato belgini topib,
-// tuzatishni yozadi).
+// Dars01 · Amaliyot 04 — Pazl · 🟡 · tag: pair_ban
+// Faqat MA'LUMOT. Mexanika: `practice/kit.jsx` -> PairSlots (yangi, 23-tip).
+// Kontent: src/books/grade8/DARS01_AMALIYOT_KONTENT.md §04
 //
-// METODIST QARORI 2026-08-22: bu topshiriq ilgari SlotsBank (kartani
-// bosib uyani to'ldirish) edi -- bu sinfning O'Z `slots`/`fill` asbobi
-// bilan bir xil shakl, ya'ni amaliyot uni takrorlagan bo'lardi. Endi BOSHQA
-// shakl: tayyor (NOTO'G'RI) javobning ICHIDAGI xato belgi topiladi va
-// TUZATISH yoziladi.
-//
-// XATO: ikkala ko'paytuvchi BIR XIL -- (x − 11)(x − 11) -- lekin xato
-// javobda ular XILMA-XIL kvadratlar ayirmasidek o'qilgan: "x != 11, x != −11"
-// (xuddi maxraj (x − 11)(x + 11) bo'lgandek). Bu 6-topshiriqning aynan
-// TESKARI adashishi: u yerda haqiqiy kvadratlar ayirmasi, bu yerda esa
-// kvadratlar ayirmasi BO'LMAGAN joyda uni ko'rish.
+// Oltita KVADRAT karta juftlanib uchta bo'sh kartaga o'tiradi: kasr va uning
+// taqiqi. Uyalarning o'zaro tartibi ahamiyatsiz, juftlikning o'zi muhim.
+// Ikki tuzoq: a + 5 ning noli MINUS beshda (ishora), va 2a ning noli nolda —
+// ikkiga ko'paytirish yangi taqiq QO'SHMAYDI.
+// `import React` SHART: LMS xom jsx ni klassik rejimda yuklaydi.
 // eslint-disable-next-line no-unused-vars
 import React from 'react';
-import { Fix, L } from '../kit.jsx';
+import { PairSlots, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'odz_repeated_factor', level: '🟡', varName: 'x',
-  eyebrow: L('Xato joyni toping', 'Найди ошибку', 'Find the mistake'),
-  setup: L(
-    "Ikkala ko'paytuvchi bir xil.",
-    'Оба множителя одинаковы.',
-    'Both factors are identical.',
-  ),
-  given: [[{ n: '4', d: '(x − 11)(x − 11)' }]],
-  statement: [
-    { id: 'a', v: 'x' },
-    { id: 'eq1', v: '≠' },
-    { id: 'n1', v: '11,' },
-    { id: 'b', v: 'x' },
-    { id: 'eq2', v: '≠' },
-    { id: 'n2', v: '−11' },
+  tag: 'pair_ban', level: '🟡',
+  cards: [
+    { id: 'f1', tokens: [{ n: '4', d: 'a − 8' }] },
+    { id: 'f2', tokens: [{ n: '7', d: 'a + 5' }] },
+    { id: 'f3', tokens: [{ n: '6', d: '2a' }] },
+    { id: 'v1', v: 'a = 8' },
+    { id: 'v2', v: 'a = −5' },
+    { id: 'v3', v: 'a = 0' },
   ],
-  wrongId: 'n2',
-  correct: '11',
+  answer: [['f1', 'v1'], ['f2', 'v2'], ['f3', 'v3']],
+  eyebrow: L('Pazl', 'Пазл', 'Puzzle'),
+  setup: L(
+    "Pastda oltita karta: uchtasida kasr, uchtasida qiymat. Har kasrning o'z taqiqi bor — ular juftlanib uchta bo'sh kartaga o'tiradi.",
+    'Снизу шесть карточек: в трёх дроби, в трёх значения. У каждой дроби свой запрет — они собираются в пары и садятся в три пустые карточки.',
+    'Six cards below: three hold fractions, three hold values. Every fraction has its own ban — they pair up and sit in the three empty cards.'),
   ask: L(
-    "Qaysi shart xato? Bosing, to'g'ri qiymatni yozing.",
-    'Какое условие ошибочно? Нажми, впиши верное значение.',
-    'Which condition is wrong? Tap it, type the correct value.',
-  ),
-  label: L('to\'g\'ri qiymat', 'верное значение', 'correct value'),
-  hintsPick: {
-    a: L("Bu belgi to'g'ri: birinchi shartning O'ZI xato emas.", 'Этот знак верный: сам первый знак не ошибочен.', 'This sign is right: the first sign itself is not the mistake.'),
-    eq1: L("Belgi to'g'ri, muammo unda emas.", 'Знак верный, проблема не в нём.', 'The sign is right, the problem is not here.'),
-    n1: L("O'n bir to'g'ri: birinchi ko'paytuvchi aynan shu sonda nolga aylanadi.", 'Одиннадцать верно: первый множитель обращается в нуль именно при этом числе.', 'Eleven is right: the first factor vanishes at exactly this number.'),
-    b: L("Bu belgi to'g'ri.", 'Этот знак верный.', 'This sign is right.'),
-    eq2: L("Belgi to'g'ri, muammo undan keyingi sonda.", 'Знак верный, проблема в числе после него.', 'The sign is right, the problem is in the number after it.'),
-  },
-  hints: {
-    '-11': L(
-      "Bu ayni shu xato son, uni tuzatish kerak edi, qaytarish emas.",
-      'Это то самое ошибочное число, его нужно было исправить, а не повторить.',
-      'That is the exact wrong number, it needed fixing, not repeating.',
-    ),
-  },
-  fixWrong: L(
-    "Ikkala ko'paytuvchi BIR XIL, (x − 11) va (x − 11): ular faqat BITTA sonda -- o'n birda -- nolga aylanadi. Minus o'n bir bu yerga tegishli emas.",
-    'Оба множителя ОДИНАКОВЫ, (x − 11) и (x − 11): они обращаются в нуль только при ОДНОМ числе -- одиннадцати. Минус одиннадцать здесь ни при чём.',
-    'Both factors are IDENTICAL, (x − 11) and (x − 11): they vanish at only ONE number -- eleven. Minus eleven has no place here.',
-  ),
+    "a ning qanday qiymatida kasr ma'noga ega emas? Kasrni bosing, keyin uyani bosing.",
+    'При каком значении a дробь не имеет смысла? Нажми дробь, потом ячейку.',
+    'At which value of a does the fraction have no value? Tap a fraction, then a slot.'),
+  bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
-    "To'g'ri. Ikkala qavs bir xil bo'lgani uchun ular faqat bitta umumiy sonda -- o'n birda -- nolga aylanadi, ya'ni to'g'ri javob: x != 11. Tekshirish: x = 0 da maxraj (−11)(−11) = 121, kasr hisoblanadi.",
-    'Верно. Так как обе скобки одинаковы, они обращаются в нуль только при одном общем числе -- одиннадцати, значит верный ответ: x != 11. Проверка: при x = 0 знаменатель равен (−11)(−11) = 121, дробь считается.',
-    'Correct. Since both brackets are identical, they vanish at only one shared number -- eleven, so the right answer is x != 11. Check: at x = 0 the denominator is (-11)(-11) = 121, the fraction computes.',
-  ),
+    "To'g'ri. Uchtasida ham chiziq tagi nolga tenglashtirildi: a minus sakkiz sakkizda nolga aylanadi, a qo'shuv besh minus beshda, ikki a esa nolda. Qo'yib tekshiring: minus beshda a qo'shuv besh nol bo'ladi, arti beshda esa o'n.",
+    'Верно. Везде приравнивалось к нулю то, что под чертой: a минус восемь — при восьми, a плюс пять — при минус пяти, два a — при нуле. Проверь: при минус пяти a плюс пять даёт нуль.',
+    'Correct. In all three what stands below the bar was set to zero: a minus eight becomes zero at eight, a plus five at minus five, two a at zero. Check by substituting: at minus five a plus five is zero, at plus five it is ten.'),
+  wrongs: [
+    { when: (s) => s.mate.f1 === 'v2' || s.mate.f2 === 'v1', text: L(
+      "Ishorani tekshiring: a qo'shuv beshni nolga aylantirish uchun MINUS besh kerak, a minus sakkizni nolga aylantirish uchun esa arti sakkiz. Ikkalasini qo'yib ko'ring.",
+      'Проверь знак: чтобы a плюс пять обратилось в нуль, нужно МИНУС пять, а чтобы a минус восемь — плюс восемь. Подставь оба.',
+      'Check the sign: a plus five needs MINUS five to become zero, while a minus eight needs plus eight. Substitute both.') },
+    { when: (s) => s.mate.f3 && s.mate.f3 !== 'v3', text: L(
+      "Ikki a nolga faqat a nolda aylanadi: ikkiga ko'paytirish yangi taqiq qo'shmaydi. Nolni qo'ying — maxraj nol bo'ladi.",
+      'Два a обращается в нуль только при a равном нулю: умножение на два нового запрета не добавляет. Подставь нуль — знаменатель станет нулём.',
+      'Two a becomes zero only at a equal to zero: multiplying by two adds no new ban. Substitute zero and the denominator becomes zero.') },
+    { when: (s) => s.mate.f1 === 'v3' || s.mate.f3 === 'v1', text: L(
+      "a minus sakkizni nolga aylantirish uchun sakkiz kerak, nol emas: nolda bu maxraj minus sakkizga teng. Qo'yib tekshiring.",
+      'Чтобы обратить a минус восемь в нуль, нужно восемь, а не нуль: при нуле этот знаменатель равен минус восьми. Проверь подстановкой.',
+      'To make a minus eight zero you need eight, not zero: at zero this denominator equals minus eight. Check by substituting.') },
+  ],
+  wrongText: L(
+    "Chiziq tagiga qaraysiz, uni nolga tenglaysiz, yechimni topasiz — kasr va qiymat kartasi shunda juft bo'ladi.",
+    'Смотришь под черту, приравниваешь к нулю, решаешь — вот и пара для дроби.',
+    'Look below the bar, set it to zero, solve it — that is the pair for the fraction.'),
 };
 
-export default function D01_04(props) { return <Fix data={DATA} {...props} />; }
+export default function D01_04(props) { return <PairSlots data={DATA} {...props} />; }

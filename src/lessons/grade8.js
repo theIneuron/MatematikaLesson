@@ -349,24 +349,121 @@ export const grade8Nazariy = [
 
 // 8-sinf AMALIY mashg'ulotlari.
 //
-// 2026-08-21, metodist qarori: ilgari yig'ilgan ikki variant rad etilgan edi
-// (0f9b192c va undan oldingi, git tarixida qoldi). Endi sakkiz tip TASDIQLANDI
-// ("birinchi to'lqin"): Abcd, YesNo, Input, SlotsBank (mavjud), Counter, Why,
-// Build, Audit. To'rt tip ("ikkinchi to'lqin" — Figure, Line, Table, Zones)
-// o'z mavzusi kelganda yoziladi (dars 7, blok 3-4-5-6). Kontrakt:
-// src/books/grade8/TIPLAR_AMALIYOT_8SINF.md
+// 1-DARS AMALIYOTI — 7-SINFNING 1-DARS AMALIYOTIDAN AYNAN NUSXA (metodist
+// qarori 2026-08-21). Ko'chirilgan: `practice/kit.jsx`, `practice/frac.jsx`,
+// `practice/PracticeHost.jsx` va `practice/dars01/` ning o'n bir fayli.
+// Matematika ham hozircha 7-sinfning: sonli ifodalar, amallar tartibi.
+// Metodist nimani o'zgartirishni aytadi, shundan keyin bu 8-sinfning
+// amaliyoti bo'ladi.
 //
-// Tasdiqlangan xatti-harakat: javob BIR marta tekshiriladi, topshiriq
-// yopiladi, va TO'G'RI JAVOB KO'RSATILMAYDI — faqat maslahat beriladi.
-// Maslahat javobni bermaydi: u belgini yoki joyni ataydi, amalni emas.
-//
-// Qobiq (`practice/PracticeHost.jsx`), uslub va rang palitrasi
-// (`practice/kit.jsx` dagi S/C) — 7-sinf amaliyotidan O'ZGARTIRILMAGAN nusxa.
+// DIQQAT: bu NUSXA, ya'ni CLAUDE.md §5 ga zid holat. Ikki sinfda bir xil
+// qatlam turadi va bitta nuqson ikki joyda tuzatiladi. Ataylab shunday
+// qilingan — boshlang'ich nuqta sifatida.
 export const grade8Amaliy = [
   {
     slug: 'dars01-amaliyot',
     title: 'Dars 1 amaliyoti — ratsional ifodalar va kasrlar (10 topshiriq)',
-    desc: "10 topshiriq: butun/kasr ifoda, nol qaysi tomonda, qiymat, ODZ satrlari, chegara, amal va asos, ikki maxraj, teskari yig'ish, birinchi noto'g'ri satr, taqiq bormi. Sakkiz xil tip, UZ/RU/EN. Javob noto'g'ri bo'lsa to'g'ri javob ko'rsatilmaydi — faqat maslahat.",
+    desc: "Qayta yaratildi (metodist, 2026-08-22): ilgari bu yerda 7-sinf amaliyotining nusxasi turgan edi. O'nta topshiriq o'nta XIL usulda: mantiqiy test, ikki guruh, ha-yo'q, kvadrat kartalar pazli, eng katta qiymat, belgilash, seyf kodi, so'zlar, qadamlar tartibi, ma'lumot va kasr juftligi. Hammasi bitta savol atrofida: kasr qaysi qiymatda ma'noga ega emas. UZ/RU/EN.",
     Component: lazy(() => import('../components/grade8/practice/dars01/Dars01Practice.jsx')),
+  },
+  // 2-DARS AMALIYOTI — sinfning O'Z mexanikalarida (metodist qarori 2026-08-22).
+  // 1-darsdan farqi: nusxa emas, umumiy qatlam practice/kit.jsx dan o'nta
+  // XIL mexanika. Dizayn va ranglar 7-sinfnikidek qoldi, savol tiplari
+  // esa TIPLAR_AMALIYOT_8SINF.md §5 ro'yxatidan.
+  // Kontent: src/books/grade8/DARS02_AMALIYOT_KONTENT_V2.md (2026-08-24 dagi
+  // qayta yaratish), skelet: DARS02_06_AMALIYOT_SKELET.md
+  {
+    slug: 'dars02-amaliyot',
+    title: "Dars 2 amaliyoti — kasrning asosiy xossasi (10 topshiriq)",
+    desc: "Qayta yaratildi (metodist, 2026-08-24): o'nta topshiriq 1-DARSNING o'nta usulida, lekin boshqa ketma-ketlikda — ha yoki yo'q, to'liq javob testi, ikki guruh, yangi taqiqni yozish, pazl, belgilash, seyf kodi, juftlash, qoidaning so'zlari, qadamlar tartibi. Hammasi bitta savol atrofida: surat va maxrajni bir xil ifodaga ko'paytirsak nima o'zgaradi va nima o'zgarmaydi. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars02/Dars02Practice.jsx')),
+  },
+  // 3-DARSDAN BOSHLAB: 2-darsning o'nta usuli ARALASH tartibda (metodist
+  // qarori 2026-08-22). Taqsimot dars raqamidan hisoblanadi va qayta
+  // yig'ilganda o'zgarmaydi: scripts/grade8-practice-layout.mjs
+  {
+    slug: 'dars03-amaliyot',
+    title: 'Dars 3 amaliyoti — kasrlarni qisqartirish (10 topshiriq)',
+    desc: "Qayta yaratildi (metodist, 2026-08-24): o'nta topshiriq 1-DARSNING o'nta usulida, 2-darsdagidan boshqa tartibda — belgilash, ha yoki yo'q, son yozish, juftlash, guruhlar, qadamlar tartibi, test, pazl, seyf kodi, qoida so'zlari. Qisqartirish faqat ko'paytuvchi bo'yicha, taqiqni esa dastlabki kasr belgilaydi. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars03/Dars03Practice.jsx')),
+  },
+  {
+    slug: 'dars04-amaliyot',
+    title: "Dars 4 amaliyoti — kasrlarni qo'shish va ayirish (10 topshiriq)",
+    desc: "Qayta yaratildi (metodist, 2026-08-24): o'nta topshiriq 1-DARSNING o'nta usulida, 3-darsdan boshqa tartibda — test, belgilash, ha yoki yo'q, qoida so'zlari, seyf kodi, son yozish, guruhlar, qadamlar tartibi, juftlash, pazl. Bir xil maxrajda suratlar qo'shiladi, boshqasida umumiy maxrajga keltiriladi, shart esa har bir dastlabki maxrajdan yig'iladi. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars04/Dars04Practice.jsx')),
+  },
+  {
+    slug: 'dars05-amaliyot',
+    title: "Dars 5 amaliyoti — kasrlarni ko'paytirish va bo'lish (10 topshiriq)",
+    desc: "Qayta yaratildi (metodist, 2026-08-24): o'nta topshiriq 1-DARSNING o'nta usulida, 4-darsdan boshqa tartibda — ha yoki yo'q, guruhlar, belgilash, qadamlar tartibi, test, juftlash, pazl, qoida so'zlari, son yozish, seyf kodi. Darsning eng qimmat joyi — uchinchi shart: bo'luvchining surati ham nolga aylanmasligi kerak. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars05/Dars05Practice.jsx')),
+  },
+  {
+    slug: 'dars06-amaliyot',
+    title: "Dars 6 amaliyoti — ifodalarni almashtirish (10 topshiriq)",
+    desc: "Qayta yaratildi (metodist, 2026-08-24): o'nta topshiriq 1-DARSNING o'nta usulida, 5-darsdan boshqa tartibda — belgilash, test, ha yoki yo'q, pazl, qoida so'zlari, guruhlar, juftlash, seyf kodi, qadamlar tartibi, javobni yozish. Blokning oxirgi kasr darsi: qavs tartibni o'zgartiradi, shartlar esa oraliq satrlardan ham yig'iladi. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars06/Dars06Practice.jsx')),
+  },
+  // 7-11 DARSLAR AMALIYOTI — 1-DARSNING O'NTA MEXANIKASI, har darsda
+  // BOSHQA tartibda (metodist qarori 2026-08-24). Skelet va taqsimot:
+  // src/books/grade8/DARS07_11_AMALIYOT_SKELET.md
+  // Ikki yangilik umumiy qatlamda: ildiz USTKI CHIZIQ bilan (`frac.jsx` ->
+  // `Root`) va CHIZMALAR (`practice/fig.jsx`) — chizma yozuvning tokeni,
+  // yangi mexanika emas.
+  {
+    slug: 'dars07-amaliyot',
+    title: 'Dars 7 amaliyoti — y = k/x va uning grafigi (10 topshiriq)',
+    desc: "O'nta topshiriq o'nta xil usulda: belgilash, ha-yo'q, guruhlar, koeffitsient, nuqta va formula, qaysi chizma, so'zlar, seyf kodi, pazl, qadamlar tartibi. To'rt topshiriqda CHIZMA: tarmoq joyi guruh sarlavhasi bo'lib, nuqtaning koordinatasi chizmadan o'qilib, to'rt variant to'rt chizma bo'lib va qurish qadamlari chizma bilan. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars07/Dars07Practice.jsx')),
+  },
+  {
+    slug: 'dars08-amaliyot',
+    title: "Dars 8 amaliyoti — arifmetik ildiz va kasr ko'rsatkich (10 topshiriq)",
+    desc: "O'nta topshiriq o'nta xil usulda: nechta son, belgilash, qiymat, pazl, ha-yo'q, moslashtirish, guruhlar, so'zlar, qadamlar tartibi, seyf kodi. Ildiz USTKI CHIZIQ bilan, kasr ko'rsatkich esa ikki qavatli kasr bo'lib yoziladi. 05-topshiriqda CHIZMA: minus yetti va yetti noldan bir xil masofada — modul shu masofa. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars08/Dars08Practice.jsx')),
+  },
+  {
+    slug: 'dars09-amaliyot',
+    title: 'Dars 9 amaliyoti — kvadrat ildiz tushunchasi (10 topshiriq)',
+    desc: "O'nta topshiriq o'nta xil usulda: ha-yo'q, guruhlar, belgilash, so'zlar, chegaralar, qadamlar tartibi, sanoq, pazl, seyf kodi, moslashtirish. B2 blokining birinchi amaliyoti: ildiz har qanday nomanfiy sonda bor, lekin butun chiqmaydi. 06-topshiriqda CHIZMA — son o'qida ildizning o'rni. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars09/Dars09Practice.jsx')),
+  },
+  {
+    slug: 'dars10-amaliyot',
+    title: 'Dars 10 amaliyoti — arifmetik kvadrat ildiz (10 topshiriq)',
+    desc: "O'nta topshiriq o'nta xil usulda: belgilash, test, ha-yo'q, seyf kodi, guruhlar, so'zlar, qadamlar tartibi, moslashtirish, eng kichik qiymat, pazl. Darsning eng qimmat joyi — MODUL: kvadratdan olingan ildiz sonning o'zini emas, modulini beradi. 07-topshiriqda CHIZMA — son o'qida t ning tomoni. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars10/Dars10Practice.jsx')),
+  },
+  {
+    slug: 'dars11-amaliyot',
+    title: 'Dars 11 amaliyoti — ildizning xossalari (10 topshiriq)',
+    desc: "O'nta topshiriq o'nta xil usulda: ha-yo'q, qiymat, qaysi katta, moslashtirish, belgilash, pazl, seyf kodi, qadamlar tartibi, guruhlar, so'zlar. Uch xossa ishga tushadi: kvadrat ildizni yechadi, kvadratdan modul chiqadi, ildiz osti katta bo'lsa ildiz ham katta. 08-topshiriqda CHIZMA — son o'qida taqqoslash savoli. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars11/Dars11Practice.jsx')),
+  },
+  // 12-14 DARSLAR AMALIYOTI — o'sha o'nta mexanika, yana boshqa tartibda
+  // (metodist qarori 2026-08-24). Skelet va taqsimot:
+  // src/books/grade8/DARS12_14_AMALIYOT_SKELET.md, tekshiruvi
+  // `node scripts/grade8-practice-seq.mjs check`.
+  // Umumiy qatlamga yangi narsa QO'SHILMADI: `kit.jsx` ning o'nligi, `frac.jsx`
+  // ning ildizi va `fig.jsx` ning `axis` speci o'sha holida ishlatildi.
+  // 15 va 16-dars TO'XTATIB QO'YILDI (metodist, o'sha kun).
+  {
+    slug: 'dars12-amaliyot',
+    title: "Dars 12 amaliyoti — ko'paytmadan kvadrat ildiz (10 topshiriq)",
+    desc: "O'nta topshiriq o'nta xil usulda: teng yoki teng emas, qiymat, guruhlar, so'zlar, pazl, juftlash, qadamlar tartibi, belgilash, shart, seyf kodi. Darsning butun og'irligi bitta farqda: ildiz KO'PAYTUVCHILARGA bo'linadi, hadlarga esa yo'q. Shart ham shu yerda tekshiriladi — ikkala ko'paytuvchi nomanfiy bo'lishi kerak. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars12/Dars12Practice.jsx')),
+  },
+  {
+    slug: 'dars13-amaliyot',
+    title: "Dars 13 amaliyoti — ildizli ifodalarni o'zgartirish (10 topshiriq)",
+    desc: "O'nta topshiriq o'nta xil usulda: qisqaroq, guruhlar, belgilash, ha-yo'q, juftlash, so'zlar, seyf kodi, pazl, kiritish, qadamlar tartibi. Uch ish birga: ildiz ostidan chiqarish, ildiz ostiga kiritish va ildizli hadlarni qo'shish. Har razbor javobni KVADRATGA OSHIRIB rad etadi — tekshirish usuli darsning o'zidan. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars13/Dars13Practice.jsx')),
+  },
+  {
+    slug: 'dars14-amaliyot',
+    title: 'Dars 14 amaliyoti — irratsional sonlar (10 topshiriq)',
+    desc: "O'nta topshiriq o'nta xil usulda: belgilash, qaysi son, ha-yo'q, seyf kodi, so'zlar, guruhlar, aniq va yaqin, nechta, isbot, juftlash. Uch adashish qayta-qayta tekshiriladi: ildiz belgisi sonni irratsional qilmaydi, cheksiz yozuv ham belgi emas, yaqinlashish esa aniq qiymat emas. 07-topshiriqda CHIZMA — son o'qida ikkidan ildizning joyi. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars14/Dars14Practice.jsx')),
   },
 ]

@@ -1,39 +1,58 @@
-// Dars01 * Amaliyot 03 -- Ifodaning qiymati * 🟢 * tag: value_substitute
-// Faqat MA'LUMOT. Tip: kit.jsx -> Input (kind number).
+// Dars01 · Amaliyot 03 — Ha yoki yo'q · 🟢 · tag: true_or_false
+// Faqat MA'LUMOT. Mexanika: `practice/kit.jsx` -> TrueFalse (yangi, 22-tip).
+// Kontent: src/books/grade8/DARS01_AMALIYOT_KONTENT.md §03
+//
+// IKKI mulohaza, ikki qaror (metodist, 2026-08-22: ilgari to'rtta edi).
+// Qolgan ikkitasi darsning eng qimmat ikki adashishiga tegadi:
+//   s1 — З19: chiziq tagida SON turganda taqiq yo'q, javob «Yo'q»;
+//   s2 — З18: surat noli qiymatni yo'q qilmaydi, javob «Ha».
+// Olib tashlangan ikkitasi qoplovsiz qolmadi: a/(a−6) turidagi taqiq
+// 04, 05, 07 va 09 da, «kvadratli maxrajda albatta nol bor» degan fikr esa
+// 06 va 10 da tekshiriladi.
+// `at` — matematika (tekshiriladigan qiymat), `claim` — so'z.
+// `import React` SHART: LMS xom jsx ni klassik rejimda yuklaydi.
 // eslint-disable-next-line no-unused-vars
 import React from 'react';
-import { Input, L } from '../kit.jsx';
+import { TrueFalse, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'value_substitute', level: '🟢', kind: 'number',
-  answer: '1',
-  eyebrow: L("Qiymatni toping", 'Найди значение', 'Find the value'),
-  expr: [{ n: '3b + 21', d: '6' }],
-  exprSize: 26,
-  ask: L("b = -5 bo'lganda ifodaning qiymati qancha?", 'Чему равно значение при b = -5?', 'What is the value at b = -5?'),
-  label: L('qiymat', 'значение', 'value'),
-  hints: {
-    '6': L(
-      "Ishora yo'qoldi: 3 · (−5) minus o'n besh, ya'ni suratda 21 dan AYIRILADI, qo'shilmaydi.",
-      'Потерялся знак: 3 · (−5) это минус пятнадцать, значит в числителе оно ВЫЧИТАЕТСЯ из 21, а не прибавляется.',
-      'The sign got lost: 3 times -5 is minus fifteen, so in the numerator it is SUBTRACTED from 21, not added.',
-    ),
-    '-15': L(
-      "Bu 3b ning o'zi. Uni 21 ga qo'shib, keyin oltiga bo'lish kerak.",
-      'Это только 3b. Его надо сложить с 21 и потом разделить на шесть.',
-      'That is only 3b. Add it to 21 and then divide by six.',
-    ),
-  },
+  tag: 'true_or_false', level: '🟢',
+  itemSize: 17,
+  items: [
+    { id: 's1', tokens: [{ n: 'a − 4', d: '5' }], at: 'a = 5', yes: false,
+      claim: L("ma'noga ega emas", 'не имеет смысла', 'has no value') },
+    { id: 's2', tokens: [{ n: '0', d: 'a − 2' }], at: 'a = 0', yes: true,
+      claim: L('qiymati nolga teng', 'значение равно нулю', 'its value is zero') },
+  ],
+  yesLabel: L('Ha', 'Да', 'Yes'),
+  noLabel: L("Yo'q", 'Нет', 'No'),
+  eyebrow: L("Ha yoki yo'q", 'Да или нет', 'Yes or no'),
+  setup: L(
+    "Ikki mulohaza. Har birida kasr, tekshiriladigan qiymat va da'vo turadi.",
+    'Два утверждения. В каждом дробь, проверяемое значение и само утверждение.',
+    'Two claims. Each shows a fraction, the value to test and the claim itself.'),
+  ask: L(
+    "Mulohaza rost bo'lsa «Ha» ni, yolg'on bo'lsa «Yo'q» ni bosing.",
+    'Если утверждение верно — нажми «Да», если ложно — «Нет».',
+    'Tap «Yes» if the claim is true, «No» if it is false.'),
   correctText: L(
-    "To'g'ri. 3 · (−5) = -15, -15 + 21 = 6, 6 : 6 = 1.",
-    'Верно. 3 · (−5) = -15, -15 + 21 = 6, 6 : 6 = 1.',
-    'Correct. 3 times -5 is -15, -15 + 21 = 6, 6 divided by 6 = 1.',
-  ),
+    "To'g'ri. Birinchisida chiziq tagida SON turadi: besh nolga aylanmaydi, demak beshda ham kasr hisoblanadi — bir bo'linadi beshga. Ikkinchisida esa nol chiziqning USTIDA: nolni minus ikkiga bo'lsangiz nol chiqadi, ya'ni qiymat bor va u nolga teng.",
+    'Верно. В первом под чертой стоит ЧИСЛО: пять в нуль не обращается, и при пяти дробь считается — один делить на пять. Во втором нуль стоит НАД чертой: нуль разделить на минус два — нуль, значение есть и равно нулю.',
+    'Correct. In the first a NUMBER stands below the bar: five never becomes zero, so at five the fraction is computed — one divided by five. In the second the zero is ABOVE the bar: zero over minus two is zero, so the value exists and equals zero.'),
+  wrongs: [
+    { when: (s) => s.bad.indexOf('s1') !== -1, text: L(
+      "Birinchi mulohazada chiziq tagida SON turadi. Besh hech qachon nolga aylanmaydi, a esa faqat suratda: beshni qo'ysangiz bir bo'linadi beshga, qiymat bor.",
+      'В первом утверждении под чертой стоит ЧИСЛО. Пять в нуль не обращается никогда, а a осталась только в числителе: подставь пять — получится один делить на пять, значение есть.',
+      'In the first claim a NUMBER stands below the bar. Five never becomes zero, and a stays only in the numerator: substitute five and you get one divided by five, a real value.') },
+    { when: (s) => s.bad.indexOf('s2') !== -1, text: L(
+      "Ikkinchi mulohazada nol chiziqning USTIDA. Nolni ikkiga, minus ikkiga, yuzga bo'lsangiz — har doim nol. Qiymat yo'qoladigan joy faqat chiziq tagi.",
+      'Во втором утверждении нуль стоит НАД чертой. Нуль, делённый на два, на минус два, на сто — всегда нуль. Значение исчезает только под чертой.',
+      'In the second claim the zero is ABOVE the bar. Zero divided by two, by minus two, by a hundred is always zero. The value disappears only below the bar.') },
+  ],
   wrongText: L(
-    "Avval 3b ni hisoblang, keyin 21 ga qo'shing va oxirida oltiga bo'ling.",
-    'Сначала посчитай 3b, потом сложи с 21 и только потом раздели на шесть.',
-    'First compute 3b, then add 21, and only then divide by six.',
-  ),
+    "Har mulohazada bitta ish qiling: qiymatni chiziq tagiga qo'ying va maxraj nol bo'ladimi deb qarang.",
+    'В каждом утверждении делай одно: подставь значение под черту и посмотри, стал ли знаменатель нулём.',
+    'Do one thing in each claim: put the value below the bar and check whether the denominator became zero.'),
 };
 
-export default function D01_03(props) { return <Input data={DATA} {...props} />; }
+export default function D01_03(props) { return <TrueFalse data={DATA} {...props} />; }

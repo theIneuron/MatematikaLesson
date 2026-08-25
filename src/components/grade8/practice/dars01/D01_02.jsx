@@ -1,53 +1,60 @@
-// Dars01 * Amaliyot 02 -- Nol chiziqning qaysi tomonida * 🟢 * tag: zero_side
-// Faqat MA'LUMOT. Tip: kit.jsx -> YesNo (ha/yo'q + dalil son bilan).
-// TASDIQ 3 + ADASHISH Z18 (suratdagi va maxrajdagi nol aralashtiriladi).
+// Dars01 · Amaliyot 02 — Guruhlar · 🟢 · tag: same_value_groups
+// Faqat MA'LUMOT. Mexanika: `practice/kit.jsx` -> Zones.
+// Kontent: src/books/grade8/DARS01_AMALIYOT_KONTENT.md §02
+//
+// Ikki guruh bir-biriga TESKARI: 4/a da harf chiziq tagida, a/4 da ustida.
+// To'rt karta juft-juft o'xshash ko'rinadi (8/(2a) va 2a/8), ajratadigan
+// narsa faqat harf qaysi qavatda turgani — T1.
+// Guruh sarlavhasi SO'Z emas, KASR: `zones[].tokens` (kit.jsx, Zones).
+// Razborda shart ham aytiladi: birinchi guruhda a ≠ 0, ikkinchisida taqiq yo'q.
+// Yozuvlar har ochilganda aralashtiriladi (Zones ichida).
+// `import React` SHART: LMS xom jsx ni klassik rejimda yuklaydi.
 // eslint-disable-next-line no-unused-vars
 import React from 'react';
-import { YesNo, L } from '../kit.jsx';
+import { Zones, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'zero_side', level: '🟢',
-  eyebrow: L('Surat va maxrajdagi nol', 'Нуль в числителе и знаменателе', 'Zero above and below the bar'),
-  varName: 'x',
-  left: 'x/x',
-  proofRef: '0',
-  right: false,
-  expr: [{ n: 'x', d: 'x' }],
-  exprSize: 30,
-  claim: L(
-    "x = 0 da x/x kasrining qiymati har doim 0.",
-    'При x = 0 значение дроби x/x всегда равно 0.',
-    'At x = 0 the value of the fraction x/x always equals 0.',
-  ),
-  yesLabel: L("To'g'ri", 'Верно', 'True'),
-  noLabel: L("Noto'g'ri", 'Неверно', 'False'),
-  proofAsk: L(
-    "Qaysi qiymatda tekshirdingiz? Sonni yozing.",
-    'При каком значении ты это проверил? Впиши число.',
-    'At which value did you check it? Type the number.',
-  ),
-  hintsPick: {
-    yes: L(
-      "Suratdagi nol bilan maxrajdagi nol BIR XIL joyda paydo bo'lishi ham mumkin. O'sha joyda kasrning UMUMAN qiymati yo'q.",
-      'Нуль в числителе и нуль в знаменателе могут появиться В ОДНОЙ И ТОЙ ЖЕ точке. Там у дроби значения нет ВООБЩЕ.',
-      'A zero above the bar and a zero below it can appear at the SAME point. There the fraction has NO value at all.',
-    ),
-    no: L(
-      "Da'vo shu misolda haqiqatan buziladi -- endi buni SON bilan ko'rsating.",
-      'Утверждение в этом примере действительно нарушается -- теперь покажи это ЧИСЛОМ.',
-      'The claim really does break in this example -- now show it with a NUMBER.',
-    ),
-  },
-  proofWrong: L(
-    "Bu qiymatda kasr hisoblanadi va uni da'voni buzish uchun ishlatib bo'lmaydi. Maxrajni nolga aylantiradigan qiymatni oling.",
-    'При этом значении дробь считается, и его нельзя использовать, чтобы нарушить утверждение. Возьми значение, обращающее знаменатель в нуль.',
-    'At this value the fraction computes, so it cannot break the claim. Take the value that makes the denominator zero.',
-  ),
+  tag: 'same_value_groups', level: '🟢',
+  zoneLbl: 92, zoneSize: 20, itemSize: 20,
+  zones: [
+    { id: 'z1', tokens: [{ n: '4', d: 'a' }] },
+    { id: 'z2', tokens: [{ n: 'a', d: '4' }] },
+  ],
+  items: [
+    { id: 'i1', tokens: [{ n: '8', d: '2a' }], zone: 'z1' },
+    { id: 'i2', tokens: [{ n: '12', d: '3a' }], zone: 'z1' },
+    { id: 'i3', tokens: [{ n: '2a', d: '8' }], zone: 'z2' },
+    { id: 'i4', tokens: [{ n: '3a', d: '12' }], zone: 'z2' },
+  ],
+  eyebrow: L('Guruhlar', 'Группы', 'Groups'),
+  setup: L(
+    "Yuqorida ikki guruh turadi, har birida bitta kasr. Pastdagi to'rt kartaning qiymati shu kasrlardan biriga teng, yozuvi esa boshqacha.",
+    'Сверху две группы, в каждой по одной дроби. Значение каждой из четырёх карточек снизу равно одной из них, а запись другая.',
+    'Two groups are shown above, one fraction in each. Each of the four cards below has the value of one of them, written differently.'),
+  ask: L('Kartani bosing, keyin uning guruhini bosing.', 'Нажми карточку, потом её группу.', 'Tap a card, then tap its group.'),
+  bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
-    "To'g'ri. x = 0 da suratda HAM, maxrajda HAM nol turadi, ya'ni kasrning umuman qiymati yo'q -- u nolga teng emas.",
-    'Верно. При x = 0 нуль стоит И в числителе, И в знаменателе, значит у дроби вообще нет значения -- она не равна нулю.',
-    'Correct. At x = 0 there is a zero BOTH above and below the bar, so the fraction has no value at all -- it is not zero.',
-  ),
+    "To'g'ri. Sakkizni ikki a ga bo'lsangiz to'rt a ga qoladi, o'n ikkini uch a ga bo'lsangiz ham xuddi shu. a ni ikkiga qo'ying: birinchi guruhda ikki chiqadi, ikkinchisida yarim. Birinchi guruhda a nolga teng bo'lmasligi kerak, ikkinchisida esa taqiq umuman yo'q — chunki u yerda harf chiziqning ustida.",
+    'Верно. Восемь разделить на два a — остаётся четыре a; двенадцать на три a — то же самое. Подставь a равное двум: в первой группе выйдет два, во второй — половина. В первой группе a не должно быть нулём, во второй запрета нет вовсе — там буква стоит над чертой.',
+    'Correct. Eight over two a leaves four over a; twelve over three a gives the same. Put a equal to two: the first group gives two, the second gives one half. In the first group a must not be zero; in the second there is no ban at all, because the letter is above the bar.'),
+  wrongs: [
+    { when: (s) => s.place.i1 === 'z2' || s.place.i2 === 'z2', text: L(
+      "Bu ikkisida harf chiziqning TAGIDA qoldi: sakkizni ikki a ga bo'lyapmiz, ikki a ni sakkizga emas. a ni ikkiga qo'yib ikkala guruhning qiymatini solishtiring.",
+      'В этих двух буква осталась ПОД чертой: делим восемь на два a, а не два a на восемь. Подставь a равное двум и сравни значения обеих групп.',
+      'In these two the letter stayed BELOW the bar: eight is divided by two a, not two a by eight. Put a equal to two and compare the values of both groups.') },
+    { when: (s) => s.place.i3 === 'z1' || s.place.i4 === 'z1', text: L(
+      "Bu ikkisida harf chiziqning USTIDA: ikki a ni sakkizga bo'lyapmiz. Bunday kasr a o'sganda o'sadi, birinchi guruh esa teskari — a o'sganda kamayadi.",
+      'В этих двух буква стоит НАД чертой: два a делим на восемь. Такая дробь растёт вместе с a, а первая группа наоборот — с ростом a убывает.',
+      'In these two the letter is ABOVE the bar: two a is divided by eight. Such a fraction grows with a, while the first group does the opposite.') },
+    { when: (s) => s.bad.length >= 3, text: L(
+      "Har kartada bitta narsani ko'ring: a qaysi qavatda? Chiziq tagida bo'lsa birinchi guruh, ustida bo'lsa ikkinchi guruh.",
+      'Смотри в каждой карточке одно: на каком этаже стоит a? Под чертой — первая группа, над чертой — вторая.',
+      'Look for one thing in each card: which floor is a on? Below the bar means the first group, above it the second.') },
+  ],
+  wrongText: L(
+    "a ni ikkiga qo'yib har kartani hisoblang. Ikki chiqsa birinchi guruh, yarim chiqsa ikkinchisi.",
+    'Подставь a равное двум и посчитай каждую карточку. Вышло два — первая группа, вышла половина — вторая.',
+    'Put a equal to two and compute each card. Two means the first group, one half means the second.'),
 };
 
-export default function D01_02(props) { return <YesNo data={DATA} {...props} />; }
+export default function D01_02(props) { return <Zones data={DATA} {...props} />; }

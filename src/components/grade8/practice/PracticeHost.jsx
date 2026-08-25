@@ -124,7 +124,12 @@ export default function PracticeHost({ Question, lang: langProp = 'uz', onLangCh
   }, [result]);
 
   return (
-    <div ref={rootRef} style={{ display: 'flex', flexDirection: 'column', minHeight: '78vh', maxWidth: 680, margin: '0 auto', width: '100%' }}>
+    // BALANDLIK OTA-KONTEYNERDAN OLINADI, `vh` dan emas. Ilgari bu yerda
+    // `minHeight: 78vh` turardi: qobiq (`.pq-fixroot`) allaqachon aniq
+    // balandlik bergan bo'lsa ham, host undan ko'proq talab qilar va
+    // TELEFONDA har topshiriq skroll bo'lardi -- kontentdan qat'i nazar,
+    // doimiy 44-65px (metodist, 2026-08-22). Endi host bergan joyga sig'adi.
+    <div ref={rootRef} style={{ display: 'flex', flexDirection: 'column', flex: '1 1 auto', minHeight: 0, maxWidth: 680, margin: '0 auto', width: '100%' }}>
       {(title || showLanguageSwitch) && (
       <div style={{
         display: 'flex', alignItems: 'center', gap: 8, padding: '4px 12px',
@@ -142,7 +147,7 @@ export default function PracticeHost({ Question, lang: langProp = 'uz', onLangCh
       </div>
       )}
 
-      <div style={{ flex: 1, padding: '10px 12px 28px' }}>
+      <div style={{ flex: 1, minHeight: 0, padding: '8px 12px 10px' }}>
         <Question
           key={qKey + '-' + lang}
           lang={lang}
@@ -162,13 +167,13 @@ export default function PracticeHost({ Question, lang: langProp = 'uz', onLangCh
         display: 'flex', gap: 10, alignItems: 'center', justifyContent: 'center',
       }}>
         {result && (
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 700, color: result.correct ? '#1a7f43' : '#c0392b' }}>
+          <div data-result={result.correct ? 'ok' : 'no'} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 700, color: result.correct ? '#1a7f43' : '#c0392b' }}>
             {result.correct ? <IconOk /> : <IconNo />}
             {result.correct ? ui.correct : ui.wrong}
           </div>
         )}
         {!result ? (
-          <button type="button" disabled={!ready} onClick={runCheck}
+          <button type="button" data-check="1" disabled={!ready} onClick={runCheck}
             style={{ ...btnBase, minWidth: 200, border: 'none', cursor: ready ? 'pointer' : 'not-allowed', color: '#fff', background: ready ? '#fe5b1a' : '#c2c8d2' }}>
             {ui.check}
           </button>
