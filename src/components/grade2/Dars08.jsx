@@ -3106,7 +3106,7 @@ const Screen3 = (props) => {
   const audio = useAudio([
     brgSeg('s3', lang),
     ...c.audio[lang].map((text, i, arr) => ({ id: `s3_${i}`, text, trigger: 'after_previous', waits_for: i === arr.length - 1 ? { type: 'units_done' } : null })),
-    { id: 's3_tens', text: c.audio_tens[lang], trigger: 'after_previous', waits_for: { type: 'tens_done' } },
+    { id: 's3_tens', text: c.audio_tens[lang], trigger: 'after_previous', waits_for: { type: 'units_done' } },
     { id: 's3_done', text: c.audio_done[lang], trigger: 'after_previous', waits_for: null }
   ]);
   const seg = audio.currentSegment;
