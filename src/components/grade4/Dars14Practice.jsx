@@ -564,7 +564,7 @@ function Task({ task, screenMeta, lang, isLast, onSolved ,
   // Javobning to'g'riligi `checked` dan ALOHIDA hisoblanadi: tekshirishda
   // xato bo'lsa variantlar qayta aralashtiriladi.
   const answerCorrect = (
-    ((task.kind === 'mc' || task.kind === 'missing') && choiceList[picked]?.correct === true)
+    ((task.kind === 'mc' || task.kind === 'missing') && picked?.correct === true)
     || (task.kind === 'numpad' && typed === task.answer)
     || (task.kind === 'match' && task.pairs.every((pair) => pairs[pair.id] === pair.correctRight))
   );
@@ -575,7 +575,7 @@ function Task({ task, screenMeta, lang, isLast, onSolved ,
     || (task.kind === 'match' && task.pairs.every((pair) => pairs[pair.id]));
 
   const specificWrong = (() => {
-    if (task.kind === 'mc' || task.kind === 'missing') return choiceList[picked]?.wrong;
+    if (task.kind === 'mc' || task.kind === 'missing') return picked?.wrong;
     if (task.kind === 'numpad') return task.wrongAnswers?.[typed];
     if (task.kind === 'match') return task.pairs.find((pair) => pairs[pair.id] !== pair.correctRight)?.wrong;
     return null;
@@ -642,8 +642,8 @@ function Task({ task, screenMeta, lang, isLast, onSolved ,
         options: choiceList.map((option) => tx(option.text, lang)),
         correctIndex,
         correctAnswer: tx(choiceList[correctIndex]?.text, lang),
-        studentAnswerIndex: picked,
-        studentAnswer: tx(choiceList[picked]?.text, lang),
+        studentAnswerIndex: choiceList.indexOf(picked),
+        studentAnswer: tx(picked?.text, lang),
       };
     }
     if (task.kind === 'numpad') {
