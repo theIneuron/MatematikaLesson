@@ -88,10 +88,10 @@ export const rootPath = (x, y, w) => 'M' + x + ' ' + (y + 8) + ' L' + (x + 9) + 
 
 const SCENE_VB = { hook: '0 0 400 154', final: '0 0 400 92' }
 
-export function SceneBand({ kind = 'hook', children, label }) {
+export function SceneBand({ kind = 'hook', children, label, className }) {
   const t = useT()
   return (
-    <div className={'g8-scene g8-scene-' + kind}>
+    <div className={'g8-scene g8-scene-' + kind + (className ? ' ' + className : '')}>
       <svg viewBox={SCENE_VB[kind] || SCENE_VB.hook} preserveAspectRatio="xMidYMid meet"
         role="img" aria-label={label ? t(label) : undefined}>
         {children}

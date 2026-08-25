@@ -487,8 +487,8 @@ export function RecallMC({ intro, formula, steps, ask, items, after, cols = 1, a
   return (
     <>
       {steps && steps.length ? (
-        <div className="g9-scatter">
-          {intro ? <div className="g9-theory-line is-note">{t(intro)}</div> : null}
+        <div className={'g9-scatter' + (note ? ' is-compact' : '')}>
+          {intro && !note ? <div className="g9-theory-line is-note">{t(intro)}</div> : null}
           {formula ? (
             <div className="g9-hformula" style={{ fontFamily: MATH_FONT }}>{formula}</div>
           ) : null}
@@ -512,10 +512,12 @@ export function RecallMC({ intro, formula, steps, ask, items, after, cols = 1, a
           </div>
           {/* AKKORDEON: faqat OXIRGI bosilgan qadamning yechimi ko'rinadi —
               uchtasi birga chiqsa, 615px balandlikda savol pastki panel
-              ostiga chiqib ketardi (o'lchandi 2026-08-24). */}
+              ostiga chiqib ketardi (o'lchandi 2026-08-24). MC javob kartochkasi
+              (note) chiqganda bu ham qisqaradi — ikkisi birga sig'maydi
+              (metodist QA, 2026-08-25). */}
           {(() => {
             const openStep = steps.find((s) => s.id === openId)
-            return openStep ? (
+            return openStep && !note ? (
               <div className="g9-hderiv">
                 {openStep.lines.map((line, i) => (
                   <div
@@ -1701,6 +1703,14 @@ export const G9_STYLES = `
   font-size: clamp(15px, 1.4vw, 19px) !important;
   display: flex; align-items: center; justify-content: center; text-align: center;
 }
+
+/* SAHNA TORAYADI (1-ekran, metodist QA 2026-08-25): jadval o'z qatorini
+   kesib qo'ymasin deb endi siqilmaydi, shuning uchun taqchillikda faqat
+   sahna qisqarishi kerak — lekin sahna o'zining tabiiy balandligida
+   qotib qolgan edi (kenglik 100%, aspekt nisbat balandlikni belgilardi).
+   Kenglik cheklansa, aspekt nisbat balandlikni ham kichraytiradi. */
+.g9-scene-compact { max-width: 640px; }
+.g9-scene-compact svg { width: auto; max-width: 100%; height: auto; max-height: 122px; }
 
 /* ---------- JARAYON KO'ZGA KO'RINADI ----------
    Metodist 2026-08-21: «предложи другую структура это не понятно». Sababi

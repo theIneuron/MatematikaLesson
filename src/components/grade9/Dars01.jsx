@@ -445,7 +445,13 @@ const TossAt = ({ t: at, jammed }) => {
 // eslint-disable-next-line react-refresh/only-export-components
 const HookScene = () => {
   return (
-    <SceneBand kind="hook" label={L(
+    // 615px balandlikda S1 sahna + katta savol + ikki qatorli jadval bir
+    // vaqtda turadi: jadval qatorini kesib qo'ymasin deb u endi siqilmaydi
+    // (flex-shrink:0), shuning uchun siqilish shu sahnaga qoladi — lekin
+    // sahnaning o'z tabiiy balandligi ham tugagan (o'lchandi 2026-08-25,
+    // MacBook M1 QA). Shuning uchun sahna KENGLIGI shu ekranda maxsus
+    // toraytiriladi: torroq kenglik → SVG nisbatan pastroq bo'ladi.
+    <SceneBand kind="hook" className="g9-scene-compact" label={L(
       "To'p uch metrdan ikki marta o'tadi",
       'Мяч дважды проходит три метра',
       'The ball passes three metres twice',
