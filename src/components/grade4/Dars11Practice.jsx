@@ -308,7 +308,7 @@ function Task({ task, lang, isLast, onSolved ,
   // xato bo'lsa variantlar qayta aralashtiriladi.
   const answerCorrect = (
     (task.kind === 'mc' && picked?.correct === true)
-    || (task.kind === 'missing' && task.choices[picked]?.correct === true)
+    || (task.kind === 'missing' && picked?.correct === true)
     || (task.kind === 'numpad' && typed === task.answer)
     || (task.kind === 'match' && task.pairs.every((pair) => pairs[pair.id] === pair.correctRight))
     || (task.kind === 'slots' && task.slots.every((slot) => placed[slot.id] === slot.correct))
@@ -323,7 +323,7 @@ function Task({ task, lang, isLast, onSolved ,
 
   const wrongText = (() => {
     if (task.kind === 'mc') return picked?.wrong;
-    if (task.kind === 'missing') return task.choices[picked]?.wrong;
+    if (task.kind === 'missing') return picked?.wrong;
     if (task.kind === 'numpad') return task.wrongAnswers?.[typed] ?? task.wrongText;
     if (task.kind === 'match') return task.pairs.find((pair) => pairs[pair.id] !== pair.correctRight)?.wrong;
     if (task.kind === 'slots') return task.slots.find((slot) => placed[slot.id] !== slot.correct)?.wrong;

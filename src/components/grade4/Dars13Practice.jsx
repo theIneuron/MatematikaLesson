@@ -535,7 +535,7 @@ function Task({ task, taskIndex, lang, onSolved ,
       options: options.map((option) => tx(option.text, lang)),
       correctIndex: options.findIndex((option) => option.correct),
       correctAnswer: tx(options.find((option) => option.correct)?.text, lang),
-      studentAnswerIndex: picked,
+      studentAnswerIndex: options.indexOf(picked),
       studentAnswer: tx(picked?.text, lang),
     };
     if (task.kind === 'numpad') return { options: null, correctIndex: null, correctAnswer: task.answer, studentAnswerIndex: null, studentAnswer: typed };
