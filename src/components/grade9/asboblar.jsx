@@ -1381,8 +1381,8 @@ export function Gate({
           va jadval chiqsin» — tushuntirish kartochkasi hal bo'lgach ENDI
           KERAK EMAS, joyni grafik-jadvalga bo'shatadi. */}
       {warmup && !done ? (
-        <div className="g9-scatter">
-          {warmup.intro ? <div className="g9-theory-line is-note">{t(warmup.intro)}</div> : null}
+        <div className={'g9-scatter' + (explained ? ' is-compact' : '')}>
+          {warmup.intro && !explained ? <div className="g9-theory-line is-note">{t(warmup.intro)}</div> : null}
           <button
             type="button"
             className={'g9-hstep' + (explained ? ' is-open' : '')}
@@ -1393,7 +1393,10 @@ export function Gate({
               {explained ? (warmup.result || warmup.lines[warmup.lines.length - 1]) : warmup.head}
             </span>
           </button>
-          {explained ? (
+          {/* 615px balandlikda joy tanqis: xato javob kartochkasi (shown)
+              chiqganda bu qator qisqaradi, aks holda ikkisi birga sig'may,
+              pastki qator ko'rinmay qoladi (metodist QA, 2026-08-24). */}
+          {explained && !shown ? (
             <div className="g9-hderiv">
               {warmup.lines.map((line, i) => (
                 <div
@@ -1876,6 +1879,7 @@ export const G9_STYLES = `
   padding: 18px 22px; border-radius: 18px;
   background: ${T.paper};
   box-shadow: 0 10px 26px -14px rgba(${T.shadow},.2), inset 0 0 0 1px ${T.line}; }
+.g9-scatter.is-compact { padding: 8px 22px; }
 .g9-theory-line.is-note { font-family: 'Manrope', system-ui, sans-serif;
   font-weight: 600; font-size: clamp(13px, 1.5vw, 15px); color: ${T.ink3}; margin-bottom: 4px; }
 /* 2026-08-24: metodist «buncha aniqmas, chin YECHIM ko'rsat, qayerdan
