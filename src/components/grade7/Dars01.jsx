@@ -1760,8 +1760,8 @@ function Screen15({ screen, answers, ...rest }) {
           <p className="g7-sumcard-h">{t(S15.twoLabel)}</p>
           {/* Yozuvlar bosqich rangida -- darsdagi kabi. Ikki satr yonma-yon
               turgani uchun rang farqni ko'rsatadi: qavs bir xil ishni qildi. */}
-          <span className="g7-sumtwo-line"><Fx>{S15.twoA}</Fx></span>
-          <span className="g7-sumtwo-line"><Fx>{S15.twoB}</Fx></span>
+          <span className="g7-sumtwo-line"><Fx>{t(S15.twoA)}</Fx></span>
+          <span className="g7-sumtwo-line"><Fx>{t(S15.twoB)}</Fx></span>
           {/* `twoNote` OLIB TASHLANDI (metodist 2026-08-14: «tekstov mnogo»).
               Ikki satr YONMA-YON turibdi va ikkalasida ham 20 -- gap shu
               bilan aytilgan, uni yana bir marta yozish takror edi.

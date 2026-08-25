@@ -122,7 +122,7 @@ const S2 = {
   kind: 'chain',
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
-  title: L('Uch qisqa savol', 'Три коротких вопроса', 'Three short questions'),
+  title: L('Uchta savol', 'Три вопроса', 'Three questions'),
   question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
   items: [
     {
@@ -634,7 +634,7 @@ const S12 = {
     { id: 'r2', text: 'x · (−5) = −5x' },
     { id: 'r3', text: '(−4) · x = −4x' },
     { id: 'r4', text: '(−4) · (−5) = −20' },
-    { id: 'r5', text: L('javob: x² − 9x − 20', 'ответ: x² − 9x − 20', 'answer: x² − 9x − 20') },
+    { id: 'r5', text: L('x² − 9x − 20', 'x² − 9x − 20', 'x² − 9x − 20') },
   ],
   answerId: 'r4',
   hints: {

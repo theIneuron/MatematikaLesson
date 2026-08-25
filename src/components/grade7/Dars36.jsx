@@ -113,7 +113,7 @@ const S2 = {
   kind: 'chain',
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
-  title: L('Uch qisqa savol', 'Три коротких вопроса', 'Three short questions'),
+  title: L('Uchta savol', 'Три вопроса', 'Three questions'),
   question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
   cols: 2,
   items: [
@@ -626,7 +626,7 @@ const S12 = {
     { id: 'r2', text: L('so\'raladi: x = 2 da y', 'спрошено: y при x = 2', 'asked: y at x = 2') },
     { id: 'r3', text: L('nuqta topildi: (2; 3)', 'точка найдена: (2; 3)', 'point found: (2; 3)') },
     { id: 'r4', text: L('juftlikning birinchi soni y', 'первое число пары это y', 'the first number of the pair is y') },
-    { id: 'r5', text: L('javob: y = 2', 'ответ: y = 2', 'answer: y = 2') },
+    { id: 'r5', text: L('y = 2', 'y = 2', 'y = 2') },
   ],
   answerId: 'r4',
   hints: {

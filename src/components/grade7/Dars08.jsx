@@ -248,7 +248,7 @@ function Screen1({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S2 = {
   eyebrow: L('TAYANCH', 'ОПОРА', 'WARM-UP'),
-  title: L('Uchta narsa oldingi darslardan', 'Три вещи из прошлых уроков', 'Three things from earlier lessons'),
+  title: L('Uchta savol', 'Три вопроса', 'Three questions'),
   question: L('Nimaga teng?', 'Чему равно?', 'What does it equal?'),
   items: [
     {
@@ -287,7 +287,7 @@ const S2 = {
     },
   ],
   audio: [
-    A('mount', "Yangi mavzudan oldin uchta narsani eslaymiz.", 'Прежде чем идти в новую тему, вспомним три вещи.', 'Before the new topic let us recall three things.'),
+    A('mount', "Yangi mavzudan oldin uchta savolga javob beramiz.", 'Прежде чем идти в новую тему, ответим на три вопроса.', 'Before the new topic let us answer three questions.'),
     A('1', "Ikkinchisi. Oddiy hisob.", 'Второе. Простой счёт.', 'Second. Simple arithmetic.'),
     A('2', "Uchinchisi. Bu bugungi darsning kaliti.", 'Третье. Это ключ к сегодняшнему уроку.', 'Third. This is the key to today.'),
   ],
@@ -1238,8 +1238,8 @@ function Screen15({ screen, answers, ...rest }) {
       <div className="g7-sumcards g7-sumcards-one">
         <div className="g7-sumcard">
           <p className="g7-sumcard-h">{t(S15.twoLabel)}</p>
-          <span className="g7-sumtwo-line"><Fx>{S15.twoA}</Fx></span>
-          <span className="g7-sumtwo-line"><Fx>{S15.twoB}</Fx></span>
+          <span className="g7-sumtwo-line"><Fx>{t(S15.twoA)}</Fx></span>
+          <span className="g7-sumtwo-line"><Fx>{t(S15.twoB)}</Fx></span>
           <p className="g7-sumcard-note">
             <b>{t(S15.predictLabel)}:</b> {predict ? t(predict) : t(S15.noAnswer)}
           </p>

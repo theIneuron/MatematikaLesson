@@ -247,7 +247,7 @@ function Screen1({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S2 = {
   eyebrow: L('TAYANCH', 'ОПОРА', 'WARM-UP'),
-  title: L('Uchta narsa', 'Три вещи', 'Three things'),
+  title: L('Uchta savol', 'Три вопроса', 'Three questions'),
   question: L('Nimaga teng?', 'Чему равно?', 'What does it equal?'),
   items: [
     {
@@ -282,7 +282,7 @@ const S2 = {
     },
   ],
   audio: [
-    A('mount', "Uchta narsani eslaymiz.", 'Вспомним три вещи.', 'Three things to recall.'),
+    A('mount', "Uchta savolga javob beramiz.", 'Ответим на три вопроса.', 'Three things to recall.'),
     A('1', "Ikkinchisi.", 'Второе.', 'Second.'),
     A('2', "Uchinchisi.", 'Третье.', 'Third.'),
   ],
@@ -982,15 +982,13 @@ const S12 = {
     { id: 'r1', text: '2³ · 2⁴' },
     { id: 'r2', text: '2¹²' },
     { id: 'r3', text: '4096' },
-    { id: 'r4', text: L('javob: 4096', 'ответ: 4096', 'answer: 4096') },
   ],
   answerId: 'r2',
   hints: {
     r1: L("Bu boshlang'ich yozuv.", 'Это исходная запись.', 'That is the original record.'),
     r3: L("Bu qator ikkinchisidan to'g'ri kelib chiqadi: 2¹² haqiqatan 4096. Xato yuqoriroqda.", 'Эта строка верно следует из второй: 2¹² действительно 4096. Ошибка выше.', 'This follows correctly from the second: 2¹² really is 4096. The mistake is higher up.'),
-    r4: L("Javob oldingi qatorni takrorlaydi.", 'Ответ повторяет предыдущую строку.', 'The answer repeats the previous line.'),
   },
-  tags: { r1: 'Z1', r3: 'Z1', r4: 'Z1' },
+  tags: { r1: 'Z1', r3: 'Z1' },
   proofFill: {
     template: ['2³ · 2⁴ = 2', { slot: 0 }, ' = ', { slot: 1 }],
     parts: [{ id: 'a', label: '⁷' }, { id: 'b', label: '128' }, { id: 'c', label: '¹²' }, { id: 'd', label: '64' }],
@@ -1319,8 +1317,8 @@ function Screen15({ screen, answers, ...rest }) {
       <div className="g7-sumcards g7-sumcards-one">
         <div className="g7-sumcard">
           <p className="g7-sumcard-h">{t(S15.twoLabel)}</p>
-          <span className="g7-sumtwo-line"><Fx>{S15.twoA}</Fx></span>
-          <span className="g7-sumtwo-line"><Fx>{S15.twoB}</Fx></span>
+          <span className="g7-sumtwo-line"><Fx>{t(S15.twoA)}</Fx></span>
+          <span className="g7-sumtwo-line"><Fx>{t(S15.twoB)}</Fx></span>
           <p className="g7-sumcard-note">
             <b>{t(S15.predictLabel)}:</b> {predict ? t(predict) : t(S15.noAnswer)}
           </p>

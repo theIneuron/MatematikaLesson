@@ -113,7 +113,7 @@ const S2 = {
   kind: 'chain',
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
-  title: L('Uch qisqa savol', 'Три коротких вопроса', 'Three short questions'),
+  title: L('Uchta savol', 'Три вопроса', 'Three questions'),
   question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
   cols: 2,
   items: [
@@ -653,7 +653,7 @@ const S12 = {
     { id: 'r2', text: '36 = 6 · 6' },
     { id: 'r3', text: '12x = 2 · x · 6' },
     { id: 'r4', text: L('bu kvadratlar ayirmasi', 'это разность квадратов', 'this is a difference of squares') },
-    { id: 'r5', text: L('javob: (x − 6)(x + 6)', 'ответ: (x − 6)(x + 6)', 'answer: (x − 6)(x + 6)') },
+    { id: 'r5', text: L('(x − 6)(x + 6)', '(x − 6)(x + 6)', '(x − 6)(x + 6)') },
   ],
   answerId: 'r4',
   hints: {

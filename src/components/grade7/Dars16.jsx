@@ -169,7 +169,7 @@ function Screen1({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S2 = {
   eyebrow: L('TAYANCH', 'ОПОРА', 'WARM-UP'),
-  title: L('Uchta narsa', 'Три вещи', 'Three things'),
+  title: L('Uchta savol', 'Три вопроса', 'Three questions'),
   question: L('Nimaga teng?', 'Чему равно?', 'What does it equal?'),
   items: [
     {
@@ -206,7 +206,7 @@ const S2 = {
     },
   ],
   audio: [
-    A('mount', "Uchta narsani eslaymiz.", 'Вспомним три вещи.', 'Three things to recall.'),
+    A('mount', "Uchta savolga javob beramiz.", 'Ответим на три вопроса.', 'Three things to recall.'),
     A('1', "Ikkinchisi ishora haqida.", 'Второе про знак.', 'The second is about the sign.'),
     A('2', "Uchinchisi koeffitsiyent haqida.", 'Третье про коэффициент.', 'The third is about the coefficient.'),
   ],
@@ -863,15 +863,13 @@ const S12 = {
     { id: 'r1', text: '3a² · 4a³' },
     { id: 'r2', text: '7a⁵' },
     { id: 'r3', text: L('a = 1 da: 7', 'при a = 1: 7', 'at a = 1: 7') },
-    { id: 'r4', text: L('javob: 7', 'ответ: 7', 'answer: 7') },
   ],
   answerId: 'r2',
   hints: {
     r1: L("Bu boshlang'ich yozuv.", 'Это исходная запись.', 'That is the original record.'),
     r3: L("Bu qator ikkinchisidan to'g'ri kelib chiqadi: a teng bir da a beshinchi daraja bir. Xato yuqoriroqda.", 'Эта строка верно следует из второй: при a = 1 пятая степень равна одному. Ошибка выше.', 'This follows correctly from the second: at a = 1 the fifth power is one. The mistake is higher up.'),
-    r4: L("Javob oldingi qatorni takrorlaydi.", 'Ответ повторяет предыдущую строку.', 'The answer repeats the previous line.'),
   },
-  tags: { r1: 'Z1', r3: 'Z1', r4: 'Z1' },
+  tags: { r1: 'Z1', r3: 'Z1' },
   proofFill: {
     template: ['3a² · 4a³ = ', { slot: 0 }, 'a', { slot: 1 }],
     parts: [{ id: 'a', label: '12' }, { id: 'b', label: '⁵' }, { id: 'c', label: '7' }, { id: 'd', label: '⁶' }],
@@ -1134,8 +1132,8 @@ const S15 = {
   tapeLabel: L("Bosib o'tilgan yo'l", 'Пройденный путь', 'The path you walked'),
   chips: ['2a³ · 5a² → 10a⁵', '−3x²y · 4xy³ → −12x³y⁴', '3a · 4b → 12ab', '? · 3a² = 12a⁵ → 4a³'],
   twoLabel: L('Ikki amal', 'Два действия', 'Two operations'),
-  twoA: 'son · son',
-  twoB: "ko'rsatkich + ko'rsatkich",
+  twoA: L('son · son', 'число · число', 'number · number'),
+  twoB: L("ko'rsatkich + ko'rsatkich", 'показатель + показатель', 'exponent + exponent'),
   nextLabel: L('Keyingi', 'Дальше', 'Next'),
   nextTopic: L(
     "bir hadning darajasi",
@@ -1180,8 +1178,8 @@ function Screen15({ screen, answers, ...rest }) {
       <div className="g7-sumcards g7-sumcards-one">
         <div className="g7-sumcard">
           <p className="g7-sumcard-h">{t(S15.twoLabel)}</p>
-          <span className="g7-sumtwo-line"><Fx>{S15.twoA}</Fx></span>
-          <span className="g7-sumtwo-line">{t(S15.twoB)}</span>
+          <span className="g7-sumtwo-line"><Fx>{t(S15.twoA)}</Fx></span>
+          <span className="g7-sumtwo-line"><Fx>{t(S15.twoB)}</Fx></span>
           <p className="g7-sumcard-note">
             <b>{t(S15.predictLabel)}:</b> {predict ? t(predict) : t(S15.noAnswer)}
           </p>

@@ -561,13 +561,14 @@ function useCanAnswer(audio) {
 }
 
 // useAdvanceGate — "Davom" faqat javobdan keyingi izoh ovozi TUGAGACH ochiladi
-// (o'quvchi tushuntirishni oxirigacha eshitsin). Mute -> darrov. 6s himoya.
+// (o'quvchi tushuntirishni oxirigacha eshitsin). Mute -> darrov. 10s himoya
+// (TTS onended kelmasa ham tugma abadiy qulflanib qolmasin).
 function useAdvanceGate(solved, audio) {
   const navUnlocked = useContext(NavUnlockContext);
   const [safety, setSafety] = useState(false);
   useEffect(() => {
     if (!solved) return undefined;
-    const id = setTimeout(() => setSafety(true), 60000);
+    const id = setTimeout(() => setSafety(true), 10000);
     return () => clearTimeout(id);
   }, [solved]);
   if (navUnlocked) return true;
@@ -3098,6 +3099,8 @@ const Screen2 = (props) => {
 // s3 — OCHILISH-2 (FAOL YOZISH): nomdan kod terish — Bit «ellik uch» deydi, bola raqam-plita bilan 53 ni yozadi
 // s3 — QOIDA: razryadli qo'shiluvchilar (45 = 40 + 5) + farqlash-cheki (веди-до-верного)
 // s3 — QOIDA + IKKI BOSQICHLI CHEK: avval birlik (9−5), keyin o'nlik (5−2) KETMA-KET ochiladi.
+// Ovoz — umumiy qoida bo'yicha: qoida+savol OLDINDAN o'qiladi, "to'g'ri/xato" esa faqat
+// javobdan KEYIN, darrov (pushOneOff) — xuddi darsning boshqa savol ekranlaridagidek.
 const Screen3 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -3105,9 +3108,7 @@ const Screen3 = (props) => {
   const c = CONTENT.s3;
   const audio = useAudio([
     brgSeg('s3', lang),
-    ...c.audio[lang].map((text, i, arr) => ({ id: `s3_${i}`, text, trigger: 'after_previous', waits_for: i === arr.length - 1 ? { type: 'units_done' } : null })),
-    { id: 's3_tens', text: c.audio_tens[lang], trigger: 'after_previous', waits_for: { type: 'tens_done' } },
-    { id: 's3_done', text: c.audio_done[lang], trigger: 'after_previous', waits_for: null }
+    ...c.audio[lang].map((text, i) => ({ id: `s3_${i}`, text, trigger: 'after_previous', waits_for: null }))
   ]);
   const seg = audio.currentSegment;
   const ruleActive = seg === 's3_1' || seg === 's3_3';
@@ -3120,13 +3121,17 @@ const Screen3 = (props) => {
   const revealRef = useRevealScroll(done, 500);
   const pickU = (i, ok) => {
     if (!canAct || phase !== 'units' || wrongU.has(i)) return;
-    if (ok) { sfx.playCorrect(); setPhase('tens'); audio.triggerEvent('units_done'); }
-    else { sfx.playWrong(); setWrongU((w) => new Set(w).add(i)); }
+    if (ok) {
+      sfx.playCorrect(); setPhase('tens');
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio_tens[lang]); }
+    } else { sfx.playWrong(); setWrongU((w) => new Set(w).add(i)); }
   };
   const pickT = (i, ok) => {
     if (!canAct || phase !== 'tens' || wrongT.has(i)) return;
-    if (ok) { sfx.playCorrect(); setPhase('done'); audio.triggerEvent('tens_done'); }
-    else { sfx.playWrong(); setWrongT((w) => new Set(w).add(i)); }
+    if (ok) {
+      sfx.playCorrect(); setPhase('done');
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio_done[lang]); }
+    } else { sfx.playWrong(); setWrongT((w) => new Set(w).add(i)); }
   };
   const canAdv = useAdvanceGate(done, audio);
   const navContent = (

@@ -165,7 +165,7 @@ const S1 = {
   noNotes: true,
   title: L('Ikkita harf kerakmi', 'Нужны ли две буквы', 'Are two letters needed'),
   gate: {
-    source: { kind: 'plain', tokens: ['jami', '40', 'kg'] },
+    source: { kind: 'plain', tokens: [L('jami', 'всего', 'total'), '40', L('kg', 'кг', 'kg')] },
     rows: [
       { tokens: ['x', ',', 'y'], value: '2' },
       { tokens: ['x', ',', '40', '−', 'x'], value: '1' },
@@ -259,7 +259,7 @@ function Screen1({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S2 = {
   eyebrow: L('TAYANCH', 'ОПОРА', 'WARM-UP'),
-  title: L('Uchta narsa', 'Три вещи', 'Three things'),
+  title: L('Uchta savol', 'Три вопроса', 'Three questions'),
   question: L('Nimaga teng?', 'Чему равно?', 'What does it equal?'),
   items: [
     {
@@ -306,7 +306,7 @@ const S2 = {
     },
   ],
   audio: [
-    A('mount', "Uchta narsani eslaymiz.", 'Вспомним три вещи.', 'Let us recall three things.'),
+    A('mount', "Uchta savolga javob beramiz.", 'Ответим на три вопроса.', 'Let us answer three questions.'),
     A('1', "Ikkinchisi bugungi darsning kaliti.", 'Второе это ключ сегодняшнего урока.', 'The second is the key to today.'),
     A('2', "Uchinchisi.", 'Третье.', 'Third.'),
   ],
@@ -1326,7 +1326,7 @@ const S15 = {
   chips: ['x , 40 − x → 22 , 18', '12t + 18t = 60 → 2', 'x + 2x + 30 = 90 → 20', '200x + 300(50 − x) → 20'],
   twoLabel: L('B2 bloki', 'Блок Б2', 'Block B2'),
   twoA: 'x = ?  →  ⇄ ±  →  | |',
-  twoB: 'masala  →  x  →  javob',
+  twoB: L('masala  →  x  →  javob', 'задача  →  x  →  ответ', 'problem  →  x  →  answer'),
   nextLabel: L('Keyingi', 'Дальше', 'Next'),
   nextTopic: L(
     "darajalar va bir hadlar",
@@ -1370,8 +1370,8 @@ function Screen15({ screen, answers, ...rest }) {
       <div className="g7-sumcards g7-sumcards-one">
         <div className="g7-sumcard">
           <p className="g7-sumcard-h">{t(S15.twoLabel)}</p>
-          <span className="g7-sumtwo-line"><Fx>{S15.twoA}</Fx></span>
-          <span className="g7-sumtwo-line"><Fx>{S15.twoB}</Fx></span>
+          <span className="g7-sumtwo-line"><Fx>{t(S15.twoA)}</Fx></span>
+          <span className="g7-sumtwo-line"><Fx>{t(S15.twoB)}</Fx></span>
           <p className="g7-sumcard-note">
             <b>{t(S15.predictLabel)}:</b> {predict ? t(predict) : t(S15.noAnswer)}
           </p>

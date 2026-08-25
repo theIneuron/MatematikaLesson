@@ -676,7 +676,7 @@ const S12 = {
     { id: 'r2', text: 'x · x = x²' },
     { id: 'r3', text: '4 · (−5) = −20' },
     { id: 'r4', text: L("o'rta hadlar yo'q", 'средних членов нет', 'there are no middle terms') },
-    { id: 'r5', text: L('javob: x² − 20', 'ответ: x² − 20', 'answer: x² − 20') },
+    { id: 'r5', text: L('x² − 20', 'x² − 20', 'x² − 20') },
   ],
   answerId: 'r4',
   hints: {

@@ -113,7 +113,7 @@ const S2 = {
   kind: 'chain',
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
-  title: L('Uch qisqa savol', 'Три коротких вопроса', 'Three short questions'),
+  title: L('Uchta savol', 'Три вопроса', 'Three questions'),
   question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
   cols: 2,
   items: [
@@ -634,7 +634,7 @@ const S12 = {
     { id: 'r2', text: 'x = 1   →   y = 3' },
     { id: 'r3', text: 'x = 2   →   y = 5' },
     { id: 'r4', text: L("x nol bo'lganda y ham nol", 'при x = 0 выходит y = 0', 'at x = 0 the y comes out 0') },
-    { id: 'r5', text: L("javob: to'g'ri proporsionallik", 'ответ: прямая пропорциональность', 'answer: a direct proportionality') },
+    { id: 'r5', text: L("to'g'ri proporsionallik", 'прямая пропорциональность', 'a direct proportionality') },
   ],
   answerId: 'r4',
   hints: {

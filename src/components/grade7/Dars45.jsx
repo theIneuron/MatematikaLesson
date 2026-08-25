@@ -111,7 +111,7 @@ const S2 = {
   kind: 'chain',
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
-  title: L('Uch qisqa savol', 'Три коротких вопроса', 'Three short questions'),
+  title: L('Uchta savol', 'Три вопроса', 'Three questions'),
   question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
   cols: 2,
   items: [
@@ -667,7 +667,7 @@ const S12 = {
     { id: 'r2', text: L('chiziqlar parallelligi ma\'lum emas', 'о параллельности прямых не сказано', 'nothing is said about them being parallel') },
     { id: 'r3', text: L('bu burchaklar mos burchaklar', 'эти углы соответственные', 'these angles are corresponding') },
     { id: 'r4', text: L('chiziqlar parallel', 'прямые параллельны', 'the lines are parallel') },
-    { id: 'r5', text: L('javob: demak ular teng', 'ответ: значит они равны', 'answer: so they are equal') },
+    { id: 'r5', text: L('demak ular teng', 'значит они равны', 'so they are equal') },
   ],
   answerId: 'r4',
   hints: {

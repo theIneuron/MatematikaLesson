@@ -114,7 +114,7 @@ const S2 = {
   kind: 'chain',
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
-  title: L('Uch qisqa savol', 'Три коротких вопроса', 'Three short questions'),
+  title: L('Uchta savol', 'Три вопроса', 'Three questions'),
   question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
   cols: 2,
   items: [
@@ -658,7 +658,7 @@ const S12 = {
     { id: 'r1', text: L('katetlar 6 va 8', 'катеты 6 и 8', 'the legs are 6 and 8') },
     { id: 'r2', text: L('gipotenuza = katetlar yig\'indisi', 'гипотенуза = сумма катетов', 'hypotenuse = the sum of the legs') },
     { id: 'r3', text: '6 + 8 = 14' },
-    { id: 'r4', text: L('javob: gipotenuza 14', 'ответ: гипотенуза 14', 'answer: the hypotenuse is 14') },
+    { id: 'r4', text: L('gipotenuza 14', 'гипотенуза 14', 'the hypotenuse is 14') },
   ],
   answerId: 'r2',
   hints: {

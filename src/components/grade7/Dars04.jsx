@@ -173,7 +173,7 @@ function Screen1({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S2 = {
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
-  title: L('Uch qisqa savol', 'Три коротких вопроса', 'Three short questions'),
+  title: L('Uchta savol', 'Три вопроса', 'Three questions'),
   question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
   items: [
     {
@@ -892,7 +892,7 @@ const S12 = {
     { id: 'r2', text: L('x = 0 da: 0 va 0, teng', 'при x = 0: 0 и 0, равно', 'at x = 0: 0 and 0, equal') },
     { id: 'r3', text: L('x = 1 da: 1 va 1, teng', 'при x = 1: 1 и 1, равно', 'at x = 1: 1 and 1, equal') },
     { id: 'r4', text: L('ikki tekshiruv yetarli', 'двух проверок достаточно', 'two checks are enough') },
-    { id: 'r5', text: L('javob: ayniyat', 'ответ: тождество', 'answer: an identity') },
+    { id: 'r5', text: L('ayniyat', 'тождество', 'an identity') },
   ],
   answerId: 'r4',
   hints: {

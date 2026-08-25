@@ -1360,12 +1360,32 @@ function hash32(str) {
 // yangi kirishda tartib boshqacha bo'ladi.
 const SALT = Math.floor(Math.random() * 1e9)
 
+// ARALASHTIRISH KUCHLI ARALASHTIRGICHDA. Ilgari bu yerda oddiy chiziqli
+// generator turardi va tartib uning ENG PAST bitlaridan olinardi (`st % 4`).
+// Bunday generatorning past bitlari deyarli tasodifiy emas: birinchi va
+// oxirgi almashtirish bir xil bitga tayanib qolardi. Natijada bitta sahifa
+// ochilishida deyarli HAMMA savolda to'g'ri javob bir xil joyga tushardi --
+// o'lchov: A ulushi ochilishga qarab 0 dan 72 foizgacha sakrardi, ya'ni
+// aralashtirish bor ko'rinib, aslida ishlamasdi (QA 2026-08-25: «javobi
+// ko'pchiligida A»).
+//
+// Endi splitmix32: har qadam butun songa ko'chki beradi va tartib YUQORI
+// bitlardan olinadi. O'lchov: 25/25/25/25, bitta ochilishda A ulushi 19 dan
+// 31 foizgacha -- oddiy tasodifiy tebranish.
+function mix32(x) {
+  let h = (x ^ (x >>> 16)) >>> 0
+  h = Math.imul(h, 2246822507) >>> 0
+  h = (h ^ (h >>> 13)) >>> 0
+  h = Math.imul(h, 3266489909) >>> 0
+  return (h ^ (h >>> 16)) >>> 0
+}
+
 function shuffleSeeded(list, seed) {
   const out = list.slice()
-  let st = (seed ^ SALT) >>> 0 || 1
+  let st = (seed ^ SALT) >>> 0
   for (let i = out.length - 1; i > 0; i -= 1) {
-    st = (Math.imul(st, 1664525) + 1013904223) >>> 0
-    const j = st % (i + 1)
+    st = (st + 0x9e3779b9) >>> 0
+    const j = Math.floor((mix32(st) / 4294967296) * (i + 1))
     const tmp = out[i]
     out[i] = out[j]
     out[j] = tmp
@@ -1373,15 +1393,79 @@ function shuffleSeeded(list, seed) {
   return out
 }
 
-export function useShuffled(items) {
+// TO'G'RI JAVOB JOYI TASODIFGA TASHLAB QO'YILMAYDI.
+//
+// Aralashtirishning o'zi yetarli emas: tasodif bir darsda ham to'planib
+// qoladi. O'lchov (465 ta to'rt variantli savol, 400 marta ochilish): sof
+// aralashtirishda har o'ninchi darsda to'g'ri javobning 43 foizdan ko'pi
+// bitta joyga tushadi, har yuzinchisida 63 foizi. Bola darsni BIR MARTA
+// o'tadi -- unga «o'rtacha yaxshi» emas, O'SHA o'tishi to'g'ri bo'lishi
+// kerak.
+//
+// Shuning uchun joy XALTADAN olinadi: to'rtta joy aralashtiriladi va
+// birma-bir tarqatiladi, xalta bo'shagach yangisi aralashtiriladi. Ketma-ket
+// to'rtta savolda har joy AYNAN bir marta uchraydi, lekin tartib har
+// xaltada boshqacha -- ya'ni «A, B, C, D, A, B, C, D» degan ko'rinadigan
+// aylanish ham yo'q.
+//
+// Savolning joyi uning MAZMUNIGA bog'lab qo'yiladi (kalit -- o'sha imzo),
+// shuning uchun qayta chizishda joy sakramaydi.
+//
+// Darsning ma'lumotida to'g'ri javob DOIM birinchi turadi (465 ta savolning
+// 465 tasida) -- xaltadagi joyga o'sha birinchi band qo'yiladi, qolganlari
+// bo'sh joylarga mazmun bo'yicha tarqaladi.
+const SLOTS = new Map()
+let slotBag = []
+let bagStep = 0
+
+function slotFor(sig, n) {
+  const key = n + '#' + sig
+  const hit = SLOTS.get(key)
+  if (hit !== undefined) return hit
+  if (!slotBag.length) {
+    slotBag = []
+    for (let i = 0; i < n; i += 1) slotBag.push(i)
+    for (let i = slotBag.length - 1; i > 0; i -= 1) {
+      bagStep = (bagStep + 0x9e3779b9) >>> 0
+      const j = Math.floor((mix32((bagStep ^ SALT) >>> 0) / 4294967296) * (i + 1))
+      const tmp = slotBag[i]
+      slotBag[i] = slotBag[j]
+      slotBag[j] = tmp
+    }
+  }
+  const slot = slotBag.pop()
+  SLOTS.set(key, slot)
+  return slot
+}
+
+// `balanced` -- XALTADAN joy oladigan ro'yxat FAQAT javob variantlari.
+// Boshqa ro'yxatlar (bo'laklar banki, kartochkalar) ham aralashadi, lekin
+// xaltaga TEGMAYDI: aks holda ular navbatni yeb qo'yardi va variantlarning
+// tekis taqsimoti buzilardi (o'lchov: 9/7/5/2 -- 6/6/6/5 o'rniga).
+export function useShuffled(items, balanced) {
   const sig = sigOf(items)
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  return useMemo(() => shuffleSeeded(items || [], hash32(sig)), [sig])
+  return useMemo(() => {
+    const list = items || []
+    if (list.length !== 4 || !balanced) return shuffleSeeded(list, hash32(sig))
+    const slot = slotFor(sig, 4)
+    const rest = shuffleSeeded(list.slice(1), hash32(sig))
+    const out = new Array(4)
+    out[slot] = list[0]
+    let k = 0
+    for (let i = 0; i < 4; i += 1) {
+      if (i === slot) continue
+      out[i] = rest[k]
+      k += 1
+    }
+    return out
+  }, [sig])
 }
 
 export const Options = ({ items, picked, wrong, onPick, disabled, cols = 2, minH, collapse = true, badges = true, dense = false, neutral = false }) => {
   // Tartib bir marta aralashadi va savol almashgunicha qotib turadi.
-  items = useShuffled(items)
+  // To'g'ri javobning joyi xaltadan olinadi -- shuning uchun `true`.
+  items = useShuffled(items, true)
   // SON javoblari BITTA QATORDA va YIRIK shriftda (metodist 2026-08-14:
   // «to'rt variant bir qatorda bo'lsin, shrift ancha kattaroq, ko'rinmayapti»).
   // Qisqa javob 2x2 panjarada ikki qator egallardi va o'sha ikki qatorda
@@ -2441,6 +2525,12 @@ sup.g7-idx { vertical-align: .46em; }
   font-feature-settings: 'liga' 0;
   font-variant-numeric: tabular-nums lining-nums;
 }
+/* QIYMAT YO'Q: natija emas, natijaning YO'QLIGI. Metodist qarori 2026-08-23:
+   so'z o'rniga BELGI -- shunday chiroyliroq. Rang sinf palitrasidan olinadi:
+   tip -- «noto'g'ri» rangi, xato variant ham shu rangda yonadi. Sof qizil
+   palitrada yo'q va ataylab kiritilmagan: har rang MA'NOGA band.
+   Ekran o'quvchisi uchun belgi yonida aria-label bilan matn qoladi. */
+.g7-sub-none { color: ${T.tip}; font-size: 1.15em; font-weight: 700; }
 .g7-opt-badge { flex-shrink: 0; min-width: 20px; font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 700; }
 /* SON javobi: yirik va markazda. Harf yo'q, ya'ni kenglik ham kerak emas --
    to'rttasi bitta qatorga bemalol sig'adi. */
@@ -2527,19 +2617,14 @@ sup.g7-idx { vertical-align: .46em; }
   font-family: 'Manrope', sans-serif; font-weight: 600;
   font-size: clamp(12.5px, 1.5vw, 15px); color: ${T.graph};
 }
-/* Yig'ish maydonining bo'sh holati: xira yozuv va miltillovchi kursor. */
+/* Yig'ish maydonining bo'sh holati: xira yozuv, KURSORSIZ. Miltillovchi
+   kursor bu yerda bor edi va ramkani KIRITISH MAYDONIGA o'xshatib qo'yardi --
+   javobni yozish kerakdek tuyulardi (QA 2026-08-23). */
 .g7-rb-empty {
   display: inline-flex; align-items: center; gap: 6px;
   font-family: 'Manrope', sans-serif; font-weight: 600;
   font-size: clamp(13.5px, 1.6vw, 16px); color: ${T.ink3};
 }
-.g7-rb-caret {
-  display: inline-block; width: 2px; height: 1.1em;
-  background: ${T.accent};
-  animation: g7-caret 1.05s steps(1) infinite;
-}
-@keyframes g7-caret { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .g7-rb-caret { animation: none; } }
 .g7-partsrow {
   display: flex; flex-wrap: wrap; align-items: center;
   gap: clamp(8px, 1.2vw, 14px); justify-content: center; min-width: 0;

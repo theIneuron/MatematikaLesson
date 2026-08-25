@@ -114,7 +114,7 @@ const S2 = {
   kind: 'chain',
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
-  title: L('Uch qisqa savol', 'Три коротких вопроса', 'Three short questions'),
+  title: L('Uchta savol', 'Три вопроса', 'Three questions'),
   question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
   cols: 2,
   items: [
@@ -638,7 +638,7 @@ const S12 = {
     { id: 'r1', text: L("4 ko'ylak VA 3 shim", '4 рубашки И 3 брюк', '4 shirts AND 3 trousers') },
     { id: 'r2', text: L("variantlar soni: 4 qo'shuv 3", 'число вариантов: 4 плюс 3', 'the count: 4 plus 3') },
     { id: 'r3', text: '4 + 3 = 7' },
-    { id: 'r4', text: L('javob: 7', 'ответ: 7', 'answer: 7') },
+    { id: 'r4', text: L('7', '7', '7') },
   ],
   answerId: 'r2',
   hints: {

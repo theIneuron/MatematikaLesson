@@ -117,7 +117,7 @@ const S2 = {
   kind: 'chain',
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
-  title: L('Uch qisqa savol', 'Три коротких вопроса', 'Three short questions'),
+  title: L('Uchta savol', 'Три вопроса', 'Three questions'),
   question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
   cols: 2,
   items: [
@@ -702,7 +702,7 @@ const S12 = {
     { id: 'r2', text: 'x + y = 3' },
     { id: 'r3', text: L('chizmadan: (3; 1)', 'с чертежа: (3; 1)', 'from the drawing: (3; 1)') },
     { id: 'r4', text: L('tekshirish shart emas', 'проверять не нужно', 'no check is needed') },
-    { id: 'r5', text: L('javob: (3; 1)', 'ответ: (3; 1)', 'answer: (3; 1)') },
+    { id: 'r5', text: L('(3; 1)', '(3; 1)', '(3; 1)') },
   ],
   answerId: 'r3',
   hints: {

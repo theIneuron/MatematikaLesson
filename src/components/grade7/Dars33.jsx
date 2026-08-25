@@ -115,7 +115,7 @@ const S2 = {
   kind: 'chain',
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
-  title: L('Uch qisqa savol', 'Три коротких вопроса', 'Three short questions'),
+  title: L('Uchta savol', 'Три вопроса', 'Three questions'),
   question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
   cols: 2,
   items: [
@@ -669,7 +669,7 @@ const S12 = {
     { id: 'r2', text: 'x = 0' },
     { id: 'r3', text: 'y = −4' },
     { id: 'r4', text: L('nuqta chorakda yotadi', 'точка лежит в четверти', 'the point lies in a quadrant') },
-    { id: 'r5', text: L("javob: to'rtinchi chorak", 'ответ: четвёртая четверть', 'answer: the fourth quadrant') },
+    { id: 'r5', text: L("to'rtinchi chorak", 'четвёртая четверть', 'the fourth quadrant') },
   ],
   answerId: 'r4',
   hints: {
