@@ -410,7 +410,7 @@ function Task({ task, lang, isLast, onSolved ,
     return false;
   };
   const answerSnapshot = () => {
-    if (['mc', 'sign', 'card'].includes(task.kind)) return { optionId: task.options[picked]?.id, text: task.options[picked]?.text };
+    if (['mc', 'sign', 'card'].includes(task.kind)) { const chosen = (task.options || []).find((item) => item.id === picked); return { optionId: chosen?.id, text: chosen?.text }; }
     if (task.kind === 'numpad' || task.kind === 'missing') return { value: typed };
     if (task.kind === 'ticks') return { value: picked };
     if (task.kind === 'match') return { pairs };
