@@ -3099,6 +3099,8 @@ const Screen2 = (props) => {
 // s3 — OCHILISH-2 (FAOL YOZISH): nomdan kod terish — Bit «ellik uch» deydi, bola raqam-plita bilan 53 ni yozadi
 // s3 — QOIDA: razryadli qo'shiluvchilar (45 = 40 + 5) + farqlash-cheki (веди-до-верного)
 // s3 — QOIDA + IKKI BOSQICHLI CHEK: avval birlik (9−5), keyin o'nlik (5−2) KETMA-KET ochiladi.
+// Ovoz — umumiy qoida bo'yicha: qoida+savol OLDINDAN o'qiladi, "to'g'ri/xato" esa faqat
+// javobdan KEYIN, darrov (pushOneOff) — xuddi darsning boshqa savol ekranlaridagidek.
 const Screen3 = (props) => {
   const lang = useLang();
   const t = useT();
@@ -3106,38 +3108,30 @@ const Screen3 = (props) => {
   const c = CONTENT.s3;
   const audio = useAudio([
     brgSeg('s3', lang),
-    ...c.audio[lang].map((text, i, arr) => ({ id: `s3_${i}`, text, trigger: 'after_previous', waits_for: i === arr.length - 1 ? { type: 'units_done' } : null })),
-    { id: 's3_tens', text: c.audio_tens[lang], trigger: 'after_previous', waits_for: { type: 'tens_done' } },
-    { id: 's3_done', text: c.audio_done[lang], trigger: 'after_previous', waits_for: null }
+    ...c.audio[lang].map((text, i) => ({ id: `s3_${i}`, text, trigger: 'after_previous', waits_for: null }))
   ]);
   const seg = audio.currentSegment;
   const ruleActive = seg === 's3_1' || seg === 's3_3';
-  const navUnlocked = useContext(NavUnlockContext);
+  const canAct = useCanAnswer(audio);
   const [phase, setPhase] = useState('units');   // 'units' -> 'tens' -> 'done'
   const [wrongU, setWrongU] = useState(() => new Set());
   const [wrongT, setWrongT] = useState(() => new Set());
   const isUnits = phase === 'units';
   const done = phase === 'done';
-  // Bosqich ovozi TUGAGUNCHA javob berib bo'lmaydi: aks holda tez bosilgan javob
-  // triggerEvent'ni navbat hali kutmayotganda yuboradi, u yo'qoladi va ovoz abadiy to'xtab qoladi.
-  const [phaseSafety, setPhaseSafety] = useState(false);
-  useEffect(() => {
-    setPhaseSafety(false);
-    const id = setTimeout(() => setPhaseSafety(true), 10000);
-    return () => clearTimeout(id);
-  }, [phase]);
-  const canPick = FREE_NAV || navUnlocked || audio.muted || phaseSafety ||
-    (isUnits ? audio.waitingFor?.type === 'units_done' : audio.waitingFor?.type === 'tens_done');
   const revealRef = useRevealScroll(done, 500);
   const pickU = (i, ok) => {
-    if (!canPick || phase !== 'units' || wrongU.has(i)) return;
-    if (ok) { sfx.playCorrect(); setPhase('tens'); audio.triggerEvent('units_done'); }
-    else { sfx.playWrong(); setWrongU((w) => new Set(w).add(i)); }
+    if (!canAct || phase !== 'units' || wrongU.has(i)) return;
+    if (ok) {
+      sfx.playCorrect(); setPhase('tens');
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio_tens[lang]); }
+    } else { sfx.playWrong(); setWrongU((w) => new Set(w).add(i)); }
   };
   const pickT = (i, ok) => {
-    if (!canPick || phase !== 'tens' || wrongT.has(i)) return;
-    if (ok) { sfx.playCorrect(); setPhase('done'); audio.triggerEvent('tens_done'); }
-    else { sfx.playWrong(); setWrongT((w) => new Set(w).add(i)); }
+    if (!canAct || phase !== 'tens' || wrongT.has(i)) return;
+    if (ok) {
+      sfx.playCorrect(); setPhase('done');
+      if (!audio.muted) { const e = getAudioEngine(); if (e) e.pushOneOff(c.audio_done[lang]); }
+    } else { sfx.playWrong(); setWrongT((w) => new Set(w).add(i)); }
   };
   const canAdv = useAdvanceGate(done, audio);
   const navContent = (
@@ -3177,7 +3171,7 @@ const Screen3 = (props) => {
         </div>
         <div key={`opts-${phase}`} className="fade-up" style={{ display: 'grid', gridTemplateColumns: curOpts.length === 3 ? '1fr 1fr 1fr' : '1fr 1fr', gap: 10, width: '100%' }}>
           {curOpts.map((o, i) => (
-            <button key={i} className={`option ${done && o.ok ? 'option-correct' : ''} ${curWrong.has(i) ? 'option-picked-wrong' : ''}`} disabled={!canPick || done || curWrong.has(i)} onClick={() => curPick(i, !!o.ok)}
+            <button key={i} className={`option ${done && o.ok ? 'option-correct' : ''} ${curWrong.has(i) ? 'option-picked-wrong' : ''}`} disabled={!canAct || done || curWrong.has(i)} onClick={() => curPick(i, !!o.ok)}
               style={{ padding: 'clamp(9px,1.6vw,12px)', fontSize: 'clamp(22px,4vw,30px)', fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", minHeight: 'clamp(46px,7vw,56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>{t(o)}</button>
           ))}
         </div>
