@@ -562,13 +562,14 @@ function useCanAnswer(audio) {
 }
 
 // useAdvanceGate — "Davom" faqat javobdan keyingi izoh ovozi TUGAGACH ochiladi
-// (o'quvchi tushuntirishni oxirigacha eshitsin). Mute -> darrov. 6s himoya.
+// (o'quvchi tushuntirishni oxirigacha eshitsin). Mute -> darrov. 10s himoya
+// (TTS onended kelmasa ham tugma abadiy qulflanib qolmasin).
 function useAdvanceGate(solved, audio) {
   const navUnlocked = useContext(NavUnlockContext);
   const [safety, setSafety] = useState(false);
   useEffect(() => {
     if (!solved) return undefined;
-    const id = setTimeout(() => setSafety(true), 60000);
+    const id = setTimeout(() => setSafety(true), 10000);
     return () => clearTimeout(id);
   }, [solved]);
   if (navUnlocked) return true;
