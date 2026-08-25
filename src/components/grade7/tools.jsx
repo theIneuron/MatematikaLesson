@@ -29,7 +29,7 @@
 //
 // import React SHART: LMS xom jsx ni KLASSIK rejimda yuklaydi.
 // ============================================================================
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import {
   ACT,
   Ask,
@@ -101,6 +101,16 @@ export const UI = {
   ),
   tsHads: L('Hadlar:', 'Членов:', 'Terms:'),
   agCells: L('Kataklar:', 'Клеток:', 'Cells:'),
+  // UCHNI KO'CHIRISH QANDAY BOSHLANISHINI EKRANNING O'ZI AYTSIN. Chizmaning
+  // to'q sariq ramkasi «bu yerda harakat bor» deydi, lekin NIMA qilish
+  // kerakligini aytmaydi: sichqonchada kursor o'zgaradi, telefonda esa hech
+  // qanday ishora yo'q. Metodist 2026-08-25: «a kak mne stavit novuyu
+  // tochku?» -- ya'ni ishora yetmagan.
+  fgTapNode: L(
+    "Setkadagi nuqtani bosing -- uch o'sha yerga ko'chadi",
+    'Нажми на точку сетки — вершина переедет туда',
+    'Tap a point on the grid and the vertex moves there',
+  ),
   fgSum: L("Burchaklar yig'indisi:", 'Сумма углов:', 'Angle sum:'),
   fgGuess: L('taxmin', 'предположение', 'a guess'),
   fgMeasure: L("O'lchov", 'Измерение', 'The measurement'),
@@ -4782,9 +4792,16 @@ export function Plane({
     return out
   }
 
+  // KO'RSATMA QULFI BIR MARTA ISHLAYDI -- `Figure` dagi bilan bir xil sabab:
+  // razbor ham ovoz, va u gapirayotganda tekislik yana o'lik bo'lib qolardi.
+  const opened = useRef(false)
+  if (!disabled) opened.current = true
+  const blocked = disabled && !opened.current
+  const live = !!pick && !put && !blocked
+
   // BOSISH: ulush -> matematik koordinata -> eng yaqin butun tugun.
   const tap = (e) => {
-    if (disabled || !pick || put) return
+    if (blocked || !pick || put) return
     const box = e.currentTarget.getBoundingClientRect()
     if (!box.width || !box.height) return
     const vx = ((e.clientX - box.left) / box.width) * VW
@@ -4887,7 +4904,7 @@ export function Plane({
         <div className="g7-pl-wrap">
           <svg
             viewBox={'0 0 ' + VW + ' ' + VH}
-            className={'g7-pl-svg' + (pick && !put && !disabled ? ' is-live' : '')}
+            className={'g7-pl-svg' + (live ? ' is-live' : '')}
             onClick={tap}
             role="img"
             aria-label={t(caption || UI.agCells)}
@@ -5066,6 +5083,16 @@ export function Figure({
   const names = Object.keys(now)
   const links = seg || names.map((n, i) => [n, names[(i + 1) % names.length]])
   const ready = !move || !!moved
+  // KO'RSATMA QULFI BIR MARTA ISHLAYDI. `disabled` ovoz gapirayotganda yopiladi
+  // -- va razbor ham OVOZ: noto'g'ri tugun bosilgach «bu boshqa nuqta» o'qila
+  // boshlaydi va chizma yana o'lik bo'lib qoladi. Metodist 2026-08-25:
+  // «ne poluchaetsya najat» -- u aynan shu paytda bosardi. Qoida esa
+  // KO'RSATMA haqida: javob ko'rsatma eshitilgunча berilmasin. Ko'rsatma bir
+  // marta ochilgach, chizma ochiq qoladi.
+  const opened = useRef(false)
+  if (!disabled) opened.current = true
+  const blocked = disabled && !opened.current
+  const waiting = !!move && !moved && !blocked
 
   const ints = (a, b) => {
     const out = []
@@ -5074,7 +5101,7 @@ export function Figure({
   }
 
   const tap = (e) => {
-    if (disabled || !move || moved) return
+    if (blocked || !move || moved) return
     const box = e.currentTarget.getBoundingClientRect()
     if (!box.width || !box.height) return
     const vx = ((e.clientX - box.left) / box.width) * VW
@@ -5088,7 +5115,15 @@ export function Figure({
     // ko'chiring»), ya'ni javob ma'lum va TEKSHIRILADI. Ilgari uch ISTALGAN
     // tugunga ko'chardi, va undan keyingi xulosa ma'nosini yo'qotardi
     // (QA 2026-08-22: «belgilashi ishlamayapti, hamma joyda»).
-    if (pick && (gx !== pick.x || gy !== pick.y)) {
+    //
+    // `pick` RO'YXAT ham bo'ladi. Ba'zi topshiriq tugunni ATAMAYDI, SHART
+    // beradi: «A dagi burchak to'g'ri bo'lsin». Bunday shartni bitta emas,
+    // bir NECHA tugun bajaradi -- 44-darsda A ustidagi butun ustun. Bitta
+    // tugunni kutish o'quvchini to'g'ri o'ylagani uchun rad etardi
+    // (metodist 2026-08-25). Endi shartga mos tugunlar ro'yxat bo'lib
+    // beriladi.
+    const spots = Array.isArray(pick) ? pick : (pick ? [pick] : null)
+    if (spots && !spots.some((p) => p.x === gx && p.y === gy)) {
       setHint(UI.missPoint)
       fx.wrong(UI.missPoint)
       return
@@ -5201,7 +5236,7 @@ export function Figure({
   // tomonning O'ZI bo'ylab ketadi va imzo uzunlik imzosining ustiga tushadi --
   // shunday holatda perpendikulyar olinadi va imzo PASTGA chiqadi, uzunliklar
   // esa yuqorida qoladi.
-  const angLabelAt = (n) => {
+  const angLabelAt = (n, text) => {
     const rest = names.filter((m) => m !== n)
     const px = sx(now[n].x)
     const py = sy(now[n].y)
@@ -5229,6 +5264,26 @@ export function Figure({
       by = uy + vy
       const lb = Math.hypot(bx, by) || 1
       bx /= lb; by /= lb
+      // O'TKIR BURCHAKDA YOZUV TOMONLAR ORASIGA SIG'MAYDI. Uchdan 22 px
+      // narida ikki tomon orasidagi bo'shliq atigi 2 * 22 * sin(burchak / 2)
+      // ga teng: 34 daraja uchun bu 13 px, «34» yozuvi esa 15 px -- yozuv
+      // ikkala chiziq ustiga chiqib, o'qilmay qolardi (QA 2026-08-25,
+      // 44-dars, uchini o'zi ko'chiradigan ekran).
+      //
+      // Endi masofa burchakdan hisoblanadi: yozuvning yarmi chiziqqacha
+      // yetmasligi kerak. To'g'ri burchakda hisob 13 px beradi, ya'ni 22 dan
+      // kichik -- demak keng burchakli chizmalarda HECH NIMA o'zgarmaydi.
+      // Faqat 51 darajadan tor burchak yozuvni uzoqroqqa suradi. Masofa
+      // uchburchakning ichida qolishi uchun qisqa tomonning yarmidan
+      // oshmaydi.
+      const half = Math.acos(Math.max(-1, Math.min(1, dot))) / 2
+      const wide = String(text === undefined || text === null ? '' : text).length * 3.75 + 5
+      const sin = Math.sin(half)
+      if (sin > 0.02) {
+        const need = wide / sin
+        const room = Math.min(lu, lv) * 0.45
+        off = Math.max(off, Math.min(need, room, 50))
+      }
     }
     return { x: px + bx * off, y: py + by * off }
   }
@@ -5249,6 +5304,35 @@ export function Figure({
   const isMark = (id) => (mark || []).indexOf(id) !== -1
   const isDim = (id) => (dim || []).indexOf(id) !== -1
   const segId = (a, b) => a + b
+  // IKKI YOZUV BIR-BIRINI BOSMASIN. Uchlar yaqin bo'lganda (shart tugunni
+  // atamasa, o'quvchi C ni A ning yoniga qo'yishi mumkin) ikkala yozuv ham
+  // uchidan bir xil masofada turadi va ustma-ust tushadi -- o'qib bo'lmaydi.
+  // Shuning uchun avval uchala joy hisoblanadi, keyin yaqinlari bir-biridan
+  // ITARILADI. Keng chizmada hech nima o'zgarmaydi: shart faqat o'n yetti
+  // pikseldan yaqin yozuvlarga tegadi.
+  const angSpots = {}
+  if (show && show.angles && angles) {
+    names.forEach((n) => { angSpots[n] = angLabelAt(n, angles[n] + '°') })
+    for (let pass = 0; pass < 2; pass += 1) {
+      for (let i = 0; i < names.length; i += 1) {
+        for (let j = i + 1; j < names.length; j += 1) {
+          const a = angSpots[names[i]]
+          const b = angSpots[names[j]]
+          let dx = b.x - a.x
+          let dy = b.y - a.y
+          let d = Math.hypot(dx, dy)
+          if (d >= 17) continue
+          if (d < 0.01) { dx = 0; dy = 1; d = 1 }
+          const push = (17 - d) / 2
+          a.x -= (dx / d) * push
+          a.y -= (dy / d) * push
+          b.x += (dx / d) * push
+          b.y += (dy / d) * push
+        }
+      }
+    }
+  }
+
   const segCls = (a, b) => {
     const id1 = segId(a, b)
     const id2 = segId(b, a)
@@ -5277,7 +5361,7 @@ export function Figure({
         <div className="g7-pl-wrap">
           <svg
             viewBox={'0 0 ' + VW + ' ' + VH}
-            className={'g7-fg-svg' + (move && !moved && !disabled ? ' is-live' : '')}
+            className={'g7-fg-svg' + (waiting ? ' is-live' : '')}
             onClick={tap}
             role="img"
             aria-label={t(caption || UI.agCells)}
@@ -5288,6 +5372,26 @@ export function Figure({
             {ints(R.x0, R.x1).map((x) => ints(R.y0, R.y1).map((y) => (
               <circle key={'n' + x + '_' + y} className="g7-fg-node" cx={sx(x)} cy={sy(y)} r="1.4" />
             )))}
+
+            {/* NUQTA NOMLARI FAQAT KO'CHIRISH PAYTIDA. Topshiriq nuqtani
+                RAQAM bilan ataydi («C ni uch ; uch nuqtaga ko'chiring»), to'r
+                esa yalang'och nuqtalardan iborat edi -- qaysi nuqta ekanini
+                aniqlashning IMKONI yo'q edi (metodist 2026-08-25: «kak ponyat
+                i nayti tochku (3; 3)»). Mexanika ishlagan, ko'rsatma
+                o'qilmagan.
+                Raqamlar uch ko'chirilishi bilan YO'QOLADI: geometriya
+                chizmasi koordinata tekisligi emas, ular faqat shu paytda
+                kerak. */}
+            {waiting ? (
+              <g className="g7-fg-axis">
+                {ints(R.x0, R.x1).map((x) => (
+                  <text key={'ax' + x} x={sx(x)} y={oy + h + 14} textAnchor="middle">{x}</text>
+                ))}
+                {ints(R.y0, R.y1).map((y) => (
+                  <text key={'ay' + y} x={ox - 13} y={sy(y) + 3.5} textAnchor="middle">{y}</text>
+                ))}
+              </g>
+            ) : null}
 
             {links.map(([a, b], i) => (
               <line
@@ -5317,7 +5421,13 @@ export function Figure({
 
             {/* Burchaklar: uchning yonida. */}
             {show && show.angles && angles ? names.map((n) => {
-              const p = angLabelAt(n)
+              // BURCHAK GRADUS BELGISI BILAN YOZILADI (metodist 2026-08-25):
+              // chizmadagi «34» son bo'lib turardi, «34°» esa BURCHAK ekanini
+              // aytadi. Belgi joy hisobiga ham kiradi: yozuv o'z eni bilan
+              // beriladi, ya'ni tomonlar orasidagi masofa u bilan birga
+              // o'lchanadi.
+              const txt = angles[n] + '°'
+              const p = angSpots[n]
               return (
                 <text
                   key={'a' + n}
@@ -5327,7 +5437,7 @@ export function Figure({
                   textAnchor="middle"
                   dominantBaseline="central"
                 >
-                  {angles[n]}
+                  {txt}
                 </text>
               )
             }) : null}
@@ -5395,7 +5505,14 @@ export function Figure({
       </Slot>
 
       <Slot mh={58}>
-        <Feedback show={!!hint} ok={!!picked}>{hint ? t(hint) : null}</Feedback>
+        <Feedback
+          show={!!hint || waiting}
+          ok={!!picked}
+          tone={!hint && waiting ? 'neutral' : undefined}
+          cap={!hint && waiting ? ACT.tap : undefined}
+        >
+          {hint ? t(hint) : (waiting ? t(UI.fgTapNode) : null)}
+        </Feedback>
       </Slot>
     </>
   )

@@ -205,13 +205,12 @@ const S3 = {
   eyebrow: L('OCHAMIZ', 'РАЗБИРАЕМСЯ', 'WORKING IT OUT'),
   title: L('Ikki fakt bir chizmada', 'Два факта на одном чертеже', 'Two facts on one drawing'),
   pts: { A: { x: -3, y: -2 }, B: { x: 3, y: -2 }, C: { x: 0, y: 3 } },
-  show: { sides: true, angles: true, sum: true },
+  show: { sides: true, angles: true },
   mark: ['A', 'B'],
-  guess: true,
   caption: L(
-    "Yon tomonlar teng. Chizmada tomonlar ham, burchaklar ham, yig'indi ham bir vaqtda ko'rinadi.",
-    'Боковые стороны равны. На чертеже сразу видны и стороны, и углы, и сумма.',
-    'The legs are equal. The drawing shows the sides, the angles and the sum at once.',
+    "Yon tomonlar teng. Chizmada tomonlar ham, burchaklar ham bir vaqtda ko'rinadi.",
+    'Боковые стороны равны. На чертеже сразу видны и стороны, и углы.',
+    'The legs are equal. The drawing shows the sides and the angles at once.',
   ),
   options: [
     { id: 'a', label: L("asosdagilar teng va yig'indi 180", 'при основании равны и сумма 180', 'the base ones are equal and the sum is 180') },
@@ -222,7 +221,7 @@ const S3 = {
   answer: 'a',
   wrongs: [
     { key: 'b', tag: 'Z2', hint: L("A va B dagi sonlarni solishtiring: ular bir xil.", 'Сравни числа при A и B: они одинаковы.', 'Compare the numbers at A and B: they match.') },
-    { key: 'c', tag: 'Z1', hint: L("Chizma ostidagi songa ham qarang.", 'Посмотри и на число под чертежом.', 'Look at the number under the drawing too.') },
+    { key: 'c', tag: 'Z1', hint: L("Uchlardagi uchta sonni qo'shib ko'ring.", 'Сложи три числа при вершинах.', 'Add the three numbers at the vertices.') },
     { key: 'd', tag: 'Z2', hint: L("C dagi burchak boshqa: yon tomonlar teng, asos esa boshqa.", 'Угол при C другой: боковые равны, а основание другое.', 'The angle at C differs: the legs are equal, the base is not.') },
   ],
   note: L(
@@ -232,7 +231,7 @@ const S3 = {
   ),
   audio: [
     A('mount', "Chizmada teng yonli uchburchak turibdi.", 'На чертеже равнобедренный треугольник.', 'An isosceles triangle is on the drawing.'),
-    A('mount', "Chizmada uchta son va yig'indi ko'rinadi. Nima to'g'ri ekanini tanlang.", 'На чертеже видны три числа и сумма. Выбери, что верно.', 'The drawing shows three numbers and the sum. Choose what is true.'),
+    A('mount', "Chizmada uchta son ko'rinadi. Ularni qo'shing va nima to'g'ri ekanini tanlang.", 'На чертеже видны три числа. Сложи их и выбери, что верно.', 'The drawing shows three numbers. Add them and choose what is true.'),
   ],
 }
 
@@ -247,12 +246,11 @@ const S4 = {
   pts: { A: { x: -3, y: -2 }, B: { x: 3, y: -2 }, C: { x: 0, y: 3 } },
   move: 'C',
   pick: { x: 2, y: 3 },
-  show: { sides: true, angles: true, sum: true },
-  guess: true,
+  show: { sides: true, angles: true },
   caption: L(
-    "C uchini (2; 3) tuguniga ko'chiring va ikki faktni ham kuzatib turing.",
-    'Перенеси вершину C в узел (2; 3) и следи за обоими фактами.',
-    'Move the vertex C to the node (2; 3) and watch both facts.',
+    "C uchini (2; 3) nuqtaga ko'chiring. Ikki narsani kuzating: asosdagi burchaklar teng qoladimi va uchta burchak birga nechcha beradi.",
+    'Перенеси вершину C в точку (2; 3). Следи за двумя вещами: остались ли равны углы при основании и сколько дают три угла вместе.',
+    'Move the vertex C to the point (2; 3). Watch two things: whether the base angles stay equal and what the three angles give together.',
   ),
   options: [
     { id: 'a', label: L("burchaklar tengligi yo'qoldi, yig'indi qoldi", 'равенство углов пропало, сумма осталась', 'the equal angles went, the sum stayed') },
@@ -262,7 +260,7 @@ const S4 = {
   ],
   answer: 'a',
   wrongs: [
-    { key: 'b', tag: 'Z3', hint: L("Chizma ostidagi son o'zgarmadi, uchlardagi sonlar esa har xil bo'ldi.", 'Число под чертежом не изменилось, а числа при вершинах стали разными.', 'The number under the drawing did not change; the ones at the vertices differ now.') },
+    { key: 'b', tag: 'Z3', hint: L("Uchta sonni qo'shing: yig'indi o'zgarmadi, uchlardagi sonlar esa har xil bo'ldi.", 'Сложи три числа: сумма не изменилась, а числа при вершинах стали разными.', 'Add the three numbers: the total is unchanged, but the ones at the vertices differ now.') },
     { key: 'c', tag: 'Z3', hint: L("Yig'indi joyida: chizma ostidagi songa qarang.", 'Сумма на месте: посмотри на число под чертежом.', 'The sum is still there: look at the number under the drawing.') },
     { key: 'd', tag: 'Z3', hint: L("Uchlardagi sonlarni solishtiring: endi uchtasi ham har xil.", 'Сравни числа при вершинах: теперь все три разные.', 'Compare the numbers at the vertices: all three differ now.') },
   ],
@@ -273,8 +271,8 @@ const S4 = {
   ),
   audio: [
     A('mount', "Endi shartni buzamiz: uchni yon tomonga suramiz.", 'Теперь нарушим условие: сдвинем вершину в сторону.', 'Now we break the condition: shift the vertex sideways.'),
-    A('mount', "Ikki ; uch tugunini bosing.", 'Нажми на узел два ; три.', 'Tap the node two ; three.'),
-    A('move', "Uchlardagi sonlarga qarang, keyin chizma ostidagisiga.", 'Посмотри на числа при вершинах, потом на число под чертежом.', 'Look at the numbers at the vertices, then at the one below.'),
+    A('mount', "Ikki ; uch nuqtani bosing.", 'Нажми на точку два ; три.', 'Tap the point two ; three.'),
+    A('move', "Uchlardagi sonlarga qarang, keyin ularni qo'shing.", 'Посмотри на числа при вершинах, потом сложи их.', 'Look at the numbers at the vertices, then add them.'),
   ],
 }
 
@@ -291,12 +289,12 @@ const S5 = {
     'Угол при вершине равнобедренного треугольника 80 градусов. Сколько градусов каждый угол при основании?',
     'The apex angle of an isosceles triangle is 80 degrees. How big is each base angle?',
   ),
-  template: ['(180 − 80) : 2 = ', { slot: 0 }],
+  template: ['(180° − 80°) : 2 = ', { slot: 0 }],
   parts: [
-    { id: 'a', label: '50' },
-    { id: 'b', label: '100' },
-    { id: 'c', label: '80' },
-    { id: 'd', label: '40' },
+    { id: 'a', label: '50°' },
+    { id: 'b', label: '100°' },
+    { id: 'c', label: '80°' },
+    { id: 'd', label: '40°' },
   ],
   answer: ['a'],
   prompt: L(
@@ -329,8 +327,7 @@ const S6 = {
   pts: { A: { x: -3, y: -3 }, B: { x: 1, y: -3 }, C: { x: 2, y: 2 } },
   move: 'C',
   pick: { x: -3, y: 1 },
-  show: { sides: true, angles: true, sum: true },
-  guess: true,
+  show: { sides: true, angles: true },
   caption: L(
     "C ni shunday qo'yingki, A dagi burchak to'g'ri bo'lsin VA A dan chiqadigan ikki tomon teng bo'lsin.",
     'Поставь C так, чтобы угол при A стал прямым И две выходящие из A стороны стали равны.',
@@ -424,7 +421,7 @@ const S8 = {
     'The order is off. Lines and angles first, then the triangle, then the isosceles case, and parallelism last.',
   ),
   lawChips: [
-    { label: '180', tone: 'off' },
+    { label: '180°', tone: 'off' },
     { label: '=', tone: 's2' },
     { label: '90°', tone: 's1' },
     { label: '( )', tone: 'par' },
@@ -563,12 +560,12 @@ const S10 = {
     'Угол при вершине равнобедренного треугольника 80 градусов, основание продлено. Запиши угол при основании и смежный с ним.',
     'The apex angle of an isosceles triangle is 80 degrees and the base is extended. Write the base angle and the one adjacent to it.',
   ),
-  template: ['(180 − 80) : 2 = ', { slot: 0 }, ',   180 − 50 = ', { slot: 1 }],
+  template: ['(180° − 80°) : 2 = ', { slot: 0 }, ',   180° − 50° = ', { slot: 1 }],
   parts: [
-    { id: 'a', label: '50' },
-    { id: 'b', label: '130' },
-    { id: 'c', label: '100' },
-    { id: 'd', label: '80' },
+    { id: 'a', label: '50°' },
+    { id: 'b', label: '130°' },
+    { id: 'c', label: '100°' },
+    { id: 'd', label: '80°' },
   ],
   answer: ['a', 'b'],
   prompt: L(
@@ -613,12 +610,12 @@ const S11 = {
     'Угол при основании равнобедренного треугольника 65 градусов. Сколько градусов угол при вершине?',
     'A base angle of an isosceles triangle is 65 degrees. How big is the apex angle?',
   ),
-  template: ['180 − 65 − 65 = ', { slot: 0 }],
+  template: ['180° − 65° − 65° = ', { slot: 0 }],
   parts: [
-    { id: 'a', label: '50' },
-    { id: 'b', label: '115' },
-    { id: 'c', label: '65' },
-    { id: 'd', label: '55' },
+    { id: 'a', label: '50°' },
+    { id: 'b', label: '115°' },
+    { id: 'c', label: '65°' },
+    { id: 'd', label: '55°' },
   ],
   answer: ['a'],
   prompt: L(
@@ -657,7 +654,7 @@ const S12 = {
   ),
   rows: [
     { id: 'r1', text: L('uchburchakda burchaklar 70° va 60°', 'в треугольнике углы 70° и 60°', 'a triangle has angles 70° and 60°') },
-    { id: 'r2', text: '180 − 70 − 60 = 50' },
+    { id: 'r2', text: '180° − 70° − 60° = 50°' },
     { id: 'r3', text: L('uchinchi burchak 110°', 'третий угол 110°', 'the third angle is 110°') },
     { id: 'r4', text: L('110°', '110°', '110°') },
   ],
@@ -717,12 +714,12 @@ const S13 = {
     'Ферма крыши это равнобедренный треугольник: угол при вершине 90 градусов. Какой угол скат образует с землёй?',
     'A roof truss is an isosceles triangle with a 90 degree apex angle. What angle does a slope make with the ground?',
   ),
-  template: ['(180 − 90) : 2 = ', { slot: 0 }],
+  template: ['(180° − 90°) : 2 = ', { slot: 0 }],
   parts: [
-    { id: 'a', label: '45' },
-    { id: 'b', label: '90' },
-    { id: 'c', label: '30' },
-    { id: 'd', label: '135' },
+    { id: 'a', label: '45°' },
+    { id: 'b', label: '90°' },
+    { id: 'c', label: '30°' },
+    { id: 'd', label: '135°' },
   ],
   answer: ['a'],
   prompt: L(

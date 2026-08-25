@@ -225,16 +225,15 @@ const S3 = {
   move: 'P',
   pick: { x: 0, y: 3 },
   show: { sides: true },
-  guess: true,
   caption: L(
-    "P nuqtasini shunday tugunga qo'yingki, A gacha ham, B gacha ham masofa 5 bo'lsin. Sirkul aynan shu ishni qiladi: bir xil yechilishda ikki yoy chizadi.",
-    'Поставь точку P в такой узел, чтобы расстояние и до A, и до B было 5. Циркуль делает именно это: одним раствором чертит две дуги.',
-    'Place the point P at a node where the distance to A and to B is 5. That is exactly what a compass does: one setting, two arcs.',
+    "P ni shunday joyga qo'yingki, A gacha ham, B gacha ham masofa 5 bo'lsin. Sirkul aynan shu ishni qiladi: bir xil yechilishda ikki yoy chizadi.",
+    'Поставь точку P так, чтобы расстояние и до A, и до B было 5. Циркуль делает именно это: одним раствором чертит две дуги.',
+    'Place the point P so that the distance to A and to B is 5. That is exactly what a compass does: one setting, two arcs.',
   ),
   options: [
     { id: 'a', label: L('ikki masofa teng bo\'ldi', 'два расстояния стали равны', 'the two distances became equal') },
     { id: 'b', label: L('P kesmaning o\'rtasiga tushdi', 'P попала в середину отрезка', 'P landed at the midpoint') },
-    { id: 'c', label: L('bunday tugun yo\'q edi', 'такого узла не было', 'there was no such node') },
+    { id: 'c', label: L('bunday nuqta yo\'q edi', 'такой точки не было', 'there was no such point') },
     { id: 'd', label: L('masofalar har xil qoldi', 'расстояния остались разными', 'the distances stayed different') },
   ],
   answer: 'a',
@@ -269,7 +268,6 @@ const S4 = {
   },
   seg: [['A', 'B'], ['A', 'P'], ['B', 'P'], ['A', 'Q'], ['B', 'Q'], ['P', 'Q']],
   show: { sides: true },
-  guess: true,
   caption: L(
     "P dan A va B gacha masofa teng. Q dan ham teng, lekin masofa boshqa. Ikkovi bir tik chiziqda turadi.",
     'От P до A и B расстояния равны. От Q тоже равны, но расстояние другое. Обе стоят на одной вертикальной линии.',
@@ -356,7 +354,6 @@ const S6 = {
   move: 'D',
   pick: { x: 4, y: -2 },
   show: { sides: true },
-  guess: true,
   caption: L(
     "A B kesmasi berilgan. D nuqtasini C dan O'NGGA, xuddi shu qatorga qo'yingki, C D kesmasi A B ga teng bo'lsin.",
     'Дан отрезок A B. Поставь точку D справа от C, в том же ряду, так чтобы отрезок C D был равен A B.',

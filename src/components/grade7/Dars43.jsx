@@ -9,8 +9,9 @@
 // teng, va uchdan tushirilgan perpendikulyar asosni teng ikkiga bo'ladi.
 // Xuk ham yig'indisiz ishlaydi: 70 daraja berilgan, ikkinchisi ham 70.
 //
-// «O'LCHOV ISBOT EMAS» (etalon § 9) ISHLAYDI: o'lchov ko'rsatilgan har
-// ekranda `guess: true`.
+// «O'LCHOV ISBOT EMAS» (etalon § 9) ISHLAYDI. Chizma ostidagi yorliq
+// 2026-08-25 da olib tashlandi, fikr esa izohda qoldi: chizmadagi son
+// o'lchov, xossa esa har qanday teng yonli uchburchakda bajariladi.
 //
 // ASBOB XOSSANI HAQIQATDA SINAYDI: uch ko'chganda tomonlar tengligi
 // YO'QOLADI, va o'quvchi buni sonlarda ko'radi. Bu ekran statik tekshiruvda
@@ -219,7 +220,6 @@ const S3 = {
   pts: { A: { x: -3, y: -2 }, B: { x: 3, y: -2 }, C: { x: 0, y: 3 } },
   show: { sides: true, angles: true },
   mark: ['A', 'B'],
-  guess: true,
   caption: L(
     "Yon tomonlar teng. Asosdagi ikki burchak yoritilgan.",
     'Боковые стороны равны. Два угла при основании подсвечены.',
@@ -259,11 +259,10 @@ const S4 = {
   move: 'C',
   pick: { x: 2, y: 3 },
   show: { sides: true, angles: true },
-  guess: true,
   caption: L(
-    "C uchini (2; 3) tuguniga ko'chiring. Asos joyida qoladi.",
-    'Перенеси вершину C в узел (2; 3). Основание останется на месте.',
-    'Move the vertex C to the node (2; 3). The base stays put.',
+    "C uchini (2; 3) nuqtaga ko'chiring. Asos joyida qoladi.",
+    'Перенеси вершину C в точку (2; 3). Основание останется на месте.',
+    'Move the vertex C to the point (2; 3). The base stays put.',
   ),
   options: [
     { id: 'a', label: L('tomonlar ham, burchaklar ham tengligini yo\'qotdi', 'и стороны, и углы потеряли равенство', 'both the sides and the angles lost their equality') },
@@ -284,7 +283,7 @@ const S4 = {
   ),
   audio: [
     A('mount', "Endi uchni suramiz va nima yo'qolganini ko'ramiz.", 'Теперь сдвинем вершину и посмотрим, что пропало.', 'Now we shift the vertex and see what is lost.'),
-    A('mount', "Ikki ; uch tugunini bosing.", 'Нажми на узел два ; три.', 'Tap the node two ; three.'),
+    A('mount', "Ikki ; uch nuqtani bosing.", 'Нажми на точку два ; три.', 'Tap the point two ; three.'),
     A('move', "Sonlarni ko'chirishdan oldingi bilan solishtiring.", 'Сравни числа с теми, что были до переноса.', 'Compare the numbers with those before the move.'),
   ],
 }
@@ -381,7 +380,6 @@ const S7 = {
   pts: { A: { x: -3, y: -3 }, B: { x: 1, y: -3 }, C: { x: -3, y: 1 } },
   show: { sides: true, angles: true },
   mark: ['A'],
-  guess: true,
   caption: L(
     "Bu uchburchak teng yonli: ikki tomoni 4 va 4. To'g'ri burchak yoritilgan uchda turadi.",
     'Этот треугольник равнобедренный: две стороны по 4. Прямой угол стоит при подсвеченной вершине.',

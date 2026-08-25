@@ -230,9 +230,14 @@ for (const file of files) {
   let tm
   while ((tm = TOK_RE.exec(text))) {
     if (tm[2].includes('L(')) continue
+    // SO'Z BO'SHLIQ BILAN HAM BO'LADI. Birinchi tahrirda naqsh butun belgini
+    // `^[A-Za-z']{2,}$` deb qaraganidan «har xil» va «bir xil» (44-dars xuki)
+    // ushlanmay qolgan edi: ular ruscha va inglizcha ekranda o'zbekcha
+    // turaverdi. Endi belgi ICHIDA uch harfli so'z bo'lsa yetadi -- shu bilan
+    // birga `ab`, `ax` kabi matematik yozuv chetda qoladi.
     const words = (tm[2].match(/'[^'\n]*'|"[^"\n]*"/g) || [])
       .map((q) => q.slice(1, -1).trim())
-      .filter((v) => /^[A-Za-z']{2,}$/.test(v) && !/^[IVX]+$/.test(v))
+      .filter((v) => /[A-Za-z']{3,}/.test(v) && !/^[IVX, ]+$/.test(v))
     if (!words.length) continue
     const line = text.slice(0, tm.index).split(/\r?\n/).length
     problems.push(`${file}:${line} sahna belgisi tarjimasiz: L(...) kerak -- ${words.join(', ')}`)

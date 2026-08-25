@@ -46,10 +46,10 @@ const S1 = {
   noNotes: true,
   title: L('Yig\'indi o\'zgaradimi', 'Меняется ли сумма', 'Does the sum change'),
   gate: {
-    source: { kind: 'plain', tokens: ['?', '+', '?', '+', '?'] },
+    source: { kind: 'plain', tokens: ['∠A', '+', '∠B', '+', '∠C'] },
     rows: [
-      { tokens: ['har xil'], value: '?' },
-      { tokens: ['bir xil'], value: '180' },
+      { tokens: [L('har xil', 'разная', 'different')], value: '?' },
+      { tokens: [L('bir xil', 'одинаковая', 'the same')], value: '180' },
     ],
   },
   cols: 2,
@@ -179,24 +179,23 @@ const S3 = {
   eyebrow: L('OCHAMIZ', 'РАЗБИРАЕМСЯ', 'WORKING IT OUT'),
   title: L('Uchta burchakni qo\'shamiz', 'Складываем три угла', 'Adding the three angles'),
   pts: { A: { x: -4, y: -2 }, B: { x: 3, y: -2 }, C: { x: -1, y: 3 } },
-  show: { sides: true, angles: true, sum: true },
-  guess: true,
+  show: { sides: true, angles: true },
   caption: L(
-    "Uchta burchak o'lchandi va qo'shildi. Yig'indi chizmaning ostida turadi.",
-    'Три угла измерены и сложены. Сумма стоит под чертежом.',
-    'The three angles are measured and added. The sum is under the drawing.',
+    "Uchta burchak o'lchandi. Chizmadagi uchta sonni qo'shing.",
+    'Три угла измерены. Сложи три числа на чертеже.',
+    'The three angles are measured. Add the three numbers on the drawing.',
   ),
   options: [
-    { id: 'a', label: '180' },
-    { id: 'b', label: '90' },
-    { id: 'c', label: '360' },
+    { id: 'a', label: '180°' },
+    { id: 'b', label: '90°' },
+    { id: 'c', label: '360°' },
     { id: 'd', label: L("uchburchakka bog'liq", 'зависит от треугольника', 'it depends on the triangle') },
   ],
   answer: 'a',
   wrongs: [
     { key: 'b', tag: 'Z1', hint: L("To'qson bitta burchak bo'lishi mumkin, uchtasining yig'indisi esa yo'q.", 'Девяносто может быть одним углом, но не суммой трёх.', 'Ninety may be one angle, but not the sum of three.') },
-    { key: 'c', tag: 'Z1', hint: L("Chizma ostidagi songa qarang.", 'Посмотри на число под чертежом.', 'Look at the number under the drawing.') },
-    { key: 'd', tag: 'Z1', hint: L("Keyingi ekranda uchni ko'chiramiz va yig'indini kuzatamiz.", 'На следующем экране перенесём вершину и посмотрим на сумму.', 'On the next screen we move the vertex and watch the sum.') },
+    { key: 'c', tag: 'Z1', hint: L("Uchlardagi uchta sonni qo'shib ko'ring: uch yuz oltmishga yaqin ham kelmaydi.", 'Сложи три числа при вершинах: до трёхсот шестидесяти далеко.', 'Add the three numbers at the vertices: three hundred sixty is far away.') },
+    { key: 'd', tag: 'Z1', hint: L("Keyingi ekranda uchni ko'chiramiz va yana qo'shib ko'ramiz.", 'На следующем экране перенесём вершину и сложим снова.', 'On the next screen we move the vertex and add again.') },
   ],
   note: L(
     "Yig'indi 180 chiqdi. Lekin diqqat: bu O'LCHOV, ya'ni taxmin. Bitta chizma hech narsani isbotlamaydi -- shuning uchun keyingi ekranda uchburchakni o'zgartirib ko'ramiz.",
@@ -205,7 +204,7 @@ const S3 = {
   ),
   audio: [
     A('mount', "Uchta burchak o'lchandi.", 'Три угла измерены.', 'The three angles are measured.'),
-    A('mount', "Chizma ostida yig'indi turadi, va u taxmin deb imzolangan.", 'Под чертежом стоит сумма, и она подписана как предположение.', 'The sum is under the drawing, marked as a guess.'),
+    A('mount', "Uchlardagi sonlar o'lchandi, shuning uchun bu taxmin. Ularni qo'shing.", 'Числа при вершинах измерены, поэтому это предположение. Сложи их.', 'The numbers at the vertices are measured, so this is a guess. Add them.'),
   ],
 }
 
@@ -219,12 +218,11 @@ const S4 = {
   pts: { A: { x: -4, y: -2 }, B: { x: 3, y: -2 }, C: { x: -1, y: 3 } },
   move: 'C',
   pick: { x: 3, y: 3 },
-  show: { angles: true, sum: true },
-  guess: true,
+  show: { angles: true },
   caption: L(
-    "C uchini (3; 3) tuguniga ko'chiring. Burchaklar va yig'indi qayta hisoblanadi.",
-    'Перенеси вершину C в узел (3; 3). Углы и сумма пересчитаются.',
-    'Move the vertex C to the node (3; 3). The angles and the sum are recomputed.',
+    "C uchini (3; 3) nuqtaga ko'chiring. Burchaklar qayta hisoblanadi -- ularni yana qo'shing.",
+    'Перенеси вершину C в точку (3; 3). Углы пересчитаются — сложи их снова.',
+    'Move the vertex C to the point (3; 3). The angles are recomputed — add them again.',
   ),
   options: [
     { id: 'a', label: L("burchaklar o'zgardi, yig'indi qoldi", 'углы изменились, сумма осталась', 'the angles changed, the sum stayed') },
@@ -234,7 +232,7 @@ const S4 = {
   ],
   answer: 'a',
   wrongs: [
-    { key: 'b', tag: 'Z1', hint: L("Chizma ostidagi songa qarang: u o'zgarmadi.", 'Посмотри на число под чертежом: оно не изменилось.', 'Look at the number under the drawing: it did not change.') },
+    { key: 'b', tag: 'Z1', hint: L("Uchta sonni yana qo'shing: yana o'sha son chiqadi.", 'Сложи три числа снова: выйдет столько же.', 'Add the three numbers again: the total is the same.') },
     { key: 'c', tag: 'Z1', hint: L("Uchlardagi sonlarni ko'chirishdan oldingi bilan solishtiring.", 'Сравни числа при вершинах с теми, что были до переноса.', 'Compare the numbers at the vertices with those before the move.') },
     { key: 'd', tag: 'Z1', hint: L("Uchburchak boshqa bo'ldi: uch joyini o'zgartirdi.", 'Треугольник стал другим: вершина сменила место.', 'The triangle became different: the vertex changed place.') },
   ],
@@ -244,9 +242,9 @@ const S4 = {
     'The triangle became different, all three angles became different — and the sum stayed 180. That is a REGULARITY: in any triangle the angles add to 180 degrees.',
   ),
   audio: [
-    A('mount', "Endi uchni ko'chiramiz va yig'indini kuzatamiz.", 'Теперь перенесём вершину и посмотрим на сумму.', 'Now we move the vertex and watch the sum.'),
-    A('mount', "Uch ; uch tugunini bosing.", 'Нажми на узел три ; три.', 'Tap the node three ; three.'),
-    A('move', "Burchaklarga qarang, keyin yig'indiga.", 'Посмотри на углы, потом на сумму.', 'Look at the angles, then at the sum.'),
+    A('mount', "Endi uchni ko'chiramiz va burchaklarni yana qo'shamiz.", 'Теперь перенесём вершину и сложим углы снова.', 'Now we move the vertex and add the angles again.'),
+    A('mount', "Uch ; uch nuqtani bosing.", 'Нажми на точку три ; три.', 'Tap the point three ; three.'),
+    A('move', "Burchaklarga qarang va ularni qo'shing.", 'Посмотри на углы и сложи их.', 'Look at the angles and add them.'),
   ],
 }
 
@@ -263,12 +261,12 @@ const S5 = {
     'Два угла треугольника 55 и 65 градусов. Сколько градусов третий?',
     'Two angles of a triangle are 55 and 65 degrees. How big is the third?',
   ),
-  template: ['180 − 55 − 65 = ', { slot: 0 }],
+  template: ['180° − 55° − 65° = ', { slot: 0 }],
   parts: [
-    { id: 'a', label: '60' },
-    { id: 'b', label: '70' },
-    { id: 'c', label: '120' },
-    { id: 'd', label: '50' },
+    { id: 'a', label: '60°' },
+    { id: 'b', label: '70°' },
+    { id: 'c', label: '120°' },
+    { id: 'd', label: '50°' },
   ],
   answer: ['a'],
   prompt: L(
@@ -300,13 +298,18 @@ const S6 = {
   title: L('To\'g\'ri burchakli qiling', 'Сделай прямоугольным', 'Make it right-angled'),
   pts: { A: { x: -3, y: -3 }, B: { x: 1, y: -3 }, C: { x: 2, y: 2 } },
   move: 'C',
-  pick: { x: -3, y: 1 },
-  show: { angles: true, sum: true },
-  guess: true,
+  // SHART BITTA TUGUNNI ATAMAYDI: A dagi burchak A B gorizontal bo'lgani
+  // uchun C A tik bo'lganda to'g'ri bo'ladi -- ya'ni A ustidagi butun
+  // ustun to'g'ri javob. Hammasi qabul qilinadi.
+  pick: [
+    { x: -3, y: -4 }, { x: -3, y: -2 }, { x: -3, y: -1 }, { x: -3, y: 0 },
+    { x: -3, y: 1 }, { x: -3, y: 2 }, { x: -3, y: 3 }, { x: -3, y: 4 },
+  ],
+  show: { angles: true },
   caption: L(
-    "C uchini shunday tugunga qo'yingki, A dagi burchak to'g'ri bo'lsin. Yig'indiga ham qarab turing.",
-    'Поставь вершину C в такой узел, чтобы угол при A стал прямым. И следи за суммой.',
-    'Place the vertex C at a node so the angle at A becomes right. And keep an eye on the sum.',
+    "C uchini shunday nuqtaga qo'yingki, A dagi burchak to'g'ri bo'lsin. Keyin qolgan ikki burchakni qo'shing.",
+    'Поставь вершину C в такую точку, чтобы угол при A стал прямым. Потом сложи два остальных угла.',
+    'Place the vertex C at a point where the angle at A becomes right. Then add the other two angles.',
   ),
   options: [
     { id: 'a', label: L("qolgan ikkisi birga 90 daraja beradi", 'остальные два вместе дают 90 градусов', 'the other two together give 90 degrees') },
@@ -317,7 +320,7 @@ const S6 = {
   answer: 'a',
   wrongs: [
     { key: 'b', tag: 'Z2', hint: L("Bir yuz sakson uchtasining yig'indisi, to'qson esa allaqachon olingan.", 'Сто восемьдесят это сумма трёх, а девяносто уже занято.', 'One hundred eighty is the sum of three, and ninety is already taken.') },
-    { key: 'c', tag: 'Z1', hint: L("Chizma ostidagi songa qarang: u o'zgarmadi.", 'Посмотри на число под чертежом: оно не изменилось.', 'Look at the number under the drawing: it did not change.') },
+    { key: 'c', tag: 'Z1', hint: L("Chizmadagi uchta sonni qo'shing: yana bir yuz sakson chiqadi.", 'Сложи три числа на чертеже: снова сто восемьдесят.', 'Add the three numbers on the drawing: one hundred eighty again.') },
     { key: 'd', tag: 'Z2', hint: L("Ikkita to'g'ri burchak bo'lsa uchinchisiga joy qolmasdi.", 'Если бы прямых углов было два, третьему не осталось бы места.', 'With two right angles there would be no room for a third.') },
   ],
   note: L(
@@ -328,7 +331,7 @@ const S6 = {
   audio: [
     A('mount', "Endi to'g'ri burchakli uchburchak yasaymiz.", 'Теперь построим прямоугольный треугольник.', 'Now we build a right triangle.'),
     A('mount', "A dagi burchak to'g'ri bo'lishi kerak: uchni tik qatorga qo'ying.", 'Угол при A должен стать прямым: поставь вершину в вертикальный ряд.', 'The angle at A must become right: put the vertex in the upright row.'),
-    A('move', "Yig'indi o'zgarmadi. Qolgan ikki burchakni qo'shib ko'ring.", 'Сумма не изменилась. Сложи два остальных угла.', 'The sum did not change. Add the other two angles.'),
+    A('move', "Uchta sonni qo'shing: yana bir yuz sakson. Endi qolgan ikkitasini qo'shing.", 'Сложи три числа: снова сто восемьдесят. Теперь сложи два остальных.', 'Add the three numbers: one hundred eighty again. Now add the other two.'),
   ],
 }
 
@@ -346,12 +349,12 @@ const S7 = {
     'Все три угла треугольника равны. Сколько градусов каждый?',
     'All three angles of a triangle are equal. How many degrees is each?',
   ),
-  template: ['180 : 3 = ', { slot: 0 }],
+  template: ['180° : 3 = ', { slot: 0 }],
   parts: [
-    { id: 'a', label: '60' },
-    { id: 'b', label: '90' },
-    { id: 'c', label: '45' },
-    { id: 'd', label: '30' },
+    { id: 'a', label: '60°' },
+    { id: 'b', label: '90°' },
+    { id: 'c', label: '45°' },
+    { id: 'd', label: '30°' },
   ],
   answer: ['a'],
   prompt: L(
@@ -397,7 +400,7 @@ const S8 = {
     'The order is off. Where the rule holds and the sum first, then what it gives you.',
   ),
   lawChips: [
-    { label: '180', tone: 'off' },
+    { label: '180°', tone: 'off' },
     { label: '+', tone: 's1' },
     { label: '=', tone: 's2' },
     { label: '( )', tone: 'par' },
@@ -536,12 +539,12 @@ const S10 = {
     'Угол при вершине равнобедренного треугольника 40 градусов. Найди, сколько градусов остаётся на два угла при основании, и запиши каждый.',
     'The apex angle of an isosceles triangle is 40 degrees. Find how many degrees remain for the two base angles and write each.',
   ),
-  template: ['180 − 40 = ', { slot: 0 }, ',   : 2 = ', { slot: 1 }],
+  template: ['180° − 40° = ', { slot: 0 }, ',   : 2 = ', { slot: 1 }],
   parts: [
-    { id: 'a', label: '140' },
-    { id: 'b', label: '70' },
-    { id: 'c', label: '160' },
-    { id: 'd', label: '80' },
+    { id: 'a', label: '140°' },
+    { id: 'b', label: '70°' },
+    { id: 'c', label: '160°' },
+    { id: 'd', label: '80°' },
   ],
   answer: ['a', 'b'],
   prompt: L(
@@ -586,12 +589,12 @@ const S11 = {
     'Углы треугольника 25 и 95 градусов. Сколько градусов третий?',
     'Two angles of a triangle are 25 and 95 degrees. How big is the third?',
   ),
-  template: ['180 − 25 − 95 = ', { slot: 0 }],
+  template: ['180° − 25° − 95° = ', { slot: 0 }],
   parts: [
-    { id: 'a', label: '60' },
-    { id: 'b', label: '70' },
-    { id: 'c', label: '120' },
-    { id: 'd', label: '50' },
+    { id: 'a', label: '60°' },
+    { id: 'b', label: '70°' },
+    { id: 'c', label: '120°' },
+    { id: 'd', label: '50°' },
   ],
   answer: ['a'],
   prompt: L(
@@ -631,7 +634,7 @@ const S12 = {
   ),
   rows: [
     { id: 'r1', text: L('ikki burchak 50° va 60°', 'два угла 50° и 60°', 'two angles are 50° and 60°') },
-    { id: 'r2', text: '180 − 50 − 60 = 70' },
+    { id: 'r2', text: '180° − 50° − 60° = 70°' },
     { id: 'r3', text: L("70° ning qo'shnisi ham 70°", 'смежный с 70° тоже 70°', 'the angle adjacent to 70° is 70° too') },
     { id: 'r4', text: L("qo'shni burchak 70°", 'смежный угол 70°', 'the adjacent angle is 70°') },
   ],
@@ -643,7 +646,7 @@ const S12 = {
   },
   tags: { r1: 'Z1', r2: 'Z1', r4: 'Z2' },
   proofFill: {
-    template: ['180 − 70 = ', { slot: 0 }, '   →   ', { slot: 1 }],
+    template: ['180° − 70° = ', { slot: 0 }, '   →   ', { slot: 1 }],
     parts: [
       { id: 'a', label: '110' },
       { id: 'b', label: L("qo'shni burchak", 'смежный угол', 'the adjacent angle') },
@@ -688,12 +691,12 @@ const S13 = {
     'Угол при вершине крыши 90 градусов. Угол одного ската 50 градусов. Сколько градусов угол второго ската?',
     'The angle at the roof apex is 90 degrees. One slope makes 50 degrees. What angle does the other slope make?',
   ),
-  template: ['180 − 90 − 50 = ', { slot: 0 }],
+  template: ['180° − 90° − 50° = ', { slot: 0 }],
   parts: [
-    { id: 'a', label: '40' },
-    { id: 'b', label: '50' },
-    { id: 'c', label: '130' },
-    { id: 'd', label: '30' },
+    { id: 'a', label: '40°' },
+    { id: 'b', label: '50°' },
+    { id: 'c', label: '130°' },
+    { id: 'd', label: '30°' },
   ],
   answer: ['a'],
   prompt: L(
@@ -808,7 +811,7 @@ const S15 = {
   title: L('Yig\'indi qimirlamaydi', 'Сумма не шевелится', 'The sum does not budge'),
   gate: S1.gate,
   fix: {
-    tokens: ['bir xil'],
+    tokens: [L('bir xil', 'одинаковая', 'the same')],
     value: '180',
     sign: '=',
     hint: L('Yuqori tabloni bosing', 'Нажми на верхнее табло', 'Tap the upper board'),

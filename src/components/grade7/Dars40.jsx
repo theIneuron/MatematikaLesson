@@ -311,12 +311,12 @@ const S5 = {
     'Один угол 62 градуса. Сколько градусов у его смежного?',
     'One angle is 62 degrees. How many degrees is its adjacent angle?',
   ),
-  template: ['180 − 62 = ', { slot: 0 }],
+  template: ['180° − 62° = ', { slot: 0 }],
   parts: [
-    { id: 'a', label: '118' },
-    { id: 'b', label: '128' },
-    { id: 'c', label: '28' },
-    { id: 'd', label: '242' },
+    { id: 'a', label: '118°' },
+    { id: 'b', label: '128°' },
+    { id: 'c', label: '28°' },
+    { id: 'd', label: '242°' },
   ],
   answer: ['a'],
   prompt: L(
@@ -351,9 +351,9 @@ const S6 = {
   move: 'C',
   pick: { x: 0, y: 3 },
   caption: L(
-    "C nuqtasini boshqa tugunga ko'chiring, toki O C nuri to'g'ri chiziqqa tik bo'lsin.",
-    'Перенеси точку C в другой узел так, чтобы луч O C стал перпендикулярен прямой.',
-    'Move the point C to another node so that the ray O C becomes perpendicular to the line.',
+    "C ni shunday ko'chiringki, O C nuri to'g'ri chiziqqa tik bo'lsin.",
+    'Перенеси точку C так, чтобы луч O C стал перпендикулярен прямой.',
+    'Move the point C so that the ray O C becomes perpendicular to the line.',
   ),
   options: [
     { id: 'a', label: L('ikki burchak ham 90 daraja', 'оба угла по 90 градусов', 'both angles are 90 degrees') },
@@ -374,7 +374,7 @@ const S6 = {
   ),
   audio: [
     A('mount', "Endi nurni o'zingiz ko'chirasiz. Uni tik holatga qo'ying.", 'Теперь луч переносишь сам. Поставь его вертикально.', 'Now you move the ray. Set it upright.'),
-    A('mount', "Tugunni bosing: uch shu joyga ko'chadi.", 'Нажми на узел: вершина переедет туда.', 'Tap a node: the vertex moves there.'),
+    A('mount', "Nuqtani bosing: uch shu joyga ko'chadi.", 'Нажми на точку: вершина переедет туда.', 'Tap a point: the vertex moves there.'),
     A('move', "Nur tik turdi. Endi burchaklar nechchi bo'lganini ayting.", 'Луч встал вертикально. Теперь скажи, какими стали углы.', 'The ray is upright. Now say what the angles became.'),
   ],
 }
@@ -440,7 +440,7 @@ const S8 = {
     'The order is off. Adjacent angles and their sum first, then vertical angles and their equality.',
   ),
   lawChips: [
-    { label: '180', tone: 'off' },
+    { label: '180°', tone: 'off' },
     { label: '=', tone: 's2' },
     { label: '+', tone: 's1' },
     { label: '( )', tone: 'par' },
@@ -579,12 +579,12 @@ const S10 = {
     'Две прямые пересеклись, один угол 35 градусов. Угол 1 ему смежный, а угол 2 вертикальный.',
     'Two lines crossed, one angle is 35 degrees. Angle 1 is adjacent to it, angle 2 is vertical.',
   ),
-  template: ['∠1 = 180 − 35 = ', { slot: 0 }, ',   ∠2 = ', { slot: 1 }],
+  template: ['∠1 = 180° − 35° = ', { slot: 0 }, ',   ∠2 = ', { slot: 1 }],
   parts: [
-    { id: 'a', label: '145' },
-    { id: 'b', label: '35' },
-    { id: 'c', label: '55' },
-    { id: 'd', label: '145' },
+    { id: 'a', label: '145°' },
+    { id: 'b', label: '35°' },
+    { id: 'c', label: '55°' },
+    { id: 'd', label: '145°' },
   ],
   answer: ['a', 'b'],
   prompt: L(
@@ -630,12 +630,12 @@ const S11 = {
     'Две прямые пересеклись, один угол 108 градусов. Запиши смежный угол.',
     'Two lines crossed, one angle is 108 degrees. Write the adjacent angle.',
   ),
-  template: ['180 − 108 = ', { slot: 0 }],
+  template: ['180° − 108° = ', { slot: 0 }],
   parts: [
-    { id: 'a', label: '72' },
-    { id: 'b', label: '82' },
-    { id: 'c', label: '108' },
-    { id: 'd', label: '288' },
+    { id: 'a', label: '72°' },
+    { id: 'b', label: '82°' },
+    { id: 'c', label: '108°' },
+    { id: 'd', label: '288°' },
   ],
   answer: ['a'],
   prompt: L(
@@ -675,7 +675,7 @@ const S12 = {
   ),
   rows: [
     { id: 'r1', text: L('berilgan burchak: 60°', 'дан угол: 60°', 'given angle: 60°') },
-    { id: 'r2', text: '180 − 60 = 120' },
+    { id: 'r2', text: '180° − 60° = 120°' },
     { id: 'r3', text: L('vertikal burchak: 120°', 'вертикальный угол: 120°', 'vertical angle: 120°') },
     { id: 'r4', text: L('120°', '120°', '120°') },
   ],
@@ -734,10 +734,10 @@ const S13 = {
   ),
   template: ['∠1 = 65°,   ∠2 = ', { slot: 0 }],
   parts: [
-    { id: 'a', label: '65' },
-    { id: 'b', label: '115' },
-    { id: 'c', label: '25' },
-    { id: 'd', label: '130' },
+    { id: 'a', label: '65°' },
+    { id: 'b', label: '115°' },
+    { id: 'c', label: '25°' },
+    { id: 'd', label: '130°' },
   ],
   answer: ['a'],
   prompt: L(

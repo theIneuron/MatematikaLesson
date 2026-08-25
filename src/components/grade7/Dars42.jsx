@@ -4,10 +4,12 @@
 //
 // KONVEYER DARSI: faqat ma'lumot, o'ram `screens.jsx` da.
 //
-// SHU DARSDAN «O'LCHOV ISBOT EMAS» TALABI ISHGA TUSHADI (etalon § 9): asbob
-// o'lchagan yig'indi endi «taxmin» deb imzolanadi (`guess: true`). 40 va
-// 41-darslarda o'lchash temaning o'zi edi, shuning uchun u yerda yorliq
-// yo'q edi.
+// SHU DARSDAN «O'LCHOV ISBOT EMAS» TALABI ISHGA TUSHADI (etalon § 9).
+// Ilgari buni chizma ostidagi «O'lchov -- taxmin» yorlig'i aytardi
+// (`guess: true`); metodist 2026-08-25 da yorliqni olib tashladi, chunki u
+// chizma ostida texnik satrga o'xshab turardi. Fikrning o'zi joyida:
+// darsning izohi va ovozi buni SO'Z bilan aytadi -- o'lchov taxmin beradi,
+// isbot esa alomatdan chiqadi.
 //
 // DARSNING O'ZAGI ASBOB BILAN KO'RSATILADI, MATN BILAN EMAS. Ikki tomon
 // yetarli emasligi shunday chiqadi: A va B qotib turadi, C esa boshqa
@@ -223,9 +225,9 @@ const S3 = {
   pick: { x: 0, y: 2 },
   show: { sides: true },
   caption: L(
-    "A B tomoni 6, A C tomoni 5. C ni (0; 2) tuguniga ko'chiring: A C yana 5 bo'lib qoladi.",
-    'Сторона A B равна 6, сторона A C равна 5. Перенеси C в узел (0; 2): A C снова окажется 5.',
-    'The side A B is 6 and A C is 5. Move C to the node (0; 2): A C will be 5 again.',
+    "A B tomoni 6, A C tomoni 5. C ni (0; 2) nuqtaga ko'chiring: A C yana 5 bo'lib qoladi.",
+    'Сторона A B равна 6, сторона A C равна 5. Перенеси C в точку (0; 2): A C снова окажется 5.',
+    'The side A B is 6 and A C is 5. Move C to the point (0; 2): A C will be 5 again.',
   ),
   options: [
     { id: 'a', label: L('uchinchi tomon o\'zgardi', 'третья сторона изменилась', 'the third side changed') },
@@ -246,7 +248,7 @@ const S3 = {
   ),
   audio: [
     A('mount', "A va B qotib turadi. C ni siljitamiz, lekin A C tomonini besh qoldiramiz.", 'A и B закреплены. Сдвинем C, но сторону A C оставим равной пяти.', 'A and B are fixed. We move C but keep the side A C equal to five.'),
-    A('mount', "Nol ; ikki tugunini bosing.", 'Нажми на узел ноль ; два.', 'Tap the node zero ; two.'),
+    A('mount', "Nol ; ikki nuqtani bosing.", 'Нажми на точку ноль ; два.', 'Tap the point zero ; two.'),
     A('move', "Ikki tomon o'sha-o'sha. Uchinchisiga qarang.", 'Две стороны те же. Посмотри на третью.', 'Two sides are the same. Look at the third.'),
   ],
 }
@@ -261,11 +263,10 @@ const S4 = {
   title: L('Uch tomon berilganda', 'Когда даны три стороны', 'When three sides are given'),
   pts: { A: { x: -4, y: -1 }, B: { x: 2, y: -1 }, C: { x: -1, y: 3 } },
   show: { sides: true, angles: true },
-  guess: true,
   caption: L(
-    "Tomonlari 6, 5 va 5. Bu uchta sonni saqlab, uchni boshqa tugunga ko'chirib bo'lmaydi.",
-    'Стороны 6, 5 и 5. Сохранив эти три числа, вершину в другой узел не перенести.',
-    'The sides are 6, 5 and 5. Keeping these three numbers, the vertex cannot go to another node.',
+    "Tomonlari 6, 5 va 5. Bu uchta sonni saqlab, uchni boshqa nuqtaga ko'chirib bo'lmaydi.",
+    'Стороны 6, 5 и 5. Сохранив эти три числа, вершину в другую точку не перенести.',
+    'The sides are 6, 5 and 5. Keeping these three numbers, the vertex cannot go to another point.',
   ),
   options: [
     { id: 'a', label: L('uchburchak yagona bo\'ladi', 'треугольник получается единственный', 'the triangle is unique') },
@@ -355,7 +356,7 @@ const S6 = {
   ],
   answer: 'a',
   wrongs: [
-    { key: 'b', tag: 'Z1', hint: L("To'r tugunlari orasida faqat bittasi ikki shartni bir vaqtda bajaradi.", 'Среди узлов сетки только один выполняет оба условия сразу.', 'Among the grid nodes only one meets both conditions at once.') },
+    { key: 'b', tag: 'Z1', hint: L("To'r nuqtalari orasida faqat bittasi ikki shartni bir vaqtda bajaradi.", 'Среди точек сетки только одна выполняет оба условия сразу.', 'Among the grid points only one meets both conditions at once.') },
     { key: 'c', tag: 'Z1', hint: L("Bor: siz uni topdingiz.", 'Есть: ты его нашёл.', 'There is one: you found it.') },
     { key: 'd', tag: 'Z1', hint: L("Kerak emas: uch tomon yetarli.", 'Не нужно: трёх сторон достаточно.', 'Not needed: three sides are enough.') },
   ],
@@ -366,7 +367,7 @@ const S6 = {
   ),
   audio: [
     A('mount', "Ikki shart bor: A C besh va B C besh.", 'Есть два условия: A C равно пяти и B C равно пяти.', 'There are two conditions: A C is five and B C is five.'),
-    A('mount', "Ikkovini bir vaqtda bajaradigan tugunni toping.", 'Найди узел, где оба выполняются сразу.', 'Find the node where both hold at once.'),
+    A('mount', "Ikkovini bir vaqtda bajaradigan nuqtani toping.", 'Найди точку, где оба выполняются сразу.', 'Find the point where both hold at once.'),
     A('move', "Tomonlarni tekshiring.", 'Проверь стороны.', 'Check the sides.'),
   ],
 }
@@ -381,7 +382,6 @@ const S7 = {
   title: L('Uch burchak yetmaydi', 'Трёх углов не хватает', 'Three angles are not enough'),
   pts: { A: { x: -4, y: -2 }, B: { x: 0, y: -2 }, C: { x: -4, y: 1 } },
   show: { sides: true, angles: true },
-  guess: true,
   caption: L(
     "Bu uchburchakning burchaklari 90, 53 va 37 daraja. Boshqa uchburchakda ham xuddi shu burchaklar bo'lsa, ular tengmi?",
     'Углы этого треугольника 90, 53 и 37 градусов. Если у другого треугольника такие же углы, они равны?',

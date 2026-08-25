@@ -362,9 +362,9 @@ const S6 = {
   pick: { x: 0, y: 3 },
   show: { sides: true },
   caption: L(
-    "C uchini boshqa tugunga ko'chiring, toki uchburchak teng yonli bo'lsin.",
-    'Перенеси вершину C в другой узел так, чтобы треугольник стал равнобедренным.',
-    'Move the vertex C to another node so that the triangle becomes isosceles.',
+    "C uchini boshqa nuqtaga ko'chiring, toki uchburchak teng yonli bo'lsin.",
+    'Перенеси вершину C в другую точку так, чтобы треугольник стал равнобедренным.',
+    'Move the vertex C to another point so that the triangle becomes isosceles.',
   ),
   options: [
     { id: 'a', label: L('ikki yon tomon teng bo\'ldi', 'две боковые стороны стали равны', 'the two legs became equal') },
@@ -384,7 +384,7 @@ const S6 = {
     'When the vertex sits above the middle of the base the legs are equal. Being isosceles depends on WHERE the vertex is, not on the numbers themselves.',
   ),
   audio: [
-    A('mount', "Endi uchni o'zingiz ko'chirasiz. Tugunni bosing.", 'Теперь вершину переносишь сам. Нажми на узел.', 'Now you move the vertex. Tap a node.'),
+    A('mount', "Endi uchni o'zingiz ko'chirasiz. Nuqtani bosing.", 'Теперь вершину переносишь сам. Нажми на точку.', 'Now you move the vertex. Tap a point.'),
     A('mount', "Maqsad: yon tomonlar teng bo'lsin.", 'Цель: боковые стороны должны стать равными.', 'The goal: make the legs equal.'),
     A('move', "Uch ko'chdi va tomonlar qayta o'lchandi.", 'Вершина переехала, и стороны измерены заново.', 'The vertex moved and the sides were measured again.'),
   ],
@@ -745,10 +745,10 @@ const S13 = {
   ),
   template: ['∠1 = 35°,   ∠2 = ', { slot: 0 }],
   parts: [
-    { id: 'a', label: '35' },
-    { id: 'b', label: '55' },
-    { id: 'c', label: '145' },
-    { id: 'd', label: '110' },
+    { id: 'a', label: '35°' },
+    { id: 'b', label: '55°' },
+    { id: 'c', label: '145°' },
+    { id: 'd', label: '110°' },
   ],
   answer: ['a'],
   prompt: L(

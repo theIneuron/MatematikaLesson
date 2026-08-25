@@ -203,7 +203,6 @@ const S3 = {
   pts: { A: { x: -4, y: -2 }, B: { x: 0, y: -2 }, C: { x: -4, y: 1 } },
   show: { sides: true, angles: true },
   mark: ['A'],
-  guess: true,
   caption: L(
     "To'g'ri burchak A da. Uchta tomon va uchta burchak o'lchandi.",
     'Прямой угол при A. Три стороны и три угла измерены.',
@@ -243,11 +242,10 @@ const S4 = {
   move: 'C',
   pick: { x: -3, y: 3 },
   show: { sides: true, angles: true },
-  guess: true,
   caption: L(
-    "Bu uchburchakda to'g'ri burchak yo'q. C ni (−3; 3) tuguniga ko'chiring va eng uzun tomon bilan eng katta burchakni kuzatib turing.",
-    'В этом треугольнике прямого угла нет. Перенеси C в узел (−3; 3) и следи за самой длинной стороной и самым большим углом.',
-    'This triangle has no right angle. Move C to the node (−3; 3) and watch the longest side and the largest angle.',
+    "Bu uchburchakda to'g'ri burchak yo'q. C ni (−3; 3) nuqtaga ko'chiring va eng uzun tomon bilan eng katta burchakni kuzatib turing.",
+    'В этом треугольнике прямого угла нет. Перенеси C в точку (−3; 3) и следи за самой длинной стороной и самым большим углом.',
+    'This triangle has no right angle. Move C to the point (−3; 3) and watch the longest side and the largest angle.',
   ),
   options: [
     { id: 'a', label: L('eng katta burchak eng uzun tomon qarshisida qoldi', 'самый большой угол остался против самой длинной стороны', 'the largest angle stayed opposite the longest side') },
@@ -327,7 +325,6 @@ const S6 = {
   move: 'C',
   pick: { x: -3, y: 1 },
   show: { sides: true, angles: true },
-  guess: true,
   caption: L(
     "To'g'ri burchak A da va u joyida qoladi. C ni shunday ko'chiringki, ikki katet teng bo'lsin.",
     'Прямой угол при A и он остаётся на месте. Перенеси C так, чтобы два катета стали равны.',
@@ -377,7 +374,7 @@ const S7 = {
     { id: 'a', label: '6' },
     { id: 'b', label: '12' },
     { id: 'c', label: '4' },
-    { id: 'd', label: '30' },
+    { id: 'd', label: '30°' },
   ],
   answer: ['a'],
   prompt: L(
@@ -519,7 +516,7 @@ const S9 = {
       items: [
         { id: 'a', label: '10', correct: true },
         { id: 'b', label: '20', tag: 'Z5', hint: L("Yigirma gipotenuzaning o'zi.", 'Двадцать это сама гипотенуза.', 'Twenty is the hypotenuse itself.') },
-        { id: 'c', label: '30', tag: 'Z5', hint: L("O'ttiz bu burchak, javob esa uzunlik.", 'Тридцать это угол, а ответ длина.', 'Thirty is the angle, the answer is a length.') },
+        { id: 'c', label: '30°', tag: 'Z5', hint: L("O'ttiz bu burchak, javob esa uzunlik.", 'Тридцать это угол, а ответ длина.', 'Thirty is the angle, the answer is a length.') },
         { id: 'd', label: '15', tag: 'Z6', hint: L("Yigirmaning yarmi o'n.", 'Половина двадцати это десять.', 'Half of twenty is ten.') },
       ],
     },
@@ -562,11 +559,11 @@ const S10 = {
     'В прямоугольном треугольнике один острый угол 30 градусов, гипотенуза 16. Запиши второй острый угол и катет против 30 градусов.',
     'In a right triangle one acute angle is 30 degrees and the hypotenuse is 16. Write the second acute angle and the leg opposite the 30 degrees.',
   ),
-  template: ['90 − 30 = ', { slot: 0 }, ',   16 : 2 = ', { slot: 1 }],
+  template: ['90° − 30° = ', { slot: 0 }, ',   16 : 2 = ', { slot: 1 }],
   parts: [
-    { id: 'a', label: '60' },
+    { id: 'a', label: '60°' },
     { id: 'b', label: '8' },
-    { id: 'c', label: '150' },
+    { id: 'c', label: '150°' },
     { id: 'd', label: '16' },
   ],
   answer: ['a', 'b'],
@@ -718,7 +715,7 @@ const S13 = {
     { id: 'a', label: '2' },
     { id: 'b', label: '4' },
     { id: 'c', label: '1' },
-    { id: 'd', label: '30' },
+    { id: 'd', label: '30°' },
   ],
   answer: ['a'],
   prompt: L(

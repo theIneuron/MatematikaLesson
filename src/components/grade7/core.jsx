@@ -1568,7 +1568,10 @@ export const DoneRow = ({ children, prose }) => (
 )
 
 // Feedback. Skroll YO'Q: blok oldindan band qilingan slot ichida ochiladi.
-export const Feedback = ({ show, ok, tone, children }) => {
+// `cap` -- yorliqni O'ZI berish. Neytral shakl odatda «TAXMININGIZ» deb
+// imzolanadi, lekin u KO'RSATMA uchun ham ishlatiladi («Bosing») -- unda
+// «taxmin» degan so'z yolg'on bo'lardi (metodist 2026-08-25).
+export const Feedback = ({ show, ok, tone, cap, children }) => {
   const lang = useContext(LangContext)
   const [visible, setVisible] = useState(false)
   // Fidbek DARROV joy egallamaydi: avval tanlanmagan variantlar yig'iladi
@@ -1591,11 +1594,11 @@ export const Feedback = ({ show, ok, tone, children }) => {
   return (
     <div
       className={'g7-fb ' + (tone === 'neutral' ? 'g7-fb-neutral' : ok ? 'g7-fb-ok' : 'g7-fb-tip') + (visible ? ' g7-fb-on' : '')}
-      aria-label={tone === 'neutral' ? '' : tr(ok ? UI_TXT.right : UI_TXT.hint, lang)}
+      aria-label={cap ? tr(cap, lang) : tone === 'neutral' ? '' : tr(ok ? UI_TXT.right : UI_TXT.hint, lang)}
     >
       <span className="g7-fb-cap">
         <span aria-hidden="true">{tone === 'neutral' ? '→' : ok ? '✓' : '↺'}</span>
-        {tone === 'neutral' ? tr(UI_TXT.yourGuess, lang) : tr(ok ? UI_TXT.right : UI_TXT.hint, lang)}
+        {cap ? tr(cap, lang) : tone === 'neutral' ? tr(UI_TXT.yourGuess, lang) : tr(ok ? UI_TXT.right : UI_TXT.hint, lang)}
       </span>
       <span className="g7-fb-body">{children}</span>
     </div>
@@ -4775,6 +4778,7 @@ sup.g7-idx { vertical-align: .46em; }
 .g7-fg-len { font-family: ${MATH_FONT}; font-size: 11.5px; fill: ${T.ink2}; }
 .g7-fg-len.is-dim { fill: ${T.ink3}; }
 .g7-fg-ang { font-family: ${MATH_FONT}; font-weight: 700; font-size: 12.5px; fill: ${T.graph}; }
+.g7-fg-axis text { font-family: ${MATH_FONT}; font-weight: 700; font-size: 10px; fill: ${T.ink2}; }
 .g7-fg-ang.is-mark { fill: ${T.accent}; }
 .g7-fg-ang.is-dim { fill: ${T.ink3}; }
 .g7-fg-sum { font-family: ${MATH_FONT}; font-weight: 700; font-size: 14px; color: ${T.ink}; }
