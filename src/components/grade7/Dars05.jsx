@@ -264,29 +264,29 @@ function Screen1({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S2 = {
   eyebrow: L('TAYANCH', 'ОПОРА', 'WARM-UP'),
-  title: L('Uchta narsa oltinchi sinfdan', 'Три вещи из шестого класса', 'Three things from grade six'),
+  title: L('Uchta savol', 'Три вопроса', 'Three questions'),
   question: ASK_VALUE,
   items: [
     {
-      prompt: '9 − 14',
-      ok: L("Manfiy son. Ayiriladigan son kattaroq bo'lsa, natija noldan kichik.", 'Отрицательное число. Если вычитаемое больше, результат меньше нуля.', 'A negative number. If you take away more than you have, the result is below zero.'),
+      prompt: '2,5 − 7 − 1,5',
+      ok: L("Noldan pastga tushamiz va yana ayiramiz: son yanada kichrayadi.", 'Уходим ниже нуля и вычитаем ещё: число становится меньше.', 'We go below zero and take away again: the number gets smaller still.'),
       items: [
-        { id: 'a', label: '−5', correct: true },
-        { id: 'b', label: '5', hint: L("Ishorani unutmang. 9 dan 14 ni ayirsak, noldan pastga tushamiz.", 'Не теряй знак. Если из 9 вычесть 14, мы уходим ниже нуля.', 'Do not lose the sign. Taking 14 from 9 goes below zero.') },
-        { id: 'c', label: '23', hint: L("23 bu 9 qo'shuv 14. Belgiga qarang, u ayirish.", '23 это 9 плюс 14. Посмотри на знак, он вычитание.', '23 is 9 plus 14. Look at the sign, it is subtraction.') },
-        { id: 'd', label: '−23', hint: L("Sonlar qo'shilgan va ishora ham qo'yilgan. Yozuvda esa faqat ayirish bor.", 'Числа сложили и ещё поставили знак. А в записи только вычитание.', 'The numbers were added and a sign was put on top. The expression only has a subtraction.') },
+        { id: 'a', label: '−6', correct: true },
+        { id: 'b', label: '−3', tag: 'Z3', hint: L("Oxirgi belgi qo'shish emas, ayirish. Manfiy songa bir butun besh o'ndandan qo'shib yubormang.", 'Последний знак не сложение, а вычитание. Не прибавляй полтора к отрицательному числу.', 'The last sign is a subtraction, not an addition. Do not add one and a half to the negative number.') },
+        { id: 'c', label: '6', hint: L("Son to'g'ri, ishora esa yo'q. Ayirilganlar boshdagi sondan katta.", 'Число верное, а знака нет. Вычитаемые больше числа в начале.', 'The number is right but the sign is missing. What is taken away is more than the number at the start.') },
+        { id: 'd', label: '−11', hint: L("Bu uchala son qo'shilganda chiqadi. Boshidagi son ayirilmaydi.", 'Так выходит, если сложить все три числа. Число в начале не вычитают.', 'That comes from adding all three. The number at the start is not taken away.') },
       ],
     },
     {
       wrap: true,
       question: null,
-      prompt: L("Minus 7 ga qarama-qarshi son qaysi?", 'Какое число противоположно минус семи?', 'Which number is the opposite of minus seven?'),
-      ok: L("Qarama-qarshi son -- o'sha son, faqat ishorasi boshqa.", 'Противоположное число это то же число с другим знаком.', 'The opposite number is the same number with the other sign.'),
+      prompt: L("3,5 − 9 ning qiymatiga qarama-qarshi son qaysi?", 'Какое число противоположно значению 3,5 − 9?', 'Which number is the opposite of the value of 3,5 − 9?'),
+      ok: L("Avval qiymat topiladi, keyin ishorasi almashtiriladi.", 'Сначала находим значение, потом меняем знак.', 'First find the value, then change its sign.'),
       items: [
-        { id: 'a', label: '7', correct: true },
-        { id: 'b', label: '−7', hint: L("Bu o'sha sonning o'zi. Qarama-qarshisining ishorasi boshqa bo'ladi.", 'Это то же самое число. У противоположного знак другой.', 'That is the same number. The opposite has the other sign.') },
-        { id: 'c', label: '0', hint: L("Nol o'ziga qarama-qarshi. Bizga esa minus yettining jufti kerak.", 'Нуль противоположен сам себе. А нам нужна пара к минус семи.', 'Zero is its own opposite. We need the partner of minus seven.') },
-        { id: 'd', label: L("1 : 7", '1 : 7', '1 : 7'), hint: L("Bu teskari son, qarama-qarshi emas. Qarama-qarshida faqat ishora almashadi.", 'Это обратное число, а не противоположное. У противоположного меняется только знак.', 'That is the reciprocal, not the opposite. The opposite only changes the sign.') },
+        { id: 'a', label: '5,5', correct: true },
+        { id: 'b', label: '−5,5', hint: L("Bu yozuvning o'z qiymati. Bizga esa unga qarama-qarshi son kerak.", 'Это само значение записи. А нужно противоположное ему число.', 'That is the value itself. We need the number opposite to it.') },
+        { id: 'c', label: '12,5', hint: L("Bu sonlarni qo'shgani. Yozuvda ayirish turibdi.", 'Это сумма чисел. В записи стоит вычитание.', 'That is the numbers added. The expression has a subtraction.') },
+        { id: 'd', label: '−12,5', hint: L("Sonlar qo'shilgan va yana ishora qo'yilgan. Avval kichik sondan kattasini ayiring.", 'Числа сложили и ещё поставили знак. Сначала вычти из меньшего числа большее.', 'The numbers were added and a sign put on top. Take the larger from the smaller first.') },
       ],
     },
     {
@@ -301,7 +301,7 @@ const S2 = {
     },
   ],
   audio: [
-    A('mount', "Yangi mavzudan oldin uchta narsani eslaymiz. Bu yerda qavs ochilmaydi, faqat hisoblanadi.", 'Прежде чем идти в новую тему, вспомним три вещи. Здесь скобку не раскрывают, её только считают.', 'Before the new topic let us recall three things. No bracket is removed here, only worked out.'),
+    A('mount', "Yangi mavzudan oldin uchta savolga javob beramiz. Bu yerda qavs ochilmaydi, faqat hisoblanadi.", 'Прежде чем идти в новую тему, ответим на три вопроса. Здесь скобку не раскрывают, её только считают.', 'Before the new topic let us answer three questions. No bracket is removed here, only worked out.'),
     A('1', "Ikkinchisi. Qarama-qarshi son haqida.", 'Второе. Про противоположное число.', 'Second. About the opposite number.'),
     A('2', "Uchinchisi. Bu xukdagi o'sha yozuv.", 'Третье. Это та самая запись с хука.', 'Third. This is the very expression from the hook.'),
   ],
@@ -1315,8 +1315,8 @@ function Screen15({ screen, answers, ...rest }) {
       <div className="g7-sumcards g7-sumcards-one">
         <div className="g7-sumcard">
           <p className="g7-sumcard-h">{t(S15.twoLabel)}</p>
-          <span className="g7-sumtwo-line"><Fx>{S15.twoA}</Fx></span>
-          <span className="g7-sumtwo-line"><Fx>{S15.twoB}</Fx></span>
+          <span className="g7-sumtwo-line"><Fx>{t(S15.twoA)}</Fx></span>
+          <span className="g7-sumtwo-line"><Fx>{t(S15.twoB)}</Fx></span>
           <p className="g7-sumcard-note">
             <b>{t(S15.predictLabel)}:</b> {predict ? t(predict) : t(S15.noAnswer)}
           </p>

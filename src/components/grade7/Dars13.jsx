@@ -246,7 +246,7 @@ function Screen1({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S2 = {
   eyebrow: L('TAYANCH', 'ОПОРА', 'WARM-UP'),
-  title: L('Uchta narsa', 'Три вещи', 'Three things'),
+  title: L('Uchta savol', 'Три вопроса', 'Three questions'),
   question: L('Nimaga teng?', 'Чему равно?', 'What does it equal?'),
   items: [
     {
@@ -285,7 +285,7 @@ const S2 = {
     },
   ],
   audio: [
-    A('mount', "Uchta narsani eslaymiz, ular bugun kerak.", 'Вспомним три вещи, они сегодня нужны.', 'Three things to recall, they are needed today.'),
+    A('mount', "Uchta savolga javob beramiz, ular bugun kerak.", 'Ответим на три вопроса, они сегодня нужны.', 'Three things to recall, they are needed today.'),
     A('1', "Ikkinchisi yig'indi haqida.", 'Второе про сумму.', 'The second is about a sum.'),
     A('2', "Uchinchisi ko'paytma haqida.", 'Третье про произведение.', 'The third is about a product.'),
   ],
@@ -1281,7 +1281,7 @@ const S15 = {
   tapeLabel: L("Bosib o'tilgan yo'l", 'Пройденный путь', 'The path you walked'),
   chips: ['(3a)³ → 27a³', 'a² + a² → 2a²', 'a² · a² → a⁴', '−a⁴ ≠ (−a)⁴'],
   twoLabel: L('Ikki qavat', 'Два уровня', 'Two levels'),
-  twoA: '+  →  koeff.',
+  twoA: L('+  →  koeff.', '+  →  коэфф.', '+  →  coeff.'),
   twoB: '·  →  aⁿ',
   nextLabel: L('Keyingi', 'Дальше', 'Next'),
   nextTopic: L(
@@ -1326,8 +1326,8 @@ function Screen15({ screen, answers, ...rest }) {
       <div className="g7-sumcards g7-sumcards-one">
         <div className="g7-sumcard">
           <p className="g7-sumcard-h">{t(S15.twoLabel)}</p>
-          <span className="g7-sumtwo-line"><Fx>{S15.twoA}</Fx></span>
-          <span className="g7-sumtwo-line"><Fx>{S15.twoB}</Fx></span>
+          <span className="g7-sumtwo-line"><Fx>{t(S15.twoA)}</Fx></span>
+          <span className="g7-sumtwo-line"><Fx>{t(S15.twoB)}</Fx></span>
           <p className="g7-sumcard-note">
             <b>{t(S15.predictLabel)}:</b> {predict ? t(predict) : t(S15.noAnswer)}
           </p>

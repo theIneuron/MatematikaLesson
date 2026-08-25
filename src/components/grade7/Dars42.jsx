@@ -48,8 +48,8 @@ const S1 = {
   gate: {
     source: { kind: 'plain', tokens: ['5', '6', '?'] },
     rows: [
-      { tokens: ['yetarli'], value: '2' },
-      { tokens: ['kerak'], value: '3' },
+      { tokens: [L('yetarli', 'достаточно', 'enough')], value: '2' },
+      { tokens: [L('kerak', 'нужен', 'needed')], value: '3' },
     ],
   },
   cols: 2,
@@ -111,7 +111,7 @@ const S2 = {
   kind: 'chain',
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
-  title: L('Uch qisqa savol', 'Три коротких вопроса', 'Three short questions'),
+  title: L('Uchta savol', 'Три вопроса', 'Three questions'),
   question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
   cols: 2,
   items: [
@@ -668,7 +668,7 @@ const S12 = {
     { id: 'r1', text: L('tomonlar 7 va 9 mos keldi', 'стороны 7 и 9 совпали', 'the sides 7 and 9 matched') },
     { id: 'r2', text: L('7 qarshisidagi burchak 40° mos keldi', 'угол 40° против стороны 7 совпал', 'the 40° angle opposite the side 7 matched') },
     { id: 'r3', text: L('40° tomonlar orasida turadi', 'угол 40° лежит между сторонами', 'the 40° angle lies between the sides') },
-    { id: 'r4', text: L('javob: ikkinchi alomat bo\'yicha teng', 'ответ: равны по второму признаку', 'answer: equal by the second test') },
+    { id: 'r4', text: L('ikkinchi alomat bo\'yicha teng', 'равны по второму признаку', 'equal by the second test') },
   ],
   answerId: 'r3',
   hints: {
@@ -843,7 +843,7 @@ const S15 = {
   title: L('Uchta element, va bittasi tomon', 'Три элемента, и один из них сторона', 'Three elements, one of them a side'),
   gate: S1.gate,
   fix: {
-    tokens: ['kerak'],
+    tokens: [L('kerak', 'нужен', 'needed')],
     value: '3',
     sign: '=',
     hint: L('Pastki tabloni bosing', 'Нажми на нижнее табло', 'Tap the lower board'),

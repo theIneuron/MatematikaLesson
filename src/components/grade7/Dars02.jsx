@@ -285,27 +285,27 @@ function Screen1({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S2 = {
   eyebrow: L('TAYANCH', 'ОПОРА', 'WARM-UP'),
-  title: L('Uchta narsa oltinchi sinfdan', 'Три вещи из шестого класса', 'Three things from grade six'),
+  title: L('Uchta savol', 'Три вопроса', 'Three questions'),
   question: ASK_VALUE,
   items: [
     {
-      prompt: '5 − 2 · 3',
-      ok: L("Ikkinchi bosqich oldin ketdi.", 'Вторая ступень пошла раньше.', 'The second stage went first.'),
+      prompt: '12 − 0,5 · (6 + 4)',
+      ok: L("Avval qavs, keyin ko'paytirish. Nol butun besh o'ndan ko'paytirish -- yarmini olish.", 'Сначала скобка, потом умножение. Умножить на ноль целых пять десятых значит взять половину.', 'The bracket first, then the multiplication. Times nought point five means taking half.'),
       items: [
-        { id: 'a', label: '−1', correct: true },
-        { id: 'b', label: '9', tag: 'Z3', hint: L("9 chapdan o'ngga sanaganda chiqadi. 5 dan 2 ayirilib, keyin 3 ga ko'paytirilgan. Yozuvda esa bunday qavs yo'q.", '9 получается при счёте слева направо. Из 5 вычли 2, потом умножили на 3. А таких скобок в записи нет.', '9 comes from counting left to right. 2 taken from 5, then times 3. There are no such brackets in the expression.') },
-        { id: 'c', label: '6', hint: L("6 bu faqat 2 karra 3. Ayirish umuman bajarilmagan.", '6 это только 2 умножить на 3. Вычитание не сделано вовсе.', '6 is just 2 times 3. The subtraction was not done at all.') },
-        { id: 'd', label: '0', hint: L("Nol 5 dan 5 ayirilganda chiqadi. 2 va 3 orasidagi belgiga qarang, u qo'shish emas.", 'Нуль получается, если из 5 вычесть 5. Посмотри на знак между 2 и 3, он не сложение.', 'Zero comes from taking 5 from 5. Look at the sign between 2 and 3, it is not addition.') },
+        { id: 'a', label: '7', correct: true },
+        { id: 'b', label: '115', tag: 'Z3', hint: L("Bu chapdan o'ngga sanaganda chiqadi: avval 12 dan yarim ayirilib, keyin o'nga ko'paytirilgan. Ko'paytirish esa ayirishdan oldin ketadi.", 'Так выходит при счёте слева направо: сначала из 12 вычли половину, потом умножили на десять. А умножение идёт раньше вычитания.', 'That comes from counting left to right: half taken from 12, then times ten. But multiplication goes before subtraction.') },
+        { id: 'c', label: '5', hint: L("5 bu faqat ko'paytma. Yozuvning boshida yana 12 turibdi.", '5 это только произведение. В начале записи стоит ещё 12.', '5 is only the product. There is still a 12 at the start of the expression.') },
+        { id: 'd', label: '9', tag: 'Z3', hint: L("Bu qavs ochilmaganda chiqadi: yarim faqat oltiga ko'paytirilgan. Qavsda esa ikkita son bor.", 'Так выходит, если скобку не посчитать: половину умножили только на шесть. А в скобке два числа.', 'That comes from ignoring the bracket: the half was multiplied by six only. But the bracket holds two numbers.') },
       ],
     },
     {
-      prompt: '2 · (−3)',
-      ok: L("Minus songa tegishli, u qavs ichida turibdi.", 'Минус относится к числу, он стоит в скобках.', 'The minus belongs to the number, it stands in the brackets.'),
+      prompt: '(−0,4) · (−5) − 3',
+      ok: L("Ikki manfiy sonning ko'paytmasi musbat: ikki chiqadi. Ayirish esa undan keyin.", 'Произведение двух отрицательных положительно: выходит два. А вычитание идёт после.', 'The product of two negatives is positive: it gives two. The subtraction comes after.'),
       items: [
-        { id: 'a', label: '−6', correct: true },
-        { id: 'b', label: '6', tag: 'Z5', hint: L("Yozuvda nechta minus bor edi va nechtasi qoldi, sanang.", 'Посчитай, сколько минусов было в записи и сколько осталось.', 'Count how many minus signs were in the expression and how many are left.') },
-        { id: 'c', label: '−5', tag: 'Z5', hint: L("Minus faqat 3 ning oldida turibdi. 2 ga u tegishli emas.", 'Минус стоит только у тройки. К двойке он не относится.', 'The minus belongs to the 3 only. It does not belong to the 2.') },
-        { id: 'd', label: '−1', hint: L("Bu 2 qo'shuv minus 3. Belgiga qarang, u ko'paytirish.", 'Это 2 плюс минус 3. Посмотри на знак, он умножение.', 'That is 2 plus minus 3. Look at the sign, it is multiplication.') },
+        { id: 'a', label: '−1', correct: true },
+        { id: 'b', label: '−5', tag: 'Z5', hint: L("Ko'paytmaning ishorasini tekshiring: ikkala son ham manfiy edi, demak ko'paytma musbat.", 'Проверь знак произведения: оба числа были отрицательными, значит произведение положительно.', 'Check the sign of the product: both numbers were negative, so the product is positive.') },
+        { id: 'c', label: '5', hint: L("Oxirgi belgi qo'shish emas. Yozuvning oxiriga qarang.", 'Последний знак не сложение. Посмотри на конец записи.', 'The last sign is not an addition. Look at the end of the expression.') },
+        { id: 'd', label: '3,2', tag: 'Z3', hint: L("Bu ayirish oldin bajarilganda chiqadi. Ko'paytirish ikkinchi bosqich, u oldinroq ketadi.", 'Так выходит, если сначала выполнить вычитание. Умножение это вторая ступень, оно идёт раньше.', 'That comes from doing the subtraction first. Multiplication is the second stage and goes earlier.') },
       ],
     },
     {
@@ -322,7 +322,7 @@ const S2 = {
     },
   ],
   audio: [
-    A('mount', "Yangi mavzuga o'tishdan oldin uchta narsani eslaymiz. Bu yerda harf ham yo'q, baho ham yo'q.", 'Прежде чем идти в новую тему, вспомним три вещи. Здесь нет ни буквы, ни оценки.', 'Before the new topic let us recall three things. No letters here and nothing is graded.'),
+    A('mount', "Yangi mavzuga o'tishdan oldin uchta savolga javob beramiz. Bu yerda harf ham yo'q, baho ham yo'q.", 'Прежде чем идти в новую тему, ответим на три вопроса. Здесь нет ни буквы, ни оценки.', 'Before the new topic let us answer three questions. No letters here and nothing is graded.'),
     A('1', "Ikkinchisi. Manfiy son qavs ichida turibdi, minus esa uning bir qismi.", 'Второе. Отрицательное число стоит в скобках, и минус это его часть.', 'Second. A negative number stands in brackets, and the minus is part of it.'),
     A('2', "Uchinchisi. Bu savol bugun yana kerak bo'ladi.", 'Третье. Этот вопрос сегодня понадобится ещё раз.', 'Third. This question will come up again today.'),
   ],
@@ -1432,8 +1432,8 @@ function Screen15({ screen, answers, ...rest }) {
       <div className="g7-sumcards g7-sumcards-one">
         <div className="g7-sumcard">
           <p className="g7-sumcard-h">{t(S15.twoLabel)}</p>
-          <span className="g7-sumtwo-line"><Fx>{S15.twoA}</Fx></span>
-          <span className="g7-sumtwo-line"><Fx>{S15.twoB}</Fx></span>
+          <span className="g7-sumtwo-line"><Fx>{t(S15.twoA)}</Fx></span>
+          <span className="g7-sumtwo-line"><Fx>{t(S15.twoB)}</Fx></span>
           <p className="g7-sumcard-note">
             <b>{t(S15.predictLabel)}:</b> {predict ? t(predict) : t(S15.noAnswer)}
           </p>

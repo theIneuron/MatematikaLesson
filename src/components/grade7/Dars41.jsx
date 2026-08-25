@@ -50,8 +50,8 @@ const S1 = {
   gate: {
     source: { kind: 'plain', tokens: ['90°', '45°', '45°'] },
     rows: [
-      { tokens: ['bitta'], value: '1' },
-      { tokens: ['ikkita'], value: '2' },
+      { tokens: [L('bitta', 'одно', 'one')], value: '1' },
+      { tokens: [L('ikkita', 'два', 'two')], value: '2' },
     ],
   },
   cols: 2,
@@ -113,7 +113,7 @@ const S2 = {
   kind: 'chain',
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
-  title: L('Uch qisqa savol', 'Три коротких вопроса', 'Three short questions'),
+  title: L('Uchta savol', 'Три вопроса', 'Three questions'),
   question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
   cols: 2,
   items: [
@@ -688,7 +688,7 @@ const S12 = {
     { id: 'r1', text: L('tomonlar: 3, 4, 5', 'стороны: 3, 4, 5', 'sides: 3, 4, 5') },
     { id: 'r2', text: '3 + 4 > 5' },
     { id: 'r3', text: L('ikki tomon teng', 'две стороны равны', 'two sides are equal') },
-    { id: 'r4', text: L('javob: teng yonli', 'ответ: равнобедренный', 'answer: isosceles') },
+    { id: 'r4', text: L('teng yonli', 'равнобедренный', 'isosceles') },
   ],
   answerId: 'r3',
   hints: {
@@ -863,7 +863,7 @@ const S15 = {
   title: L('Ikki bo\'linish, ikki nom', 'Два деления, два названия', 'Two splits, two names'),
   gate: S1.gate,
   fix: {
-    tokens: ['ikkita'],
+    tokens: [L('ikkita', 'два', 'two')],
     value: '2',
     sign: '=',
     hint: L('Pastki tabloni bosing', 'Нажми на нижнее табло', 'Tap the lower board'),

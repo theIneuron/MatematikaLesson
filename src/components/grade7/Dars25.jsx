@@ -114,7 +114,7 @@ const S2 = {
   kind: 'chain',
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
-  title: L('Uch qisqa savol', 'Три коротких вопроса', 'Three short questions'),
+  title: L('Uchta savol', 'Три вопроса', 'Three questions'),
   question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
   cols: 2,
   items: [
@@ -170,7 +170,7 @@ const S2 = {
 const S3 = {
   kind: 'grid',
   eyebrow: L('OCHAMIZ', 'РАЗБИРАЕМСЯ', 'WORKING IT OUT'),
-  title: L('Ikki katakda bir xil narsa', 'В двух клетках одно и то же', 'Two cells hold the same thing'),
+  title: L("Ikki katakda bir xil ko'paytma", 'В двух клетках одно и то же произведение', 'Two cells hold the same product'),
   caption: L(
     "Kvadrat bu o'sha qavs ikki marta. To'rt katakni bosing.",
     'Квадрат это та же скобка дважды. Нажми на четыре клетки.',
@@ -639,7 +639,7 @@ const S12 = {
     { id: 'r2', text: 'x · x = x²' },
     { id: 'r3', text: '4 · 4 = 16' },
     { id: 'r4', text: L("o'rta had: 4x", 'средний член: 4x', 'the middle term: 4x') },
-    { id: 'r5', text: L('javob: x² + 4x + 16', 'ответ: x² + 4x + 16', 'answer: x² + 4x + 16') },
+    { id: 'r5', text: L('x² + 4x + 16', 'x² + 4x + 16', 'x² + 4x + 16') },
   ],
   answerId: 'r4',
   hints: {

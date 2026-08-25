@@ -659,7 +659,7 @@ const S12 = {
     { id: 'r1', text: L('uchburchakda burchaklar 70° va 60°', 'в треугольнике углы 70° и 60°', 'a triangle has angles 70° and 60°') },
     { id: 'r2', text: '180 − 70 − 60 = 50' },
     { id: 'r3', text: L('uchinchi burchak 110°', 'третий угол 110°', 'the third angle is 110°') },
-    { id: 'r4', text: L('javob: 110°', 'ответ: 110°', 'answer: 110°') },
+    { id: 'r4', text: L('110°', '110°', '110°') },
   ],
   answerId: 'r3',
   hints: {

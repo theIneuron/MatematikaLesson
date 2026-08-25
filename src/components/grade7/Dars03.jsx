@@ -288,46 +288,46 @@ function Screen1({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S2 = {
   eyebrow: L('TAYANCH', 'ОПОРА', 'WARM-UP'),
-  title: L('Uchta narsa oltinchi sinfdan', 'Три вещи из шестого класса', 'Three things from grade six'),
+  title: L('Uchta savol', 'Три вопроса', 'Three questions'),
   question: ASK_VALUE,
   items: [
     {
-      prompt: '25 · 4',
-      ok: L("Yuz. Bu darsning butun kaliti shu yumaloq sonda.", 'Сто. Весь ключ урока в этом круглом числе.', 'A hundred. The whole key to this lesson is that round number.'),
+      prompt: '0,25 · 7 · 4',
+      ok: L("Chekka ikkitasi birni beradi, keyin yetti qoladi.", 'Крайние дают единицу, и остаётся семь.', 'The outer two make one, and seven is left.'),
       items: [
-        { id: 'a', label: '100', correct: true },
-        { id: 'b', label: '29', hint: L("29 bu 25 qo'shuv 4. Belgiga qarang, u ko'paytirish.", '29 это 25 плюс 4. Посмотри на знак, он умножение.', '29 is 25 plus 4. Look at the sign, it is multiplication.') },
-        { id: 'c', label: '250', hint: L("250 bu 25 ni 10 ga ko'paytirgani. Ikkinchi son 10 emas, 4.", '250 это 25 умножить на 10. Второе число не 10, а 4.', '250 is 25 times 10. The second number is not 10, it is 4.') },
-        { id: 'd', label: '21', hint: L("21 bu 25 dan 4 ni ayirgani. Yozuvda ayirish yo'q.", '21 это 25 минус 4. Вычитания в записи нет.', '21 is 25 minus 4. There is no subtraction in the expression.') },
+        { id: 'a', label: '7', correct: true },
+        { id: 'b', label: '1', hint: L("1 bu faqat chekka ikkitasining ko'paytmasi. Yozuvda uchta ko'paytuvchi bor.", '1 это произведение только крайних. В записи три множителя.', '1 is the product of the outer two only. The expression has three factors.') },
+        { id: 'c', label: '1,75', hint: L("Bu chorak karra yetti. To'rt hisobga kirmagan.", 'Это четверть умножить на семь. Четвёрка не учтена.', 'That is a quarter times seven. The four was not counted.') },
+        { id: 'd', label: '700', hint: L("Bu vergul yo'qolganda chiqadi. Birinchi son birdan kichik, demak natija ham kichrayadi.", 'Так выходит, если потерять запятую. Первое число меньше единицы, значит и результат уменьшится.', 'That comes from losing the comma. The first number is less than one, so the result shrinks.') },
       ],
     },
     {
       wrap: true,
       question: null,
-      prompt: L("10 − 4 va 4 − 10 qiymatlari tengmi?", 'Равны ли значения 10 − 4 и 4 − 10?', 'Are the values of 10 − 4 and 4 − 10 equal?'),
-      ok: L("Yo'q. Ayirishda sonlarni almashtirib bo'lmaydi.", 'Нет. В вычитании числа местами не меняются.', 'No. In subtraction the numbers do not swap.'),
+      prompt: L("5 − 1,5 − 2 va 5 − (1,5 − 2) qiymatlari tengmi?", 'Равны ли значения 5 − 1,5 − 2 и 5 − (1,5 − 2)?', 'Are the values of 5 − 1,5 − 2 and 5 − (1,5 − 2) equal?'),
+      ok: L("Yo'q. Qavs ichida manfiy son chiqadi, undan ayirish esa qo'shishga aylanadi.", 'Нет. В скобке выходит отрицательное число, а вычесть его значит прибавить.', 'No. The bracket gives a negative number, and taking it away means adding.'),
       items: [
-        { id: 'a', correct: true, label: L("Yo'q, 6 va minus 6", 'Нет, 6 и минус 6', 'No, 6 and minus 6') },
-        { id: 'b', tag: 'Z2', label: L("Ha, ayirish ham almashtiriladi", 'Да, вычитание тоже переставляется', 'Yes, subtraction swaps too'), hint: L("Ikkala yozuvni hisoblang. 6 va minus 6 chiqadi, bu ikki xil son.", 'Посчитай обе записи. Выйдет 6 и минус 6, это два разных числа.', 'Work out both. You get 6 and minus 6, two different numbers.') },
-        { id: 'c', tag: 'Z2', label: L("Ha, faqat ishora boshqa", 'Да, только знак другой', 'Yes, only the sign differs'), hint: L("Ishora sonning bir qismi. Ishorasi boshqa bo'lsa, son ham boshqa.", 'Знак это часть числа. Если знак другой, то и число другое.', 'A sign is part of a number. A different sign means a different number.') },
-        { id: 'd', tag: 'Z5', label: L("Yo'q, lekin faqat shu sonlar uchun", 'Нет, но только для этих чисел', 'No, but only for these numbers'), hint: L("Boshqa juftni oling, masalan 9 va 2. Yana ikki xil son chiqadi.", 'Возьми другую пару, например 9 и 2. Снова выйдут два разных числа.', 'Take another pair, say 9 and 2. Again two different numbers come out.') },
+        { id: 'a', correct: true, label: L("Yo'q, 1,5 va 5,5", 'Нет, 1,5 и 5,5', 'No, 1,5 and 5,5') },
+        { id: 'b', tag: 'Z2', label: L("Ha, qavs hech nimani o'zgartirmaydi", 'Да, скобка ничего не меняет', 'Yes, the bracket changes nothing'), hint: L("Ikkala yozuvni hisoblang. Birinchisi beshdan kichik, ikkinchisi esa beshdan katta.", 'Посчитай обе записи. Первая меньше пяти, а вторая больше пяти.', 'Work out both. The first is less than five, the second more than five.') },
+        { id: 'c', tag: 'Z2', label: L("Ha, ikkalasi ham 1,5", 'Да, оба равны 1,5', 'Yes, both are 1,5'), hint: L("Qavs ichida bir butun besh o'ndandan ikki ayiriladi va manfiy son chiqadi. Manfiy sonni ayirish esa qo'shishdir.", 'В скобке из полутора вычитают два и выходит отрицательное число. А вычесть отрицательное значит прибавить.', 'Inside the bracket two is taken from one and a half, giving a negative. Taking away a negative means adding.') },
+        { id: 'd', tag: 'Z5', label: L("Yo'q, lekin faqat shu sonlar uchun", 'Нет, но только для этих чисел', 'No, but only for these numbers'), hint: L("Boshqa uchlikni oling, masalan 6, 2 va 3. Yana ikki xil son chiqadi.", 'Возьми другую тройку, например 6, 2 и 3. Снова выйдут два разных числа.', 'Take another triple, say 6, 2 and 3. Again two different numbers come out.') },
       ],
     },
     {
       wrap: true,
       question: null,
-      prompt: L("12 : 4 va 4 : 12 qiymatlari tengmi?", 'Равны ли значения 12 : 4 и 4 : 12?', 'Are the values of 12 : 4 and 4 : 12 equal?'),
-      ok: L("Yo'q. Bo'lishda ham sonlarni almashtirib bo'lmaydi.", 'Нет. В делении числа местами тоже не меняются.', 'No. In division the numbers do not swap either.'),
+      prompt: L("9 : 3 : 0,5 va 9 : (3 : 0,5) qiymatlari tengmi?", 'Равны ли значения 9 : 3 : 0,5 и 9 : (3 : 0,5)?', 'Are the values of 9 : 3 : 0,5 and 9 : (3 : 0,5) equal?'),
+      ok: L("Yo'q. Yarimga bo'lish sonni ikki barobar oshiradi, va qavs buni qayerga qo'yishni hal qiladi.", 'Нет. Деление на половину увеличивает число вдвое, и скобка решает, где это случится.', 'No. Dividing by a half doubles the number, and the bracket decides where that happens.'),
       items: [
-        { id: 'a', correct: true, label: L("Yo'q, 3 va birdan kichik son", 'Нет, 3 и число меньше единицы', 'No, 3 and a number less than one') },
-        { id: 'b', tag: 'Z2', label: L("Ha, bo'lish ham almashtiriladi", 'Да, деление тоже переставляется', 'Yes, division swaps too'), hint: L("12 ni 4 ga bo'lsak 3 chiqadi. 4 ni 12 ga bo'lsak birdan kichik son chiqadi.", '12 разделить на 4 будет 3. А 4 разделить на 12 меньше единицы.', '12 divided by 4 is 3. And 4 divided by 12 is less than one.') },
-        { id: 'c', tag: 'Z2', label: L("Ha, faqat yozilishi boshqa", 'Да, просто запись другая', 'Yes, only the writing differs'), hint: L("Yozuv boshqa bo'lsa, birinchi son bo'linuvchi, ikkinchisi bo'luvchi bo'ladi. Ularning o'rni almashsa, natija ham almashadi.", 'Если запись другая, то первое число делимое, второе делитель. Поменяются местами они, поменяется и результат.', 'A different writing means the first number is the dividend and the second the divisor. Swap them and the result changes.') },
-        { id: 'd', tag: 'Z2', label: L("Yo'q, 4 : 12 ning qiymati yo'q", 'Нет, у 4 : 12 значения нет', 'No, 4 : 12 has no value'), hint: L("Qiymati bor, u birdan kichik. Qiymat yo'q bo'ladigan yagona holat -- bo'luvchi nol bo'lganda.", 'Значение есть, оно меньше единицы. Значения нет только тогда, когда делитель нуль.', 'It has a value, less than one. A value is missing only when the divisor is zero.') },
+        { id: 'a', correct: true, label: L("Yo'q, 6 va 1,5", 'Нет, 6 и 1,5', 'No, 6 and 1,5') },
+        { id: 'b', tag: 'Z2', label: L("Ha, qavs bo'lishga ta'sir qilmaydi", 'Да, скобка на деление не влияет', 'Yes, the bracket does not affect division'), hint: L("Ikkala yozuvni hisoblang. Birinchisi to'qqizdan kichik emas, ikkinchisi esa ancha kichik.", 'Посчитай обе записи. Первая не меньше девяти, а вторая заметно меньше.', 'Work out both. The first is not less than nine, the second is much smaller.') },
+        { id: 'c', tag: 'Z2', label: L("Ha, ikkalasi ham uch", 'Да, оба равны трём', 'Yes, both are three'), hint: L("Yarimga bo'lish kamaytirmaydi, oshiradi. Uchni yarimga bo'lsak olti chiqadi.", 'Деление на половину не уменьшает, а увеличивает. Три разделить на половину будет шесть.', 'Dividing by a half does not shrink but grows. Three divided by a half is six.') },
+        { id: 'd', tag: 'Z2', label: L("Yo'q, ikkinchisining qiymati yo'q", 'Нет, у второй значения нет', 'No, the second has no value'), hint: L("Qavs ichidan olti chiqadi, olti esa noldan farqli. Qiymat yo'q bo'ladigan yagona holat -- bo'luvchi nol bo'lganda.", 'В скобке выходит шесть, а шесть не нуль. Значения нет только тогда, когда делитель нуль.', 'The bracket gives six, and six is not zero. A value is missing only when the divisor is zero.') },
       ],
     },
   ],
   audio: [
-    A('mount', "Yangi mavzudan oldin uchta narsani eslaymiz. Bu yerda tartib tanlanmaydi va baho ham yo'q.", 'Прежде чем идти в новую тему, вспомним три вещи. Здесь порядок не выбирают, и оценки нет.', 'Before the new topic let us recall three things. No order to choose here, and nothing is graded.'),
+    A('mount', "Yangi mavzudan oldin uchta savolga javob beramiz. Bu yerda harf ham yo'q, baho ham yo'q.", 'Прежде чем идти в новую тему, ответим на три вопроса. Здесь нет ни буквы, ни оценки.', 'Before the new topic let us answer three questions. No letters here and nothing is graded.'),
     A('1', "Ikkinchisi. Ayirishga qarang.", 'Второе. Посмотри на вычитание.', 'Second. Look at the subtraction.'),
     A('2', "Uchinchisi. Endi bo'lishga.", 'Третье. Теперь на деление.', 'Third. Now the division.'),
   ],
@@ -1340,8 +1340,8 @@ function Screen15({ screen, answers, ...rest }) {
       <div className="g7-sumcards g7-sumcards-one">
         <div className="g7-sumcard">
           <p className="g7-sumcard-h">{t(S15.twoLabel)}</p>
-          <span className="g7-sumtwo-line"><Fx>{S15.twoA}</Fx></span>
-          <span className="g7-sumtwo-line"><Fx>{S15.twoB}</Fx></span>
+          <span className="g7-sumtwo-line"><Fx>{t(S15.twoA)}</Fx></span>
+          <span className="g7-sumtwo-line"><Fx>{t(S15.twoB)}</Fx></span>
           <p className="g7-sumcard-note">
             <b>{t(S15.predictLabel)}:</b> {predict ? t(predict) : t(S15.noAnswer)}
           </p>

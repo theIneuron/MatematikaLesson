@@ -175,6 +175,84 @@ for (const file of files) {
   }
 }
 
+// ============================================================================
+// EKRANGA CHIQADIGAN MAYDON UCH TILDA BO'LSIN.
+//
+// QA nuqsoni 2026-08-23: 16-darsning yakunida `twoA` va `twoB` oddiy satr
+// edi -- `L(...)` emas. Natijada ruscha va inglizcha ekranda ham o'zbekcha
+// «son · son» va «ko'rsatkich + ko'rsatkich» turardi. Eski tekshiruv buni
+// ko'rmasdi: u FAQAT `L(...)` ichini qaraydi, ya'ni tarjima UMUMAN yo'q
+// bo'lsa jim qolardi.
+//
+// Endi: `t()` orqali chiziladigan maydon yo `L(...)` bo'lishi, yo SOF
+// MATEMATIK yozuv bo'lishi kerak. Uch harfdan uzun so'z bor satr -- matn,
+// va u tarjimasiz qololmaydi.
+// ============================================================================
+const T_FIELDS = [
+  'twoA', 'twoB', 'twoLabel', 'task', 'given', 'noGap', 'moreGaps', 'gapPrefix',
+  'helpLabel', 'hookCap', 'lawSweep', 'nextLabel', 'nextTopic', 'noAnswer',
+  'predictLabel', 'fixSay',
+]
+for (const file of files) {
+  // FAQAT NAZARIY DARSLAR. Amaliyotda tarjima boshqacha yig'iladi: u yerda
+  // `const T = { uz: {...}, ru: {...}, en: {...} }` turadi, ya'ni `given:`
+  // satri tilning ICHIDA yotadi va L(...) kerak emas.
+  if (file.includes('/') || file.includes('\\')) continue
+  const text = await readFile(path.join(DIR, file), 'utf8')
+  for (const key of T_FIELDS) {
+    const re = new RegExp('^\\s*' + key + ":\\s*('[^'\\n]*'|\"[^\"\\n]*\")\\s*,", 'gm')
+    let m
+    while ((m = re.exec(text))) {
+      const val = m[1].slice(1, -1)
+      if (!/[A-Za-z]{3,}/.test(val)) continue
+      const line = text.slice(0, m.index).split(/\r?\n/).length
+      problems.push(`${file}:${line} ${key} tarjimasiz: L(...) kerak -- ${val.slice(0, 40)}`)
+    }
+  }
+
+  // SAHNA BELGISI SO'Z BO'LSA, u ham tarjimani talab qiladi. `tokens` va
+  // `inner` ro'yxatining ko'p qismi matematika (u uch tilda bir xil), lekin
+  // ba'zan tabloda so'z turadi. QA nuqsoni 2026-08-23: ruscha ekranda
+  // 12-darsda «jami 40 kg», 42-darsda «kerak» turardi. Rim raqami (I, II,
+  // III, IV) va bitta harf -- matematika, ular tekshiruvdan chetda.
+  const TOK_RE = /(tokens|inner):\s*\[([^\]]*)\]/g
+  let tm
+  while ((tm = TOK_RE.exec(text))) {
+    if (tm[2].includes('L(')) continue
+    const words = (tm[2].match(/'[^'\n]*'|"[^"\n]*"/g) || [])
+      .map((q) => q.slice(1, -1).trim())
+      .filter((v) => /^[A-Za-z']{2,}$/.test(v) && !/^[IVX]+$/.test(v))
+    if (!words.length) continue
+    const line = text.slice(0, tm.index).split(/\r?\n/).length
+    problems.push(`${file}:${line} sahna belgisi tarjimasiz: L(...) kerak -- ${words.join(', ')}`)
+  }
+
+  // L(...) MAYDONI t() SIZ CHIZILMASIN. 1-19 darslarning yakun ekrani umumiy
+  // qatlamdan OLDIN yozilgan, shuning uchun ularda o'z nusxasi bor va u
+  // satrni `{S15.twoA}` deb chizardi. Maydonga L(...) qo'yilishi bilan React
+  // «Objects are not valid as a React child» deb butun ekranni yiqitdi
+  // (QA 2026-08-23, 16-dars). Prop sifatida uzatilgan qiymat tekshirilmaydi:
+  // uni asbobning o'zi t() dan o'tkazadi.
+  const withL = new Set()
+  let cur = null
+  text.split(/\r?\n/).forEach((line) => {
+    const open = line.match(/^const (S\d+) = \{/)
+    if (open) { cur = open[1]; return }
+    if (cur && /^\}/.test(line)) { cur = null; return }
+    const f = cur && line.match(/^\s*([a-zA-Z]\w*): L\(/)
+    if (f) withL.add(cur + '.' + f[1])
+  })
+  text.split(/\r?\n/).forEach((line, i) => {
+    const raw = line.match(/\{(S\d+\.\w+)\}/g) || []
+    raw.forEach((hit) => {
+      const key = hit.slice(1, -1)
+      if (!withL.has(key)) return
+      if (new RegExp('\\w+=\\{' + key.replace('.', '\\.') + '\\}').test(line)) return
+      problems.push(`${file}:${i + 1} ${key} t() siz chizilmoqda -- ekran yiqiladi`)
+    })
+  })
+}
+
 if (skipped.length) {
   console.log('DIQQAT: tekshiruvdan chiqarilgan (rad etilgan prototip): ' + skipped.join(', '))
 }

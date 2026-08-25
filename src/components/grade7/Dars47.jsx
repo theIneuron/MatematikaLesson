@@ -50,8 +50,8 @@ const S1 = {
   gate: {
     source: { kind: 'plain', tokens: ['A', '?', 'B'] },
     rows: [
-      { tokens: ['chamalab'], value: '≈' },
-      { tokens: ['sirkul'], value: '=' },
+      { tokens: [L('chamalab', 'на глаз', 'by eye')], value: '≈' },
+      { tokens: [L('sirkul', 'циркуль', 'compass')], value: '=' },
     ],
   },
   cols: 2,
@@ -113,7 +113,7 @@ const S2 = {
   kind: 'chain',
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
-  title: L('Uch qisqa savol', 'Три коротких вопроса', 'Three short questions'),
+  title: L('Uchta savol', 'Три вопроса', 'Three questions'),
   question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
   cols: 2,
   items: [
@@ -685,7 +685,7 @@ const S12 = {
     { id: 'r1', text: L('sirkul bilan P nuqtasi topildi', 'циркулем нашли точку P', 'the point P was found with a compass') },
     { id: 'r2', text: L('P dan A gacha va B gacha 5', 'от P до A и до B по 5', 'from P to A and to B it is 5') },
     { id: 'r3', text: L("teng uzoqlikdagi nuqta -- kesmaning o'rtasi", 'равноудалённая точка это середина отрезка', 'an equidistant point is the midpoint') },
-    { id: 'r4', text: L("javob: P kesmaning o'rtasi", 'ответ: P это середина отрезка', 'answer: P is the midpoint') },
+    { id: 'r4', text: L("P kesmaning o'rtasi", 'P это середина отрезка', 'P is the midpoint') },
   ],
   answerId: 'r3',
   hints: {
@@ -860,7 +860,7 @@ const S15 = {
   title: L('Sirkul o\'lchamaydi, lekin aniq', 'Циркуль не измеряет, но точен', 'A compass does not measure, yet it is exact'),
   gate: S1.gate,
   fix: {
-    tokens: ['sirkul'],
+    tokens: [L('sirkul', 'циркуль', 'compass')],
     value: '=',
     sign: '=',
     hint: L('Yuqori tabloni bosing', 'Нажми на верхнее табло', 'Tap the upper board'),

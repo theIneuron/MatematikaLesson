@@ -111,7 +111,7 @@ const S2 = {
   kind: 'chain',
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
-  title: L('Uch qisqa savol', 'Три коротких вопроса', 'Three short questions'),
+  title: L('Uchta savol', 'Три вопроса', 'Three questions'),
   question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
   cols: 2,
   items: [
@@ -633,7 +633,7 @@ const S12 = {
     { id: 'r1', text: L('ikki burchak 50° va 60°', 'два угла 50° и 60°', 'two angles are 50° and 60°') },
     { id: 'r2', text: '180 − 50 − 60 = 70' },
     { id: 'r3', text: L("70° ning qo'shnisi ham 70°", 'смежный с 70° тоже 70°', 'the angle adjacent to 70° is 70° too') },
-    { id: 'r4', text: L("javob: qo'shni burchak 70°", 'ответ: смежный угол 70°', 'answer: the adjacent angle is 70°') },
+    { id: 'r4', text: L("qo'shni burchak 70°", 'смежный угол 70°', 'the adjacent angle is 70°') },
   ],
   answerId: 'r3',
   hints: {

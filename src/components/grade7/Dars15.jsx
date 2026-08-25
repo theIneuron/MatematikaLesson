@@ -248,7 +248,7 @@ function Screen1({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S2 = {
   eyebrow: L('TAYANCH', 'ОПОРА', 'WARM-UP'),
-  title: L('Uchta narsa', 'Три вещи', 'Three things'),
+  title: L('Uchta savol', 'Три вопроса', 'Three questions'),
   question: L('Nimaga teng?', 'Чему равно?', 'What does it equal?'),
   items: [
     {
@@ -285,7 +285,7 @@ const S2 = {
     },
   ],
   audio: [
-    A('mount', "Uchta narsani eslaymiz.", 'Вспомним три вещи.', 'Three things to recall.'),
+    A('mount', "Uchta savolga javob beramiz.", 'Ответим на три вопроса.', 'Three things to recall.'),
     A('1', "Ikkinchisi sonlar haqida.", 'Второе про числа.', 'The second is about numbers.'),
     A('2', "Uchinchisi koeffitsiyent haqida.", 'Третье про коэффициент.', 'The third is about the coefficient.'),
   ],
@@ -1298,8 +1298,8 @@ const S15 = {
   tapeLabel: L("Bosib o'tilgan yo'l", 'Пройденный путь', 'The path you walked'),
   chips: ['2 · a · 3 · b · a → 6a²b', '−3 · x · y · x → −3x²y', 'px → 1', '−b → −1'],
   twoLabel: L('Standart shakl', 'Стандартный вид', 'Standard form'),
-  twoA: 'son · son  →  koeff.',
-  twoB: 'harf · harf  →  aⁿ',
+  twoA: L('son · son  →  koeff.', 'число · число  →  коэфф.', 'number · number  →  coeff.'),
+  twoB: L('harf · harf  →  aⁿ', 'буква · буква  →  aⁿ', 'letter · letter  →  aⁿ'),
   nextLabel: L('Keyingi', 'Дальше', 'Next'),
   nextTopic: L(
     "bir hadlarni ko'paytirish",
@@ -1343,8 +1343,8 @@ function Screen15({ screen, answers, ...rest }) {
       <div className="g7-sumcards g7-sumcards-one">
         <div className="g7-sumcard">
           <p className="g7-sumcard-h">{t(S15.twoLabel)}</p>
-          <span className="g7-sumtwo-line"><Fx>{S15.twoA}</Fx></span>
-          <span className="g7-sumtwo-line"><Fx>{S15.twoB}</Fx></span>
+          <span className="g7-sumtwo-line"><Fx>{t(S15.twoA)}</Fx></span>
+          <span className="g7-sumtwo-line"><Fx>{t(S15.twoB)}</Fx></span>
           <p className="g7-sumcard-note">
             <b>{t(S15.predictLabel)}:</b> {predict ? t(predict) : t(S15.noAnswer)}
           </p>

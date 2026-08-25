@@ -2441,6 +2441,12 @@ sup.g7-idx { vertical-align: .46em; }
   font-feature-settings: 'liga' 0;
   font-variant-numeric: tabular-nums lining-nums;
 }
+/* QIYMAT YO'Q: natija emas, natijaning YO'QLIGI. Metodist qarori 2026-08-23:
+   so'z o'rniga BELGI -- shunday chiroyliroq. Rang sinf palitrasidan olinadi:
+   tip -- «noto'g'ri» rangi, xato variant ham shu rangda yonadi. Sof qizil
+   palitrada yo'q va ataylab kiritilmagan: har rang MA'NOGA band.
+   Ekran o'quvchisi uchun belgi yonida aria-label bilan matn qoladi. */
+.g7-sub-none { color: ${T.tip}; font-size: 1.15em; font-weight: 700; }
 .g7-opt-badge { flex-shrink: 0; min-width: 20px; font-family: 'Manrope', sans-serif; font-size: 14px; font-weight: 700; }
 /* SON javobi: yirik va markazda. Harf yo'q, ya'ni kenglik ham kerak emas --
    to'rttasi bitta qatorga bemalol sig'adi. */
@@ -2527,19 +2533,14 @@ sup.g7-idx { vertical-align: .46em; }
   font-family: 'Manrope', sans-serif; font-weight: 600;
   font-size: clamp(12.5px, 1.5vw, 15px); color: ${T.graph};
 }
-/* Yig'ish maydonining bo'sh holati: xira yozuv va miltillovchi kursor. */
+/* Yig'ish maydonining bo'sh holati: xira yozuv, KURSORSIZ. Miltillovchi
+   kursor bu yerda bor edi va ramkani KIRITISH MAYDONIGA o'xshatib qo'yardi --
+   javobni yozish kerakdek tuyulardi (QA 2026-08-23). */
 .g7-rb-empty {
   display: inline-flex; align-items: center; gap: 6px;
   font-family: 'Manrope', sans-serif; font-weight: 600;
   font-size: clamp(13.5px, 1.6vw, 16px); color: ${T.ink3};
 }
-.g7-rb-caret {
-  display: inline-block; width: 2px; height: 1.1em;
-  background: ${T.accent};
-  animation: g7-caret 1.05s steps(1) infinite;
-}
-@keyframes g7-caret { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .g7-rb-caret { animation: none; } }
 .g7-partsrow {
   display: flex; flex-wrap: wrap; align-items: center;
   gap: clamp(8px, 1.2vw, 14px); justify-content: center; min-width: 0;

@@ -899,7 +899,7 @@ const S12 = {
   rows: [
     { id: 'r1', text: '4x · x − x² + 7 − 7 = 3x² + 0' },
     { id: 'r2', text: L('nol ham had bo\'lib qoladi', 'ноль тоже остаётся членом', 'the zero stays a term too') },
-    { id: 'r3', text: L('javob: ikkihad', 'ответ: двучлен', 'answer: a binomial') },
+    { id: 'r3', text: L('ikkihad', 'двучлен', 'a binomial') },
   ],
   answerId: 'r2',
   hints: {

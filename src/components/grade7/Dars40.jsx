@@ -113,7 +113,7 @@ const S2 = {
   kind: 'chain',
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
-  title: L('Uch qisqa savol', 'Три коротких вопроса', 'Three short questions'),
+  title: L('Uchta savol', 'Три вопроса', 'Three questions'),
   question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
   cols: 2,
   items: [
@@ -677,7 +677,7 @@ const S12 = {
     { id: 'r1', text: L('berilgan burchak: 60°', 'дан угол: 60°', 'given angle: 60°') },
     { id: 'r2', text: '180 − 60 = 120' },
     { id: 'r3', text: L('vertikal burchak: 120°', 'вертикальный угол: 120°', 'vertical angle: 120°') },
-    { id: 'r4', text: L('javob: 120°', 'ответ: 120°', 'answer: 120°') },
+    { id: 'r4', text: L('120°', '120°', '120°') },
   ],
   answerId: 'r3',
   hints: {

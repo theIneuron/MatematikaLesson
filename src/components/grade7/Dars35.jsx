@@ -115,7 +115,7 @@ const S2 = {
   kind: 'chain',
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
-  title: L('Uch qisqa savol', 'Три коротких вопроса', 'Three short questions'),
+  title: L('Uchta savol', 'Три вопроса', 'Three questions'),
   question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
   cols: 2,
   items: [
@@ -644,7 +644,7 @@ const S12 = {
     { id: 'r2', text: L('nuqta: (1; 6)', 'точка: (1; 6)', 'point: (1; 6)') },
     { id: 'r3', text: '3 · 1 + 2 = 5' },
     { id: 'r4', text: L('5 nuqtaning y si bilan mos keldi', '5 совпало с y точки', '5 matched the y of the point') },
-    { id: 'r5', text: L('javob: nuqta grafikda turadi', 'ответ: точка лежит на графике', 'answer: the point lies on the graph') },
+    { id: 'r5', text: L('nuqta grafikda turadi', 'точка лежит на графике', 'the point lies on the graph') },
   ],
   answerId: 'r4',
   hints: {

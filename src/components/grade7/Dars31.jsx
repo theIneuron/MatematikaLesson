@@ -114,7 +114,7 @@ const S2 = {
   kind: 'chain',
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
-  title: L('Uch qisqa savol', 'Три коротких вопроса', 'Three short questions'),
+  title: L('Uchta savol', 'Три вопроса', 'Three questions'),
   question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
   cols: 1,
   items: [
@@ -680,7 +680,7 @@ const S12 = {
     { id: 'r2', text: '27 = 3 · 3 · 3' },
     { id: 'r3', text: L('ildizlar: x va 3', 'корни: x и 3', 'roots: x and 3') },
     { id: 'r4', text: L("yig'indining kubi formulasi kerak", 'нужна формула куба суммы', 'the cube-of-a-sum formula is needed') },
-    { id: 'r5', text: L('javob: (x + 3)³', 'ответ: (x + 3)³', 'answer: (x + 3)³') },
+    { id: 'r5', text: L('(x + 3)³', '(x + 3)³', '(x + 3)³') },
   ],
   answerId: 'r4',
   hints: {

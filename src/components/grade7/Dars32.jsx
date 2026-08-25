@@ -118,7 +118,7 @@ const S2 = {
   kind: 'chain',
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
-  title: L('Uch qisqa savol', 'Три коротких вопроса', 'Three short questions'),
+  title: L('Uchta savol', 'Три вопроса', 'Three questions'),
   question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
   cols: 2,
   items: [
@@ -652,7 +652,7 @@ const S12 = {
     { id: 'r1', text: '(4x + 8) : 4' },
     { id: 'r2', text: L('faqat birinchi had bo\'linadi', 'делится только первый член', 'only the first term is divided') },
     { id: 'r3', text: '4x : 4 = x' },
-    { id: 'r4', text: L('javob: x + 8', 'ответ: x + 8', 'answer: x + 8') },
+    { id: 'r4', text: L('x + 8', 'x + 8', 'x + 8') },
   ],
   answerId: 'r2',
   hints: {

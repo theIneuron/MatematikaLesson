@@ -960,15 +960,13 @@ const S12 = {
     { id: 'r1', text: '|x + 6| = 2' },
     { id: 'r2', text: 'x + 6 = 2' },
     { id: 'r3', text: 'x = −4' },
-    { id: 'r4', text: L('javob: −4', 'ответ: −4', 'answer: −4') },
   ],
   answerId: 'r2',
   hints: {
     r1: L("Bu boshlang'ich tenglama, unda hali hech nima qilinmagan.", 'Это исходное уравнение, в нём ещё ничего не сделано.', 'That is the original equation, nothing has been done to it yet.'),
     r3: L("Bu qator ikkinchisidan to'g'ri kelib chiqadi: oltini ko'chirsak minus to'rt qoladi. Xato yuqoriroqda.", 'Эта строка верно следует из второй: перенесли шестёрку, вышло минус четыре. Ошибка выше.', 'This line follows correctly from the second: move the six and you get minus four. The mistake is higher up.'),
-    r4: L("Javob topilgan ildizni takrorlaydi. Xato ancha oldin paydo bo'lgan.", 'Ответ повторяет найденный корень. Ошибка появилась намного раньше.', 'The answer repeats the root found. The mistake appeared much earlier.'),
   },
-  tags: { r1: 'Z1', r3: 'Z1', r4: 'Z1' },
+  tags: { r1: 'Z1', r3: 'Z1' },
   proofFill: {
     template: ['x + 6 = ', { slot: 0 }, ',     x = ', { slot: 1 }],
     parts: [{ id: 'v_m2', label: '−2' }, { id: 'v_m8', label: '−8' }, { id: 'v2', label: '2' }, { id: 'v8', label: '8' }],
@@ -1298,8 +1296,8 @@ function Screen15({ screen, answers, ...rest }) {
       <div className="g7-sumcards g7-sumcards-one">
         <div className="g7-sumcard">
           <p className="g7-sumcard-h">{t(S15.twoLabel)}</p>
-          <span className="g7-sumtwo-line"><Fx>{S15.twoA}</Fx></span>
-          <span className="g7-sumtwo-line"><Fx>{S15.twoB}</Fx></span>
+          <span className="g7-sumtwo-line"><Fx>{t(S15.twoA)}</Fx></span>
+          <span className="g7-sumtwo-line"><Fx>{t(S15.twoB)}</Fx></span>
           <p className="g7-sumcard-note">
             <b>{t(S15.predictLabel)}:</b> {predict ? t(predict) : t(S15.noAnswer)}
           </p>

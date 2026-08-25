@@ -111,7 +111,7 @@ const S2 = {
   kind: 'chain',
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
-  title: L('Uch qisqa savol', 'Три коротких вопроса', 'Three short questions'),
+  title: L('Uchta savol', 'Три вопроса', 'Three questions'),
   question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
   cols: 2,
   items: [
@@ -687,7 +687,7 @@ const S12 = {
     { id: 'r1', text: L('uchburchak teng yonli', 'треугольник равнобедренный', 'the triangle is isosceles') },
     { id: 'r2', text: L('uchdagi burchak 40°', 'угол при вершине 40°', 'the apex angle is 40°') },
     { id: 'r3', text: L("40° ning juft burchagi bor", 'у угла 40° есть равная пара', 'the 40° angle has an equal partner') },
-    { id: 'r4', text: L('javob: ikkinchi burchak ham 40°', 'ответ: второй угол тоже 40°', 'answer: the second angle is 40° too') },
+    { id: 'r4', text: L('ikkinchi burchak ham 40°', 'второй угол тоже 40°', 'the second angle is 40° too') },
   ],
   answerId: 'r3',
   hints: {

@@ -118,7 +118,7 @@ const S2 = {
   kind: 'chain',
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
-  title: L('Uch qisqa savol', 'Три коротких вопроса', 'Three short questions'),
+  title: L('Uchta savol', 'Три вопроса', 'Three questions'),
   question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
   cols: 2,
   items: [
@@ -678,7 +678,7 @@ const S12 = {
     { id: 'r1', text: '2x² − 6x − x + 3' },
     { id: 'r2', text: '2x² − 6x = 2x(x − 3)' },
     { id: 'r3', text: '−x + 3 = −(x + 3)' },
-    { id: 'r4', text: L('javob: 2x(x − 3) − (x + 3)', 'ответ: 2x(x − 3) − (x + 3)', 'answer: 2x(x − 3) − (x + 3)') },
+    { id: 'r4', text: L('2x(x − 3) − (x + 3)', '2x(x − 3) − (x + 3)', '2x(x − 3) − (x + 3)') },
   ],
   answerId: 'r3',
   hints: {

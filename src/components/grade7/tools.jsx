@@ -65,6 +65,10 @@ export const UI = {
   pickPart: L('Qismni tanlang', 'Выберите часть', 'Pick a part'),
   nextRow: L('Keyingi qatorni hisoblash', 'Посчитать следующую строку', 'Compute the next row'),
   whichNum: L("Qaysi sonni qo'yamiz?", 'Какое число подставить?', 'Which number shall we substitute?'),
+  // QIYMAT YO'Q. Nolga bo'lishda natija joyi BO'SH qolardi, va bo'shliq
+  // «hisoblanmadi» degan taassurot berardi, «qiymat yo'q» degan emas
+  // (QA 2026-08-23, 2-dars 7-ekran). Endi joyda belgi turadi.
+  noValue: L("qiymat yo'q", 'значения нет', 'no value'),
   // Nuqta noto'g'ri qo'yilganda. Javobni AYTMAYDI -- qaysi nuqta kerakligini
   // emas, shartga QAYTARADI (asbob nazoratchi, oracle emas).
   missPoint: L(
@@ -76,7 +80,14 @@ export const UI = {
   askAct: L('Bu qaysi bosqich amali?', 'Какой это ступени действие?', 'Which stage is this operation?'),
   ruleFirst: L('Qoidada nima BIRINCHI keladi?', 'Что в правиле идёт первым?', 'What comes first in the rule?'),
   ruleNext: L('Keyin nima keladi?', 'Что идёт дальше?', 'What comes next?'),
-  ruleHere: L("Qoida shu yerda yig'iladi", 'Здесь собирается правило', 'The rule is built here'),
+  // Bo'sh ramka NIMA QILISH kerakligini aytadi. Ilgari u yerda yozuv kursori
+  // miltillardi, va ramka KIRITISH MAYDONIGA o'xshab qolgandi: QA «yozish
+  // kerakka o'xshaydi, pastdagilarni bosish emas» dedi (2026-08-23).
+  ruleHere: L(
+    "Pastdan bo'lak tanlang -- qoida shu yerda yig'iladi",
+    'Выбери часть снизу — правило соберётся здесь',
+    'Pick a part below and the rule is built here',
+  ),
   step: L('qadam', 'шаг', 'step'),
   ftMul: L('Muljitellar:', 'Множителей:', 'Factors:'),
   ftNums: L('Sonlar:', 'Числа:', 'Numbers:'),
@@ -799,6 +810,11 @@ export function SubstituteRows({ rows, numbers, question, options, onSolved, onS
     return () => clearTimeout(tmr)
   }, [askFirst, picked])
 
+  // QIYMAT YO'Q: dars bo'sh satr qaytargan (nolga bo'lish) yoki hisob cheksiz
+  // chiqqan. Bo'shliq o'rniga so'z turadi -- shunda «qiymat yo'q» ekani
+  // KO'RINADI, «hisoblanmay qolgan» ko'rinmaydi.
+  const noVal = (v) => v === '' || v === null || v === undefined || (typeof v === 'number' && !isFinite(v))
+
   const allShown = shown >= rows.length
   const sourceVal = useMemo(() => {
     const src = rows.find((r) => r.role === 'source')
@@ -976,10 +992,11 @@ export function SubstituteRows({ rows, numbers, question, options, onSolved, onS
                   <span className={n === null ? 'g7-dim' : 'g7-in'}>{n === null ? '' : row.sub(n)}</span>
                   <span style={{ opacity: isDone ? 0.5 : 0.15 }}>=</span>
                   <span
-                    className={isDone ? (matches ? 'g7-num g7-pop' : 'g7-pop') : ''}
+                    className={(isDone ? (matches ? 'g7-num g7-pop' : 'g7-pop') : '') + (isDone && noVal(val) ? ' g7-sub-none' : '')}
                     style={{ minWidth: '1.47em', textAlign: 'right', opacity: isDone ? 1 : 0.15 }}
+                    aria-label={isDone && noVal(val) ? t(UI.noValue) : undefined}
                   >
-                    {isDone ? val : '?'}
+                    {isDone ? (noVal(val) ? '✗' : val) : '?'}
                   </span>
                 </div>
               )
@@ -2025,15 +2042,13 @@ export function RuleBuilder({
             </button>
           ))
         ) : (
-          /* Bo'sh maydon endi NIMA uchun turganini AYTADI. Ilgari u yerda
-             uchta nuqta turardi va o'quvchi ramka nima ekanini tushunmasdi
-             (metodist 2026-08-14). Endi: gap, va uning oxirida yozuv
-             kursori miltillaydi -- «bu yerga yozilyapti» degan tanish
-             ishora. */
-          <span className="g7-rb-empty">
-            {t(UI.ruleHere)}
-            <i className="g7-rb-caret" aria-hidden="true" />
-          </span>
+          /* Bo'sh maydon NIMA QILISH kerakligini aytadi. Avval u yerda uchta
+             nuqta turardi va ramka nima ekani tushunarsiz edi (metodist
+             2026-08-14); keyin yozuv kursori qo'yildi, va u yangi chalkashlik
+             tug'dirdi -- ramka KIRITISH MAYDONIGA o'xshab qoldi, go'yo javobni
+             YOZISH kerak (QA 2026-08-23). Kursor olib tashlandi, gap esa
+             pastdagi bo'lakni BOSISHGA chaqiradi. */
+          <span className="g7-rb-empty">{t(UI.ruleHere)}</span>
         )}
       </div>
 
@@ -2925,7 +2940,13 @@ export function TwoRoutes({ source, rows, sign = '≠', fix }) {
     if (fix.onFix) fix.onFix()
   }
   const shownSign = fixed && fix && fix.sign ? fix.sign : sign
-  const topTokens = fixed && fix ? fix.tokens : rows[0].tokens
+  // BELGI SO'Z BO'LISHI HAM MUMKIN. Sahnaning ko'p yozuvi matematika, lekin
+  // ba'zi darsda tabloda so'z turadi (12-darsda «jami», 42-darsda «kerak»).
+  // So'z uch tilda boshqacha, shuning uchun har belgi t() dan o'tadi: L(...)
+  // ham, oddiy satr ham qabul qilinadi. Buni qilmasak, ruscha ekranda
+  // o'zbekcha so'z qolardi (QA 2026-08-23).
+  const tk = (arr) => (arr || []).map((x) => t(x))
+  const topTokens = tk(fixed && fix ? fix.tokens : rows[0].tokens)
   const topValue = fixed && fix ? fix.value : rows[0].value
 
   // Tablo ichidagi yozuv: har belgi O'Z bosqich rangida, darsdagi hamma
@@ -2957,13 +2978,13 @@ export function TwoRoutes({ source, rows, sign = '≠', fix }) {
   return (
     <div className="g7-scenewrap">
       <div className="g7-scene g7-hookscene">
-        <svg viewBox="0 0 620 176" className="g7-scene-svg" role="img" aria-label={rows.map((r) => r.tokens.join(' ')).join('; ')}>
+        <svg viewBox="0 0 620 176" className="g7-scene-svg" role="img" aria-label={rows.map((r) => tk(r.tokens).join(' ')).join('; ')}>
           {/* MANBA. Ikki ko'rinish: qavs darvozasi yoki oddiy yozuv. */}
           <g className="g7-gt-gate">
             {source.kind === 'gate' ? (
               <>
                 {/* Chapda tashqi son, keyin ishora nishoni, keyin qavs. */}
-                <text className="g7-gt-outer" x="40" y="99" textAnchor="middle">{source.outer}</text>
+                <text className="g7-gt-outer" x="40" y="99" textAnchor="middle">{t(source.outer)}</text>
                 <circle className="g7-gt-badge" cx="88" cy="88" r="18" />
                 <text className="g7-gt-badgetxt" x="88" y="97" textAnchor="middle">{source.sign}</text>
                 <rect className="g7-gt-box" x="114" y="54" width="152" height="68" rx="16" />
@@ -2971,8 +2992,9 @@ export function TwoRoutes({ source, rows, sign = '≠', fix }) {
                 <text className="g7-gt-par" x="254" y="101" textAnchor="middle">)</text>
                 {(() => {
                   // Qavs ichi: ikki qavs ORASIDAGI maydon, 132 dan 250 gacha.
-                  const row = monoRow(source.inner, 25, 191, 88)
-                  return source.inner.map((tok, i) => (
+                  const inner = tk(source.inner)
+                  const row = monoRow(inner, 25, 191, 88)
+                  return inner.map((tok, i) => (
                     <text
                       key={i}
                       className={'g7-gt-in' + stageOf(tok)}
@@ -2991,8 +3013,9 @@ export function TwoRoutes({ source, rows, sign = '≠', fix }) {
                 <rect className="g7-gt-box" x="16" y="58" width="248" height="60" rx="14" />
                 {(() => {
                   // Ramka x = 16, kengligi 248: markaz 140, ichki maydon 224.
-                  const row = monoRow(source.tokens, 25, 140, 224)
-                  return source.tokens.map((tok, i) => (
+                  const plain = tk(source.tokens)
+                  const row = monoRow(plain, 25, 140, 224)
+                  return plain.map((tok, i) => (
                     <text
                       key={i}
                       className={'g7-gt-in' + stageOf(tok)}
@@ -3043,7 +3066,7 @@ export function TwoRoutes({ source, rows, sign = '≠', fix }) {
           <g className="g7-gt-board" style={{ animationDelay: '1.12s' }}>
             <rect className="g7-gt-plate" x="340" y="100" width="252" height="60" rx="13" />
             <rect className="g7-gt-lcd" x={lcdX} y="109" width={lcdW} height="30" rx="5" />
-            {rowText(rows[1].tokens, 137)}
+            {rowText(tk(rows[1].tokens), 137)}
             <g className="g7-gt-num" style={{ animationDelay: '1.72s' }}>
               <SegNumber value={rows[1].value} cx={numCx} y={112} scale={0.62} cells={cells} />
             </g>
