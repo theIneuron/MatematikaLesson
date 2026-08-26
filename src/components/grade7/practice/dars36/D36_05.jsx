@@ -3,13 +3,11 @@
 // DARAJA KO'TARILDI (metodist qarori 2026-08-22): k manfiy va kasr bo'ladi,
 // savol ikki qadamli -- PODXOD_7SINF.md 13-band.
 // (0; 3) va (1; 5) -> y = 2x + 3; (0; 3) va (1; 1) -> y = −2x + 3; (0; −3) va (1; −1) -> y = 2x − 3.
-// TARTIB SAQLANADI (`noShuffle`): razbor yozuvlarga TARTIB bilan murojaat
-// qiladi, aralashtirilsa izoh ekrandagiga mos kelmaydi.
 import React from 'react';
 import { Zones, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'graph_zones', noShuffle: true,
+  tag: 'graph_zones',
   level: '🟡',
   eyebrow: L(
     'Uch juftlik',

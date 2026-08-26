@@ -7,14 +7,11 @@
 //   2x − 6 = 30  -> 2x = 36 -> x = 18
 // Uchtasini yechib, javobiga qarab joylashtirish kerak. Bu darsning yakuni:
 // masaladan tenglama, tenglamadan javob.
-// TARTIB SAQLANADI (`noShuffle`): razbor yozuvlarga TARTIB bilan murojaat
-// qiladi («ikkinchi tenglamada...»), aralashtirilsa izoh ekrandagiga mos
-// kelmay qoladi.
 import React from 'react';
 import { Zones, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'answer_zones', level: '🔴', noShuffle: true, itemSize: 20, zoneLbl: 96,
+  tag: 'answer_zones', level: '🔴', itemSize: 20, zoneLbl: 96,
   eyebrow: L('Uch javob', 'Три ответа', 'Three answers'),
   setup: L(
     "Uchta masaladan uchta tenglama chiqdi. Har birini yechib, javobi bo'yicha zonaga qo'ying.",

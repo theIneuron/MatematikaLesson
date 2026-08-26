@@ -6,14 +6,11 @@
 //   4a³ − a + 2a    -> 4a³ + a       ikki had
 //   y² + 3y − 7     -> o'zgarmaydi   uch had
 // Birinchisi ataylab: ko'z bilan uch had, hisoblab bir had.
-// TARTIB SAQLANADI (`noShuffle`): razbor yozuvlarga TARTIB bilan murojaat
-// qiladi («ikkinchi tenglamada...»), aralashtirilsa izoh ekrandagiga mos
-// kelmay qoladi.
 import React from 'react';
 import { Zones, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'poly_kind_zones', level: '🔴', noShuffle: true, itemSize: 20, zoneLbl: 104,
+  tag: 'poly_kind_zones', level: '🔴', itemSize: 20, zoneLbl: 104,
   eyebrow: L('Turi qanday', 'Какой вид', 'Which kind'),
   setup: L(
     "Tur hadlar soniga qarab aytiladi, lekin avval o'xshash hadlar ixchamlanadi. Yozuvning ko'rinishi aldashi mumkin.",

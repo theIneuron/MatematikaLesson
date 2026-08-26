@@ -8,14 +8,11 @@
 // Uchinchisi ATAYLAB shunday: o'ng va chap tomondagi sonlar bir xil, ya'ni
 // 7x = 0 chiqadi. «Nolga bo'lish» bilan aralashtirmaslik kerak: bu yerda
 // NOL nolga bo'linadi degan gap emas, 0 : 7 = 0.
-// TARTIB SAQLANADI (`noShuffle`): razbor yozuvlarga TARTIB bilan murojaat
-// qiladi («ikkinchi tenglamada...»), aralashtirilsa izoh ekrandagiga mos
-// kelmay qoladi.
 import React from 'react';
 import { Zones, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'root_zones', level: '🔴', noShuffle: true, itemSize: 19, zoneLbl: 96,
+  tag: 'root_zones', level: '🔴', itemSize: 19, zoneLbl: 96,
   eyebrow: L('Uch ildiz', 'Три корня', 'Three roots'),
   setup: L(
     "Uch tenglama bir xil ko'rinishda, lekin ildizlari boshqa. Har birini yechib, o'z zonasiga qo'ying.",

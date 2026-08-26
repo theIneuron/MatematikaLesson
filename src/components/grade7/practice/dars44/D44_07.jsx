@@ -1,13 +1,11 @@
 // Dars44 · Amaliyot 07 — Uch to'plam · 🟡 · sort · tag: sum_zones
 // Mexanika: kit.jsx -> Zones. Raskladka: 7-o'rin `sort`.
 // 60/70/50 = 180 bor; 80/60/50 = 190 ko'p; 40/50/60 = 150 kam.
-// TARTIB SAQLANADI (`noShuffle`): razbor yozuvlarga TARTIB bilan murojaat
-// qiladi, aralashtirilsa izoh ekrandagiga mos kelmaydi.
 import React from 'react';
 import { Zones, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'sum_zones', noShuffle: true,
+  tag: 'sum_zones',
   level: '🟡',
   eyebrow: L(
     "Uch to'plam",

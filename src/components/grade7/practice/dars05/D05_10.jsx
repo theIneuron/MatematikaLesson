@@ -9,14 +9,11 @@
 // Uchinchi holat 3-darsning materiali (qavs oldidagi KO'PAYTUVCHI) va u
 // bu yerda ataylab turadi: o'quvchi «qavs oldida belgi» va «qavs oldida
 // ko'paytuvchi» ni farqlashi kerak.
-// TARTIB SAQLANADI (`noShuffle`): razbor yozuvlarga TARTIB bilan murojaat
-// qiladi («ikkinchi tenglamada...»), aralashtirilsa izoh ekrandagiga mos
-// kelmay qoladi.
 import React from 'react';
 import { Zones, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'bracket_effect', level: '🔴', noShuffle: true, itemSize: 18, zoneLbl: 132,
+  tag: 'bracket_effect', level: '🔴', itemSize: 18, zoneLbl: 132,
   eyebrow: L('Qavs olib tashlansa', 'Если убрать скобку', 'If the bracket goes'),
   setup: L(
     "Uch yozuvda bir xil sonlar, farqi faqat qavs oldidagi belgida. Qavsni olib tashlaganda nima bo'lishini aniqlang.",

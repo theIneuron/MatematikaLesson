@@ -2,13 +2,11 @@
 // Mexanika: kit.jsx -> Zones. Raskladka: 10-o'rin.
 // 70° va 70° -> teng juft;  70° va 110° -> yig'indisi 180;
 // 70° va 50° -> parallel chiziqlarda bunday juft yo'q.
-// TARTIB SAQLANADI (`noShuffle`): razbor yozuvlarga TARTIB bilan murojaat
-// qiladi, aralashtirilsa izoh ekrandagiga mos kelmaydi.
 import React from 'react';
 import { Zones, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'par_zones', level: '🔴', itemSize: 20, zoneLbl: 104, noShuffle: true,
+  tag: 'par_zones', level: '🔴', itemSize: 20, zoneLbl: 104,
   eyebrow: L('Uch juftlik', 'Три пары', 'Three pairs'),
   setup: L(
     "Parallel chiziqlarda burchaklar yo teng, yo 180 gradusga to'ldiradi. Uchinchi juftlik ikkalasiga ham to'g'ri kelmaydi.",

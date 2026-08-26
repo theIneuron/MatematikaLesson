@@ -1,13 +1,11 @@
 // Dars40 · Amaliyot 07 — Uch juftlik · 🟡 · sort · tag: ang_pair_zones
 // Mexanika: kit.jsx -> Zones. Raskladka: 7-o'rin `sort`.
 // Vertikal juft teng; qo'shni juft 180 beradi; 47° va 43° hech qaysi turga kirmaydi (90 ga to'ldiradi).
-// TARTIB SAQLANADI (`noShuffle`): razbor yozuvlarga TARTIB bilan murojaat
-// qiladi, aralashtirilsa izoh ekrandagiga mos kelmaydi.
 import React from 'react';
 import { Zones, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'ang_pair_zones', noShuffle: true,
+  tag: 'ang_pair_zones',
   level: '🟡',
   eyebrow: L(
     'Uch juftlik',

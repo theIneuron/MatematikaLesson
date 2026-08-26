@@ -675,8 +675,14 @@ export function Zones({ data, lang = 'uz', mode = 'answer', initialAnswer = null
   const [place, setPlace] = useState({});
   const [picked, setPicked] = useState(null);
   const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa?.place) setPlace(sa.place); } });
-  const bankOrder = useMemo(() => (data.noShuffle ? data.items.slice() : shuffled(data.items.length).map((i) => data.items[i])), [data]);
-  const pool = bankOrder.filter((it) => !place[it.id]);
+  // ZONALAR TARTIBI ARALASHTIRILADI, YOZUVLARNIKI EMAS (metodist QA si,
+  // 2026-08-22 dagi tahlil). Sabab: yozuvlar ma'lumotda zonalar bilan bir
+  // tartibda turardi -- birinchisini birinchi zonaga qo'yib ketish yetardi.
+  // Yozuvlar tartibi esa RAZBORGA kerak: ba'zi izohlar «uchinchi tenglamada»
+  // deb murojaat qiladi. Zonalarni aralashtirish teshikni yopadi va izohni
+  // buzmaydi -- zonalar NOMI bilan atalgan, tartibi bilan emas.
+  const zoneOrder = useMemo(() => (data.noShuffle ? data.zones.map((_, i) => i) : shuffled(data.zones.length)), [data]);
+  const pool = data.items.filter((it) => !place[it.id]);
   const all = data.items.every((it) => place[it.id]);
   const wrongIds = data.items.filter((it) => place[it.id] && place[it.id] !== it.zone).map((it) => it.id);
   useEffect(() => { onReady?.(all && !A.checked); }, [all, A.checked, onReady]);
@@ -721,7 +727,7 @@ export function Zones({ data, lang = 'uz', mode = 'answer', initialAnswer = null
       <Head data={data} lang={lang} />
       <Given data={data} lang={lang} />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 5, margin: '2px 0' }}>
-        {data.zones.map((z) => (
+        {zoneOrder.map((zi) => { const z = data.zones[zi]; return (
           <div key={z.id} style={{ display: 'flex', alignItems: 'stretch', gap: 8 }}>
             <div style={{ width: data.zoneLbl || 104, flex: '0 0 ' + (data.zoneLbl || 104) + 'px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', fontSize: 10.5, fontWeight: 700, color: C.mute, letterSpacing: '.03em', textAlign: 'right' }}><Sup s={tr(z.label, lang)} /></div>
             <div data-zone={z.id} onClick={() => tapZone(z.id)}
@@ -729,7 +735,7 @@ export function Zones({ data, lang = 'uz', mode = 'answer', initialAnswer = null
               {data.items.filter((it) => place[it.id] === z.id).map(chip)}
             </div>
           </div>
-        ))}
+        ); })}
       </div>
       <div style={S.note}><Sup s={tr(data.ask, lang)} /></div>
       <div style={{ borderTop: '1px dashed ' + C.pale, paddingTop: 8 }}>

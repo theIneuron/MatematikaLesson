@@ -7,14 +7,11 @@
 //   x + 5 = 5 + x   har qanday son (o'rin almashtirish)  HAR QANDAY SON
 // Uchtasi ham bir xil ko'rinishda: ikki tomonda x va son. Farqni faqat
 // hisoblab ko'rish mumkin.
-// TARTIB SAQLANADI (`noShuffle`): razbor yozuvlarga TARTIB bilan murojaat
-// qiladi («ikkinchi tenglamada...»), aralashtirilsa izoh ekrandagiga mos
-// kelmay qoladi.
 import React from 'react';
 import { Zones, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'how_many_roots', level: '🔴', noShuffle: true, itemSize: 19, zoneLbl: 126,
+  tag: 'how_many_roots', level: '🔴', itemSize: 19, zoneLbl: 126,
   eyebrow: L('Nechta ildiz', 'Сколько корней', 'How many roots'),
   setup: L(
     "Tenglamaning bitta ildizi bo'lishi mumkin, umuman bo'lmasligi ham, yoki har qanday son ildiz bo'lishi ham mumkin.",

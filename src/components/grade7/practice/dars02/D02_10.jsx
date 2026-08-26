@@ -9,14 +9,11 @@
 //   12 : (x − 4)  ->  x − 4 = 0, nolga bo'linmaydi   QIYMATI YO'Q
 //   x − 9         ->  4 − 9 = −5                     MANFIY
 //   2x − 3        ->  8 − 3 = 5                      MUSBAT
-// TARTIB SAQLANADI (`noShuffle`): razbor yozuvlarga TARTIB bilan murojaat
-// qiladi («ikkinchi tenglamada...»), aralashtirilsa izoh ekrandagiga mos
-// kelmay qoladi.
 import React from 'react';
 import { Zones, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'zones_value_x', level: '🔴', noShuffle: true, itemSize: 18, zoneLbl: 112,
+  tag: 'zones_value_x', level: '🔴', itemSize: 18, zoneLbl: 112,
   eyebrow: L("Har qanday son bo'lavermaydi", 'Не всякое число подходит', 'Not every number fits'),
   setup: L(
     "Uchta yozuvga bir xil son qo'yiladi, natijalar esa har xil. Bittasida qiymat umuman chiqmaydi.",

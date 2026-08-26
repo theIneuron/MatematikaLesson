@@ -3,14 +3,11 @@
 // xy + 5x + 2y + 10 = (x + 2)(y + 5)
 // xy + 2x + 5y + 10 = (x + 5)(y + 2)
 // xy + 5x − 2y − 10 = (x − 2)(y + 5)
-// TARTIB SAQLANADI (`noShuffle`): razbor yozuvlarga TARTIB bilan murojaat
-// qiladi («ikkinchi tenglamada...»), aralashtirilsa izoh ekrandagiga mos
-// kelmay qoladi.
 import React from 'react';
 import { Zones, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'group_zones', level: '🟡', noShuffle: true, itemSize: 19, zoneLbl: 104,
+  tag: 'group_zones', level: '🟡', itemSize: 19, zoneLbl: 104,
   eyebrow: L('Uch ko\'paytma', 'Три произведения', 'Three products'),
   setup: L(
     "Uch yozuvda bir xil sonlar: 2, 5 va 10. Guruhlash natijasi esa har xil chiqadi -- kim qaysi qavsga tushishiga qarab.",
