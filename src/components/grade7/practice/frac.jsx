@@ -32,11 +32,11 @@ export const Frac = ({ n, d, size = 28, color }) => (
 
 // Yozuv TOKENLAR ro'yxati: satr yoki { n, d } -- kasr.
 // Bosqich ranglari sinf tilidan: ikkinchi bosqich ko'k, birinchi binafsha.
-const toneOf = (tok) => {
-  if (tok === '·' || tok === ':') return '#2C5FA8';
-  if (tok === '+' || tok === '−') return '#7A4FA3';
-  return null;
-};
+// BITTA RANG (metodist QA si, 2026-08-22): amaliyotda sonlar ham, amal
+// belgilari ham bir xil rangda chiziladi. Ilgari ko'paytirish ko'k, qo'shish
+// binafsha edi -- bu darsning bosqich ranglari, amaliyotda esa yozuv ola-bula
+// ko'rinardi. `tone` kaliti qoldi: kerak bo'lsa rang qaytariladi.
+const toneOf = () => null;
 
 // YUQORI INDEKS ALOHIDA RENDER QILINADI (metodist QA si, 2026-08-22).
 // Sabab: yozuv JetBrains Mono da chiziladi, monoshirinada esa `¹` va `⁰`

@@ -131,6 +131,14 @@ const shuffled = (n) => {
   return idx;
 };
 
+// Qatorni «yozuv + uya» bo'laklariga bo'ladi: bo'lak ichida ko'chirish yo'q.
+const groupRow = (row) => {
+  const out = []; let cur = [];
+  row.forEach((part) => { cur.push(part); if (part.slot != null) { out.push(cur); cur = []; } });
+  if (cur.length) out.push(cur);
+  return out;
+};
+
 const cardKey = (c) => (c && typeof c === 'object' ? (c.uz || '') : c);
 const cardLbl = (data, key) => {
   const c = (data.cards || []).find((x) => cardKey(x) === key);
@@ -376,8 +384,14 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
       <Given data={data} lang={lang} />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'center', margin: '8px 0 6px' }}>
         {data.rows.map((row, ri) => (
-          <div key={ri} style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
-            {row.map((part, pi) => {
+          <div key={ri} style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', gap: 2 }}>
+            {/* YOZUV VA UYA BIRGA KO'CHADI (metodist QA si, 2026-08-22): ilgari
+                qatorda ikki uya bo'lsa, telefonda «f(0) =» yuqorida, uyasi esa
+                pastda qolardi. Endi har «yozuv + uya» juftligi bitta bo'lak
+                bo'lib ko'chadi, ya'ni tor ekranda ustun bo'lib joylashadi. */}
+            {groupRow(row).map((grp, gi) => (
+              <span key={gi} style={{ display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap', margin: '2px 4px' }}>
+            {grp.map((part, pi) => {
               if (part.slot != null) {
                 const i = part.slot;
                 return (
@@ -395,6 +409,8 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
               }
               return <Row key={pi} tokens={part.t} size={size} lang={lang} />;
             })}
+              </span>
+            ))}
           </div>
         ))}
       </div>
@@ -451,10 +467,10 @@ export function TapTerms({ data, lang = 'uz', mode = 'answer', initialAnswer = n
       {data.note ? <div style={S.note}><Sup s={tr(data.note, lang)} /></div> : null}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 2, margin: '8px 0 4px' }}>
         {data.parts.map((p, i) => {
-          if (p.k === 'txt') return <span key={i} style={{ ...S.mono, fontSize: wordy ? CARD_FS : size, color: C.brace, padding: '0 3px' }}>{p.v}</span>;
-          if (p.k === 'op') return <span key={i} style={{ ...S.mono, fontSize: wordy ? CARD_FS : size + 4, color: C.stage1, padding: '2px 12px', margin: '0 4px', borderRadius: 9, background: '#f3eefa' }}>{p.v}</span>;
+          if (p.k === 'txt') return <span key={i} style={{ ...S.mono, fontSize: wordy ? CARD_FS : size, color: C.ink, padding: '0 3px' }}>{p.v}</span>;
+          if (p.k === 'op') return <span key={i} style={{ ...S.mono, fontSize: wordy ? CARD_FS : size + 4, color: C.ink, padding: '2px 12px', margin: '0 4px', borderRadius: 9, background: '#f3eefa' }}>{p.v}</span>;
           // 'sign' — oddiy amal belgisi: bosilmaydi, lekin ta'kidlanmaydi ham.
-          if (p.k === 'sign') return <span key={i} style={{ ...S.mono, fontSize: wordy ? CARD_FS : size, color: (p.v === '·' || p.v === ':') ? C.stage2 : C.stage1, padding: '0 7px' }}>{p.v}</span>;
+          if (p.k === 'sign') return <span key={i} style={{ ...S.mono, fontSize: wordy ? CARD_FS : size, color: C.ink, padding: '0 7px' }}>{p.v}</span>;
           const on = marked.indexOf(p.id) !== -1;
           let bd = C.line; let bg = C.bg; let col = C.ink; let dash = 'dashed';
           if (on) { bd = C.hot; bg = C.hotBg; dash = 'solid'; }
@@ -617,7 +633,8 @@ export function BuildLine({ data, lang = 'uz', mode = 'answer', initialAnswer = 
       <span style={{ position: 'absolute', left: '50%', top: '12%', bottom: '12%', width: 2, transform: 'translateX(-50%)', borderRadius: 2, background: pos === i && !A.locked ? C.hot : 'transparent' }} />
     </button>
   );
-  const toneOf = (lab) => (lab === '·' || lab === ':' ? C.stage2 : (lab === '+' || lab === '−' ? C.stage1 : (lab === '(' || lab === ')' ? C.brace : C.ink)));
+  // Yig'ilgan javobda ham bitta rang: son va amal belgisi farq qilmaydi.
+  const toneOf = () => C.ink;
 
   return (
     <div style={S.wrap}>
