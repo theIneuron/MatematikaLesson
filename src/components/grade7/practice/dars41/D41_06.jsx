@@ -20,8 +20,8 @@ const DATA = {
     'Berilgan:',
     'Дано:',
     'Given:'),
-  rows: [[{ t: ['turi', '='] }, { slot: 0 }, { t: ['P', '='] }, { slot: 1 }]],
-  cards: ['teng yonli', '21', 'teng tomonli', '18'],
+  rows: [[{ t: [L('turi', 'вид', 'kind'), '='] }, { slot: 0 }, { t: ['P', '='] }, { slot: 1 }]],
+  cards: [L('teng yonli', 'равнобедренный', 'isosceles'), '21', L('teng tomonli', 'равносторонний', 'equilateral'), '18'],
   answer: ['teng yonli', '21'],
   ask: L(
     'Kartani bosing, keyin uyani bosing.',

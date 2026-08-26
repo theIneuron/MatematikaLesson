@@ -33,7 +33,7 @@ const DATA = {
     { k: 'sign', v: ' ' },
     { k: 'term', id: 't2', v: '4 − 2 = 2' },
     { k: 'sign', v: ' ' },
-    { k: 'term', id: 't3', v: 'juftlik mos keladi' },
+    { k: 'term', id: 't3', v: L('juftlik mos keladi', 'пара подходит', 'the pair fits') },
   ],
   want: ['t3'],
   correctText: L(

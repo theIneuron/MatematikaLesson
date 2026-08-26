@@ -11,7 +11,7 @@ const DATA = {
     "Ikki bir tomonli burchak 2x va 3x. Ular 180 gradusga to'ldirgani uchun tenglama chiqadi.",
     'Два односторонних угла равны 2x и 3x. Так как они дают 180, выходит уравнение.',
     'Two same-side angles are 2x and 3x. Since they complete 180, an equation appears.'),
-  given: [['2x', 'va', '3x', '--', 'bir', 'tomonli']],
+  given: [['2x', L('va', 'и', 'and'), '3x', '--', L('bir', 'один', 'one'), L('tomonli', 'по сторонам', 'by sides')]],
   givenLabel: L('Berilgan:', 'Дано:', 'Given:'),
   cards: [
     { id: 'a', label: '5x = 180°' },

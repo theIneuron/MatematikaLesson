@@ -22,9 +22,9 @@ const DATA = {
     'Given:'),
   cards: [
     { id: 'a', label: '7' },
-    { id: 'b', label: 'uzunlik saqlanadi' },
+    { id: 'b', label: L('uzunlik saqlanadi', 'длина сохраняется', 'the length is preserved') },
     { id: 'c', label: '14' },
-    { id: 'd', label: 'burchak saqlanadi' },
+    { id: 'd', label: L('burchak saqlanadi', 'угол сохраняется', 'the angle is preserved') },
   ],
   answerSeq: ['a', 'b'],
   fieldH: 44,

@@ -43,7 +43,7 @@ const DATA = {
   items: [
     { id: 'i1', tokens: ['50°, 60°, 70°'], zone: 'ze' },
     { id: 'i2', tokens: ['90°, 60°, 40°'], zone: 'zs' },
-    { id: 'i3', tokens: ['tomonlar 2, 3, 9'], zone: 'zi' },
+    { id: 'i3', tokens: [L('tomonlar 2, 3, 9', 'стороны 2, 3, 9', 'sides 2, 3, 9')], zone: 'zi' },
   ],
   bank: L(
     "To'plamlar",

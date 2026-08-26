@@ -41,9 +41,9 @@ const DATA = {
     },
   ],
   items: [
-    { id: 'i1', tokens: ['47° va 47°'], zone: 'zt' },
-    { id: 'i2', tokens: ['47° va 133°'], zone: 'zs' },
-    { id: 'i3', tokens: ['47° va 43°'], zone: 'zn' },
+    { id: 'i1', tokens: [L('47° va 47°', '47° и 47°', '47° and 47°')], zone: 'zt' },
+    { id: 'i2', tokens: [L('47° va 133°', '47° и 133°', '47° and 133°')], zone: 'zs' },
+    { id: 'i3', tokens: [L('47° va 43°', '47° и 43°', '47° and 43°')], zone: 'zn' },
   ],
   bank: L(
     'Juftliklar',

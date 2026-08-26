@@ -22,7 +22,7 @@ const DATA = {
     'Berilgan:',
     'Дано:',
     'Given:'),
-  rows: [[{ t: ['abssissa', '='] }, { slot: 0 }, { t: ['ordinata', '='] }, { slot: 1 }]],
+  rows: [[{ t: [L('abssissa', 'абсцисса', 'abscissa'), '='] }, { slot: 0 }, { t: [L('ordinata', 'ордината', 'ordinate'), '='] }, { slot: 1 }]],
   cards: ['2', '4', '8', '16'],
   answer: ['2', '4'],
   ask: L(

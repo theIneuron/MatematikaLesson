@@ -25,9 +25,9 @@ const DATA = {
   cards: [
     { id: 'a', label: 'x = 0 -> y = 6' },
     { id: 'b', label: 'x = 3 -> y = 0' },
-    { id: 'c', label: 'ikki nuqtadan chiziq' },
+    { id: 'c', label: L('ikki nuqtadan chiziq', 'прямая по двум точкам', 'a line from two points') },
     { id: 'd', label: 'x = 3 -> y = 12' },
-    { id: 'e', label: 'bitta nuqtadan chiziq' },
+    { id: 'e', label: L('bitta nuqtadan chiziq', 'прямая по одной точке', 'a line from one point') },
   ],
   answerSeq: ['a', 'b', 'c'],
   ask: L(

@@ -19,9 +19,9 @@ const DATA = {
     { id: 'zy2', label: L('Har doim teng (2)', 'Тождество (ещё)', 'Always equal (2)') },
   ],
   items: [
-    { id: 'i1', tokens: ['2(x + 3)', 'va', '2x + 6'], zone: 'zy' },
-    { id: 'i2', tokens: ['(x + 1)²', 'va', 'x² + 1'], zone: 'zn' },
-    { id: 'i3', tokens: ['x + x', 'va', '2x'], zone: 'zy2' },
+    { id: 'i1', tokens: ['2(x + 3)', L('va', 'и', 'and'), '2x + 6'], zone: 'zy' },
+    { id: 'i2', tokens: ['(x + 1)²', L('va', 'и', 'and'), 'x² + 1'], zone: 'zn' },
+    { id: 'i3', tokens: ['x + x', L('va', 'и', 'and'), '2x'], zone: 'zy2' },
   ],
   ask: L('Kartani bosing, keyin zonani bosing. Zonadagi kartani bosish uni qaytarib oladi.',
     'Нажми карточку, затем зону. Нажатие на карточку в зоне возвращает её обратно.',

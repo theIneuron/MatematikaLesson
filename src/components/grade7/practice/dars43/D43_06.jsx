@@ -15,13 +15,13 @@ const DATA = {
     "Teng yonli uchburchakda uchidan tushgan bissektrisa asosni teng ikki bo'lakka bo'ladi. Ikki bo'lakni yozing.",
     'В равнобедренном треугольнике биссектриса из вершины делит основание на две равные части. Запиши обе части.',
     'In an isosceles triangle the bisector from the apex splits the base into two equal parts.'),
-  given: [['asos = 14']],
+  given: [[L('asos = 14', 'основание = 14', 'base = 14')]],
   givenLabel: L(
     'Berilgan:',
     'Дано:',
     'Given:'),
-  rows: [[{ t: ['birinchi', "bo'lak", '='] }, { slot: 0 }, { t: ['ikkinchi', '='] }, { slot: 1 }]],
-  cards: ['7', '7 ham', '14', '3,5'],
+  rows: [[{ t: [L('birinchi', 'первая', 'the first'), L("bo'lak", 'часть', 'part'), '='] }, { slot: 0 }, { t: [L('ikkinchi', 'вторая', 'the second'), '='] }, { slot: 1 }]],
+  cards: ['7', L('7 ham', 'ещё 7', '7 too'), '14', '3,5'],
   answer: ['7', '7 ham'],
   ask: L(
     'Kartani bosing, keyin uyani bosing.',

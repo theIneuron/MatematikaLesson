@@ -15,12 +15,12 @@ const DATA = {
     "Ikki burchak berilgan. Uchinchisini toping, keyin uning tashqi burchagini yozing: tashqi burchak ichkisining qo'shnisi.",
     'Даны два угла. Найди третий, потом запиши его внешний угол: внешний это смежный с внутренним.',
     'Two angles are given. Find the third, then its exterior angle: the exterior is adjacent to the interior.'),
-  given: [['55°', 'va', '65°']],
+  given: [['55°', L('va', 'и', 'and'), '65°']],
   givenLabel: L(
     'Berilgan:',
     'Дано:',
     'Given:'),
-  rows: [[{ t: ['uchinchi', '='] }, { slot: 0 }, { t: ['tashqi', '='] }, { slot: 1 }]],
+  rows: [[{ t: [L('uchinchi', 'третья', 'the third'), '='] }, { slot: 0 }, { t: [L('tashqi', 'внешний', 'exterior'), '='] }, { slot: 1 }]],
   cards: ['60°', '120°', '70°', '110°'],
   answer: ['60°', '120°'],
   ask: L(

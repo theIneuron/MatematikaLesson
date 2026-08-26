@@ -44,9 +44,9 @@ const DATA = {
     },
   ],
   items: [
-    { id: 'i1', tokens: ['4 va 6'], zone: 'z12' },
-    { id: 'i2', tokens: ['3 va 5'], zone: 'z15' },
-    { id: 'i3', tokens: ['4 va 10'], zone: 'z20' },
+    { id: 'i1', tokens: [L('4 va 6', '4 и 6', '4 and 6')], zone: 'z12' },
+    { id: 'i2', tokens: [L('3 va 5', '3 и 5', '3 and 5')], zone: 'z15' },
+    { id: 'i3', tokens: [L('4 va 10', '4 и 10', '4 and 10')], zone: 'z20' },
   ],
   bank: L(
     'Juftliklar',

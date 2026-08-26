@@ -21,9 +21,9 @@ const DATA = {
     'Дано:',
     'Given:'),
   cards: [
-    { id: 'a', label: 'juftlik mos keladi' },
-    { id: 'b', label: 'faqat birinchisi bajariladi' },
-    { id: 'c', label: 'hech qaysi bajarilmaydi' },
+    { id: 'a', label: L('juftlik mos keladi', 'пара подходит', 'the pair fits') },
+    { id: 'b', label: L('faqat birinchisi bajariladi', 'выполняется только первое', 'only the first holds') },
+    { id: 'c', label: L('hech qaysi bajarilmaydi', 'не выполняется ни одно', 'neither holds') },
   ],
   answerSeq: ['a'],
   fieldH: 44,

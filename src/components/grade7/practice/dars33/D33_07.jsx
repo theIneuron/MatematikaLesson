@@ -17,7 +17,7 @@ const DATA = {
     "x o'qida yotgan nuqtaning ordinatasi nol. Yozuvni yig'ing.",
     'У точки на оси x ордината равна нулю. Собери запись.',
     'A point on the x axis has zero ordinate. Build the record.'),
-  given: [["x o'qi", ',', 'abssissa −14']],
+  given: [[L("x o'qi", 'ось x', 'the x axis'), ',', L('abssissa −14', 'абсцисса −14', 'abscissa −14')]],
   givenLabel: L(
     'Berilgan:',
     'Дано:',

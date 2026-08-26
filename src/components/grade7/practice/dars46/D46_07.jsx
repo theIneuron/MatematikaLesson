@@ -15,14 +15,14 @@ const DATA = {
     "Uchinchi tomon ikki chegara orasida yotadi: tomonlar ayirmasidan katta va yig'indisidan kichik.",
     'Третья сторона лежит между двумя границами: больше разности сторон и меньше их суммы.',
     'The third side lies between two bounds: above the difference and below the sum.'),
-  given: [['4', 'va', '9']],
+  given: [['4', L('va', 'и', 'and'), '9']],
   givenLabel: L(
     'Tomonlar:',
     'Стороны:',
     'Sides:'),
   rows: [
-    [{ t: ['uchinchi', 'tomon', '>'] }, { slot: 0 }],
-    [{ t: ['uchinchi', 'tomon', '<'] }, { slot: 1 }],
+    [{ t: [L('uchinchi', 'третья', 'the third'), L('tomon', 'сторона', 'side'), '>'] }, { slot: 0 }],
+    [{ t: [L('uchinchi', 'третья', 'the third'), L('tomon', 'сторона', 'side'), '<'] }, { slot: 1 }],
   ],
   cards: ['5', '13', '4', '36'],
   answer: ['5', '13'],

@@ -21,8 +21,8 @@ const DATA = {
     'Угол:',
     'Angle:'),
   rows: [
-    [{ t: ['bissektrisa', 'beradi'] }, { slot: 0 }],
-    [{ t: ['yana', 'bir', 'marta', 'bissektrisa'] }, { slot: 1 }],
+    [{ t: [L('bissektrisa', 'биссектриса', 'bisector'), L('beradi', 'даёт', 'gives')] }, { slot: 0 }],
+    [{ t: [L('yana', 'ещё раз', 'again'), L('bir', 'один', 'one'), L('marta', 'раз', 'times'), L('bissektrisa', 'биссектриса', 'bisector')] }, { slot: 1 }],
   ],
   cards: ['45°', '22,5°', '90°', '30°'],
   answer: ['45°', '22,5°'],

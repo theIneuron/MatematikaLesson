@@ -24,7 +24,7 @@ const DATA = {
     'Given:'),
   rows: [
     [{ t: ['f(7)', '='] }, { slot: 0 }],
-    [{ t: ['undan', 'keyin', 'f(natija)', '='] }, { slot: 1 }],
+    [{ t: [L('undan', 'от него', 'from it'), L('keyin', 'потом', 'then'), L('f(natija)', 'f(результат)', 'f(result)'), '='] }, { slot: 1 }],
   ],
   cards: ['5', '1', '−9', '11'],
   answer: ['5', '1'],

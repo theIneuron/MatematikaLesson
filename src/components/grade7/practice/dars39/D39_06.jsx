@@ -31,11 +31,11 @@ const DATA = {
     'Один шаг.',
     'One step.'),
   parts: [
-    { k: 'term', id: 't1', v: "birinchi o'rin: 4 variant" },
+    { k: 'term', id: 't1', v: L("birinchi o'rin: 4 variant", 'первое место: 4 варианта', 'first place: 4 options') },
     { k: 'sign', v: ' ' },
-    { k: 'term', id: 't2', v: "ikkinchi o'rin: 3 variant" },
+    { k: 'term', id: 't2', v: L("ikkinchi o'rin: 3 variant", 'второе место: 3 варианта', 'second place: 3 options') },
     { k: 'sign', v: ' ' },
-    { k: 'term', id: 't3', v: 'jami 12' },
+    { k: 'term', id: 't3', v: L('jami 12', 'всего 12', '12 in all') },
   ],
   want: ['t1'],
   correctText: L(

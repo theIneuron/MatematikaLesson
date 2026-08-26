@@ -21,9 +21,9 @@ const DATA = {
     'Дано:',
     'Given:'),
   cards: [
-    { id: 'a', label: 'yasash mumkin emas' },
+    { id: 'a', label: L('yasash mumkin emas', 'построить нельзя', 'it cannot be built') },
     { id: 'b', label: '5 + 6 < 12' },
-    { id: 'c', label: 'yasash mumkin' },
+    { id: 'c', label: L('yasash mumkin', 'построить можно', 'it can be built') },
     { id: 'd', label: '12 − 6 = 6' },
   ],
   answerSeq: ['a', 'b'],

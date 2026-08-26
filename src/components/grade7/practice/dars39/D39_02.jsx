@@ -17,7 +17,7 @@ const DATA = {
     "Uchta avtobus va beshta poyezd bor. Bolaga BITTA yo'l kerak: avtobusda yoki poyezdda.",
     'Есть три автобуса и пять поездов. Нужен ОДИН способ доехать: на автобусе или на поезде.',
     'Three buses and five trains. Only ONE way is needed: by bus or by train.'),
-  given: [['3', 'avtobus', ',', '5', 'poyezd']],
+  given: [['3', L('avtobus', 'автобус', 'bus'), ',', '5', L('poyezd', 'поезд', 'train')]],
   givenLabel: L(
     'Berilgan:',
     'Дано:',

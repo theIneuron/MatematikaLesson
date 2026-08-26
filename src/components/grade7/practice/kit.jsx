@@ -105,6 +105,14 @@ const pickWhy = (data, state, lang) => {
   return tr(data.wrongText, lang);
 };
 
+// Karta SO'Z bo'lsa, u tarjima qilinadi. Lekin javob TEKSHIRUVI o'zbekcha
+// satr bo'yicha qoladi: `answer` va razbor shartlari o'zgarmasin (QA 2026-08-22).
+const cardKey = (c) => (c && typeof c === 'object' ? (c.uz || '') : c);
+const cardLbl = (data, key) => {
+  const c = (data.cards || []).find((x) => cardKey(x) === key);
+  return c === undefined ? key : c;
+};
+
 const submitPayload = (data, extra) => ({
   questionText: extra.questionText || '',
   options: extra.options || [],
@@ -129,7 +137,7 @@ const Given = ({ data, lang }) => {
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, padding: '5px 0', borderRadius: 12, background: C.bg, border: '1px solid #eef0f4', marginBottom: 4 }}>
       {data.givenLabel ? <span style={{ fontSize: 12, fontWeight: 800, color: C.mute, letterSpacing: '.04em', textTransform: 'uppercase' }}>{tr(data.givenLabel, lang)}</span> : null}
-      {data.given.map((g, i) => <Row key={i} tokens={g} size={22} />)}
+      {data.given.map((g, i) => <Row key={i} tokens={g} size={22} lang={lang} />)}
     </div>
   );
 };
@@ -176,7 +184,7 @@ export function Choice({ data, lang = 'uz', mode = 'answer', initialAnswer = nul
       <Head data={data} lang={lang} />
       {data.expr ? (
         <div style={{ textAlign: 'center', margin: '4px 0 10px' }}>
-          <Row tokens={data.expr} size={data.exprSize || 30} />
+          <Row tokens={data.expr} size={data.exprSize || 30} lang={lang} />
         </div>
       ) : null}
       <Given data={data} lang={lang} />
@@ -193,7 +201,7 @@ export function Choice({ data, lang = 'uz', mode = 'answer', initialAnswer = nul
           return (
             <button key={i} type="button" data-opt={i} disabled={A.locked} onClick={() => setPicked(i)}
               style={{ display: 'flex', alignItems: 'center', justifyContent: short ? 'center' : 'flex-start', width: '100%', minHeight: short ? 50 : 0, padding: '11px 15px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 15.5, fontWeight: 600, cursor: A.locked ? 'default' : 'pointer', fontFamily: 'inherit', textAlign: short ? 'center' : 'left' }}>
-              {typeof o.label === 'object' && Array.isArray(o.label) ? <Row tokens={o.label} size={20} /> : <Sup s={tr(o.label, lang)} />}
+              {typeof o.label === 'object' && Array.isArray(o.label) ? <Row tokens={o.label} size={20} lang={lang} /> : <Sup s={tr(o.label, lang)} />}
             </button>
           );
         })}
@@ -257,7 +265,7 @@ export function TypeValue({ data, lang = 'uz', mode = 'answer', initialAnswer = 
       <Given data={data} lang={lang} />
       {data.expr ? (
         <div style={{ textAlign: 'center', margin: '6px 0 14px' }}>
-          <Row tokens={data.expr} size={data.exprSize || 30} />
+          <Row tokens={data.expr} size={data.exprSize || 30} lang={lang} />
         </div>
       ) : null}
       <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: C.soft, marginBottom: 6 }} htmlFor="kit-in">
@@ -286,7 +294,7 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
   const [picked, setPicked] = useState(null);
   const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa?.slots) setSlots(sa.slots); } });
   const used = slots.filter(Boolean);
-  const pool = data.cards.filter((c) => used.indexOf(c) === -1);
+  const pool = data.cards.map(cardKey).filter((c) => used.indexOf(c) === -1);
   const full = slots.every(Boolean);
   useEffect(() => { onReady?.(full && !A.checked); }, [full, A.checked, onReady]);
 
@@ -327,11 +335,11 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
                       background: slots[i] ? '#fff' : (picked ? '#fff7f2' : C.bg),
                       ...S.mono, fontSize: 23, color: C.ink, cursor: A.locked ? 'default' : 'pointer',
                     }}>
-                    <Sup s={slots[i] || ''} />
+                    <Sup s={slots[i] ? tr(cardLbl(data, slots[i]), lang) : ''} />
                   </button>
                 );
               }
-              return <Row key={pi} tokens={part.t} size={size} />;
+              return <Row key={pi} tokens={part.t} size={size} lang={lang} />;
             })}
           </div>
         ))}
@@ -344,7 +352,7 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
           {pool.map((c) => (
             <button key={c} type="button" data-card={c} disabled={A.locked} onClick={() => setPicked(picked === c ? null : c)}
               style={{ minWidth: 62, padding: '0 10px', height: 46, borderRadius: 12, border: '2px solid ' + (picked === c ? C.hot : C.line), background: picked === c ? C.hotBg : '#fff', ...S.mono, fontSize: 22, color: C.ink, cursor: A.locked ? 'default' : 'pointer' }}>
-              <Sup s={c} />
+              <Sup s={tr(cardLbl(data, c), lang)} />
             </button>
           ))}
         </div>
@@ -402,7 +410,7 @@ export function TapTerms({ data, lang = 'uz', mode = 'answer', initialAnswer = n
           return (
             <button key={i} type="button" aria-pressed={on} data-term={p.id} disabled={A.locked} onClick={() => toggle(p.id)}
               style={{ ...S.mono, fontSize: size, color: col, padding: '6px 10px', margin: '0 1px', borderRadius: 10, border: '2px ' + dash + ' ' + bd, background: bg, cursor: A.locked ? 'default' : 'pointer' }}>
-              <Sup s={p.v} />
+              <Sup s={tr(p.v, lang)} />
             </button>
           );
         })}
@@ -450,7 +458,7 @@ export function MarkAll({ data, lang = 'uz', mode = 'answer', initialAnswer = nu
           return (
             <button key={it.id} type="button" aria-pressed={on} data-item={it.id} disabled={A.locked} onClick={() => toggle(it.id)}
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 52, padding: '5px 10px', borderRadius: 13, border: '2px solid ' + bd, background: bg, cursor: A.locked ? 'default' : 'pointer' }}>
-              {it.tokens ? <Row tokens={it.tokens} size={data.itemSize || 23} /> : <span style={{ fontSize: 15, fontWeight: 700, color: C.ink }}><Sup s={tr(it.label, lang)} /></span>}
+              {it.tokens ? <Row tokens={it.tokens} size={data.itemSize || 23} lang={lang} /> : <span style={{ fontSize: 15, fontWeight: 700, color: C.ink }}><Sup s={tr(it.label, lang)} /></span>}
             </button>
           );
         })}
@@ -520,7 +528,7 @@ export function BuildLine({ data, lang = 'uz', mode = 'answer', initialAnswer = 
   const undo = () => { if (A.locked || pos === 0) return; setSeq((s) => { const x = s.slice(); x.splice(pos - 1, 1); return x; }); setPos((p) => p - 1); };
   const check = useCallback(() => {
     const correct = data.answerSeq ? seq.join('|') === data.answerSeq.join('|') : value === data.target;
-    A.setFb({ correct, why: correct ? null : pickWhy(data, { seq, value, line: items.map((i) => i && i.label).join(' ') }, lang) });
+    A.setFb({ correct, why: correct ? null : pickWhy(data, { seq, value, line: items.map((i) => (i ? tr(i.label, lang) : '')).join(' ') }, lang) });
     A.setChecked(true);
     correct ? playCorrect?.() : playWrong?.();
     onSubmit?.(submitPayload(data, {
@@ -552,7 +560,7 @@ export function BuildLine({ data, lang = 'uz', mode = 'answer', initialAnswer = 
                 {caret(i)}
                 <button type="button" disabled={A.locked} onClick={() => setPos(i)}
                   style={{ border: 0, background: 'none', padding: '0 2px', ...S.mono, fontSize: 27, color: toneOf(it && it.label), cursor: A.locked ? 'default' : 'pointer' }}>
-                  <Sup s={it && it.label ? it.label : ''} />
+                  <Sup s={it && it.label ? tr(it.label, lang) : ''} />
                 </button>
               </React.Fragment>
             ))}
@@ -573,7 +581,7 @@ export function BuildLine({ data, lang = 'uz', mode = 'answer', initialAnswer = 
           return (
             <button key={c.id} type="button" data-card={c.id} disabled={used || A.locked} onClick={() => put(c.id)}
               style={{ minWidth: 52, padding: '0 9px', height: 48, borderRadius: 13, border: '2px solid ' + (used ? '#eef0f4' : C.line), background: used ? C.bg : '#fff', ...S.mono, fontSize: 23, color: used ? C.line : toneOf(c.label), cursor: (used || A.locked) ? 'default' : 'pointer' }}>
-              <Sup s={c.label} />
+              <Sup s={tr(c.label, lang)} />
             </button>
           );
         })}
@@ -630,7 +638,7 @@ export function Zones({ data, lang = 'uz', mode = 'answer', initialAnswer = null
     return (
       <button key={it.id} type="button" disabled={A.locked} data-item={it.id} onClick={(e) => tapItem(it.id, e)}
         style={{ padding: '5px 9px', borderRadius: 10, border: '2px solid ' + bd, background: bg, cursor: A.locked ? 'default' : 'pointer', lineHeight: 1 }}>
-        <Row tokens={it.tokens} size={data.itemSize || 17} color={bad ? C.no : C.ink} tone={!bad} />
+        <Row tokens={it.tokens} size={data.itemSize || 17} color={bad ? C.no : C.ink} tone={!bad} lang={lang} />
       </button>
     );
   };

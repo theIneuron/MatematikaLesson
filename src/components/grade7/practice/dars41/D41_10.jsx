@@ -15,12 +15,12 @@ const DATA = {
     "Yon tomonlar x, asos esa x + 4. Ikki qatorni to'ldiring: avval x, keyin asos.",
     'Боковые равны x, основание x + 4. Заполни две строки: сначала x, потом основание.',
     'The legs are x and the base is x + 4. Fill both rows: x first, then the base.'),
-  given: [['x, x', 'va', 'x + 4', ';', 'P = 34']],
+  given: [['x, x', L('va', 'и', 'and'), 'x + 4', ';', 'P = 34']],
   givenLabel: L(
     'Berilgan:',
     'Дано:',
     'Given:'),
-  rows: [[{ t: ['x', '='] }, { slot: 0 }], [{ t: ['asos', '='] }, { slot: 1 }]],
+  rows: [[{ t: ['x', '='] }, { slot: 0 }], [{ t: [L('asos', 'основание', 'base'), '='] }, { slot: 1 }]],
   cards: ['10', '14', '11', '34'],
   answer: ['10', '14'],
   ask: L(

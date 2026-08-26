@@ -16,7 +16,7 @@ const DATA = {
     'Внешний угол треугольника это смежный с внутренним. Он равен сумме ДВУХ остальных внутренних углов.',
     "A triangle's exterior angle is adjacent to an interior one. It equals the sum of the OTHER TWO interior angles."),
   cards: [
-    { id: 'a', label: 'tashqi burchak' },
+    { id: 'a', label: L('tashqi burchak', 'внешний угол', 'exterior angle') },
     { id: 'b', label: '= A + B' },
     { id: 'c', label: '= A + B + C' },
     { id: 'd', label: '= 180° − A' },

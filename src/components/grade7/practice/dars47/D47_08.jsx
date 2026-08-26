@@ -21,11 +21,11 @@ const DATA = {
     'Стороны:',
     'Sides:'),
   cards: [
-    { id: 'a', label: 'a tomonini chizish' },
-    { id: 'b', label: 'uchlardan b va c yoylari' },
-    { id: 'c', label: 'kesishgan nuqtani ulash' },
-    { id: 'd', label: "burchakni transportir bilan qo'yish" },
-    { id: 'e', label: 'perimetrni hisoblash' },
+    { id: 'a', label: L('a tomonini chizish', 'начертить сторону a', 'draw side a') },
+    { id: 'b', label: L('uchlardan b va c yoylari', 'дуги b и c из концов', 'arcs b and c from the ends') },
+    { id: 'c', label: L('kesishgan nuqtani ulash', 'соединить точку пересечения', 'join the crossing point') },
+    { id: 'd', label: L("burchakni transportir bilan qo'yish", 'отложить угол транспортиром', 'set the angle with a protractor') },
+    { id: 'e', label: L('perimetrni hisoblash', 'посчитать периметр', 'compute the perimeter') },
   ],
   answerSeq: ['a', 'b', 'c'],
   ask: L(

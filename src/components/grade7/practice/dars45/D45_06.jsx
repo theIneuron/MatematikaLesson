@@ -14,11 +14,11 @@ const DATA = {
   ask: L("NOTO'G'RI xulosani belgilang.", 'Отметь НЕВЕРНЫЙ вывод.', 'Mark the WRONG conclusion.'),
   note: L('Bitta xulosa.', 'Один вывод.', 'One conclusion.'),
   parts: [
-    { k: 'term', id: 't1', v: 'mos burchaklar teng' },
+    { k: 'term', id: 't1', v: L('mos burchaklar teng', 'соответственные углы равны', 'corresponding angles are equal') },
     { k: 'sign', v: ' ' },
-    { k: 'term', id: 't2', v: 'bir tomonli burchaklar teng' },
+    { k: 'term', id: 't2', v: L('bir tomonli burchaklar teng', 'односторонние углы равны', 'co-interior angles are equal') },
     { k: 'sign', v: ' ' },
-    { k: 'term', id: 't3', v: 'almashinuvchilar teng' },
+    { k: 'term', id: 't3', v: L('almashinuvchilar teng', 'накрест лежащие равны', 'alternate angles are equal') },
   ],
   want: ['t2'],
   correctText: L(

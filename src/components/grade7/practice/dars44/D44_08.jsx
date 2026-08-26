@@ -20,7 +20,7 @@ const DATA = {
     'Berilgan:',
     'Дано:',
     'Given:'),
-  rows: [[{ t: ['x', '='] }, { slot: 0 }], [{ t: ['katta', 'burchak', '='] }, { slot: 1 }]],
+  rows: [[{ t: ['x', '='] }, { slot: 0 }], [{ t: [L('katta', 'больший', 'larger'), L('burchak', 'угол', 'angle'), '='] }, { slot: 1 }]],
   cards: ['16', '48°', '36', '32°'],
   answer: ['16', '48°'],
   ask: L(

@@ -15,7 +15,7 @@ const DATA = {
     "Uchburchak ham to'g'ri burchakli, ham teng yonli. O'tkir burchaklarni uch qadamda toping.",
     'Треугольник и прямоугольный, и равнобедренный. Найди острые углы в три шага.',
     'The triangle is both right-angled and isosceles. Find the acute angles in three steps.'),
-  given: [["to'g'ri burchakli", ',', 'teng yonli']],
+  given: [[L("to'g'ri burchakli", 'прямоугольный', 'right-angled'), ',', L('teng yonli', 'равнобедренный', 'isosceles')]],
   givenLabel: L(
     'Berilgan:',
     'Дано:',
@@ -23,9 +23,9 @@ const DATA = {
   cards: [
     { id: 'a', label: '180 − 90 = 90' },
     { id: 'b', label: '90 : 2 = 45' },
-    { id: 'c', label: "o'tkir burchaklar 45°" },
+    { id: 'c', label: L("o'tkir burchaklar 45°", 'острые углы 45°', 'acute angles 45°') },
     { id: 'd', label: '180 : 2 = 90' },
-    { id: 'e', label: "o'tkir burchaklar 90°" },
+    { id: 'e', label: L("o'tkir burchaklar 90°", 'острые углы 90°', 'acute angles 90°') },
   ],
   answerSeq: ['a', 'b', 'c'],
   ask: L(

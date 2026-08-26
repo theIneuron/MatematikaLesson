@@ -22,9 +22,9 @@ const DATA = {
     'Ratio:'),
   cards: [
     { id: 'a', label: '30°, 60°, 90°' },
-    { id: 'b', label: "to'g'ri burchakli" },
+    { id: 'b', label: L("to'g'ri burchakli", 'прямоугольный', 'right-angled') },
     { id: 'c', label: '20°, 40°, 60°' },
-    { id: 'd', label: "o'tkir burchakli" },
+    { id: 'd', label: L("o'tkir burchakli", 'остроугольный', 'acute') },
   ],
   answerSeq: ['a', 'b'],
   fieldH: 52,

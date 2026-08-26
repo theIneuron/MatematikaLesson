@@ -15,7 +15,7 @@ const DATA = {
     "Tashqi burchak ichki burchakning qo'shnisi, va u qolgan ikki ichki burchakning yig'indisiga teng. Shu ikki fakt bitta savolga javob beradi.",
     'Внешний угол смежен с внутренним и равен сумме двух остальных внутренних. Эти два факта отвечают на один вопрос.',
     'The exterior angle is adjacent to an interior one and equals the sum of the other two. Both facts answer one question.'),
-  given: [['tashqi burchak = 120°']],
+  given: [[L('tashqi burchak = 120°', 'внешний угол = 120°', 'exterior angle = 120°')]],
   givenLabel: L(
     'Berilgan:',
     'Дано:',

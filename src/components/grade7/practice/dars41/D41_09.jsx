@@ -15,7 +15,7 @@ const DATA = {
     'Teng yonli uchburchakning perimetri va asosi berilgan. Yon tomonni uch qadamda toping: qadamlar tartibi muhim.',
     'Даны периметр и основание равнобедренного треугольника. Найди боковую сторону в три шага: порядок важен.',
     'The perimeter and base of an isosceles triangle are given. Find the leg in three ordered steps.'),
-  given: [['P = 40', ',', 'asos 16']],
+  given: [['P = 40', ',', L('asos 16', 'основание 16', 'base 16')]],
   givenLabel: L(
     'Berilgan:',
     'Дано:',
@@ -23,9 +23,9 @@ const DATA = {
   cards: [
     { id: 'a', label: '40 − 16 = 24' },
     { id: 'b', label: '24 : 2 = 12' },
-    { id: 'c', label: 'yon tomon 12' },
+    { id: 'c', label: L('yon tomon 12', 'боковая 12', 'leg 12') },
     { id: 'd', label: '40 : 2 = 20' },
-    { id: 'e', label: 'yon tomon 24' },
+    { id: 'e', label: L('yon tomon 24', 'боковая 24', 'leg 24') },
   ],
   answerSeq: ['a', 'b', 'c'],
   ask: L(

@@ -15,12 +15,12 @@ const DATA = {
     "Uchburchaklar teng. Mos elementlarni to'ldiring: tomon tomonga, burchak burchakka.",
     'Треугольники равны. Заполни соответственные элементы: сторона к стороне, угол к углу.',
     'The triangles are equal. Fill in the matching elements: side to side, angle to angle.'),
-  given: [['AB = 8', ',', 'burchak C = 55°']],
+  given: [['AB = 8', ',', L('burchak C = 55°', 'угол C = 55°', 'angle C = 55°')]],
   givenLabel: L(
     'Berilgan:',
     'Дано:',
     'Given:'),
-  rows: [[{ t: ['A₁B₁', '='] }, { slot: 0 }, { t: ['burchak', 'C₁', '='] }, { slot: 1 }]],
+  rows: [[{ t: ['A₁B₁', '='] }, { slot: 0 }, { t: [L('burchak', 'угол', 'angle'), 'C₁', '='] }, { slot: 1 }]],
   cards: ['8', '55°', '16', '35°'],
   answer: ['8', '55°'],
   ask: L(

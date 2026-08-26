@@ -17,7 +17,7 @@ const DATA = {
     "Chiziq ikki nuqtadan o'tadi. b -- y o'qidagi qiymat, k esa o'zgarishlar nisbati.",
     'Прямая проходит через две точки. b это значение на оси y, а k отношение изменений.',
     'The line passes two points. b is the value on the y axis, k the ratio of changes.'),
-  given: [['(0; −6)', 'va', '(3; 0)']],
+  given: [['(0; −6)', L('va', 'и', 'and'), '(3; 0)']],
   givenLabel: L(
     'Berilgan:',
     'Дано:',

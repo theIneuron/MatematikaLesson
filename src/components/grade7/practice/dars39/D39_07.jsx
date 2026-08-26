@@ -17,14 +17,14 @@ const DATA = {
     "Birinchi qatorda ikki bosqich, ikkinchi qatorda esa uchinchi tanlov qo'shiladi.",
     'В первой строке два этапа, во второй добавляется третий выбор.',
     'The first row has two stages, the second adds a third choice.'),
-  given: [['3', ',', '5', ';', 'keyin', '2']],
+  given: [['3', ',', '5', ';', L('keyin', 'потом', 'then'), '2']],
   givenLabel: L(
     'Berilgan:',
     'Дано:',
     'Given:'),
   rows: [
-    [{ t: ['ikki', 'bosqich', '='] }, { slot: 0 }],
-    [{ t: ['uchinchisi', 'bilan', '='] }, { slot: 1 }],
+    [{ t: [L('ikki', 'два', 'two'), L('bosqich', 'этап', 'stage'), '='] }, { slot: 0 }],
+    [{ t: [L('uchinchisi', 'третья', 'the third'), L('bilan', 'с', 'with'), '='] }, { slot: 1 }],
   ],
   cards: ['15', '30', '8', '10'],
   answer: ['15', '30'],

@@ -17,7 +17,7 @@ const DATA = {
     "Ko'paytirishda o'rin almashtirish qiymatni o'zgartirmaydi. Darajada esa asos va ko'rsatkichni almashtirsa qiymat o'zgaradi.",
     'В умножении перестановка не меняет значение. А в степени, если поменять основание и показатель, значение изменится.',
     'Swapping does not change a product. But swapping the base and the exponent does change a power.'),
-  expr: ['4⁵', 'va', '5⁴'], exprSize: 34,
+  expr: ['4⁵', L('va', 'и', 'and'), '5⁴'], exprSize: 34,
   ask: L('Qaysi daraja kattaroq?', 'Какая степень больше?', 'Which power is bigger?'),
   opts: [{ label: ['4⁵'] }, { label: ['5⁴'] }, { label: L('Teng', 'Равны', 'Equal') }],
   correct: 0,

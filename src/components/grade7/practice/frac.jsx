@@ -66,10 +66,17 @@ const withSup = (t, key) => {
 // karta yozuvi, razbor -- hammasi bir xil ko'rinsin (metodist QA si).
 export const Sup = ({ s }) => <>{withSup(String(s == null ? '' : s), 'x')}</>;
 
-export const Row = ({ tokens, size = 28, color = '#1f2430', tone = true }) => (
+// Token SO'Z bo'lishi ham mumkin (masalan «va»): matematikaning o'zi
+// tarjima qilinmaydi, lekin yozuv ichidagi so'z tarjima qilinishi SHART --
+// aks holda o'zbekcha so'z rus va ingliz tilida ham chiqib qoladi
+// (metodist QA si, 2026-08-22).
+const trTok = (v, lang) => (v && typeof v === 'object' && !('n' in v) ? (v[lang] || v.uz || '') : v);
+
+export const Row = ({ tokens, size = 28, color = '#1f2430', tone = true, lang = 'uz' }) => (
   <span style={{ display: 'inline-flex', alignItems: 'center', flexWrap: 'wrap', fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: size, fontWeight: 800, color }}>
-    {tokens.map((t, i) => {
-      if (typeof t !== 'string') return <Frac key={i} n={t.n} d={t.d} size={size} />;
+    {tokens.map((tk, i) => {
+      if (tk && typeof tk === 'object' && 'n' in tk) return <Frac key={i} n={tk.n} d={tk.d} size={size} />;
+      const t = String(trTok(tk, lang));
       const c = tone ? toneOf(t) : null;
       return <span key={i} style={{ padding: '0 3px', ...(c ? { color: c } : null) }}>{withSup(t, 'p' + i)}</span>;
     })}

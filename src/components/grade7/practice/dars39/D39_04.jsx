@@ -25,9 +25,9 @@ const DATA = {
   cards: [
     { id: 'a', label: '2 · 3 = 6' },
     { id: 'b', label: '6 · 5 = 30' },
-    { id: 'c', label: 'jami 30' },
+    { id: 'c', label: L('jami 30', 'всего 30', '30 in all') },
     { id: 'd', label: '2 + 3 = 5' },
-    { id: 'e', label: 'jami 10' },
+    { id: 'e', label: L('jami 10', 'всего 10', '10 in all') },
   ],
   answerSeq: ['a', 'b', 'c'],
   ask: L(

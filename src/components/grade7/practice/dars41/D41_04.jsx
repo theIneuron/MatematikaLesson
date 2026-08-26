@@ -24,11 +24,11 @@ const DATA = {
     'Один вывод.',
     'One claim.'),
   parts: [
-    { k: 'term', id: 't1', v: 'teng tomonli teng yonli hamdir' },
+    { k: 'term', id: 't1', v: L('teng tomonli teng yonli hamdir', 'равносторонний это и равнобедренный', 'an equilateral is isosceles too') },
     { k: 'sign', v: ' ' },
-    { k: 'term', id: 't2', v: "to'g'ri burchakli teng yonli bo'lolmaydi" },
+    { k: 'term', id: 't2', v: L("to'g'ri burchakli teng yonli bo'lolmaydi", 'прямоугольный не может быть равнобедренным', 'a right triangle cannot be isosceles') },
     { k: 'sign', v: ' ' },
-    { k: 'term', id: 't3', v: "o'tmas burchak faqat bitta bo'ladi" },
+    { k: 'term', id: 't3', v: L("o'tmas burchak faqat bitta bo'ladi", 'тупой угол только один', 'only one angle can be obtuse') },
   ],
   want: ['t2'],
   correctText: L(

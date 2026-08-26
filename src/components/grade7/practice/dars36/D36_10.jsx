@@ -31,7 +31,7 @@ const DATA = {
     'Один шаг.',
     'One step.'),
   parts: [
-    { k: 'term', id: 't1', v: "x = 4 qo'yiladi" },
+    { k: 'term', id: 't1', v: L("x = 4 qo'yiladi", 'подставляем x = 4', 'substitute x = 4') },
     { k: 'sign', v: ' ' },
     { k: 'term', id: 't2', v: '−5 · 4 = 20' },
     { k: 'sign', v: ' ' },

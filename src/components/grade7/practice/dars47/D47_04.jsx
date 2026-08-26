@@ -21,10 +21,10 @@ const DATA = {
     'Угол:',
     'Angle:'),
   rows: [
-    [{ t: ['birinchi', "bo'lak", '='] }, { slot: 0 }],
-    [{ t: ['ikkinchi', "bo'lak", '='] }, { slot: 1 }],
+    [{ t: [L('birinchi', 'первая', 'the first'), L("bo'lak", 'часть', 'part'), '='] }, { slot: 0 }],
+    [{ t: [L('ikkinchi', 'вторая', 'the second'), L("bo'lak", 'часть', 'part'), '='] }, { slot: 1 }],
   ],
-  cards: ['38°', '38° ham', '19°', '152°'],
+  cards: ['38°', L('38° ham', 'ещё 38°', '38° too'), '19°', '152°'],
   answer: ['38°', '38° ham'],
   ask: L(
     'Kartani bosing, keyin uyani bosing.',

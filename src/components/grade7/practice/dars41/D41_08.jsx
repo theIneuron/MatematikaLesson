@@ -21,9 +21,9 @@ const DATA = {
     'Дано:',
     'Given:'),
   cards: [
-    { id: 'a', label: 'teng yonli' },
+    { id: 'a', label: L('teng yonli', 'равнобедренный', 'isosceles') },
     { id: 'b', label: 'P = 31' },
-    { id: 'c', label: 'har xil tomonli' },
+    { id: 'c', label: L('har xil tomonli', 'разносторонний', 'scalene') },
     { id: 'd', label: 'P = 24' },
   ],
   answerSeq: ['a', 'b'],

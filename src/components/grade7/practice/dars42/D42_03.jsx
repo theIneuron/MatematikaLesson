@@ -24,11 +24,11 @@ const DATA = {
     'Один вывод.',
     'One claim.'),
   parts: [
-    { k: 'term', id: 't1', v: 'uch tomon teng -> teng' },
+    { k: 'term', id: 't1', v: L('uch tomon teng -> teng', 'три стороны равны -> равны', 'three sides equal -> equal') },
     { k: 'sign', v: ' ' },
-    { k: 'term', id: 't2', v: 'uch burchak teng -> teng' },
+    { k: 'term', id: 't2', v: L('uch burchak teng -> teng', 'три угла равны -> равны', 'three angles equal -> equal') },
     { k: 'sign', v: ' ' },
-    { k: 'term', id: 't3', v: 'teng uchburchaklarning perimetri teng' },
+    { k: 'term', id: 't3', v: L('teng uchburchaklarning perimetri teng', 'у равных треугольников периметры равны', 'equal triangles have equal perimeters') },
   ],
   want: ['t2'],
   correctText: L(

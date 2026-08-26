@@ -20,8 +20,8 @@ const DATA = {
     'Berilgan:',
     'Дано:',
     'Given:'),
-  rows: [[{ t: ['uchinchi', '='] }, { slot: 0 }, { t: ['mos', 'tomon', '='] }, { slot: 1 }]],
-  cards: ['11', '11 ham', '17', '28'],
+  rows: [[{ t: [L('uchinchi', 'третья', 'the third'), '='] }, { slot: 0 }, { t: [L('mos', 'соответственный', 'matching'), L('tomon', 'сторона', 'side'), '='] }, { slot: 1 }]],
+  cards: ['11', L('11 ham', 'ещё 11', '11 too'), '17', '28'],
   answer: ['11', '11 ham'],
   ask: L(
     'Kartani bosing, keyin uyani bosing.',

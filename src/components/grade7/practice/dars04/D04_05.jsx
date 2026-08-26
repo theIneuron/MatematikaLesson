@@ -14,7 +14,7 @@ const DATA = {
     "Har doim teng yozuvlar har qanday sonda bir xil qiymat beradi. Bir nuqtada chap tomonni, boshqasida o'ng tomonni hisoblab ko'ring.",
     'Тождественно равные записи дают одно значение при любом числе. Посчитай левую часть в одной точке, правую в другой.',
     'Identically equal records agree for every value. Work out the left side at one point and the right at another.'),
-  given: [['3(x + 2) − x', 'va', '2x + 6']],
+  given: [['3(x + 2) − x', L('va', 'и', 'and'), '2x + 6']],
   givenLabel: L('Yozuvlar:', 'Записи:', 'Records:'),
   rows: [
     [{ t: ['3(4', '+', '2)', '−', '4', '='] }, { slot: 0 }],

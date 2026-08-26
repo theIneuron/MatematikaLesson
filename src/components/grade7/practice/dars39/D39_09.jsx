@@ -43,9 +43,9 @@ const DATA = {
     },
   ],
   items: [
-    { id: 'i1', tokens: ['4 va 3, ketma-ket'], zone: 'z1' },
-    { id: 'i2', tokens: ['4 raqam, takror mumkin'], zone: 'z2' },
-    { id: 'i3', tokens: ["4 yoki 3 ta yo'l"], zone: 'z3' },
+    { id: 'i1', tokens: [L('4 va 3, ketma-ket', '4 и 3, подряд', '4 and 3, in sequence')], zone: 'z1' },
+    { id: 'i2', tokens: [L('4 raqam, takror mumkin', '4 цифры, повтор можно', '4 digits, repeats allowed')], zone: 'z2' },
+    { id: 'i3', tokens: [L("4 yoki 3 ta yo'l", '4 или 3 пути', '4 or 3 ways')], zone: 'z3' },
   ],
   bank: L(
     'Masalalar',

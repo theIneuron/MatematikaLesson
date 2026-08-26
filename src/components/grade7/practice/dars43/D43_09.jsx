@@ -15,13 +15,13 @@ const DATA = {
     "Asosdagi burchaklar teng, ya'ni yozuvlarni tenglashtirish mumkin. Avval x, keyin xulosa.",
     'Углы при основании равны, значит записи можно приравнять. Сначала x, потом вывод.',
     'The base angles are equal, so the expressions can be set equal. First x, then the conclusion.'),
-  given: [['3x', 'va', '75°']],
+  given: [['3x', L('va', 'и', 'and'), '75°']],
   givenLabel: L(
     'Asosdagi burchaklar:',
     'Углы при основании:',
     'Base angles:'),
-  rows: [[{ t: ['x', '='] }, { slot: 0 }], [{ t: ['uchburchak'] }, { slot: 1 }]],
-  cards: ['25', 'teng yonli', '225', 'har xil tomonli'],
+  rows: [[{ t: ['x', '='] }, { slot: 0 }], [{ t: [L('uchburchak', 'треугольник', 'triangle')] }, { slot: 1 }]],
+  cards: ['25', L('teng yonli', 'равнобедренный', 'isosceles'), '225', L('har xil tomonli', 'разносторонний', 'scalene')],
   answer: ['25', 'teng yonli'],
   ask: L(
     'Kartani bosing, keyin uyani bosing.',

@@ -17,9 +17,9 @@ const DATA = {
   ask: L("NOTO'G'RI yozuvni belgilang.", 'Отметь НЕВЕРНУЮ запись.', 'Mark the WRONG record.'),
   note: L('Bitta yozuv.', 'Одна запись.', 'One record.'),
   parts: [
-    { k: 'term', id: 't1', v: 'bir tomonli = 110°' },
+    { k: 'term', id: 't1', v: L('bir tomonli = 110°', 'односторонний = 110°', 'co-interior = 110°') },
     { k: 'sign', v: ' ' },
-    { k: 'term', id: 't2', v: 'almashinuvchi = 110°' },
+    { k: 'term', id: 't2', v: L('almashinuvchi = 110°', 'накрест лежащий = 110°', 'alternate = 110°') },
   ],
   want: ['t2'],
   correctText: L(

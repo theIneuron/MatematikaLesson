@@ -14,7 +14,7 @@ const DATA = {
   given: [['∠1', '=', '75°']],
   givenLabel: L('Berilgan:', 'Дано:', 'Given:'),
   rows: [
-    [{ t: ['almashinuvchi', '='] }, { slot: 0 }, { t: ['bir', 'tomonli', '='] }, { slot: 1 }],
+    [{ t: [L('almashinuvchi', 'накрест лежащий', 'alternate'), '='] }, { slot: 0 }, { t: [L('bir', 'один', 'one'), L('tomonli', 'по сторонам', 'by sides'), '='] }, { slot: 1 }],
   ],
   cards: ['75°', '105°', '15°', '150°'],
   answer: ['75°', '105°'],

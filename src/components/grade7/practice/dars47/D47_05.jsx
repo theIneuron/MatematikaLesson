@@ -29,11 +29,11 @@ const DATA = {
     'Один шаг.',
     'One step.'),
   parts: [
-    { k: 'term', id: 't1', v: 'A dan yoy, radius 4' },
+    { k: 'term', id: 't1', v: L('A dan yoy, radius 4', 'дуга из A, радиус 4', 'arc from A, radius 4') },
     { k: 'sign', v: ' ' },
-    { k: 'term', id: 't2', v: 'B dan yoy, radius 4' },
+    { k: 'term', id: 't2', v: L('B dan yoy, radius 4', 'дуга из B, радиус 4', 'arc from B, radius 4') },
     { k: 'sign', v: ' ' },
-    { k: 'term', id: 't3', v: 'kesishgan nuqtalarni ulash' },
+    { k: 'term', id: 't3', v: L('kesishgan nuqtalarni ulash', 'соединить точки пересечения', 'join the crossing points') },
   ],
   want: ['t1'],
   correctText: L(

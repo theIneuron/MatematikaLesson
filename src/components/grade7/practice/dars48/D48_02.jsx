@@ -16,7 +16,7 @@ const DATA = {
     'Запиши свойство внешнего угла: из каких углов он складывается.',
     'Write the property of the exterior angle: which angles make it.'),
   cards: [
-    { id: 'a', label: 'tashqi burchak' },
+    { id: 'a', label: L('tashqi burchak', 'внешний угол', 'exterior angle') },
     { id: 'b', label: '= A + B' },
     { id: 'c', label: '= A + B + C' },
     { id: 'd', label: '= C' },

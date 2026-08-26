@@ -11,7 +11,7 @@ const DATA = {
     "Ikki yozuv har qanday son uchun teng bo'lsa, ular har doim teng. Bitta sonda tekshirish esa kam: u faqat noto'g'riligini ko'rsatishi mumkin.",
     'Если две записи равны при любом числе, они тождественно равны. Одной проверки мало: она может лишь опровергнуть.',
     'Two records are always equal when they match for every number. One check can only refute, never prove.'),
-  given: [['x', '=', '1', 'da', 'ikki', 'yozuv', 'teng']],
+  given: [['x', '=', '1', 'da', L('ikki', 'два', 'two'), L('yozuv', 'запись', 'the record'), L('teng', 'равны', 'equal')]],
   givenLabel: L('Berilgan:', 'Дано:', 'Given:'),
   ask: L('Bundan nima kelib chiqadi?', 'Что из этого следует?', 'What follows from this?'),
   opts: [

@@ -23,7 +23,7 @@ const DATA = {
     'Berilgan:',
     'Дано:',
     'Given:'),
-  rows: [[{ t: ['birinchi', 'kasr', '='] }, { slot: 0 }], [{ t: ["yig'indi", '='] }, { slot: 1 }]],
+  rows: [[{ t: [L('birinchi', 'первая', 'the first'), L('kasr', 'дробь', 'fraction'), '='] }, { slot: 0 }], [{ t: [L("yig'indi", 'сумма', 'the sum'), '='] }, { slot: 1 }]],
   cards: ['2x : 6', '3x : 6', 'x : 6', '2x : 9'],
   answer: ['2x : 6', '3x : 6'],
   ask: L(

@@ -11,7 +11,7 @@ const DATA = {
     "Ikki yozuv teng emasligini ko'rsatish uchun BITTA son yetadi. a = 1 va b = 1 ni qo'yib ikki qiymatni solishtiring.",
     'Чтобы показать неравенство двух записей, достаточно ОДНОГО числа. Подставь a = 1 и b = 1 и сравни значения.',
     'Refuting an identity needs just ONE number. Put a = 1 and b = 1 and compare.'),
-  given: [['(a + b)²', 'va', 'a² + b²']],
+  given: [['(a + b)²', L('va', 'и', 'and'), 'a² + b²']],
   givenLabel: L('Yozuvlar:', 'Записи:', 'Records:'),
   cards: [
     { id: 'a', label: '(1 + 1)² = 4' },

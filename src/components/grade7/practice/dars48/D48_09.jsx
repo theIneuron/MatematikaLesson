@@ -24,11 +24,11 @@ const DATA = {
     'Один шаг.',
     'One step.'),
   parts: [
-    { k: 'term', id: 't1', v: 'asos burchagi 100°' },
+    { k: 'term', id: 't1', v: L('asos burchagi 100°', 'угол при основании 100°', 'base angle 100°') },
     { k: 'sign', v: ' ' },
-    { k: 'term', id: 't2', v: 'ikkinchi asos burchagi ham 100°' },
+    { k: 'term', id: 't2', v: L('ikkinchi asos burchagi ham 100°', 'второй угол при основании тоже 100°', 'the second base angle is also 100°') },
     { k: 'sign', v: ' ' },
-    { k: 'term', id: 't3', v: 'uchidagi burchak 180 − 200' },
+    { k: 'term', id: 't3', v: L('uchidagi burchak 180 − 200', 'угол при вершине 180 − 200', 'apex angle 180 − 200') },
   ],
   want: ['t1'],
   correctText: L(

@@ -15,16 +15,16 @@ const DATA = {
     "To'g'ri burchakli uchburchakda 90 gradus allaqachon olingan, ya'ni ikki o'tkir burchakka 90 gradus qoladi.",
     'В прямоугольном треугольнике 90 градусов уже занято, значит на два острых угла остаётся 90 градусов.',
     'A right triangle already spends 90 degrees, so the two acute angles share the remaining 90.'),
-  given: [["o'tkir burchak = 35°"]],
+  given: [[L("o'tkir burchak = 35°", 'острый угол = 35°', 'acute angle = 35°')]],
   givenLabel: L(
     'Berilgan:',
     'Дано:',
     'Given:'),
   rows: [
-    [{ t: ['ikkinchi', "o'tkir", 'burchak', '='] }, { slot: 0 }],
-    [{ t: ['eng', 'katta', 'tomon', '--'] }, { slot: 1 }],
+    [{ t: [L('ikkinchi', 'вторая', 'the second'), L("o'tkir", 'острый', 'acute'), L('burchak', 'угол', 'angle'), '='] }, { slot: 0 }],
+    [{ t: [L('eng', 'самый', 'the'), L('katta', 'больший', 'larger'), L('tomon', 'сторона', 'side'), '--'] }, { slot: 1 }],
   ],
-  cards: ['55°', 'gipotenuza', '145°', 'katet'],
+  cards: ['55°', L('gipotenuza', 'гипотенуза', 'hypotenuse'), '145°', L('katet', 'катет', 'leg')],
   answer: ['55°', 'gipotenuza'],
   ask: L(
     'Kartani bosing, keyin uyani bosing.',

@@ -20,7 +20,7 @@ const DATA = {
     'Berilgan:',
     'Дано:',
     'Given:'),
-  rows: [[{ t: ['x', '='] }, { slot: 0 }], [{ t: ['yechim'] }, { slot: 1 }]],
+  rows: [[{ t: ['x', '='] }, { slot: 0 }], [{ t: [L('yechim', 'решение', 'solution')] }, { slot: 1 }]],
   cards: ['5', '(5; 2)', '4', '(5; 5)'],
   answer: ['5', '(5; 2)'],
   ask: L(
