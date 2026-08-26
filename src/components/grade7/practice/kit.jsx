@@ -32,9 +32,9 @@
 // tugma. Topshiriq 363px dan oshmasligi kerak -- uslublar shu hisobda
 // ixcham qilingan (`practice/PracticeHost.jsx` dagi izohga qarang).
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { Frac, Row } from './frac.jsx';
+import { Frac, Row, Sup } from './frac.jsx';
 
-export { Frac, Row };
+export { Frac, Row, Sup };
 
 // ============================================================ TIL
 // L() faqat SO'ZLAR uchun. Matematika uchun emas.
@@ -68,7 +68,7 @@ const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 // bilan birga sig'ishi kerak, aks holda o'quvchi uni ko'rmaydi.
 export const HFB = ({ ok, text }) => (
   <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 10, padding: '10px 13px', borderRadius: 12, fontSize: 14.5, lineHeight: 1.4, fontWeight: 600, background: ok ? C.okBg : C.noBg, color: ok ? C.ok : C.no }}>
-    {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
+    {ok ? <IconOk /> : <IconNo />}<span><Sup s={text} /></span>
   </div>
 );
 
@@ -117,8 +117,8 @@ const submitPayload = (data, extra) => ({
 // Sarlavha qismi: hamma mexanikada bir xil tartib -- eyebrow, shart, savol.
 const Head = ({ data, lang }) => (
   <>
-    <div style={S.eyebrow}>{tr(data.eyebrow, lang)}</div>
-    {data.setup ? <p style={S.setup}>{tr(data.setup, lang)}</p> : null}
+    <div style={S.eyebrow}><Sup s={tr(data.eyebrow, lang)} /></div>
+    {data.setup ? <p style={S.setup}><Sup s={tr(data.setup, lang)} /></p> : null}
   </>
 );
 
@@ -180,7 +180,7 @@ export function Choice({ data, lang = 'uz', mode = 'answer', initialAnswer = nul
         </div>
       ) : null}
       <Given data={data} lang={lang} />
-      <p style={S.ask}>{tr(data.ask, lang)}</p>
+      <p style={S.ask}><Sup s={tr(data.ask, lang)} /></p>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(' + (data.optCols || 1) + ', minmax(0, 1fr))', gap: 7 }}>
         {order.map((i) => {
           const o = data.opts[i];
@@ -193,7 +193,7 @@ export function Choice({ data, lang = 'uz', mode = 'answer', initialAnswer = nul
           return (
             <button key={i} type="button" data-opt={i} disabled={A.locked} onClick={() => setPicked(i)}
               style={{ display: 'flex', alignItems: 'center', justifyContent: short ? 'center' : 'flex-start', width: '100%', minHeight: short ? 50 : 0, padding: '11px 15px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 15.5, fontWeight: 600, cursor: A.locked ? 'default' : 'pointer', fontFamily: 'inherit', textAlign: short ? 'center' : 'left' }}>
-              {typeof o.label === 'object' && Array.isArray(o.label) ? <Row tokens={o.label} size={20} /> : tr(o.label, lang)}
+              {typeof o.label === 'object' && Array.isArray(o.label) ? <Row tokens={o.label} size={20} /> : <Sup s={tr(o.label, lang)} />}
             </button>
           );
         })}
@@ -327,7 +327,7 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
                       background: slots[i] ? '#fff' : (picked ? '#fff7f2' : C.bg),
                       ...S.mono, fontSize: 23, color: C.ink, cursor: A.locked ? 'default' : 'pointer',
                     }}>
-                    {slots[i] || ''}
+                    <Sup s={slots[i] || ''} />
                   </button>
                 );
               }
@@ -336,7 +336,7 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
           </div>
         ))}
       </div>
-      <div style={S.note}>{tr(data.ask, lang)}</div>
+      <div style={S.note}><Sup s={tr(data.ask, lang)} /></div>
       <div style={{ borderTop: '1px dashed ' + C.pale, paddingTop: 9 }}>
         <div style={S.bankLbl}>{String(tr(data.bank, lang)).toUpperCase()}</div>
         <div style={{ display: 'flex', gap: 8, justifyContent: 'center', minHeight: 46, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -344,7 +344,7 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
           {pool.map((c) => (
             <button key={c} type="button" data-card={c} disabled={A.locked} onClick={() => setPicked(picked === c ? null : c)}
               style={{ minWidth: 62, padding: '0 10px', height: 46, borderRadius: 12, border: '2px solid ' + (picked === c ? C.hot : C.line), background: picked === c ? C.hotBg : '#fff', ...S.mono, fontSize: 22, color: C.ink, cursor: A.locked ? 'default' : 'pointer' }}>
-              {c}
+              <Sup s={c} />
             </button>
           ))}
         </div>
@@ -382,8 +382,8 @@ export function TapTerms({ data, lang = 'uz', mode = 'answer', initialAnswer = n
     <div style={S.wrap}>
       <Head data={data} lang={lang} />
       <Given data={data} lang={lang} />
-      <p style={S.ask}>{tr(data.ask, lang)}</p>
-      {data.note ? <div style={S.note}>{tr(data.note, lang)}</div> : null}
+      <p style={S.ask}><Sup s={tr(data.ask, lang)} /></p>
+      {data.note ? <div style={S.note}><Sup s={tr(data.note, lang)} /></div> : null}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 2, margin: '8px 0 4px' }}>
         {data.parts.map((p, i) => {
           if (p.k === 'txt') return <span key={i} style={{ ...S.mono, fontSize: size, color: C.brace, padding: '0 3px' }}>{p.v}</span>;
@@ -402,7 +402,7 @@ export function TapTerms({ data, lang = 'uz', mode = 'answer', initialAnswer = n
           return (
             <button key={i} type="button" aria-pressed={on} data-term={p.id} disabled={A.locked} onClick={() => toggle(p.id)}
               style={{ ...S.mono, fontSize: size, color: col, padding: '6px 10px', margin: '0 1px', borderRadius: 10, border: '2px ' + dash + ' ' + bd, background: bg, cursor: A.locked ? 'default' : 'pointer' }}>
-              {p.v}
+              <Sup s={p.v} />
             </button>
           );
         })}
@@ -440,7 +440,7 @@ export function MarkAll({ data, lang = 'uz', mode = 'answer', initialAnswer = nu
     <div style={S.wrap}>
       <Head data={data} lang={lang} />
       <Given data={data} lang={lang} />
-      <p style={S.ask}>{tr(data.ask, lang)} {data.note ? <span style={{ fontSize: 13, color: C.mute, fontWeight: 600 }}>{tr(data.note, lang)}</span> : null}</p>
+      <p style={S.ask}><Sup s={tr(data.ask, lang)} /> {data.note ? <span style={{ fontSize: 13, color: C.mute, fontWeight: 600 }}>{tr(data.note, lang)}</span> : null}</p>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(' + (data.col || 180) + 'px, 1fr))', gap: 7 }}>
         {data.items.map((it) => {
           const on = marked.indexOf(it.id) !== -1;
@@ -450,7 +450,7 @@ export function MarkAll({ data, lang = 'uz', mode = 'answer', initialAnswer = nu
           return (
             <button key={it.id} type="button" aria-pressed={on} data-item={it.id} disabled={A.locked} onClick={() => toggle(it.id)}
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 52, padding: '5px 10px', borderRadius: 13, border: '2px solid ' + bd, background: bg, cursor: A.locked ? 'default' : 'pointer' }}>
-              {it.tokens ? <Row tokens={it.tokens} size={data.itemSize || 23} /> : <span style={{ fontSize: 15, fontWeight: 700, color: C.ink }}>{tr(it.label, lang)}</span>}
+              {it.tokens ? <Row tokens={it.tokens} size={data.itemSize || 23} /> : <span style={{ fontSize: 15, fontWeight: 700, color: C.ink }}><Sup s={tr(it.label, lang)} /></span>}
             </button>
           );
         })}
@@ -552,7 +552,7 @@ export function BuildLine({ data, lang = 'uz', mode = 'answer', initialAnswer = 
                 {caret(i)}
                 <button type="button" disabled={A.locked} onClick={() => setPos(i)}
                   style={{ border: 0, background: 'none', padding: '0 2px', ...S.mono, fontSize: 27, color: toneOf(it && it.label), cursor: A.locked ? 'default' : 'pointer' }}>
-                  {it && it.label}
+                  <Sup s={it && it.label ? it.label : ''} />
                 </button>
               </React.Fragment>
             ))}
@@ -566,14 +566,14 @@ export function BuildLine({ data, lang = 'uz', mode = 'answer', initialAnswer = 
           <span style={{ ...S.mono, fontSize: 26, color: A.fb?.correct ? C.ok : C.no }}>{value === null ? '—' : value}</span>
         </div>
       ) : null}
-      <div style={S.note}>{tr(data.ask, lang)}</div>
+      <div style={S.note}><Sup s={tr(data.ask, lang)} /></div>
       <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap', alignItems: 'center' }}>
         {data.cards.map((c) => {
           const used = seq.indexOf(c.id) !== -1;
           return (
             <button key={c.id} type="button" data-card={c.id} disabled={used || A.locked} onClick={() => put(c.id)}
               style={{ minWidth: 52, padding: '0 9px', height: 48, borderRadius: 13, border: '2px solid ' + (used ? '#eef0f4' : C.line), background: used ? C.bg : '#fff', ...S.mono, fontSize: 23, color: used ? C.line : toneOf(c.label), cursor: (used || A.locked) ? 'default' : 'pointer' }}>
-              {c.label}
+              <Sup s={c.label} />
             </button>
           );
         })}
@@ -641,7 +641,7 @@ export function Zones({ data, lang = 'uz', mode = 'answer', initialAnswer = null
       <div style={{ display: 'flex', flexDirection: 'column', gap: 5, margin: '2px 0' }}>
         {data.zones.map((z) => (
           <div key={z.id} style={{ display: 'flex', alignItems: 'stretch', gap: 8 }}>
-            <div style={{ width: data.zoneLbl || 104, flex: '0 0 ' + (data.zoneLbl || 104) + 'px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', fontSize: 10.5, fontWeight: 800, color: C.mute, letterSpacing: '.03em', textAlign: 'right' }}>{tr(z.label, lang)}</div>
+            <div style={{ width: data.zoneLbl || 104, flex: '0 0 ' + (data.zoneLbl || 104) + 'px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', fontSize: 10.5, fontWeight: 800, color: C.mute, letterSpacing: '.03em', textAlign: 'right' }}><Sup s={tr(z.label, lang)} /></div>
             <div data-zone={z.id} onClick={() => tapZone(z.id)}
               style={{ flex: 1, minHeight: 42, borderRadius: 13, padding: 6, border: '2px dashed ' + (picked ? C.hot : C.pale), background: picked ? '#fff7f2' : C.bg, display: 'flex', flexWrap: 'wrap', gap: 6, alignContent: 'center', justifyContent: 'center', cursor: picked && !A.locked ? 'pointer' : 'default' }}>
               {data.items.filter((it) => place[it.id] === z.id).map(chip)}
@@ -649,7 +649,7 @@ export function Zones({ data, lang = 'uz', mode = 'answer', initialAnswer = null
           </div>
         ))}
       </div>
-      <div style={S.note}>{tr(data.ask, lang)}</div>
+      <div style={S.note}><Sup s={tr(data.ask, lang)} /></div>
       <div style={{ borderTop: '1px dashed ' + C.pale, paddingTop: 8 }}>
         <div style={S.bankLbl}>{String(tr(data.bank, lang)).toUpperCase()}</div>
         <div style={{ display: 'flex', gap: 7, justifyContent: 'center', minHeight: 36, alignItems: 'center', flexWrap: 'wrap' }}>

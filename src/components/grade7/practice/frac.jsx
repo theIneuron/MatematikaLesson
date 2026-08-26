@@ -62,6 +62,10 @@ const withSup = (t, key) => {
   return out;
 };
 
+// Matn ichidagi yuqori indeks ham shu yo'l bilan chiziladi: savol satri,
+// karta yozuvi, razbor -- hammasi bir xil ko'rinsin (metodist QA si).
+export const Sup = ({ s }) => <>{withSup(String(s == null ? '' : s), 'x')}</>;
+
 export const Row = ({ tokens, size = 28, color = '#1f2430', tone = true }) => (
   <span style={{ display: 'inline-flex', alignItems: 'center', flexWrap: 'wrap', fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: size, fontWeight: 800, color }}>
     {tokens.map((t, i) => {
