@@ -169,100 +169,9 @@ const DIV3 = (x) => (x === 3 ? null : 1 / (x - 3))
 const ROOT3 = (x) => (x < 3 ? null : Math.sqrt(x - 3))
 const SC_SEC = L('x, s', 'x, с', 'x, s')
 const SC_HEIGHT = L('y, m', 'y, м', 'y, m')
-const SC_STADIUM = L('yugurish', 'забег', 'the run')
-const SC_U_MIN = L('daq', 'мин', 'min')
 const SC_U_SEC = L('s', 'с', 's')
 const SC_U_METER = L('m', 'м', 'm')
 const SC_TOSS = L("to'p", 'мяч', 'the ball')
-
-// ============================================================
-// YUGURCHI VA SOAT. 2026-08-22, uchinchi urinish: metodist ikkinchi
-// variantni ham (LED ustunli skorebord) rad etdi — «bu umuman hech narsaga
-// o'xshamaydi». So'radi: haqiqiy odam yuguradi, harorat/balandlik o'lchagich
-// EMAS, aqlli SOAT ko'rsatadi, va hammasi JONLI bo'lishi kerak. Sahna
-// NOLDAN chizilgan, avvalgi ikkisiga (shaxta, choynak) hech qanday
-// ishora yo'q.
-//
-// Qanday jonlanadi: oyoq va qo'l HAR DOIM tez tsiklda tebranadi
-// (`g9-swing-a/-b`, bir xil kadr, ikkinchisi `animation-direction: reverse`
-// bilan — shu bitta amal ikki oyoqni QARAMA-QARSHI faza qiladi). Yurakcha
-// soat ekranida taqillaydi (`g9-heartbeat`). Qo'lda solingan paytda
-// (`stuck` yo'q holatlar) tsikl TEZLIGI zarbga bog'liq — `pulse` qancha
-// yuqori, yugurish shuncha tezroq ko'rinadi; `stuck`da esa yugurchi
-// TO'XTAYDI (tsikl to'xtaydi, egilib nafas oladi).
-//
-// Piksel origin uchun transform-box ATAYIN qo'yilmagan (standart —
-// view-box), shuning uchun bo'g'inlar aynan chizilgan koordinatadan
-// buriladi. Yurakcha esa fill-box + foizli origin (svg-transform-box-fillbox-gotcha).
-// ============================================================
-// eslint-disable-next-line react-refresh/only-export-components
-const Runner = ({ mode, pulse, stuck }) => {
-  const t = useT()
-  const ride = mode === 'ride'
-  const running = ride || !stuck
-  const frac = pulse === null || pulse === undefined
-    ? 0 : Math.max(0, Math.min(1, (pulse - 60) / 60))
-  const swingMs = 620 - frac * 260   // tezroq zarb — tezroq oyoq
-  const beatMs = 760 - frac * 340    // tezroq zarb — tezroq yurak
-  const swingStyle = (running && !ride) ? { animationDuration: swingMs + 'ms' } : undefined
-  const swingA = running ? 'g9-swing-a' : undefined
-  const swingB = running ? 'g9-swing-b' : undefined
-  return (
-    <g>
-      {/* TREK: soat egasi vaqt o'tishi bilan chapdan o'ngga suradi. */}
-      <line x1="34" y1="128" x2="166" y2="128" stroke="rgba(23,26,29,.16)" strokeWidth="2"
-        strokeDasharray="4 6"/>
-
-      <g className={ride ? 'g9-runner-ride' : undefined}
-        style={ride ? undefined : { transform: 'translateX(84px)' }}>
-        {/* TOS nuqtasi (0,0) — oyoqlar PASTGA (musbat y) tushib trekka
-            (mahalliy translate y = 100, trek esa y = 128, farqi 28 oyoq
-            uzunligi) yetadi. */}
-        <g transform="translate(56,100)">
-          {/* ORQADAGI oyoq-qo'l OLDIN chiziladi va xiraroq (chuqurlik uchun),
-              OLDINGISI ustiga tushadi va to'liq rangda. Ikkisi ham TIZZADAN
-              bukilgan (ikki bo'g'in) — bitta to'g'ri chiziq odamga o'xshamasdi. */}
-          <g className={swingB} style={{ transformOrigin: '0px 0px', ...swingStyle }}>
-            <path d="M0,0 L-7,15 L-10,28" fill="none" stroke={T.graph} strokeWidth="5"
-              strokeLinecap="round" strokeLinejoin="round" opacity=".5"/>
-          </g>
-          <g className={swingB} style={{ transformOrigin: '6px -24px', ...swingStyle }}>
-            <path d="M6,-24 L-1,-14 L-4,-4" fill="none" stroke={T.graph} strokeWidth="3.4"
-              strokeLinecap="round" strokeLinejoin="round" opacity=".5"/>
-          </g>
-
-          {/* TANA: OLDINGA egilgan — yugurish shu bilan ko'rinadi. */}
-          <path d="M0,0 L6,-24" stroke={T.graph} strokeWidth="5" strokeLinecap="round"/>
-          <circle cx="9" cy="-30" r="6.6" fill={T.graphSoft} stroke={T.graph} strokeWidth="1.6"/>
-
-          {/* OLDINDAGI oyoq-qo'l: to'liq rangda, ustki qatlamda. */}
-          <g className={swingA} style={{ transformOrigin: '0px 0px', ...swingStyle }}>
-            <path d="M0,0 L9,14 L12,28" fill="none" stroke={T.graph} strokeWidth="5.4"
-              strokeLinecap="round" strokeLinejoin="round"/>
-          </g>
-          <g className={swingA} style={{ transformOrigin: '6px -24px', ...swingStyle }}>
-            <path d="M6,-24 L15,-16 L18,-6" fill="none" stroke={T.graph} strokeWidth="3.6"
-              strokeLinecap="round" strokeLinejoin="round"/>
-          </g>
-
-          {/* AQLLI SOAT: bilakdan chiqqan ingichka chiziq, kattalashtirilgan
-              ekran shu yerda — raqamni Plate kartochkalari aytadi, soat esa
-              yuraklecha bilan JONLI ekanini ko'rsatadi. */}
-          <line x1="18" y1="-6" x2="36" y2="-34" stroke="rgba(23,26,29,.28)" strokeWidth="1"/>
-          <rect x="30" y="-52" width="26" height="24" rx="6" fill={T.ink} stroke="rgba(23,26,29,.30)" strokeWidth="1.4"/>
-          <g style={{ transformBox: 'fill-box', transformOrigin: '50% 50%', animationDuration: beatMs + 'ms' }}
-            className={running ? 'g9-heartbeat' : undefined}>
-            <path d="M43,-36 C41,-39 37,-39 37,-36 C37,-33 43,-29 43,-29 C43,-29 49,-33 49,-36 C49,-39 45,-39 43,-36 Z"
-              fill={stuck ? T.tip : T.accent}/>
-          </g>
-        </g>
-      </g>
-
-      <text x="100" y="152" textAnchor="middle" fontFamily="'Manrope', system-ui, sans-serif"
-        fontSize="7" letterSpacing="0.6" fill={T.ink3}>{t(SC_STADIUM)}</text>
-    </g>
-  )
-}
 
 // ============================================================
 // XUK SAHNASI: IKKI TABLONING BAHSI.
@@ -1375,6 +1284,14 @@ const S9 = {
         'Заблокированными оказались числа меньше трёх. Поэтому ответ не один запрет, а промежуток.',
         'The blocked ones turned out to be the numbers smaller than three. So the answer is an interval, not a single restriction.',
       )}
+      fact={{
+        badge: L('Bilasizmi? · Texnika', 'Знаешь ли ты? · Техника', 'Did you know? · Technology'),
+        text: L(
+          "Kalkulyator va dasturlar ham xuddi shunday ishlaydi: ildiz belgisini bosishdan oldin son manfiy emasligini tekshiradi, aks holda ekranda xato chiqadi.",
+          'Калькуляторы и программы работают так же: перед вычислением корня они проверяют, что число не отрицательное, иначе на экране появляется ошибка.',
+          "Calculators and programs work the same way: before computing a root, they check the number isn't negative, otherwise the screen shows an error.",
+        ),
+      }}
       audio={audio}
       onSolved={onSolved}
       onStep={step}
@@ -1471,7 +1388,7 @@ const S10 = {
         expr: <Row size="big" align="center">y = {F('√x', 'x − 4')}</Row>,
         question: L(
           "Butun aniqlanish sohasi qanday yoziladi?",
-          'Как записать весь домен целиком?',
+          'Как записать всю область определения?',
           'How is the whole domain written?',
         ),
         ok: L(
@@ -1819,6 +1736,14 @@ const S13 = {
     againLabel: L('Yana bir bor', 'Ещё раз', 'Again'),
     selfLabel: L("Endi o'zim", 'Теперь я сам', 'Now myself'),
     nextSay: L('Keyingi yozuv', 'Следующая запись', 'The next record'),
+    fact: {
+      badge: L('Bilasizmi? · Fizika', 'Знаешь ли ты? · Физика', 'Did you know? · Physics'),
+      text: L(
+        "Haqiqiy formulalarda ham xuddi shunday: tezlik yo'lni vaqtga bo'lishdan chiqadi, vaqt esa hech qachon nolga teng bo'lmaydi — aks holda tezlikni hisoblab bo'lmaydi.",
+        'В настоящих формулах то же самое: скорость равна пути, делённому на время, а время никогда не равно нулю — иначе скорость не посчитать.',
+        "The same is true in real formulas: speed equals distance divided by time, and time is never zero — otherwise speed cannot be calculated.",
+      ),
+    },
     // KO'RSATISH o'z yozuvida, mustaqil ish esa boshqasida — aks holda
     // o'quvchi usulni emas, xotirasini takrorlaydi.
     demo: {
@@ -1881,9 +1806,9 @@ const S14 = {
         id: 'q1',
         tag: 'argument-qiymat',
         ask: L(
-          "To'p uchishda juftlik yozib olindi: 2-soniyada balandlik uch metr. Juftlikda qaysi son birinchi — vaqt yoki balandlik?",
-          'При полёте мяча записали пару: на 2-й секунде высота три метра. В этой паре какое число первое — время или высота?',
-          'While the ball was flying, a pair was recorded: at second 2 the height is three metres. In this pair, which number is first — the time or the height?',
+          "To'p uchishda (t; h) juftligi yozib olindi: (2; 3). Bu yozuvda birinchi son nimani bildiradi — vaqtnimi yoki balandlikni?",
+          'При полёте мяча записали пару (t; h): (2; 3). Что означает первое число в этой записи — время или высоту?',
+          'While the ball was flying, a pair (t; h) was recorded: (2; 3). What does the first number in this pair mean — the time or the height?',
         ),
         options: [
           { id: 'arg', right: true, label: L('vaqt', 'время', 'the time') },
@@ -1904,9 +1829,9 @@ const S14 = {
         id: 'q2',
         tag: 'grafik-rasm',
         ask: L(
-          "Bitta vaqtda to'p nechta balandlikda bo'lishi mumkin?",
-          'На скольких высотах может быть мяч в один момент времени?',
-          'At how many heights can the ball be at one moment in time?',
+          "h(t) funksiya bo'lsa, bitta t qiymatiga nechta h qiymati mos kelishi mumkin?",
+          'Если h(t) — функция, скольким значениям h может соответствовать одно значение t?',
+          'If h(t) is a function, how many values of h can correspond to one value of t?',
         ),
         options: [
           { id: 'one', right: true, label: L('bitta', 'одна', 'one') },
@@ -1914,23 +1839,23 @@ const S14 = {
           { id: 'many', label: L("qancha bo'lsa ham", 'сколько угодно', 'any number') },
         ],
         ok: L(
-          "To'g'ri. Bir vaqtda to'p faqat bitta balandlikda bo'ladi.",
-          'Верно. В один момент мяч находится ровно на одной высоте.',
-          'Correct. At one moment the ball is at exactly one height.',
+          "To'g'ri. Funksiya bo'lgani uchun, bitta vaqtga faqat bitta balandlik mos keladi.",
+          'Верно. Так как это функция, одному моменту времени соответствует ровно одна высота.',
+          'Correct. Since this is a function, exactly one height corresponds to one moment in time.',
         ),
         hint: L(
-          "Ikki balandlik bir vaqtda bo'lolmaydi. Teskarisi esa, bir balandlikka ikki vaqt to'g'ri kelishi, mumkin.",
-          'Двух высот в один момент не бывает. А обратное, два разных момента для одной высоты, бывает.',
-          'Two heights at one moment cannot happen. But the reverse, two different moments for one height, can.',
+          "Ikkita balandlik bitta vaqtga mos kelolmaydi, bu funksiya ta'rifiga zid. Teskarisi esa mumkin: ikkita vaqt bitta balandlikka mos kelishi.",
+          'Две высоты одному моменту соответствовать не могут, это противоречит определению функции. А обратное возможно: два момента могут дать одну высоту.',
+          'Two heights cannot correspond to one moment, that contradicts the definition of a function. But the reverse can happen: two moments can give one height.',
         ),
       },
       {
         id: 'q3',
         tag: 'soha-suratdan',
         ask: L(
-          "1 sonini nolga bo'lish kerak bo'lsa, bu son nima uchun taqiqlanadi?",
-          'Если единицу нужно разделить на нуль, почему это число запрещено?',
-          'If one has to be divided by zero, why is that number forbidden?',
+          "1/0 ifodasi nega hisoblanmaydi?",
+          'Почему выражение 1/0 нельзя вычислить?',
+          "Why can't the expression 1/0 be calculated?",
         ),
         options: [
           {
@@ -2137,6 +2062,11 @@ const S15 = {
       'Следующий урок: свойства функции',
       'Next lesson: properties of a function',
     ),
+    // 2026-08-26: FactCard shu ekranga ATAYIN qo'shilmadi — sahna + mark +
+    // uch qator + bridge allaqachon 615px'ni to'ldirgan, o'lchov shuni
+    // ko'rsatdi (95px chiqib ketardi, ko'rinmay). Bundan tashqari Takeaway
+    // ATAYIN qisqa: «yakun — hisobot emas, bir necha qator» (metodist
+    // qarori). Fakt S9 va S13 da qoladi.
   },
 }
 
@@ -2182,4 +2112,26 @@ export const SCREENS = [
   { role: 'summary',  tool: 'takeaway', scene: <FinalScene/>, ...S15 },
 ]
 
-export default makeLesson({ META, STATEMENTS, MISS, SCREENS, styles: G9_STYLES })
+// PALITRA (metodist, 2026-08-26): 8-9-sinf palitrasi rad etildi, 5-sinf
+// 11-darsi (`grade5/Dars11.jsx`) palitrasi yoqdi — u yerga ko'chirildi.
+// T.* ranglar minglab qatorda qattiq yozilgan (STYLES..FEED_STYLES), CSS
+// bilan tanlab bo'lmaydi — shuning uchun matn almashtirish (`recolor`,
+// screens.jsx). Neytral (ink/paper/fon asosi) tegilmadi: ikkalasida ham
+// deyarli bir xil, farq ko'zga ko'rinmaydi. Ranglar FAQAT shu darsda
+// almashadi — boshqa hech qaysi 8/9-sinf darsiga tegmaydi.
+const RECOLOR = [
+  ['#C9542C', '#FF4F28'],       // accent: kulrang g'isht -> yorqin qizil-sariq
+  ['#F8E7DE', '#FFE8E1'],       // accentSoft
+  ['201,84,44', '255,79,40'],   // accentRgb
+  ['#A55D19', '#FF4F28'],       // tip = tipInk = no (xato/eslatma) -> accent bilan bir xil, 5-sinfdagidek
+  ['#FBEDD9', '#FFE8E1'],       // tipSoft -> accentSoft
+  ['165,93,25', '255,79,40'],   // tipRgb
+  ['#28774A', '#1F7A4D'],       // ok (to'g'ri javob) -> 5-sinf yashili
+  ['#E5F2E9', '#E3F0E8'],       // okSoft
+  ['40,119,74', '31,122,77'],   // okRgb
+  ['#6B5B45', '#019ACB'],       // graph = cool (tekshiruv qatlami) -> 5-sinf ko'gi
+  ['#EDE4D3', '#DFF3F9'],       // graphSoft = coolSoft
+  ['107,91,69', '1,154,203'],   // graphRgb
+]
+
+export default makeLesson({ META, STATEMENTS, MISS, SCREENS, styles: G9_STYLES, recolor: RECOLOR })

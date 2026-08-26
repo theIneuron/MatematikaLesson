@@ -410,7 +410,7 @@ export function ScreenBody(props) {
 // ============================================================
 // `styles` — sinfning O'Z uslublari (masalan `grade9/asboblar.jsx` dagi
 // G9_STYLES). Berilmasa hech narsa o'zgarmaydi.
-export function makeLesson({ META, STATEMENTS, MISS, SCREENS, styles }) {
+export function makeLesson({ META, STATEMENTS, MISS, SCREENS, styles, recolor }) {
   return function Grade8Lesson({ lang = 'ru', ttsApiBase = '', onFinish, studentName = '' }) {
     const [screen, setScreen] = useState(0)
     const [solved, setSolved] = useState({})
@@ -435,6 +435,21 @@ export function makeLesson({ META, STATEMENTS, MISS, SCREENS, styles }) {
 
     const scr = SCREENS[screen]
     const audio = useAudio(scr.audio)
+
+    // `recolor`: butun sinf palitrasi (STYLES..FEED_STYLES, minglab qatorda
+    // T.* rangi qattiq yozilgan, o'zgartirib bo'lmaydi — CSS satrida oddiy
+    // matn almashtirish. Faqat SHU DARS ulanganda ishlaydi, boshqa hech
+    // qaysi darsga tegmaydi (`recolor` berilmasa — hech narsa o'zgarmaydi).
+    const allStyles = STYLES + MATH_STYLES + TOOLS_STYLES + PLOT_STYLES + METHOD_STYLES
+      + TWOSIDES_STYLES + ZOOM_STYLES + SQUARECUT_STYLES + FACTORPAIR_STYLES
+      + MODULUSFOLD_STYLES + STANDARDFORM_STYLES + FREQTABLE_STYLES + DATADRAG_STYLES
+      + TREEBUILD_STYLES + GEOFIGURE_STYLES + PROOFLINES_STYLES + AREACUT_STYLES
+      + SQUARESWAP_STYLES + CIRCLEFIGURE_STYLES + VECTORFIGURE_STYLES + FEED_STYLES
+      + (styles || '')
+    const finalStyles = useMemo(() => (
+      recolor ? recolor.reduce((s, [from, to]) => s.split(from).join(to), allStyles) : allStyles
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    ), [])
 
     // Балла нет. Сбор тегов по экранам убран редакцией 3: в платформу они
     // больше не уезжают (§12), а внутри урока пробел называет блиц. Сам список
@@ -469,7 +484,7 @@ export function makeLesson({ META, STATEMENTS, MISS, SCREENS, styles }) {
 
     return (
       <LangProvider value={lang}>
-        <style>{STYLES}{MATH_STYLES}{TOOLS_STYLES}{PLOT_STYLES}{METHOD_STYLES}{TWOSIDES_STYLES}{ZOOM_STYLES}{SQUARECUT_STYLES}{FACTORPAIR_STYLES}{MODULUSFOLD_STYLES}{STANDARDFORM_STYLES}{FREQTABLE_STYLES}{DATADRAG_STYLES}{TREEBUILD_STYLES}{GEOFIGURE_STYLES}{PROOFLINES_STYLES}{AREACUT_STYLES}{SQUARESWAP_STYLES}{CIRCLEFIGURE_STYLES}{VECTORFIGURE_STYLES}{FEED_STYLES}{styles || ''}</style>
+        <style>{finalStyles}</style>
         <div className="lesson-root">
           <Frame
             key={screen}
