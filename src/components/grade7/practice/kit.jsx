@@ -110,6 +110,16 @@ const pickWhy = (data, state, lang) => {
 // Karta yozuvi uzun bo'lsa shrift kichrayadi va matn karta ICHIDA ko'chadi.
 // Sabab (metodist QA si, 2026-08-22): «eng katta tomon 80° qarshisida» kabi
 // yozuv telefonda karta chegarasidan chiqib ketardi.
+// Ekran klaviaturasining kaliti. O'lchami 390px kenglikda o'n kalit bir
+// qatorga sig'adigan qilib olingan.
+const PADKEY = (locked, w) => ({
+  minWidth: w || 32, height: 36, padding: '0 7px', borderRadius: 10,
+  border: '1.5px solid #d6dae3', background: locked ? '#f4f6f9' : '#fff',
+  color: locked ? '#c2c8d2' : '#1f2430', fontSize: 16, fontWeight: 800,
+  fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+  cursor: locked ? 'default' : 'pointer',
+});
+
 const fitFont = (s, base) => {
   const n = String(s == null ? '' : s).length;
   if (n <= 4) return base;
@@ -292,6 +302,30 @@ export function TypeValue({ data, lang = 'uz', mode = 'answer', initialAnswer = 
       <input id="kit-in" data-input="1" value={val} onChange={(e) => setVal(clean(e.target.value))}
         inputMode={data.allowNeg === false && !power ? 'numeric' : 'text'} disabled={A.locked} placeholder="0"
         style={{ width: '100%', boxSizing: 'border-box', fontSize: 24, fontWeight: 800, textAlign: 'center', padding: '12px 14px', borderRadius: 14, border: '2px solid ' + (A.checked ? (A.fb?.correct ? C.ok : C.no) : '#d6dae3'), background: A.checked ? '#fff' : C.bg, outline: 'none', fontFamily: S.mono.fontFamily }} />
+      {/* EKRAN KLAVIATURASI (metodist qarori 2026-08-22): javobni telefonda
+          ham, kompyuterda ham bir xil kiritish kerak. Tizim klaviaturasi
+          telefonda `^` ni bermaydi va raqamli rejimda belgilar yashiringan,
+          shuning uchun kalitlar ekranda turadi. Yozish ham ishlaydi. */}
+      <div style={{ marginTop: 6, display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', justifyContent: 'center' }}>
+          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map((d) => (
+            <button key={d} type="button" data-key={d} disabled={A.locked} onClick={() => setVal((v) => clean(v + d))}
+              style={PADKEY(A.locked)}>{d}</button>
+          ))}
+        </div>
+        <div style={{ display: 'flex', gap: 4, justifyContent: 'center' }}>
+          {data.allowNeg === false ? null : (
+            <button type="button" data-key="neg" disabled={A.locked} onClick={() => setVal((v) => clean(v.startsWith('-') ? v.slice(1) : '-' + v))}
+              style={PADKEY(A.locked, 46)}>−</button>
+          )}
+          {power ? (
+            <button type="button" data-key="pow" disabled={A.locked} onClick={() => setVal((v) => clean(v + '^'))}
+              style={PADKEY(A.locked, 46)}>x^n</button>
+          ) : null}
+          <button type="button" data-key="del" disabled={A.locked} onClick={() => setVal((v) => v.slice(0, -1))}
+            style={PADKEY(A.locked, 46)}>{'⌫'}</button>
+        </div>
+      </div>
       {A.fb && <HFB ok={A.fb.correct} text={A.fb.correct ? tr(data.correctText, lang) : A.fb.why} />}
     </div>
   );
@@ -473,10 +507,14 @@ export function MarkAll({ data, lang = 'uz', mode = 'answer', initialAnswer = nu
           // kirgan yozuv, qizil -- ortiqcha belgilangan, qizil punktir --
           // o'tkazib yuborilgan. Belgilanmagan va javobga kirmagan yozuv
           // betaraf qoladi (ilgari u ham yashil bo'lardi va javob o'qilmasdi).
+          // Tekshiruvdan keyin faqat O'QUVCHI belgilagan yozuvlar bo'yaladi:
+          // yashil -- to'g'ri belgilangan, qizil -- ortiqcha. O'tkazib
+          // yuborilgan yozuv KO'RSATILMAYDI (metodist qarori 2026-08-22:
+          // javobni ochib berish -- tayyor maslahat, o'quvchi o'zi topishi
+          // kerak). Razbor esa belgiga ishora qiladi, javobga emas.
           if (A.checked) {
             if (on && it.hit) { bd = C.ok; bg = C.okBg; }
             else if (on && !it.hit) { bd = C.no; bg = C.noBg; }
-            else if (!on && it.hit) { bd = C.no; bg = '#fff'; bs = 'dashed'; }
             else { bd = C.pale; bg = '#fff'; }
           }
           return (
