@@ -2,9 +2,14 @@
 // Faqat MA'LUMOT. Mexanika: `practice/kit.jsx` -> TrueFalse.
 // Skelet: DARS07_11_AMALIYOT_SKELET.md §6 (8-dars, 5-pozitsiya), §4a
 //
-// Ikki mulohaza — ikki adashish:
-//   s1  З4: ildiz hadlarga bo'lib chiqarildi (to'qqiz qo'shuv o'n olti);
-//   s2  З5: kvadratdan modul chiqadi, sonning o'zi emas.
+// Ikki mulohaza — ikki adashish, IKKALA JAVOB HAM «HA» (metodist qarori
+// 2026-08-25: ha-yo'q topshiriqlarida javob naqshi bo'lmasin, kombinatsiya
+// darsdan darsga o'zgaradi — DARS07_11_AMALIYOT_SKELET.md §10 p. 9):
+//   s1  З4: tenglik TO'G'RI, lekin ildizni hadlarga bo'lib chiqargan o'quvchi
+//       uch qo'shuv to'rt, ya'ni yettini oladi va «yo'q» deb bosadi;
+//   s2  З5: kvadratdan modul chiqadi, sonning o'zi emas — tenglik ham to'g'ri.
+// Ya'ni ikki adashish ham «yo'q» javobiga olib boradi, to'g'ri yo'l esa
+// ikki marta «ha» ga.
 //
 // YOZUV USTIDA CHIZMA (metodist qarori 2026-08-24): son o'qida minus yetti
 // va yetti noldan BIR XIL masofada turadi. Modul — aynan shu masofa, va
@@ -24,7 +29,7 @@ const DATA = {
   }]],
   givenLabel: L('Noldan masofa', 'Расстояние от нуля', 'Distance from zero'),
   items: [
-    { id: 's1', tokens: [{ r: '9 + 16' }, '=', '3 + 4'], yes: false,
+    { id: 's1', tokens: [{ r: '9 + 16' }, '= 5'], yes: true,
       claim: L("tenglik to'g'ri", 'равенство верно', 'the equality is true') },
     { id: 's2', tokens: [{ r: '(−7)²' }, '=', '7'], yes: true,
       claim: L("tenglik to'g'ri", 'равенство верно', 'the equality is true') },
@@ -41,14 +46,14 @@ const DATA = {
     'Если равенство верно — нажми «Да», если нет — «Нет».',
     'Tap «Yes» if the equality is true, «No» if it is not.'),
   correctText: L(
-    "To'g'ri. Birinchisida chiziq ostida YIG'INDI turadi: avval to'qqiz qo'shuv o'n olti yigirma besh, keyin ildiz — besh. O'ng tomonda esa yetti. Besh yettiga teng emas, demak ildizni hadlarga bo'lib chiqarib bo'lmaydi. Ikkinchisida ildiz ostida minus yettining kvadrati, ya'ni qirq to'qqiz, uning ildizi esa yetti — chizmada ko'rinib turgani ham shu: minus yetti noldan yetti qadam uzoqda.",
-    'Верно. В первом под чертой стоит СУММА: сначала девять плюс шестнадцать двадцать пять, потом корень — пять. Справа же семь. Пять не равно семи, значит корень нельзя раздать по слагаемым. Во втором под корнем квадрат минус семи, то есть сорок девять, а его корень семь — это и видно на чертеже: минус семь стоит в семи шагах от нуля.',
-    'Correct. In the first a SUM stands under the bar: nine plus sixteen is twenty five, then the root is five. On the right stands seven. Five is not seven, so a root cannot be distributed over the terms. In the second the square of minus seven is under the root, that is forty nine, whose root is seven — exactly what the plot shows: minus seven stands seven steps from zero.'),
+    "To'g'ri. Ikki tenglik ham rost. Birinchisida ustki chiziq YIG'INDINING ustida turadi: avval to'qqiz qo'shuv o'n olti yigirma besh, keyin ildiz — besh. Ildizni hadlarga bo'lib chiqarganda esa uch qo'shuv to'rt, ya'ni yetti chiqardi — boshqa son, va aynan shu joyda ko'p adashadi. Ikkinchisida ildiz ostida minus yettining kvadrati, ya'ni qirq to'qqiz, uning ildizi yetti — chizmada ko'rinib turgani ham shu: minus yetti noldan yetti qadam uzoqda.",
+    'Верно. Оба равенства верны. В первом черта стоит над СУММОЙ: сначала девять плюс шестнадцать двадцать пять, потом корень — пять. А если раздать корень по слагаемым, выйдет три плюс четыре, то есть семь — другое число, и именно здесь чаще всего ошибаются. Во втором под корнем квадрат минус семи, то есть сорок девять, а его корень семь — это и видно на чертеже: минус семь стоит в семи шагах от нуля.',
+    'Correct. Both equalities are true. In the first the bar stands over the SUM: nine plus sixteen is twenty five, then the root is five. Distributing the root over the terms would give three plus four, that is seven — a different number, and that is where most mistakes happen. In the second the square of minus seven is under the root, that is forty nine, whose root is seven — exactly what the plot shows: minus seven stands seven steps from zero.'),
   wrongs: [
     { when: (s) => s.bad.indexOf('s1') !== -1, text: L(
-      "Birinchi tenglikda ustki chiziq YIG'INDINING ustida turadi, ya'ni avval qo'shish bajariladi. To'qqiz qo'shuv o'n olti yigirma besh, ildizi besh. Uch qo'shuv to'rt esa yetti. Ildizni hadlarga bo'lib chiqarish har doim boshqa son beradi.",
-      'В первом равенстве черта стоит над СУММОЙ, то есть сначала выполняется сложение. Девять плюс шестнадцать двадцать пять, корень пять. А три плюс четыре семь. Раздать корень по слагаемым всегда даёт другое число.',
-      'In the first equality the bar stands over the SUM, so the addition comes first. Nine plus sixteen is twenty five and its root is five. Three plus four is seven. Distributing a root over the terms always gives a different number.') },
+      "Birinchi tenglik rost. Ustki chiziq YIG'INDINING ustida turadi, ya'ni avval qo'shish bajariladi: to'qqiz qo'shuv o'n olti yigirma besh, yigirma beshning ildizi besh. Agar ildizni har hadga alohida bergan bo'lsangiz, uch qo'shuv to'rt, ya'ni yetti chiqadi — ildiz hadlarga bo'linmaydi.",
+      'Первое равенство верно. Черта стоит над СУММОЙ, значит сначала выполняется сложение: девять плюс шестнадцать двадцать пять, корень из двадцати пяти пять. Если же ты дал корень каждому слагаемому по отдельности, выйдет три плюс четыре, то есть семь — корень по слагаемым не раздаётся.',
+      'The first equality is true. The bar stands over the SUM, so the addition comes first: nine plus sixteen is twenty five and the root of twenty five is five. If you gave the root to each term separately you got three plus four, that is seven — a root does not distribute over terms.') },
     { when: (s) => s.bad.indexOf('s2') !== -1, text: L(
       "Ikkinchi tenglikda ildiz ostida KVADRAT turadi: minus yetti karra minus yetti qirq to'qqiz, va qirq to'qqizning ildizi yetti. Arifmetik ildiz manfiy bo'lmaydi, shuning uchun javob minus yetti emas. Chizmaga qarang: ikki son ham noldan bir xil masofada, ildiz esa shu masofani beradi.",
       'Во втором равенстве под корнем КВАДРАТ: минус семь на минус семь сорок девять, а корень сорока девяти семь. Арифметический корень не бывает отрицательным, поэтому ответ не минус семь. Посмотри на чертёж: оба числа на одном расстоянии от нуля, и корень даёт именно это расстояние.',

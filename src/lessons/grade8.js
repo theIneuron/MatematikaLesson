@@ -466,4 +466,286 @@ export const grade8Amaliy = [
     desc: "O'nta topshiriq o'nta xil usulda: belgilash, qaysi son, ha-yo'q, seyf kodi, so'zlar, guruhlar, aniq va yaqin, nechta, isbot, juftlash. Uch adashish qayta-qayta tekshiriladi: ildiz belgisi sonni irratsional qilmaydi, cheksiz yozuv ham belgi emas, yaqinlashish esa aniq qiymat emas. 07-topshiriqda CHIZMA — son o'qida ikkidan ildizning joyi. UZ/RU/EN.",
     Component: lazy(() => import('../components/grade8/practice/dars14/Dars14Practice.jsx')),
   },
+  // 15-20 DARSLAR AMALIYOTI — Б3 bloki, kvadrat tenglamalar (metodist qarori
+  // 2026-08-24). O'sha o'nta mexanika, yana boshqa tartibda. Skelet va
+  // taqsimot: src/books/grade8/DARS15_20_AMALIYOT_SKELET.md, tekshiruvi
+  // `node scripts/grade8-practice-seq.mjs check`.
+  // Guruh IKKI UCHLIKDAN yig'ilgan (15-17 va 18-20): «har mexanika guruh
+  // ichida har xil pozitsiyada» sharti olti darsli guruhda bajarilmaydi —
+  // 1-3 pozitsiyalarga faqat besh tip qo'yish mumkin.
+  // Umumiy qatlamga hech narsa qo'shilmadi.
+  {
+    slug: 'dars15-amaliyot',
+    title: 'Dars 15 amaliyoti — kvadrat tenglama va uning elementlari (10 topshiriq)',
+    desc: "O'nta topshiriq o'nta xil usulda: kvadratmi, ozod had, ishora, juftlash, qadamlar tartibi, pazl, so'zlar, c ni topish, qaysi tenglama, seyf kodi. Darsning ikki qimmat joyi: a nolga teng bo'lsa tenglama kvadrat bo'lmay qoladi, va koeffitsiyent ISHORASI bilan o'qiladi. 09-topshiriqda ikki shart birga tekshiriladi. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars15/Dars15Practice.jsx')),
+  },
+  {
+    slug: 'dars16-amaliyot',
+    title: 'Dars 16 amaliyoti — chala kvadrat tenglamalar (10 topshiriq)',
+    desc: "O'nta topshiriq o'nta xil usulda: ildizlar, musbat ildiz, chala, seyf kodi, so'zlar, qadamlar tartibi, nechta, guruhlar, ha-yo'q, juftlash. Darsning eng qimmat xatosi to'rt joyda tekshiriladi: ikki tomonni x ga bo'lish x = 0 ildizini yo'qotadi. 02-topshiriqda CHIZMA — son o'qida nolga simmetrik ikki nuqta. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars16/Dars16Practice.jsx')),
+  },
+  {
+    slug: 'dars17-amaliyot',
+    title: 'Dars 17 amaliyoti — kvadrat tenglama ildizlari formulasi (10 topshiriq)',
+    desc: "O'nta topshiriq o'nta xil usulda: minus b, ildizlar, diskriminant, to'la kvadrat, seyf kodi, ha-yo'q, qadamlar tartibi, juftlash, pazl, so'zlar. Formula yodlanmaydi — u to'la kvadratni ajratishdan chiqadi (04 va 07). b ning ishorasi D ga ta'sir qilmaydi, c ning ishorasi esa qiladi: bu farq 09 da ochiq ko'rsatilgan. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars17/Dars17Practice.jsx')),
+  },
+  {
+    slug: 'dars18-amaliyot',
+    title: 'Dars 18 amaliyoti — diskriminant va ildizlar soni (10 topshiriq)',
+    desc: "O'nta topshiriq o'nta xil usulda: ha-yo'q, ishora, nechta, ikki ildiz, juftlash, test, seyf kodi, qadamlar tartibi, pazl, so'zlar. Darsning butun og'irligi bitta farqda: «D nolga teng» «ildiz yo'q» degani emas — beshta topshiriqda va bitta qoidada tekshiriladi, va har joyda razbor ildizni QO'YIB ko'rsatadi. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars18/Dars18Practice.jsx')),
+  },
+  {
+    slug: 'dars19-amaliyot',
+    title: 'Dars 19 amaliyoti — Viyet teoremasi (10 topshiriq)',
+    desc: "O'nta topshiriq o'nta xil usulda: keltirilgan, yig'indi, ha-yo'q, so'zlar, seyf kodi, qadamlar tartibi, pazl, ikkinchi ildiz, ishoralar, juftlash. Ikki qoida ikki xil ishlaydi: YIG'INDI ishorani almashtiradi, KO'PAYTMA esa yo'q. 07 da ko'paytma yordam bermaydi, 09 da esa aksincha — faqat u hal qiladi. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars19/Dars19Practice.jsx')),
+  },
+  {
+    slug: 'dars20-amaliyot',
+    title: 'Dars 20 amaliyoti — kasr-ratsional tenglamalar (10 topshiriq)',
+    desc: "O'nta topshiriq o'nta xil usulda: taqiq, ha-yo'q, ruxsat, seyf kodi, pazl, yechish, qadamlar tartibi, so'zlar, juftlash, guruhlar. Blokning eng qimmat joyi — BEGONA ILDIZ: maxrajlarga ko'paytirilgan tenglama ko'proq ildizga ega bo'lishi mumkin, va sohadan chetdagi ildiz rad etiladi. 09-topshiriqda maxrajdagi bitta ishora javobni almashtiradi. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars20/Dars20Practice.jsx')),
+  },
+
+  // 21-30 — 15-20 bilan bir xil qoida bo'yicha (metodist tasdig'i 2026-08-25).
+  // O'sha o'nta mexanika, yana boshqa tartibda. Skelet va taqsimot:
+  // src/books/grade8/DARS21_30_AMALIYOT_SKELET.md, tekshiruvi
+  // `node scripts/grade8-practice-seq.mjs check`.
+  // Guruh UCH UCHLIKDAN va bitta yolg'iz qatordan yig'ilgan (21-23, 24-26,
+  // 27-29, 30): o'nta dars uchtaga bo'linmaydi, guruh esa uchtadan katta
+  // bo'lolmaydi — 1-pozitsiyaga faqat uch tip qo'yiladi.
+  // Umumiy qatlamga bitta narsa qo'shildi: `fig.jsx` ning `spans` maydoni
+  // (son o'qida oraliqning O'ZI), skelet §0a.2.
+  {
+    slug: 'dars21-amaliyot',
+    title: 'Dars 21 amaliyoti — kvadrat tenglamalar bilan masalalar (10 topshiriq)',
+    desc: "O'nta topshiriq o'nta xil usulda: bir shart, eni, guruhlar, seyf kodi, pazl, ha-yo'q, qadamlar tartibi, juftlash, so'zlar, tenglama. Blokning yangi ishi — RAD ETISH: tenglamaning ildizi bo'lish yetarli emas, javob masalaning kattaligiga mos kelishi kerak. 10-topshiriqda daqiqa soatga o'tkaziladi. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars21/Dars21Practice.jsx')),
+  },
+  {
+    slug: 'dars22-amaliyot',
+    title: "Dars 22 amaliyoti — ko'paytuvchilar va bikvadrat tenglamalar (10 topshiriq)",
+    desc: "O'nta topshiriq o'nta xil usulda: ko'paytuvchilar, guruhlar, nechta, pazl, bikvadrat, seyf kodi, ha-yo'q, qadamlar tartibi, juftlash, so'zlar. Belgilashning oxirgi qadami eng ko'p tashlab ketiladi — x ga QAYTISH, va u har musbat t dan ikki ildiz beradi. 09-topshiriqda to'rt tenglama bitta uch soni atrofida yig'ilgan. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars22/Dars22Practice.jsx')),
+  },
+  {
+    slug: 'dars23-amaliyot',
+    title: 'Dars 23 amaliyoti — sonli tengsizliklar (10 topshiriq)',
+    desc: "O'nta topshiriq o'nta xil usulda: ha-yo'q, qaysi katta, musbat ayirma, qadamlar tartibi, teskari ayirma, so'zlar, seyf kodi, pazl, guruhlar, juftlash. Б4 blokining birinchi amaliyoti: taqqoslashni sonlarning ko'rinishi emas, AYIRMANING ISHORASI hal qiladi. 09-topshiriqda har juftlik teskarisi bilan yonma-yon turadi. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars23/Dars23Practice.jsx')),
+  },
+  {
+    slug: 'dars24-amaliyot',
+    title: 'Dars 24 amaliyoti — tengsizliklarning xossalari (10 topshiriq)',
+    desc: "O'nta topshiriq o'nta xil usulda: ha-yo'q, munosabat, chegara, seyf kodi, pazl, qadamlar tartibi, guruhlar, xulosalar, juftlash, so'zlar. Butun og'irlik bitta farqda: manfiy songa ko'paytirish ishorani buradi, musbat esa yo'q. 05-topshiriqda uchinchi hol — nolga ko'paytirish; 08-topshiriqda kvadratga oshirish kontrprimer bilan rad etiladi. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars24/Dars24Practice.jsx')),
+  },
+  {
+    slug: 'dars25-amaliyot',
+    title: 'Dars 25 amaliyoti — chiziqli tengsizliklar (10 topshiriq)',
+    desc: "O'nta topshiriq o'nta xil usulda: yechim, yechimlar, guruhlar, eng kichik, seyf kodi, juftlash, pazl, so'zlar, ha-yo'q, qadamlar tartibi. 01 va 02 chegara nuqtasini ikki tomondan ko'rsatadi: qat'iy tengsizlikda u yechim emas, chiziqli belgida esa yechim. 04-topshiriqda CHIZMA — son o'qi va ikki bo'linma orasidagi chegara. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars25/Dars25Practice.jsx')),
+  },
+  {
+    slug: 'dars26-amaliyot',
+    title: 'Dars 26 amaliyoti — tengsizliklar sistemasi (10 topshiriq)',
+    desc: "O'nta topshiriq o'nta xil usulda: yechimlar, guruhlar, ha-yo'q, pazl, yechim, seyf kodi, nechta, qadamlar tartibi, so'zlar, juftlash. Blokning eng qimmat farqi — KESISHTIRISH va birlashtirish: 10-topshiriqda to'rt sistemada o'sha ikki son turadi, javoblar esa oraliq, nur, nur va bo'sh to'plam. 07-topshiriqda CHIZMA. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars26/Dars26Practice.jsx')),
+  },
+  {
+    slug: 'dars27-amaliyot',
+    title: 'Dars 27 amaliyoti — sonli oraliqlar (10 topshiriq)',
+    desc: "O'nta topshiriq o'nta xil usulda: ha-yo'q, nechta, tegishli, pazl, guruhlar, so'zlar, yozuv, qadamlar tartibi, chizmalar, seyf kodi. Butun og'irlik qavsning turida: kvadrat qavs chegarani kiritadi, dumaloq chiqarib tashlaydi. 09-topshiriqda to'rt oraliqning to'rt CHIZMASI — to'plamning o'zi ham chizilgan. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars27/Dars27Practice.jsx')),
+  },
+  {
+    slug: 'dars28-amaliyot',
+    title: 'Dars 28 amaliyoti — tengsizliklar bilan masalalar (10 topshiriq)',
+    desc: "O'nta topshiriq o'nta xil usulda: tengsizlik, ha-yo'q, guruhlar, so'zlar, eng ko'pi, seyf kodi, qadamlar tartibi, pazl, mos javoblar, juftlash. 21-darsdan farqi bitta so'zda: «teng» tenglama berardi, «yetadi» esa tengsizlik beradi. Yechim hali javob emas — sanoq butun bo'ladi, uzunlik musbat. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars28/Dars28Practice.jsx')),
+  },
+  {
+    slug: 'dars29-amaliyot',
+    title: 'Dars 29 amaliyoti — sonning moduli (10 topshiriq)',
+    desc: "O'nta topshiriq o'nta xil usulda: qiymati besh, guruhlar, ildizlar, juftlash, so'zlar, qadamlar tartibi, nechta, seyf kodi, ha-yo'q, pazl. Ikki qimmat joy: modulli tenglamaning ikkita ildizi bor, va |x| ≥ a ning yechimi kesma emas, IKKI NUR. 08-topshiriq ataylab unutilgan manfiy ildizni izlatadi. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars29/Dars29Practice.jsx')),
+  },
+  {
+    slug: 'dars30-amaliyot',
+    title: 'Dars 30 amaliyoti — taqribiy hisoblashlar va xatoliklar (10 topshiriq)',
+    desc: "O'nta topshiriq o'nta xil usulda: ha-yo'q, mumkin, yaxlitlash, so'zlar, guruhlar, seyf kodi, pazl, juftlash, qadamlar tartibi, nisbiy xatolik. Blokning yakuni: absolut xatolik «qancha» degan savolga javob beradi, nisbiysi esa ANIQLIKNI taqqoslaydi. 08-topshiriqda to'rt o'lchovda absolut xatolik bitta, nisbiysi esa yigirma barobar farq qiladi. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars30/Dars30Practice.jsx')),
+  },
+
+  // 31-40 — 21-30 bilan bir xil qoida bo'yicha (metodist tasdig'i 2026-08-25).
+  // O'sha o'nta mexanika, yana boshqa tartibda. Skelet va taqsimot:
+  // src/books/grade8/DARS31_40_AMALIYOT_SKELET.md, tekshiruvi
+  // `node scripts/grade8-practice-seq.mjs check`.
+  // Guruh yana uch uchlikdan va bitta yolg'iz qatordan yig'ilgan (31-33,
+  // 34-36, 37-39, 40), chegaralar esa MAVZU bo'yicha qo'yilgan.
+  //
+  // IKKI QAROR UMUMIY QATLAMGA TEGDI (skelet §0a.1 va §0a.2):
+  //   1. «Birinchi uchtalik takrorlanmasin» sharti DERAZALI bo'ldi (12 dars):
+  //      global shart 31-darsda arifmetik jihatdan bajarilmay qolardi —
+  //      36 ta mumkin bo'lgan boshlanishdan 27 tasi band edi.
+  //   2. `fig.jsx` ga `poly` turi qo'shildi: 37-40 geometriya, va chizmasiz
+  //      «qaysi kesma balandlik» degan savol ta'rifni yodlatadi.
+  //
+  // HA/YO'Q JAVOBLARI TO'RT KOMBINATSIYADA aylanadi (skelet §0a.3): 21-28
+  // darslarning sakkiztasida ham javob «Ha, Yo'q» bo'lgan, ya'ni mexanikani
+  // mazmunsiz yengish mumkin edi.
+  {
+    slug: 'dars31-amaliyot',
+    title: "Dars 31 amaliyoti — butun ko'rsatkichli daraja (10 topshiriq)",
+    desc: "O'nta topshiriq o'nta xil usulda: test, guruhlar, ha-yo'q, juftlash, qadamlar tartibi, belgilash, pazl, maxraj, seyf kodi, so'zlar. Б5 blokining birinchi amaliyoti: manfiy ko'rsatkich ISHORANI emas, sonning o'zini ag'daradi, taqiqni esa ko'rsatkich emas, ASOS beradi. 03-topshiriqda ikkala javob ham «Ha». UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars31/Dars31Practice.jsx')),
+  },
+  {
+    slug: 'dars32-amaliyot',
+    title: "Dars 32 amaliyoti — darajaning xossalari (10 topshiriq)",
+    desc: "O'nta topshiriq o'nta xil usulda: belgilash, test, ko'rsatkich, qadamlar tartibi, pazl, juftlash, ha-yo'q, so'zlar, guruhlar, seyf kodi. Butun og'irlik bitta belgida: QAVS bor-yo'qligi ko'rsatkichlar qo'shiladimi yoki ko'paytiriladimi degan savolni hal qiladi. 07-topshiriqda ikki yozuvda aynan o'sha uch son turadi. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars32/Dars32Practice.jsx')),
+  },
+  {
+    slug: 'dars33-amaliyot',
+    title: "Dars 33 amaliyoti — sonning standart ko'rinishi (10 topshiriq)",
+    desc: "O'nta topshiriq o'nta xil usulda: ha-yo'q, ko'rsatkich, guruhlar, belgilash, seyf kodi, qadamlar tartibi, so'zlar, test, juftlash, pazl. Mantissaning sharti IKKI tomondan chegaralangan, va o'quvchi odatda faqat bittasini eslaydi. 08-topshiriqning ikki xato varianti TO'G'RI sonni beradi, lekin yozuvi standart emas. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars33/Dars33Practice.jsx')),
+  },
+  {
+    slug: 'dars34-amaliyot',
+    title: "Dars 34 amaliyoti — ma'lumotlarni yig'ish (10 topshiriq)",
+    desc: "O'nta topshiriq o'nta xil usulda: test, belgilash, ha-yo'q, pazl, juftlash, seyf kodi, so'zlar, chastota, qadamlar tartibi, guruhlar. Chastota — SANOQ, nisbiy chastota — ULUSH, va ular bitta sondan chiqadi. 10-topshiriqda tanlanma umuman yo'q: sonning ko'rinishi javobni beradi. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars34/Dars34Practice.jsx')),
+  },
+  {
+    slug: 'dars35-amaliyot',
+    title: "Dars 35 amaliyoti — o'rtacha, moda, mediana (10 topshiriq)",
+    desc: "O'nta topshiriq o'nta xil usulda: ha-yo'q, o'rtacha, test, belgilash, pazl, so'zlar, qadamlar tartibi, guruhlar, seyf kodi, juftlash. Uch o'lchov uch xil ish talab qiladi: qo'shish, sanash va o'rin. 09-topshiriqda bitta qator uch xil javob beradi — 2, 3 va 4. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars35/Dars35Practice.jsx')),
+  },
+  {
+    slug: 'dars36-amaliyot',
+    title: 'Dars 36 amaliyoti — kombinatorika (10 topshiriq)',
+    desc: "O'nta topshiriq o'nta xil usulda: belgilash, ha-yo'q, nechta, seyf kodi, so'zlar, juftlash, pazl, test, guruhlar, qadamlar tartibi. «Va» ko'paytiradi, «yoki» qo'shadi — Б5 blokining yakuniy farqi. 02-topshiriqda ikkala javob ham «Yo'q», chunki takrorli va takrorsiz holatlarning sonlari almashtirilgan. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars36/Dars36Practice.jsx')),
+  },
+  {
+    slug: 'dars37-amaliyot',
+    title: 'Dars 37 amaliyoti — parallelogramm (10 topshiriq)',
+    desc: "O'nta topshiriq o'nta xil usulda: ha-yo'q, figuralar, guruhlar, burchaklar, so'zlar, tomon, seyf kodi, ta'rif, qadamlar tartibi, pazl. Б6 blokining birinchi amaliyoti va sinfda BIRINCHI CHIZMALI topshiriq: 02 da olti to'rtburchakdan uchtasi parallelogramm, va ta'rif ko'z bilan tekshiriladi. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars37/Dars37Practice.jsx')),
+  },
+  {
+    slug: 'dars38-amaliyot',
+    title: "Dars 38 amaliyoti — to'g'ri to'rtburchak, romb, kvadrat (10 topshiriq)",
+    desc: "O'nta topshiriq o'nta xil usulda: figuralar, guruhlar, tomon, so'zlar, pazl, seyf kodi, qadamlar tartibi, ha-yo'q, xulosa, chizmalar. Naqsh bitta: to'g'ri to'rtburchak — BURCHAK va tenglik, romb — TOMON va perpendikulyarlik. 10-topshiriqda to'rt chizmada diagonallar o'tkazilgan, ya'ni shart ko'rinib turadi. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars38/Dars38Practice.jsx')),
+  },
+  {
+    slug: 'dars39-amaliyot',
+    title: 'Dars 39 amaliyoti — trapetsiya (10 topshiriq)',
+    desc: "O'nta topshiriq o'nta xil usulda: ta'rif, burchak, ha-yo'q, figuralar, qadamlar tartibi, guruhlar, so'zlar, pazl, juftlash, seyf kodi. Ta'rif IKKI shartdan iborat, va ikkinchisi — inkor — doim tashlab ketiladi. 03-topshiriqda ikkala javob ham «Yo'q»: asoslari teng trapetsiya umuman mavjud emas. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars39/Dars39Practice.jsx')),
+  },
+  {
+    slug: 'dars40-amaliyot',
+    title: 'Dars 40 amaliyoti — parallelogrammning yuzi (10 topshiriq)',
+    desc: "O'nta topshiriq o'nta xil usulda: balandlik, ha-yo'q, yuza, guruhlar, qadamlar tartibi, pazl, juftlash, seyf kodi, so'zlar, chizmalar. Yuza bloki shu darsdan boshlanadi. Ikki chizmali topshiriq: 01 da balandlikni yon tomondan ajratish, 10 da esa bir xil asos va balandlikdagi uch figurani qiyalikdan qat'i nazar tanish kerak. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars40/Dars40Practice.jsx')),
+  },
+  {
+    slug: 'dars41-amaliyot',
+    title: 'Dars 41 amaliyoti — uchburchakning yuzi (10 topshiriq)',
+    desc: "O'nta topshiriq o'nta xil usulda: ha-yo'q, guruhlar, figuralar, seyf kodi, test, so'zlar, juftlash, qadamlar tartibi, pazl, yuza. Butun dars bitta adashish atrofida qurilgan — ikkiga bo'lish unutilishi. 03-topshiriqda olti uchburchakdan uchtasining asosi va balandligi bir xil, qiyaligi esa boshqa: tengdoshlik ko'z bilan ko'rinadi. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars41/Dars41Practice.jsx')),
+  },
+  {
+    slug: 'dars42-amaliyot',
+    title: 'Dars 42 amaliyoti — trapetsiyaning yuzi (10 topshiriq)',
+    desc: "O'nta topshiriq o'nta xil usulda: test, yuza, guruhlar, juftlash, seyf kodi, ha-yo'q, figuralar, pazl, so'zlar, qadamlar tartibi. Asoslar QO'SHILADI, ko'paytirilmaydi; balandlik esa yon tomon emas. 06-topshiriqda ikkala javob ham «Ha», va yuk razborga o'tadi. 07 da olti trapetsiyadan uchtasida chizilgan kesma balandlik. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars42/Dars42Practice.jsx')),
+  },
+  {
+    slug: 'dars43-amaliyot',
+    title: "Dars 43 amaliyoti — Falyes teoremasi, o'rta chiziq (10 topshiriq)",
+    desc: "O'nta topshiriq o'nta xil usulda: figuralar, test, ha-yo'q, so'zlar, qadamlar tartibi, pazl, asos, guruhlar, seyf kodi, juftlash. Ikki qoida yonma-yon: uchburchakda o'rta chiziq tomonning yarmi, trapetsiyada esa asoslar yig'indisining yarmi. 03-topshiriqda ikkala javob ham «Yo'q» — yarim yo'q va yarim noto'g'ri tomonda. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars43/Dars43Practice.jsx')),
+  },
+  {
+    slug: 'dars44-amaliyot',
+    title: 'Dars 44 amaliyoti — Pifagor teoremasi (10 topshiriq)',
+    desc: "O'nta topshiriq o'nta xil usulda: ha-yo'q, guruhlar, test, seyf kodi, pazl, so'zlar, tomon, juftlash, qadamlar tartibi, tenglik. Bu darsda faqat TENGLIK tekshiriladi, xulosa 45-darsda. Uzunliklar emas, kvadratlar qo'shiladi — va bankdagi tuzoqlar aynan shu adashishdan. 10-topshiriqda bitta tenglikning olti yozuvidan uchtasi rost. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars44/Dars44Practice.jsx')),
+  },
+  {
+    slug: 'dars45-amaliyot',
+    title: 'Dars 45 amaliyoti — teskari teorema (10 topshiriq)',
+    desc: "O'nta topshiriq o'nta xil usulda: test, belgilash, tomon, juftlash, qadamlar tartibi, ha-yo'q, seyf kodi, pazl, guruhlar, so'zlar. Tekshirish IKKI qadamda: avval eng katta tomonni aniqlash, keyin kvadratlarni solishtirish. Uchliklar ataylab a, b, c tartibida yozilmaydi, va 09-topshiriqda ikki chegara holati bor — farq bittada. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars45/Dars45Practice.jsx')),
+  },
+  {
+    slug: 'dars46-amaliyot',
+    title: 'Dars 46 amaliyoti — Geron formulasi (10 topshiriq)',
+    desc: "O'nta topshiriq o'nta xil usulda: belgilash, test, guruhlar, pazl, juftlash, balandlik, qadamlar tartibi, so'zlar, seyf kodi, ha-yo'q. Yarim perimetr perimetrning O'ZI emas, va katta tomonga KICHIK balandlik mos keladi. 05 va 06 bir uchburchakda davom etadi: avval Geron bilan yuza, keyin yuzadan balandlik. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars46/Dars46Practice.jsx')),
+  },
+  {
+    slug: 'dars47-amaliyot',
+    title: 'Dars 47 amaliyoti — Pifagor bilan masalalar (10 topshiriq)',
+    desc: "O'nta topshiriq o'nta xil usulda: belgilash, kvadrat, test, ha-yo'q, qadamlar tartibi, seyf kodi, juftlash, so'zlar, pazl, guruhlar. Har figurada to'g'ri burchakli uchburchakni KO'RISH kerak: trapetsiyada asoslar ayirmasidan, teng tomonlida yarim asosdan, rombda yarim diagonallardan. 04-topshiriqda ip 3 : 4 : 5 nisbatda bo'linadi, teng emas. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars47/Dars47Practice.jsx')),
+  },
+  {
+    slug: 'dars48-amaliyot',
+    title: 'Dars 48 amaliyoti — aylana, markaziy burchak (10 topshiriq)',
+    desc: "O'nta topshiriq o'nta xil usulda: ha-yo'q, yoy, guruhlar, seyf kodi, juftlash, figuralar, so'zlar, qadamlar tartibi, pazl, test. Ikki nuqta aylanada IKKI yoy hosil qiladi: kichigi markaziy burchakka teng, kattasi 360° dan ayirish bilan topiladi. 06-topshiriqda sinfda BIRINCHI AYLANALI chizma: olti vatardan uchtasi diametr. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars48/Dars48Practice.jsx')),
+  },
+  {
+    slug: 'dars49-amaliyot',
+    title: 'Dars 49 amaliyoti — vatar va diametr (10 topshiriq)',
+    desc: "O'nta topshiriq o'nta xil usulda: figuralar, ha-yo'q, test, so'zlar, seyf kodi, guruhlar, masofa, pazl, juftlash, qadamlar tartibi. Vatarni teng ikkiga bo'ladigan diametr — faqat PERPENDIKULYAR diametr, va hisobga vatarning YARMI kiradi. 09-topshiriqda bir aylanada masofa o'sganda vatar qisqarishi ko'rinadi. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars49/Dars49Practice.jsx')),
+  },
+  {
+    slug: 'dars50-amaliyot',
+    title: "Dars 50 amaliyoti — to'g'ri chiziq va aylana, urinma (10 topshiriq)",
+    desc: "O'nta topshiriq o'nta xil usulda: test, belgilash, ha-yo'q, qadamlar tartibi, guruhlar, so'zlar, juftlash, nuqtalar, seyf kodi, pazl. Uch holat masofa bilan hal qiladi: d > R, d = R, d < R. 03-topshiriqda ikkala javob ham «Yo'q» — chegara ikki yoqdan buziladi. 08-topshiriqda esa birliklar turli: 1 dm va 9 sm. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars50/Dars50Practice.jsx')),
+  },
+  {
+    slug: 'dars51-amaliyot',
+    title: "Dars 51 amaliyoti — ichki chizilgan burchak (10 topshiriq)",
+    desc: "O'nta topshiriq o'nta xil usulda: test, javob yozish, chizmalar, so'zlar, guruhlar, ha-yo'q, qadamlar tartibi, seyf kodi, juftlash, pazl. Ichki chizilgan burchak yoyning YARMI, va u uchdan QARAMA-QARSHI yoyga tiraladi. Besh topshiriqda chizma: 03-da olti aylana bir xil siyoh rangida — ichki va markaziy burchakni faqat uchning joyi ajratadi. 06-topshiriqda javoblar «Ha, Yo'q». UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars51/Dars51Practice.jsx')),
+  },
+  {
+    slug: 'dars52-amaliyot',
+    title: "Dars 52 amaliyoti — ichki va tashqi chizilgan aylanalar (10 topshiriq)",
+    desc: "O'nta topshiriq o'nta xil usulda: belgilash, guruhlar, ha-yo'q, radius, test, juftlash, seyf kodi, so'zlar, pazl, qadamlar tartibi. Ichki aylananing markazi bissektrisalarda, tashqisiniki o'rta perpendikulyarlarda; tashqi chizilgan to'rtburchakda tomonlarning YIG'INDILARI teng. Yetti topshiriqda chizma. 03-topshiriqda ikkala javob ham «Ha» — «har qanday uchburchak» degan so'z shubha uyg'otadi. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars52/Dars52Practice.jsx')),
+  },
+  {
+    slug: 'dars53-amaliyot',
+    title: "Dars 53 amaliyoti — vektor, qo'shish va ayirish (10 topshiriq)",
+    desc: "O'nta topshiriq o'nta xil usulda: test, guruhlar, yozuvlar, juftlash, so'zlar, pazl, uzunlik, ha-yo'q, seyf kodi, qadamlar tartibi. Teng vektorlarning joylashuvi ahamiyatsiz — buni 02-topshiriqdagi sakkiz strelka ko'rsatadi. OA − OB = BA, va nega BA ekani 10-topshiriqda qadamma-qadam chiqariladi. 08-topshiriqda javoblar «Yo'q, Ha». UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars53/Dars53Practice.jsx')),
+  },
+  {
+    slug: 'dars54-amaliyot',
+    title: "Dars 54 amaliyoti — vektorni songa ko'paytirish (10 topshiriq)",
+    desc: "O'nta topshiriq o'nta xil usulda: belgilash, ha-yo'q, guruhlar, modul, qadamlar tartibi, o'rta chiziq, seyf kodi, so'zlar, pazl, chizmalar. Manfiy koeffitsiyent yo'nalishni buradi, lekin modulni manfiy qilmaydi. 02-topshiriqda ikkala javob ham «Yo'q» — ular bitta xatoning ikki tomoni. 10-topshiriqda k·a ni chizma bilan juftlash. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars54/Dars54Practice.jsx')),
+  },
+  {
+    slug: 'dars55-amaliyot',
+    title: "Dars 55 amaliyoti — vektor koordinatalari, skalyar ko'paytma (10 topshiriq)",
+    desc: "KURSNING OXIRGI AMALIYOTI. O'nta topshiriq o'nta xil usulda: ha-yo'q, yozuvlar, koordinatalar, seyf kodi, pazl, juftlash, so'zlar, qadamlar tartibi, skalyar, guruhlar. Vektorning koordinatalari OXIRIdan BOSHIni ayirish bilan topiladi; skalyar ko'paytmaning natijasi esa SON. Uch topshiriqda koordinata to'ri. Oxirgi topshiriq butun kursni yopadi: sakkiz yozuv «natija son» va «natija vektor» ga ajratiladi. UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade8/practice/dars55/Dars55Practice.jsx')),
+  },
 ]

@@ -44,26 +44,60 @@ export const Frac = ({ n, d, size = 28, color }) => (
 // `deg` — ildiz DARAJASI (3, 4, 5). Kvadrat ildizda daraja yozilmaydi.
 // `body` — satr yoki TOKENLAR ro'yxati: ildiz ostida kasr ham tura oladi,
 // shuning uchun ichkarida yana `Row` chaqiriladi.
+// RADIKAL — SHRIFT GLIFI EMAS, CHIZMA (metodist, 2026-08-25: «ustki chiziq
+// ildizga ULANGAN bo'lsin»). Ilgari bu yerda `√` harfi turardi va ustki chiziq
+// alohida `border` edi: harfning uchi qayerda tugashini shrift hal qilardi,
+// chiziq esa boshqa joydan boshlanardi — orada tirqish qolardi va uch balandligi
+// ildiz ostining balandligiga ergashmasdi.
+//
+// Endi ilmoq, diagonal va chiziqning BOSHI bitta SVG yo'li: ular ta'rif bo'yicha
+// tutashgan, tirqish paydo bo'ladigan joy yo'q. Yo'lning oxiri qutining o'ng
+// yuqori burchagida turadi, ildiz ostining `borderTop` i esa aynan o'sha
+// nuqtadan davom etadi (bir piksel ustma-ust tushadi, hatto soch tolasidek
+// oq chiziq ham qolmasin).
+//
+// `preserveAspectRatio="none"` — radikal ildiz ostining BALANDLIGIGA cho'ziladi:
+// ichida kasr yoki qavs tursa, uch ham o'sha balandlikka ko'tariladi.
+// `vectorEffect="non-scaling-stroke"` — cho'zilganda chiziq qalinligi
+// o'zgarmaydi, ya'ni u kasr chizig'i bilan bir xil bo'lib qolaveradi.
 export function Root({ body, deg, size = 28, color }) {
-  // Radikal belgisi ildiz ostidan salgina baland: shundagina uning uchi
-  // ustki chiziq bilan bir sathda turadi. Chiziq qalinligi kasr chizig'idek
-  // 2px -- ikki chiziq bir yozuvda uchrasa, ular bir xil ko'rinishi kerak.
-  const glyph = Math.round(size * 1.16);
-  const bar = size >= 20 ? 2 : 1.6;
+  // Chiziq qalinligi kasrnikiga teng (`Frac` da 2,5px): bir yozuvda kasr ham,
+  // ildiz ham uchrasa, ikki chiziq bir xil ko'rinishi kerak.
+  const bar = size >= 26 ? 2.5 : size >= 18 ? 2 : 1.6;
+  const w = Math.max(10, Math.round(size * 0.62));   // radikalning keni
+  const gap = Math.max(2, Math.round(size * 0.12));  // chiziq bilan yozuv orasi
+  // Yo'l: ilmoq (chapdagi kichik tikka) -> pastga tushuvchi -> uzun diagonal ->
+  // o'ng yuqori burchak. Oxirgi nuqta qutining TEPASIDA (y = 0), SVG ning o'zi
+  // esa `bar/2` ga pastga suriladi — shunda diagonalning uchi ustki chiziqning
+  // markazi bilan bir sathda turadi, balandlik qanday bo'lishidan qat'i nazar.
+  // Buni `viewBox` ichida hisoblab bo'lmaydi: u yerdagi y kadr balandligiga
+  // bog'liq, ya'ni ildiz ostining balandligi bilan o'zgarib ketadi.
+  const D = 'M0.6,14 L3.2,14 L6.3,23 L9.9,0 L12,0';
   return (
     <span style={{
-      display: 'inline-flex', alignItems: 'flex-start', verticalAlign: 'middle',
+      display: 'inline-flex', alignItems: 'stretch', verticalAlign: 'middle',
       margin: '0 2px', fontFamily: MONO, fontWeight: 800, lineHeight: 1,
       ...(color ? { color } : null),
     }}>
       {deg ? (
-        <span style={{ fontSize: Math.round(size * 0.52), marginRight: -Math.round(size * 0.22), marginTop: -1 }}>{deg}</span>
+        // Daraja radikalning ilmog'i ustida turadi, shuning uchun u SVG ning
+        // chap chetiga bir oz kiradi (manfiy margin) va tepaga tekislanadi.
+        <span style={{
+          fontSize: Math.max(9, Math.round(size * 0.5)),
+          marginRight: -Math.round(w * 0.34),
+          alignSelf: 'flex-start', lineHeight: 1,
+        }}>{deg}</span>
       ) : null}
-      <span style={{ fontSize: glyph, lineHeight: 0.92, marginTop: -Math.round(size * 0.05) }}>√</span>
+      <svg width={w} viewBox="0 0 12 24" preserveAspectRatio="none"
+        style={{ display: 'block', alignSelf: 'stretch', overflow: 'visible', marginTop: bar / 2, flex: '0 0 ' + w + 'px' }}
+        aria-hidden="true">
+        <path d={D} fill="none" stroke="currentColor" strokeWidth={bar}
+          strokeLinecap="butt" strokeLinejoin="miter" vectorEffect="non-scaling-stroke" />
+      </svg>
       <span style={{
         borderTop: bar + 'px solid currentColor',
-        paddingTop: Math.max(1, Math.round(size * 0.09)),
-        paddingLeft: 1, paddingRight: 2,
+        marginLeft: -2,
+        paddingTop: gap, paddingLeft: 3, paddingRight: 2,
         fontSize: size, lineHeight: 1.02,
         display: 'inline-flex', alignItems: 'center',
       }}>
@@ -110,7 +144,7 @@ const toneOf = (tok) => {
 };
 
 export const Row = ({ tokens, size = 28, color = '#1f2430', tone = true }) => (
-  <span style={{ display: 'inline-flex', alignItems: 'center', flexWrap: 'wrap', fontFamily: MONO, fontSize: size, fontWeight: 800, color }}>
+  <span style={{ display: 'inline-flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', maxWidth: '100%', fontFamily: MONO, fontSize: size, fontWeight: 800, color }}>
     {tokens.map((t, i) => {
       if (typeof t !== 'string') {
         if (t.fig) return <Fig key={i} spec={t} size={size} />;
@@ -119,7 +153,11 @@ export const Row = ({ tokens, size = 28, color = '#1f2430', tone = true }) => (
         return <Frac key={i} n={t.n} d={t.d} size={size} />;
       }
       const c = tone ? toneOf(t) : null;
-      return <span key={i} style={{ padding: '0 3px', ...(c ? { color: c } : null) }}>{t}</span>;
+      // `minWidth: 0` + `overflowWrap` — uzun token kartaning ramkasidan
+      // chiqmasin (QA 2026-08-26). Avval bo'sh joyda ko'chadi; «2,2,2,3,3,4»
+      // kabi bo'shliqsiz yozuvda esa vergulda bo'linadi. Kadr yetsa, hech
+      // qanday ko'chish bo'lmaydi — ya'ni keng ekranda ko'rinish o'zgarmaydi.
+      return <span key={i} style={{ padding: '0 3px', minWidth: 0, overflowWrap: 'anywhere', ...(c ? { color: c } : null) }}>{t}</span>;
     })}
   </span>
 );

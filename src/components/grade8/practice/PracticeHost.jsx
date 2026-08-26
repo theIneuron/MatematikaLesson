@@ -116,7 +116,23 @@ export default function PracticeHost({ Question, lang: langProp = 'uz', onLangCh
     const go = () => {
       let sc = rootRef.current?.parentElement;
       while (sc && sc.scrollHeight <= sc.clientHeight + 2) sc = sc.parentElement;
-      if (sc) sc.scrollTo({ top: sc.scrollHeight, behavior: 'smooth' });
+      if (!sc) return;
+      // UZUN RAZBOR BOSHIDAN KO'RINADI. Pastga surish qisqa razbor uchun
+      // to'g'ri: razbor kadrga sig'adi va oxirida turadi. Razbor kadrdan
+      // BALAND bo'lsa esa pastga surish uning BOSHINI ekrandan chiqarib
+      // yuboradi — o'quvchi matnni o'rtasidan o'qishga tushadi. Shuning
+      // uchun bunday holatda razborning yuqori qirrasi kadrning yuqorisiga
+      // qo'yiladi: o'qish tabiiy yo'nalishda, pastga qarab davom etadi
+      // (o'lchov 2026-08-25; razbor `data-razbor` bilan topiladi).
+      const rz = sc.querySelector('[data-razbor]');
+      const bar = sc.querySelector('[data-bar="1"]');
+      const room = sc.clientHeight - (bar ? bar.getBoundingClientRect().height : 0);
+      if (rz && rz.getBoundingClientRect().height > room - 4) {
+        const top = sc.scrollTop + rz.getBoundingClientRect().top - sc.getBoundingClientRect().top - 6;
+        sc.scrollTo({ top, behavior: 'smooth' });
+        return;
+      }
+      sc.scrollTo({ top: sc.scrollHeight, behavior: 'smooth' });
     };
     go();
     const t = setTimeout(go, 700);
@@ -129,7 +145,7 @@ export default function PracticeHost({ Question, lang: langProp = 'uz', onLangCh
     // balandlik bergan bo'lsa ham, host undan ko'proq talab qilar va
     // TELEFONDA har topshiriq skroll bo'lardi -- kontentdan qat'i nazar,
     // doimiy 44-65px (metodist, 2026-08-22). Endi host bergan joyga sig'adi.
-    <div ref={rootRef} style={{ display: 'flex', flexDirection: 'column', flex: '1 1 auto', minHeight: 0, maxWidth: 680, margin: '0 auto', width: '100%' }}>
+    <div ref={rootRef} style={{ display: 'flex', flexDirection: 'column', flex: '1 0 auto', minHeight: 0, maxWidth: 680, margin: '0 auto', width: '100%' }}>
       {(title || showLanguageSwitch) && (
       <div style={{
         display: 'flex', alignItems: 'center', gap: 8, padding: '4px 12px',
@@ -147,7 +163,14 @@ export default function PracticeHost({ Question, lang: langProp = 'uz', onLangCh
       </div>
       )}
 
-      <div style={{ flex: 1, minHeight: 0, padding: '8px 12px 10px' }}>
+      {/* SIQILMAYDI, O'SADI. Ilgari bu yerda `flex: 1` turardi, ya'ni
+          `1 1 0%`: kontent kadrdan oshsa, bu quti SIQILAR va matn qutidan
+          tashqariga chiqib, pastdagi «Tekshirish/Qaytadan» panelining ostiga
+          kirib ketardi — razborning oxiri ko'rinmas bo'lardi. `1 0 auto`
+          bilan quti kontent bo'yiga o'sadi: skroll ota-idishda paydo
+          bo'ladi, panel esa razbordan KEYIN turadi, uni bosmaydi
+          (o'lchov 2026-08-25). */}
+      <div style={{ flex: '1 0 auto', minHeight: 0, padding: '8px 12px 10px' }}>
         <Question
           key={qKey + '-' + lang}
           lang={lang}
@@ -162,7 +185,7 @@ export default function PracticeHost({ Question, lang: langProp = 'uz', onLangCh
         />
       </div>
 
-      <div style={{
+      <div data-bar="1" style={{
         position: 'sticky', bottom: 0, padding: '9px 12px', background: 'linear-gradient(rgba(255,247,237,0),#fff7ed 28%)',
         display: 'flex', gap: 10, alignItems: 'center', justifyContent: 'center',
       }}>

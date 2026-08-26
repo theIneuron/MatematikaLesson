@@ -80,12 +80,39 @@ const PROBE = () => {
   };
 };
 
-async function measure(page, where) {
+// RAZBOR KADRDA QANDAY TURIBDI. Javobdan keyin talab boshqa: razbor
+// kadrga sig'sa — to'liq ko'rinsin (sticky panel ostida ham qolmasin),
+// sig'masa — BOSHI ko'rinsin (host uni yuqoriga qo'yadi, o'quvchi pastga
+// o'qib boradi). Izohi: DARS41_50_AMALIYOT_SKELET.md §16a.3.
+const RAZBOR = () => {
+  const root = document.querySelector('.pq-fixroot');
+  const box = [...root.querySelectorAll('*')].find((el) => {
+    const cs = getComputedStyle(el);
+    return cs.overflowY === 'auto' || cs.overflowY === 'scroll';
+  });
+  if (!box) return { missing: true };
+  const rz = box.querySelector('[data-razbor]');
+  if (!rz || (rz.textContent || '').trim().length < 25) return { missing: true };
+  const r = rz.getBoundingClientRect();
+  const b = box.getBoundingClientRect();
+  const bar = box.querySelector('[data-bar="1"]');
+  const floor = bar ? Math.min(b.bottom, bar.getBoundingClientRect().top) : b.bottom;
+  const room = floor - b.top;
+  const above = Math.max(0, b.top - r.top);
+  if (r.height <= room + 4) return { cut: Math.round(above + Math.max(0, r.bottom - floor)), tall: false };
+  return { cut: Math.round(above), tall: true, h: Math.round(r.height), room: Math.round(room) };
+};
+
+async function measure(page, where, post) {
   const m = await page.evaluate(PROBE);
   if (!m) { problems.push(`${where}: .pq-fixroot topilmadi`); return; }
   measurements += 1;
   if (m.noBox) problems.push(`${where}: skroll qutisi topilmadi — o'lchov ishonchsiz`);
-  if (m.over > 1) {
+  if (post) {
+    const z = await page.evaluate(RAZBOR);
+    if (z.missing) problems.push(`${where}: razbor bloki topilmadi`);
+    else if (z.cut > 0) problems.push(`${where}: razborning boshi ${z.cut}px kadrdan chiqdi`);
+  } else if (m.over > 1) {
     problems.push(`${where}: SKROLL ${m.over}px (maydon ${m.budget}px)`);
     if (m.over > worst.over) worst = { over: m.over, where };
   }
@@ -144,7 +171,7 @@ async function poke(page, tag) {
   if (!(await checkBtn(page).isDisabled().catch(() => true))) {
     await checkBtn(page).click({ timeout: 3000, force: true }).catch(() => {});
     await page.waitForTimeout(450);
-    await measure(page, `${tag}/razbor`);
+    await measure(page, `${tag}/razbor`, true);
   } else {
     problems.push(`${tag}: «Tekshirish» ochilmadi — RAZBOR holati o'lchanmadi`);
   }
@@ -187,7 +214,7 @@ for (const lesson of LESSONS) {
             }
             await page.waitForTimeout(130);
             if (!(await checkBtn(page).isDisabled())) { await checkBtn(page).click(); await page.waitForTimeout(450); }
-            await measure(page, `${tag}/${mode}/razbor`);
+            await measure(page, `${tag}/${mode}/razbor`, true);
           }
         } else {
           // Turtki -- yordamchi yo'l, u yiqilsa butun o'lchov to'xtamasligi kerak.

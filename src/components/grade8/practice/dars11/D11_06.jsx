@@ -14,7 +14,7 @@ import { PairSlots, L } from '../kit.jsx';
 
 const DATA = {
   tag: 'value_pairs', level: '🟡',
-  cardSize: 92, faceSize: 19, cardSizePhone: 64, faceSizePhone: 13,
+  cardSize: 86, faceSize: 14, cardSizePhone: 64, faceSizePhone: 12,
   cards: [
     { id: 'f1', side: 0, tokens: [{ r: '6² + 8²' }] },
     { id: 'f2', side: 0, tokens: ['(', { r: '11' }, ')²'] },

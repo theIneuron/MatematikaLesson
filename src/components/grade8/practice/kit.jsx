@@ -51,10 +51,10 @@ export const tr = (v, lang) => {
 
 // ============================================================ USLUBLAR
 export const S = {
-  wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
+  wrap: { maxWidth: 640, margin: '0 auto', padding: '3px 2px 6px' },
   eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
-  setup: { fontSize: 16, lineHeight: 1.45, margin: '5px 0 9px', color: '#374151' },
-  ask: { fontSize: 17, fontWeight: 700, margin: '10px 0 8px' },
+  setup: { fontSize: 16, lineHeight: 1.45, margin: '4px 0 7px', color: '#374151' },
+  ask: { fontSize: 17, fontWeight: 700, margin: '7px 0 6px' },
   note: { fontSize: 13, color: '#9aa1ad', fontWeight: 600, margin: '0 0 8px' },
   bankLbl: { fontSize: 12, fontWeight: 800, color: '#9aa1ad', letterSpacing: '.04em', marginBottom: 6 },
   mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontWeight: 800 },
@@ -75,7 +75,7 @@ const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 export const HFB = ({ ok, text }) => {
   const phone = useIsPhone();
   return (
-    <div style={{ display: 'flex', alignItems: 'flex-start', gap: phone ? 7 : 9, marginTop: phone ? 6 : 8, padding: phone ? '6px 9px' : '8px 11px', borderRadius: 11, fontSize: phone ? 12 : 13.5, lineHeight: phone ? 1.3 : 1.35, fontWeight: 600, background: ok ? C.okBg : C.noBg, color: ok ? C.ok : C.no }}>
+    <div data-razbor="1" style={{ display: 'flex', alignItems: 'flex-start', gap: phone ? 7 : 9, marginTop: phone ? 6 : 8, padding: phone ? '6px 9px' : '8px 11px', borderRadius: 11, fontSize: phone ? 12 : 13.5, lineHeight: phone ? 1.3 : 1.35, fontWeight: 600, background: ok ? C.okBg : C.noBg, color: ok ? C.ok : C.no }}>
       {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
     </div>
   );
@@ -124,19 +124,56 @@ const submitPayload = (data, extra) => ({
 });
 
 // Sarlavha qismi: hamma mexanikada bir xil tartib -- eyebrow, shart, savol.
-const Head = ({ data, lang }) => (
-  <>
-    <div style={S.eyebrow}>{tr(data.eyebrow, lang)}</div>
-    {data.setup ? <p style={S.setup}>{tr(data.setup, lang)}</p> : null}
-  </>
-);
+//
+// TELEFONDA SHART IXCHAMROQ TERILADI (o'lchov 2026-08-25). 390x745 kadrda
+// ishchi maydon 516px: sarlavha bilan chiplar 229px, tugma qatori 70px
+// oladi. Shartning o'zi 16px/1.45 da to'rt qatorga 93px yeyardi, ya'ni
+// razborga joy qolmasdi va razborni QISQARTIRISH kerak bo'lardi. Endi
+// telefonda shart 14.5px/1.34 — razborning uzunligi metodik qaror bo'lib
+// qoladi, kadrning o'lchovi emas. Kompyuterda hech narsa o'zgarmaydi.
+// Bu razbor bloki bilan bir xil naqsh: HFB da ham telefon uchun alohida
+// o'lcham turadi (izoh o'sha yerda).
+const FOLD_LBL = L('Shart', 'Условие', 'Statement');
+
+const Head = ({ data, lang, done }) => {
+  const phone = useIsPhone();
+  const [open, setOpen] = useState(false);
+  // TELEFONDA JAVOBDAN KEYIN SHART YIG'ILADI. Sabab o'lchovda: 390x745 da
+  // ishchi maydon 516px, shart 16px/1.45 da 93px yeydi, va razbor kadrdan
+  // chiqadi. Ilgari bu razborni QISQARTIRISH bilan hal qilingan edi — ya'ni
+  // kadr o'lchovi metodik matnni kesardi. Endi teskari: javob berilgandan
+  // keyin shart bir qatorga yig'iladi (o'quvchi uni allaqachon o'qigan),
+  // razbor esa to'liq turadi. Bir teginish shartni qaytaradi.
+  // Kompyuterda hech narsa yig'ilmaydi.
+  const foldable = phone && done;
+  const seen = !foldable || open;
+  const line = phone ? { ...S.setup, fontSize: 14.5, lineHeight: 1.34, margin: '4px 0 7px' } : S.setup;
+  return (
+    <>
+      <div style={S.eyebrow}>{tr(data.eyebrow, lang)}</div>
+      {data.setup ? (
+        <>
+          {foldable ? (
+            <button type="button" data-setup-fold="1" aria-expanded={open} onClick={() => setOpen(!open)}
+              style={{ display: 'block', margin: '2px 0 5px', padding: 0, border: 0, background: 'none', fontFamily: 'inherit', fontSize: 12, fontWeight: 800, letterSpacing: '.03em', color: C.mute, cursor: 'pointer' }}>
+              {tr(FOLD_LBL, lang)} {open ? '▴' : '▾'}
+            </button>
+          ) : null}
+          {seen ? <p style={foldable ? { ...line, margin: '0 0 6px' } : line}>{tr(data.setup, lang)}</p> : null}
+        </>
+      ) : null}
+    </>
+  );
+};
 
 // Berilgan qiymatlar qatori (a = 4, b = −3). Matematika — `data.given`,
 // so'z — `data.givenLabel`.
 const Given = ({ data, lang }) => {
   if (!data.given || !data.given.length) return null;
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, padding: '5px 0', borderRadius: 12, background: C.bg, border: '1px solid #eef0f4', marginBottom: 4 }}>
+    // `flexWrap` va gorizontal padding (QA 2026-08-26): uzun yorliq bilan
+    // chizma bir qatorga sig'masa, ular ko'chadi, chetga tiralmaydi.
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 14, padding: '5px 8px', borderRadius: 12, background: C.bg, border: '1px solid #eef0f4', marginBottom: 4 }}>
       {data.givenLabel ? <span style={{ fontSize: 12, fontWeight: 800, color: C.mute, letterSpacing: '.04em', textTransform: 'uppercase' }}>{tr(data.givenLabel, lang)}</span> : null}
       {data.given.map((g, i) => <Row key={i} tokens={g} size={22} />)}
     </div>
@@ -183,7 +220,7 @@ export function Choice({ data, lang = 'uz', mode = 'answer', initialAnswer = nul
 
   return (
     <div style={S.wrap}>
-      <Head data={data} lang={lang} />
+      <Head data={data} lang={lang} done={A.checked} />
       {data.expr ? (
         <div style={{ textAlign: 'center', margin: '4px 0 10px' }}>
           <Row tokens={data.expr} size={data.exprSize || 30} />
@@ -201,7 +238,7 @@ export function Choice({ data, lang = 'uz', mode = 'answer', initialAnswer = nul
           if (A.checked && active) { const good = i === data.correct; bg = good ? C.okBg : C.noBg; bd = good ? C.ok : C.no; col = good ? C.ok : C.no; }
           return (
             <button key={i} type="button" data-opt={i} disabled={A.locked} onClick={() => setPicked(i)}
-              style={{ display: 'flex', alignItems: 'center', justifyContent: short ? 'center' : 'flex-start', width: '100%', minHeight: short ? 44 : 0, padding: phone ? '4px 9px' : '6px 12px', borderRadius: 12, border: '2px solid ' + bd, background: bg, color: col, fontSize: 14.5, fontWeight: 600, cursor: A.locked ? 'default' : 'pointer', fontFamily: 'inherit', textAlign: short ? 'center' : 'left' }}>
+              style={{ display: 'flex', alignItems: 'center', justifyContent: short ? 'center' : 'flex-start', width: '100%', minHeight: short ? 44 : 0, padding: phone ? '4px 9px' : '6px 12px', borderRadius: 12, border: '2px solid ' + bd, background: bg, color: col, fontSize: 14.5, fontWeight: 600, cursor: A.locked ? 'default' : 'pointer', fontFamily: 'inherit', textAlign: short ? 'center' : 'left', minWidth: 0, overflowWrap: 'break-word' }}>
               {typeof o.label === 'object' && Array.isArray(o.label) ? <Row tokens={o.label} size={(data.optSize || 20) - (phone ? 2 : 0)} /> : tr(o.label, lang)}
             </button>
           );
@@ -240,7 +277,7 @@ export function TypeValue({ data, lang = 'uz', mode = 'answer', initialAnswer = 
 
   return (
     <div style={S.wrap}>
-      <Head data={data} lang={lang} />
+      <Head data={data} lang={lang} done={A.checked} />
       <Given data={data} lang={lang} />
       {data.expr ? (
         <div style={{ textAlign: 'center', margin: '6px 0 14px' }}>
@@ -338,7 +375,7 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
   const size = data.exprSize || 26;
   return (
     <div style={S.wrap}>
-      <Head data={data} lang={lang} />
+      <Head data={data} lang={lang} done={A.checked} />
       <Given data={data} lang={lang} />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'center', margin: '8px 0 6px' }}>
         {/* QISM uch xil bo'ladi: `{ t }` — tayyor tokenlar, `{ slot }` — uya,
@@ -397,7 +434,7 @@ export function TapTerms({ data, lang = 'uz', mode = 'answer', initialAnswer = n
   const size = data.exprSize || 30;
   return (
     <div style={S.wrap}>
-      <Head data={data} lang={lang} />
+      <Head data={data} lang={lang} done={A.checked} />
       <Given data={data} lang={lang} />
       <p style={S.ask}>{tr(data.ask, lang)}</p>
       {data.note ? <div style={S.note}>{tr(data.note, lang)}</div> : null}
@@ -455,7 +492,7 @@ export function MarkAll({ data, lang = 'uz', mode = 'answer', initialAnswer = nu
 
   return (
     <div style={S.wrap}>
-      <Head data={data} lang={lang} />
+      <Head data={data} lang={lang} done={A.checked} />
       <Given data={data} lang={lang} />
       <p style={S.ask}>{tr(data.ask, lang)} {data.note ? <span style={{ fontSize: 13, color: C.mute, fontWeight: 600 }}>{tr(data.note, lang)}</span> : null}</p>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(' + (data.col || 180) + 'px, 1fr))', gap: 7 }}>
@@ -557,7 +594,7 @@ export function BuildLine({ data, lang = 'uz', mode = 'answer', initialAnswer = 
 
   return (
     <div style={S.wrap}>
-      <Head data={data} lang={lang} />
+      <Head data={data} lang={lang} done={A.checked} />
       <Given data={data} lang={lang} />
       <div style={{ minHeight: data.fieldH || 68, borderRadius: 16, border: '2px solid ' + C.pale, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6px 12px', margin: '4px 0 8px', flexWrap: 'wrap' }}>
         {seq.length === 0 ? (
@@ -670,7 +707,7 @@ export function Zones({ data, lang = 'uz', mode = 'answer', initialAnswer = null
   };
   return (
     <div style={S.wrap}>
-      <Head data={data} lang={lang} />
+      <Head data={data} lang={lang} done={A.checked} />
       <Given data={data} lang={lang} />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 5, margin: '2px 0' }}>
         {data.zones.map((z) => (
@@ -722,6 +759,20 @@ export function Zones({ data, lang = 'uz', mode = 'answer', initialAnswer = null
 
 // Telefon aniqlanishi: OdzTwo da ikki maydon ikki klaviatura ochardi va
 // kontent ishchi maydondan chiqib ketardi (TIPLAR §4).
+// PAST EKRAN. Kenglik emas, BALANDLIK cheklaydigan holat: 1366x615
+// noutbukda ishchi maydon 487px, ya'ni 390x745 telefondagidan ham kichik.
+// Ixchamlik faqat kenglikka qarab berilsa, bu ekran chetda qolib ketadi.
+function useIsShort(bp = 660) {
+  const [short, setShort] = useState(() => (typeof window !== 'undefined' ? window.innerHeight < bp : false));
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const f = () => setShort(window.innerHeight < bp);
+    f(); window.addEventListener('resize', f);
+    return () => window.removeEventListener('resize', f);
+  }, [bp]);
+  return short;
+}
+
 function useIsPhone(bp = 640) {
   const [phone, setPhone] = useState(() => (typeof window !== 'undefined' ? window.innerWidth < bp : false));
   useEffect(() => {
@@ -821,7 +872,7 @@ export function TypeExpr({ data, lang = 'uz', mode = 'answer', initialAnswer = n
 
   return (
     <div style={S.wrap}>
-      <Head data={data} lang={lang} />
+      <Head data={data} lang={lang} done={A.checked} />
       <Given data={data} lang={lang} />
       {data.expr ? (
         <div style={{ textAlign: 'center', margin: '4px 0 10px' }}>
@@ -889,7 +940,7 @@ export function OdzTwo({ data, lang = 'uz', mode = 'answer', initialAnswer = nul
 
   return (
     <div style={S.wrap}>
-      <Head data={data} lang={lang} />
+      <Head data={data} lang={lang} done={A.checked} />
       {data.expr ? (
         <div style={{ textAlign: 'center', margin: '2px 0 8px' }}>
           <Row tokens={data.expr} size={data.exprSize || 26} />
@@ -976,7 +1027,7 @@ export function StepsReason({ data, lang = 'uz', mode = 'answer', initialAnswer 
 
   return (
     <div style={S.wrap}>
-      <Head data={data} lang={lang} />
+      <Head data={data} lang={lang} done={A.checked} />
       {data.start ? (
         <div style={{ textAlign: 'center', margin: '2px 0 7px' }}><Row tokens={data.start} size={data.exprSize || 26} /></div>
       ) : null}
@@ -1052,7 +1103,7 @@ export function Boundary({ data, lang = 'uz', mode = 'answer', initialAnswer = n
   );
   return (
     <div style={S.wrap}>
-      <Head data={data} lang={lang} />
+      <Head data={data} lang={lang} done={A.checked} />
       <div style={{ display: 'flex', gap: 8, alignItems: 'stretch', margin: '4px 0 8px' }}>
         {side(data.left)}
         <div style={{ display: 'flex', alignItems: 'center', ...S.mono, fontSize: 20, color: C.mute }}>?</div>
@@ -1125,7 +1176,7 @@ export function TapFrac({ data, lang = 'uz', mode = 'answer', initialAnswer = nu
   );
   return (
     <div style={S.wrap}>
-      <Head data={data} lang={lang} />
+      <Head data={data} lang={lang} done={A.checked} />
       <p style={{ ...S.ask, margin: '4px 0 6px' }}>{tr(data.ask, lang)}</p>
       {data.note ? <div style={S.note}>{tr(data.note, lang)}</div> : null}
       <div style={{ display: 'flex', justifyContent: 'center', margin: '6px 0 4px' }}>
@@ -1167,7 +1218,7 @@ export function AuditRows({ data, lang = 'uz', mode = 'answer', initialAnswer = 
 
   return (
     <div style={S.wrap}>
-      <Head data={data} lang={lang} />
+      <Head data={data} lang={lang} done={A.checked} />
       <p style={{ ...S.ask, margin: '2px 0 6px' }}>{tr(data.ask, lang)}</p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginBottom: 6 }}>
         {data.rows.map((r, i) => {
@@ -1251,7 +1302,7 @@ export function BuildFrac({ data, lang = 'uz', mode = 'answer', initialAnswer = 
   };
   return (
     <div style={S.wrap}>
-      <Head data={data} lang={lang} />
+      <Head data={data} lang={lang} done={A.checked} />
       {data.expr ? (
         <div style={{ textAlign: 'center', margin: '2px 0 6px' }}><Row tokens={data.expr} size={data.exprSize || 24} /></div>
       ) : null}
@@ -1368,7 +1419,7 @@ export function ValueTable({ data, lang = 'uz', mode = 'answer', initialAnswer =
   const head = (t) => <div style={{ ...S.bankLbl, marginBottom: 0, textAlign: 'center' }}>{t}</div>;
   return (
     <div style={S.wrap}>
-      <Head data={data} lang={lang} />
+      <Head data={data} lang={lang} done={A.checked} />
       <div style={{ display: 'grid', gridTemplateColumns: '46px 1fr 1fr', gap: 5, alignItems: 'center', margin: '6px 0 4px' }}>
         {head(data.varName)}
         <div style={{ textAlign: 'center' }}><Row tokens={data.leftHead} size={data.exprSize || 19} /></div>
@@ -1511,7 +1562,7 @@ export function MatchPairs({ data, lang = 'uz', mode = 'answer', initialAnswer =
   const lineCol = A.checked ? (A.fb?.correct ? C.ok : C.no) : C.stage2;
   return (
     <div style={S.wrap}>
-      <Head data={data} lang={lang} />
+      <Head data={data} lang={lang} done={A.checked} />
       {/* IKKI USTUN BITTA PANJARADA. Ilgari ular ikki alohida ustun edi va
           freymlar balandligi mos tushmasdi: chapda kasr baland, o'ngda matn
           past. Endi har qator panjaraning BITTA qatori, ya'ni ikkala tomon
@@ -1632,7 +1683,7 @@ export function HoleSlider({ data, lang = 'uz', mode = 'answer', initialAnswer =
   };
   return (
     <div style={S.wrap}>
-      <Head data={data} lang={lang} />
+      <Head data={data} lang={lang} done={A.checked} />
       <div style={{ display: 'flex', gap: 7, margin: '5px 0 7px', alignItems: 'stretch' }}>
         {pane(data.left, lv, data.leftNum, data.leftDen)}
         {pane(data.right, rv, data.rightNum, data.rightDen)}
@@ -1675,7 +1726,7 @@ export function OrderLines({ data, lang = 'uz', mode = 'answer', initialAnswer =
   const lineOf = (id) => data.lines.find((l) => l.id === id);
   return (
     <div style={S.wrap}>
-      <Head data={data} lang={lang} />
+      <Head data={data} lang={lang} done={A.checked} />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 4, margin: '5px 0 6px', minHeight: 40 }}>
         {seq.map((id, i) => {
           const good = A.checked && A.fb?.correct;
@@ -1757,7 +1808,7 @@ export function StrikeOut({ data, lang = 'uz', mode = 'answer', initialAnswer = 
   );
   return (
     <div style={S.wrap}>
-      <Head data={data} lang={lang} />
+      <Head data={data} lang={lang} done={A.checked} />
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', gap: 4, margin: '8px 0 6px' }}>
         {data.recs.map(frac)}
       </div>
@@ -1798,7 +1849,7 @@ export function NumberLine({ data, lang = 'uz', mode = 'answer', initialAnswer =
   const pct = (x) => ((x - data.from) / (data.to - data.from)) * 100;
   return (
     <div style={S.wrap}>
-      <Head data={data} lang={lang} />
+      <Head data={data} lang={lang} done={A.checked} />
       {data.expr ? <div style={{ textAlign: 'center', margin: '4px 0 8px' }}><Row tokens={data.expr} size={data.exprSize || 24} /></div> : null}
       <div style={{ position: 'relative', height: 62, margin: '4px 0 2px' }}>
         <div style={{ position: 'absolute', left: 6, right: 6, top: 22, height: 2, background: C.line, borderRadius: 2 }} />
@@ -1864,7 +1915,7 @@ export function RepairPart({ data, lang = 'uz', mode = 'answer', initialAnswer =
   };
   return (
     <div style={S.wrap}>
-      <Head data={data} lang={lang} />
+      <Head data={data} lang={lang} done={A.checked} />
       {data.target ? (
         <div style={{ textAlign: 'center', margin: '2px 0 6px' }}>
           <span style={{ fontSize: 12, fontWeight: 800, color: C.mute, letterSpacing: '.04em', textTransform: 'uppercase', marginRight: 8 }}>{tr(data.targetLabel, lang)}</span>
@@ -1955,7 +2006,7 @@ export function TrueFalse({ data, lang = 'uz', mode = 'answer', initialAnswer = 
   };
   return (
     <div style={S.wrap}>
-      <Head data={data} lang={lang} />
+      <Head data={data} lang={lang} done={A.checked} />
       {/* DASTLABKI yozuv qatori: 2-dars amaliyotida mulohaza «shu kasrdan
           yasalgan» degan ma'noni tashiydi, ya'ni asl kasr ko'rinishi kerak.
           `given` bo'lmasa `Given` hech narsa chizmaydi. */}
@@ -2044,11 +2095,59 @@ export function PairSlots({ data, lang = 'uz', mode = 'answer', initialAnswer = 
   // kartada kasr ko'rsatkichli daraja turadi va u 54px da o'qilmaydi. Bitta
   // `cardSize` ni ikki ekranga qo'yish esa telefonda bankni tugma tagiga
   // surib qo'yardi (o'lchov 2026-08-24: karta bosilmay qoldi).
-  const sz = phone ? (data.cardSizePhone || 54) : (data.cardSize || 76);
+  //
+  // BANK BIR QATORDA TURADI (metodist, 2026-08-25: «olti pazl ikki qatorga
+  // yozilib qolgan, bir qatorga sig'dir»). O'lchamni ma'lumot fayli so'raydi,
+  // lekin oxirgi so'z bank qatorining kenida: ishchi maydon 636px (S.wrap 640
+  // minus paddingi), telefonda 362px (390px etalon kenglikdan host va wrap
+  // paddinglari olingan). Bir bo'lakning keni sz + 0,17·sz (tish), orasida
+  // gap. Shundan eng katta ruxsat etilgan o'lcham chiqadi va SO'RALGANI shu
+  // bilan cheklanadi — ya'ni ma'lumot fayli qatorni buzolmaydi.
+  // TELEFONDA cheklov yo'q va bu ataylab: 390px etalon kenglikda olti karta
+  // bir qatorga faqat 48px da sig'adi, «9 … 10» kabi olti belgili yozuv esa
+  // bunday kartada o'qilmaydi. Telefonda ikki qator — to'g'ri javob.
+  const nCards = (data.cards || []).length || 1;
+  const fit = phone ? Infinity
+    : Math.max(40, Math.floor((636 - 6 * (nCards - 1)) / nCards / 1.17));
+  const sz = Math.min(phone ? (data.cardSizePhone || 54) : (data.cardSize || 76), fit);
   const r = Math.round(sz * 0.17);
+  // Yozuv karta chegarasiga ham, UYAGA ham tegib qolmasin (metodist,
+  // 2026-08-25: avval «sonlar pazl chegarasiga tegib qolgan», keyin «9» javob
+  // bo'lagining uyasiga kirib turgani ko'rsatildi). Javob bo'lagining chap
+  // qirrasida botiq uya bor va u tanaga `r` piksel kiradi, ya'ni yozuvga
+  // qoladigan joy `sz − r`. Shrift shu TOR joyga qarab cheklanadi: JetBrains
+  // Mono da bir belgi taxminan 0,6em, 0,23 koeffitsiyent olti belgili
+  // «9 … 10» ga ham yetadi. Ikki tomonda shrift bir xil bo'lishi kerak —
+  // juftlikning yarmi mayda, yarmi yirik bo'lsa, ko'zga xato ko'rinadi.
+  // Uchinchi cheklov (QA 2026-08-26): ENG UZUN yozuv bo'lakka sig'sin.
+  // 0,23 koeffitsiyenti olti belgiga mo'ljallangan edi, «p − a = 11»,
+  // «∠O = 160°», «146 ≠ 144» esa undan uzun va tanadan chiqib ketardi.
+  // Yozuvga qoladigan joy `sz − r − 5` (uya va padding olingan), JetBrains
+  // Mono da belgi taxminan 0,55em. To'qqiz pikseldan kichraymaydi — undan
+  // narisi o'qilmaydi, qolgani yozuvning ko'chishi bilan hal bo'ladi.
+  // Tokenning KO'RINADIGAN eni belgida: kasrda surat va maxrajning
+  // uzunrog'i (ular ustma-ust turadi), ildizda belgi qo'shiladi, darajada
+  // asos va ko'rsatkich yonma-yon. Oddiy `join('')` kasrni «[object
+  // Object]» deb o'lchab, shriftni bekordan kichraytirardi.
+  const tokLen = (t) => {
+    if (typeof t === 'string') return t.length;
+    if (!t || typeof t !== 'object') return 1;
+    if (t.n !== undefined) return Math.max(String(t.n).length, String(t.d).length);
+    if (t.r !== undefined) return String(t.r).length + 1;
+    if (t.b !== undefined) return String(t.b).length + String(t.e).length;
+    return 2;
+  };
+  const longest = Math.max(6, ...(data.cards || []).map((c) => (
+    c.v !== undefined ? String(c.v).length
+      : (c.tokens || []).reduce((s, t) => s + tokLen(t), 0))));
+  const face = Math.min(
+    (phone ? data.faceSizePhone : data.faceSize) || (phone ? 12 : 15),
+    Math.max(9, Math.round((sz - r) * 0.23)),
+    Math.max(9, Math.floor((sz - r - 5) / (0.55 * longest))),
+  );
   const cy = sz / 2;
-  const W = sz + r;              // svg keni: tana + tish
-  const OV = 2 * r + 2;          // o'ng bo'lak shu qadar chapga suriladi
+  const W = sz + r;              // CHAP bo'lakning svg keni: tana + tish
+  const OV = r + 2;              // o'ng bo'lak shu qadar chapga suriladi
   // BIR-BIRINI TO'LDIRUVCHI IKKI BO'LAK (metodist, 2026-08-24). Ilgari
   // ikkala konturning yoyi ham TASHQARIGA qaragan edi: ikki tish yonma-yon
   // turib, uya hech qayerda paydo bo'lmagan. Endi bitta aylana ikki konturni
@@ -2058,11 +2157,39 @@ export function PairSlots({ data, lang = 'uz', mode = 'answer', initialAnswer = 
   // ortiqcha ustma-ust tushish ham qolmaydi.
   //   chap tana: x = 1..sz-1,   tish markazi  (sz-1, cy)
   //   o'ng tana: x = r+1..W-1,  uya markazi   (r+1,  cy) -> surilgach (sz-1, cy)
+  // IKKI BO'LAK BIR-BIRINI TO'LDIRADI (metodist, 2026-08-25: «pazllar
+  // bir-birini to'ldirishi kerak, bu yerda ular kesishib qolyabdi»).
+  // O'lchov ko'rsatgani: ikkala konturning yoyi ham tanadan TASHQARIGA
+  // chiqardi, ya'ni ikki tish yuzma-yuz turib bir-birining ustiga tushardi —
+  // ranglar bir xil bo'lgani uchun bu faqat uzuq chiziqda ko'rinardi.
+  // Endi chapda TISH (tanadan chiqadi), o'ngda UYA (tanaga kiradi):
+  //   chap tana  x = 1..sz-1,  tish markazi (sz-1, cy), tashqariga r piksel
+  //   o'ng tana  x = 1..sz-1,  uya markazi  (1, cy),    ichkariga r piksel
+  // O'ng bo'lak `OV = r + 2` piksel chapga suriladi — shunda uya markazi
+  // tish markazi ustiga tushadi va ular ustma-ust tushmasdan, orada bo'sh
+  // joy ham qoldirmasdan qovushadi.
+  // TISH TASHQARIGA, UYA ICHKARIGA (QA 2026-08-26). Ikkala yoyning ham
+  // sweep bayrog'i 1 edi, ya'ni ikkalasi ham tanadan TASHQARIGA bo'rtardi:
+  // chap bo'lakning tishi o'ngga (u ko'rinardi, chunki viewBox W = sz + r),
+  // o'ng bo'lakning «uyasi» esa CHAPGA, x = 1 − r ga — u viewBox dan
+  // tashqarida qolib, SVG uni kesib tashlardi. Natijada uya umuman
+  // ko'rinmasdi va ikki bo'lak bir-biriga kirmasdi. O'ng bo'lakning yoyi
+  // endi sweep 0 bilan tanaga BOTADI: uya ko'rinadigan bo'ldi va chap
+  // bo'lakning tishi aynan shu joyga o'tiradi.
   const PATH = [
     `M1,1 H${sz - 1} V${cy - r} A${r},${r} 0 0,1 ${sz - 1},${cy + r} V${sz - 1} H1 Z`,
-    `M${r + 1},1 H${W - 1} V${sz - 1} H${r + 1} V${cy + r} A${r},${r} 0 0,0 ${r + 1},${cy - r} Z`,
+    `M1,1 H${sz - 1} V${sz - 1} H1 V${cy + r} A${r},${r} 0 0,0 1,${cy - r} Z`,
   ];
-  const Piece = ({ card, k, dash, bd, bg, join, attrs, onTap }) => (
+  // UYADA CHEGARA BIR MARTA CHIZILADI (metodist, 2026-08-25: «pazllar
+  // bir-birini to'ldirishi kerak, bu yerda ular kesishib qolyabdi»). Ilgari
+  // ikkala bo'lak ham O'Z to'liq konturini chizardi va umumiy chegara ikki
+  // marta tushardi: uzuq chiziqda ikki qatorning nuqtalari mos kelmaydi,
+  // ko'zga esa kesishgan chiziq bo'lib ko'rinadi. Endi uyada chap bo'lak
+  // faqat UCHTA tashqi qirrasini chizadi, umumiy chegarani (tish va uya)
+  // o'ng bo'lakning konturi beradi. Bankda esa har bo'lak to'liq konturda
+  // turadi — u yerda ular yonma-yon emas va tish ko'rinishi kerak.
+  const EDGE_L = `M${sz - 1},1 H1 V${sz - 1} H${sz - 1}`;
+  const Piece = ({ card, k, dash, bd, bg, join, edge, attrs, onTap }) => (
     <button type="button" {...attrs} disabled={A.locked} onClick={onTap}
       style={{ position: 'relative', width: W, height: sz, padding: 0, border: 'none', background: 'none',
         marginLeft: join ? -OV : 0, cursor: A.locked ? 'default' : 'pointer',
@@ -2071,19 +2198,33 @@ export function PairSlots({ data, lang = 'uz', mode = 'answer', initialAnswer = 
         // bosish o'ng uyaga ketardi.
         pointerEvents: join ? 'none' : undefined }}>
       <svg width={W} height={sz} viewBox={`0 0 ${W} ${sz}`} style={{ position: 'absolute', inset: 0, display: 'block' }}>
-        <path d={PATH[k]} fill={bg} stroke={bd} strokeWidth="2" strokeDasharray={dash ? '5 4' : undefined}
-          style={{ pointerEvents: 'auto' }} />
+        {/* To'ldirish alohida yotadi: bosishni SHU qabul qiladi, chunki
+            chegara chizig'i faqat ikki piksel keladi. */}
+        <path d={PATH[k]} fill={bg} stroke="none" style={{ pointerEvents: 'auto' }} />
+        <path d={edge || PATH[k]} fill="none" stroke={bd} strokeWidth="2"
+          strokeDasharray={dash ? '5 4' : undefined} strokeLinecap="square" />
       </svg>
-      <span style={{ position: 'absolute', top: 0, height: sz, left: k === 1 ? r : 0, width: sz, boxSizing: 'border-box', padding: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      {/* YOZUV TANANING ICHIDA turadi. Ikkala bo'lakning tanasi ham
+          x = 1..sz-1 (PATH ga qarang), tish va uya esa tanadan TASHQARIDA
+          yoy bilan chiziladi. Ilgari javob bo'lagining yozuvi `left: r` bilan
+          o'ngga surilgan edi va tanadan chiqib ketardi (QA 2026-08-26:
+          dars46-04 da o'n piksel). Endi span tanaga tekislangan, uyaga
+          tegmaslik esa `paddingLeft` bilan ta'minlanadi.
+          Javob bo'lagida (k = 1) yozuv UYADAN keyin boshlanadi: uya tananing
+          chap qirrasidan `r` piksel ichkariga kiradi va aynan yozuv turadigan
+          balandlikda. Shu sababli chapdan `r + 3` bo'sh joy qoldiriladi, ya'ni
+          yozuv uyadan qolgan joyning o'rtasiga tushadi. Chap bo'lakda tish
+          tanadan TASHQARIGA chiqadi, u yerda yozuvga xalal yo'q. */}
+      <span style={{ position: 'absolute', top: 0, height: sz, left: 0, width: sz, boxSizing: 'border-box', padding: 2, paddingLeft: k === 1 ? r + 3 : 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         {card ? (card.tokens
-          ? <Row tokens={card.tokens} size={(phone ? data.faceSizePhone : data.faceSize) || (phone ? 12 : 15)} />
-          : <span style={{ ...S.mono, fontSize: phone ? 12 : 13.5, color: C.ink, whiteSpace: 'nowrap' }}>{card.v}</span>) : null}
+          ? <Row tokens={card.tokens} size={face} />
+          : <span style={{ ...S.mono, fontSize: Math.min(phone ? 12 : 13.5, face), color: C.ink, textAlign: 'center', lineHeight: 1.15, overflowWrap: 'anywhere' }}>{card.v}</span>) : null}
       </span>
     </button>
   );
   return (
     <div style={S.wrap}>
-      <Head data={data} lang={lang} />
+      <Head data={data} lang={lang} done={A.checked} />
       <Given data={data} lang={lang} />
       <div style={{ display: 'flex', gap: phone ? 4 : 8, justifyContent: 'center', flexWrap: 'wrap', margin: '4px 0 6px' }}>
         {slots.map((p, i) => (
@@ -2095,6 +2236,7 @@ export function PairSlots({ data, lang = 'uz', mode = 'answer', initialAnswer = 
               const bg = card ? '#fff' : (wait ? '#fff7f2' : C.bg);
               return (
                 <Piece key={k} card={card} k={k} dash={!card} bd={bd} bg={bg} join={k === 1}
+                  edge={k === 0 ? EDGE_L : undefined}
                   attrs={{ 'data-slot': i, 'data-side': k === 0 ? 'expr' : 'val' }} onTap={() => tapSocket(i, k)} />
               );
             })}
@@ -2124,6 +2266,7 @@ export function PairSlots({ data, lang = 'uz', mode = 'answer', initialAnswer = 
 // javob KETMA-KETLIK bo'ladi («o'sish tartibida yozing»).
 export function CodeLock({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
   const phone = useIsPhone();
+  const short = useIsShort();
   const n = data.answer.length;
   const [slots, setSlots] = useState(Array(n).fill(null));
   const [picked, setPicked] = useState(null);
@@ -2151,10 +2294,10 @@ export function CodeLock({ data, lang = 'uz', mode = 'answer', initialAnswer = n
   useRegister(check, registerCheck);
 
   const bd = A.checked ? (A.fb?.correct ? C.ok : C.no) : C.line;
-  const sz = phone ? 52 : 62;
+  const sz = phone ? 48 : (short ? 54 : 62);
   return (
     <div style={S.wrap}>
-      <Head data={data} lang={lang} />
+      <Head data={data} lang={lang} done={A.checked} />
       {data.expr ? (
         <div style={{ textAlign: 'center', margin: '2px 0 7px' }}>
           <Row tokens={data.expr} size={data.exprSize || (phone ? 19 : 23)} />
@@ -2162,7 +2305,7 @@ export function CodeLock({ data, lang = 'uz', mode = 'answer', initialAnswer = n
       ) : null}
       {/* SEYF ESHIGI: panel, uch uya va ikki murvat. Ranglar palitradan. */}
       <div style={{ display: 'flex', justifyContent: 'center', margin: '0 0 5px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: phone ? 7 : 10, padding: phone ? '7px 9px' : '9px 13px', borderRadius: 16, border: '2.5px solid ' + C.line, background: C.bg }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: phone ? 7 : 10, padding: phone ? '5px 9px' : (short ? '6px 11px' : '9px 13px'), borderRadius: 16, border: '2.5px solid ' + C.line, background: C.bg }}>
           <span style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
             <span style={{ width: 6, height: 6, borderRadius: 999, background: C.line }} />
             <span style={{ width: 6, height: 6, borderRadius: 999, background: C.line }} />
@@ -2182,8 +2325,8 @@ export function CodeLock({ data, lang = 'uz', mode = 'answer', initialAnswer = n
           </span>
         </div>
       </div>
-      <div style={{ ...S.note, textAlign: 'center' }}>{tr(data.slotLabel, lang)}</div>
-      <div style={{ borderTop: '1px dashed ' + C.pale, paddingTop: 7, display: A.locked ? 'none' : 'block' }}>
+      <div style={{ ...S.note, textAlign: 'center', margin: (phone || short) ? '0 0 5px' : S.note.margin }}>{tr(data.slotLabel, lang)}</div>
+      <div style={{ borderTop: '1px dashed ' + C.pale, paddingTop: (phone || short) ? 5 : 7, display: A.locked ? 'none' : 'block' }}>
         <div style={S.bankLbl}>{String(tr(data.bank, lang)).toUpperCase()}</div>
         <div style={{ display: 'flex', gap: phone ? 5 : 7, justifyContent: 'center', flexWrap: 'wrap', minHeight: 40 }}>
           {pool.length === 0 && <span style={{ fontSize: 13, color: C.line, fontWeight: 700 }}>—</span>}
@@ -2236,7 +2379,7 @@ export function ClozeBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
   const word = (id) => tr((data.cards.find((c) => c.id === id) || {}).label, lang);
   return (
     <div style={S.wrap}>
-      <Head data={data} lang={lang} />
+      <Head data={data} lang={lang} done={A.checked} />
       <p style={{ fontSize: phone ? 14.5 : 16.5, lineHeight: 1.9, color: C.ink, fontWeight: 600, margin: '6px 0 8px' }}>
         {data.parts.map((p, i) => {
           if (p.text) return <span key={i}>{tr(p.text, lang)}</span>;
@@ -2312,7 +2455,7 @@ export function SwapOrder({ data, lang = 'uz', mode = 'answer', initialAnswer = 
   const cardOf = (id) => data.cards.find((c) => c.id === id);
   return (
     <div style={S.wrap}>
-      <Head data={data} lang={lang} />
+      <Head data={data} lang={lang} done={A.checked} />
       {data.expr ? (
         <div style={{ textAlign: 'center', margin: '2px 0 7px' }}>
           <Row tokens={data.expr} size={data.exprSize || (phone ? 20 : 24)} />
@@ -2329,7 +2472,10 @@ export function SwapOrder({ data, lang = 'uz', mode = 'answer', initialAnswer = 
             <button key={id} type="button" data-card={id} disabled={A.locked} onClick={() => tap(id)}
               style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', gap: 3, padding: phone ? '4px 3px' : '5px 5px', borderRadius: 11, border: '2px solid ' + bd, background: bg, cursor: A.locked ? 'default' : 'pointer' }}>
               <span style={{ ...S.mono, fontSize: 11, color: C.mute }}>{i + 1}</span>
-              <span style={{ fontSize: phone ? 10.5 : 11.5, fontWeight: 700, color: C.soft, lineHeight: 1.2, textAlign: 'center' }}>{tr(c.label, lang)}</span>
+              {/* `maxWidth` bo'lmasa, `alignItems: center` dagi flex bola
+                  o'z kengligini oladi va kartadan oshib ketadi — shunda
+                  `overflowWrap` ham ishga tushmaydi (QA 2026-08-26). */}
+              <span style={{ fontSize: phone ? 10.5 : 11.5, fontWeight: 700, color: C.soft, lineHeight: 1.2, textAlign: 'center', overflowWrap: 'break-word', minWidth: 0, maxWidth: '100%' }}>{tr(c.label, lang)}</span>
               {c.tokens ? <Row tokens={c.tokens} size={data.itemSize || (phone ? 13 : 15)} /> : null}
             </button>
           );

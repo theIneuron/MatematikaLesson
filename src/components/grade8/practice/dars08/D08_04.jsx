@@ -16,7 +16,7 @@ import { PairSlots, L } from '../kit.jsx';
 
 const DATA = {
   tag: 'power_to_root', level: '🟡',
-  cardSize: 94, faceSize: 24, cardSizePhone: 68, faceSizePhone: 17,
+  cardSize: 86, faceSize: 22, cardSizePhone: 68, faceSizePhone: 17,
   cards: [
     { id: 'f1', side: 0, tokens: [{ b: '5', e: { n: '1', d: '2' } }] },
     { id: 'f2', side: 0, tokens: [{ b: '5', e: { n: '3', d: '2' } }] },

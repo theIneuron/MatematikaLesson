@@ -3,10 +3,18 @@
 // Skelet: DARS07_11_AMALIYOT_SKELET.md §5 (7-dars, 2-pozitsiya)
 //
 // Ikki mulohaza — darsning ikki qimmat joyi:
-//   s1  З2: nolda qiymat YO'Q, chunki chiziq tagida nolning o'zi qoladi;
-//   s2  З27: x o'sganda y KAMAYADI. O'zgarmay turgani qiymat emas, ko'paytma.
+//   s1  З2: nolda qiymat NOLGA TENG deb o'ylash. Aslida u yerda qiymat
+//       umuman yo'q — javob «Yo'q»;
+//   s2  З27: x o'sganda y KAMAYADI. O'zgarmay turgani qiymat emas, ko'paytma —
+//       javob ham «Yo'q».
 // Ikkinchi mulohazada aynan SON berilgan (x ikkidan to'rtga), shunda javob
 // «tuyg'u» bilan emas, hisob bilan chiqadi.
+//
+// IKKALA JAVOB HAM «YO'Q» (metodist qarori 2026-08-25). Ilgari har ha-yo'q
+// topshirig'ida bittasi «ha», bittasi «yo'q» edi — yigirma uch topshiriqda
+// birdek. O'quvchi buni ikkinchi darsda payqaydi va matematikaga qaramasdan
+// naqsh bo'yicha bosadi. Endi kombinatsiya darsdan darsga o'zgaradi
+// (taqsimot: DARS07_11_AMALIYOT_SKELET.md §10 p. 9).
 // `import React` SHART: LMS xom jsx ni klassik rejimda yuklaydi.
 // eslint-disable-next-line no-unused-vars
 import React from 'react';
@@ -16,8 +24,8 @@ const DATA = {
   tag: 'zero_and_product', level: '🟢',
   itemSize: 18,
   items: [
-    { id: 's1', tokens: [{ n: '8', d: 'x' }], at: 'x = 0', yes: true,
-      claim: L("ma'noga ega emas", 'не имеет смысла', 'has no value') },
+    { id: 's1', tokens: [{ n: '8', d: 'x' }], at: 'x = 0', yes: false,
+      claim: L('qiymati nolga teng', 'значение равно нулю', 'its value is zero') },
     { id: 's2', tokens: [{ n: '8', d: 'x' }], at: 'x = 2 → 4', yes: false,
       claim: L('qiymati ortadi', 'значение растёт', 'the value grows') },
   ],
@@ -33,14 +41,14 @@ const DATA = {
     'Если утверждение верно — нажми «Да», если ложно — «Нет».',
     'Tap «Yes» if the claim is true, «No» if it is false.'),
   correctText: L(
-    "To'g'ri. Nolni chiziq tagiga qo'ysangiz bo'lish to'xtaydi: sakkizni nolga bo'lish degan amal yo'q, demak nolda qiymat yo'q va grafik y o'qiga tegmaydi. Ikkinchisida ikkini qo'ysangiz to'rt chiqadi, to'rtni qo'ysangiz ikki — qiymat KAMAYDI. O'zgarmay turgani qiymat emas, ko'paytma: ikki karra to'rt sakkiz, to'rt karra ikki ham sakkiz.",
-    'Верно. Подставь нуль под черту — деление прекращается: восемь разделить на нуль нельзя, значит в нуле значения нет и график не касается оси y. Во втором при двух выходит четыре, при четырёх — два: значение УБЫВАЕТ. Неизменным остаётся не значение, а произведение: два на четыре восемь, четыре на два тоже восемь.',
-    'Correct. Put zero below the bar and the division stops: eight divided by zero is not an operation, so at zero there is no value and the graph never touches the y axis. In the second, two gives four and four gives two: the value DECREASES. What stays the same is not the value but the product: two times four is eight, four times two is eight as well.'),
+    "To'g'ri. Ikkalasi ham yolg'on. Nolda qiymat nolga teng emas — u umuman yo'q: sakkizni nolga bo'lish degan amal yo'q, shuning uchun grafik y o'qiga tegmaydi. Ikkinchisida ikkini qo'ysangiz to'rt chiqadi, to'rtni qo'ysangiz ikki — qiymat ortmaydi, KAMAYADI. O'zgarmay turgani qiymat emas, ko'paytma: ikki karra to'rt sakkiz, to'rt karra ikki ham sakkiz.",
+    'Верно. Оба ложны. В нуле значение не равно нулю — его вовсе нет: восемь разделить на нуль нельзя, поэтому график не касается оси y. Во втором при двух выходит четыре, при четырёх — два: значение не растёт, а УБЫВАЕТ. Неизменным остаётся не значение, а произведение: два на четыре восемь, четыре на два тоже восемь.',
+    'Correct. Both are false. At zero the value is not zero — there is none at all: eight divided by zero is not an operation, so the graph never touches the y axis. In the second, two gives four and four gives two: the value does not grow, it DECREASES. What stays the same is not the value but the product: two times four is eight, four times two is eight as well.'),
   wrongs: [
     { when: (s) => s.bad.indexOf('s1') !== -1, text: L(
-      "Birinchi mulohazada nol chiziqning TAGIGA tushadi. Sakkizni nolga bo'lib ko'ring: bunday amal yo'q, ya'ni qiymat ham yo'q. Nol suratda turganda boshqacha bo'lardi — u yerda qiymat bor va nolga teng.",
-      'В первом утверждении нуль попадает ПОД черту. Попробуй разделить восемь на нуль: такого действия нет, значит и значения нет. Если бы нуль стоял в числителе, значение было бы и равнялось нулю.',
-      'In the first claim the zero lands BELOW the bar. Try dividing eight by zero: there is no such operation, so there is no value either. Had the zero been in the numerator, the value would exist and equal zero.') },
+      "Nolda qiymat NOL emas, umuman yo'q. Qiymat nolga teng bo'lishi uchun surat nolga aylanishi kerak, surat esa sakkiz. Chiziq tagidagi nol esa bo'lishning o'zini to'xtatadi: sakkizni nolga bo'lish degan amal yo'q.",
+      'В нуле значение не НУЛЬ, его нет вовсе. Чтобы значение равнялось нулю, должен обратиться в нуль числитель, а числитель это восемь. Нуль же под чертой прекращает само деление: восемь разделить на нуль нельзя.',
+      'At zero the value is not ZERO, it does not exist at all. For the value to be zero the numerator would have to vanish, and the numerator is eight. A zero below the bar stops the division itself: eight divided by zero is not an operation.') },
     { when: (s) => s.bad.indexOf('s2') !== -1, text: L(
       "Ikkinchi mulohazani son bilan tekshiring: ikkida sakkiz bo'lingan ikki to'rtga teng, to'rtda esa sakkiz bo'lingan to'rt ikkiga teng. To'rtdan ikki kichik, ya'ni qiymat ortmadi, kamaydi. Harf chiziq tagida turganda x o'sishi maxrajni kattalashtiradi.",
       'Проверь второе утверждение числом: при двух восемь делить на два равно четырём, при четырёх восемь делить на четыре равно двум. Два меньше четырёх, значит значение не выросло, а убыло. Когда буква под чертой, рост x увеличивает знаменатель.',

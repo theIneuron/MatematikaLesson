@@ -25,8 +25,8 @@
 //      7-11 da guruh beshta edi va 1-pozitsiya takrorlangan (u yerga faqat
 //      uchta tip qo'yish mumkin)
 //   4. hech bir tartib boshqa darsning tartibi bilan ustma-ust tushmaydi, va
-//      undan kamida MIN_DIFF pozitsiyada farq qiladi; birinchi UCHTALIK ham
-//      takrorlanmaydi (15-darsdan boshlab)
+//      undan kamida MIN_DIFF pozitsiyada farq qiladi; birinchi UCHTALIK esa
+//      HEAD3_WIN dars ichida takrorlanmaydi (15-darsdan boshlab)
 //   5. yonma-yon bir xil mexanika turmaydi — o'z-o'zidan bajariladi, chunki
 //      har mexanika darsda bir marta ishlatiladi
 //
@@ -50,12 +50,27 @@ const LIGHT1 = ['A', 'C', 'F'];   // 1-pozitsiyaga ruxsat etilgan
 // oladi. 1-14 darslarda birinchi uchtaliklar takrorlangan (5 va 9 — CBF;
 // 6, 10, 14 — FAC), bu tarix va tegilmaydi; 15-darsdan shart kuchda.
 const MIN_DIFF = 6;
+// Birinchi uchtalik necha dars ichida takrorlanmasligi kerak.
+// NEGA DERAZA, GLOBAL EMAS (metodist qarori 2026-08-25, `DARS31_40_AMALIYOT_SKELET.md`
+// §0a.1). Shart global bo'lganda 31-darsda ARIFMETIK jihatdan bajarilmay qoladi:
+// 1-pozitsiyaga faqat uch tip (A, C, F), 2- va 3-pozitsiyaga faqat yengil tip
+// (A, B, C, E, F) qo'yiladi, ya'ni birinchi uchtalikning JAMI varianti
+// 3 x 4 x 3 = 36 ta. 1-30 darslar ulardan 27 tasini band qilgan, bo'sh 9 tasi
+// qolgan — o'nta darsga. 55 dars uchun esa 36 ta hech qachon yetmaydi.
+// Qoidaning maqsadi — «o'quvchi amaliyotni birinchi uch topshiriq bilan tanib
+// oladi», — va bu xavf QO'SHNI darslar haqida: 1-dars bilan 31-dars orasida
+// o'ttiz hafta bor. Shuning uchun taqqoslash oynasi 12 dars.
+const HEAD3_WIN = 12;
 const diff = (a, b) => { let d = 0; for (let i = 0; i < 10; i += 1) if (a[i] !== b[i]) d += 1; return d; };
 const HEAVY = new Set(['D', 'G', 'H', 'I', 'J']);
 
 // TASDIQLANGAN JADVAL. 1-6 — `DARS02_06_AMALIYOT_SKELET.md`,
 // 7-11 — `DARS07_11_AMALIYOT_SKELET.md` §3, 12-14 — `DARS12_14_AMALIYOT_SKELET.md` §1,
-// 15-20 — `DARS15_20_AMALIYOT_SKELET.md` §1.
+// 15-20 — `DARS15_20_AMALIYOT_SKELET.md` §1, 21-30 — `DARS21_30_AMALIYOT_SKELET.md` §1.
+// 21-30 UCH UCHLIK VA BITTA YOLG'IZ QATOR: 21-23, 24-26, 27-29 va 30. O'nta dars
+// uchtaga bo'linmaydi, guruh esa uchtadan katta bo'lolmaydi (1-pozitsiyaga faqat
+// A, C, F qo'yiladi). 30-darsning tartibi qolgan hammasidan kamida SAKKIZ
+// pozitsiyada farq qiladi: yolg'iz qator uchun shart ataylab kuchaytirildi.
 // DIQQAT: 3-6 darslar amalda hali ESKI o'ntalikda turadi (o'sha hujjatning
 // §11 i), jadvaldagi qatorlar esa ko'chirishdan keyingi holat uchun.
 export const SEQ = {
@@ -79,6 +94,56 @@ export const SEQ = {
   18: 'CBEFJAGIDH',
   19: 'FECHGIDABJ',
   20: 'ACFGDEIHJB',
+  21: 'FEBGDCIJHA',
+  22: 'ABEDFGCIJH',
+  23: 'CAFIEHGDBJ',
+  24: 'CAEGDIBFJH',
+  25: 'AFBEGJDHCI',
+  26: 'FBCDAGEIHJ',
+  27: 'CEFDBHAIJG',
+  28: 'ACBHEGIDFJ',
+  29: 'FBAJHIEGCD',
+  30: 'CFAHBGDJIE',
+  // 31-40 — `DARS31_40_AMALIYOT_SKELET.md` §1 (metodist tasdig'i 2026-08-25).
+  // Yana uch uchlik va bitta yolg'iz qator, chegaralar MAVZU bo'yicha:
+  // 31-33 daraja va yozuv, 34-36 ma'lumot va sanoq, 37-39 to'rtburchaklarning
+  // turlari, 40 esa yuza blokini ochadi. 40-qator AVVAL tanlangan va 31-39
+  // undan sakkiz pozitsiya uzoqda bo'lish sharti bilan izlangan: teskari
+  // tartibda sakkiz umuman topilmaydi (to'liq sanab chiqilgan, eng yaxshisi
+  // yettita bo'lardi).
+  31: 'ABCJIFDEGH',
+  32: 'FAEIDJCHBG',
+  33: 'CEBFGIHAJD',
+  34: 'AFCDJGHEIB',
+  35: 'CEAFDHIBGJ',
+  36: 'FCEGHJDABI',
+  37: 'CFBJHEGAID',
+  38: 'FBEHDGICAJ',
+  39: 'AECFIBHDJG',
+  40: 'ACEBIDJGHF',
+  // 41-50 — `DARS41_50_AMALIYOT_SKELET.md` §1 (metodist tasdig'i 2026-08-25).
+  // Uch uchlik va bitta yolg'iz qator, chegaralar MAVZU bo'yicha: 41-43 yuza va
+  // o'rta chiziq (Б6 ning oxiri), 44-46 Pifagor va Geron, 48-50 aylana.
+  // 47 YOLG'IZ: u masala yechish darsi, yangi tasdiq kiritmaydi. Uning qatori
+  // qolgan hammasidan kamida SAKKIZ pozitsiyada farq qiladi, va bunday qator
+  // butun bo'shliqda BITTA ekan (181 440 yaroqli tartib to'liq sanab chiqilgan)
+  // — shuning uchun u AVVAL tanlandi, qolganlari esa undan uzoqlik sharti bilan
+  // izlandi.
+  41: 'CBFGAHJIDE',
+  42: 'AEBJGCFDHI',
+  43: 'FACHIDEBGJ',
+  44: 'CBAGDHEJIF',
+  45: 'AFEJICGDBH',
+  46: 'FABDJEIHGC',
+  47: 'FEACIGJHDB',
+  48: 'CEBGJFHIDA',
+  49: 'FCAHGBEDJI',
+  50: 'AFCIBHJEGD',
+  51: 'AEFHBCIGJD',
+  52: 'FBCEAJGHDI',
+  53: 'ABFJHDECGI',
+  54: 'FCBAIEGHDJ',
+  55: 'CFAGDJHIEB',
 };
 
 // 1-6 GURUHI GURUH SHARTIDAN OZOD. Sabab tarixiy: «har mexanika guruh ichida
@@ -127,7 +192,7 @@ function checkPairs() {
       const legacy = a <= 14 && b <= 14;
       const d = diff(SEQ[a], SEQ[b]);
       if (d < MIN_DIFF) (legacy ? soft : hard).push(`${a} va ${b}: faqat ${d} pozitsiyada farq qiladi (kamida ${MIN_DIFF} kerak)`);
-      if (SEQ[a].slice(0, 3) === SEQ[b].slice(0, 3)) (legacy ? soft : hard).push(`${a} va ${b}: birinchi uchtalik bir xil (${SEQ[a].slice(0, 3)})`);
+      if (b - a <= HEAD3_WIN && SEQ[a].slice(0, 3) === SEQ[b].slice(0, 3)) (legacy ? soft : hard).push(`${a} va ${b}: birinchi uchtalik bir xil (${SEQ[a].slice(0, 3)})`);
     }
   }
   return { soft, hard };
@@ -139,7 +204,11 @@ function check() {
     const bad = checkOne(n, s);
     if (bad.length) { fails += bad.length; bad.forEach((b) => console.log(`  XATO ${n}-dars: ${b}`)); }
   }
-  const groups = [[1, 2, 3, 4, 5, 6], [7, 8, 9, 10, 11], [12, 13, 14], [15, 16, 17], [18, 19, 20]];
+  const groups = [[1, 2, 3, 4, 5, 6], [7, 8, 9, 10, 11], [12, 13, 14], [15, 16, 17], [18, 19, 20],
+    [21, 22, 23], [24, 25, 26], [27, 28, 29], [30],
+    [31, 32, 33], [34, 35, 36], [37, 38, 39], [40],
+    [41, 42, 43], [44, 45, 46], [47], [48, 49, 50],
+    [51, 52], [53, 54, 55]];
   for (const g of groups) {
     const { bad } = checkGroup(g);
     const tag = `${g[0]}-${g[g.length - 1]} guruhi`;
@@ -170,7 +239,8 @@ function check() {
 // kesilmagan holda o'sardi. Endi har QATOR to'liq tanlanadi va shartlar shu
 // yerda, har pozitsiyada tekshiriladi — daraxt boshidan kesiladi.
 function find(first, count) {
-  const prevRows = Object.entries(SEQ).filter(([n]) => Number(n) < first).map(([, s]) => s);
+  const prevPairs = Object.entries(SEQ).filter(([n]) => Number(n) < first).map(([n, s]) => [Number(n), s]);
+  const prevRows = prevPairs.map(([, s]) => s);
   let seed = 20260824;
   const rnd = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
   const shuf = (a) => { const b = a.slice(); for (let i = b.length - 1; i > 0; i -= 1) { const j = Math.floor(rnd() * (i + 1)); const t = b[i]; b[i] = b[j]; b[j] = t; } return b; };
@@ -184,8 +254,12 @@ function find(first, count) {
   const rowOk = (row, upto) => {
     for (const r of chosen) for (let i = 0; i < upto; i += 1) if (r[i] === row[i]) return false;
     if (upto >= 3) {
+      // Birinchi uchtalik faqat DERAZA ichidagi darslar bilan solishtiriladi
+      // (`HEAD3_WIN`): global shart 31-darsda joy qolmagani uchun bekor
+      // qilingan, sababi konstantaning izohida.
       const h = row.slice(0, 3).join('');
-      for (const q of prevRows) if (q.slice(0, 3) === h) return false;
+      const me = first + chosen.length;
+      for (const [n, q] of prevPairs) if (me - n <= HEAD3_WIN && q.slice(0, 3) === h) return false;
       for (const r of chosen) if (r.slice(0, 3).join('') === h) return false;
     }
     return true;

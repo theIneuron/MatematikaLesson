@@ -18,7 +18,7 @@ import { PairSlots, L } from '../kit.jsx';
 
 const DATA = {
   tag: 'root_to_bounds', level: '🔴',
-  cardSize: 88, faceSize: 21, cardSizePhone: 62, faceSizePhone: 15,
+  cardSize: 86, faceSize: 18, cardSizePhone: 62, faceSizePhone: 14,
   cards: [
     { id: 'f1', side: 0, tokens: [{ r: '20' }] },
     { id: 'f2', side: 0, tokens: [{ r: '40' }] },

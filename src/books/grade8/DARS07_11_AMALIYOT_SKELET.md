@@ -100,9 +100,24 @@ satrlarni va `{n,d}` ni biladi, ildizning ustki chizig'i esa yo'q».
 ```
 
 Ustki chiziq ildiz ostining CHEGARASINI ko'rsatadi: `√(a²) + 9` va `√(a² + 9)` bir-biriga
-o'xshab ketmaydi. Chiziq qalinligi kasr chizig'i bilan bir xil (2px) — bir yozuvda ikki
-chiziq uchrasa, ular bir xil ko'rinishi kerak. Radikal belgisi ildiz ostidan 1,16 barobar
-baland: uchi chiziq bilan bir sathda turadi.
+o'xshab ketmaydi. Chiziq qalinligi kasr chizig'i bilan bir xil — bir yozuvda ikki chiziq
+uchrasa, ular bir xil ko'rinishi kerak.
+
+**2026-08-25, metodist: «ustki chiziq ildizga ULANGAN bo'lsin».** Birinchi qilinganida
+radikal shrift GLIFI (`√`) edi, ustki chiziq esa alohida `border`. Ikki narsa bir-biriga
+tayanmasdi: glifning uchi qayerda tugashini shrift hal qilardi, chiziq esa boshqa joydan
+boshlanardi — orada tirqish qolar, uchining balandligi ildiz ostining balandligiga
+ergashmasdi. Endi ilmoq, diagonal va chiziqning boshi BITTA SVG YO'LI:
+
+- yo'l `preserveAspectRatio="none"` bilan ildiz ostining BALANDLIGIGA cho'ziladi —
+  ichida kasr yoki qavs tursa, uch ham o'sha balandlikka ko'tariladi;
+- `vector-effect="non-scaling-stroke"` — cho'zilganda chiziq qalinligi o'zgarmaydi;
+- yo'lning oxiri qutining tepasida (`y = 0`), SVG esa `bar/2` ga pastga suriladi: shunda
+  diagonalning uchi ustki chiziqning MARKAZI bilan bir sathda turadi, balandlik qanday
+  bo'lishidan qat'i nazar. Ildiz ostining `border` i bir-ikki piksel ustma-ust tushadi,
+  ya'ni burchakda soch tolasidek oq chiziq ham qolmaydi.
+
+Chiziq qalinligi o'lchamga qarab 2,5 / 2 / 1,6px — kattasi `Frac` niki bilan bir xil.
 
 `kit.jsx` ga yangi TIP qo'shilmaydi — o'nlik o'sha (§1). Umumiy qatlamda o'zgargani ikki
 narsa: `frac.jsx` (`Root`) va yangi `fig.jsx` (§4a).
@@ -275,7 +290,56 @@ tarmoq tanlash) hali yo'q — bu 37-darsdan keladigan `figure` tipining ishi.
 7. **Reyestr**: `src/lessons/grade8.js` ning `grade8Amaliy` massiviga besh yozuv
    (`dars07-amaliyot` … `dars11-amaliyot`). `src/lessons/index.js` ga tegish kerak emas —
    `amaliy` bo'limi allaqachon ro'yxatdan o'tgan.
-8. **Tekshiruv**: `scripts/grade8-practice-plan.mjs` ga `PLAN_07` … `PLAN_11` qo'shiladi
+9. **HA/YO'Q TOPSHIRIQLARIDA JAVOB NAQSHI BO'LMAYDI** (metodist qarori
+   2026-08-25). Muammo o'lchov bilan topildi: yigirma uchta ha-yo'q
+   topshirig'ining HAMMASIDA bittasi «ha», bittasi «yo'q» edi. Bunday paytda
+   o'quvchi matematikaga qaramaydi — birinchi qatorga bir tugma, ikkinchisiga
+   ikkinchi tugmani bosadi va ikkitasini ham to'g'ri oladi.
+
+   **Tasodifiy qilib bo'lmaydi**: mulohazaning rost-yolg'onligini matematika
+   belgilaydi, tasodif emas. Shuning uchun MULOHAZANING O'ZI yoziladi shunday
+   qilib, kombinatsiya darsdan darsga o'zgarsin. To'rt kombinatsiya ham
+   ishlatiladi va **qo'shni darslarda takrorlanmaydi**:
+
+   | Dars | 01 | 02 | 03 | 04 | 05 | 06 | 07 | 08 | 09 | 10 | 11 | 12 | 13 |
+   |---|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+   | | yo-ha | ha-ha | ha-yo | yo-yo | ha-ha | yo-ha | yo-yo | ha-ha | yo-ha | ha-ha | yo-yo | ha-yo | yo-yo |
+
+   | Dars | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 |
+   |---|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+   | | ha-ha | yo-ha | yo-yo | ha-ha | ha-yo | yo-yo | yo-ha | ha-ha | yo-yo | ha-yo | yo-yo | ha-ha | yo-ha |
+
+   | Dars | 27 | 28 | 29 |
+   |---|:--:|:--:|:--:|
+   | | ha-yo | ha-ha | yo-ha |
+
+   Ikki shart, ikkalasi ham majburiy:
+
+   - **Adashish saqlanadi.** Javob o'zgaradi, tuzoq esa yo'qolmaydi — u faqat
+     boshqa tugmaga olib boradi. Masalan 8-darsda `√(9 + 16) = 3 + 4` (yolg'on)
+     o'rniga `√(9 + 16) = 5` (rost) turadi: ildizni hadlarga bo'lgan o'quvchi
+     yettini oladi va «yo'q» bosadi, ya'ni З4 avvalgidek tutiladi.
+   - **Ikki javob bir xil bo'lganda DA'VO matnini boshqacha yozish mumkin.**
+     4-darsda bir qatorda «yig'indi ma'noga ega», boshqasida «ma'noga ega
+     emas» turadi va ikkalasi ham yolg'on — o'quvchi har qatorni o'qishga
+     majbur bo'ladi.
+
+   Razborlar, `correctText` va `scripts/grade8-practice-plan.mjs` dagi javob
+   qadamlari birga o'zgaradi: uchtasidan bittasi qolib ketsa, tekshiruv
+   «TO'G'RI javob qabul qilinmadi» deb yiqiladi.
+
+   **1-29 darslar bajarildi** (2026-08-25). 30-darsdan boshlab yangi amaliyot
+   yozilganda kombinatsiya shu jadvalning davomi bo'yicha tanlanadi: qo'shni
+   dars bilan bir xil bo'lmasin va to'rt kombinatsiya aylanib turaversin.
+   Tekshirish bir buyruq: har topshiriqdagi `yes` qiymatlarini ketma-ket
+   o'qib chiqish kifoya.
+
+   **21-26 darslarning tekshiruv rejasi hali yo'q** (`PLAN_20` gacha yozilgan),
+   shuning uchun ular brauzerda alohida o'lchov bilan tasdiqlandi: to'g'ri
+   kombinatsiya qabul qilinadi, xato javobga razbor chiqadi. Reja yozilganda
+   javoblar mana bu jadvaldan olinadi.
+
+10. **Tekshiruv**: `scripts/grade8-practice-plan.mjs` ga `PLAN_07` … `PLAN_11` qo'shiladi
    (`ok` va `no` qadamlari), keyin `grade8-practice-check.mjs` ikki yo'lda ham toza
    bo'lishi kerak — to'g'ri javoblarda 10/10, noto'g'rida 0/10 va bo'sh bo'lmagan razbor,
    15 ta o'lcham va til sochetaniyasida skrollsiz.

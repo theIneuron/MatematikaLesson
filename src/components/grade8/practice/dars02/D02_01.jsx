@@ -6,11 +6,17 @@
 // quriladi, har darsda BOSHQA ketma-ketlikda (skelet §2). 2-dars 1-pozitsiyada
 // `TrueFalse` turadi: boshqaruv bitta bosish, tushuntirish talab qilmaydi.
 //
-// IKKI qator, biri «ha», biri «yo'q» — javob naqshi o'z-o'zidan chiqmaydi.
+// IKKALA JAVOB HAM «HA» (metodist qarori 2026-08-25). Ilgari har ha-yo'q
+// topshirig'ida bittasi «ha», bittasi «yo'q» edi — yigirma uch topshiriqda
+// birdek, va o'quvchi matematikaga qaramasdan naqsh bo'yicha bosardi. Endi
+// kombinatsiya darsdan darsga o'zgaradi.
 //   s1 — xossa BAJARILGAN holat: uchga ko'paytirish qonuniy;
-//   s2 — З1: ikkala qavatga bir xil son QO'SHILGAN, ko'paytirilmagan.
-// «Faqat bitta qavat ko'paytirildi» (З20) bu yerda emas: u 03 (Zones, i6) va
-// 02 (Choice, uchinchi variant) da tekshiriladi.
+//   s2 — xossa yana BAJARILGAN, lekin ko'paytuvchi MINUS BIR: ikkala qavatning
+//        ishorasi almashgan, qiymat esa o'zgarmagan. Ko'p o'quvchi minusni
+//        «boshqa amal» deb o'ylab «yo'q» bosadi.
+// З1 (ikkala qavatga QO'SHISH) bu yerdan chiqdi va qoplovsiz qolmadi: u 03
+// (Zones, i6) va 09 (ClozeBank, «qo'shsak» tuzog'i) da tekshiriladi.
+// «Faqat bitta qavat ko'paytirildi» (З20) esa 02 (Choice) da.
 // Dastlabki kasr `given` qatorida turadi — shu sababli qatorlar ingichka.
 // `import React` SHART: LMS xom jsx ni klassik rejimda yuklaydi.
 // eslint-disable-next-line no-unused-vars
@@ -25,7 +31,7 @@ const DATA = {
   items: [
     { id: 's1', tokens: [{ n: '3a', d: '3(a + 3)' }], yes: true,
       claim: L('xossa bajarildi', 'свойство выполнено', 'the property holds') },
-    { id: 's2', tokens: [{ n: 'a + 4', d: '(a + 3) + 4' }], yes: false,
+    { id: 's2', tokens: [{ n: '−a', d: '−(a + 3)' }], yes: true,
       claim: L('xossa bajarildi', 'свойство выполнено', 'the property holds') },
   ],
   yesLabel: L('Ha', 'Да', 'Yes'),
@@ -40,23 +46,23 @@ const DATA = {
     'Если в записи свойство выполнено — нажми «Да», если нарушено — «Нет».',
     'Tap «Yes» if the property holds in the record, «No» if it is broken.'),
   correctText: L(
-    "To'g'ri. Birinchisida ikkala qavat uchga KO'PAYTIRILGAN, uch esa nol emas — xossa bajarilgan. Ikkinchisida ikkala qavatga to'rt QO'SHILGAN, bu esa boshqa amal. a ni birga teng qo'ying: dastlabki kasr bir chorak beradi, birinchi yozuv ham bir chorak, ikkinchisi esa besh sakkizdan.",
-    'Верно. В первой оба этажа УМНОЖЕНЫ на три, а три не нуль — свойство выполнено. Во второй к обоим этажам ПРИБАВИЛИ четыре, а это другое действие. Подставь a равное одному: исходная даёт одну четвёртую, первая запись тоже одну четвёртую, вторая — пять восьмых.',
-    'Correct. In the first, both floors are MULTIPLIED by three, and three is not zero — the property holds. In the second, four was ADDED to both floors, and that is a different action. Put a equal to one: the original gives one quarter, the first record gives one quarter too, the second gives five eighths.'),
+    "To'g'ri. Ikkalasida ham xossa bajarilgan. Birinchisida ikkala qavat uchga KO'PAYTIRILGAN, uch esa nol emas. Ikkinchisida ko'paytuvchi minus bir: surat ham, maxraj ham ishorasini almashtirdi, minus bir esa nolga teng emas — demak bu ham qonuniy. a ni birga teng qo'ying: dastlabki kasr bir chorak, birinchi yozuv ham bir chorak, ikkinchisi esa minus bir bo'lingan minus to'rt, ya'ni yana bir chorak.",
+    'Верно. В обеих свойство выполнено. В первой оба этажа УМНОЖЕНЫ на три, а три не нуль. Во второй множитель это минус один: и числитель, и знаменатель сменили знак, а минус один не равен нулю — значит это тоже законно. Подставь a равное одному: исходная даёт одну четвёртую, первая запись тоже, а вторая — минус один делить на минус четыре, то есть снова одну четвёртую.',
+    'Correct. The property holds in both. In the first, both floors are MULTIPLIED by three, and three is not zero. In the second the factor is minus one: numerator and denominator both changed sign, and minus one is not zero — so that is legitimate too. Put a equal to one: the original gives one quarter, the first record gives one quarter, and the second gives minus one over minus four, which is one quarter again.'),
   wrongs: [
-    { when: (s) => s.ans.s2 === true, text: L(
-      "Xossa KO'PAYTIRISH haqida. Bir xil sonni qo'shish kasrni o'zgartiradi: a ni birga teng qo'ying — dastlabki kasr bir chorak, bu yozuv esa besh sakkizdan beradi.",
-      'Свойство про УМНОЖЕНИЕ. Прибавить одно и то же — значит изменить дробь: подставь a равное одному, исходная даёт одну четвёртую, а эта запись пять восьмых.',
-      'The property is about MULTIPLYING. Adding the same thing changes the fraction: put a equal to one, the original gives one quarter and this record gives five eighths.') },
-    { when: (s) => s.ans.s1 === false, text: L(
+    { when: (s) => s.bad.indexOf('s2') !== -1, text: L(
+      "Minus bir ham ko'paytuvchi, va u nolga teng emas — demak xossa buzilmagan. a ni birga teng qo'ying: dastlabki kasr bir chorak, bu yozuv esa minus bir bo'lingan minus to'rt. Ikki minus bo'linmada bir-birini yo'qotadi, natija o'sha bir chorak.",
+      'Минус один тоже множитель, и он не равен нулю — значит свойство не нарушено. Подставь a равное одному: исходная даёт одну четвёртую, а эта запись минус один делить на минус четыре. Два минуса в делении уничтожают друг друга, результат та же одна четвёртая.',
+      'Minus one is a factor too, and it is not zero — so the property is not broken. Put a equal to one: the original gives one quarter and this record gives minus one over minus four. Two minuses cancel in a division, and the result is the same one quarter.') },
+    { when: (s) => s.bad.indexOf('s1') !== -1, text: L(
       "Uch — qonuniy ko'paytuvchi: u nol emas, va unga surat ham, maxraj ham ko'paytirilgan. Qavsni ochib ko'ring: uch karra a qo'shuv uch, ya'ni uch a qo'shuv to'qqiz.",
       'Три — законный множитель: он не нуль, и на него умножены и числитель, и знаменатель. Раскрой скобку: три на a плюс три — это три a плюс девять.',
       'Three is a legitimate factor: it is not zero, and both numerator and denominator are multiplied by it. Expand the bracket: three times a plus three is three a plus nine.') },
   ],
   wrongText: L(
-    "Har yozuvga bitta savol bering: ikkala qavat bilan bir xil narsa KO'PAYTIRISH yo'li bilan qilindimi? Qo'shish bu xossa emas.",
-    'К каждой записи один вопрос: с обоими этажами одно и то же сделали УМНОЖЕНИЕМ? Прибавление — это не свойство.',
-    'Ask one question of each record: was the same thing done to both floors by MULTIPLYING? Adding is not this property.'),
+    "Har yozuvga ikki savol bering: ikkala qavat bir xil ifodaga KO'PAYTIRILDIMI va o'sha ifoda nolga teng emasmi? Ishonchsiz bo'lsangiz a ni birga teng qo'yib ikkalasini hisoblang.",
+    'К каждой записи два вопроса: оба этажа УМНОЖЕНЫ на одно и то же выражение и это выражение не нуль? Если не уверен, подставь a равное одному и посчитай обе.',
+    'Ask two questions of each record: were both floors MULTIPLIED by the same expression, and is that expression non-zero? If unsure, put a equal to one and compute both.'),
 };
 
 export default function D02_01(props) { return <TrueFalse data={DATA} {...props} />; }
