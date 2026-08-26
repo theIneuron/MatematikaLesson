@@ -125,7 +125,11 @@ const CYR = /[Ѐ-ӿ]/
 // Ruscha matnda uchrashi mumkin bo'lgan lotin: matematik belgi yo'q (ovoz
 // so'z bilan yoziladi), shuning uchun uch harfdan uzun lotin bo'lagi shubhali.
 const LAT_RUN = /[A-Za-z][A-Za-z'’ʻ`]{2,}/g
-const LAT_OK = new Set(['log', 'ln', 'sin', 'cos', 'tg', 'ctg', 'max', 'min'])
+const LAT_OK = new Set(['log', 'ln', 'sin', 'cos', 'tg', 'ctg', 'max', 'min',
+  // Koordinata tekisliklarining nomlari ruscha matnda ham LOTIN yoziladi --
+  // darslikda ham shunday («плоскость Oxy»). O'q nomlari `Ox`, `Oy`, `Oz`
+  // ikki harfdan iborat va qidiruvga tushmaydi, tekisliklar esa uchtadan.
+  'oxy', 'oyz', 'oxz'])
 // O'zbekcha marker so'zlar — ular ruscha yoki inglizcha bo'lakka tushmasin.
 // `argument` bu ro'yxatda YO'Q: u inglizchada ham xuddi shunday yoziladi.
 const UZ_WORDS = /\b(va|bu|shu|uchun|demak|yechim|asos|logarifm|tengsizlik|nuqta|son|bo'l\w*|qil\w*|kerak|hamma|qaysi|birinchi|ikkinchi|uchinchi|to'g'ri|noto'g'ri|siz|sizga|yana|endi)\b/gi
@@ -195,7 +199,11 @@ const ruGender = (where, line, ru) => {
   if (sure.length) push('ERR', line, 'RU-GENDER', `${where}: o'quvchiga jinsli murojaat — ${sure.join(' / ')}`)
   // SHUBHALI: jinsli fe'l «ты» siz. Ega predmet bo'lishi mumkin («точка
   // показала») — bu to'g'ri rus tili. Odam ko'rib hal qiladi.
-  const maybe = [...new Set([...((ru || '').match(RU_MASC) || []), ...((ru || '').match(RU_FEM) || [])])]
+  // «начала координат» -- OT birikmasi, fe'l emas. Uni oldindan olib
+  // tashlamasak, masofalar darsida o'n yettita yolg'on ogohlantirish chiqadi
+  // va hisobotdagi haqiqiy xatolar ko'rinmay qoladi.
+  const ruClean = (ru || '').replace(/начала\s+координат/gi, 'ORIGIN')
+  const maybe = [...new Set([...(ruClean.match(RU_MASC) || []), ...(ruClean.match(RU_FEM) || [])])]
   if (maybe.length && !sure.length) push('WARN', line, 'RU-GENDER?', `${where}: jinsli o'tgan zamon — ${maybe.join(' / ')} (ega predmet bo'lsa, xato emas)`)
 }
 

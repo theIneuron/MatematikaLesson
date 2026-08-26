@@ -2579,3 +2579,315 @@ export function BuildPoint({ prompt, test, hints, okText, onSolved, audio, snap,
     </>
   )
 }
+
+// ============================================================
+// PRIBOR 7, INTERAKTIV QISMI. MESHOK ISXODOV -- 37-dars.
+//
+// `PODXOD_10SINF.md` §10: isxodlar BITTALAB yotadi, o'quvchi qulaylik
+// tug'diruvchilarini belgilaydi, kasr esa O'ZI yig'iladi -- belgilangani
+// suratda, hammasi maxrajda. Kasr ekranda BOSHIDAN turadi va o'quvchi
+// belgilagan sari o'zgaradi: u oxirida chiqadigan formula emas, hisobning
+// o'zi.
+//
+// PROGRAMMA «NOTO'G'RI» DEB YOZMAYDI. Xato belgilashda tajriba ustuni va
+// kasr RO'PARA KELMAYDI -- ikki xil son, algebradagi qo'yib tekshirishdek.
+// Shuning uchun tajriba tugmasi javob to'g'rimi-yo'qmi, baribir ishlaydi.
+//
+// `run` = { n } -- necha sinov o'tkaziladi. 37-darsning 4-ekrani ikkita
+// seriyani talab qiladi (o'nta va ikki yuzta), shuning uchun `n` propdan
+// keladi, ichkarida qotib qolmaydi.
+// ============================================================
+const BUI = {
+  marked: L('Belgilangan', 'Отмечено', 'Marked'),
+  total: L('Hammasi', 'Всего', 'In total'),
+  runBtn: L('Sinov o‘tkazish', 'Провести испытания', 'Run trials'),
+  seriesOf: L('sinov', 'испытаний', 'trials'),
+  missed: L(
+    "Qulaylik tug'diruvchi isxodlarning hammasi belgilanmagan.",
+    'Отмечены не все благоприятные исходы.',
+    'Not all favourable outcomes are marked.',
+  ),
+}
+
+export function BagPick({
+  prompt, cards, answer, okText, wrongText, run, audio, onSolved,
+}) {
+  const t = useT()
+  const fx = useAnswerFx(audio)
+  const [on, setOn] = useState([])
+  const [checked, setChecked] = useState(false)
+  const [hint, setHint] = useState(null)
+  const [trial, setTrial] = useState(null)
+  const need = answer.slice().sort().join('|')
+  const done = checked && on.slice().sort().join('|') === need
+
+  const toggle = (id) => {
+    if (done) return
+    setOn((prev) => (prev.indexOf(id) === -1 ? prev.concat(id) : prev.filter((x) => x !== id)))
+    setChecked(false); setHint(null)
+  }
+
+  const check = () => {
+    setChecked(true)
+    if (on.slice().sort().join('|') === need) {
+      fx.right(okText); setHint(okText || null)
+      if (onSolved) onSolved({ correct: true })
+      return
+    }
+    const extra = on.find((id) => answer.indexOf(id) === -1)
+    setHint(extra ? (wrongText || BUI.missed) : BUI.missed)
+    fx.wrong(extra ? wrongText : null)
+  }
+
+  // Tajriba: haqiqiy ehtimollik bo'yicha `n` ta Bernulli sinovi. Natija
+  // O'LCHOV, shuning uchun u har safar biroz boshqacha chiqadi -- aynan shuni
+  // ko'rsatish kerak (o'nta sinov sakraydi, ikki yuztasi kasrga yaqinlashadi).
+  const doRun = () => {
+    const p = answer.length / cards.length
+    let hits = 0
+    for (let i = 0; i < run.n; i += 1) if (Math.random() < p) hits += 1
+    setTrial({ n: run.n, hits })
+  }
+
+  return (
+    <>
+      {!done ? <Cue kind="multi">{t(prompt)}</Cue> : null}
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
+        {cards.map((c) => {
+          const isOn = on.indexOf(c.id) !== -1
+          const bad = checked && isOn && answer.indexOf(c.id) === -1
+          return (
+            <button
+              type="button" key={c.id}
+              className={'g10-opt' + (isOn && !bad ? ' g10-opt-ok' : '') + (bad ? ' g10-opt-tip' : '')}
+              style={{ width: 'auto', minWidth: 74, justifyContent: 'center' }}
+              disabled={done}
+              onClick={() => toggle(c.id)}
+            >
+              <span className="g10-opt-badge">{isOn ? '✓' : '○'}</span>
+              <span className="g10-opt-text" style={{ flex: 'none' }}>
+                <Fx>{c.label && typeof c.label === 'object' ? t(c.label) : c.label}</Fx>
+              </span>
+            </button>
+          )
+        })}
+      </div>
+
+      {/* KASR BOSHIDAN TURADI va belgilash bilan birga o'zgaradi. */}
+      <div style={{ display: 'flex', gap: 18, justifyContent: 'center', alignItems: 'center', marginTop: 6 }}>
+        <Panel tone="paper" style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <span className="g10-hint" style={{ fontSize: 12 }}>{t(BUI.marked)}</span>
+          <Expr size="mid">{on.length + '/' + cards.length}</Expr>
+        </Panel>
+        {trial ? (
+          <Panel tone="paper" style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+            <span className="g10-hint" style={{ fontSize: 12 }}>{trial.n + ' ' + t(BUI.seriesOf)}</span>
+            <Expr size="mid">
+              {String(Math.round((trial.hits / trial.n) * 100) / 100).replace('.', ',')}
+            </Expr>
+          </Panel>
+        ) : null}
+      </div>
+
+      <Slot mh={46}>
+        {!done ? (
+          <Btn tone="accent" ready={on.length > 0} disabled={!on.length} onClick={check}>{t(UI.check)}</Btn>
+        ) : (run ? <Btn tone="graph" ready onClick={doRun}>{t(BUI.runBtn)}</Btn> : null)}
+      </Slot>
+      <Slot mh={62}>
+        <Feedback show={!!hint} ok={done}>{hint ? t(hint) : null}</Feedback>
+      </Slot>
+    </>
+  )
+}
+
+// ============================================================
+// PRIBOR 6A, INTERAKTIV QISMI. 6-blok.
+//
+// Ikki mexanika: `SpinScene` -- o'quvchi sahnani O'ZI buradi va burilgan
+// sahnaga qarab javob beradi; `ProofRows` -- isbot ustuni, asoslash ro'yxatdan
+// tanlanadi.
+//
+// NEGA O'QUVCHI BURADI, TAYMER EMAS. Agar sahna o'zi aylansa, harakat ekranga
+// tegishli bo'ladi; o'quvchi esa uni tomosha qiladi. Bu yerda aylanish -- DALIL
+// yig'ish usuli, ya'ni o'quvchining ishi (`PODXOD_10SINF.md` §9, A rejimi).
+// ============================================================
+const SUI = {
+  // TORTISH EMAS, TUGMA. Ilgari bu yerda «torting» / «потяни» turardi, sahnani
+  // esa faqat ikki tugma buradi -- ya'ni yozuv o'quvchidan bo'lmagan ishni
+  // so'rardi (metodist ko'rdi, 2026-08-20).
+  spinAsk: L(
+    'Sahnani pastdagi tugmalar bilan buring. Savol burilgandan keyin ochiladi.',
+    'Поверни сцену кнопками ниже. Вопрос откроется после поворота.',
+    'Rotate the scene with the buttons below. The question opens after the turn.',
+  ),
+  spinLeft: L('Chapga burish', 'Повернуть влево', 'Rotate left'),
+  spinRight: L("O'ngga burish", 'Повернуть вправо', 'Rotate right'),
+  given: L('Berilgan', 'Дано', 'Given'),
+  goal: L('Isbotlash kerak', 'Требуется доказать', 'To prove'),
+  pickReason: L('Asoslashni tanlang', 'Выбери обоснование', 'Choose the justification'),
+  // TO'G'RI, LEKIN BU QATORDA EMAS. Ilgari bunday tanlovga javob JIM edi:
+  // razbor faqat tuzoqda bor edi, va eng ehtimolli xato javobsiz qolardi
+  // (metodist ko'rdi, 2026-08-20). Dars o'z razborini `row.early` da beradi,
+  // bu esa oxirgi chegara.
+  notThisRow: L(
+    "Asoslash to'g'ri, lekin bu qator uchun emas. Bu qator nimadan kelib chiqqanini ayting.",
+    'Обоснование верное, но не для этой строки. Скажи, из чего получена именно она.',
+    'The justification is right, but not for this line. Say what this line follows from.',
+  ),
+}
+
+// Sahnani burish + burilgandan keyingi savol.
+// Javob ikki xil berilishi mumkin: variant tanlash (`options`) yoki SON yozish
+// (`answer`). Ikkinchisi afzal: etalon variantli ekranlarni uchtadan ko'p
+// bo'lishiga yo'l qo'ymaydi, sahnani burish esa uch ekranda kerak.
+// `yaw0` -- BOSHLANG'ICH rakurs. Nol hamma joyda yaramaydi: 38-darsning
+// 4-ekranida nolda tekislik yassi tasmaga aylanadi va o'quvchi asbobni qo'lga
+// olganida hech narsa ko'rmaydi. 39 va 40-darslarda esa nol AYNAN kerak --
+// aldov o'sha rakursda yashaydi.
+// `stepYaw` -- bitta bosishning burilishi. 39-darsda u KATTA: aldov kamerasida
+// (40 daraja og'ish) qirralar 33 dan 57 darajagacha kesishgan ko'rinadi, va
+// odatdagi 0,6 li bosish sahnani shu tasmadan olib chiqmaydi -- o'quvchi bosadi,
+// rasm esa deyarli o'zgarmaydi. Hisoblab olindi: 1,2 da qirralar orasidagi
+// masofa qirra uzunligining 40 foiziga chiqadi.
+export function SpinScene({
+  scene, prompt, options, answer, hints, okText, audio, onSolved, yaw0 = 0, stepYaw = 0.6,
+}) {
+  const t = useT()
+  const fx = useAnswerFx(audio)
+  const [yaw, setYaw] = useState(yaw0)
+  const [done, setDone] = useState(false)
+  const [hint, setHint] = useState(null)
+  // Javob TUGMASI faqat o'quvchi sahnani burgandan keyin ochiladi: savol
+  // burilgan sahna haqida, va uni ko'rmay javob berish -- yana rasmga ishonish.
+  // O'lchov BOSHLANG'ICH holatdan: `yaw0` nolga teng bo'lmasa, mutlaq qiymat
+  // bir bosishni «burilmagan» deb hisoblab qolardi.
+  const turned = Math.abs(yaw - yaw0) >= 0.5
+
+  const pick = (o) => {
+    if (done) return
+    if (o.ok) {
+      setDone(true); setHint(okText || null); fx.right(okText)
+      if (onSolved) onSolved({ correct: true })
+      return
+    }
+    setHint(o.hint || null); fx.wrong(o.hint)
+  }
+
+  return (
+    <Cols l={1} r={1}>
+      <Col>
+        {/* Telefonda ustunlar bir-birining ostiga tushadi, va sahna ostida
+            burish tugmalari ham turadi: shuning uchun balandlik qat'iy. */}
+        <Scene fig={React.cloneElement(scene, { yaw })} max={300} h={196} />
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+          <Btn tone="graph" ready onClick={() => setYaw((v) => v - stepYaw)}>{t(SUI.spinLeft)}</Btn>
+          <Btn tone="graph" ready onClick={() => setYaw((v) => v + stepYaw)}>{t(SUI.spinRight)}</Btn>
+        </div>
+      </Col>
+      <Col>
+        {/* Savol IKKI MARTA yozilmaydi. `NumberEntry` savolni o'zi chiqaradi
+            (`Cue kind="type"`), shuning uchun son yozadigan tarmoqda bu yerda
+            hech narsa qolmaydi -- ilgari bir savol ketma-ket ikki qator bo'lib
+            turardi (metodist ko'rdi, 2026-08-20). */}
+        {done ? null : (turned
+          ? (options ? <Cue kind="tap">{t(prompt)}</Cue> : null)
+          : <Cue kind="turn">{t(SUI.spinAsk)}</Cue>)}
+        {!(turned || done) ? <Slot mh={120} /> : (options ? (
+          <Options
+            items={options.map((o) => ({ id: o.id, label: t(o.label) }))}
+            cols={1}
+            disabled={done}
+            onPick={(it) => pick(options.find((o) => o.id === it.id) || {})}
+          />
+        ) : (
+          <NumberEntry
+            compact
+            prompt={prompt}
+            answer={answer}
+            okText={okText}
+            hints={hints}
+            audio={audio}
+            onSolved={() => { setDone(true); if (onSolved) onSolved({ correct: true }) }}
+          />
+        ))}
+        {options ? (
+          <Slot mh={62}>
+            <Feedback show={!!hint} ok={done}>{hint ? t(hint) : null}</Feedback>
+          </Slot>
+        ) : null}
+      </Col>
+    </Cols>
+  )
+}
+
+// Isbot ustuni: dano -- qatorlar -- xulosa. Har qatorning asoslashi ro'yxatdan
+// tanlanadi, ro'yxatda esa ALOMATLAR va XOSSALAR aralash yotadi (7-sinfdagi
+// naqsh). Xossa alomat o'rniga qo'yilsa, dastur qaysi shart yetishmayotganini
+// aytadi.
+export function ProofRows({
+  given, goal, rows, reasons, audio, onSolved,
+}) {
+  const t = useT()
+  const fx = useAnswerFx(audio)
+  const [at, setAt] = useState(0)
+  const [hint, setHint] = useState(null)
+  const [shuffledReasons] = useState(() => shuffled(reasons))
+  const done = at >= rows.length
+
+  const pick = (r) => {
+    if (done) return
+    if (r.id === rows[at].reason) {
+      const next = at + 1
+      setAt(next); setHint(null)
+      fx.right(next >= rows.length ? rows[at].ok : null)
+      if (next >= rows.length) {
+        setHint(rows[at].ok || null)
+        if (onSolved) onSolved({ correct: true })
+      }
+      return
+    }
+    const why = r.missing || rows[at].early || SUI.notThisRow
+    setHint(why); fx.wrong(why)
+  }
+
+  return (
+    <Cols l={1} r={1}>
+      <Col>
+        {/* «Berilgan» va «isbotlash kerak» IKKI QATOR. Ilgari to'rt bo'lak
+            ketma-ket oqib, bitta gap bo'lib o'qilardi: «дано прямая и точка
+            вне её требуется доказать через них проходит одна плоскость». */}
+        <Panel tone="paper">
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, textAlign: 'left' }}>
+            <Tag tone="graph">{t(SUI.given)}</Tag>
+            <span className="g10-hint" style={{ textAlign: 'left' }}>{t(given)}</span>
+          </div>
+          {/* Otstup 2 px, 6 emas: 40-darsda «berilgan» va «isbotlash kerak»
+              matnlari uzun, va oltita piksel telefonda ekranni 5 px chiqarib
+              yuborardi (vyorstka prognoni topdi). */}
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, textAlign: 'left', marginTop: 2 }}>
+            <Tag tone="ok">{t(SUI.goal)}</Tag>
+            <span className="g10-hint" style={{ textAlign: 'left' }}>{t(goal)}</span>
+          </div>
+        </Panel>
+        <NoteList
+          items={rows.map((r, i) => (i < at ? { ok: true, v: r.text } : (i === at ? r.text : '…')))}
+        />
+      </Col>
+      <Col>
+        {!done ? <Cue kind="tap">{t(SUI.pickReason)}</Cue> : null}
+        <Options
+          items={shuffledReasons.map((r) => ({ id: r.id, label: t(r.label) }))}
+          cols={1}
+          dense
+          badges={false}
+          disabled={done}
+          onPick={(it) => pick(shuffledReasons.find((r) => r.id === it.id) || {})}
+        />
+        <Slot mh={62}>
+          <Feedback show={!!hint} ok={done}>{hint ? t(hint) : null}</Feedback>
+        </Slot>
+      </Col>
+    </Cols>
+  )
+}

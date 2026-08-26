@@ -24,16 +24,20 @@ const val = (name, def) => {
 }
 const PORT = val('port', '5299')
 const STEPS = String(val('steps', '0,1,2')).split(',').map((s) => Number(s.trim()))
-const OUT = path.resolve('.tmp/figures')
+// Stend BITTA emas: 6C asbobi `space10.html` da turadi, kesimlar `figures.html` da.
+const PAGE = val('page', 'figures')
+// O'LCHAM ham beriladi: DTM rejimi qobiq, va uni telefonda ham ko'rish kerak.
+const VP = String(val('vp', '1200x1400')).split('x').map(Number)
+const OUT = path.resolve(PAGE === 'figures' ? '.tmp/figures' : '.tmp/' + PAGE)
 fs.mkdirSync(OUT, { recursive: true })
 
 const browser = await chromium.launch({ headless: true })
-const page = await browser.newPage({ viewport: { width: 1200, height: 1400 }, deviceScaleFactor: 2 })
+const page = await browser.newPage({ viewport: { width: VP[0], height: VP[1] }, deviceScaleFactor: 2 })
 const errs = []
 page.on('pageerror', (e) => errs.push(String(e).slice(0, 200)))
 page.on('console', (m) => { if (m.type() === 'error') errs.push(m.text().slice(0, 200)) })
 
-await page.goto(`http://localhost:${PORT}/probe/figures.html`, { waitUntil: 'networkidle', timeout: 60000 })
+await page.goto(`http://localhost:${PORT}/probe/${PAGE}.html`, { waitUntil: 'networkidle', timeout: 60000 })
 
 // Кадр ловится ПО НАДПИСИ, а не по таймеру: стенд крутит кадры сам, и жёсткое
 // ожидание снимало бы то один, то другой.

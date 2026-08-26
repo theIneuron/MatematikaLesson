@@ -80,7 +80,17 @@ async function measure(page, where) {
       .map((el) => {
         const cs = getComputedStyle(el)
         // Ataylab yig'ilgan element obrezka emas: u ko'rinmaydi.
-        if (el.clientHeight === 0 || cs.opacity === '0' || cs.maxHeight === '0px') return null
+        //
+        // YO'QOLIB BORAYOTGAN element ham obrezka emas. `Options` javobdan
+        // keyin qolgan variantlarni yig'ib yuboradi, va yig'ilish 0,05 s
+        // kechikish bilan boradi. O'lchov bosishdan 180 ms keyin olinadi, ya'ni
+        // ANIMATSIYA O'RTASIDA: kartochka hali ko'rinadi, balandligi esa allaqachon
+        // qisqargan, va tekshiruv uni «obrezka» deb yozadi. 40-darsning blitsida
+        // shu sabab ikki soxta nuqson chiqdi (2026-08-20), va u SUZUVCHI edi --
+        // variantlar aralashtirilgani uchun har progonda boshqa kartochka tushardi.
+        // Endi shaffofligi to'liq bo'lmagan element hisobga olinmaydi.
+        if (el.clientHeight === 0 || cs.maxHeight === '0px') return null
+        if (parseFloat(cs.opacity) < 0.99) return null
         const clipY = cs.overflowY === 'hidden' || cs.overflowY === 'clip'
         const clipX = cs.overflowX === 'hidden' || cs.overflowX === 'clip'
         const dy = clipY ? el.scrollHeight - el.clientHeight : 0

@@ -210,7 +210,13 @@ const MOTION = {
   // `qo'yamiz` va `to'ldiradi` ATAYIN yo'q: birinchisi «o'rniga qo'yamiz»
   // (podstavim) ma'nosida ham keladi, ikkinchisi «to'ldiradi» (dopolnyaet)
   // ma'nosida -- ikkalasi ham harakat emas, va tekshiruv yolg'on gapirardi.
-  uz: /(yotqizamiz|yotadi|ko'tariladi|tushadi|aylanadi|buriladi|o'sadi|yo'qoladi|suriladi|aylanmoqda|ko'tarilmoqda)/i,
+  //
+  // `yotadi` HAM OLIB TASHLANDI (2026-08-21). Geometriyada bu «lежit» degan
+  // HOLAT: «nuqta qirrada yotadi», «tomon yoqda yotadi» -- darslikning o'z
+  // so'zi (68-bet). 49-dars butunlay shu predikat ustida qurilgan, va
+  // tekshiruv har mount replikasida yolg'on gapirardi. Harakat ma'nosi
+  // `yotqizamiz` bilan qoplanadi.
+  uz: /(yotqizamiz|ko'tariladi|tushadi|aylanadi|buriladi|o'sadi|yo'qoladi|suriladi|aylanmoqda|ko'tarilmoqda)/i,
   // `turns` OLIB TASHLANDI: u `returns` ichida ham topiladi, va ingliz tilida
   // «a whole number of turns» -- OT, fe'l emas. Harakat ma'nosi `is turning`
   // va `rotates` bilan qoplanadi. Yolg'on gapiradigan tekshiruvni o'qimay

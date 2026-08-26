@@ -47,6 +47,20 @@ const LESSONS = {
   dars34: { slug: 'dars34-logarifmik-ifodalar', no: 34, segments: 4 },
   dars35: { slug: 'dars35-korsatkichli-logarifmik-tengsizliklar', no: 35, segments: 4 },
   dars36: { slug: 'dars36-trigonometrik-tengsizliklar', no: 36, segments: 4 },
+  dars37: { slug: 'dars37-ehtimolliklar-nazariyasi', no: 37, segments: 4 },
+  dars38: { slug: 'dars38-stereometriya-aksiomalari', no: 38, segments: 4 },
+  dars39: { slug: 'dars39-ayqash-togri-chiziqlar', no: 39, segments: 4 },
+  dars40: { slug: 'dars40-perpendikulyar-chiziq-tekislik', no: 40, segments: 4 },
+  dars41: { slug: 'dars41-ogma-va-uch-perpendikulyar', no: 41, segments: 4 },
+  dars42: { slug: 'dars42-chiziq-va-tekislik-burchagi', no: 42, segments: 4 },
+  dars43: { slug: 'dars43-ikki-yoqli-burchak', no: 43, segments: 4 },
+  dars44: { slug: 'dars44-prizma', no: 44, segments: 4 },
+  dars45: { slug: 'dars45-parallelepiped', no: 45, segments: 4 },
+  dars46: { slug: 'dars46-piramida', no: 46, segments: 4 },
+  dars47: { slug: 'dars47-sirt-yuzasi', no: 47, segments: 4 },
+  dars48: { slug: 'dars48-muntazam-jismlar', no: 48, segments: 4 },
+  dars49: { slug: 'dars49-kesimlarni-yasash', no: 49, segments: 4 },
+  dars50: { slug: 'dars50-fazoda-koordinatalar', no: 50, segments: 4 },
 }
 if (!LESSONS[LESSON]) {
   console.log(`nomalum dars: ${LESSON}. Bor: ${Object.keys(LESSONS).join(', ')}`)

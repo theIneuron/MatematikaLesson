@@ -31,7 +31,7 @@
 // ============================================================================
 // eslint-disable-next-line no-unused-vars
 import React, { useEffect, useState } from 'react'
-import { MATH_FONT, T, useSpin, useTween } from './core.jsx'
+import { MATH_FONT, T, useSpin, useT, useTween } from './core.jsx'
 
 // NOL KADRDA ham harakat bo'lsin.
 //
@@ -2711,6 +2711,741 @@ export function PowerBand({ size = 268, step = 0, mode = 'squeeze' }) {
                 />
               </g>
             ) : null}
+          </g>
+        )
+      }}
+    />
+  )
+}
+
+// ============================================================================
+// PRIBOR 7. MESHOK ISXODOV -- 37-dars, ehtimollik.
+//
+// `PODXOD_10SINF.md` §10 dagi qaror: ehtimollik uchun ASBOB yasaladi, bir
+// martalik dars emas. Bu yerda uning KO'RSATUV qismi: kartochkalar bittalab
+// yotqiziladi, qulaylik tug'diruvchilari yoritiladi, ular ostida kasr yig'iladi.
+// Interaktiv qismi -- `tools.jsx` dagi `BagPick`.
+//
+// NEGA KARTOCHKA, NEGA SO'Z EMAS. «Oltita yoq» degan so'z bilan ekrandagi
+// oltita kartochka boshqa-boshqa narsa. Darsning butun shohidi ikkinchisida:
+// `OR` va `RO` alohida yotganda «isxod uchta» degan xato o'z-o'zidan yiqiladi.
+//
+// `step`: 0 -- kartochkalar yopiq (orqa tomoni); 1 -- bittalab yotqiziladi;
+// 2 -- qulaylik tug'diruvchilari yoritiladi; 3 -- ostida kasr turadi.
+// `trials` = { n, hits } -- o'ng tomonda chastota ustuni o'sadi.
+// ============================================================================
+export function Bag({ size = 268, step = 0, cards = [], trials = null }) {
+  // Kartochka yozuvi TILGA bog'liq: gerb va raqam uch tilda uch xil. Shuning
+  // uchun `label` `L(...)` bo'lishi ham mumkin, va tarjima shu yerda bo'ladi --
+  // dars faylida uchta ro'yxat saqlanmasin.
+  const t = useT()
+  const lab = (x) => (x && typeof x === 'object' ? t(x) : x)
+  const n = cards.length
+  const cols = n <= 4 ? 2 : (n <= 9 ? 3 : 4)
+  const rows = Math.max(1, Math.ceil(n / cols))
+  // Kartochkalar BITTALAB chiqadi: kadrda bitta narsa harakat qiladi.
+  const laid = useTween(step >= 1 ? n : 0, 260 * Math.min(n, 8))
+  const lit = useTween(step >= 2 ? 1 : 0, 700)
+  const frac = useTween(step >= 3 ? 1 : 0, 700)
+  const bar = useTween(trials ? 1 : 0, 1100)
+  const good = cards.filter((c) => c.good).length
+
+  return (
+    <Film
+      size={size}
+      step={step}
+      cam={[{ x: 0.5, y: 0.46, r: 0.3 }]}
+      draw={({ P, R, size: S }) => {
+        const [ox, oy] = P(0, 0)
+        const fs = Math.max(11, Math.round(S * 0.048))
+        // Chastota ustuni bo'lsa, to'plam chapga suriladi va o'ng chekka unga qoladi.
+        const shift = trials ? -R * 0.42 : 0
+        const cellW = (2.55 * R) / cols
+        const cellH = Math.min(cellW * 0.78, (1.9 * R) / rows)
+        const cw = cellW * 0.86
+        const ch = cellH * 0.84
+        const topY = oy - (rows * cellH) / 2 - R * 0.18
+
+        return (
+          <g>
+            {cards.map((c, i) => {
+              const on = Math.max(0, Math.min(1, laid - i))
+              const col = i % cols
+              const row = Math.floor(i / cols)
+              const x = ox + shift + (col - (cols - 1) / 2) * cellW - cw / 2
+              const y = topY + row * cellH
+              const hot = c.good ? lit : 0
+              return (
+                <g key={c.id || i} opacity={step >= 1 ? on : 1}>
+                  <rect
+                    x={x} y={y} width={cw} height={ch} rx={Math.max(4, cw * 0.12)}
+                    fill={step >= 1 ? T.bg : T.ink3}
+                    stroke={c.good ? T.ok : T.ink3}
+                    strokeWidth={1.2 + 1.4 * hot}
+                    opacity={step >= 1 ? 1 : 0.5}
+                  />
+                  {/* Yoritish kartochkaning ICHIDA: chekkasi joyida qoladi. */}
+                  {c.good ? (
+                    <rect
+                      x={x} y={y} width={cw} height={ch} rx={Math.max(4, cw * 0.12)}
+                      fill={T.ok} opacity={0.26 * hot} stroke="none"
+                    />
+                  ) : null}
+                  {step >= 1 ? (
+                    <text
+                      x={x + cw / 2} y={y + ch / 2 + fs * 0.36} textAnchor="middle"
+                      fontFamily={MATH_FONT} fontSize={fs} fontWeight="700"
+                      fill={T.ink2} {...halo(size)}
+                    >{lab(c.label)}</text>
+                  ) : null}
+                </g>
+              )
+            })}
+
+            {/* KASR: surat -- yoritilganlar, maxraj -- hammasi. */}
+            {step >= 3 ? (
+              <g opacity={frac} fontFamily={MATH_FONT} fontWeight="700" {...halo(size)}>
+                <text
+                  x={ox + shift} y={topY + rows * cellH + fs * 1.5}
+                  textAnchor="middle" fontSize={fs * 1.05} fill={T.ok}
+                >{good}</text>
+                <line
+                  x1={ox + shift - fs * 0.62} y1={topY + rows * cellH + fs * 1.82}
+                  x2={ox + shift + fs * 0.62} y2={topY + rows * cellH + fs * 1.82}
+                  stroke={T.ink2} strokeWidth="1.6"
+                />
+                <text
+                  x={ox + shift} y={topY + rows * cellH + fs * 3.0}
+                  textAnchor="middle" fontSize={fs * 1.05} fill={T.ink2}
+                >{n}</text>
+              </g>
+            ) : null}
+
+            {/* TAJRIBA USTUNI. Bu -- o'lchov, hisob emas: u kasrning yonida
+                turadi va u bilan mos tushishi kerak. */}
+            {trials ? (() => {
+              const bx = ox + R * 1.28
+              const h = 1.7 * R
+              const top = oy - h / 2
+              const part = trials.n > 0 ? trials.hits / trials.n : 0
+              return (
+                <g>
+                  <rect
+                    x={bx - fs * 0.9} y={top} width={fs * 1.8} height={h}
+                    fill="none" stroke={T.ink3} strokeWidth="1.2" rx={3}
+                  />
+                  <rect
+                    x={bx - fs * 0.9} y={top + h * (1 - part * bar)}
+                    width={fs * 1.8} height={h * part * bar}
+                    fill={T.accent} opacity={0.5} rx={3}
+                  />
+                  <text
+                    x={bx} y={top - fs * 0.4} textAnchor="middle"
+                    fontFamily={MATH_FONT} fontSize={Math.max(11, fs * 0.92)} fontWeight="700"
+                    fill={T.accent} opacity={bar} {...halo(size)}
+                  >{String(Math.round(part * 100) / 100).replace('.', ',')}</text>
+                  <text
+                    x={bx} y={top + h + fs * 1.1} textAnchor="middle"
+                    fontFamily={MATH_FONT} fontSize={Math.max(11, fs * 0.78)}
+                    fill={T.ink3} opacity={bar} {...halo(size)}
+                  >{trials.n}</text>
+                </g>
+              )
+            })() : null}
+          </g>
+        )
+      }}
+    />
+  )
+}
+
+// ============================================================================
+// PRIBOR 6A. FAZOVIY SAHNA -- 6-blok (38-43-darslar), keyin 7 va 8-bloklar.
+//
+// `PODXOD_10SINF.md` §9 dagi qaror (2026-08-06): SVG-proyeksiya, TIK o'q
+// atrofida aylanish, ko'rinmas qirralar punktir, WebGL YO'Q. Koordinatalarni
+// o'zimiz hisoblaymiz va chiziq bilan chizamiz.
+//
+// NEGA AYLANISH KERAK. Fazoning yassi rasmi YOLG'ON gapiradi: rasmda kesishgan
+// ikki to'g'ri chiziq fazoda ayqash bo'lishi mumkin. O'quvchi sahnani
+// burmaguncha buni bilmaydi. Bu noqulaylik emas, fanning mazmuni: geometriyada
+// rasmga qarab isbotlanmaydi.
+//
+// KO'RINMAS QIRRA PUNKTIR. Qavariq jismda eng UZOQDAGI uch bitta bo'ladi, va
+// undan chiqadigan uchta qirra ko'rinmaydi. Punktir bo'lmasa, karkas ag'darilib
+// ko'rinadi va aylanish yordam berish o'rniga chalg'itadi.
+// ============================================================================
+const PITCH = 0.46 // ~26 daraja: kichik bo'lsa karkas yassilashadi, katta bo'lsa ustidan qaraladi
+
+const rot3 = (p, yaw) => {
+  const c = Math.cos(yaw)
+  const s = Math.sin(yaw)
+  return [p[0] * c - p[1] * s, p[0] * s + p[1] * c, p[2]]
+}
+// Ekranga tushirish: `x` -- o'ngga, `y` -- yuqoriga, `d` -- KO'ZDAN uzoqlik.
+//
+// KAMERA OG'ISHI kadrga berilishi mumkin, va bu qulaylik emas. 26 daraja
+// og'ishda pastki yoq qirrasi va yuqorigi yoq qirrasi ekranda HECH QACHON
+// kesishmaydi: balandlikdagi farq chuqurlikdagi siljishni har doim bosadi.
+// Shart oddiy -- kotangens og'ish ikkitaning ildizidan katta bo'lmasligi
+// kerak, ya'ni og'ish 35 darajadan katta. 39-darsning aldovi aynan shunga
+// qoqilgan edi: matn «qirralar tutashdi» deyardi, chizmada esa ular hech qachon
+// tutashmasdi (metodist ko'rdi, 2026-08-20). 40 darajada esa o'sha juftlik
+// haqiqatan kesishadi, va burilish aldovni oladi.
+const flat = (p, yaw, pitch = PITCH) => {
+  const q = rot3(p, yaw)
+  const cp = Math.cos(pitch)
+  const sp = Math.sin(pitch)
+  return { x: q[0], y: q[2] * cp - q[1] * sp, d: q[1] * cp + q[2] * sp }
+}
+const sub3 = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]]
+const add3 = (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]]
+const mul3 = (a, k) => [a[0] * k, a[1] * k, a[2] * k]
+const norm3 = (a) => {
+  const l = Math.sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2]) || 1
+  return mul3(a, 1 / l)
+}
+const dot3 = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+const cross3 = (a, b) => [
+  a[1] * b[2] - a[2] * b[1],
+  a[2] * b[0] - a[0] * b[2],
+  a[0] * b[1] - a[1] * b[0],
+]
+// Rodrig formulasi: `w` ni `ax` o'qi atrofida `phi` ga burish.
+const spinAround = (w, ax, phi) => {
+  const c = Math.cos(phi)
+  const s = Math.sin(phi)
+  const dot = ax[0] * w[0] + ax[1] * w[1] + ax[2] * w[2]
+  return add3(add3(mul3(w, c), mul3(cross3(ax, w), s)), mul3(ax, dot * (1 - c)))
+}
+
+// KUB -- darslikning o'z sahnasi (geom. 95-bet, 2-rasm). Uchlari nomlangan.
+const CUBE_V = {
+  A: [-0.5, -0.5, -0.5], B: [0.5, -0.5, -0.5], C: [0.5, 0.5, -0.5], D: [-0.5, 0.5, -0.5],
+  A1: [-0.5, -0.5, 0.5], B1: [0.5, -0.5, 0.5], C1: [0.5, 0.5, 0.5], D1: [-0.5, 0.5, 0.5],
+}
+const CUBE_E = [
+  ['A', 'B'], ['B', 'C'], ['C', 'D'], ['D', 'A'],
+  ['A1', 'B1'], ['B1', 'C1'], ['C1', 'D1'], ['D1', 'A1'],
+  ['A', 'A1'], ['B', 'B1'], ['C', 'C1'], ['D', 'D1'],
+]
+const SUB1 = { A1: 'A₁', B1: 'B₁', C1: 'C₁', D1: 'D₁' }
+// Ustki asos uchlari darslikda pastki indeks bilan yoziladi: `A₁`, `B₁` va
+// hokazo. Kub uchun ular qo'lda yozilgan, ko'pyoq uchun esa hisoblanadi.
+const subOf = (id) => (SUB1[id] || (/1$/.test(id) ? id.replace(/1$/, '₁') : id))
+
+// ============================================================================
+// PRIBOR 6B. KO'PYOQ: PRIZMA VA PIRAMIDA -- 7-blok (44-49-darslar).
+//
+// NEGA GENERATOR, HAR DARSDA QO'LDA EMAS. Blok 7 da bir xil jism uch darsda
+// uch xil ko'rinishda kerak: uchburchakli va to'rtburchakli prizma, og'ma
+// prizma, parallelepiped, muntazam piramida. Ularning uchlarini qo'lda yozish
+// -- bu 44-darsda bitta xato koordinata va butun blok bo'ylab ko'chib yuruvchi
+// nuqson. Generator uchlarni DARSLIKDAGIDEK nomlaydi: asos `A B C ...`, ustki
+// asos `A₁ B₁ C₁ ...`, piramidaning uchi `S` (geom. 44-45-bet).
+//
+// `skew` og'ma prizmani beradi (ustki asos siljiydi), piramidada esa uchning
+// asos markazidan siljishini beradi: muntazam piramidada u nol.
+// `plan` -- asosning O'Z ko'pburchagi: [[x, y], ...]. Aylana bo'yicha yasalgan
+// asos muntazam ko'pburchak beradi, 45-darsda esa parallelogramm, to'g'ri
+// to'rtburchak va kvadratni FARQLASH kerak, ya'ni asos qo'lda beriladi.
+const polyBuild = ({ kind = 'prism', n = 4, h = 1, skew = [0, 0], r = 0.62, turn = 0, plan = null }) => {
+  const NAMES = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+  const V = {}
+  const E = []
+  const base = []
+  const count = plan ? plan.length : n
+  for (let i = 0; i < count; i += 1) {
+    const id = NAMES[i]
+    if (plan) {
+      V[id] = [plan[i][0], plan[i][1], -h / 2]
+    } else {
+      const t = turn + (i / n) * Math.PI * 2
+      V[id] = [r * Math.cos(t), r * Math.sin(t), -h / 2]
+    }
+    base.push(id)
+  }
+  base.forEach((id, i) => E.push([id, base[(i + 1) % base.length]]))
+  if (kind === 'pyramid') {
+    V.S = [skew[0], skew[1], h / 2]
+    base.forEach((id) => E.push([id, 'S']))
+    return { V, E, base, top: ['S'] }
+  }
+  const top = base.map((id) => id + '1')
+  base.forEach((id, i) => {
+    V[top[i]] = [V[id][0] + skew[0], V[id][1] + skew[1], h / 2]
+    E.push([id, top[i]])
+  })
+  top.forEach((id, i) => E.push([id, top[(i + 1) % top.length]]))
+  return { V, E, base, top }
+}
+
+// `hide` -- shu KADRDA chizilmaydigan nuqtalar. Nuqta ro'yxati darsda bitta
+// bo'ladi (kesmalar va tekisliklar unga id bilan murojaat qiladi), lekin har
+// kadrga ularning hammasi kerak emas: 40-darsning 3-ekranida savol O, Q va M
+// haqida, ekranda esa yana P va nomsiz ikki nuqta turardi -- o'quvchi qizil
+// chiziqning uchini P deb o'qishi mumkin (metodist ko'rdi, 2026-08-20).
+// ============================================================================
+// PRIBOR 6B, YOYILMA. Jism yassi shaklga yoyiladi va sirt yuzasi yassi
+// bo'laklar yuzalarining yig'indisiga aylanadi (geom. 59-61-bet).
+//
+// NEGA PROYEKSIYA YO'Q. Yoyilma -- YASSI shakl, uni burish ma'nosizdir: uning
+// butun mazmuni shundaki, u qog'ozda yotadi va o'lchanadi. Shu sababli bu yerda
+// kamera ham, `flat` ham ishlatilmaydi.
+//
+// BO'LAKLAR BITTALAB ochiladi (`step`), va `lit` bilan bittasi yoritiladi --
+// darsda u jismdagi o'sha yoq bilan bir rangda bo'ladi, ya'ni o'quvchi yoq va
+// bo'lakni ko'zi bilan ulaydi.
+// ============================================================================
+export function Net({
+  size = 268, step = 0, kind = 'prism', n = 4,
+  a = 1, h = 1.3, m = 1.2, lit = null,
+}) {
+  const show = useTween(step >= 1 ? 1 : 0, 700)
+  const open = useTween(Math.min(step, 3), 900)
+
+  // Bo'laklar NET birligida yasaladi, keyin kadrga siqiladi.
+  //
+  // ASOS n BURCHAKLI bo'lishi kerak: 48-darsda muntazam oltiburchakli prizma va
+  // piramida bor, va kvadrat asos u yerda yolg'on gapiradi. Ko'pburchak berilgan
+  // TOMON bo'ylab yurish bilan yasaladi: har qadamda yo'nalish tashqi burchakka
+  // buriladi, va shakl o'zi yopiladi.
+  // `turnSign` -- burilish tomoni. Ikkinchi asos tasmaning USTIGA ketishi kerak,
+  // birinchisi esa OSTIGA; bir xil ishorada ular ustma-ust tushadi (stendda
+  // ko'rindi, 2026-08-21).
+  const walk = (p0, p1, count, side, turnSign) => {
+    const out = [p0, p1]
+    let dx = p1[0] - p0[0]
+    let dy = p1[1] - p0[1]
+    const len = Math.hypot(dx, dy) || 1
+    dx /= len
+    dy /= len
+    const ang = turnSign * 2 * Math.PI / count
+    const c = Math.cos(ang)
+    const sn = Math.sin(ang)
+    for (let i = 2; i < count; i += 1) {
+      const nx = dx * c - dy * sn
+      const ny = dx * sn + dy * c
+      dx = nx
+      dy = ny
+      const last = out[out.length - 1]
+      out.push([last[0] + dx * side, last[1] + dy * side])
+    }
+    return out
+  }
+
+  const pieces = []
+  if (kind === 'prism') {
+    for (let i = 0; i < n; i += 1) {
+      pieces.push({
+        id: 'lat' + i,
+        kind: 'lat',
+        pts: [[i * a, 0], [(i + 1) * a, 0], [(i + 1) * a, h], [i * a, h]],
+      })
+    }
+    // Asoslar birinchi to'rtburchakning ostida va ustida, ikkalasi ham n burchak.
+    pieces.push({ id: 'base0', kind: 'base', pts: walk([a, 0], [0, 0], n, a, 1) })
+    pieces.push({ id: 'base1', kind: 'base', pts: walk([0, h], [a, h], n, a, 1) })
+  } else {
+    // Piramida: markazda muntazam n burchak, har tomonda tashqariga uchburchak.
+    const R = a / (2 * Math.sin(Math.PI / n))
+    const base = []
+    for (let i = 0; i < n; i += 1) {
+      const t = (i / n) * Math.PI * 2 + Math.PI / n
+      base.push([R * Math.cos(t), R * Math.sin(t)])
+    }
+    pieces.push({ id: 'base0', kind: 'base', pts: base })
+    for (let i = 0; i < n; i += 1) {
+      const p1 = base[i]
+      const p2 = base[(i + 1) % n]
+      const mid = [(p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2]
+      const nl = Math.hypot(mid[0], mid[1]) || 1
+      const apex = [mid[0] + (mid[0] / nl) * m, mid[1] + (mid[1] / nl) * m]
+      pieces.push({ id: 'lat' + i, kind: 'lat', pts: [p1, p2, apex] })
+    }
+  }
+
+  const xs = pieces.flatMap((q) => q.pts.map((t) => t[0]))
+  const ys = pieces.flatMap((q) => q.pts.map((t) => t[1]))
+  const minX = Math.min(...xs)
+  const maxX = Math.max(...xs)
+  const minY = Math.min(...ys)
+  const maxY = Math.max(...ys)
+  const pad = size * 0.09
+  const k = Math.min((size - 2 * pad) / (maxX - minX), (size - 2 * pad) / (maxY - minY))
+  const ox = (size - (maxX - minX) * k) / 2
+  const oy = (size - (maxY - minY) * k) / 2
+  const X = (t) => ox + (t[0] - minX) * k
+  const Y = (t) => size - (oy + (t[1] - minY) * k)
+
+  // Asos birinchi ochiladi, yon bo'laklar keyin: darslikdagi tartib
+  // (59-bet, yoyilmani qog'ozdan yasash). Qoida oddiy bo'lishi kerak, aks holda
+  // qaysi bo'lak qachon ochilgani prognonda tushunarsiz bo'ladi.
+  const ready = (q) => (q.kind === 'base' ? open >= 1 : open >= 2)
+
+  return (
+    <svg
+      viewBox={`0 0 ${size} ${size}`} width="100%"
+      style={{ display: 'block', maxWidth: size, margin: '0 auto' }}
+      className="g10-net"
+    >
+      <g opacity={show}>
+        {pieces.map((q, i) => {
+          const on = ready(q)
+          const isLit = lit === q.id
+          return (
+            <polygon
+              key={q.id}
+              points={q.pts.map((t) => `${X(t)},${Y(t)}`).join(' ')}
+              fill={isLit ? T.accent : (q.kind === 'base' ? T.ok : '#6b8fa3')}
+              opacity={on ? (isLit ? 0.42 : 0.22) : 0}
+              stroke={isLit ? T.accent : (q.kind === 'base' ? T.ok : '#6b8fa3')}
+              strokeWidth={isLit ? 2.4 : 1.4}
+              style={{ transition: 'opacity .5s ease' }}
+            />
+          )
+        })}
+      </g>
+    </svg>
+  )
+}
+
+export function Space({
+  size = 268, step = 0, yaw = 0,
+  cube = false, pts = [], segs = [], planes = [], angleAt = null, hi = [], hide = [],
+  arcAt = null, poly = null, faces = [], pitch = PITCH,
+  cuts = [], meets = [], cut = null,
+}) {
+  // Aylanish YUMSHOQ: sakrash bo'lsa, bu bir sahnaning burilishi emas, ikki
+  // boshqa rasm (DINAMIKA_VA_ILLUSTRATSIYA.md §2).
+  const a = useTween(yaw, 900)
+  // TEKISLIKNING to'g'ri chiziq atrofidagi burilishi ham yumshoq bo'lishi
+  // kerak, va shu qoida unga ilgari yetib bormagan edi: `phi` to'g'ridan
+  // to'g'ri qurilishga ketardi, ya'ni tekislik bir holatdan ikkinchisiga
+  // SAKRARDI -- bu esa harakat emas, almashtirish (etalon §5.1).
+  //
+  // HAR TEKISLIKNING O'Z BURCHAGI. Ilgari bu yerda bitta umumiy `phi` turardi
+  // («sahnada burilayotgan tekislik bittadan ko'p bo'lmaydi»), va bu 43-darsda
+  // yiqilardi: ikki yoqli burchak -- umumiy qirrali IKKI yarimtekislik, va
+  // umumiy burchak ularni bir-birining ustiga yopishtirib qo'yardi. Huklar soni
+  // QAT'IY bo'lishi kerak, shuning uchun uchta: bir sahnada uchtadan ko'p
+  // burilayotgan tekislik bo'lmaydi.
+  const phiOf = (i) => (planes[i] && planes[i].around ? (planes[i].phi || 0) : 0)
+  const phi0 = useTween(phiOf(0), 900)
+  const phi1 = useTween(phiOf(1), 900)
+  const phi2 = useTween(phiOf(2), 900)
+  const phiAt = (i) => {
+    if (i === 0) return phi0
+    if (i === 1) return phi1
+    if (i === 2) return phi2
+    return phiOf(i)
+  }
+  const show = useTween(step >= 1 ? 1 : 0, 700)
+
+  return (
+    <Film
+      size={size}
+      step={step}
+      cam={[{ x: 0.5, y: 0.5, r: 0.34 }]}
+      draw={({ P, R, size: S }) => {
+        const fs = Math.max(11, Math.round(S * 0.05))
+        const BODY = poly ? polyBuild(poly) : null
+        const V = Object.assign({}, cube ? CUBE_V : {}, BODY ? BODY.V : {})
+        pts.forEach((p) => { V[p.id] = p.at })
+
+        // KESIM UCHLARI FAQAT QIRRALARDA yotadi (geom. 68-bet, izlar usulining
+        // qoidalari). Shuning uchun nuqta koordinata bilan emas, QIRRA va
+        // undagi ulush bilan beriladi: sahna burilganda nuqta qirradan uzilib
+        // ketmaydi, va chizma yolg'on gapirmaydi.
+        cuts.forEach((c) => {
+          const p1 = V[c.on[0]]
+          const p2 = V[c.on[1]]
+          if (!p1 || !p2) return
+          V[c.id] = add3(p1, mul3(sub3(p2, p1), c.t === undefined ? 0.5 : c.t))
+        })
+
+        // IZLAR USULI ikki chiziqning KESISHISH nuqtasini talab qiladi: LM va
+        // AC ni davom ettirib X topiladi (geom. 65-bet). Nuqta hisoblanadi,
+        // ko'z bilan qo'yilmaydi -- aks holda burilishda u chiziqlardan
+        // qochadi. Bir tekislikda yotgan chiziqlar uchun yechim aniq; ayqash
+        // holatda eng yaqin nuqta olinadi, va bu darsda uchramaydi.
+        meets.forEach((m) => {
+          const a1 = V[m.a[0]]
+          const a2 = V[m.a[1]]
+          const b1 = V[m.b[0]]
+          const b2 = V[m.b[1]]
+          if (!a1 || !a2 || !b1 || !b2) return
+          const u = sub3(a2, a1)
+          const v = sub3(b2, b1)
+          const w = sub3(b1, a1)
+          const uu = dot3(u, u)
+          const vv = dot3(v, v)
+          const uv = dot3(u, v)
+          const det = uu * vv - uv * uv
+          if (Math.abs(det) < 1e-9) return
+          const t = (dot3(w, u) * vv - dot3(w, v) * uv) / det
+          V[m.id] = add3(a1, mul3(u, t))
+        })
+
+        const F = {}
+        Object.keys(V).forEach((k) => { F[k] = flat(V[k], a, pitch) })
+        const XY = (k) => P(F[k].x, F[k].y)
+
+        // Eng uzoqdagi uch: undan chiqadigan qirralar KO'RINMAYDI. Qoida
+        // kubda ham, generator bergan ko'pyoqda ham bir xil: qavariq jismda
+        // eng uzoq uch bitta.
+        let far = null
+        const bodyKeys = cube ? Object.keys(CUBE_V) : (BODY ? Object.keys(BODY.V) : [])
+        bodyKeys.forEach((k) => { if (!far || F[k].d > F[far].d) far = k })
+
+        const line = (k1, k2, opt) => {
+          const [x1, y1] = XY(k1)
+          const [x2, y2] = XY(k2)
+          const hidden = opt && opt.hidden
+          return (
+            <line
+              key={(opt && opt.key) || (k1 + k2)}
+              x1={x1} y1={y1} x2={x2} y2={y2}
+              stroke={(opt && opt.tone) || T.ink3}
+              strokeWidth={(opt && opt.w) || 1.6}
+              strokeDasharray={hidden ? '5 4' : undefined}
+              /* YORITILGAN qirra ko'rinmas bo'lsa ham och bo'lib qolmaydi:
+                 punktir uning orqada ekanini aytadi, xiralik esa uni yo'q
+                 qiladi. 39-darsda juftlikning ikkinchisi shu sababli topilmay
+                 turardi (metodist ko'rdi, 2026-08-20). */
+              opacity={hidden ? (opt && opt.lit ? 0.9 : 0.55) : 1}
+              strokeLinecap="round"
+            />
+          )
+        }
+
+        // TEKISLIK -- parallelogramm. Uch nuqta bilan yoki to'g'ri chiziq
+        // atrofida burilib beriladi (38-darsning shohidi).
+        const planeQuad = (pl, pi) => {
+          let o
+          let u
+          let v
+          if (pl.around) {
+            const p1 = V[pl.around[0]]
+            const p2 = V[pl.around[1]]
+            const ax = norm3(sub3(p2, p1))
+            const any = Math.abs(ax[2]) < 0.9 ? [0, 0, 1] : [1, 0, 0]
+            const w0 = norm3(cross3(ax, any))
+            // Kattaligi kadrdan CHIQMASLIGI kerak: stendda 1,15 da o'ng chekka
+            // kesilib qolgan edi.
+            o = mul3(add3(p1, p2), 0.5)
+            u = mul3(ax, 0.85)
+            v = mul3(spinAround(w0, ax, phiAt(pi)), 0.72)
+          } else {
+            const p1 = V[pl.by[0]]
+            const p2 = V[pl.by[1]]
+            const p3 = V[pl.by[2]]
+            o = mul3(add3(add3(p1, p2), p3), 1 / 3)
+            u = mul3(sub3(p2, p1), 0.95)
+            v = mul3(sub3(p3, p1), 0.95)
+          }
+          // YARIM tekislik: qirradan FAQAT bir tomonga ketadi. Ikki yoqli
+          // burchak ta'rifi yarimtekisliklar haqida (geom. 142-bet), va to'liq
+          // tekislik u yerda boshqa shakl bo'lib qoladi. `half` ishorasi qaysi
+          // tomon ekanini aytadi.
+          const w = pl.half ? mul3(v, pl.half * 1.4) : null
+          const corner = w ? [
+            add3(o, mul3(u, -1)), add3(o, u),
+            add3(add3(o, u), w), add3(add3(o, mul3(u, -1)), w),
+          ] : [
+            add3(add3(o, mul3(u, -1)), mul3(v, -1)), add3(add3(o, u), mul3(v, -1)),
+            add3(add3(o, u), v), add3(add3(o, mul3(u, -1)), v),
+          ]
+          return corner.map((c) => {
+            const f = flat(c, a, pitch)
+            return P(f.x, f.y).join(',')
+          }).join(' ')
+        }
+
+        // AYLANISH O'QI. Tekislik to'g'ri chiziq atrofida burilsa, o'sha chiziq
+        // chizmada BO'LISHI kerak: 38-darsning 4-ekranida u yo'q edi, va
+        // o'quvchiga «tekislik to'g'ri chiziq atrofida aylanadi» deyilardi,
+        // chiziqning o'zi esa faqat uchta nuqta bilan ishora qilinardi
+        // (metodist ko'rdi, 2026-08-20). Chekkalardan chiqib turadi: kesma emas,
+        // TO'G'RI CHIZIQ ko'rinishi kerak.
+        const axisEnds = (pl) => {
+          const p1 = V[pl.around[0]]
+          const p2 = V[pl.around[1]]
+          const d = sub3(p2, p1)
+          const f1 = flat(add3(p1, mul3(d, -0.2)), a, pitch)
+          const f2 = flat(add3(p1, mul3(d, 1.2)), a, pitch)
+          return [P(f1.x, f1.y), P(f2.x, f2.y)]
+        }
+
+        return (
+          <g opacity={show}>
+            {/* TEKISLIKLAR birinchi: ular fon, ustidan chiziq va nuqta yotadi. */}
+            {planes.map((pl, i) => (
+              <polygon
+                key={'pl' + i}
+                points={planeQuad(pl, i)}
+                fill={pl.tone || T.ok}
+                opacity={pl.dim ? 0.14 : 0.22}
+                stroke={pl.tone || T.ok}
+                strokeWidth="1.2"
+              />
+            ))}
+
+            {/* YOQLAR -- to'ldirilgan ko'pburchaklar. Blok 7 ning butun mazmuni
+                yoqlar haqida: asos yon yoqqa qarshi, yoyilma, kesim. Tekislik
+                uch nuqta bilan quriladi va yoq bo'lolmaydi, shuning uchun bu
+                alohida. Qirralardan OLDIN chiziladi: ular fon. */}
+            {faces.map((fc, i) => (
+              <polygon
+                key={'fc' + i}
+                points={fc.by.map((k) => XY(k).join(',')).join(' ')}
+                fill={fc.tone || T.ok}
+                opacity={fc.dim ? 0.16 : 0.3}
+                stroke={fc.tone || T.ok}
+                strokeWidth="1.2"
+              />
+            ))}
+
+            {planes.map((pl, i) => {
+              if (!pl.around || pl.axis === false) return null
+              const [q1, q2] = axisEnds(pl)
+              return (
+                <line
+                  key={'ax' + i}
+                  x1={q1[0]} y1={q1[1]} x2={q2[0]} y2={q2[1]}
+                  stroke={T.ink2} strokeWidth="2.2" strokeLinecap="round"
+                />
+              )
+            })}
+
+            {cube ? CUBE_E.map((e) => line(e[0], e[1], {
+              hidden: e[0] === far || e[1] === far,
+              lit: hi.indexOf(e.join('')) !== -1,
+              tone: hi.indexOf(e.join('')) !== -1 ? T.accent : T.ink3,
+              w: hi.indexOf(e.join('')) !== -1 ? 3 : 1.6,
+            })) : null}
+
+            {BODY ? BODY.E.map((e) => line(e[0], e[1], {
+              key: 'be' + e[0] + e[1],
+              hidden: e[0] === far || e[1] === far,
+              lit: hi.indexOf(e.join('')) !== -1,
+              tone: hi.indexOf(e.join('')) !== -1 ? T.accent : T.ink3,
+              w: hi.indexOf(e.join('')) !== -1 ? 3 : 1.6,
+            })) : null}
+
+            {segs.map((sg, i) => line(sg.from, sg.to, {
+              key: 'sg' + i, tone: sg.tone || T.accent, w: sg.w || 2.6, hidden: sg.hidden,
+            }))}
+
+            {/* KESIM -- ko'pburchak. Qirralardan KEYIN chiziladi: uning konturi
+                jismning ustida o'qilishi kerak, aks holda kesim yoq bo'lib
+                ko'rinadi. To'g'ri va NOTO'G'RI kesim bitta asbob bilan
+                chiziladi: xato -- nuqtalarni ULASH TARTIBIDA, va uni boshqa
+                figura bilan ko'rsatish xatoni yashirish bo'lardi (49-dars). */}
+            {cut ? (
+              <polygon
+                points={cut.by.map((k) => XY(k).join(',')).join(' ')}
+                fill={cut.tone || T.tip}
+                opacity={cut.dim ? 0.2 : 0.34}
+                stroke={cut.tone || T.tip}
+                strokeWidth={cut.w || 2.6}
+                strokeLinejoin="round"
+              />
+            ) : null}
+
+            {/* TO'G'RI BURCHAK BELGISI -- kichik kvadrat, uchida.
+                BELGI BITTA EMAS, BIR NECHTA bo'lishi mumkin: uch perpendikulyar
+                haqidagi teoremada ikki to'g'ri burchak BIR VAQTDA turadi, va
+                ikkinchisi paydo bo'lishi darsning butun mazmuni (41-dars).
+                Bitta obyekt ham qabul qilinadi -- 38-40-darslar shunday beradi. */}
+            {(angleAt ? [].concat(angleAt) : []).map((mark, mi) => {
+              const [ox, oy] = XY(mark.at)
+              const [ax1, ay1] = XY(mark.from)
+              const [ax2, ay2] = XY(mark.to)
+              // IKKI BELGI BIR UCHDA umumiy nurga ega bo'ladi (uch perpendikulyar
+              // haqidagi teorema), va bir xil o'lchamda ular ustma-ust tushadi.
+              // `scale` bilan ikkinchisi kattaroq chiziladi va ikkalasi
+              // o'qiladi -- ichma-ich ikki kvadrat.
+              const k = Math.max(9, R * 0.11) * (mark.scale || 1)
+              const u1 = [(ax1 - ox), (ay1 - oy)]
+              const u2 = [(ax2 - ox), (ay2 - oy)]
+              const n1 = Math.hypot(u1[0], u1[1]) || 1
+              const n2 = Math.hypot(u2[0], u2[1]) || 1
+              const q1 = [ox + (u1[0] / n1) * k, oy + (u1[1] / n1) * k]
+              const q2 = [ox + (u2[0] / n2) * k, oy + (u2[1] / n2) * k]
+              const q3 = [q1[0] + q2[0] - ox, q1[1] + q2[1] - oy]
+              return (
+                <polyline
+                  key={'ang' + mi}
+                  points={q1.join(',') + ' ' + q3.join(',') + ' ' + q2.join(',')}
+                  fill="none" stroke={mark.tone || T.tip} strokeWidth="1.8"
+                />
+              )
+            })}
+
+            {/* BURCHAK DUGASI podpis bilan. To'g'ri burchak kvadrat bilan
+                belgilanadi, qolgan burchaklar esa dugani talab qiladi: 42-darsda
+                og'ma va uning proyeksiyasi orasidagi burchak ko'rsatiladi.
+
+                MUHIM. Duga burchak QAYERDA ekanini ko'rsatadi, uning KATTALIGINI
+                emas: proyeksiya burchakni buzadi, va ekrandan gradus o'lchab
+                bo'lmaydi. Shuning uchun darsda son hisoblanadi, chizmadan
+                o'qilmaydi (etalon: «o'lchadim degani isbotladim emas»). */}
+            {(arcAt ? [].concat(arcAt) : []).map((arc, ai) => {
+              const [ox, oy] = XY(arc.at)
+              const [x1, y1] = XY(arc.from)
+              const [x2, y2] = XY(arc.to)
+              const rr = Math.max(15, R * 0.19) * (arc.scale || 1)
+              const unit = (dx, dy) => {
+                const n = Math.hypot(dx, dy) || 1
+                return [dx / n, dy / n]
+              }
+              const u1 = unit(x1 - ox, y1 - oy)
+              const u2 = unit(x2 - ox, y2 - oy)
+              const q1 = [ox + u1[0] * rr, oy + u1[1] * rr]
+              const q2 = [ox + u2[0] * rr, oy + u2[1] * rr]
+              const sweep = (u1[0] * u2[1] - u1[1] * u2[0]) > 0 ? 1 : 0
+              const bis = unit(u1[0] + u2[0], u1[1] + u2[1])
+              const tone = arc.tone || T.accent
+              return (
+                <g key={'arc' + ai}>
+                  <path
+                    d={`M ${q1[0]} ${q1[1]} A ${rr} ${rr} 0 0 ${sweep} ${q2[0]} ${q2[1]}`}
+                    fill="none" stroke={tone} strokeWidth="2"
+                  />
+                  {arc.label ? (
+                    <text
+                      x={ox + bis[0] * (rr + fs * 1.05)}
+                      y={oy + bis[1] * (rr + fs * 1.05) + fs * 0.32}
+                      textAnchor="middle"
+                      fontFamily={MATH_FONT} fontSize={Math.max(12, fs * 0.95)}
+                      fontWeight="700" fill={tone} {...halo(size)}
+                    >{arc.label}</text>
+                  ) : null}
+                </g>
+              )
+            })}
+
+            {Object.keys(V).filter((k) => hide.indexOf(k) === -1).map((k) => {
+              // KESIM UCHI YORLIQSIZ ham bo'ladi: yettiburchakda yetti harf
+              // chizmani yopib qo'yadi, nuqtalarning O'ZI esa tomonlarni sanash
+              // uchun kerak. Bo'sh `label` -- nuqta bor, harf yo'q.
+              const own = pts.concat(cuts).find((q) => q.id === k) || {}
+              const [x, y] = XY(k)
+              const lbl = own.label === undefined ? subOf(k) : own.label
+              return (
+                <g key={'v' + k}>
+                  <circle cx={x} cy={y} r={Math.max(3, R * 0.035)} fill={T.ink2} />
+                  {lbl && (cube || BODY || own.label) ? (
+                    <text
+                      x={x + fs * 0.5} y={y - fs * 0.35}
+                      fontFamily={MATH_FONT} fontSize={Math.max(11, fs * 0.82)}
+                      fontWeight="700" fill={T.ink2} {...halo(size)}
+                    >{lbl}</text>
+                  ) : null}
+                </g>
+              )
+            })}
           </g>
         )
       }}

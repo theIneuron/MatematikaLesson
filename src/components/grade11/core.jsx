@@ -2411,3 +2411,69 @@ sup.g11-idx { vertical-align: .46em; }
   .g11-hint { line-height: 1.3; }
 }
 `
+
+// ============================================================
+// KAMCHILIKLAR XARITASI (metodist qarori 2026-08-21, B6 bloki).
+//
+// `makeLesson` har darsning oxirida `gaps` ni hisoblaydi: qaysi diagnostik
+// teg xato javob berdi. Shu paytgacha bu son faqat `onFinished` ga ketardi
+// va O'CHIB ketardi -- ya'ni o'quvchi «qaysi mavzuni takrorlashim kerak»
+// degan savolga javob olmasdi.
+//
+// Endi natija BLOK bo'yicha yig'iladi va DTM darslarida (46-49) o'qiladi.
+// Bir foiz emas, XARITA: «B2 -- asosga qarab ishora, B5 -- qiya masofa
+// emas». PODXOD_11SINF.md §9 shuni talab qiladi.
+//
+// Nega localStorage. Sinf bo'ylab bitta narsa dars tugagandan keyin ham
+// yashashi kerak, backend esa yo'q. Kalit versiyalangan: shakl o'zgarsa,
+// eski yozuv o'qilmaydi va xato ma'lumot ko'rsatilmaydi.
+// ============================================================
+const GAP_KEY = 'g11_gaps_v1'
+
+export const readGaps = () => {
+  try {
+    const raw = window.localStorage.getItem(GAP_KEY)
+    if (!raw) return {}
+    const obj = JSON.parse(raw)
+    return obj && typeof obj === 'object' ? obj : {}
+  } catch (e) {
+    // Xususiy rejim yoki o'chirilgan saqlash: xarita YO'Q, dars esa ishlaydi.
+    return {}
+  }
+}
+
+// blok: 'B5' kabi yorliq. Teglar QO'SHILADI: o'quvchi darsni ikkinchi
+// marta o'tsa, xato yana sanaladi -- bu ham ma'lumot.
+export const saveGaps = (block, lessonId, gaps) => {
+  if (!block || !gaps) return
+  const keys = Object.keys(gaps)
+  if (!keys.length) return
+  try {
+    const all = readGaps()
+    const b = all[block] || {}
+    keys.forEach((k) => {
+      const cur = b[k] || { n: 0, at: [] }
+      cur.n += gaps[k]
+      if (lessonId && cur.at.indexOf(lessonId) === -1) cur.at.push(lessonId)
+      b[k] = cur
+    })
+    all[block] = b
+    window.localStorage.setItem(GAP_KEY, JSON.stringify(all))
+  } catch (e) {
+    // Yozib bo'lmadi -- dars shundan yiqilmaydi.
+  }
+}
+
+// Xaritani ekranga tayyorlash: eng ko'p xato bergan teglar oldinda.
+// `limit` -- nechta teg ko'rsatiladi.
+export const topGaps = (limit = 4) => {
+  const all = readGaps()
+  const rows = []
+  Object.keys(all).forEach((block) => {
+    Object.keys(all[block]).forEach((tag) => {
+      rows.push({ block, tag, n: all[block][tag].n, at: all[block][tag].at || [] })
+    })
+  })
+  rows.sort((a, b) => (b.n - a.n) || (a.tag < b.tag ? -1 : 1))
+  return rows.slice(0, limit)
+}

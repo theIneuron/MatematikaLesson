@@ -63,6 +63,8 @@ import {
   useMobileZoom,
   useNarratedSteps,
   useT,
+  saveGaps,
+  topGaps,
 } from './core.jsx'
 import {
   AnswerInterval,
@@ -79,6 +81,8 @@ import {
   RuleGate,
   SignFill,
   SolutionLine,
+  SecantBoard,
+  SpaceFrame,
   SupportCards,
   SpinBoard,
   TestPointRows,
@@ -137,6 +141,8 @@ export const UI = {
   learned: L("Nimani o'rgandingiz", 'Что нового на уроке', 'What you learned'),
   predictToProved: L('Boshdagi taxmin → isbotlangan javob', 'Прогноз в начале → доказанный ответ', 'Initial guess → proved answer'),
   dtmReady: L('DTM ga tayyorlik', 'Готовность к ДТМ', 'Exam readiness'),
+  gapMap: L('Kamchiliklar xaritasi', 'Карта пробелов', 'Your gap map'),
+  gapNone: L("Xato teg yo'q", 'Ошибок по темам нет', 'No topic errors yet'),
   weakSpot: L('Takrorlash kerak', 'Требует повтора', 'Needs review'),
   yourPick: L('sizning taxminingiz', 'твой прогноз', 'your guess'),
   agrees: L('mos keldi', 'сходится', 'consistent'),
@@ -207,6 +213,77 @@ export const TAG_NAMES = {
   sum_vs_product: L('VA yoki YOKI', 'И или ИЛИ', 'AND or OR'),
   cross_section: L('kesim yuzasi', 'площадь сечения', 'the section area'),
   between_curves: L('ikki chiziq orasidagi yuza', 'площадь между линиями', 'the area between the lines'),
+  // B5 bloki (35-41). Bu yigirma uchtasi YO'Q edi: yakunda «zaif joy»
+  // yonida bo'sh joy chiqardi -- ya'ni diagnostika jim qolardi.
+  coord_order: L('koordinatalar tartibi', 'порядок координат', 'the order of the coordinates'),
+  projection_point: L("nuqtaning tekislikka proyeksiyasi", 'проекция точки на плоскость', 'the projection of a point'),
+  octant_sign: L('oktant va ishora', 'знак координаты в октанте', 'the sign inside the octant'),
+  mid_ratio: L("o'rta nuqta -- o'rta arifmetik", 'середина это среднее', 'the midpoint is an average'),
+  vector_order: L("oxiri minus boshi", 'конец минус начало', 'the head minus the tail'),
+  free_vector: L("vektor nuqtaga bog'lanmagan", 'вектор не привязан к точке', 'a vector is not pinned to a point'),
+  sum_rule: L("yig'indi qoidasi", 'правило сложения', 'the addition rule'),
+  len_of_sum: L("yig'indining uzunligi", 'длина суммы', 'the length of a sum'),
+  scale_sign: L("ko'paytuvchi ishorasi", 'знак множителя', 'the sign of the factor'),
+  collinear_prop: L('kollinearlik proporsiya bilan', 'коллинеарность через пропорцию', 'collinearity through a proportion'),
+  coplanar_vs_collinear: L('bir tekislikda yoki bir chiziqda', 'в плоскости или на прямой', 'coplanar or collinear'),
+  dot_sign: L("skalyar ko'paytma ishorasi", 'знак скалярного произведения', 'the sign of the dot product'),
+  perp_zero: L('perpendikulyarlik nolga teng', 'перпендикулярность это ноль', 'perpendicular means zero'),
+  plane_normal: L('normal koeffitsiyentlarda', 'нормаль в коэффициентах', 'the normal sits in the coefficients'),
+  plane_free_term: L('ozod had nuqtadan topiladi', 'свободный член из точки', 'the free term comes from a point'),
+  angle_obtuse: L("o'tmas burchak va modul", 'тупой угол и модуль', 'the obtuse angle and the modulus'),
+  plane_parallel: L('tekisliklarning parallelligi', 'параллельность плоскостей', 'parallel planes'),
+  dist_flat: L('tekislikda va fazoda masofa', 'расстояние на плоскости и в пространстве', 'distance in the plane and in space'),
+  slant_not_distance: L('qiya masofa emas', 'наклонная это не расстояние', 'a slant is not the distance'),
+  sphere_center: L('sfera markazi va radiusi', 'центр и радиус сферы', 'the centre and radius of a sphere'),
+  sym_coord: L("qaysi koordinata ishora almashadi", 'какая координата меняет знак', 'which coordinate flips sign'),
+  move_vs_similar: L("harakat yoki o'xshashlik", 'движение или подобие', 'a motion or a similarity'),
+  homothety_k: L('gomotetiya koeffitsiyenti', 'коэффициент гомотетии', 'the homothety ratio'),
+  // B6 bloki (43-49). Hosila va DTM rejimi.
+  avg_vs_inst: L("o'rtacha va oniy tezlik", 'средняя и мгновенная скорость', 'average and instant speed'),
+  ratio_flip: L('nisbat teskari yozilgan', 'отношение перевёрнуто', 'the ratio is upside down'),
+  deriv_vs_value: L('hosila va qiymat', 'производная и значение', 'the derivative and the value'),
+  power_vs_exp: L("daraja va ko'rsatkichli funksiya", 'степень и показательная', 'a power and an exponential'),
+  const_zero: L("o'zgarmas nol beradi", 'постоянная даёт ноль', 'a constant gives zero'),
+  product_not_product: L("ko'paytmaning hosilasi", 'производная произведения', 'the derivative of a product'),
+  quotient_order: L("bo'linmada tartib", 'порядок в частном', 'the order in a quotient'),
+  tangent_point: L('urinma nuqtasi', 'точка касания', 'the point of tangency'),
+  deriv_sign_monotone: L("ishora va o'sish", 'знак и рост', 'the sign and the growth'),
+  stationary_not_extremum: L('statsionar nuqta va ekstremum', 'стационарная точка и экстремум', 'a stationary point and an extremum'),
+  endpoint_value: L('kesma uchlari', 'концы отрезка', 'the endpoints of the interval'),
+  root_modulus: L('juft darajali ildiz va modul', 'корень чётной степени и модуль', 'an even root and the modulus'),
+}
+
+// ============================================================
+// GapMap -- KAMCHILIKLAR XARITASI ekranda.
+//
+// Bir foiz emas, ro'yxat: qaysi BLOKDA qaysi teg xato bergan. Metodist
+// qarori 2026-08-21: DTM darsining natijasi «60 foiz» bo'lmasligi kerak,
+// chunki bu son nima takrorlashni aytmaydi.
+//
+// O'qish EFFEKTDA: render toza qolishi kerak, localStorage esa I/O.
+// ============================================================
+export function GapMap({ limit = 4, t }) {
+  const [rows, setRows] = useState([])
+  useEffect(() => { setRows(topGaps(limit)) }, [limit])
+
+  return (
+    <Panel tone="quiet" pad={9} style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+      <Tag tone="tip">{t(UI.gapMap)}</Tag>
+      {rows.length === 0
+        ? <span className="g11-expr g11-expr-sm g11-dim">{t(UI.gapNone)}</span>
+        : rows.map((r) => (
+          <div
+            key={r.block + r.tag}
+            className="g11-expr g11-expr-sm g11-wrap"
+            style={{ display: 'grid', gridTemplateColumns: '30px minmax(0,1fr) auto', gap: 6, alignItems: 'center', color: T.ink2 }}
+          >
+            <span className="g11-mono" style={{ color: T.ink3 }}>{r.block}</span>
+            <span>{t(TAG_NAMES[r.tag] || '')}</span>
+            <span className="g11-mono" style={{ color: T.accent }}>{r.n}</span>
+          </div>
+        ))}
+    </Panel>
+  )
 }
 
 // ============================================================
@@ -276,7 +353,10 @@ export function Screen({ data, block, screen, total, answers, onAnswer, onNext, 
       block={block}
       screen={screen}
       total={total}
-      section={sectionOfRole(data.role)}
+      /* DTM rejimida (etalon 1.2) `points`, `graph` va `twoway` ekranlari
+         PRAKTIKA bo'lib turadi: tushuntirish bloki yo'q. Rol jadvali
+         o'zgarmaydi -- dars o'zi `section` ni aytadi. */
+      section={data.section || sectionOfRole(data.role)}
       audio={audio}
       nav={nav}
     >
@@ -496,7 +576,79 @@ export function GraphBody({ data, phase, audio, solve, t }) {
               tarjima qilinadi, asbob ichida emas. */}
           {/* B3 bloki: `graph` roli natijalar daraxtini chizadi. Rol
               o'zgarmaydi -- MA'LUMOT o'zgaradi, xuddi B1 dagidek. */}
-          {data.solid
+          {/* B5 bloki: `graph` roli FAZOVIY KARKASNI chizadi. Rol
+              o'zgarmaydi -- MA'LUMOT o'zgaradi, xuddi B1, B3 va B4
+              bloklaridagidek. Ochilish qadamlari massiv bilan beriladi:
+              `mapT`, `sumSteps`, `lambdas`, `feet` -- shunda kadr bilan
+              nutq bir vaqtda yuradi. */}
+          {/* B6 bloki: `graph` roli HOSILA taxtasini chizadi -- kesuvchi
+              urinmaga o'tadi. Rol o'zgarmaydi, MA'LUMOT o'zgaradi. Ishora
+              lentasi va statsionar nuqtalar `showAt` bilan ochiladi:
+              45-darsda ikkita nuqta bir vaqtda chiqib qolsa, ovoz
+              birinchisini aytayotganda ikkinchisi allaqachon ekranda
+              turgan bo'lardi. */}
+          {data.secant
+            ? (
+              <SecantBoard
+                {...data.secant}
+                phase={graphPhase}
+                signs={(data.secant.signs || []).filter((sg) => graphPhase >= (sg.showAt || 0))}
+                marks={(data.secant.marks || []).filter((mk) => graphPhase >= (mk.showAt || 0))}
+              />
+            )
+            : data.space
+            ? (
+              <SpaceFrame
+                {...data.space}
+                /* `steps` -- KADR bo'yicha ma'lumot: 37-darsda ikkinchi
+                   strelka buriladi, ya'ni o'zgaradigan narsa vektorning
+                   O'ZI. Massiv oxirgi kadrda to'xtaydi. */
+                {...(data.space.steps
+                  ? data.space.steps[Math.min(graphPhase, data.space.steps.length - 1)]
+                  : null)}
+                /* Nuqta va uning soyalari QADAM bilan ochiladi: `showAt` --
+                   nuqtaning o'zi, `projAt` -- proyeksiyalar. Aks holda
+                   35-darsning to'rtinchi ekrani birinchi soniyada to'lib
+                   qolardi va ovoz bo'sh joyga gapirardi. */
+                vectors={((data.space.steps
+                  ? (data.space.steps[Math.min(graphPhase, data.space.steps.length - 1)].vectors || data.space.vectors)
+                  : data.space.vectors) || []).filter((v) => graphPhase >= (v.showAt || 0))}
+                planes={(data.space.planes || []).filter((pl) => graphPhase >= (pl.showAt || 0))}
+                points={(data.space.points || []).filter((p) => graphPhase >= (p.showAt || 0)).map((p) => (
+                  p.proj && data.space.projAt !== undefined && graphPhase < data.space.projAt
+                    ? { ...p, proj: false }
+                    : p
+                ))}
+                sum={data.space.sum
+                  ? {
+                    ...data.space.sum,
+                    step: data.space.sumSteps
+                      ? data.space.sumSteps[Math.min(graphPhase, data.space.sumSteps.length - 1)]
+                      : data.space.sum.step,
+                  }
+                  : undefined}
+                map={data.space.map
+                  ? {
+                    ...data.space.map,
+                    t: data.space.mapT
+                      ? data.space.mapT[Math.min(graphPhase, data.space.mapT.length - 1)]
+                      : data.space.map.t,
+                  }
+                  : undefined}
+                lambda={data.space.lambdas
+                  ? data.space.lambdas[Math.min(graphPhase, data.space.lambdas.length - 1)]
+                  : data.space.lambda}
+                drop={data.space.drop
+                  ? {
+                    ...data.space.drop,
+                    foot: data.space.feet
+                      ? data.space.feet[Math.min(graphPhase, data.space.feet.length - 1)]
+                      : data.space.drop.foot,
+                  }
+                  : undefined}
+              />
+            )
+            : data.solid
             ? (
               <SpinBoard
                 {...data.solid}
@@ -1122,6 +1274,9 @@ export function SummaryBody({ data, phase, audio, answers, solve, t }) {
               <Tag tone="tip">{t(UI.weakSpot) + ': ' + t(TAG_NAMES[weak.tag] || '')}</Tag>
             ) : null}
           </Panel>
+          {/* DTM darslarida (46-49) yakun BUTUN YIL bo'yicha xaritani
+              ko'rsatadi -- shu darsning foizini emas. */}
+          {data.gapMap && phase >= 3 ? <GapMap limit={data.gapMap === true ? 4 : data.gapMap} t={t} /> : null}
         </Col>
       </Cols>
       <PrintSheet
@@ -1160,7 +1315,7 @@ const BODIES = {
 // `block` = { label, from, to, current } -- shapkadagi dars RAQAMI ham
 // shundan olinadi (`current`).
 // ============================================================
-export function makeLesson({ meta, block, screens, voice = 'm' }) {
+export function makeLesson({ meta, block, screens, voice = 'm', mode = 'etalon' }) {
   const TOTAL = screens.length
 
   return function Grade11Lesson({
@@ -1220,6 +1375,8 @@ export function makeLesson({ meta, block, screens, voice = 'm' }) {
       const payload = {
         lessonId: meta.id,
         lessonTitle: tr(meta.title, lang),
+        // Qaysi anatomiya ishlatilgan: etalon yoki DTM rejimi (etalon 1.2).
+        mode,
         lang,
         completed: true,
         durationSec: startedAt.current ? Math.floor((Date.now() - startedAt.current) / 1000) : 0,
@@ -1230,6 +1387,10 @@ export function makeLesson({ meta, block, screens, voice = 'm' }) {
         gaps,
         answers,
       }
+      // KAMCHILIKLAR XARITASI: teglar blok bo'yicha yig'iladi va keyingi
+      // darslarda o'qiladi (B6 dan boshlab). Yozuv bitta joyda -- umumiy
+      // qatlamda: har darsga qo'l bilan qo'shilsa, biri esdan chiqadi.
+      saveGaps(block && block.label, meta.id, gaps)
       if (onFinished) onFinished(payload)
       else console.log('[Grade11 ' + meta.id + '] onFinished', payload)
     }, [answers, lang, onFinished])

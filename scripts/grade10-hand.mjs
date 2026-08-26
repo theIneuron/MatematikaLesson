@@ -35,6 +35,20 @@ const SLUGS = {
   dars34: 'dars34-logarifmik-ifodalar',
   dars35: 'dars35-korsatkichli-logarifmik-tengsizliklar',
   dars36: 'dars36-trigonometrik-tengsizliklar',
+  dars41: 'dars41-ogma-va-uch-perpendikulyar',
+  dars42: 'dars42-chiziq-va-tekislik-burchagi',
+  dars43: 'dars43-ikki-yoqli-burchak',
+  dars44: 'dars44-prizma',
+  dars45: 'dars45-parallelepiped',
+  dars46: 'dars46-piramida',
+  dars47: 'dars47-sirt-yuzasi',
+  dars48: 'dars48-muntazam-jismlar',
+  dars49: 'dars49-kesimlarni-yasash',
+  dars50: 'dars50-fazoda-koordinatalar',
+  dars37: 'dars37-ehtimolliklar-nazariyasi',
+  dars38: 'dars38-stereometriya-aksiomalari',
+  dars39: 'dars39-ayqash-togri-chiziqlar',
+  dars40: 'dars40-perpendikulyar-chiziq-tekislik',
 }
 if (!SLUGS[LESSON]) {
   console.log(`nomalum dars: ${LESSON}. Bor: ${Object.keys(SLUGS).join(', ')}`)
@@ -2519,6 +2533,1473 @@ PLANS.dars36 = [
     act: async (p) => {
       const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
       for (const a of [o('дугой и её оборотами'), o('ни одного'), o('сто восемьдесят'), o('триста шестьдесят')]) {
+        await clickText(p, a); await p.waitForTimeout(1700)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  { n: 15, act: async () => {}, done: '.g10-print' },
+]
+
+// 37-dars: EHTIMOLLIK. PRIBOR 7 -- meshok isxodov.
+PLANS.dars37 = [
+  { n: 1, act: async (p) => clickText(p, 'втор'), done: '.g10-fb' },
+  {
+    n: 2,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const a of [o('каждый отдельный'), o('нет причины'), o('какую часть')]) {
+        await clickText(p, a); await p.waitForTimeout(1600)
+      }
+    },
+    done: { sel: '.g10-done', count: 3 },
+  },
+  {
+    n: 3,
+    act: async (p) => {
+      await waitReady(p)
+      const o = (t) => ({ text: t, exact: true, scope: '.stage-content .g10-opt' })
+      // Kartochka yozuvi tilga qarab o'zgaradi, shuning uchun barcha uch tildagi
+      // «har xil tomon» kartochkalari ro'yxatda turadi.
+      for (const c of ['ГЧ', 'ЧГ', 'GR', 'RG', 'HT', 'TH']) {
+        await clickText(p, { text: c, exact: false, scope: '.stage-content .g10-opt' })
+      }
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 4,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['выложить исходы', 'посчитать дробь', 'провести испытания', 'сравнить с дробью']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 5,
+    act: async (p) => {
+      await waitReady(p)
+      // Urnada 12 kartochka: 9 tasi belgilanadi. Ular bir xil yozuvli, shuning
+      // uchun tugmalar TARTIB bilan bosiladi, matn bilan emas.
+      await p.evaluate(() => {
+        const bs = Array.from(document.querySelectorAll('.stage-content .g10-opt'))
+        bs.slice(0, 9).forEach((b) => b.click())
+      })
+      await p.waitForTimeout(400)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  { n: 6, act: async (p) => { await waitKeys(p); return typeKeys(p, ['6']) }, done: '.g10-entry-ok' },
+  { n: 7, act: async (p) => { await waitKeys(p); return typeKeys(p, ['0']) }, done: '.g10-entry-ok' },
+  { n: 8, act: async (p) => clickText(p, 'до опыта'), done: '.g10-rule' },
+  {
+    n: 9,
+    act: async (p) => {
+      const o = (t) => ({ text: t, exact: true, scope: '.stage-content .g10-opt' })
+      const pairs = [
+        ['m = 3, n = 6', o('1/2')], ['m = 0, n = 10', o('0')],
+        ['m = 20, n = 20', o('1')], ['m = 9, n = 12', o('3/4')],
+      ]
+      for (const pr of pairs) {
+        await clickText(p, pr[0]); await clickText(p, pr[1]); await p.waitForTimeout(500)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  {
+    n: 10,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['выложить исходы', 'объявить равновозможными', 'отметить благоприятные', 'записать отношение']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 11,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['9'])
+      await p.waitForTimeout(2000)
+      await waitReady(p)
+      const chip = (t) => ({ text: t, scope: '.stage-content .g10-chip' })
+      for (const c of [chip('m = 0, n = 5'), chip('m = 1, n = 4'), chip('m = 1, n = 2'), chip('m = 3, n = 4')]) {
+        await clickText(p, c)
+      }
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 12,
+    act: async (p) => {
+      await clickText(p, 'P(A) = n/m')
+      await p.waitForTimeout(1200)
+      await waitKeys(p)
+      return typeKeys(p, ['9'])
+    },
+    done: '.g10-entry-ok',
+  },
+  {
+    n: 13,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['3'])
+      await p.waitForTimeout(2200)
+      await waitReady(p)
+      const opt = (t) => ({ text: t, exact: false, scope: '.stage-content .g10-opt' })
+      for (const c of [opt('7'), opt('0')]) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 14,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const a of [o('четыре'), o('узнать нельзя'), o('единице'), o('большом числе')]) {
+        await clickText(p, a); await p.waitForTimeout(1700)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  { n: 15, act: async () => {}, done: '.g10-print' },
+]
+
+// 38-dars: STEREOMETRIYA AKSIOMALARI. PRIBOR 6A -- fazoviy sahna.
+// Sahnani burish tugmalari: javob faqat burilgandan keyin ochiladi.
+const spinFirst = async (p) => {
+  await waitReady(p)
+  await clickText(p, { text: 'вправо', scope: '.stage-content button' })
+  await p.waitForTimeout(700)
+}
+
+PLANS.dars38 = [
+  { n: 1, act: async (p) => clickText(p, 'втор'), done: '.g10-fb' },
+  {
+    n: 2,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const a of [o('пространственные'), o('не дают определения'), o('греческой')]) {
+        await clickText(p, a); await p.waitForTimeout(1600)
+      }
+    },
+    done: { sel: '.g10-done', count: 3 },
+  },
+  {
+    n: 3,
+    act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['1']) },
+    done: '.g10-entry-ok',
+  },
+  {
+    n: 4,
+    act: async (p) => {
+      await spinFirst(p)
+      return clickText(p, { text: 'бесконечно много', scope: '.stage-content .g10-opt' })
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 5,
+    act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['2']) },
+    done: '.g10-entry-ok',
+  },
+  {
+    n: 6,
+    act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['1']) },
+    done: '.g10-entry-ok',
+  },
+  { n: 7, act: async (p) => { await waitKeys(p); return typeKeys(p, ['0']) }, done: '.g10-entry-ok' },
+  { n: 8, act: async (p) => clickText(p, 'не лежат на одной прямой'), done: '.g10-rule' },
+  {
+    n: 9,
+    act: async (p) => {
+      const o = (t) => ({ text: t, exact: true, scope: '.stage-content .g10-opt' })
+      const pairs = [
+        ['A, B, C ∉ a', o('1')], ['A, B, C ∈ a', o('∞')],
+        ['A, B, C, D', o('4')], ['ABCDA', o('6')],
+      ]
+      for (const pr of pairs) {
+        await clickText(p, pr[0]); await clickText(p, pr[1]); await p.waitForTimeout(500)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  {
+    n: 10,
+    act: async (p) => {
+      await waitReady(p)
+      // Isbot ustuni: har qatorga asoslash tanlanadi, ro'yxat aralashgan.
+      for (const c of ['по построению', 'первая аксиома', 'вторая аксиома']) {
+        await clickText(p, { text: c, scope: '.stage-content .g10-opt' })
+        await p.waitForTimeout(700)
+      }
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 11,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['4'])
+      await p.waitForTimeout(2000)
+      await waitReady(p)
+      // «A, B» qolgan uchtasining ICHIDA ham bor: aynan moslik kerak.
+      const chip = (t) => ({ text: t, scope: '.stage-content .g10-chip' })
+      for (const c of [chip('A, B, C ∉ a'), chip('A, B, C, D'), chip('ABCDA'), chip('A, B, C ∈ a')]) {
+        await clickText(p, c)
+      }
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 12,
+    act: async (p) => {
+      await clickText(p, 'C ∈ a')
+      await p.waitForTimeout(1200)
+      await waitKeys(p)
+      return typeKeys(p, ['2'])
+    },
+    done: '.g10-entry-ok',
+  },
+  {
+    n: 13,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['2'])
+      await p.waitForTimeout(2200)
+      await waitReady(p)
+      const opt = (t, not) => ({ text: t, not, scope: '.stage-content .g10-opt' })
+      for (const c of [opt('A, B, C ∉ a'), opt('a, C ∉ a')]) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 14,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const a of [o('бесконечно много'), o('тоже в этой плоскости'), o('одна'), o('видно на чертеже')]) {
+        await clickText(p, a); await p.waitForTimeout(1700)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  { n: 15, act: async () => {}, done: '.g10-print' },
+]
+
+// 39-dars: AYQASH TO'G'RI CHIZIQLAR. Sahnani burish -- shohid.
+PLANS.dars39 = [
+  { n: 1, act: async (p) => clickText(p, 'втор'), done: '.g10-fb' },
+  {
+    n: 2,
+    act: async (p) => {
+      const o = (t, not) => ({ text: t, not, scope: '.stage-content .g10-opt' })
+      for (const a of [o('одна', 'бесконечно'), o('в одной плоскости'), o('общая прямая')]) {
+        await clickText(p, a); await p.waitForTimeout(1600)
+      }
+    },
+    done: { sel: '.g10-done', count: 3 },
+  },
+  {
+    n: 3,
+    act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['0']) },
+    done: '.g10-entry-ok',
+  },
+  {
+    n: 4,
+    act: async (p) => {
+      await spinFirst(p)
+      return clickText(p, { text: 'нет общей плоскости', scope: '.stage-content .g10-opt' })
+    },
+    done: '.g10-fb-ok',
+  },
+  { n: 5, act: async (p) => { await waitKeys(p); return typeKeys(p, ['3']) }, done: '.g10-entry-ok' },
+  { n: 6, act: async (p) => { await waitKeys(p); return typeKeys(p, ['4']) }, done: '.g10-entry-ok' },
+  { n: 7, act: async (p) => { await waitKeys(p); return typeKeys(p, ['9', '0']) }, done: '.g10-entry-ok' },
+  { n: 8, act: async (p) => clickText(p, 'нет плоскости'), done: '.g10-rule' },
+  {
+    n: 9,
+    act: async (p) => {
+      const o = (t) => ({ text: t, exact: true, scope: '.stage-content .g10-opt' })
+      const pairs = [
+        ['AB ∸ ?', o('4')], ['AB ∥ ?', o('3')],
+        ['AB ∩ CC', o('0')], ['ABCDA', o('12')],
+      ]
+      for (const pr of pairs) {
+        await clickText(p, pr[0]); await clickText(p, pr[1]); await p.waitForTimeout(500)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  {
+    n: 10,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['по построению куба', 'вторая аксиома', 'признак скрещивающихся']) {
+        await clickText(p, { text: c, scope: '.stage-content .g10-opt' })
+        await p.waitForTimeout(700)
+      }
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 11,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['4'])
+      await p.waitForTimeout(2000)
+      await waitReady(p)
+      const chip = (t) => ({ text: t, scope: '.stage-content .g10-chip' })
+      for (const c of [chip('AB ∩ CC'), chip('AB ∥ ?'), chip('AB ∸ ?'), chip('ABCDA')]) {
+        await clickText(p, c)
+      }
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 12,
+    act: async (p) => {
+      await clickText(p, 'AB ∥ B')
+      await p.waitForTimeout(1200)
+      await waitKeys(p)
+      return typeKeys(p, ['0'])
+    },
+    done: '.g10-entry-ok',
+  },
+  {
+    n: 13,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['0'])
+      await p.waitForTimeout(2200)
+      await waitReady(p)
+      const opt = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const c of [opt('AB, B1C1'), opt('AB, CC1')]) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 14,
+    act: async (p) => {
+      const o = (t, not) => ({ text: t, not, scope: '.stage-content .g10-opt' })
+      for (const a of [o('три', 'четыре'), o('не лежащие в одной'), o('четыре'), o('переносят одну')]) {
+        await clickText(p, a); await p.waitForTimeout(1700)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  { n: 15, act: async () => {}, done: '.g10-print' },
+]
+
+// 40-dars: PERPENDIKULYAR CHIZIQ VA TEKISLIK. Bitta chiziq kam.
+PLANS.dars40 = [
+  { n: 1, act: async (p) => clickText(p, 'втор'), done: '.g10-fb' },
+  {
+    n: 2,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const a of [o('девяносто градусов'), o('да, могут'), o('бесконечно много')]) {
+        await clickText(p, a); await p.waitForTimeout(1600)
+      }
+    },
+    done: { sel: '.g10-done', count: 3 },
+  },
+  {
+    n: 3,
+    act: async (p) => {
+      await spinFirst(p)
+      return clickText(p, { text: 'наклонно', not: 'всё ещё', scope: '.stage-content .g10-opt' })
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 4,
+    act: async (p) => {
+      await spinFirst(p)
+      return clickText(p, { text: 'перпендикулярно плоскости', scope: '.stage-content .g10-opt' })
+    },
+    done: '.g10-fb-ok',
+  },
+  { n: 5, act: async (p) => { await waitKeys(p); return typeKeys(p, ['2']) }, done: '.g10-entry-ok' },
+  { n: 6, act: async (p) => { await waitKeys(p); return typeKeys(p, ['1']) }, done: '.g10-entry-ok' },
+  { n: 7, act: async (p) => { await waitKeys(p); return typeKeys(p, ['1']) }, done: '.g10-entry-ok' },
+  { n: 8, act: async (p) => clickText(p, 'признак ведёт к выводу'), done: '.g10-rule' },
+  {
+    n: 9,
+    act: async (p) => {
+      const o = (t) => ({ text: t, exact: true, scope: '.stage-content .g10-opt' })
+      const pairs = [
+        ['AB ⊥ ?', o('8')], ['AB ∥ ?', o('3')],
+        ['AB ∸ ?', o('4')], ['ABCDA', o('6')],
+      ]
+      for (const pr of pairs) {
+        await clickText(p, pr[0]); await clickText(p, pr[1]); await p.waitForTimeout(500)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  {
+    n: 10,
+    act: async (p) => {
+      await waitReady(p)
+      // ASOSLASHLAR QAYTA BOG'LANDI (2026-08-20): birinchi ikki qator kub
+      // yasalishidan, uchinchisi umumiy uchdan. Ilgari bu yerda «vershina
+      // osnovaniya obshaya» ikkinchi qatorda turardi, va u mazmunan xato edi.
+      for (const c of ['по построению куба', 'по построению куба', 'вершина основания общая']) {
+        await clickText(p, { text: c, scope: '.stage-content .g10-opt' })
+        await p.waitForTimeout(700)
+      }
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 11,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['8'])
+      await p.waitForTimeout(2000)
+      await waitReady(p)
+      const chip = (t) => ({ text: t, scope: '.stage-content .g10-chip' })
+      for (const c of [chip('AB ∥ ?'), chip('AB ∸ ?'), chip('ABCDA'), chip('AB ⊥ ?')]) {
+        await clickText(p, c)
+      }
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 12,
+    act: async (p) => {
+      await clickText(p, { text: 'a ⊥ α', exact: false, scope: '.stage-content button', not: '∀' })
+      await p.waitForTimeout(1200)
+      await waitKeys(p)
+      return typeKeys(p, ['1'])
+    },
+    done: '.g10-entry-ok',
+  },
+  {
+    n: 13,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['0'])
+      await p.waitForTimeout(2200)
+      await waitReady(p)
+      const opt = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const c of [opt('b ∩ c = O'), opt('AA1 ⊥ AB')]) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 14,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const a of [o('две пересекающиеся'), o('направление у них одно'), o('одна'), o('свойство перпендикулярной')]) {
+        await clickText(p, a); await p.waitForTimeout(1700)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  { n: 15, act: async () => {}, done: '.g10-print' },
+]
+
+
+// 41-DARS: perpendikulyar, og'ma va uch perpendikulyar. Bosishlar SONGA
+// tayanadi: yetti ekranda javob yoziladi, va bu eng ishonchli yo'l.
+PLANS.dars41 = [
+  { n: 1, act: async (p) => clickText(p, 'втор'), done: '.g10-fb' },
+  {
+    n: 2,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const a of [o('двум пересекающимся'), o('девяносто с каждой'), o('не тем, каким кажется')]) {
+        await clickText(p, a); await p.waitForTimeout(1600)
+      }
+    },
+    done: { sel: '.g10-done', count: 3 },
+  },
+  { n: 3, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['1']) }, done: '.g10-entry-ok' },
+  { n: 4, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['9']) }, done: '.g10-entry-ok' },
+  { n: 5, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['3']) }, done: '.g10-entry-ok' },
+  { n: 6, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['1']) }, done: '.g10-entry-ok' },
+  { n: 7, act: async (p) => { await waitKeys(p); return typeKeys(p, ['1', '0']) }, done: '.g10-entry-ok' },
+  { n: 8, act: async (p) => clickText(p, 'лежит в плоскости'), done: '.g10-rule' },
+  {
+    n: 9,
+    act: async (p) => {
+      // `C` -- `AC` va `BC` ning QISMI, shuning uchun to'liq taqqoslash.
+      // O'ng ustunda ham «наклонная» ikki uzun yozuvning qismi.
+      const L = (t) => ({ text: t, exact: true, scope: '.stage-content button' })
+      const pairs = [
+        ['AB', 'перпендикуляр к плоскости'],
+        ['AC', 'наклонная'],
+        ['BC', 'проекция наклонной'],
+        ['C', 'основание наклонной'],
+      ]
+      for (const [l, r] of pairs) {
+        await clickText(p, L(l))
+        await clickText(p, L(r))
+        await p.waitForTimeout(300)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  {
+    n: 10,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['радиус в точку касания', 'теорема о трёх перпендикулярах', 'равенство прямоугольных']) {
+        await clickText(p, { text: c, scope: '.stage-content .g10-opt' })
+        await p.waitForTimeout(700)
+      }
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 11,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['1', '5'])
+      await p.waitForTimeout(2000)
+      await waitReady(p)
+      const chip = (t) => ({ text: t, exact: true, scope: '.stage-content .g10-chip' })
+      for (const c of ['AB ⊥ α', 'BC', 'c ⊥ BC', 'c ⊥ AC']) await clickText(p, chip(c))
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 12,
+    act: async (p) => {
+      await clickText(p, { text: 'd ⊥ AB → d ⊥ AC', scope: '.stage-content button' })
+      await p.waitForTimeout(1200)
+      await waitKeys(p)
+      return typeKeys(p, ['3'])
+    },
+    done: '.g10-entry-ok',
+  },
+  {
+    n: 13,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['1'])
+      await p.waitForTimeout(2200)
+      await waitReady(p)
+      const opt = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const c of ['AB < AC', 'c ⊥ BC → c ⊥ AC', 'AB ⊥ BC']) await clickText(p, opt(c))
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 14,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const a of [o('перпендикуляр'), o('через основание наклонной'), o('равны'), o('длину перпендикуляра')]) {
+        await clickText(p, a); await p.waitForTimeout(1700)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  { n: 15, act: async () => {}, done: '.g10-print' },
+]
+
+
+// 42-DARS: to'g'ri chiziq va tekislik orasidagi burchak.
+PLANS.dars42 = [
+  { n: 1, act: async (p) => clickText(p, 'втор'), done: '.g10-fb' },
+  {
+    n: 2,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const a of [o('отрезок между основаниями'), o('перпендикуляр'), o('переносит перпендикулярность')]) {
+        await clickText(p, a); await p.waitForTimeout(1600)
+      }
+    },
+    done: { sel: '.g10-done', count: 3 },
+  },
+  { n: 3, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['1']) }, done: '.g10-entry-ok' },
+  { n: 4, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['1']) }, done: '.g10-entry-ok' },
+  { n: 5, act: async (p) => { await waitKeys(p); return typeKeys(p, ['9', '0']) }, done: '.g10-entry-ok' },
+  { n: 6, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['4', '5']) }, done: '.g10-entry-ok' },
+  { n: 7, act: async (p) => { await waitKeys(p); return typeKeys(p, ['1']) }, done: '.g10-entry-ok' },
+  { n: 8, act: async (p) => clickText(p, 'с проекцией'), done: '.g10-rule' },
+  {
+    n: 9,
+    act: async (p) => {
+      // `AB` -- `AB1` ning qismi, shuning uchun to'liq taqqoslash.
+      const L = (t) => ({ text: t, exact: true, scope: '.stage-content button' })
+      const pairs = [
+        ['AB', 'ноль градусов'],
+        ['AA1', 'девяносто градусов'],
+        ['AB1', 'сорок пять градусов'],
+        ['AC1', 'меньше сорока пяти'],
+      ]
+      for (const [l, r] of pairs) {
+        await clickText(p, L(l))
+        await clickText(p, L(r))
+        await p.waitForTimeout(300)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  {
+    n: 10,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['по построению куба', 'определение проекции', 'проекция отрезка']) {
+        await clickText(p, { text: c, scope: '.stage-content .g10-opt' })
+        await p.waitForTimeout(700)
+      }
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 11,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['4', '5'])
+      await p.waitForTimeout(2000)
+      await waitReady(p)
+      const chip = (t) => ({ text: t, scope: '.stage-content .g10-chip' })
+      for (const c of ['a ∩ α = A', 'a1 ⊂ α', '∠(a; a1)', '∠(a; α)']) await clickText(p, chip(c))
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 12,
+    act: async (p) => {
+      await clickText(p, { text: '∠(a; α) = ∠(a; b)', scope: '.stage-content button' })
+      await p.waitForTimeout(1200)
+      await waitKeys(p)
+      return typeKeys(p, ['3'])
+    },
+    done: '.g10-entry-ok',
+  },
+  {
+    n: 13,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['0'])
+      await p.waitForTimeout(2200)
+      await waitReady(p)
+      const opt = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const c of ['≤ 90', '= ∠(a; a1)', 'a ⊥ α']) await clickText(p, opt(c))
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 14,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const a of [o('с проекцией'), o('девяносто'), o('перпендикулярна плоскости'), o('сорок пять')]) {
+        await clickText(p, a); await p.waitForTimeout(1700)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  { n: 15, act: async () => {}, done: '.g10-print' },
+]
+
+
+// 43-DARS: ikki yoqli burchak va perpendikulyar tekisliklar. Blok 6 ning oxiri.
+PLANS.dars43 = [
+  { n: 1, act: async (p) => clickText(p, 'втор'), done: '.g10-fb' },
+  {
+    n: 2,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const a of [o('с проекцией'), o('одна'), o('с каждой прямой')]) {
+        await clickText(p, a); await p.waitForTimeout(1600)
+      }
+    },
+    done: { sel: '.g10-done', count: 3 },
+  },
+  { n: 3, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['2']) }, done: '.g10-entry-ok' },
+  { n: 4, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['1']) }, done: '.g10-entry-ok' },
+  { n: 5, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['1']) }, done: '.g10-entry-ok' },
+  { n: 6, act: async (p) => { await waitKeys(p); return typeKeys(p, ['1', '3', '0']) }, done: '.g10-entry-ok' },
+  { n: 7, act: async (p) => { await waitKeys(p); return typeKeys(p, ['4']) }, done: '.g10-entry-ok' },
+  { n: 8, act: async (p) => clickText(p, 'оба перпендикулярны'), done: '.g10-rule' },
+  {
+    n: 9,
+    act: async (p) => {
+      const L = (t) => ({ text: t, exact: true, scope: '.stage-content button' })
+      const pairs = [['40°', 'острый'], ['90°', 'прямой'], ['120°', 'тупой'], ['180°', 'развёрнутый']]
+      for (const [l, r] of pairs) {
+        await clickText(p, L(l))
+        await clickText(p, L(r))
+        await p.waitForTimeout(300)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  {
+    n: 10,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['два перпендикуляра', 'в одну сторону', 'сонаправленными']) {
+        await clickText(p, { text: c, scope: '.stage-content .g10-opt' })
+        await p.waitForTimeout(700)
+      }
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 11,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['1', '1', '0'])
+      await p.waitForTimeout(2000)
+      await waitReady(p)
+      const chip = (t) => ({ text: t, scope: '.stage-content .g10-chip' })
+      for (const c of ['A ∈ a', 'AB ⊥ a', 'AC ⊥ a', '∠BAC']) await clickText(p, chip(c))
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 12,
+    act: async (p) => {
+      await clickText(p, { text: 'AD ⊂ β', scope: '.stage-content button' })
+      await p.waitForTimeout(1200)
+      await waitKeys(p)
+      return typeKeys(p, ['3'])
+    },
+    done: '.g10-entry-ok',
+  },
+  {
+    n: 13,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['9', '0'])
+      await p.waitForTimeout(2200)
+      await waitReady(p)
+      const opt = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const c of ['AC ⊥ a', '∠A = ∠B', '+ ∠2']) await clickText(p, opt(c))
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 14,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const a of [o('ребро'), o('перпендикулярно ребру'), o('шестьдесят'), o('наименьший')]) {
+        await clickText(p, a); await p.waitForTimeout(1700)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  { n: 15, act: async () => {}, done: '.g10-print' },
+]
+
+
+// 44-DARS: prizma. Blok 7 ning boshi va 6B asbobining birinchi darsi.
+PLANS.dars44 = [
+  { n: 1, act: async (p) => clickText(p, 'втор'), done: '.g10-fb' },
+  {
+    n: 2,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const a of [o('двум пересекающимся'), o('две полуплоскости'), o('одна')]) {
+        await clickText(p, a); await p.waitForTimeout(1600)
+      }
+    },
+    done: { sel: '.g10-done', count: 3 },
+  },
+  { n: 3, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['5']) }, done: '.g10-entry-ok' },
+  { n: 4, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['2']) }, done: '.g10-entry-ok' },
+  { n: 5, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['4']) }, done: '.g10-entry-ok' },
+  { n: 6, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['1', '8']) }, done: '.g10-entry-ok' },
+  { n: 7, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['4']) }, done: '.g10-entry-ok' },
+  { n: 8, act: async (p) => clickText(p, 'два основания равные'), done: '.g10-rule' },
+  {
+    n: 9,
+    act: async (p) => {
+      // `AB` -- `ABC` va `ABB1A1` ning qismi, `AA1` ham. To'liq taqqoslash.
+      const L = (t) => ({ text: t, exact: true, scope: '.stage-content button' })
+      const pairs = [
+        ['ABC', 'основание'],
+        ['ABB1A1', 'боковая грань'],
+        ['AA1', 'боковое ребро'],
+        ['AB', 'ребро основания'],
+      ]
+      for (const [l, r] of pairs) {
+        await clickText(p, L(l))
+        await clickText(p, L(r))
+        await p.waitForTimeout(300)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  {
+    n: 10,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['определение прямой призмы', 'перпендикуляр даёт прямой угол', 'определение призмы']) {
+        await clickText(p, { text: c, scope: '.stage-content .g10-opt' })
+        await p.waitForTimeout(700)
+      }
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 11,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['3', '0'])
+      await p.waitForTimeout(2000)
+      await waitReady(p)
+      const chip = (t) => ({ text: t, exact: true, scope: '.stage-content .g10-chip' })
+      for (const c of ['ABC', 'A1B1C1', 'AA1', 'ABB1A1']) await clickText(p, chip(c))
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 12,
+    act: async (p) => {
+      await clickText(p, { text: 'AB = BC = CD = DA', scope: '.stage-content button' })
+      await p.waitForTimeout(1200)
+      await waitKeys(p)
+      return typeKeys(p, ['3'])
+    },
+    done: '.g10-entry-ok',
+  },
+  {
+    n: 13,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['7'])
+      await p.waitForTimeout(2200)
+      await waitReady(p)
+      // `2n` va `n + 2` -- `2n = n + 2` yozuvining ham qismi, shuning uchun
+      // `not` bilan ajratiladi. Nishon harfi tugma matnida borligi uchun
+      // to'liq taqqoslash ishlamaydi.
+      const opt = (t, no) => ({ text: t, not: no, scope: '.stage-content .g10-opt' })
+      for (const c of [opt('3n'), opt('2n', '='), opt('n + 2', '2n')]) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 14,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const a of [o('две'), o('две равные грани'), o('десять'), o('боковое ребро перпендикулярно')]) {
+        await clickText(p, a); await p.waitForTimeout(1700)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  { n: 15, act: async () => {}, done: '.g10-print' },
+]
+
+
+// 45-DARS: parallelepiped.
+PLANS.dars45 = [
+  { n: 1, act: async (p) => clickText(p, 'втор'), done: '.g10-fb' },
+  {
+    n: 2,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const a of [o('две равные грани'), o('две'), o('боковое ребро перпендикулярно')]) {
+        await clickText(p, a); await p.waitForTimeout(1600)
+      }
+    },
+    done: { sel: '.g10-done', count: 3 },
+  },
+  { n: 3, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['6']) }, done: '.g10-entry-ok' },
+  { n: 4, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['6']) }, done: '.g10-entry-ok' },
+  { n: 5, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['1']) }, done: '.g10-entry-ok' },
+  { n: 6, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['1', '3']) }, done: '.g10-entry-ok' },
+  { n: 7, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['2']) }, done: '.g10-entry-ok' },
+  // Nishon harfi tugma matnida: to'liq taqqoslash variantlarda ishlamaydi.
+  { n: 8, act: async (p) => clickText(p, { text: 'три', scope: '.stage-content .g10-opt' }), done: '.g10-rule' },
+  {
+    n: 9,
+    act: async (p) => {
+      const L = (t) => ({ text: t, exact: true, scope: '.stage-content button' })
+      const pairs = [
+        ['AB', 'ребро основания'],
+        ['AA1', 'боковое ребро'],
+        ['AC', 'диагональ основания'],
+        ['AC1', 'диагональ тела'],
+      ]
+      for (const [l, r] of pairs) {
+        await clickText(p, L(l))
+        await clickText(p, L(r))
+        await p.waitForTimeout(300)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  {
+    n: 10,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['теорема Пифагора', 'перпендикуляр даёт прямой угол', 'теорема Пифагора']) {
+        await clickText(p, { text: c, scope: '.stage-content .g10-opt' })
+        await p.waitForTimeout(700)
+      }
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 11,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['2', '6'])
+      await p.waitForTimeout(2000)
+      await waitReady(p)
+      // Chiplar `Fx` orqali chiziladi: pastki va yuqori indekslar SIQILADI,
+      // `AC₁²` ekranda `AC12` bo'ladi. Chiplarda nishon harfi yo'q, shuning
+      // uchun to'liq taqqoslash ishlaydi va `AC1` bilan `AC12` ajraladi.
+      const chip = (t) => ({ text: t, exact: true, scope: '.stage-content .g10-chip' })
+      for (const c of ['a, b, c', 'AC', 'AC12', 'AC1']) await clickText(p, chip(c))
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 12,
+    act: async (p) => {
+      // `AuditRows` `Fx` orqali chizmaydi: pastki indeks QOLADI.
+      await clickText(p, { text: 'AC₁ = AC = 5', scope: '.stage-content button' })
+      await p.waitForTimeout(1200)
+      await waitKeys(p)
+      return typeKeys(p, ['3'])
+    },
+    done: '.g10-entry-ok',
+  },
+  {
+    n: 13,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['7'])
+      await p.waitForTimeout(2200)
+      await waitReady(p)
+      const opt = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const c of ['c2', 'AC2 =', 'a = b = c']) await clickText(p, opt(c))
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 14,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const a of [o('параллелограмм'), o('три'), o('корень из трёх'), o('с равными измерениями')]) {
+        await clickText(p, a); await p.waitForTimeout(1700)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  { n: 15, act: async () => {}, done: '.g10-print' },
+]
+
+
+// 46-DARS: piramida. Apofema va yon qirra farqi.
+PLANS.dars46 = [
+  { n: 1, act: async (p) => clickText(p, 'втор'), done: '.g10-fb' },
+  {
+    n: 2,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const a of [o('шесть'), o('переносит перпендикулярность'), o('длина перпендикуляра')]) {
+        await clickText(p, a); await p.waitForTimeout(1600)
+      }
+    },
+    done: { sel: '.g10-done', count: 3 },
+  },
+  { n: 3, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['5']) }, done: '.g10-entry-ok' },
+  { n: 4, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['2']) }, done: '.g10-entry-ok' },
+  { n: 5, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['4']) }, done: '.g10-entry-ok' },
+  { n: 6, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['5']) }, done: '.g10-entry-ok' },
+  { n: 7, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['4']) }, done: '.g10-entry-ok' },
+  { n: 8, act: async (p) => clickText(p, 'в середину стороны'), done: '.g10-rule' },
+  {
+    n: 9,
+    act: async (p) => {
+      const L = (t) => ({ text: t, exact: true, scope: '.stage-content button' })
+      const pairs = [
+        ['SA', 'боковое ребро'],
+        ['SM', 'апофема'],
+        ['SO', 'высота пирамиды'],
+        ['AB', 'сторона основания'],
+      ]
+      for (const [l, r] of pairs) {
+        await clickText(p, L(l))
+        await clickText(p, L(r))
+        await p.waitForTimeout(300)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  {
+    n: 10,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['свойство правильного', 'перпендикуляр даёт прямой угол', 'признак равенства']) {
+        await clickText(p, { text: c, scope: '.stage-content .g10-opt' })
+        await p.waitForTimeout(700)
+      }
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 11,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['1', '3'])
+      await p.waitForTimeout(2000)
+      await waitReady(p)
+      const chip = (t) => ({ text: t, exact: true, scope: '.stage-content .g10-chip' })
+      for (const c of ['AB', 'OM', 'SO', 'SM']) await clickText(p, chip(c))
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 12,
+    act: async (p) => {
+      await clickText(p, { text: 'SM = SA', scope: '.stage-content button' })
+      await p.waitForTimeout(1200)
+      await waitKeys(p)
+      return typeKeys(p, ['3'])
+    },
+    done: '.g10-entry-ok',
+  },
+  {
+    n: 13,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['8'])
+      await p.waitForTimeout(2200)
+      await waitReady(p)
+      const opt = (t, no) => ({ text: t, not: no, scope: '.stage-content .g10-opt' })
+      for (const c of [opt('SM <'), opt('SM2'), opt('SA = SB')]) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 14,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      // «семь» -- «восемь» so'zining QISMI, shuning uchun `not` bilan.
+      for (const a of [o('треугольники с общей вершиной'), o('в середину стороны'), o('апофема'),
+        { text: 'семь', not: 'вос', scope: '.stage-content .g10-opt' }]) {
+        await clickText(p, a); await p.waitForTimeout(1700)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  { n: 15, act: async () => {}, done: '.g10-print' },
+]
+
+
+// 47-DARS: sirt yuzasi. Yoyilma bilan ishlaydigan birinchi dars.
+PLANS.dars47 = [
+  { n: 1, act: async (p) => clickText(p, 'втор'), done: '.g10-fb' },
+  {
+    n: 2,
+    act: async (p) => {
+      const o = (t, no) => ({ text: t, not: no, scope: '.stage-content .g10-opt' })
+      for (const a of [o('шесть'), o('высота боковой грани'), o('две')]) {
+        await clickText(p, a); await p.waitForTimeout(1600)
+      }
+    },
+    done: { sel: '.g10-done', count: 3 },
+  },
+  { n: 3, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['6']) }, done: '.g10-entry-ok' },
+  { n: 4, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['5', '2']) }, done: '.g10-entry-ok' },
+  { n: 5, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['1', '2', '0']) }, done: '.g10-entry-ok' },
+  { n: 6, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['6', '0']) }, done: '.g10-entry-ok' },
+  { n: 7, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['3']) }, done: '.g10-entry-ok' },
+  { n: 8, act: async (p) => clickText(p, 'площади всех граней'), done: '.g10-rule' },
+  {
+    n: 9,
+    act: async (p) => {
+      const L = (t) => ({ text: t, exact: true, scope: '.stage-content button' })
+      const pairs = [
+        ['P·h', 'боковая призмы'],
+        ['2(ab+bc+ac)', 'полная параллелепипеда'],
+        ['½·P·m', 'боковая пирамиды'],
+        ['6a2', 'полная куба'],
+      ]
+      for (const [l, r] of pairs) {
+        await clickText(p, L(l))
+        await clickText(p, L(r))
+        await p.waitForTimeout(300)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  {
+    n: 10,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['развёртка боковой', 'боковые рёбра прямой призмы', 'рёбра основания идут']) {
+        await clickText(p, { text: c, scope: '.stage-content .g10-opt' })
+        await p.waitForTimeout(700)
+      }
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 11,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['1', '5', '0'])
+      await p.waitForTimeout(2000)
+      await waitReady(p)
+      const chip = (t) => ({ text: t, exact: true, scope: '.stage-content .g10-chip' })
+      for (const c of ['a', 'a2', '6a2', 'S']) await clickText(p, chip(c))
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 12,
+    act: async (p) => {
+      await clickText(p, { text: 'S = 26', scope: '.stage-content button' })
+      await p.waitForTimeout(1200)
+      await waitKeys(p)
+      return typeKeys(p, ['3'])
+    },
+    done: '.g10-entry-ok',
+  },
+  {
+    n: 13,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['3'])
+      await p.waitForTimeout(2200)
+      await waitReady(p)
+      const opt = (t, no) => ({ text: t, not: no, scope: '.stage-content .g10-opt' })
+      for (const c of [opt('6a2'), opt('2(ab'), opt('P·h')]) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 14,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const a of [o('плоская фигура из всех граней'), o('периметр на высоту'), o('апофема'), o('три')]) {
+        await clickText(p, a); await p.waitForTimeout(1700)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  { n: 15, act: async () => {}, done: '.g10-print' },
+]
+
+
+// 48-DARS: muntazam prizma va piramida.
+PLANS.dars48 = [
+  { n: 1, act: async (p) => clickText(p, 'втор'), done: '.g10-fb' },
+  {
+    n: 2,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const a of [o('боковое ребро перпендикулярно'), o('высота боковой грани'), o('периметр на высоту')]) {
+        await clickText(p, a); await p.waitForTimeout(1600)
+      }
+    },
+    done: { sel: '.g10-done', count: 3 },
+  },
+  { n: 3, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['2']) }, done: '.g10-entry-ok' },
+  { n: 4, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['6']) }, done: '.g10-entry-ok' },
+  { n: 5, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['6']) }, done: '.g10-entry-ok' },
+  { n: 6, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['1', '8', '0']) }, done: '.g10-entry-ok' },
+  { n: 7, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['2']) }, done: '.g10-entry-ok' },
+  { n: 8, act: async (p) => clickText(p, 'прямая и правильное основание'), done: '.g10-rule' },
+  {
+    n: 9,
+    act: async (p) => {
+      const L = (t) => ({ text: t, exact: true, scope: '.stage-content button' })
+      const pairs = [
+        ['3', 'треугольная призма'],
+        ['4', 'четырёхугольная пирамида'],
+        ['6', 'шестиугольная призма'],
+        ['12', 'двенадцатиугольная пирамида'],
+      ]
+      for (const [l, r] of pairs) {
+        await clickText(p, L(l))
+        await clickText(p, L(r))
+        await p.waitForTimeout(300)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  {
+    n: 10,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['правильный многоугольник в основании', 'призма прямая', 'признак равенства']) {
+        await clickText(p, { text: c, scope: '.stage-content .g10-opt' })
+        await p.waitForTimeout(700)
+      }
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 11,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['9', '6'])
+      await p.waitForTimeout(2000)
+      await waitReady(p)
+      const chip = (t) => ({ text: t, exact: true, scope: '.stage-content .g10-chip' })
+      for (const c of ['S0', 'P', 'S1', 'S']) await clickText(p, chip(c))
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 12,
+    act: async (p) => {
+      await clickText(p, { text: 'a = h', scope: '.stage-content button' })
+      await p.waitForTimeout(1200)
+      await waitKeys(p)
+      return typeKeys(p, ['3'])
+    },
+    done: '.g10-entry-ok',
+  },
+  {
+    n: 13,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['1', '1', '2'])
+      await p.waitForTimeout(2200)
+      await waitReady(p)
+      const opt = (t, no) => ({ text: t, not: no, scope: '.stage-content .g10-opt' })
+      for (const c of [opt('P = n'), opt('S1 = n'), opt('AA1')]) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 14,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const a of [o('прямая и правильное основание'), o('число сторон на сторону'), o('пять'),
+        { text: 'куб', not: 'кубе', scope: '.stage-content .g10-opt' }]) {
+        await clickText(p, a); await p.waitForTimeout(1700)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  { n: 15, act: async () => {}, done: '.g10-print' },
+]
+
+
+// 49-DARS: kesimlarni yasash.
+PLANS.dars49 = [
+  { n: 1, act: async (p) => clickText(p, 'втор'), done: '.g10-fb' },
+  {
+    n: 2,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const a of [o('фигура из точек тела'), o('только на рёбрах'), o('шесть')]) {
+        await clickText(p, a); await p.waitForTimeout(1600)
+      }
+    },
+    done: { sel: '.g10-done', count: 3 },
+  },
+  { n: 3, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['3']) }, done: '.g10-entry-ok' },
+  { n: 4, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['1']) }, done: '.g10-entry-ok' },
+  { n: 5, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['4']) }, done: '.g10-entry-ok' },
+  { n: 6, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['2']) }, done: '.g10-entry-ok' },
+  { n: 7, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['7']) }, done: '.g10-entry-ok' },
+  { n: 8, act: async (p) => clickText(p, 'когда они лежат в одной грани'), done: '.g10-rule' },
+  {
+    n: 9,
+    act: async (p) => {
+      const L = (t) => ({ text: t, exact: true, scope: '.stage-content button' })
+      const pairs = [
+        ['4', 'треугольная пирамида'],
+        ['5', 'четырёхугольная пирамида'],
+        ['6', 'куб'],
+        ['7', 'пятиугольная призма'],
+      ]
+      for (const [l, r] of pairs) {
+        await clickText(p, L(l))
+        await clickText(p, L(r))
+        await p.waitForTimeout(300)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  {
+    n: 10,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['точки взяты в секущей плоскости', 'оба ребра принадлежат верхней грани',
+        'аксиома о пересечении двух плоскостей']) {
+        await clickText(p, { text: c, scope: '.stage-content .g10-opt' })
+        await p.waitForTimeout(700)
+      }
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 11,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['5', '0'])
+      await p.waitForTimeout(2000)
+      await waitReady(p)
+      const chip = (t) => ({ text: t, exact: true, scope: '.stage-content .g10-chip' })
+      for (const c of ['KL', 'X', 'KX', 'N']) await clickText(p, chip(c))
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 12,
+    act: async (p) => {
+      await clickText(p, { text: 'MK ⊂', scope: '.stage-content button' })
+      await p.waitForTimeout(1200)
+      await waitKeys(p)
+      return typeKeys(p, ['3'])
+    },
+    done: '.g10-entry-ok',
+  },
+  {
+    n: 13,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['6', '0'])
+      await p.waitForTimeout(2200)
+      await waitReady(p)
+      const opt = (t, no) => ({ text: t, not: no, scope: '.stage-content .g10-opt' })
+      for (const c of [opt('M \u2208 A1B1'), opt('MN \u2282 A1B1C1D1'), opt('PM \u2225 KH')]) {
+        await clickText(p, c)
+      }
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 14,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const a of [o('только на рёбрах'), o('шесть'), o('когда лежат в одной грани'),
+        o('линия её пересечения')]) {
+        await clickText(p, a); await p.waitForTimeout(1700)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  { n: 15, act: async () => {}, done: '.g10-print' },
+]
+
+
+// 50-DARS: fazoda koordinatalar.
+PLANS.dars50 = [
+  { n: 1, act: async (p) => clickText(p, 'втор'), done: '.g10-fb' },
+  {
+    n: 2,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const a of [o('два'), o('основание перпендикуляра'), o('у каждого места своя ось')]) {
+        await clickText(p, a); await p.waitForTimeout(1600)
+      }
+    },
+    done: { sel: '.g10-done', count: 3 },
+  },
+  { n: 3, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['3']) }, done: '.g10-entry-ok' },
+  { n: 4, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['0']) }, done: '.g10-entry-ok' },
+  { n: 5, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['1']) }, done: '.g10-entry-ok' },
+  { n: 6, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['4']) }, done: '.g10-entry-ok' },
+  { n: 7, act: async (p) => { await spinFirst(p); await waitKeys(p); return typeKeys(p, ['2']) }, done: '.g10-entry-ok' },
+  { n: 8, act: async (p) => clickText(p, 'первые два числа на своих осях'), done: '.g10-rule' },
+  {
+    n: 9,
+    act: async (p) => {
+      const L = (t) => ({ text: t, exact: true, scope: '.stage-content button' })
+      const pairs = [
+        ['(0; 0; 5)', 'на вертикальной оси'],
+        ['(2; 3; 0)', 'в нижней плоскости'],
+        ['(0; 2; 3)', 'в задней плоскости'],
+        ['(1; 2; 3)', 'вне плоскостей'],
+      ]
+      for (const [l, r] of pairs) {
+        await clickText(p, L(l))
+        await clickText(p, L(r))
+        await p.waitForTimeout(300)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  {
+    n: 10,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['третье число закреплено', 'основание перпендикуляра',
+        'по построению лежит в плоскости']) {
+        await clickText(p, { text: c, scope: '.stage-content .g10-opt' })
+        await p.waitForTimeout(700)
+      }
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 11,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['1', '0'])
+      await p.waitForTimeout(2000)
+      await waitReady(p)
+      const chip = (t) => ({ text: t, exact: true, scope: '.stage-content .g10-chip' })
+      for (const c of ['A1', 'x, y', 'x2 + y2', 'd']) await clickText(p, chip(c))
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 12,
+    act: async (p) => {
+      await clickText(p, { text: 'd(A, Oxy) = 7', scope: '.stage-content button' })
+      await p.waitForTimeout(1200)
+      await waitKeys(p)
+      return typeKeys(p, ['3'])
+    },
+    done: '.g10-entry-ok',
+  },
+  {
+    n: 13,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['1', '3'])
+      await p.waitForTimeout(2200)
+      await waitReady(p)
+      const opt = (t, no) => ({ text: t, not: no, scope: '.stage-content .g10-opt' })
+      for (const c of [opt('A (5; 12; 9)'), opt('A1 (5; 12; 0)'), opt('d(A, Oxy) = 9')]) {
+        await clickText(p, c)
+      }
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 14,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const a of [o('три'), o('на оси'), o('третьему числу записи'), o('адрес проекции')]) {
         await clickText(p, a); await p.waitForTimeout(1700)
       }
     },

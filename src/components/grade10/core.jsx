@@ -60,7 +60,21 @@ export const L = (uz, ru, en) => ({ uz, ru, en })
 export const tr = (value, lang) => {
   if (value === null || value === undefined) return ''
   if (typeof value === 'string' || typeof value === 'number') return String(value)
-  return value[lang] ?? value.ru ?? value.uz ?? ''
+  const out = value[lang] ?? value.ru ?? value.uz
+  if (out === undefined) {
+    // TILSIZ OBYEKT -- bu ma'lumotdagi xato, va u JIM o'tib ketmasligi kerak.
+    // 38-40-darslarda tuzoq varianti `{ label, missing }` obyekti bilan
+    // berilgan edi, `tr` esa bo'sh satr qaytarardi: ekranda MATNSIZ tugma
+    // turardi va hech bir mashina tekshiruvi buni ko'rmagan (2026-08-20).
+    // Endi konsolga yozadi, ya'ni `grade10-hand.mjs` uni nuqson deb sanaydi.
+    if (typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname)) {
+      const keys = Object.keys(value).join(',')
+      // eslint-disable-next-line no-console
+      console.error(`tr(): tilsiz obyekt, kalitlari [${keys}] -- L() kutilgan edi`)
+    }
+    return ''
+  }
+  return out
 }
 
 const LangContext = createContext('ru')
@@ -935,6 +949,9 @@ const CUE_VERB = {
   match: L('BIRLASHTIRING', 'СОЕДИНИ', 'MATCH'),
   multi: L('HAMMASINI BELGILANG', 'ОТМЕТЬ ВСЕ', 'MARK ALL'),
   fill: L("TO'LDIRING", 'ЗАПОЛНИ', 'FILL IN'),
+  // 6-blok: fazoviy sahna TUGMALAR bilan buriladi. Ilgari bu yerda `tap`
+  // turardi, ya'ni «TANLANG» -- o'quvchi esa hech narsa tanlamaydi.
+  turn: L('BURING', 'ПОВЕРНИ', 'ROTATE'),
 }
 
 const CUE_ICON = {
@@ -999,6 +1016,7 @@ const CUE_ICON = {
   ),
 }
 CUE_ICON.multi = CUE_ICON.tap
+CUE_ICON.turn = CUE_ICON.drag
 
 // `compact` -- ustun ICHIDAGI ikkinchi darajali topshiriq uchun (masalan
 // chizmadan keyin son yozish). Belgi qoladi, fe'l tushadi: joy tor.
@@ -1283,10 +1301,14 @@ export const PrintSheet = ({ title, law, steps, lifehack, source }) => (
 // til / qayta / ovoz), kontent, pastki navigatsiya.
 // .stage-content -- overflow: clip, SKROLL YO'Q.
 // ============================================================
-export const Stage = ({ eyebrow, right, block, screen, total, audio, nav, children }) => {
+export const Stage = ({ eyebrow, right, block, screen, total, audio, nav, sect: sectProp, children }) => {
   const t = useT()
   const lang = useLang()
-  const sect = sectionOf(screen)
+  // Bo'lim ODATDA ekran raqamidan kelib chiqadi: 1 xuk, 2-8 tushuntirish va
+  // hokazo. DTM to'plamida esa bunday tuzilma YO'Q -- u o'n to'rt topshiriq va
+  // xarita, va birinchi ekranni «Xuk» deb atash yolg'on bo'lardi. Shuning uchun
+  // bo'limni yuqoridan berish mumkin.
+  const sect = sectProp || sectionOf(screen)
   // Dars raqami blokdan: `block.current` -- rejadagi TUTASH raqam.
   const lessonNo = (block && block.current) || 1
 
@@ -2124,6 +2146,13 @@ sup.g10-idx { vertical-align: .46em; }
 .g10-graph-text { color: ${T.graph}; font-weight: 700; }
 
 /* Tetradcha: chapda ingichka chiziq, satrlar ustma-ust */
+/* DTM XARITASI. Bitta foiz yo'q: har blok o'z satrida, va satr o'qiladigan
+   bo'lishi kerak telefonda ham -- shuning uchun blok nomi qisqartirilmaydi,
+   son esa monoshirift bilan tekislanadi. */
+.g10-dtm-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid ${T.line}; min-width: 0; }
+.g10-dtm-blk { flex: 1 1 auto; min-width: 0; font-size: clamp(14px, 1.3vw, 17px); color: ${T.ink}; overflow-wrap: anywhere; }
+.g10-dtm-num { flex: 0 0 auto; font-family: 'JetBrains Mono', monospace; font-size: clamp(13px, 1.2vw, 16px); color: ${T.ink2}; }
+.g10-dtm-none { flex: 0 0 auto; font-size: clamp(12px, 1.1vw, 15px); color: ${T.ink3}; }
 .g10-note-lines { display: flex; flex-direction: column; gap: 2px; padding-left: 12px; border-left: 2px solid ${T.line}; min-width: 0; }
 
 @media (prefers-reduced-motion: reduce) {

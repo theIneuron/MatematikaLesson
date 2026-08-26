@@ -15,6 +15,7 @@
 //   HookBody, RuleBody, BlitzBody, SummaryBody -- to'rt rolning TAYYOR tanasi:
 //       ular matematikaga bog'liq emas, faqat ma'lumotga
 //   makeLesson              -- darsning ildiz komponenti
+//   DtmClock, DtmBody, DtmMapBody -- DTM REJIMI (§11), pastda alohida bo'lim
 //
 // NIMA BU YERDA YO'Q: tushuntirish va mashq ekranlarining tanasi. Ularda
 // matematika har darsda boshqa, tayyor qolipga solish -- 7-sinf xatosi.
@@ -22,7 +23,7 @@
 // `import React` SHART (LMS klassik rejim).
 // ============================================================================
 // eslint-disable-next-line no-unused-vars
-import React, { useCallback, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   BgCurves,
   Btn,
@@ -33,10 +34,12 @@ import {
   L,
   LangProvider,
   LangSetProvider,
+  Options,
   Panel,
   PrintSheet,
   RingProgress,
   STYLES,
+  Slot,
   Stage,
   T,
   Tag,
@@ -49,7 +52,7 @@ import {
   useNarratedSteps,
   useT,
 } from './core.jsx'
-import { Probe, ProbeChain, RuleGate, Scene } from './tools.jsx'
+import { NumberEntry, Probe, ProbeChain, RuleGate, Scene } from './tools.jsx'
 
 export const TOTAL = 15
 
@@ -100,7 +103,7 @@ export const UI = {
 //   stage  -- bir ekranda ikki qadam bo'lganda (masalan son, keyin tartib)
 //   setStage, setTitle
 // ============================================================
-export function Screen({ data, block, waitFor, right, screen, onAnswer, children, ...rest }) {
+export function Screen({ data, block, waitFor, right, screen, sect, onAnswer, children, ...rest }) {
   const t = useT()
   const segments = useMemo(() => buildAuto(data.audio, rest.lang, waitFor), [rest.lang]) // eslint-disable-line react-hooks/exhaustive-deps
   const audio = useAudio(segments)
@@ -139,8 +142,13 @@ export function Screen({ data, block, waitFor, right, screen, onAnswer, children
       eyebrow={t(data.eyebrow)}
       // «Идёт в результат» ставит ОБЩИЙ слой: оценивается ровно один экран
       // (§4.2), и это правило класса, а не решение автора урока.
-      right={right || (data.role === 'blitz' ? t(UI.goesToResult) : undefined)}
+      // `right` FUNKSIYA ham bo'ladi: DTM rejimida bu yerda yumshoq soat
+      // turadi, va u javob berilgach to'xtashi kerak, ya'ni `solved` ni
+      // ko'rishi kerak. `solved` esa shu komponentning ichida yashaydi.
+      right={(typeof right === 'function' ? right({ solved }) : right)
+        || (data.role === 'blitz' ? t(UI.goesToResult) : undefined)}
       block={block}
+      sect={sect}
       screen={screen}
       total={TOTAL}
       audio={audio}
@@ -314,7 +322,188 @@ export function SummaryBody({ data, answers, t }) {
 // `meta` = { id, no, title } -- dars belgisi. `lesson_id` va uch tildagi
 // `lesson_name` ovoz so'roviga ham, LMS ga ham shundan ketadi.
 // ============================================================
-export function makeLesson({ meta, block, screens, voice = 'm' }) {
+// ============================================================
+// REJIM DTM (PODXOD_10SINF.md §11). Bu ALOHIDA ASBOB EMAS, tayyor
+// asboblarning ISHLASH REJIMI: kurs shu yerda ikkiga bo'linadi -- asosiy
+// chiziq programma bo'yicha boradi, DTM tarmog'i esa o'sha asboblarda
+// imtihonga tayyorlaydi.
+//
+// TO'RT FARQI, hammasi §11 dan:
+//   1. topshiriq DARROV beriladi, tushuntirishsiz;
+//   2. ekranda YUMSHOQ soat: vaqtni ko'rsatadi, lekin urinishni olmaydi;
+//   3. javobdan keyin razbor OCHILMAYDI -- o'rniga bu YIL qaysi darsda
+//      ko'rilgani aytiladi va o'sha darsga o'tish beriladi;
+//   4. natija bitta foizga emas, BLOKLAR bo'yicha bo'shliqlar xaritasiga
+//      yig'iladi.
+//
+// NEGA REJIM BIR MARTA YOZILADI. Agar uni B8 ning birinchi darsidan oldin
+// yozmasak, blokning yetti darsi yettita BIR MARTALIK darsga aylanadi --
+// 7-sinfda aynan shu bo'lgan (§11 ning oxirgi jumlasi).
+//
+// NEGA RAZBOR YO'Q. Razbor -- o'qish materiali, imtihonda esa vaqt kam va
+// bo'shliq boshqa joyda: o'quvchi mavzuni BILMAYDI, va unga bir ekranlik
+// izoh emas, o'sha DARS kerak. Shuning uchun bu yerda manzil beriladi.
+// ============================================================
+
+export const DTM_UI = {
+  time: L('Vaqt', 'Время', 'Time'),
+  where: L("Bu yil qaysi darsda", 'В каком уроке года это было', 'Where in the year this was'),
+  lesson: L('dars', 'Урок', 'Lesson'),
+  open: L("Darsni ochish", 'Открыть урок', 'Open the lesson'),
+  map: L("Bo'shliqlar xaritasi", 'Карта пробелов', 'The gap map'),
+  ofTotal: L('dan', 'из', 'of'),
+  again: L("Qaytish kerak", 'Нужно вернуться', 'Needs a return'),
+  clean: L('Mustahkam', 'Твёрдо', 'Solid'),
+  noData: L("Bu blokdan topshiriq bo'lmadi", 'По этому блоку заданий не было', 'No tasks from this block'),
+  whatNext: L('Nima qilish kerak', 'Что делать', 'What to do'),
+}
+
+// YUMSHOQ SOAT. Vaqtni ko'rsatadi va TO'XTATMAYDI: urinish olinmaydi,
+// muddat yo'q. Javob berilgach hisob to'xtaydi -- topshiriqqa ketgan vaqt
+// ekranda qoladi.
+//
+// `running` REF da ushlanadi. Uni `useEffect` ning ro'yxatiga qo'yish taymerni
+// har o'zgarishda qaytadan boshlardi -- bu 8-sinfda bo'lgan grabli
+// («onStep in deps otmenyaet taymer»), va u bir xil ko'rinadi.
+export function DtmClock({ running }) {
+  const t = useT()
+  const [sec, setSec] = useState(0)
+  const runRef = useRef(running)
+  runRef.current = running
+  useEffect(() => {
+    const id = setInterval(() => { if (runRef.current) setSec((v) => v + 1) }, 1000)
+    return () => clearInterval(id)
+  }, [])
+  const mm = Math.floor(sec / 60)
+  const ss = sec % 60
+  return (
+    <Tag tone={running ? 'quiet' : 'ok'}>
+      {t(DTM_UI.time) + ' ' + mm + ':' + (ss < 10 ? '0' + ss : ss)}
+    </Tag>
+  )
+}
+
+// DTM TOPSHIRIG'I. Ma'lumot:
+//   task     -- savol matni (L)
+//   expr     -- yozuv (ixtiyoriy, formulalar jadvalidan)
+//   options  -- [{id, label, ok}] to'rtta variant, YOKI
+//   answer   -- son (o'quvchi yozadi)
+//   source   -- { no, title, slug } -- bu yil qaysi darsda ko'rilgan
+//   block    -- 'B5' kabi: natija shu blokka yoziladi
+//
+// RAZBOR YO'Q va YASHIL TUSHUNTIRISH YO'Q. Javobdan keyin faqat manzil.
+export function DtmBody({ data, solved, solve, fig, audio, t }) {
+  const [picked, setPicked] = useState(null)
+  const [wrong, setWrong] = useState([])
+
+  const pick = (o) => {
+    if (!o || solved) return
+    if (o.ok) {
+      setPicked(o.id)
+      solve({ correct: wrong.length === 0, attempts: wrong.length + 1, block: data.block })
+      return
+    }
+    // `picked` NOTO'G'RI javobga qo'yilmaydi: `Options` uni «yopildi» deb
+    // o'qiydi va qolgan variantlarni yig'ib qo'yadi, ya'ni ikkinchi urinish
+    // imkonsiz bo'lib qolardi.
+    setWrong((w) => (w.indexOf(o.id) === -1 ? w.concat(o.id) : w))
+  }
+
+  const href = data.source && data.source.slug
+    ? '/10-sinf/matematika/nazariy/' + data.source.slug
+    : null
+
+  return (
+    <Cols l={1} r={1}>
+      <Col>
+        <Panel tone="paper">
+          {data.expr ? <Expr size="big" style={{ textAlign: 'left' }}>{data.expr}</Expr> : null}
+          <div className="g10-ask">{t(data.task)}</div>
+        </Panel>
+        {fig ? fig(solved) : null}
+      </Col>
+      <Col>
+        {data.options ? (
+          <Options
+            items={data.options.map((o) => ({ id: o.id, label: t(o.label) }))}
+            picked={picked}
+            wrong={wrong}
+            onPick={(item) => pick(data.options.find((o) => o.id === item.id))}
+            disabled={solved}
+            cols={1}
+          />
+        ) : (
+          <NumberEntry
+            compact
+            prompt={data.entryPrompt}
+            answer={data.answer}
+            okText={null}
+            hints={[]}
+            audio={audio}
+            onSolved={(r) => solve({ ...(r || {}), block: data.block })}
+          />
+        )}
+        {/* MANZIL, razbor emas. Faqat javobdan keyin. */}
+        {solved && data.source ? (
+          <Panel tone="paper" style={{ marginTop: 8 }}>
+            <Tag tone="graph">{t(DTM_UI.where)}</Tag>
+            <div className="g10-hint" style={{ marginTop: 4 }}>
+              {t(DTM_UI.lesson) + ' ' + data.source.no + '. ' + t(data.source.title)}
+            </div>
+            {href ? (
+              <a
+                className="g10-btn g10-btn-ghost"
+                href={href}
+                style={{ display: 'inline-block', marginTop: 6, textDecoration: 'none' }}
+              >
+                {t(DTM_UI.open)}
+              </a>
+            ) : null}
+          </Panel>
+        ) : <Slot mh={96} />}
+      </Col>
+    </Cols>
+  )
+}
+
+// BO'SHLIQLAR XARITASI. Bitta foiz YO'Q: har blok o'z satrida, va satr
+// javoblardan HISOBLANADI, dars ma'lumotidan emas -- aks holda xarita
+// o'quvchi nima qilganini emas, muallif nimani kutganini ko'rsatardi.
+export function DtmMapBody({ data, answers, t }) {
+  const rows = (data.blocks || []).map((b) => {
+    const mine = (answers || []).filter((a) => a && a.block === b.id)
+    const right = mine.filter((a) => a.correct !== false).length
+    return { ...b, total: mine.length, right }
+  })
+  return (
+    <Cols l={1} r={1}>
+      <Col>
+        {rows.map((r) => (
+          <div key={r.id} className="g10-dtm-row">
+            <span className="g10-dtm-blk">{t(r.label)}</span>
+            {r.total === 0 ? (
+              <span className="g10-dtm-none">{t(DTM_UI.noData)}</span>
+            ) : (
+              <>
+                <span className="g10-dtm-num">
+                  {r.right + ' ' + t(DTM_UI.ofTotal) + ' ' + r.total}
+                </span>
+                <Tag tone={r.right === r.total ? 'ok' : 'tip'}>
+                  {r.right === r.total ? t(DTM_UI.clean) : t(DTM_UI.again)}
+                </Tag>
+              </>
+            )}
+          </div>
+        ))}
+      </Col>
+      <Col>
+        {data.note ? <Insight label={t(DTM_UI.whatNext)}>{t(data.note)}</Insight> : null}
+      </Col>
+    </Cols>
+  )
+}
+
+export function makeLesson({ meta, block, screens, voice = 'm', mode = 'lesson' }) {
   return function Grade10Lesson({
     lang: langProp,
     ttsApiBase,
@@ -362,15 +551,40 @@ export function makeLesson({ meta, block, screens, voice = 'm' }) {
       const tags = answers
         .filter((a) => a && a.tag && (a.correct === false || (a.attempts || 1) > 1))
         .map((a) => a.tag)
+      // DTM REJIMIDA baho bitta ekranda emas: har topshiriq hisobga kiradi,
+      // va natija BLOKLAR bo'yicha yig'iladi (§11). Platformaning maydonlari
+      // ham to'ldiriladi -- shartnoma o'zgarmaydi, ustiga `gaps` qo'shiladi.
+      const done = answers.filter(Boolean)
+      if (mode === 'dtm') {
+        const withBlock = done.filter((a) => a.block)
+        const byBlock = {}
+        withBlock.forEach((a) => {
+          const cell = byBlock[a.block] || { block: a.block, total: 0, correct: 0 }
+          cell.total += 1
+          if (a.correct !== false) cell.correct += 1
+          byBlock[a.block] = cell
+        })
+        onFinished({
+          lessonId: meta.id,
+          lessonTitle: tr(meta.title, lang),
+          mode: 'dtm',
+          totalQuestions: withBlock.length,
+          correctAnswers: withBlock.filter((a) => a.correct !== false).length,
+          gaps: Object.keys(byBlock).map((k) => byBlock[k]),
+          tags,
+          answers: done,
+        })
+        return
+      }
       onFinished({
         lessonId: meta.id,
         lessonTitle: tr(meta.title, lang),
         totalQuestions: blitz ? blitz.total : 0,
         correctAnswers: blitz ? blitz.first : 0,
         tags,
-        answers: answers.filter(Boolean),
+        answers: done,
       })
-    }, [answers, lang, onFinished])
+    }, [answers, lang, onFinished, mode])
 
     const Current = screens[screen]
 

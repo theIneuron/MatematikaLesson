@@ -2837,3 +2837,1386 @@ export function SpinBoard({
     </div>
   )
 }
+
+// ============================================================
+// SpaceFrame -- FAZOVIY KARKAS. B5 bloki, 35-41 darslar: koordinatalar,
+// vektorlar, skalyar ko'paytma, tekislik tenglamasi, tekisliklar orasidagi
+// burchak, masofalar, almashtirish va o'xshashlik.
+//
+// NEGA BITTA ASBOB. Yetti darsning hammasida bitta chizma: koordinata
+// o'qlari, pol kataklari va shu karkas ichidagi obyektlar. Rejim
+// o'zgaradi, GEOMETRIYA o'zgarmaydi -- shuning uchun bu bitta asbobning
+// rejimlari, o'nta asbob emas.
+//
+// WEBGL YO'Q (PODXOD_11SINF.md §13). Proyeksiya qo'lda hisoblanadi:
+// kamera azimuti `yaw`, ko'tarilishi `tilt`, nuqta ekranga ortogonal
+// tushadi. O'ng vektor r = (-sin a, cos a, 0), tepa vektor
+// u = (-cos a sin t, -sin a sin t, cos t) va ko'rish yo'nalishi
+// d = r x u o'zaro perpendikular. Ya'ni burilganda ekranda AYNAN shu
+// tomondan ko'rinadigan narsa turadi: chuqurlik `d` bo'yicha hisoblanadi
+// va orqadagi qirralar punktir bo'ladi.
+//
+// ASBOB OXIRGI SATRNI YOZMAYDI (etalon §3). Uzunlik, skalyar ko'paytma,
+// burchak va masofa faqat dars `value` bergan joyda chiqadi: razborda --
+// ha, javobni o'quvchi yozadigan ekranda -- yo'q.
+//
+// MA'LUMOT (hammasi ixtiyoriy, dars faqat kerakligini beradi):
+//   mode      'point'|'dist'|'mid'|'vec'|'sum'|'dot'|'plane'|'dihedral'|
+//             'drop'|'map'
+//   box       [4,4,4] yoki [[-3,3],[-3,3],[-1,4]] -- karkas o'lchami
+//   points    [{ at, label, sub, tone, proj, coords }]
+//   vectors   [{ from, to, label, tone, coords, dash }]
+//   sum       { a, b, c, rule:'triangle'|'parallelogram'|'box', at, step }
+//   lambda    son -- birinchi vektorni songa ko'paytirish
+//   planes    [{ n:[a,b,c], d, label, tone, normal:false, at }]
+//             ya'ni a x + b y + c z + d = 0
+//   drop      { from, to:'plane'|'plane:Oxy'|'axis:Oz', foot }
+//   ratio     son -- kesmani λ nisbatda bo'luvchi nuqta (`mid` rejimi)
+//   map       { kind:'shift'|'center'|'plane'|'axis'|'homothety',
+//               shape:'tetra'|'cube'|[[x,y,z],...], vec, center, plane,
+//               axis, k, t }
+//   value     'len'|'dot'|'angle'|'dist'|'coords'|'eq'|'none'
+//
+// KATTALIKLARNI DARS BERADI, generator emas: `Math.random` yo'q. Aks
+// holda har yuklanishda boshqa rasm chiqadi va o'lchov tekshiruvi hech
+// narsa ushlamaydi -- B3 va B4 bloklarining qoidasi.
+// ============================================================
+
+const SPACE_UI = {
+  // HALOL CHIZG'ICH. Perpendikular bo'lmagan kesma MASOFA emas, va asbob
+  // uni javobga olmaydi. Qoidani o'quvchi o'qimaydi, unga DUCH KELADI.
+  slant: L('qiya', 'наклонная', 'slant'),
+  dist: L('masofa', 'расстояние', 'distance'),
+  answer: L('javob', 'ответ', 'answer'),
+}
+
+const V = {
+  add: (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]],
+  sub: (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]],
+  mul: (a, k) => [a[0] * k, a[1] * k, a[2] * k],
+  dot: (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2],
+  len: (a) => Math.sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2]),
+  unit: (a) => {
+    const l = Math.sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2])
+    return l < 1e-9 ? [0, 0, 0] : [a[0] / l, a[1] / l, a[2] / l]
+  },
+  cross: (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]],
+  lerp: (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t],
+  mid: (a, b) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2],
+}
+
+// Karkas o'lchami bitta ko'rinishga keltiriladi: son -- noldan shu
+// songacha, juftlik -- oralig'i.
+const boxRanges = (box) => {
+  const b = box || [4, 4, 4]
+  const one = (v) => (Array.isArray(v)
+    ? [Math.min(v[0], v[1]), Math.max(v[0], v[1])]
+    : [Math.min(0, v), Math.max(0, v)])
+  return [one(b[0]), one(b[1]), one(b[2])]
+}
+
+// Son ekranda: butun son butun bo'lib qoladi. `areaText` bu yerda yaramaydi
+// -- u 2 ni «2,0» qilib yozadi, va koordinatalar uchligi «(2,0; 3,0; 4,0)»
+// bo'lib chiqadi. Darslikda esa (2; 3; 4).
+const numTxt = (v) => {
+  if (Math.abs(v) < 0.005) return '0'
+  const r = Math.round(v * 100) / 100
+  const body = Math.abs(r - Math.round(r)) < 1e-9
+    ? String(Math.round(r))
+    : r.toFixed(2).replace(/0$/, '').replace('.', ',')
+  // MINUS matematik belgi (U+2212), defis emas: JS `String(-8)` defis beradi,
+  // va u Source Serif da qisqa chiziqcha bo'lib ko'rinadi. Dars ma'lumotida
+  // hamma joyda aynan shu belgi ishlatilgan, chizma ham shunday bo'lishi kerak.
+  return body.replace('-', '−')
+}
+
+// Koordinatalar uchligi ekranda darslikdagidek yoziladi: (2; 3; 4).
+const trio = (p) => '(' + p.map((v) => numTxt(v)).join('; ') + ')'
+
+const TONE = { ink: T.ink, accent: T.accent, graph: T.graph, ok: T.ok, tip: T.tip, dim: T.ink3 }
+
+export function SpaceFrame({
+  mode = 'point',
+  box,
+  points = [],
+  vectors = [],
+  sum,
+  lambda,
+  planes = [],
+  drop,
+  ratio,
+  map,
+  value = 'none',
+  valueLabel,
+  grid = true,
+  frame = false,
+  axisNums = false,
+  caption,
+  note,
+  height = 176,
+  interactive = false,
+  // RAKURS: `yaw` -- karkasni Oz o'qi atrofida burish (0 da darslikning
+  // 1-rasmidagi ko'rinish), `depth` -- chuqurlik o'qining QISQARISHI
+  // (kabinet proyeksiyasida 0,5).
+  yaw0 = 0,
+  depth0 = 0.5,
+}) {
+  // HOOKLAR ENG BOSHDA. Bu asbobda erta `return` yo'q, lekin qoida bir
+  // xil: SpinBoard da holat rejim tekshiruvidan keyin turgani uchun React
+  // rejim almashganda «Rendered fewer hooks than expected» bilan yiqilgan.
+  const [yawU, setYawU] = useState(null)
+  const [depthU, setDepthU] = useState(null)
+  const svgRef = useRef(null)
+  const dragRef = useRef(null)
+  const tt = useT()
+  // Uch tilli satr bu asbobda faqat CHIZILADI, taqqoslanmaydi -- shuning
+  // uchun uni asbobning O'ZI tarjima qiladi. B2 va B3 bloklarida `L()`
+  // obyektining to'g'ridan to'g'ri React ga tushishi ekranni o'n bir marta
+  // yiqitgan, va har safar sabab bitta edi.
+  const S = (v) => (isTri(v) ? tt(v) : v)
+
+  const ranges = boxRanges(box)
+  const rx = ranges[0]
+  const ry = ranges[1]
+  const rz = ranges[2]
+  const yaw = yawU !== null ? yawU : yaw0
+  const kk = Math.max(0.28, Math.min(0.85, depthU !== null ? depthU : depth0))
+
+  const cen = [(rx[0] + rx[1]) / 2, (ry[0] + ry[1]) / 2, (rz[0] + rz[1]) / 2]
+  const dx = rx[1] - rx[0]
+  const dy = ry[1] - ry[0]
+  const dz = rz[1] - rz[0]
+  const span = Math.max(dx, dy, dz)
+
+  const padX = 44
+  const padT = 14
+  const padB = 14
+  const valueRow = value !== 'none' ? 15 : 0
+  const availH = Math.max(24, height - padT - padB - valueRow)
+
+  // PROYEKSIYA -- KABINET, darslikdagi (1-3 rasmlar): y o'ngga, z tepaga,
+  // x esa 45 gradus pastga chapga va YARIM uzunlikda.
+  //
+  // NEGA ORTOGRAFIK KAMERA EMAS. Birinchi oktantning tepasidan qaraydigan
+  // kamerada ko'rish yo'nalishi (cos, sin, sin) -- barcha koordinatalari
+  // MUSBAT. Shu sababli (1; 1; 1) yoki (2; 2; 1) kabi yo'nalishlar
+  // deyarli kameraga qarab turadi va ekranda YIG'ILADI: stend 36-darsning
+  // (2; 2; 1) vektorini 9 pikselli qilib chizdi. Bu kameraning aybi emas,
+  // uning haqiqati -- lekin bunday chizmadan dars chiqmaydi. Darsliklar
+  // shu sababli qiya (kabinet) proyeksiyadan foydalanadi: unda faqat
+  // (2,83; 1; 1) atrofidagi yo'nalishlar yig'iladi, ular esa dars
+  // ma'lumotida uchramaydi.
+  //
+  // Burish HALOL qoladi: karkas Oz atrofida haqiqatan buriladi (qattiq
+  // harakat), keyin qotirilgan parallel proyeksiya qo'llanadi. O'qlar
+  // o'z harflari bilan birga buriladi -- stol ustidagi modelni burganda
+  // aynan shunday bo'ladi.
+  const C45 = Math.SQRT1_2
+  const cs = Math.cos(yaw)
+  const sn = Math.sin(yaw)
+  const flat = (p) => {
+    const x = p[0] - cen[0]
+    const y = p[1] - cen[1]
+    const X = x * cs + y * sn
+    const Y = -x * sn + y * cs
+    return [Y - kk * C45 * X, (p[2] - cen[2]) - kk * C45 * X, X]
+  }
+
+  // MIQYOS: karkasning sakkiz cho'qqisi proyeksiyada o'lchanadi. Asbob
+  // sudralsa -- o'lcham BARCHA burilishlar bo'yicha eng yomon holatdan
+  // olinadi, aks holda chizma sudralganda «nafas olardi» va o'quvchi
+  // o'lcham o'zgardi deb o'ylardi. Sudralmasa -- aynan shu burilish
+  // bo'yicha, ya'ni chizma joyni bekorga egallamaydi.
+  let exW = 0.001
+  let exH = 0.001
+  const corn = []
+  for (let i = 0; i < 2; i += 1) {
+    for (let j = 0; j < 2; j += 1) {
+      for (let k = 0; k < 2; k += 1) corn.push([rx[i], ry[j], rz[k]])
+    }
+  }
+  const samples = interactive ? 24 : 1
+  for (let s = 0; s < samples; s += 1) {
+    const th = interactive ? (2 * Math.PI * s) / samples : yaw
+    const c2 = Math.cos(th)
+    const s2 = Math.sin(th)
+    corn.forEach((p) => {
+      const x = p[0] - cen[0]
+      const y = p[1] - cen[1]
+      const X = x * c2 + y * s2
+      const Y = -x * s2 + y * c2
+      exW = Math.max(exW, Math.abs(Y - kk * C45 * X))
+      exH = Math.max(exH, Math.abs((p[2] - cen[2]) - kk * C45 * X))
+    })
+  }
+  const sc = availH / (2 * exH + 0.5)
+  // viewBox ENI mazmundan chiqadi, qotirilgan 640 dan emas: qotirilganda
+  // chizma kartochkaning to'rtdan bir qismini egallardi, chunki SVG eni
+  // bo'yicha 100% ga cho'ziladi -- bo'sh joyi bilan birga.
+  const W = Math.max(190, Math.round(2 * exW * sc) + padX * 2)
+  const cx = W / 2
+  // Chizma TEPADA, son PASTDA: tepada z o'qining uchi va harfi turadi,
+  // va son aynan shu yerga urilardi.
+  const cy = padT + availH / 2
+
+  const P = (p) => {
+    const f = flat(p)
+    return [cx + f[0] * sc, cy - f[1] * sc]
+  }
+  const px = (p) => P(p)[0]
+  const py = (p) => P(p)[1]
+  // Chuqurlik: kabinet proyeksiyasida chuqurlik o'qi TOMOSHABINGA qaraydi,
+  // ya'ni X kattasi ko'zga yaqinrog'i. Orqadagi qirraning punktir bo'lishi
+  // shundan, qo'lda tanlangan emas.
+  const depth = (p) => flat(p)[2]
+
+  const onDown = (e) => {
+    if (!interactive) return
+    const el = svgRef.current
+    if (!el) return
+    el.setPointerCapture(e.pointerId)
+    dragRef.current = { x: e.clientX, y: e.clientY, yaw, kk }
+  }
+  const onMove = (e) => {
+    const d = dragRef.current
+    if (!d) return
+    const bx = svgRef.current.getBoundingClientRect()
+    const k = bx.width || 1
+    // Bir ekran eni = to'liq aylanish: barmoq harakati va karkasning
+    // burilishi mos keladi.
+    setYawU(d.yaw + ((e.clientX - d.x) / k) * Math.PI * 2)
+    // Yuqoriga pastga sudrash CHUQURLIK qisqarishini o'zgartiradi: 0,28 da
+    // karkas deyarli tekis ko'rinadi, 0,85 da chuqurlik o'qi cho'ziladi va
+    // «tepadan» qaragandek bo'ladi.
+    setDepthU(d.kk + ((e.clientY - d.y) / 260) * 0.7)
+  }
+  const onUp = () => { dragRef.current = null }
+
+  // ---------- karkas: sakkiz cho'qqi va o'n ikki qirra ----------
+  const corners = []
+  for (let i = 0; i < 2; i += 1) {
+    for (let j = 0; j < 2; j += 1) {
+      for (let k = 0; k < 2; k += 1) corners.push([rx[i], ry[j], rz[k]])
+    }
+  }
+  const edges = []
+  for (let i = 0; i < corners.length; i += 1) {
+    for (let j = i + 1; j < corners.length; j += 1) {
+      let diffs = 0
+      for (let c = 0; c < 3; c += 1) if (Math.abs(corners[i][c] - corners[j][c]) > 1e-9) diffs += 1
+      if (diffs === 1) edges.push([i, j])
+    }
+  }
+
+  // ---------- tekislik va karkas kesishmasi ----------
+  // Tekislik KO'PBURCHAK bo'lib chiziladi, va uning chegarasi karkas
+  // qirralaridagi kesishish nuqtalari. Qo'lda qo'yilgan to'rtburchak
+  // burilganda yolg'on gapirardi.
+  const planePoly = (n, d) => {
+    const f = (p) => V.dot(n, p) + d
+    const pts = []
+    edges.forEach((e) => {
+      const A = corners[e[0]]
+      const B = corners[e[1]]
+      const fa = f(A)
+      const fb = f(B)
+      if (Math.abs(fa - fb) < 1e-9) return
+      const t = fa / (fa - fb)
+      if (t < -1e-9 || t > 1 + 1e-9) return
+      pts.push(V.lerp(A, B, t))
+    })
+    const uniq = []
+    pts.forEach((p) => {
+      let seen = false
+      uniq.forEach((q) => { if (V.len(V.sub(p, q)) < 1e-6) seen = true })
+      if (!seen) uniq.push(p)
+    })
+    if (uniq.length < 3) return []
+    const c = uniq.reduce((s, p) => V.add(s, p), [0, 0, 0]).map((v) => v / uniq.length)
+    const nn = V.unit(n)
+    const seed = Math.abs(nn[0]) < 0.9 ? [1, 0, 0] : [0, 1, 0]
+    const u1 = V.unit(V.cross(nn, seed))
+    const u2 = V.cross(nn, u1)
+    return uniq
+      .map((p) => ({ p, a: Math.atan2(V.dot(V.sub(p, c), u2), V.dot(V.sub(p, c), u1)) }))
+      .sort((A, B) => A.a - B.a)
+      .map((o) => o.p)
+  }
+  // Tekislikning karkas markaziga eng yaqin nuqtasi: NORMAL strelkasi shu
+  // yerdan chiqadi, chunki u chizmaning o'rtasida ko'rinadi.
+  const planeFoot = (n, d) => {
+    const l2 = V.dot(n, n)
+    return l2 < 1e-9 ? cen : V.sub(cen, V.mul(n, (V.dot(n, cen) + d) / l2))
+  }
+
+  // ---------- ikki yo'nalish orasidagi yoy ----------
+  // Yoy HAQIQIY: ikki yo'nalish orasida sferik interpolyatsiya bilan
+  // yuriladi, ya'ni chizmada burchakning o'zi turadi, uning taqlidi emas.
+  const arcPath = (o, d1, d2, r) => {
+    const a = V.unit(d1)
+    const b = V.unit(d2)
+    const cosw = Math.max(-1, Math.min(1, V.dot(a, b)))
+    const w = Math.acos(cosw)
+    if (w < 1e-3 || Math.abs(Math.PI - w) < 1e-3) return ''
+    const N = 22
+    const out = []
+    for (let i = 0; i <= N; i += 1) {
+      const t = i / N
+      const s1 = Math.sin((1 - t) * w) / Math.sin(w)
+      const s2 = Math.sin(t * w) / Math.sin(w)
+      out.push(V.add(o, V.mul(V.add(V.mul(a, s1), V.mul(b, s2)), r)))
+    }
+    return out.map((p, i) => (i ? 'L ' : 'M ') + P(p).join(' ')).join(' ')
+  }
+
+  // ---------- strelka ----------
+  const arrow = (from, to, tone, opts) => {
+    const o = opts || {}
+    const A = P(from)
+    const B = P(to)
+    const ang = Math.atan2(B[1] - A[1], B[0] - A[0])
+    const h = o.head === undefined ? 9 : o.head
+    const w = 0.42
+    return (
+      <g key={o.key} opacity={o.op === undefined ? 1 : o.op}>
+        <line
+          x1={A[0]} y1={A[1]} x2={B[0]} y2={B[1]}
+          stroke={tone} strokeWidth={o.thin ? 1.5 : 2.1}
+          strokeDasharray={o.dash ? '5 4' : undefined}
+          strokeLinecap="round"
+        />
+        {h > 0 ? (
+          <path
+            d={'M ' + B[0] + ' ' + B[1]
+              + ' L ' + (B[0] - h * Math.cos(ang - w)) + ' ' + (B[1] - h * Math.sin(ang - w))
+              + ' L ' + (B[0] - h * Math.cos(ang + w)) + ' ' + (B[1] - h * Math.sin(ang + w)) + ' Z'}
+            fill={tone}
+          />
+        ) : null}
+      </g>
+    )
+  }
+
+  // ---------- matn ----------
+  // Indeks `tspan` bilan chiziladi, Unicode belgi bilan emas: shriftda
+  // pastki indeks HARFGA o'xshab ketadi (etalon §7).
+  const label = (p, text, tone, opts) => {
+    const o = opts || {}
+    const A = P(p)
+    // O'NG CHEGARADA yozuv chapga o'giriladi. Aks holda uzun uchlik
+    // «(2; 3; 4)» viewBox dan chiqib ketadi va KESILADI: `.stage-content`
+    // da `overflow: clip`, ya'ni sig'magan narsa surilmaydi, yo'qoladi.
+    const flip = o.anchor === undefined && A[0] > W * 0.62
+    const dxx = o.dx === undefined ? 7 : o.dx
+    return (
+      <text
+        key={o.key}
+        x={A[0] + (flip ? -Math.abs(dxx) : dxx)}
+        y={A[1] + (o.dy === undefined ? -7 : o.dy)}
+        fontSize={o.size || 13}
+        fontWeight={o.weight || 700}
+        fontStyle={o.roman ? 'normal' : 'italic'}
+        fill={tone}
+        fontFamily={MATH_FONT}
+        textAnchor={o.anchor || (flip ? 'end' : 'start')}
+      >
+        {text}
+        {o.sub ? <tspan fontSize={(o.size || 13) * 0.72} dy="3" fontStyle="normal">{o.sub}</tspan> : null}
+      </text>
+    )
+  }
+
+  // ---------- asbob HISOBLAYDIGAN sonlar ----------
+  const vecOf = (v) => V.sub(v.to, v.from)
+  const v0 = vectors[0] ? vecOf(vectors[0]) : null
+  const v1 = vectors[1] ? vecOf(vectors[1]) : null
+  const dotVal = v0 && v1 ? V.dot(v0, v1) : null
+  const angVal = v0 && v1 && V.len(v0) > 1e-9 && V.len(v1) > 1e-9
+    ? (Math.acos(Math.max(-1, Math.min(1, V.dot(v0, v1) / (V.len(v0) * V.len(v1))))) * 180) / Math.PI
+    : null
+
+  // Kesma o'rtasi yoki λ nisbatda bo'luvchi nuqta. Ikkinchisi darslikning
+  // 116-betidagi formulaning o'zi.
+  let midPoint = null
+  if (points.length >= 2) {
+    const A = points[0].at
+    const B = points[1].at
+    midPoint = ratio === undefined || ratio === null
+      ? V.mid(A, B)
+      : [
+        (A[0] + ratio * B[0]) / (1 + ratio),
+        (A[1] + ratio * B[1]) / (1 + ratio),
+        (A[2] + ratio * B[2]) / (1 + ratio),
+      ]
+  }
+
+  // HALOL CHIZG'ICH. Nishon: tekislik, koordinata tekisligi yoki o'q.
+  // Perpendikular BO'LMASA -- «qiya», va soni YO'Q.
+  let dropInfo = null
+  if (drop && drop.from) {
+    const target = drop.to || 'plane'
+    let n = null
+    let axis = null
+    if (target.indexOf('axis:') === 0) {
+      const which = target.slice(5)
+      axis = which === 'Ox' ? [1, 0, 0] : which === 'Oy' ? [0, 1, 0] : [0, 0, 1]
+    } else if (target === 'plane:Oxy') n = [0, 0, 1]
+    else if (target === 'plane:Oxz') n = [0, 1, 0]
+    else if (target === 'plane:Oyz') n = [1, 0, 0]
+    else {
+      const idx = target.indexOf(':') > 0 ? Number(target.slice(target.indexOf(':') + 1)) : 0
+      const pl = planes[idx] || planes[0]
+      n = pl ? pl.n : [0, 0, 1]
+    }
+    let foot = drop.foot
+    if (!foot) {
+      if (axis) foot = V.mul(axis, V.dot(drop.from, axis))
+      else {
+        const idx = target.indexOf(':') > 0 ? Number(target.slice(target.indexOf(':') + 1)) : 0
+        const pl = target.indexOf('plane:O') === 0
+          ? { n, d: 0 }
+          : (planes[idx] || planes[0] || { n, d: 0 })
+        const l2 = V.dot(pl.n, pl.n) || 1
+        foot = V.sub(drop.from, V.mul(pl.n, (V.dot(pl.n, drop.from) + (pl.d || 0)) / l2))
+      }
+    }
+    const seg = V.sub(foot, drop.from)
+    const l = V.len(seg)
+    let perp = false
+    if (l > 1e-9) {
+      perp = axis
+        ? Math.abs(V.dot(V.unit(seg), V.unit(axis))) < 0.02
+        : Math.abs(Math.abs(V.dot(V.unit(seg), V.unit(n))) - 1) < 0.02
+    }
+    dropInfo = { foot, seg, len: l, perp, axis, n }
+  }
+
+  // ALMASHTIRISH: shakl va uning TASVIRI. Tasvirni asbob hisoblaydi --
+  // dars faqat qanday almashtirish va koeffitsiyentni beradi.
+  let mapInfo = null
+  if (map) {
+    const SH = {
+      tetra: [[0, 0, 0], [2, 0, 0], [0, 2, 0], [0, 0, 2]],
+      cube: [[0, 0, 0], [2, 0, 0], [2, 2, 0], [0, 2, 0], [0, 0, 2], [2, 0, 2], [2, 2, 2], [0, 2, 2]],
+    }
+    const LN = {
+      tetra: [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]],
+      cube: [[0, 1], [1, 2], [2, 3], [3, 0], [4, 5], [5, 6], [6, 7], [7, 4], [0, 4], [1, 5], [2, 6], [3, 7]],
+    }
+    const shape = Array.isArray(map.shape) ? map.shape : SH[map.shape || 'tetra']
+    const links = Array.isArray(map.shape)
+      ? (map.links || shape.map((_, i) => [i, (i + 1) % shape.length]))
+      : LN[map.shape || 'tetra']
+    const img = (p) => {
+      const k = map.kind || 'shift'
+      if (k === 'shift') return V.add(p, map.vec || [1, 1, 1])
+      if (k === 'center') return V.sub(V.mul(map.center || [0, 0, 0], 2), p)
+      if (k === 'plane') {
+        const w = map.plane || 'Oxy'
+        return w === 'Oxy' ? [p[0], p[1], -p[2]] : w === 'Oxz' ? [p[0], -p[1], p[2]] : [-p[0], p[1], p[2]]
+      }
+      if (k === 'axis') {
+        const w = map.axis || 'Oz'
+        return w === 'Oz' ? [-p[0], -p[1], p[2]] : w === 'Oy' ? [-p[0], p[1], -p[2]] : [p[0], -p[1], -p[2]]
+      }
+      // Gomotetiya: markazdan koeffitsiyent bilan. k < 0 bo'lsa tasvir
+      // markazning BOSHQA tomonida -- «minus yo'qoldi» xatosi shu yerda
+      // ko'rinadi.
+      const c = map.center || [0, 0, 0]
+      return V.add(c, V.mul(V.sub(p, c), map.k === undefined ? 2 : map.k))
+    }
+    const t = map.t === undefined ? 1 : Math.max(0, Math.min(1, map.t))
+    // Koordinatasi ko'rsatiladigan cho'qqi: markazdan ENG UZOQ turgani.
+    // Nol cho'qqisi ko'pincha markazning o'zi bo'ladi va uning tasviri
+    // «(0; 0; 0)» bo'lib chiqadi -- bu hech narsani ko'rsatmaydi.
+    const c0 = map.center || [0, 0, 0]
+    let watch = map.watch === undefined ? 0 : map.watch
+    if (map.watch === undefined) {
+      let best = -1
+      shape.forEach((p, i) => {
+        const dd = V.len(V.sub(p, c0))
+        if (dd > best + 1e-9) { best = dd; watch = i }
+      })
+    }
+    mapInfo = {
+      src: shape,
+      dst: shape.map((p) => V.lerp(p, img(p), t)),
+      full: shape.map(img),
+      links,
+      t,
+      watch,
+    }
+  }
+
+  // Ekrandagi SON. Dars so'ramasa -- yo'q: javobni o'quvchi yozadi.
+  let readout = null
+  if (value === 'len' && v0) readout = (S(valueLabel) || '|a|') + ' = ' + numTxt(V.len(v0))
+  if (value === 'dot' && dotVal !== null) readout = (S(valueLabel) || 'a · b') + ' = ' + numTxt(dotVal)
+  if (value === 'angle' && angVal !== null) readout = (S(valueLabel) || 'φ') + ' = ' + numTxt(angVal) + '°'
+  if (value === 'dist') {
+    if (dropInfo) readout = dropInfo.perp ? tt(SPACE_UI.dist) + ' = ' + numTxt(dropInfo.len) : null
+    else if (points.length >= 2) {
+      readout = (S(valueLabel) || 'AB') + ' = ' + numTxt(V.len(V.sub(points[1].at, points[0].at)))
+    }
+  }
+  if (value === 'coords') {
+    const p = mapInfo ? mapInfo.full[mapInfo.watch] : midPoint
+    if (p) readout = (S(valueLabel) || 'C') + ' ' + trio(p)
+  }
+  if (value === 'eq' && planes[0]) {
+    const n = planes[0].n
+    const d = planes[0].d || 0
+    const head = n[0] === 0 ? '' : (n[0] < 0 ? '−' : '') + (Math.abs(n[0]) === 1 ? '' : numTxt(Math.abs(n[0]))) + 'x'
+    const term = (k, s) => (k === 0 ? '' : (k > 0 ? ' + ' : ' − ') + (Math.abs(k) === 1 && s ? '' : numTxt(Math.abs(k))) + s)
+    readout = (head + term(n[1], 'y') + term(n[2], 'z') + term(d, '')).replace(/^ \+ /, '') + ' = 0'
+  }
+
+  // ---------- o'qlar va pol kataklari ----------
+  const axisList = [
+    // x o'qining sonlari o'qning TASHQI tomonida: ichkarida pol kataklari,
+    // proyeksiyalar va A1 yozuvi turadi.
+    { key: 'x', dir: [1, 0, 0], r: rx, nx: -8, ny: -3, na: 'end' },
+    { key: 'y', dir: [0, 1, 0], r: ry, nx: 3, ny: 14, na: 'start' },
+    { key: 'z', dir: [0, 0, 1], r: rz, nx: -7, ny: 4, na: 'end' },
+  ]
+  const gridLines = []
+  if (grid && rz[0] <= 0 && rz[1] >= 0) {
+    for (let x = Math.ceil(rx[0]); x <= rx[1] + 1e-9; x += 1) gridLines.push([[x, ry[0], 0], [x, ry[1], 0]])
+    for (let y = Math.ceil(ry[0]); y <= ry[1] + 1e-9; y += 1) gridLines.push([[rx[0], y, 0], [rx[1], y, 0]])
+  }
+
+  // MASOFA rejimi: AB -- qirralari |Δx|, |Δy|, |Δz| bo'lgan
+  // parallelepipedning DIAGONALI (darslik, 115-bet izohi). Formula
+  // yodlanadigan narsa emas, chizmada ko'rinadigan narsa bo'ladi.
+  let distBox = null
+  if (mode === 'dist' && points.length >= 2) {
+    const A = points[0].at
+    const B = points[1].at
+    const c1 = [B[0], A[1], A[2]]
+    const c2 = [B[0], B[1], A[2]]
+    distBox = {
+      A,
+      B,
+      // Uchta qirra uchta AYIRMA: har birining yozuvi o'z tomonida turadi,
+      // aks holda uchtasi bir joyga yig'ilib o'qilmas bo'lib qoladi.
+      legs: [
+        { from: A, to: c1, txt: numTxt(Math.abs(B[0] - A[0])), dx: -2, dy: 15 },
+        { from: c1, to: c2, txt: numTxt(Math.abs(B[1] - A[1])), dx: 5, dy: 14 },
+        { from: c2, to: B, txt: numTxt(Math.abs(B[2] - A[2])), dx: 7, dy: 2 },
+      ],
+      hidden: [
+        [A, [A[0], B[1], A[2]]], [[A[0], B[1], A[2]], c2],
+        [A, [A[0], A[1], B[2]]], [[A[0], A[1], B[2]], [B[0], A[1], B[2]]],
+        [[A[0], A[1], B[2]], [A[0], B[1], B[2]]], [[A[0], B[1], B[2]], B],
+        [[B[0], A[1], B[2]], B], [c1, [B[0], A[1], B[2]]],
+      ],
+    }
+  }
+
+  return (
+    <div className="g11-graph" style={{ width: '100%', flexShrink: 0, minWidth: 0 }}>
+      <svg
+        ref={svgRef}
+        viewBox={'0 0 ' + W + ' ' + height}
+        width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img"
+        style={{
+          display: 'block',
+          maxHeight: height,
+          touchAction: interactive ? 'none' : undefined,
+          cursor: interactive ? 'grab' : undefined,
+          userSelect: interactive ? 'none' : undefined,
+          WebkitUserSelect: interactive ? 'none' : undefined,
+        }}
+        onPointerDown={onDown}
+        onPointerMove={onMove}
+        onPointerUp={onUp}
+        onPointerCancel={onUp}
+      >
+        {/* POL KATAKLARI. Nuqta havoda emas, o'lchamli joyda turadi:
+            kataklar bo'lmasa uch o'lchovli chizma tekis rasmga aylanadi. */}
+        {gridLines.map((g, i) => (
+          <line key={'g' + i} x1={px(g[0])} y1={py(g[0])} x2={px(g[1])} y2={py(g[1])}
+            stroke={T.ink3} strokeOpacity="0.26" strokeWidth="0.7" />
+        ))}
+
+        {/* KARKAS QIRRALARI. Orqadagilari punktir, va bu chuqurlik bo'yicha
+            HISOBLANADI -- shuning uchun burilganda ham to'g'ri qoladi. */}
+        {frame ? edges.map((e, k) => {
+          const back = depth(V.mid(corners[e[0]], corners[e[1]])) < 0
+          return (
+            <line key={'e' + k}
+              x1={px(corners[e[0]])} y1={py(corners[e[0]])}
+              x2={px(corners[e[1]])} y2={py(corners[e[1]])}
+              stroke={T.ink3} strokeWidth={back ? 0.9 : 1.2}
+              strokeDasharray={back ? '4 4' : undefined}
+              strokeOpacity={back ? 0.5 : 0.8}
+            />
+          )
+        }) : null}
+
+        {/* O'QLAR: uchtasi ham ko'rinadi, musbat tomonida strelka va harf. */}
+        {axisList.map((ax) => {
+          const a = V.mul(ax.dir, ax.r[0])
+          const b = V.mul(ax.dir, ax.r[1])
+          const tip = V.mul(ax.dir, ax.r[1] + span * 0.1)
+          // Belgilar QADAMI oraliqqa qarab: -4 dan 4 gacha har birlikda
+          // sakkiz son chiqadi va ular proyeksiyada bir-biriga urilardi.
+          const stepA = ax.r[1] - ax.r[0] > 7 ? 2 : 1
+          const marks = []
+          for (let v = Math.ceil(ax.r[0] / stepA) * stepA; v <= ax.r[1] + 1e-9; v += stepA) {
+            if (Math.abs(v) > 1e-9) marks.push(v)
+          }
+          return (
+            <g key={'ax' + ax.key}>
+              <line x1={px(a)} y1={py(a)} x2={px(b)} y2={py(b)} stroke={T.ink2} strokeWidth="1.3" />
+              {arrow(b, tip, T.ink2, { thin: true, head: 7, key: 'ah' + ax.key })}
+              {label(tip, ax.key, T.ink2, { key: 'al' + ax.key, size: 13, dx: 5, dy: -4 })}
+              {marks.map((v, i) => {
+                const p = V.mul(ax.dir, v)
+                const A = P(p)
+                return (
+                  <g key={'t' + ax.key + i}>
+                    <circle cx={A[0]} cy={A[1]} r="1.6" fill={T.ink3} />
+                    {axisNums
+                      ? (
+                        <text x={A[0] + ax.nx} y={A[1] + ax.ny} fontSize="9.5" fill={T.ink3}
+                          textAnchor={ax.na} fontFamily="'JetBrains Mono', monospace">{v}</text>
+                      ) : null}
+                  </g>
+                )
+              })}
+            </g>
+          )
+        })}
+
+        {/* TEKISLIKLAR. Ko'pburchak karkas bilan kesishmasidan chiqadi,
+            NORMAL esa strelka bo'lib turadi: 38 va 39 darslarning butun
+            ma'nosi shu strelkada. */}
+        {planes.map((pl, i) => {
+          const poly = planePoly(pl.n, pl.d || 0)
+          if (!poly.length) return null
+          const tone = TONE[pl.tone] || T.graph
+          const foot = pl.at || planeFoot(pl.n, pl.d || 0)
+          const tip = V.add(foot, V.mul(V.unit(pl.n), span * 0.5))
+          return (
+            <g key={'pl' + i}>
+              <polygon
+                points={poly.map((p) => P(p).join(',')).join(' ')}
+                fill={tone} fillOpacity="0.14" stroke={tone} strokeWidth="1.5"
+              />
+              {pl.normal === false ? null : arrow(foot, tip, tone, { key: 'pn' + i })}
+              {pl.label !== undefined
+                ? label(
+                  poly.reduce((best, q) => (P(q)[0] > P(best)[0] ? q : best), poly[0]),
+                  S(pl.label), tone, { key: 'pll' + i, dx: 7, dy: -6 },
+                )
+                : null}
+            </g>
+          )
+        })}
+
+        {/* IKKI TEKISLIK ORASIDAGI BURCHAK. Asbob IKKI juft burchakni ham
+            chizadi va qaysi biri JAVOB ekanini yozadi: blokning asosiy
+            chalkashligi shu -- o'tmas burchak o'tkirning o'rniga olinadi. */}
+        {mode === 'dihedral' && planes.length >= 2 ? (() => {
+          const n1 = V.unit(planes[0].n)
+          const n2 = V.unit(planes[1].n)
+          const c = Math.max(-1, Math.min(1, V.dot(n1, n2)))
+          const phi = (Math.acos(c) * 180) / Math.PI
+          const acute = Math.min(phi, 180 - phi)
+          // NORMALLAR KESISHISH CHIZIG'IDA turadi, havoda emas: burchak
+          // ikki tekislikning QIRRASIDA o'lchanadi. Nuqta karkas markaziga
+          // eng yaqin bo'lgani olinadi -- ikkita chiziqli tenglama:
+          //   n1 (cen + a n1 + b n2) + d1 = 0
+          //   n2 (cen + a n1 + b n2) + d2 = 0
+          // MUHIM: `n1` va `n2` BIRLIK vektorlar, shuning uchun ozod had
+          // ham shu uzunlikka bo'linadi. Aks holda nuqta tekislikning
+          // USTIDA yotmaydi -- birinchi urinishda normallar qirradan
+          // yarim birlik nariroqda turdi va buni faqat surat ko'rsatdi.
+          const l1 = V.len(planes[0].n) || 1
+          const l2 = V.len(planes[1].n) || 1
+          const d1 = (planes[0].d || 0) / l1
+          const d2 = (planes[1].d || 0) / l2
+          const m12 = V.dot(n1, n2)
+          const det = 1 - m12 * m12
+          const r1 = -(V.dot(n1, cen) + d1)
+          const r2 = -(V.dot(n2, cen) + d2)
+          const aa = Math.abs(det) < 1e-9 ? 0 : (r1 - m12 * r2) / det
+          const bb = Math.abs(det) < 1e-9 ? 0 : (r2 - m12 * r1) / det
+          const o = V.add(cen, V.add(V.mul(n1, aa), V.mul(n2, bb)))
+          const r = span * 0.24
+          const n2b = V.mul(n2, -1)
+          return (
+            <g>
+              {/* IKKI TEKISLIKNING QIRRASI. Burchak aynan shu chiziqda
+                  o'lchanadi, shuning uchun chiziq CHIZILADI: normal
+                  strelkalari havoda turgan chizmada o'quvchi burchakni
+                  nimaga nisbatan o'lchashini ko'rmaydi. */}
+              {(() => {
+                const u = V.cross(n1, n2)
+                if (V.len(u) < 1e-6) return null
+                const uu = V.unit(u)
+                let t0 = -1e9
+                let t1 = 1e9
+                const rr = [rx, ry, rz]
+                for (let k = 0; k < 3; k += 1) {
+                  if (Math.abs(uu[k]) < 1e-9) continue
+                  const ta = (rr[k][0] - o[k]) / uu[k]
+                  const tb = (rr[k][1] - o[k]) / uu[k]
+                  t0 = Math.max(t0, Math.min(ta, tb))
+                  t1 = Math.min(t1, Math.max(ta, tb))
+                }
+                if (!(t1 > t0)) return null
+                const q0 = V.add(o, V.mul(uu, t0))
+                const q1 = V.add(o, V.mul(uu, t1))
+                return <line x1={px(q0)} y1={py(q0)} x2={px(q1)} y2={py(q1)} stroke={T.ink} strokeWidth="2" />
+              })()}
+              {arrow(o, V.add(o, V.mul(n1, r * 2.2)), T.graph, { key: 'dn1', thin: true })}
+              {arrow(o, V.add(o, V.mul(n2, r * 2.2)), T.accent, { key: 'dn2', thin: true })}
+              {arrow(o, V.add(o, V.mul(n2b, r * 2.2)), T.accent, { key: 'dn2b', thin: true, dash: true, op: 0.45 })}
+              <path d={arcPath(o, n1, n2, r * 1.3)} fill="none" stroke={T.ok} strokeWidth="1.7" />
+              <path d={arcPath(o, n1, n2b, r * 1.95)} fill="none" stroke={T.ink3} strokeWidth="1.2"
+                strokeDasharray="4 3" />
+              {/* IKKI SON pastdagi satrda turadi, chizmaning ustida emas:
+                  proyeksiyada bissektrisalar yaqin ko'rinadi va sonlar
+                  ustma-ust tushardi -- 212 px da esa umuman o'qilmasdi.
+                  Yashil son -- javob, kulrangi -- qo'shimchasi. */}
+              <text x={6} y={height - 4} fontSize="12" fontWeight="700" fontFamily={MATH_FONT}>
+                <tspan fill={T.ok}>{tt(SPACE_UI.answer) + ' ' + numTxt(acute) + '°'}</tspan>
+                <tspan dx="9" fill={T.ink3} fontSize="11.5">{'/ ' + numTxt(Math.max(phi, 180 - phi)) + '°'}</tspan>
+              </text>
+            </g>
+          )
+        })() : null}
+
+        {/* MASOFA: AB parallelepipedning diagonali, qirralari esa
+            koordinatalar AYIRMASI. Ikki marta Pifagor -- ko'rinib turadi. */}
+        {distBox ? (
+          <g>
+            {distBox.hidden.map((s, i) => (
+              <line key={'dh' + i} x1={px(s[0])} y1={py(s[0])} x2={px(s[1])} y2={py(s[1])}
+                stroke={T.ink3} strokeWidth="0.9" strokeDasharray="4 4" strokeOpacity="0.7" />
+            ))}
+            {distBox.legs.map((s, i) => (
+              <g key={'dl' + i}>
+                <line x1={px(s.from)} y1={py(s.from)} x2={px(s.to)} y2={py(s.to)}
+                  stroke={T.graph} strokeWidth="1.7" />
+                {label(V.mid(s.from, s.to), s.txt, T.graph,
+                  { key: 'dlt' + i, roman: true, size: 11, weight: 700, dx: s.dx, dy: s.dy })}
+              </g>
+            ))}
+            <line x1={px(distBox.A)} y1={py(distBox.A)} x2={px(distBox.B)} y2={py(distBox.B)}
+              stroke={T.ink} strokeWidth="2.1" />
+          </g>
+        ) : null}
+
+        {/* KESMA va O'RTASI: o'rtasi UCHLARNING o'rtachasi ekanini asbob
+            hisoblab ko'rsatadi, dars sonni takrorlamaydi. */}
+        {mode === 'mid' && points.length >= 2 ? (
+          <g>
+            <line x1={px(points[0].at)} y1={py(points[0].at)} x2={px(points[1].at)} y2={py(points[1].at)}
+              stroke={T.ink} strokeWidth="1.9" />
+            <g className="g11-in">
+              <circle cx={px(midPoint)} cy={py(midPoint)} r="4.2" fill={T.graph} />
+              {label(midPoint, 'C', T.graph, { key: 'mcl', dx: 7, dy: -7 })}
+              {label(midPoint, trio(midPoint), T.graph,
+                { key: 'mcc', dx: 7, dy: 13, roman: true, size: 11.5, weight: 600 })}
+            </g>
+          </g>
+        ) : null}
+
+        {/* VEKTORLAR. Koordinatalarini ASBOB yozadi: dars sonlarni
+            takrorlamaydi, va uchni surganda son o'zi o'zgaradi. */}
+        {vectors.map((v, i) => {
+          const tone = TONE[v.tone] || T.graph
+          const c = vecOf(v)
+          const m = V.mid(v.from, v.to)
+          return (
+            <g key={'v' + i}>
+              {arrow(v.from, v.to, tone, { key: 'va' + i, dash: v.dash })}
+              {v.label !== undefined ? label(m, S(v.label), tone, { key: 'vl' + i, dx: 6, dy: -6 }) : null}
+              {v.coords
+                ? label(m, trio(c), tone, {
+                  key: 'vc' + i,
+                  dx: v.label !== undefined ? 20 : 6,
+                  dy: -6,
+                  roman: true,
+                  size: 11.5,
+                  weight: 600,
+                })
+                : null}
+            </g>
+          )
+        })}
+
+        {/* SONGA KO'PAYTIRISH: λ < 0 bo'lsa strelka teskari tomonga o'tadi.
+            Bu qoida emas, ekranda ko'rinadigan fakt. */}
+        {lambda !== undefined && vectors[0] ? (() => {
+          const v = vectors[0]
+          const to = V.add(v.from, V.mul(vecOf(v), lambda))
+          return (
+            <g className="g11-in">
+              {arrow(v.from, to, T.accent, { key: 'lam' })}
+              {label(V.mid(v.from, to), numTxt(lambda) + ' a', T.accent, { key: 'laml', dx: 6, dy: 14 })}
+            </g>
+          )
+        })() : null}
+
+        {/* YIG'INDI. Uchburchak, parallelogramm va parallelepiped qoidasi --
+            bitta amalning uch ko'rinishi, shuning uchun bitta rejim. */}
+        {sum ? (() => {
+          const at = sum.at || [0, 0, 0]
+          const a = sum.a || [1, 0, 0]
+          const b = sum.b || [0, 1, 0]
+          const c = sum.c
+          const step = sum.step === undefined ? 99 : sum.step
+          const rule = sum.rule || 'triangle'
+          const A = V.add(at, a)
+          const B = V.add(at, b)
+          const AB = V.add(A, b)
+          const ABC = c ? V.add(AB, c) : null
+          const tip = ABC || AB
+          return (
+            <g>
+              {step >= 1 ? arrow(at, A, T.graph, { key: 'sa' }) : null}
+              {step >= 1 ? label(V.mid(at, A), 'a', T.graph, { key: 'sal', dx: 4, dy: 15 }) : null}
+              {step >= 2 ? arrow(rule === 'triangle' ? A : at, rule === 'triangle' ? AB : B, T.tip, { key: 'sb' }) : null}
+              {step >= 2
+                ? label(rule === 'triangle' ? V.mid(A, AB) : V.mid(at, B), 'b', T.tip,
+                  { key: 'sbl', dx: 8, dy: rule === 'triangle' ? 13 : -6 })
+                : null}
+              {/* Parallelogramm: yopiluvchi tomonlar PUNKTIR, chunki ular
+                  ko'chirilgan nusxa, yangi vektor emas. */}
+              {step >= 3 && rule !== 'triangle' ? (
+                <g>
+                  <line x1={px(A)} y1={py(A)} x2={px(AB)} y2={py(AB)} stroke={T.ink3}
+                    strokeWidth="1.1" strokeDasharray="4 4" />
+                  <line x1={px(B)} y1={py(B)} x2={px(AB)} y2={py(AB)} stroke={T.ink3}
+                    strokeWidth="1.1" strokeDasharray="4 4" />
+                </g>
+              ) : null}
+              {step >= 3 && rule === 'box' && c ? (() => {
+                const C = V.add(at, c)
+                const segs = [
+                  [A, V.add(A, c)], [B, V.add(B, c)], [C, V.add(C, a)], [C, V.add(C, b)],
+                  [AB, ABC], [V.add(A, c), ABC], [V.add(B, c), ABC],
+                ]
+                return (
+                  <g>
+                    {arrow(at, C, T.ink2, { key: 'sc', thin: true })}
+                    {label(V.mid(at, C), 'c', T.ink2, { key: 'scl', dx: -15, dy: 4 })}
+                    {segs.map((s, i) => (
+                      <line key={'sbx' + i} x1={px(s[0])} y1={py(s[0])} x2={px(s[1])} y2={py(s[1])}
+                        stroke={T.ink3} strokeWidth="1" strokeDasharray="4 4" strokeOpacity="0.8" />
+                    ))}
+                  </g>
+                )
+              })() : null}
+              {step >= 3 ? arrow(at, tip, T.accent, { key: 'ss' }) : null}
+              {step >= 3
+                ? label(V.lerp(at, tip, 0.3), c ? 'a + b + c' : 'a + b', T.accent,
+                  { key: 'ssl', dx: -8, dy: -9, size: 12.5, anchor: 'end' })
+                : null}
+              {step >= 3
+                ? label(tip, trio(V.sub(tip, at)), T.accent,
+                  { key: 'ssc', dx: 8, dy: 16, roman: true, size: 11.5, weight: 600 })
+                : null}
+            </g>
+          )
+        })() : null}
+
+        {/* SKALYAR KO'PAYTMA: son burchak YONIDA turadi va 90 gradusda
+            NOLGA aylanadi. Perpendikularlik formuladagi tekshiruv emas,
+            ko'rinadigan narsa bo'ladi. */}
+        {mode === 'dot' && v0 && v1 ? (() => {
+          const o = vectors[0].from
+          const r = Math.min(V.len(v0), V.len(v1)) * 0.34
+          const perp = Math.abs(dotVal) < 0.005
+          const bis = V.unit(V.add(V.unit(v0), V.unit(v1)))
+          return (
+            <g>
+              <path d={arcPath(o, v0, v1, r)} fill="none" stroke={perp ? T.ok : T.ink2} strokeWidth="1.6" />
+              {/* TO'G'RI BURCHAK belgisi -- kvadratcha. Geometriya belgisi,
+                  matnli «perpendikular» emas. */}
+              {perp ? (() => {
+                const u1 = V.mul(V.unit(v0), r)
+                const u2 = V.mul(V.unit(v1), r)
+                const q = [o, V.add(o, u1), V.add(o, V.add(u1, u2)), V.add(o, u2)]
+                return <polygon points={q.map((p) => P(p).join(',')).join(' ')} fill="none" stroke={T.ok} strokeWidth="1.5" />
+              })() : null}
+              {angVal !== null
+                ? label(V.add(o, V.mul(bis, r * 2.1)), numTxt(angVal) + '°', perp ? T.ok : T.ink2,
+                  { key: 'dang', roman: true, size: 12, dx: 3, dy: 3 })
+                : null}
+            </g>
+          )
+        })() : null}
+
+        {/* HALOL CHIZG'ICH. Perpendikular bo'lsa -- «masofa» va son. Qiya
+            bo'lsa -- «qiya» so'zi va SONSIZ. To'g'ri perpendikular
+            KO'RSATILMAYDI: u javob bo'lardi. */}
+        {dropInfo ? (
+          <g>
+            <line
+              x1={px(drop.from)} y1={py(drop.from)} x2={px(dropInfo.foot)} y2={py(dropInfo.foot)}
+              stroke={dropInfo.perp ? T.ok : T.tip} strokeWidth="2"
+              strokeDasharray={dropInfo.perp ? undefined : '6 4'}
+            />
+            <circle cx={px(dropInfo.foot)} cy={py(dropInfo.foot)} r="3.4" fill={dropInfo.perp ? T.ok : T.tip} />
+            {dropInfo.perp ? (() => {
+              const r = span * 0.14
+              const u1 = V.mul(V.unit(V.sub(drop.from, dropInfo.foot)), r)
+              const along = dropInfo.axis
+                ? V.unit(dropInfo.axis)
+                : V.unit(V.cross(dropInfo.n, V.sub(drop.from, dropInfo.foot)))
+              const u2 = V.mul(along, r)
+              const q = [dropInfo.foot, V.add(dropInfo.foot, u1),
+                V.add(dropInfo.foot, V.add(u1, u2)), V.add(dropInfo.foot, u2)]
+              return <polygon points={q.map((p) => P(p).join(',')).join(' ')} fill="none" stroke={T.ok} strokeWidth="1.4" />
+            })() : null}
+            {/* Perpendikular bo'lsa SO'Z yozilmaydi: to'g'ri burchak
+                belgisi va pastdagi son yetarli, aks holda yozuv nuqta
+                harfi bilan urilardi. Qiyada so'z SHART -- soni yo'q, va
+                nima uchun yo'qligini aynan shu so'z aytadi. */}
+            {dropInfo.perp && value === 'dist' ? null : label(
+              V.mid(drop.from, dropInfo.foot),
+              dropInfo.perp ? tt(SPACE_UI.dist) : tt(SPACE_UI.slant),
+              dropInfo.perp ? T.ok : T.tip,
+              { key: 'dlab', roman: true, size: 11.5, dx: 7, dy: 14, weight: 700 },
+            )}
+          </g>
+        ) : null}
+
+        {/* ALMASHTIRISH: shakl va TASVIRI. `t` bilan tasvir joyiga ko'zga
+            KO'RINIB boradi -- DINAMIKA_VA_ILLUSTRATSIYA talabi: harakat
+            o'zi ma'no tashiydi. */}
+        {mapInfo ? (
+          <g>
+            {mapInfo.links.map((e, k) => (
+              <line key={'ms' + k}
+                x1={px(mapInfo.src[e[0]])} y1={py(mapInfo.src[e[0]])}
+                x2={px(mapInfo.src[e[1]])} y2={py(mapInfo.src[e[1]])}
+                stroke={T.ink} strokeWidth="1.7" />
+            ))}
+            {mapInfo.t > 0.02 ? mapInfo.links.map((e, k) => (
+              <line key={'md' + k}
+                x1={px(mapInfo.dst[e[0]])} y1={py(mapInfo.dst[e[0]])}
+                x2={px(mapInfo.dst[e[1]])} y2={py(mapInfo.dst[e[1]])}
+                stroke={T.accent} strokeWidth="1.7" opacity={0.35 + 0.65 * mapInfo.t} />
+            )) : null}
+            {mapInfo.t >= 0.99 ? mapInfo.src.map((p, i) => (
+              <line key={'ml' + i}
+                x1={px(p)} y1={py(p)} x2={px(mapInfo.dst[i])} y2={py(mapInfo.dst[i])}
+                stroke={T.ink3} strokeWidth="0.9" strokeDasharray="3 4" />
+            )) : null}
+            {/* Parallel ko'chirishda ALMASHTIRISHNING O'ZI -- vektor.
+                Ikki shaklni yonma-yon qo'yish uni ko'rsatmaydi. */}
+            {map.kind === 'shift' && mapInfo.t > 0.02
+              ? arrow(mapInfo.src[mapInfo.watch], mapInfo.dst[mapInfo.watch], T.ink2, { key: 'mv', thin: true })
+              : null}
+            {/* Gomotetiyada markazdan O'TUVCHI nurlar: tasvir cho'qqisi
+                nurning ustida yotadi, va k ning ishorasi nurning qaysi
+                tomonida ekanini aytadi. */}
+            {map.kind === 'homothety'
+              ? mapInfo.src.map((p, i) => (
+                <line key={'mr' + i}
+                  x1={px(map.center || [0, 0, 0])} y1={py(map.center || [0, 0, 0])}
+                  x2={px(mapInfo.dst[i])} y2={py(mapInfo.dst[i])}
+                  stroke={T.ink3} strokeWidth="0.8" strokeDasharray="3 4" strokeOpacity="0.8" />
+              ))
+              : null}
+            {map.center && (map.kind === 'center' || map.kind === 'homothety') ? (
+              <g>
+                <circle cx={px(map.center)} cy={py(map.center)} r="3.6" fill={T.ink} />
+                {label(map.center, 'O', T.ink, { key: 'mc', dx: -15, dy: 4 })}
+              </g>
+            ) : null}
+          </g>
+        ) : null}
+
+        {/* NUQTALAR va PROYEKSIYALARI. Proyeksiya nuqtaning O'ZI emas --
+            shuning uchun u boshqa rangda va punktir bilan bog'langan.
+            35-darsning asosiy chalkashligi aynan shu. */}
+        {points.map((pt, i) => {
+          const p = pt.at
+          const tone = TONE[pt.tone] || T.accent
+          const p1 = [p[0], p[1], 0]
+          const pX = [p[0], 0, 0]
+          const pY = [0, p[1], 0]
+          const pZ = [0, 0, p[2]]
+          // [nuqta, indeks, dx, dy, anchor]
+          const subs = [
+            [p1, '1', 8, 14, undefined],
+            [pX, 'x', 8, 3, undefined],
+            [pY, 'y', 2, -8, undefined],
+            [pZ, 'z', 8, 3, undefined],
+          ].filter((s) => V.len(s[0]) > 1e-9)
+          return (
+            <g key={'p' + i}>
+              {pt.proj ? (
+                <g>
+                  {[[p, p1], [p1, pX], [p1, pY], [p, pZ]].map((s, k) => (
+                    <line key={'pg' + k} x1={px(s[0])} y1={py(s[0])} x2={px(s[1])} y2={py(s[1])}
+                      stroke={T.ink3} strokeWidth="1" strokeDasharray="4 4" />
+                  ))}
+                  {subs.map((s, k) => (
+                    <g key={'pp' + k}>
+                      <circle cx={px(s[0])} cy={py(s[0])} r="2.6" fill={T.ink3} />
+                      {/* Yozuv har birining O'Z tomonida: to'rttasi bir
+                          xil surilganda ular polda bir joyga yig'ilardi. */}
+                      {label(s[0], S(pt.label) || 'A', T.ink3,
+                        { key: 'ppl' + k, sub: s[1], size: 11, weight: 600, dx: s[2], dy: s[3], anchor: s[4] })}
+                    </g>
+                  ))}
+                </g>
+              ) : null}
+              <circle cx={px(p)} cy={py(p)} r="4.2" fill={tone} />
+              {pt.label !== undefined
+                ? label(p, S(pt.label), tone, {
+                  key: 'pl' + i,
+                  sub: pt.sub,
+                  dx: pt.dx === undefined ? 7 : pt.dx,
+                  dy: pt.dy === undefined ? -7 : pt.dy,
+                })
+                : null}
+              {pt.coords
+                ? label(p, trio(p), tone, {
+                  key: 'pc' + i,
+                  dx: pt.dx === undefined ? 7 : pt.dx,
+                  dy: (pt.dy === undefined ? -7 : pt.dy) + 20,
+                  roman: true,
+                  size: 11.5,
+                  weight: 600,
+                })
+                : null}
+            </g>
+          )
+        })}
+
+        {readout ? (
+          <text x={W - 6} y={height - 4} textAnchor="end" fontSize="13" fontWeight="700"
+            fill={T.ink2} fontFamily={MATH_FONT}>
+            {readout}
+          </text>
+        ) : null}
+      </svg>
+      {caption !== undefined
+        ? <div className="g11-expr g11-expr-sm g11-wrap" style={{ textAlign: 'center', color: T.ink2 }}><Fx>{S(caption)}</Fx></div>
+        : null}
+      {note
+        ? <div className="g11-expr g11-expr-sm g11-wrap" style={{ textAlign: 'center', color: T.ink2 }}><Fx>{S(note)}</Fx></div>
+        : null}
+    </div>
+  )
+}
+
+// ============================================================
+// SecantBoard -- B6 blokining asbobi: HOSILA.
+//
+// Darslikning 12-13-rasmlari ustiga qurilgan: B nuqta egri chiziq bo'ylab
+// A ga yaqinlashadi, kesuvchi esa urinma holatiga o'tadi. Shu bitta
+// harakat butun bobning ma'nosi, va uni SON bilan birga ko'rsatish kerak:
+// ekranda ayirmali nisbat 4, 3, 2,5 ... deb o'zgaradi va 2 ga intiladi.
+//
+// NEGA ALOHIDA ASBOB. `CurveBoard` egri chiziq va TAYYOR urinmani chizadi,
+// ya'ni javobni allaqachon bilgan holatni. O'quvchi esa yaqinlashishni
+// ko'rmasa, «urinma -- kesuvchining limiti» degan gap quruq qoladi.
+//
+// QIYALIK HALOL: urinma qiyaligi `ddx` bilan, ya'ni FUNKSIYANING O'ZIDAN
+// sanaladi. Dars ma'lumotida qiyalik yozilmaydi -- aks holda chizmada
+// mening javobim turgan bo'lardi, tekshiruv emas.
+//
+// Rejimlar:
+//   secant   -- kesuvchi -> urinma, ayirmali nisbat soni bilan;
+//   speed    -- o'sha geometriya, lekin o'qlar t va s: o'rtacha va oniy tezlik;
+//   tangent  -- urinma va uning tenglamasi, qiyalik uchburchak bilan o'qiladi;
+//   sign     -- grafik ostida f' ning ishora lentasi: qayerda o'sadi, qayerda
+//               kamayadi, qayerda statsionar nuqta.
+// ============================================================
+export function SecantBoard({
+  fn,
+  xDomain = [-1, 5],
+  yDomain = [-1, 9],
+  xTicks = [],
+  yTicks = [],
+  mode = 'secant',
+  x0 = 1,
+  hs = [2, 1, 0.5],
+  phase = 99,
+  tangentAt,
+  keepSecant = false,
+  legs = true,
+  hLabel,
+  riseLabel,
+  ratioLabel,
+  slopeLabel,
+  eq,
+  signs = [],
+  marks = [],
+  showDeriv = false,
+  derivLabel,
+  curveLabel,
+  aLabel = 'A',
+  bLabel = 'B',
+  slopeTriangle = false,
+  caption,
+  note,
+  height = 178,
+}) {
+  const tt = useT()
+  const S = (v) => (isTri(v) ? tt(v) : v)
+
+  const W = 640
+  const H = height
+  const padL = 42
+  const padR = 26
+  const padT = 14
+  const bandRow = mode === 'sign' ? 22 : 0
+  const readRow = mode === 'sign' ? 0 : 17
+  const padB = 26 + bandRow + readRow
+  const xa0 = xDomain[0]
+  const xa1 = xDomain[1]
+  const ya0 = yDomain[0]
+  const ya1 = yDomain[1]
+  const px = (x) => padL + ((x - xa0) / (xa1 - xa0)) * (W - padL - padR)
+  const py = (y) => padT + ((ya1 - y) / (ya1 - ya0)) * (H - padT - padB)
+
+  const path = (F) => {
+    const pts = []
+    const N = 260
+    for (let i = 0; i <= N; i += 1) {
+      const x = xa0 + ((xa1 - xa0) * i) / N
+      const y = F(x)
+      if (!isFinite(y) || y < ya0 - 3 || y > ya1 + 3) { pts.push(null); continue }
+      pts.push([px(x), py(y)])
+    }
+    let d = ''
+    let open = false
+    pts.forEach((p) => {
+      if (!p) { open = false; return }
+      d += (open ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1) + ' '
+      open = true
+    })
+    return d.trim()
+  }
+
+  // Nuqtadan qiyalik bilan chizilgan to'g'ri chiziq -- ko'rinish oynasiga
+  // qirqiladi, ya'ni chizma chetidan chiqib ketmaydi.
+  const lineThrough = (xp, yp, k) => {
+    const cand = []
+    const at = (x) => yp + k * (x - xp)
+    cand.push([xa0, at(xa0)])
+    cand.push([xa1, at(xa1)])
+    if (Math.abs(k) > 1e-9) {
+      cand.push([xp + (ya0 - yp) / k, ya0])
+      cand.push([xp + (ya1 - yp) / k, ya1])
+    }
+    const inside = cand.filter((p) => p[0] >= xa0 - 1e-6 && p[0] <= xa1 + 1e-6
+      && p[1] >= ya0 - 1e-6 && p[1] <= ya1 + 1e-6)
+    if (inside.length < 2) return null
+    inside.sort((p, q) => p[0] - q[0])
+    return [inside[0], inside[inside.length - 1]]
+  }
+
+  const step = Math.max(0, Math.min(phase, hs.length))
+  const tAt = tangentAt === undefined ? hs.length : tangentAt
+  const showTan = mode === 'tangent' || (mode !== 'sign' && phase >= tAt)
+  const showSec = mode !== 'tangent' && mode !== 'sign' && (phase < tAt || keepSecant)
+  // `keepSecant: 'first'` -- urinma paydo bo'lganda EKRANDA eng KENG
+  // kesuvchi qoladi, oxirgisi emas. Sababi: h kichik bo'lganda kesuvchi va
+  // urinma deyarli ustma-ust tushadi, va oxirgi kadr «o'rtacha 4,25, oniy 4»
+  // degan farqni KO'RSATMAY qoladi (43-darsning 4-slaydida shu chiqdi).
+  const hIdx = (showTan && keepSecant === 'first') ? 0 : Math.min(step, hs.length - 1)
+  const h = hs[hIdx]
+
+  const ya = fn(x0)
+  const xb = x0 + h
+  const yb = fn(xb)
+  const secK = (yb - ya) / h
+  const tanK = ddx(fn)(x0)
+
+  const sec = showSec ? lineThrough(x0, ya, secK) : null
+  const tan = showTan ? lineThrough(x0, ya, tanK) : null
+
+  // Yozuv chizmaning ICHIDA qolishi kerak: B nuqta oynaning tepasida
+   // bo'lganda uning yorlig'i qirqilib ketardi (stend ushladi).
+  const clampY = (y) => Math.max(padT + 11, Math.min(H - padB - 4, y))
+
+  const txt = (x, y, s, opt) => (
+    <text
+      key={opt.key}
+      x={x}
+      y={y}
+      textAnchor={opt.anchor || 'middle'}
+      fontSize={opt.size || 12}
+      fontWeight={opt.weight || 700}
+      fill={opt.fill || T.ink2}
+      fontFamily={opt.roman ? undefined : MATH_FONT}
+      opacity={opt.opacity}
+      className={opt.cls}
+    >
+      {s}
+    </text>
+  )
+
+  return (
+    <div className="g11-graph" style={{ width: '100%', flexShrink: 0, minWidth: 0 }}>
+      <svg viewBox={'0 0 ' + W + ' ' + H} width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" style={{ display: 'block', maxHeight: H }}>
+        <g stroke={T.line} strokeWidth="1" opacity=".5">
+          {xTicks.map((tk) => <line key={'gx' + tk.v} x1={px(tk.v)} y1={padT} x2={px(tk.v)} y2={H - padB} />)}
+          {yTicks.map((tk) => <line key={'gy' + tk.v} x1={padL} y1={py(tk.v)} x2={W - padR} y2={py(tk.v)} />)}
+        </g>
+        <line x1={padL} y1={py(0)} x2={W - padR} y2={py(0)} stroke="rgba(23,26,29,.34)" strokeWidth="1.5" />
+        <line x1={px(0)} y1={padT} x2={px(0)} y2={H - padB} stroke="rgba(23,26,29,.34)" strokeWidth="1.5" />
+
+        {/* Statsionar nuqta belgisi bor joyda o'q belgisi CHIZILMAYDI: ikkisi
+            bir xil balandlikda turadi va ustma-ust tushib qolardi. */}
+        {xTicks.filter((tk) => !marks.some((mk) => Math.abs(mk.v - tk.v) < 1e-6))
+          .map((tk) => txt(px(tk.v), H - padB + 15, tk.label !== undefined ? tk.label : tk.v, { key: 'tx' + tk.v, size: 11.5 }))}
+        {yTicks.map((tk) => txt(padL - 8, py(tk.v) + 4, tk.label !== undefined ? tk.label : tk.v, { key: 'ty' + tk.v, size: 11.5, anchor: 'end' }))}
+
+        {/* HOSILANING GRAFIGI -- faqat so'ralganda. Punktir, boshqa rang:
+            u f ning grafigi bilan aralashib ketmasligi kerak. */}
+        {showDeriv ? (
+          <g>
+            <path d={path(ddx(fn))} fill="none" stroke={T.tip} strokeWidth="2" strokeDasharray="6 4" opacity=".85" />
+            {derivLabel ? txt(
+              W - padR - 4,
+              Math.max(padT + 11, Math.min(H - padB - 4, py(ddx(fn)(xa1 - (xa1 - xa0) * 0.06)) - 8)),
+              S(derivLabel), { key: 'dl', anchor: 'end', fill: T.tip, size: 12 },
+            ) : null}
+          </g>
+        ) : null}
+
+        <path d={path(fn)} fill="none" stroke={T.ink} strokeWidth="2.6" />
+        {/* Egri chiziqning yorlig'i: chiziq o'ng chetda TEPADA bo'lsa, yozuv
+            uning USTIGA sig'maydi va chizma chetiga tiqiladi -- shunda u
+            chiziqning OSTIGA tushadi (darsda 4-slaydda ko'rindi). */}
+        {curveLabel ? txt(
+          W - padR - 4,
+          (() => {
+            const ye = py(fn(xa1 - (xa1 - xa0) * 0.04))
+            return clampY(ye - padT < (H - padT - padB) * 0.28 ? ye + 17 : ye - 9)
+          })(),
+          S(curveLabel), { key: 'cl', anchor: 'end', size: 12.5, fill: T.ink2 },
+        ) : null}
+
+        {/* ISHORA LENTASI. Grafik ostida: qayerda f' musbat, qayerda manfiy.
+            Bu javob emas -- dars ma'lumoti nima yozsa, shu ko'rinadi. */}
+        {mode === 'sign' ? (
+          <g>
+            {signs.map((sg, i) => {
+              const a = px(Math.max(sg.from === null || sg.from === undefined ? xa0 : sg.from, xa0))
+              const b = px(Math.min(sg.to === null || sg.to === undefined ? xa1 : sg.to, xa1))
+              const plus = sg.sign !== '−' && sg.sign !== '-'
+              return (
+                <g key={'sg' + i}>
+                  <rect
+                    x={a + 1.5}
+                    y={H - padB + 22}
+                    width={Math.max(2, b - a - 3)}
+                    height={16}
+                    rx={5}
+                    fill={plus ? T.okSoft : T.accentSoft}
+                  />
+                  {txt((a + b) / 2, H - padB + 34, plus ? '+' : '−', { key: 'sgt' + i, fill: plus ? T.ok : T.accent, size: 13 })}
+                </g>
+              )
+            })}
+            {marks.map((mk, i) => (
+              <g key={'mk' + i}>
+                <line x1={px(mk.v)} y1={padT} x2={px(mk.v)} y2={H - padB + 22} stroke={T.ink3} strokeWidth="1" strokeDasharray="3 3" opacity=".7" />
+                <circle cx={px(mk.v)} cy={py(fn(mk.v))} r="4.6" fill={T.paper} stroke={T.accent} strokeWidth="2.6" />
+                {mk.label !== undefined ? txt(px(mk.v), H - padB + 14, S(mk.label), { key: 'mkl' + i, size: 11.5, fill: T.accent }) : null}
+              </g>
+            ))}
+          </g>
+        ) : null}
+
+        {/* Δx va Δy oyoqlari: darslikning 16-rasmi. */}
+        {showSec && legs && isFinite(yb) ? (
+          <g stroke={T.ink3} strokeWidth="1.2" strokeDasharray="4 3" opacity=".8">
+            <line x1={px(x0)} y1={py(ya)} x2={px(xb)} y2={py(ya)} />
+            <line x1={px(xb)} y1={py(ya)} x2={px(xb)} y2={py(yb)} />
+          </g>
+        ) : null}
+        {showSec && legs && isFinite(yb) ? (
+          <g>
+            {/* `h` yozuvi o'q chizig'iga tushib qolmasin: oyoq o'qqa yaqin
+                bo'lsa, yozuv TEPAGA chiqadi. */}
+            {hLabel ? txt(
+              (px(x0) + px(xb)) / 2,
+              clampY(Math.abs(py(ya) - py(0)) < 18 ? py(ya) - 6 : py(ya) + 14),
+              S(hLabel), { key: 'hl', size: 11.5, fill: T.ink3 },
+            ) : null}
+            {riseLabel ? txt(px(xb) + 6, clampY((py(ya) + py(yb)) / 2 + 4), S(riseLabel), { key: 'rl', size: 11.5, fill: T.ink3, anchor: 'start' }) : null}
+          </g>
+        ) : null}
+
+        {sec ? (
+          <line
+            x1={px(sec[0][0])} y1={py(sec[0][1])} x2={px(sec[1][0])} y2={py(sec[1][1])}
+            stroke={T.graph} strokeWidth="2.2" opacity={showTan ? 0.4 : 1}
+          />
+        ) : null}
+        {tan ? (
+          <line
+            x1={px(tan[0][0])} y1={py(tan[0][1])} x2={px(tan[1][0])} y2={py(tan[1][1])}
+            stroke={T.accent} strokeWidth="2.6" className="g11-in"
+          />
+        ) : null}
+
+        {/* QIYALIK UCHBURCHAGI: bir qadam o'ngga, k qadam tepaga. Shundan
+            keyin `k` chizmadan O'QILADI, formuladan emas. */}
+        {slopeTriangle && showTan ? (
+          <g>
+            <line x1={px(x0)} y1={py(ya)} x2={px(x0 + 1)} y2={py(ya)} stroke={T.accent} strokeWidth="1.6" strokeDasharray="4 3" />
+            <line x1={px(x0 + 1)} y1={py(ya)} x2={px(x0 + 1)} y2={py(ya + tanK)} stroke={T.accent} strokeWidth="1.6" strokeDasharray="4 3" />
+            {txt((px(x0) + px(x0 + 1)) / 2, py(ya) + (tanK >= 0 ? 14 : -6), '1', { key: 'st1', size: 11.5, fill: T.accent })}
+            {txt(px(x0 + 1) + 6, (py(ya) + py(ya + tanK)) / 2 + 4, numTxt(tanK), { key: 'st2', size: 11.5, fill: T.accent, anchor: 'start' })}
+          </g>
+        ) : null}
+
+        {mode !== 'sign' ? (
+          <g>
+            <circle cx={px(x0)} cy={py(ya)} r="5" fill={T.paper} stroke={T.ink} strokeWidth="2.8" />
+            {txt(px(x0) - 9, clampY(py(ya) + 16), S(aLabel), { key: 'al', size: 12.5, anchor: 'end', fill: T.ink2 })}
+          </g>
+        ) : null}
+        {showSec && isFinite(yb) ? (
+          <g>
+            <circle cx={px(xb)} cy={py(yb)} r="5" fill={T.paper} stroke={T.graph} strokeWidth="2.8" />
+            {/* O'ng chetga yaqin bo'lsa, yozuv nuqtaning CHAP tomoniga o'tadi:
+                aks holda u chizmadan chiqib ketardi. */}
+            {px(xb) > W - padR - 26
+              ? txt(px(xb) - 9, clampY(py(yb) - 7 < padT + 11 ? py(yb) + 17 : py(yb) - 7), S(bLabel), { key: 'bl', size: 12.5, anchor: 'end', fill: T.graph })
+              : txt(px(xb) + 9, clampY(py(yb) - 7 < padT + 11 ? py(yb) + 17 : py(yb) - 7), S(bLabel), { key: 'bl', size: 12.5, anchor: 'start', fill: T.graph })}
+          </g>
+        ) : null}
+
+        {/* PASTDAGI SATR. Chapda ayirmali nisbat (kesuvchi), o'ngda urinma
+            qiyaligi. Ikkisi bir vaqtda ko'rinsa, o'quvchi ularni
+            SOLISHTIRADI -- «o'rtacha» va «oniy» farqi shu yerda tug'iladi. */}
+        {readRow ? (
+          <g>
+            {showSec && ratioLabel && isFinite(secK)
+              ? txt(padL, H - 5, S(ratioLabel) + ' = ' + numTxt(secK), { key: 'rr', anchor: 'start', size: 13, fill: T.graph })
+              : null}
+            {showTan && slopeLabel
+              ? txt(W - 6, H - 5, S(slopeLabel) + ' = ' + numTxt(tanK), { key: 'sl', anchor: 'end', size: 13, fill: T.accent })
+              : null}
+            {mode === 'tangent' && eq
+              ? txt(padL, H - 5, S(eq), { key: 'eq', anchor: 'start', size: 13, fill: T.accent })
+              : null}
+          </g>
+        ) : null}
+      </svg>
+      {caption !== undefined
+        ? <div className="g11-expr g11-expr-sm g11-wrap" style={{ textAlign: 'center', color: T.ink2 }}><Fx>{S(caption)}</Fx></div>
+        : null}
+      {note
+        ? <div className="g11-expr g11-expr-sm g11-wrap" style={{ textAlign: 'center', color: T.ink2 }}><Fx>{S(note)}</Fx></div>
+        : null}
+    </div>
+  )
+}
