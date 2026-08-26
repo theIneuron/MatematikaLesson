@@ -23,9 +23,9 @@ const DATA = {
   ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
-    "To'g'ri. 7(a + b) ochilsa 7a + 7b beradi -- ya'ni bu ayniy o'zgartirish.",
+    "To'g'ri. 7(a + b) ochilsa 7a + 7b beradi -- ya'ni bu qiymatni saqlaydigan o'zgartirish.",
     'Верно. Раскрытие 7(a + b) даёт 7a + 7b — это тождественное преобразование.',
-    'Correct. Opening 7(a + b) gives 7a + 7b — an identity transformation.'),
+    'Correct. Opening 7(a + b) gives 7a + 7b — an value-preserving transformation.'),
   wrongs: [
     { when: (s) => s.seq.indexOf('c') !== -1, text: L(
       "(7a + b) da yettilik qavs ichida qolib ketgan: umumiy ko'paytuvchi qavs OLDIGA chiqadi.",

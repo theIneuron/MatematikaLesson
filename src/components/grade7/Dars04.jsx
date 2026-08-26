@@ -56,7 +56,7 @@ import {
 } from './tools.jsx'
 
 const LESSON_ID = 'alg_7_04'
-const LESSON_TITLE = L("Ayniyat va ayniy o'zgartirishlar", 'Тождества и тождественные преобразования', 'Identities and identity transformations')
+const LESSON_TITLE = L("Ayniyat va qiymatni saqlaydigan o'zgartirishlar", 'Тождества и тождественные преобразования', 'Identities and value-preserving transformations')
 const LESSON_NO = L('4-dars', 'Урок 4', 'Lesson 4')
 const BLOCK = { label: L('B1-blok', 'Блок Б1', 'Block B1'), from: 1, to: 6, current: 4 }
 
@@ -588,9 +588,9 @@ const S8 = {
     badge: L('Qoida', 'Правило', 'The rule'),
     lines: [
       L(
-        "Harfning har qanday qiymatida bajariladigan tenglik ayniyat deyiladi. Ifodani xossalar bilan qayta yozish ayniy o'zgartirish deyiladi.",
+        "Harfning har qanday qiymatida bajariladigan tenglik ayniyat deyiladi. Ifodani xossalar bilan qayta yozish qiymatni saqlaydigan o'zgartirish deyiladi.",
         'Равенство, верное при любом значении буквы, называют тождеством. Переписывание выражения по свойствам называют тождественным преобразованием.',
-        'An equality that holds for every value of the letter is called an identity. Rewriting an expression by the properties is called an identity transformation.',
+        'An equality that holds for every value of the letter is called an identity. Rewriting an expression by the properties is called an value-preserving transformation.',
       ),
       L(
         "Son qo'yish ayniyatni isbotlamaydi, chunki sonlar cheksiz. Lekin bitta son uni rad etishga yetadi.",
@@ -657,7 +657,7 @@ function Screen8({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S9 = {
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
-  title: L('Nimaga ayniy teng', 'Чему тождественно равно', 'What it is identically equal to'),
+  title: L('Nimaga har doim teng', 'Чему тождественно равно', 'What it is always equal to'),
   question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
   items: [
     {

@@ -206,19 +206,41 @@ export function Choice({ data, lang = 'uz', mode = 'answer', initialAnswer = nul
 // ============================================================ 2. TYPEVALUE
 // Javob klaviaturadan. Manfiy son ham kiritiladi (`allowNeg`), aks holda
 // 7-sinf misollarining yarmi kiritib bo'lmaydigan bo'lib qolardi.
+// Daraja ko'rinishidagi javob (metodist QA si, 2026-08-22): «3⁴ · 3² = 3⁶»
+// javobi ham qabul qilinishi kerak, lekin klaviaturadan yuqori indeks
+// yozib bo'lmaydi. Shuning uchun `^` kiritishga ruxsat berilgan va javob
+// HISOBLANADI: `3^6` ham, `729` ham bir xil son beradi.
+const SUP = { '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9' };
+const POW_RE = /[⁰¹²³⁴⁵⁶⁷⁸⁹]|\^/;
+// `3^6` -> 729; oddiy son o'zgarmaydi; noto'g'ri yozuv NaN beradi.
+const evalTyped = (raw) => {
+  const s = String(raw).trim();
+  const m = s.match(/^(-?\d+)\^(\d+)$/);
+  if (m) return Math.pow(parseInt(m[1], 10), parseInt(m[2], 10));
+  return /^-?\d+$/.test(s) ? parseInt(s, 10) : NaN;
+};
+
 export function TypeValue({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
   const [val, setVal] = useState('');
   const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa?.value != null) setVal(String(sa.value)); } });
+  // Topshiriqda daraja bormi -- shuni yozuvning O'ZIDAN bilamiz, ya'ni
+  // topshiriq fayllariga yangi kalit qo'shilmaydi.
+  const power = useMemo(() => POW_RE.test(JSON.stringify([data.expr || [], data.given || []])), [data]);
   const clean = (raw) => {
-    let s = String(raw).replace(/[^0-9\-−]/g, '').replace(/−/g, '-');
+    // Yuqori indeksli raqamlar `^` ko'rinishiga o'tadi: 3⁶ -> 3^6.
+    let s = String(raw).replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]+/g,
+      (m) => '^' + m.split('').map((c) => SUP[c]).join(''));
+    s = s.replace(/[^0-9\-−^]/g, '').replace(/−/g, '-');
     const neg = data.allowNeg !== false && s.startsWith('-');
     s = s.replace(/-/g, '');
+    const parts = s.split('^');
+    s = parts.length > 1 ? parts[0] + '^' + parts.slice(1).join('') : s;
     return (neg ? '-' : '') + s;
   };
-  useEffect(() => { onReady?.(val.trim() !== '' && val.trim() !== '-' && !A.checked); }, [val, A.checked, onReady]);
+  useEffect(() => { onReady?.(!Number.isNaN(evalTyped(val)) && !A.checked); }, [val, A.checked, onReady]);
 
   const check = useCallback(() => {
-    const v = parseInt(val, 10);
+    const v = evalTyped(val);
     const correct = v === data.target;
     A.setFb({ correct, why: correct ? null : pickWhy(data, { value: v }, lang) });
     A.setChecked(true);
@@ -238,9 +260,16 @@ export function TypeValue({ data, lang = 'uz', mode = 'answer', initialAnswer = 
           <Row tokens={data.expr} size={data.exprSize || 30} />
         </div>
       ) : null}
-      <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: C.soft, marginBottom: 6 }} htmlFor="kit-in">{tr(data.label, lang)}</label>
+      <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: C.soft, marginBottom: 6 }} htmlFor="kit-in">
+        {tr(data.label, lang)}
+        {power ? (
+          <span style={{ display: 'block', fontSize: 12.5, fontWeight: 600, color: '#8a8f9a', marginTop: 2 }}>
+            {tr(L("Darajani ^ bilan yozish mumkin: 3^6", 'Степень можно записать через ^: 3^6', 'A power can be typed with ^: 3^6'), lang)}
+          </span>
+        ) : null}
+      </label>
       <input id="kit-in" data-input="1" value={val} onChange={(e) => setVal(clean(e.target.value))}
-        inputMode={data.allowNeg === false ? 'numeric' : 'text'} disabled={A.locked} placeholder="0"
+        inputMode={data.allowNeg === false && !power ? 'numeric' : 'text'} disabled={A.locked} placeholder="0"
         style={{ width: '100%', boxSizing: 'border-box', fontSize: 24, fontWeight: 800, textAlign: 'center', padding: '12px 14px', borderRadius: 14, border: '2px solid ' + (A.checked ? (A.fb?.correct ? C.ok : C.no) : '#d6dae3'), background: A.checked ? '#fff' : C.bg, outline: 'none', fontFamily: S.mono.fontFamily }} />
       {A.fb && <HFB ok={A.fb.correct} text={A.fb.correct ? tr(data.correctText, lang) : A.fb.why} />}
     </div>

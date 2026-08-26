@@ -1,6 +1,6 @@
 // Dars04 · Amaliyot 03 — Xossa bilan qayta yozish · 🟢 · build · tag: id_rewrite
 // Mexanika: kit.jsx -> BuildLine. Raskladka: 3-o'rin.
-// 4(x + 3) = 4x + 12 -- taqsimot xossasi. Bu ayniy o'zgartirish: qiymat
+// 4(x + 3) = 4x + 12 -- taqsimot xossasi. Bu qiymatni saqlaydigan o'zgartirish: qiymat
 // hech qanday x uchun o'zgarmaydi.
 import React from 'react';
 import { BuildLine, L } from '../kit.jsx';
@@ -9,9 +9,9 @@ const DATA = {
   tag: 'id_rewrite', level: '🟢',
   eyebrow: L('Qayta yozish', 'Переписать', 'Rewriting'),
   setup: L(
-    "Ayniy o'zgartirish -- yozuvni xossa bilan boshqa ko'rinishga keltirish. Qiymat hamma x uchun bir xil qoladi.",
+    "Qiymatni saqlaydigan o'zgartirish -- yozuvni xossa bilan boshqa ko'rinishga keltirish. Qiymat hamma x uchun bir xil qoladi.",
     'Тождественное преобразование это переписывание записи по свойству. Значение остаётся тем же при любом x.',
-    'An identity transformation rewrites a record by a property. The value stays the same for every x.'),
+    'An value-preserving transformation rewrites a record by a property. The value stays the same for every x.'),
   expr: ['4(x', '+', '3)'], exprSize: 32,
   cards: [
     { id: 'a', label: '4x' },
