@@ -5,11 +5,10 @@ import { lazy } from 'react'
 // Yondashuv: src/books/grade9/PODXOD_9SINF.md — avval asbob, keyin darslar.
 // Kontrakt: src/books/grade9/ETALON_9SINF.md.
 //
-// Yadro `components/shared/lesson-core.jsx`, mayda asboblar
-// `components/shared/lesson-tools.jsx`, 1-asbob `components/grade9/tools.jsx`.
-//
-// Ishlab chiqarish tartibi dars raqami bo'yicha EMAS, asbob bo'yicha:
-// pilot = Dars 15 (1-asbob eng keng: 13 dars), keyin 14, 6, 17.
+// 2026-08-25: pilot bo'lgan Dars 15 (eski `grade9/tools.jsx` asbobida, birinchi
+// etalon reduksiyasi bo'yicha) metodist qaroriga ko'ra o'chirildi — sinfning
+// o'z asboblariga (`grade9/asboblar.jsx`) ko'chirilmasdan qolgan edi. Mavzu
+// («15. Oraliqlar usuli») DARSLAR_REJASI_9SINF.md da qoladi, qayta yig'iladi.
 export const grade9Nazariy = [
   {
     // 2026-08-20. 1-dars 8-sinf karkasida yig'ildi, keyin metodist «faqat
@@ -20,11 +19,5 @@ export const grade9Nazariy = [
     title: 'Dars 1. Funksiya',
     desc: "To'p uchirish: qiymatlar mashinasi, vaqt sirg'ituvchisi, moslik taxtasi, juftliklardan iz, aniqlanish sohasi o'tkazish punkti. Qoidani o'quvchi o'zi yig'adi, keyin mashqlar, xato qatorni topish va qadamlab yechim. Ta'rif darslikdan (9-§, 37-bet). 15 ekran, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade9/Dars01.jsx')),
-  },
-  {
-    slug: 'dars15-oraliqlar-usuli',
-    title: 'Dars 15. Oraliqlar usuli',
-    desc: "Sonlar o'qi va ishoralar: javob to'plam bo'lib yig'iladi, ishora son qo'yib tekshiriladi. 15 slayd, UZ/RU/EN.",
-    Component: lazy(() => import('../components/grade9/Dars15.jsx')),
   },
 ]
