@@ -972,6 +972,17 @@ export const HackNote = ({ title, children, bottom, tone }) => {
 // ============================================================
 const LessonMetaContext = createContext({ block: null, total: 15 })
 
+// SAVOLLAR ZANJIRIDA SARLAVHA O'RNIDA HISOB. Ilgari u yerda «To'rt savol»
+// yoki «Uchta savol» turardi -- ya'ni sarlavha savollarni SANARDI, lekin
+// o'quvchi qayerda turganini aytmasdi (QA 2026-08-26). Endi o'sha joyda
+// «2 / 4» turadi: nechanchi savol va nechtadan. Zanjirda bitta savol
+// bo'lsa, darsning o'z sarlavhasi qoladi.
+export const qMeta = (S, at) => {
+  const total = (S.items || []).length
+  if (total < 2) return S
+  return { ...S, title: Math.min(at + 1, total) + ' / ' + total }
+}
+
 export function LessonFrame({ meta, screen, audio, solved, onPrev, onNext, onFinish, finished, children }) {
   const t = useT()
   const { block, total } = useContext(LessonMetaContext)

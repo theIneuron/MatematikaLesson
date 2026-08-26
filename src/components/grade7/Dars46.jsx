@@ -365,9 +365,9 @@ const S7 = {
   eyebrow: L('CHEGARAVIY HOLAT', 'ГРАНИЧНЫЙ СЛУЧАЙ', 'THE EDGE CASE'),
   title: L('O\'ttiz daraja', 'Тридцать градусов', 'Thirty degrees'),
   given: L(
-    "To'g'ri burchakli uchburchakda bir o'tkir burchak 30 daraja, gipotenuza esa 12 ga teng. Shu burchak qarshisidagi katet nechchi?",
-    'В прямоугольном треугольнике один острый угол 30 градусов, а гипотенуза равна 12. Сколько равен катет против этого угла?',
-    'In a right triangle one acute angle is 30 degrees and the hypotenuse is 12. How long is the leg opposite that angle?',
+    "To'g'ri burchakli uchburchakda bir o'tkir burchak 30°, gipotenuza esa 12 ga teng. Shu burchak qarshisidagi katet nechchi?",
+    'В прямоугольном треугольнике один острый угол 30°, а гипотенуза равна 12. Сколько равен катет против этого угла?',
+    'In a right triangle one acute angle is 30° and the hypotenuse is 12. How long is the leg opposite that angle?',
   ),
   template: ['12 : 2 = ', { slot: 0 }],
   parts: [
@@ -476,9 +476,9 @@ const S9 = {
       wrap: true,
       question: null,
       prompt: L(
-        "To'g'ri burchakli uchburchakda bir o'tkir burchak 62 daraja. Ikkinchisi?",
-        'В прямоугольном треугольнике один острый угол 62 градуса. Второй?',
-        'In a right triangle one acute angle is 62 degrees. The second?',
+        "To'g'ri burchakli uchburchakda bir o'tkir burchak 62°. Ikkinchisi?",
+        'В прямоугольном треугольнике один острый угол 62°. Второй?',
+        'In a right triangle one acute angle is 62°. The second?',
       ),
       ok: L("To'qson dan oltmish ikki ayirilsa yigirma sakkiz.", 'Девяносто минус шестьдесят два это двадцать восемь.', 'Ninety minus sixty two is twenty eight.'),
       items: [
@@ -508,9 +508,9 @@ const S9 = {
       wrap: true,
       question: null,
       prompt: L(
-        "Gipotenuza 20, bir o'tkir burchak 30 daraja. Shu burchak qarshisidagi katet?",
-        'Гипотенуза 20, один острый угол 30 градусов. Катет против этого угла?',
-        'The hypotenuse is 20 and one acute angle is 30 degrees. The leg opposite it?',
+        "Gipotenuza 20, bir o'tkir burchak 30°. Shu burchak qarshisidagi katet?",
+        'Гипотенуза 20, один острый угол 30°. Катет против этого угла?',
+        'The hypotenuse is 20 and one acute angle is 30°. The leg opposite it?',
       ),
       ok: L("O'n: gipotenuzaning yarmi.", 'Десять: половина гипотенузы.', 'Ten: half the hypotenuse.'),
       items: [
@@ -555,9 +555,9 @@ const S10 = {
   step1Cap: L('1-QADAM', 'ШАГ 1', 'STEP 1'),
   step2Cap: L('2-QADAM', 'ШАГ 2', 'STEP 2'),
   given: L(
-    "To'g'ri burchakli uchburchakda bir o'tkir burchak 30 daraja, gipotenuza 16. Ikkinchi o'tkir burchakni va 30 daraja qarshisidagi katetni yozing.",
-    'В прямоугольном треугольнике один острый угол 30 градусов, гипотенуза 16. Запиши второй острый угол и катет против 30 градусов.',
-    'In a right triangle one acute angle is 30 degrees and the hypotenuse is 16. Write the second acute angle and the leg opposite the 30 degrees.',
+    "To'g'ri burchakli uchburchakda bir o'tkir burchak 30°, gipotenuza 16. Ikkinchi o'tkir burchakni va 30° qarshisidagi katetni yozing.",
+    'В прямоугольном треугольнике один острый угол 30°, гипотенуза 16. Запиши второй острый угол и катет против 30°.',
+    'In a right triangle one acute angle is 30° and the hypotenuse is 16. Write the second acute angle and the leg opposite the 30°.',
   ),
   template: ['90° − 30° = ', { slot: 0 }, ',   16 : 2 = ', { slot: 1 }],
   parts: [
@@ -605,9 +605,9 @@ const S11 = {
   eyebrow: L("FAQAT O'ZINGIZ", 'ТОЛЬКО САМ', 'ON YOUR OWN ONLY'),
   title: L('Eng qisqa tomon', 'Самая короткая сторона', 'The shortest side'),
   given: L(
-    "To'g'ri burchakli uchburchakda o'tkir burchaklar 25 va 65 daraja. Eng qisqa tomon qaysi burchak qarshisida yotadi?",
-    'В прямоугольном треугольнике острые углы 25 и 65 градусов. Против какого угла лежит самая короткая сторона?',
-    'A right triangle has acute angles of 25 and 65 degrees. Which angle does the shortest side face?',
+    "To'g'ri burchakli uchburchakda o'tkir burchaklar 25° va 65°. Eng qisqa tomon qaysi burchak qarshisida yotadi?",
+    'В прямоугольном треугольнике острые углы 25° и 65°. Против какого угла лежит самая короткая сторона?',
+    'A right triangle has acute angles of 25° and 65°. Which angle does the shortest side face?',
   ),
   template: ['25° < 65° < 90°   →   ', { slot: 0 }],
   parts: [
@@ -706,9 +706,9 @@ const S13 = {
   eyebrow: L("KO'CHIRISH", 'ПЕРЕНОС', 'TRANSFER'),
   title: L('Narvon devorga', 'Лестница к стене', 'A ladder against a wall'),
   given: L(
-    "Narvon devorga tirab qo'yilgan va yer bilan 30 daraja burchak hosil qilgan. Narvonning uzunligi 4 metr. Uning yuqori uchi yerdan qancha balandda?",
-    'Лестницу приставили к стене, и с землёй она образует угол 30 градусов. Длина лестницы 4 метра. На какой высоте её верхний конец?',
-    'A ladder leans on a wall making a 30 degree angle with the ground. The ladder is 4 metres long. How high is its upper end?',
+    "Narvon devorga tirab qo'yilgan va yer bilan 30° burchak hosil qilgan. Narvonning uzunligi 4 metr. Uning yuqori uchi yerdan qancha balandda?",
+    'Лестницу приставили к стене, и с землёй она образует угол 30°. Длина лестницы 4 метра. На какой высоте её верхний конец?',
+    'A ladder leans on a wall making a 30° angle with the ground. The ladder is 4 metres long. How high is its upper end?',
   ),
   template: ['4 : 2 = ', { slot: 0 }],
   parts: [
@@ -752,9 +752,9 @@ const S14 = {
       wrap: true,
       question: null,
       prompt: L(
-        "Bir o'tkir burchak 35 daraja. Ikkinchisi?",
-        'Один острый угол 35 градусов. Второй?',
-        'One acute angle is 35 degrees. The second?',
+        "Bir o'tkir burchak 35°. Ikkinchisi?",
+        'Один острый угол 35°. Второй?',
+        'One acute angle is 35°. The second?',
       ),
       ok: L("Ellik besh: birga to'qson.", 'Пятьдесят пять: вместе девяносто.', 'Fifty five: together ninety.'),
       items: [

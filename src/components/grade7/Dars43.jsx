@@ -56,9 +56,9 @@ const S1 = {
   cols: 2,
   probe: {
     question: L(
-      "Teng yonli uchburchakning asosidagi bir burchagi 70 daraja. Asosdagi ikkinchi burchak nechcha daraja?",
-      'В равнобедренном треугольнике один угол при основании равен 70 градусам. Сколько градусов второй угол при основании?',
-      'In an isosceles triangle one base angle is 70 degrees. How big is the second base angle?',
+      "Teng yonli uchburchakning asosidagi bir burchagi 70°. Asosdagi ikkinchi burchak nechcha daraja?",
+      'В равнобедренном треугольнике один угол при основании равен 70°. Сколько градусов второй угол при основании?',
+      'In an isosceles triangle one base angle is 70°. How big is the second base angle?',
     ),
     items: [
       {
@@ -297,9 +297,9 @@ const S5 = {
   eyebrow: L("IKKINCHI KO'RINISH", 'ВТОРОЙ ВИД ЗАПИСИ', 'A SECOND WAY TO WRITE IT'),
   title: L('Chizmasiz', 'Без чертежа', 'Without a drawing'),
   given: L(
-    "Teng yonli uchburchakning asosidagi bir burchagi 40 daraja. Asosdagi ikkinchisi nechcha daraja?",
-    'В равнобедренном треугольнике один угол при основании 40 градусов. Сколько градусов второй угол при основании?',
-    'One base angle of an isosceles triangle is 40 degrees. How big is the second base angle?',
+    "Teng yonli uchburchakning asosidagi bir burchagi 40°. Asosdagi ikkinchisi nechcha daraja?",
+    'В равнобедренном треугольнике один угол при основании 40°. Сколько градусов второй угол при основании?',
+    'One base angle of an isosceles triangle is 40°. How big is the second base angle?',
   ),
   template: ['40°  =  ', { slot: 0 }],
   parts: [
@@ -486,9 +486,9 @@ const S9 = {
       wrap: true,
       question: null,
       prompt: L(
-        "Asosdagi bir burchak 55 daraja. Asosdagi ikkinchisi?",
-        'Один угол при основании 55 градусов. Второй при основании?',
-        'One base angle is 55 degrees. The second base angle?',
+        "Asosdagi bir burchak 55°. Asosdagi ikkinchisi?",
+        'Один угол при основании 55°. Второй при основании?',
+        'One base angle is 55°. The second base angle?',
       ),
       ok: L("Ham 55 daraja: asosdagi burchaklar teng.", 'Тоже 55 градусов: углы при основании равны.', '55 degrees too: the base angles are equal.'),
       items: [
@@ -537,9 +537,9 @@ const S9 = {
       wrap: true,
       question: null,
       prompt: L(
-        "Uchburchakda ikki burchak 65 va 65 daraja. U teng yonlimi?",
-        'В треугольнике два угла 65 и 65 градусов. Он равнобедренный?',
-        'A triangle has two angles of 65 and 65 degrees. Is it isosceles?',
+        "Uchburchakda ikki burchak 65° va 65°. U teng yonlimi?",
+        'В треугольнике два угла 65° и 65°. Он равнобедренный?',
+        'A triangle has two angles of 65° and 65°. Is it isosceles?',
       ),
       ok: L("Ha: teng burchaklar qarshisida teng tomonlar yotadi.", 'Да: против равных углов лежат равные стороны.', 'Yes: equal sides lie opposite equal angles.'),
       items: [
@@ -584,9 +584,9 @@ const S10 = {
   step1Cap: L('1-QADAM', 'ШАГ 1', 'STEP 1'),
   step2Cap: L('2-QADAM', 'ШАГ 2', 'STEP 2'),
   given: L(
-    "Teng yonli uchburchakning asosidagi burchagi 48 daraja, asosi esa 10 ga teng. Ikkinchi asos burchagini va perpendikulyar ajratgan yarim asosni yozing.",
-    'Угол при основании равнобедренного треугольника 48 градусов, а основание равно 10. Запиши второй угол при основании и половину основания, отсечённую перпендикуляром.',
-    'A base angle of an isosceles triangle is 48 degrees and the base is 10. Write the second base angle and the half of the base cut off by the perpendicular.',
+    "Teng yonli uchburchakning asosidagi burchagi 48°, asosi esa 10 ga teng. Ikkinchi asos burchagini va perpendikulyar ajratgan yarim asosni yozing.",
+    'Угол при основании равнобедренного треугольника 48°, а основание равно 10. Запиши второй угол при основании и половину основания, отсечённую перпендикуляром.',
+    'A base angle of an isosceles triangle is 48° and the base is 10. Write the second base angle and the half of the base cut off by the perpendicular.',
   ),
   template: ['48°  =  ', { slot: 0 }, ',   10 : 2  =  ', { slot: 1 }],
   parts: [
@@ -634,9 +634,9 @@ const S11 = {
   eyebrow: L("FAQAT O'ZINGIZ", 'ТОЛЬКО САМ', 'ON YOUR OWN ONLY'),
   title: L('Teskari yo\'nalish', 'Обратное направление', 'The other direction'),
   given: L(
-    "Uchburchakda ikki burchak 32 va 32 daraja. Yon tomonlar haqida nima aytish mumkin?",
-    'В треугольнике два угла по 32 градуса. Что можно сказать о боковых сторонах?',
-    'A triangle has two angles of 32 degrees each. What can be said about the legs?',
+    "Uchburchakda ikki burchak 32° va 32°. Yon tomonlar haqida nima aytish mumkin?",
+    'В треугольнике два угла по 32°. Что можно сказать о боковых сторонах?',
+    'A triangle has two angles of 32° each. What can be said about the legs?',
   ),
   template: ['32°  =  32°   →   ', { slot: 0 }],
   parts: [
@@ -782,9 +782,9 @@ const S14 = {
       wrap: true,
       question: null,
       prompt: L(
-        "Asosdagi burchak 62 daraja. Ikkinchisi?",
-        'Угол при основании 62 градуса. Второй?',
-        'A base angle is 62 degrees. The second?',
+        "Asosdagi burchak 62°. Ikkinchisi?",
+        'Угол при основании 62°. Второй?',
+        'A base angle is 62°. The second?',
       ),
       ok: L("Ham 62 daraja.", 'Тоже 62 градуса.', '62 degrees too.'),
       items: [
@@ -814,9 +814,9 @@ const S14 = {
       wrap: true,
       question: null,
       prompt: L(
-        "Ikki burchagi 45 va 45 daraja bo'lgan uchburchak teng yonlimi?",
-        'Треугольник с углами 45 и 45 градусов равнобедренный?',
-        'Is a triangle with angles of 45 and 45 degrees isosceles?',
+        "Ikki burchagi 45° va 45° bo'lgan uchburchak teng yonlimi?",
+        'Треугольник с углами 45° и 45° равнобедренный?',
+        'Is a triangle with angles of 45° and 45° isosceles?',
       ),
       ok: L("Ha: teng burchaklar teng tomonlarni beradi.", 'Да: равные углы дают равные стороны.', 'Yes: equal angles give equal sides.'),
       items: [

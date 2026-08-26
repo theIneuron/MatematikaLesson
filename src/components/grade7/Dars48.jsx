@@ -59,9 +59,9 @@ const S1 = {
   cols: 2,
   probe: {
     question: L(
-      "Teng yonli uchburchakning uchdagi burchagi 80 daraja. Asosni davom ettirdik. Asosdagi burchakning qo'shnisi nechcha daraja bo'ladi?",
-      'Угол при вершине равнобедренного треугольника 80 градусов. Основание продлили. Сколько градусов будет смежный с углом при основании?',
-      'The apex angle of an isosceles triangle is 80 degrees. The base was extended. How big is the angle adjacent to a base angle?',
+      "Teng yonli uchburchakning uchdagi burchagi 80°. Asosni davom ettirdik. Asosdagi burchakning qo'shnisi nechcha daraja bo'ladi?",
+      'Угол при вершине равнобедренного треугольника 80°. Основание продлили. Сколько градусов будет смежный с углом при основании?',
+      'The apex angle of an isosceles triangle is 80°. The base was extended. How big is the angle adjacent to a base angle?',
     ),
     items: [
       {
@@ -285,9 +285,9 @@ const S5 = {
   eyebrow: L("IKKINCHI KO'RINISH", 'ВТОРОЙ ВИД ЗАПИСИ', 'A SECOND WAY TO WRITE IT'),
   title: L('Asosdagi burchak', 'Угол при основании', 'The base angle'),
   given: L(
-    "Teng yonli uchburchakning uchdagi burchagi 80 daraja. Asosdagi har bir burchak nechcha daraja?",
-    'Угол при вершине равнобедренного треугольника 80 градусов. Сколько градусов каждый угол при основании?',
-    'The apex angle of an isosceles triangle is 80 degrees. How big is each base angle?',
+    "Teng yonli uchburchakning uchdagi burchagi 80°. Asosdagi har bir burchak nechcha daraja?",
+    'Угол при вершине равнобедренного треугольника 80°. Сколько градусов каждый угол при основании?',
+    'The apex angle of an isosceles triangle is 80°. How big is each base angle?',
   ),
   template: ['(180° − 80°) : 2 = ', { slot: 0 }],
   parts: [
@@ -366,9 +366,9 @@ const S7 = {
   eyebrow: L('CHEGARAVIY HOLAT', 'ГРАНИЧНЫЙ СЛУЧАЙ', 'THE EDGE CASE'),
   title: L('Burchaklar tomonlarni cheklaydi', 'Углы ограничивают стороны', 'The angles restrict the sides'),
   given: L(
-    "Uchburchakning burchaklari 90, 45 va 45 daraja. Tomonlar haqida nima aytish mumkin?",
-    'Углы треугольника 90, 45 и 45 градусов. Что можно сказать о сторонах?',
-    'A triangle has angles of 90, 45 and 45 degrees. What can be said about its sides?',
+    "Uchburchakning burchaklari 90°, 45° va 45°. Tomonlar haqida nima aytish mumkin?",
+    'Углы треугольника 90°, 45° и 45°. Что можно сказать о сторонах?',
+    'A triangle has angles of 90°, 45° and 45°. What can be said about its sides?',
   ),
   template: ['45° = 45°   →   ', { slot: 0 }],
   parts: [
@@ -477,9 +477,9 @@ const S9 = {
       wrap: true,
       question: null,
       prompt: L(
-        "Ikki chiziq kesishdi, bir burchak 36 daraja. Vertikal burchak?",
-        'Две прямые пересеклись, один угол 36 градусов. Вертикальный угол?',
-        'Two lines crossed, one angle is 36 degrees. The vertical angle?',
+        "Ikki chiziq kesishdi, bir burchak 36°. Vertikal burchak?",
+        'Две прямые пересеклись, один угол 36°. Вертикальный угол?',
+        'Two lines crossed, one angle is 36°. The vertical angle?',
       ),
       ok: L("O'ttiz olti: vertikal burchaklar teng.", 'Тридцать шесть: вертикальные углы равны.', 'Thirty six: vertical angles are equal.'),
       items: [
@@ -493,9 +493,9 @@ const S9 = {
       wrap: true,
       question: null,
       prompt: L(
-        "To'g'ri burchakli uchburchakda bir o'tkir burchak 41 daraja. Ikkinchisi?",
-        'В прямоугольном треугольнике один острый угол 41 градус. Второй?',
-        'In a right triangle one acute angle is 41 degrees. The second?',
+        "To'g'ri burchakli uchburchakda bir o'tkir burchak 41°. Ikkinchisi?",
+        'В прямоугольном треугольнике один острый угол 41°. Второй?',
+        'In a right triangle one acute angle is 41°. The second?',
       ),
       ok: L("Qirq to'qqiz: o'tkir burchaklar birga to'qson.", 'Сорок девять: острые углы вместе девяносто.', 'Forty nine: the acute angles make ninety.'),
       items: [
@@ -509,9 +509,9 @@ const S9 = {
       wrap: true,
       question: null,
       prompt: L(
-        "Kesuvchi parallel chiziqlarni kesdi. Bir tomonli burchaklardan biri 105 daraja. Ikkinchisi?",
-        'Секущая пересекла параллельные. Один из односторонних углов 105 градусов. Второй?',
-        'A transversal crossed parallel lines. One co-interior angle is 105 degrees. The other?',
+        "Kesuvchi parallel chiziqlarni kesdi. Bir tomonli burchaklardan biri 105°. Ikkinchisi?",
+        'Секущая пересекла параллельные. Один из односторонних углов 105°. Второй?',
+        'A transversal crossed parallel lines. One co-interior angle is 105°. The other?',
       ),
       ok: L("Yetmish besh: yig'indisi bir yuz sakson.", 'Семьдесят пять: сумма сто восемьдесят.', 'Seventy five: they sum to one hundred eighty.'),
       items: [
@@ -556,9 +556,9 @@ const S10 = {
   step1Cap: L('1-QADAM', 'ШАГ 1', 'STEP 1'),
   step2Cap: L('2-QADAM', 'ШАГ 2', 'STEP 2'),
   given: L(
-    "Teng yonli uchburchakning uchdagi burchagi 80 daraja, asosi davom ettirilgan. Asosdagi burchakni va uning qo'shnisini yozing.",
-    'Угол при вершине равнобедренного треугольника 80 градусов, основание продлено. Запиши угол при основании и смежный с ним.',
-    'The apex angle of an isosceles triangle is 80 degrees and the base is extended. Write the base angle and the one adjacent to it.',
+    "Teng yonli uchburchakning uchdagi burchagi 80°, asosi davom ettirilgan. Asosdagi burchakni va uning qo'shnisini yozing.",
+    'Угол при вершине равнобедренного треугольника 80°, основание продлено. Запиши угол при основании и смежный с ним.',
+    'The apex angle of an isosceles triangle is 80° and the base is extended. Write the base angle and the one adjacent to it.',
   ),
   template: ['(180° − 80°) : 2 = ', { slot: 0 }, ',   180° − 50° = ', { slot: 1 }],
   parts: [
@@ -606,9 +606,9 @@ const S11 = {
   eyebrow: L("FAQAT O'ZINGIZ", 'ТОЛЬКО САМ', 'ON YOUR OWN ONLY'),
   title: L('Uchdagi burchak', 'Угол при вершине', 'The apex angle'),
   given: L(
-    "Teng yonli uchburchakning asosidagi burchagi 65 daraja. Uchdagi burchak nechcha daraja?",
-    'Угол при основании равнобедренного треугольника 65 градусов. Сколько градусов угол при вершине?',
-    'A base angle of an isosceles triangle is 65 degrees. How big is the apex angle?',
+    "Teng yonli uchburchakning asosidagi burchagi 65°. Uchdagi burchak nechcha daraja?",
+    'Угол при основании равнобедренного треугольника 65°. Сколько градусов угол при вершине?',
+    'A base angle of an isosceles triangle is 65°. How big is the apex angle?',
   ),
   template: ['180° − 65° − 65° = ', { slot: 0 }],
   parts: [
@@ -710,9 +710,9 @@ const S13 = {
   eyebrow: L("KO'CHIRISH", 'ПЕРЕНОС', 'TRANSFER'),
   title: L('Tom fermasi', 'Ферма крыши', 'A roof truss'),
   given: L(
-    "Tom fermasi teng yonli uchburchak: uchida burchak 90 daraja. Nishab yer bilan qanday burchak hosil qiladi?",
-    'Ферма крыши это равнобедренный треугольник: угол при вершине 90 градусов. Какой угол скат образует с землёй?',
-    'A roof truss is an isosceles triangle with a 90 degree apex angle. What angle does a slope make with the ground?',
+    "Tom fermasi teng yonli uchburchak: uchida burchak 90°. Nishab yer bilan qanday burchak hosil qiladi?",
+    'Ферма крыши это равнобедренный треугольник: угол при вершине 90°. Какой угол скат образует с землёй?',
+    'A roof truss is an isosceles triangle with a 90° apex angle. What angle does a slope make with the ground?',
   ),
   template: ['(180° − 90°) : 2 = ', { slot: 0 }],
   parts: [
@@ -756,9 +756,9 @@ const S14 = {
       wrap: true,
       question: null,
       prompt: L(
-        "Ikki burchak 45 va 55 daraja. Uchinchisi?",
-        'Два угла 45 и 55 градусов. Третий?',
-        'Two angles are 45 and 55 degrees. The third?',
+        "Ikki burchak 45° va 55°. Uchinchisi?",
+        'Два угла 45° и 55°. Третий?',
+        'Two angles are 45° and 55°. The third?',
       ),
       ok: L("Sakson: bir yuz sakson dan yuz ayirildi.", 'Восемьдесят: из ста восьмидесяти вычли сто.', 'Eighty: one hundred taken from one hundred eighty.'),
       items: [
@@ -807,9 +807,9 @@ const S14 = {
       wrap: true,
       question: null,
       prompt: L(
-        "Teng yonli uchburchakda asosdagi burchak 70 daraja. Uchdagisi?",
-        'В равнобедренном треугольнике угол при основании 70 градусов. При вершине?',
-        'A base angle of an isosceles triangle is 70 degrees. The apex?',
+        "Teng yonli uchburchakda asosdagi burchak 70°. Uchdagisi?",
+        'В равнобедренном треугольнике угол при основании 70°. При вершине?',
+        'A base angle of an isosceles triangle is 70°. The apex?',
       ),
       ok: L("Qirq: ikki yetmish yuz qirq beradi.", 'Сорок: две семидесятки дают сто сорок.', 'Forty: two seventies make one hundred forty.'),
       items: [
