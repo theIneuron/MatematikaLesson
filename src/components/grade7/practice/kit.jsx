@@ -221,18 +221,30 @@ export function Choice({ data, lang = 'uz', mode = 'answer', initialAnswer = nul
       ) : null}
       <Given data={data} lang={lang} />
       <p style={S.ask}><Sup s={tr(data.ask, lang)} /></p>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(' + (data.optCols || 1) + ', minmax(0, 1fr))', gap: 7 }}>
+      {/* TELEFONDA VARIANTLAR BITTA USTUNDA (metodist QA si, 2026-08-22):
+          uch ustunda `(x + 7)²` kabi yozuv o'rtasidan ko'chib ketardi. Tor
+          ekranda ustun bitta bo'ladi, yozuv esa butun qoladi. */}
+      <style>{`
+        @media (max-width: 639.98px) {
+          .pq-opts { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
+      <div className="pq-opts" style={{ display: 'grid', gridTemplateColumns: 'repeat(' + (data.optCols || 1) + ', minmax(0, 1fr))', gap: 7 }}>
         {order.map((i) => {
           const o = data.opts[i];
           const active = picked === i;
           const short = (data.optCols || 1) > 1;
+          // Qisqa yozuv («(x + 7)²») ko'chmasin, uzun gap esa ko'chsin:
+          // aks holda uzun variant qatordan chiqib ketadi.
+          const lbl = Array.isArray(o.label) ? '' : String(tr(o.label, lang));
+          const keepWhole = lbl.length > 0 && lbl.length <= 24;
           let bg = '#fff'; let bd = '#d6dae3'; let col = C.soft;
           if (active) { bg = C.hotBg; bd = C.hot; col = C.ink; }
           if (A.checked && active) { const good = i === data.correct; bg = good ? C.okBg : C.noBg; bd = good ? C.ok : C.no; col = good ? C.ok : C.no; }
           if (A.checked && !active && i === data.correct) { bd = C.ok; col = C.ok; }
           return (
             <button key={i} type="button" data-opt={i} disabled={A.locked} onClick={() => setPicked(i)}
-              style={{ display: 'flex', alignItems: 'center', justifyContent: short ? 'center' : 'flex-start', width: '100%', minHeight: short ? 50 : 0, padding: '11px 15px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 15.5, fontWeight: 600, cursor: A.locked ? 'default' : 'pointer', fontFamily: 'inherit', textAlign: short ? 'center' : 'left' }}>
+              style={{ display: 'flex', alignItems: 'center', justifyContent: short ? 'center' : 'flex-start', width: '100%', minHeight: short ? 50 : 0, padding: '11px 15px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 15.5, fontWeight: 600, cursor: A.locked ? 'default' : 'pointer', fontFamily: 'inherit', textAlign: short ? 'center' : 'left', whiteSpace: keepWhole ? 'nowrap' : 'normal' }}>
               {typeof o.label === 'object' && Array.isArray(o.label) ? <Row tokens={o.label} size={20} lang={lang} /> : <Sup s={tr(o.label, lang)} />}
             </button>
           );
