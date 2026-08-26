@@ -9,11 +9,14 @@
 //   −4 · (250 · 17) -> (−4 · 250) · 17        qavs ko'chdi
 //   −12 · (300 + 5) -> −12 · 300 − 12 · 5     ko'paytuvchi tarqaldi
 // ATAMALAR darsning o'zidan: o'rin almashtirish, guruhlash, taqsimlash.
+// TARTIB SAQLANADI (`noShuffle`): razbor yozuvlarga TARTIB bilan murojaat
+// qiladi («ikkinchi tenglamada...»), aralashtirilsa izoh ekrandagiga mos
+// kelmay qoladi.
 import React from 'react';
 import { Zones, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'name_property', level: '🔴', itemSize: 15, zoneLbl: 128,
+  tag: 'name_property', level: '🔴', noShuffle: true, itemSize: 15, zoneLbl: 128,
   eyebrow: L('Qaysi xossa', 'Какое свойство', 'Which property'),
   setup: L(
     "Har yozuv o'zgartirildi, qiymat esa o'zgarmadi. Manfiy sonlar chalkashtirmasin: qaysi xossa ishlatilganini aniqlang.",

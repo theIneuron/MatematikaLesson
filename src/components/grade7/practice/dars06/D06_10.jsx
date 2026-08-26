@@ -8,11 +8,14 @@
 // O'quvchi hisoblab yakuniy ko'rinishni topadi va yozuvni NATIJASI bo'yicha
 // joylashtiradi. Bu darsning yakuni: soddalashtirish hadlar sonini
 // kamaytiradi, lekin har doim bittaga emas.
+// TARTIB SAQLANADI (`noShuffle`): razbor yozuvlarga TARTIB bilan murojaat
+// qiladi («ikkinchi tenglamada...»), aralashtirilsa izoh ekrandagiga mos
+// kelmay qoladi.
 import React from 'react';
 import { Zones, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'terms_left', level: '🔴', itemSize: 19, zoneLbl: 118,
+  tag: 'terms_left', level: '🔴', noShuffle: true, itemSize: 19, zoneLbl: 118,
   eyebrow: L('Nechta had qoladi', 'Сколько слагаемых останется', 'How many terms are left'),
   setup: L(
     "Uch yozuv bir xil ko'rinadi, lekin harflari boshqa. Soddalashtirgandan keyin nechta had qolishini aniqlang.",

@@ -116,6 +116,21 @@ const LINE_FS = 22;   // yig'ilgan javob qatori
 
 const WRAP = { whiteSpace: 'normal', textAlign: 'center', lineHeight: 1.15, maxWidth: 250 };
 
+// KARTALAR TARTIBI ARALASHTIRILADI (metodist QA si, 2026-08-22): bank javob
+// tartibida turardi va topshiriqni kartalarni chapdan o'ngga bosib yechish
+// mumkin edi -- bu bilimni emas, tartibni tekshirish. Aralashtirish faqat
+// KO'RSATISHGA tegadi: `id`, `answer` va razbor shartlari o'z joyida qoladi.
+// `data.noShuffle` -- yozuvning o'zi tartibli bo'lgan topshiriqlar uchun.
+const shuffled = (n) => {
+  const idx = [];
+  for (let i = 0; i < n; i++) idx.push(i);
+  for (let i = n - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const x = idx[i]; idx[i] = idx[j]; idx[j] = x;
+  }
+  return idx;
+};
+
 const cardKey = (c) => (c && typeof c === 'object' ? (c.uz || '') : c);
 const cardLbl = (data, key) => {
   const c = (data.cards || []).find((x) => cardKey(x) === key);
@@ -327,7 +342,12 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
   const [picked, setPicked] = useState(null);
   const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa?.slots) setSlots(sa.slots); } });
   const used = slots.filter(Boolean);
-  const pool = data.cards.map(cardKey).filter((c) => used.indexOf(c) === -1);
+  const bank = useMemo(() => {
+    const keys = data.cards.map(cardKey);
+    return data.noShuffle ? keys : shuffled(keys.length).map((i) => keys[i]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data]);
+  const pool = bank.filter((c) => used.indexOf(c) === -1);
   const full = slots.every(Boolean);
   useEffect(() => { onReady?.(full && !A.checked); }, [full, A.checked, onReady]);
 
@@ -462,6 +482,7 @@ export function TapTerms({ data, lang = 'uz', mode = 'answer', initialAnswer = n
 // tanlangan yozuv ramka va to'ldirish bilan ko'rinadi.
 export function MarkAll({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
   const [marked, setMarked] = useState([]);
+  const itemOrder = useMemo(() => (data.noShuffle ? data.items.map((_, i) => i) : shuffled(data.items.length)), [data]);
   const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa?.marked) setMarked(sa.marked); } });
   useEffect(() => { onReady?.(marked.length > 0 && !A.checked); }, [marked, A.checked, onReady]);
 
@@ -565,6 +586,7 @@ export const evalSeq = (items) => {
 
 export function BuildLine({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
   const [seq, setSeq] = useState([]);      // karta id lari
+  const cardOrder = useMemo(() => (data.noShuffle ? data.cards.map((_, i) => i) : shuffled(data.cards.length)), [data]);
   const [pos, setPos] = useState(0);       // kursor o'rni
   const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa?.seq) { setSeq(sa.seq); setPos(sa.seq.length); } } });
   const byId = (id) => data.cards.find((c) => c.id === id);
@@ -653,7 +675,8 @@ export function Zones({ data, lang = 'uz', mode = 'answer', initialAnswer = null
   const [place, setPlace] = useState({});
   const [picked, setPicked] = useState(null);
   const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa?.place) setPlace(sa.place); } });
-  const pool = data.items.filter((it) => !place[it.id]);
+  const bankOrder = useMemo(() => (data.noShuffle ? data.items.slice() : shuffled(data.items.length).map((i) => data.items[i])), [data]);
+  const pool = bankOrder.filter((it) => !place[it.id]);
   const all = data.items.every((it) => place[it.id]);
   const wrongIds = data.items.filter((it) => place[it.id] && place[it.id] !== it.zone).map((it) => it.id);
   useEffect(() => { onReady?.(all && !A.checked); }, [all, A.checked, onReady]);

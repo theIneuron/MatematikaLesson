@@ -8,11 +8,14 @@
 // Uchinchisi ATAYLAB: o'ng tomonda nol turgani uchun qavs ichi nolga teng
 // bo'lishi kerak. «Nolga bo'lish mumkin emas» qoidasi bilan aralashtirmaslik
 // kerak: bu yerda nol BO'LINUVCHI, 0 : 5 = 0.
+// TARTIB SAQLANADI (`noShuffle`): razbor yozuvlarga TARTIB bilan murojaat
+// qiladi («ikkinchi tenglamada...»), aralashtirilsa izoh ekrandagiga mos
+// kelmay qoladi.
 import React from 'react';
 import { Zones, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'solve_zones', level: '🔴', itemSize: 18, zoneLbl: 96,
+  tag: 'solve_zones', level: '🔴', noShuffle: true, itemSize: 18, zoneLbl: 96,
   eyebrow: L('Uch ildiz', 'Три корня', 'Three roots'),
   setup: L(
     "Uch tenglamada ham qavs bor va ko'rinishi bir xil. Har birini yechib, ildizini o'z zonasiga qo'ying.",

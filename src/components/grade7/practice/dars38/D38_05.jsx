@@ -1,11 +1,13 @@
 // Dars38 · Amaliyot 05 — Nechta yechim · 🟡 · sort · tag: sys_zones
 // Mexanika: kit.jsx -> Zones. Raskladka: 5-o'rin `sort`.
 // y = 2x + 1 va y = 3x -> bitta; y = 2x + 1 va y = 2x + 5 -> yo'q (parallel); y = 2x + 1 va 2y = 4x + 2 -> cheksiz (bir xil chiziq).
+// TARTIB SAQLANADI (`noShuffle`): razbor yozuvlarga TARTIB bilan murojaat
+// qiladi, aralashtirilsa izoh ekrandagiga mos kelmaydi.
 import React from 'react';
 import { Zones, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'sys_zones',
+  tag: 'sys_zones', noShuffle: true,
   level: '🟡',
   eyebrow: L(
     'Nechta yechim',

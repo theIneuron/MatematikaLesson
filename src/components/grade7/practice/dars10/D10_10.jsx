@@ -7,11 +7,14 @@
 //   |x| + 3 = 1    |x| = −2, manfiy -> ILDIZI YO'Q
 // Uchinchisi ATAYLAB qo'shiluvchi bilan: o'ng tomon 1 musbat ko'rinadi,
 // lekin modulni ajratgach −2 chiqadi.
+// TARTIB SAQLANADI (`noShuffle`): razbor yozuvlarga TARTIB bilan murojaat
+// qiladi («ikkinchi tenglamada...»), aralashtirilsa izoh ekrandagiga mos
+// kelmay qoladi.
 import React from 'react';
 import { Zones, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'mod_root_count', level: '🔴', itemSize: 20, zoneLbl: 108,
+  tag: 'mod_root_count', level: '🔴', noShuffle: true, itemSize: 20, zoneLbl: 108,
   eyebrow: L('Nechta ildiz', 'Сколько корней', 'How many roots'),
   setup: L(
     "Modulli tenglamada ildiz soni o'ng tomondagi songa bog'liq. Lekin uni ko'rish uchun avval modulni yolg'iz qoldirish kerak.",

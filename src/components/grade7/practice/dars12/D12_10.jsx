@@ -7,11 +7,14 @@
 //   x : 2 = 30  -> x = 60
 // Uchinchisi ATAYLAB bo'lish bilan: «x ni ikkiga bo'lsak 30» degan shart
 // javobni KO'PAYTIRISH bilan beradi -- ko'p uchraydigan chalkashlik.
+// TARTIB SAQLANADI (`noShuffle`): razbor yozuvlarga TARTIB bilan murojaat
+// qiladi («ikkinchi tenglamada...»), aralashtirilsa izoh ekrandagiga mos
+// kelmay qoladi.
 import React from 'react';
 import { Zones, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'word_answer_zones', level: '🔴', itemSize: 20, zoneLbl: 96,
+  tag: 'word_answer_zones', level: '🔴', noShuffle: true, itemSize: 20, zoneLbl: 96,
   eyebrow: L('Uch javob', 'Три ответа', 'Three answers'),
   setup: L(
     "Uch masaladan uch tenglama chiqdi. Har birini yechib, javobi bo'yicha zonaga qo'ying.",
