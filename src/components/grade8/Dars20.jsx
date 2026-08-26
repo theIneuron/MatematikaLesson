@@ -748,7 +748,7 @@ const S9 = {
         question: ASK_ODZ,
         items: [
           { id: 'a', right: true, label: 'x ≠ 1,  x ≠ −2' },
-          { id: 'b', label: 'x ≠ −1,  x ≠ 2', hint: L("Ishoralar aylanib qolgan, x bir va minus ikkida nolga aylanadi.", 'Знаки перевёрнуты, ноль получается при одном и минус двух.', 'The signs got flipped; zero occurs at one and negative two.') },
+          { id: 'b', label: 'x ≠ −1,  x ≠ 2', hint: L("Ishoralar aylanib qolgan, x bir va minus ikkida nolga aylanadi.", 'Знаки перевёрнуты, нуль получается при одном и минус двух.', 'The signs got flipped; zero occurs at one and negative two.') },
         ],
         solution: ['x − 1 ≠ 0,  x + 2 ≠ 0', 'x ≠ 1,  x ≠ −2'],
       },
@@ -985,7 +985,7 @@ const S13 = {
       chips: ['36', '-9'],
       lines: [
         [{ t: 'x/(x−4) + 1/(x+4) = 32/(x²−16)   →   x² + 5x − ' }, { slot: '36' }, { t: ' = 0' }],
-        [{ t: 'ildizlar 4 va minus 9, ODZ buzilgani uchun x = ' }, { slot: '-9' }],
+        [{ t: L('ildizlar 4 va minus 9, ODZ buzilgani uchun x = ', 'корни 4 и минус 9, из-за ОДЗ остаётся x = ', 'roots 4 and minus 9, the domain leaves x = ') }, { slot: '-9' }],
       ],
     },
     tasks: [
@@ -993,21 +993,21 @@ const S13 = {
         chips: ['55', '-11'],
         lines: [
           [{ t: 'x/(x−5) + 1/(x+5) = 50/(x²−25)   →   x² + 6x − ' }, { slot: '55' }, { t: ' = 0' }],
-          [{ t: 'ildizlar 5 va minus 11, ODZ buzilgani uchun x = ' }, { slot: '-11' }],
+          [{ t: L('ildizlar 5 va minus 11, ODZ buzilgani uchun x = ', 'корни 5 и минус 11, из-за ОДЗ остаётся x = ', 'roots 5 and minus 11, the domain leaves x = ') }, { slot: '-11' }],
         ],
       },
       {
         chips: ['21', '-7'],
         lines: [
           [{ t: 'x/(x−3) + 1/(x+3) = 18/(x²−9)   →   x² + 4x − ' }, { slot: '21' }, { t: ' = 0' }],
-          [{ t: 'ildizlar 3 va minus 7, ODZ buzilgani uchun x = ' }, { slot: '-7' }],
+          [{ t: L('ildizlar 3 va minus 7, ODZ buzilgani uchun x = ', 'корни 3 и минус 7, из-за ОДЗ остаётся x = ', 'roots 3 and minus 7, the domain leaves x = ') }, { slot: '-7' }],
         ],
       },
       {
         chips: ['78', '-13'],
         lines: [
           [{ t: 'x/(x−6) + 1/(x+6) = 72/(x²−36)   →   x² + 7x − ' }, { slot: '78' }, { t: ' = 0' }],
-          [{ t: 'ildizlar 6 va minus 13, ODZ buzilgani uchun x = ' }, { slot: '-13' }],
+          [{ t: L('ildizlar 6 va minus 13, ODZ buzilgani uchun x = ', 'корни 6 и минус 13, из-за ОДЗ остаётся x = ', 'roots 6 and minus 13, the domain leaves x = ') }, { slot: '-13' }],
         ],
       },
     ],

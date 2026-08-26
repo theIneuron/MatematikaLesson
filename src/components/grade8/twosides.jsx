@@ -26,7 +26,7 @@
 
 // eslint-disable-next-line no-unused-vars -- LMS грузит сырой jsx в КЛАССИЧЕСКОМ режиме
 import React, { useState } from 'react'
-import { Ask, L, MATH_FONT, Note, Slot, T, useInstructionGate, useSfx, useT } from './core.jsx'
+import { Ask, L, MATH_FONT, Note, Slot, T, useInstructionGate, useSfx, useShuffled, useT } from './core.jsx'
 
 const TXT = {
   both: L(
@@ -148,6 +148,8 @@ export function TwoSides({
   const [done, setDone] = useState(false)
 
   const step = steps[at]
+  // Variantlar aralashadi (bag-report 2026-08-26, 4-bag). `at` — qadam raqami.
+  const acts = useShuffled(step ? step.actions : null, at)
 
   const pick = (opt) => {
     const src = step.actions.find((a) => a.id === opt.id)
@@ -192,9 +194,10 @@ export function TwoSides({
             <Ask>{t(step.ask)}</Ask>
             <span className="g8-ts-both">{t(TXT.both)}</span>
             <div className="g8-ts-acts">
-              {step.actions.map((a) => (
+              {acts.map((a) => (
                 <button
                   key={a.id}
+                  data-id={a.id}
                   type="button"
                   className={'g8-opt' + (wrong.indexOf(a.id) !== -1 ? ' g8-opt-tip' : '')}
                   disabled={!canAnswer}

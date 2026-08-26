@@ -1028,7 +1028,7 @@ const S13 = {
       chips: ['4', '2'],
       lines: [
         [{ t: '5t² = 20   →   t² = ' }, { slot: '4' }],
-        [{ t: 't = ' }, { slot: '2' }, { t: '  (manfiyi tashlanadi)' }],
+        [{ t: 't = ' }, { slot: '2' }, { t: L('  (manfiyi tashlanadi)', '  (отрицательный отбрасывается)', '  (the negative one is discarded)') }],
       ],
     },
     tasks: [
@@ -1036,21 +1036,21 @@ const S13 = {
         chips: ['16', '4'],
         lines: [
           [{ t: '5t² = 80   →   t² = ' }, { slot: '16' }],
-          [{ t: 't = ' }, { slot: '4' }, { t: '  (manfiyi tashlanadi)' }],
+          [{ t: 't = ' }, { slot: '4' }, { t: L('  (manfiyi tashlanadi)', '  (отрицательный отбрасывается)', '  (the negative one is discarded)') }],
         ],
       },
       {
         chips: ['9', '3'],
         lines: [
           [{ t: '2t² = 18   →   t² = ' }, { slot: '9' }],
-          [{ t: 't = ' }, { slot: '3' }, { t: '  (manfiyi tashlanadi)' }],
+          [{ t: 't = ' }, { slot: '3' }, { t: L('  (manfiyi tashlanadi)', '  (отрицательный отбрасывается)', '  (the negative one is discarded)') }],
         ],
       },
       {
         chips: ['25', '5'],
         lines: [
           [{ t: '4t² = 100   →   t² = ' }, { slot: '25' }],
-          [{ t: 't = ' }, { slot: '5' }, { t: '  (manfiyi tashlanadi)' }],
+          [{ t: 't = ' }, { slot: '5' }, { t: L('  (manfiyi tashlanadi)', '  (отрицательный отбрасывается)', '  (the negative one is discarded)') }],
         ],
       },
     ],

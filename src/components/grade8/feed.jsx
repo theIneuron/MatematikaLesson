@@ -19,7 +19,7 @@
 
 // eslint-disable-next-line no-unused-vars -- LMS грузит сырой jsx в КЛАССИЧЕСКОМ режиме
 import React, { useEffect, useRef, useState } from 'react'
-import { Ask, L, MATH_FONT, Note, Slot, T, fmt, useSfx, useT } from './core.jsx'
+import { Ask, L, MATH_FONT, Note, Slot, T, fmt, useSfx, useShuffled, useT } from './core.jsx'
 
 const TXT = {
   tap: L(
@@ -694,14 +694,21 @@ export function Steppers({
 
           <div className={'g8-st-out' + (dead ? ' is-dead' : '')}>
             <span className="g8-st-cap">{t(resultLabel)}</span>
+            {/* «Error» YO'Q (bag-report 2026-08-26, 1-bag). Inglizcha xato
+                so'zi o'quvchiga ilova buzilgandek ko'rinardi. Katakda —
+                chiziqcha, SABAB esa pastda, o'z tilida. */}
             <span className="g8-st-outval" style={{ fontFamily: MATH_FONT }}>
-              {!touched ? '?' : dead ? 'Error' : fmt(out)}
+              {!touched ? '?' : dead ? '—' : fmt(out)}
             </span>
           </div>
         </div>
       </div>
 
-
+      {/* Nolga bo'lishning SABABI ekranda turadi, faqat ovozda emas: ovoz
+          o'chiq bo'lsa yoki TTS jim bo'lsa, izoh umuman yetib bormasdi. */}
+      <Slot mh={dead && !found && zeroNote ? 46 : 0}>
+        {dead && !found && zeroNote ? <Note kind="no">{t(zeroNote)}</Note> : null}
+      </Slot>
     </>
   )
 }
@@ -761,6 +768,8 @@ export function Chain({
 
   const q = qi >= 0 && quiz ? quiz[Math.min(qi, quiz.length - 1)] : null
   const finished = quiz ? qi >= quiz.length : false
+  // Variantlar aralashadi (bag-report 2026-08-26, 4-bag).
+  const qOpts = useShuffled(q ? q.items : null, qi)
 
   const pick = (it) => {
     const src = q.items.find((x) => x.id === it.id)
@@ -819,8 +828,8 @@ export function Chain({
             <span className="g8-ch-qn">{qi + 1} / {quiz.length}</span>
             <Ask>{t(q.question)}</Ask>
             <div className="g8-ch-qopts">
-              {q.items.map((it) => (
-                <button key={it.id} type="button"
+              {qOpts.map((it) => (
+                <button key={it.id} type="button" data-id={it.id}
                   className={'g8-opt' + (wrong.indexOf(it.id) !== -1 ? ' g8-opt-tip' : '')}
                   onClick={() => pick(it)}>{t(it.label)}</button>
               ))}
@@ -935,6 +944,9 @@ export function Drill({ tasks, solutionLabel, nextLabel, doneNote, stepLabel, on
   const [done, setDone] = useState(false)
 
   const task = tasks[Math.min(at, tasks.length - 1)]
+  // Variantlar aralashtiriladi: ma'lumotda to'g'ri javob birinchi turadi
+  // (bag-report 2026-08-26, 4-bag). Har topshiriqda bir marta.
+  const opts = useShuffled(task.items, at)
 
   const pick = (it) => {
     if (open) return
@@ -980,51 +992,53 @@ export function Drill({ tasks, solutionLabel, nextLabel, doneNote, stepLabel, on
         </span>
       </div>
 
-      {done ? (
-        <Note kind="ok">{t(doneNote)}</Note>
-      ) : (
-        <>
-          {/* ВОПРОС ПЕРВЫМ, до записи (методист, 2026-08-17). Ученик должен
-              знать, что ищет, ДО того как посмотрел на дробь: иначе он сначала
-              разглядывает запись, а потом ищет глазами, о чём его спросили. */}
-          <Ask>{t(task.question)}</Ask>
-          {/* Запись может прийти ГОТОВОЙ ДРОБЬЮ (узел с чертой), а не строкой:
-              «(x + 1) : ((x − 2)(x + 5))» в строку читается как набор скобок,
-              а дробь читается сразу (методист, 2026-08-17). */}
-          <div className="g8-dr-expr" style={{ fontFamily: MATH_FONT }}>
-            {typeof task.expr === 'string' ? task.expr : task.expr}
-          </div>
+      {/* ВОПРОС ПЕРВЫМ, до записи (методист, 2026-08-17). Ученик должен
+          знать, что ищет, ДО того как посмотрел на дробь: иначе он сначала
+          разглядывает запись, а потом ищет глазами, о чём его спросили. */}
+      <Ask>{t(task.question)}</Ask>
+      {/* Запись может прийти ГОТОВОЙ ДРОБЬЮ (узел с чертой), а не строкой:
+          «(x + 1) : ((x − 2)(x + 5))» в строку читается как набор скобок,
+          а дробь читается сразу (методист, 2026-08-17). */}
+      <div className="g8-dr-expr" style={{ fontFamily: MATH_FONT }}>
+        {typeof task.expr === 'string' ? task.expr : task.expr}
+      </div>
 
-          {!open ? (
-            <div className="g8-dr-opts">
-              {task.items.map((it) => (
-                <button key={it.id} type="button"
-                  className={'g8-opt' + (wrong.indexOf(it.id) !== -1 ? ' g8-opt-tip' : '')}
-                  onClick={() => pick(it)}>{t(it.label)}</button>
-              ))}
-            </div>
-          ) : null}
+      {!open ? (
+        <div className="g8-dr-opts">
+          {opts.map((it) => (
+            <button key={it.id} type="button" data-id={it.id}
+              className={'g8-opt' + (wrong.indexOf(it.id) !== -1 ? ' g8-opt-tip' : '')}
+              onClick={() => pick(it)}>{t(it.label)}</button>
+          ))}
+        </div>
+      ) : null}
 
-          {/* Разбор виден и после ВЕРНОГО ответа: раньше блок прятался, как
-              только открывалось решение, и объяснение доставалось только
-              тому, кто ошибся (методист, 2026-08-17). */}
-          {note ? <Note kind={open ? 'ok' : 'no'}>{t(note)}</Note> : null}
+      {/* Разбор виден и после ВЕРНОГО ответа: раньше блок прятался, как
+          только открывалось решение, и объяснение доставалось только
+          тому, кто ошибся (методист, 2026-08-17). */}
+      {note ? <Note kind={open ? 'ok' : 'no'}>{t(note)}</Note> : null}
 
-          {open ? (
-            <div className="g8-dr-sol">
-              <span className="g8-dr-solcap">{t(solutionLabel)}</span>
-              <div className="g8-dr-sollines" style={{ fontFamily: MATH_FONT }}>
-                {task.solution.map((ln, i) => (
-                  <div key={i} className="g8-dr-solline" style={{ animationDelay: (i * 260) + 'ms' }}>
-                    {typeof ln === 'string' ? ln : t(ln)}
-                  </div>
-                ))}
+      {open ? (
+        <div className="g8-dr-sol">
+          <span className="g8-dr-solcap">{t(solutionLabel)}</span>
+          <div className="g8-dr-sollines" style={{ fontFamily: MATH_FONT }}>
+            {task.solution.map((ln, i) => (
+              <div key={i} className="g8-dr-solline" style={{ animationDelay: (i * 260) + 'ms' }}>
+                {typeof ln === 'string' ? ln : t(ln)}
               </div>
-              <button type="button" className="g8-dr-next" onClick={next}>{t(nextLabel)}</button>
-            </div>
-          ) : null}
-        </>
-      )}
+            ))}
+          </div>
+          {/* OXIRGI topshiriqdan keyin tugma YO'Q, lekin YECHIM QOLADI.
+              Ilgari «tugadi» holatida ekran BUTUNLAY tozalanardi va faqat
+              bitta yashil satr qolardi — o'quvchi nima yechganini ham,
+              javobni ham ko'rmasdi (bag-report 2026-08-26, 3-bag). */}
+          {done ? null : (
+            <button type="button" className="g8-dr-next" onClick={next}>{t(nextLabel)}</button>
+          )}
+        </div>
+      ) : null}
+
+      {done ? <Note kind="ok">{t(doneNote)}</Note> : null}
     </div>
   )
 }
@@ -1114,6 +1128,19 @@ export function FillSolution({
     if (tk && tk.slot) { idxOf.set(li + ':' + ti, c0); c0 += 1 }
   }))
 
+  // PLITKA SO'Z ham bo'lishi mumkin («musbat», «manfiy»), va u holda uch
+  // tilli bo'lishi SHART: rus tilida o'zbekcha plitka turardi (bag-report
+  // 2026-08-26, 5-bag). Ma'lumot ikki ko'rinishda keladi:
+  //   'musbat'                                  — oddiy qiymat
+  //   { v: 'musbat', label: L('musbat', ...) }  — qiymat va uch tilli yozuv
+  // Solishtirish HAR DOIM `v` bo'yicha: tarjima javobni o'zgartirmaydi.
+  const chipVal = (c) => (c && c.v !== undefined ? c.v : c)
+  const chipLabel = (c) => (c && c.v !== undefined ? t(c.label) : c)
+  const labelOf = (v) => {
+    const hit = cur.chips.find((c) => chipVal(c) === v)
+    return hit === undefined ? v : chipLabel(hit)
+  }
+
   return (
     <div className="g8-fl">
       {phase === 'demo'
@@ -1128,13 +1155,16 @@ export function FillSolution({
         {cur.lines.map((ln, li) => (
           <div key={li} className="g8-fl-line">
             {ln.map((tk, ti) => {
-              if (!tk || !tk.slot) return <span key={ti} className="g8-fl-tx">{tk && tk.t ? tk.t : tk}</span>
+              // Matn UCH TILLI bo'lishi mumkin: yozuvda «yoki», «manfiyi
+              // tashlanadi» kabi SO'ZLAR uchraydi, ular rus tilida ham
+              // o'zbekcha qolib ketardi (bag-report 2026-08-26, 5-bag).
+              if (!tk || !tk.slot) return <span key={ti} className="g8-fl-tx">{tk && tk.t ? t(tk.t) : tk}</span>
               const idx = idxOf.get(li + ':' + ti)
               return (
                 <span key={ti} className={'g8-fl-slot'
                   + (idx < filled.length ? ' is-full' : '')
                   + (idx === filled.length ? ' is-now' : '')}>
-                  {idx < filled.length ? filled[idx] : ''}
+                  {idx < filled.length ? labelOf(filled[idx]) : ''}
                 </span>
               )
             })}
@@ -1155,15 +1185,18 @@ export function FillSolution({
       ) : (
         <div className="g8-fl-row">
         <div className="g8-fl-chips">
-          {cur.chips.map((c) => (
-            <button key={c} type="button"
-              className={'g8-fl-chip' + (wrong === c ? ' is-wrong' : '') + (press === c ? ' is-press' : '')}
-              style={{ fontFamily: MATH_FONT }}
-              onClick={() => put(c)}>
-              {c}
-              {press === c ? <i className="g8-fl-hand-ico" aria-hidden="true"/> : null}
-            </button>
-          ))}
+          {cur.chips.map((c) => {
+            const v = chipVal(c)
+            return (
+              <button key={v} type="button"
+                className={'g8-fl-chip' + (wrong === v ? ' is-wrong' : '') + (press === v ? ' is-press' : '')}
+                style={{ fontFamily: MATH_FONT }}
+                onClick={() => put(v)}>
+                {chipLabel(c)}
+                {press === v ? <i className="g8-fl-hand-ico" aria-hidden="true"/> : null}
+              </button>
+            )
+          })}
         </div>
         {phase !== 'demo' && filled.length ? (
           <button type="button" className="g8-fl-undo" onClick={undo}>{'↶'}</button>
@@ -1273,19 +1306,22 @@ export function CatchBuild({ lead, lines, tiles, hint, doneNote, onDone, audio }
         <span className="g8-cb-frac" key={'f' + j}>
           <span className="g8-cb-fr-n">
             {num.map((x, k) => (x.slot === undefined
-              ? <span className="g8-cb-tx" key={'n' + k}>{x.t}</span>
+              ? <span className="g8-cb-tx" key={'n' + k}>{t(x.t)}</span>
               : slotView(idx[i][j][0][k], 'n' + k)))}
           </span>
           <span className="g8-cb-fr-bar"/>
           <span className="g8-cb-fr-d">
             {den.map((x, k) => (x.slot === undefined
-              ? <span className="g8-cb-tx" key={'d' + k}>{x.t}</span>
+              ? <span className="g8-cb-tx" key={'d' + k}>{t(x.t)}</span>
               : slotView(idx[i][j][1][k], 'd' + k)))}
           </span>
         </span>
       )
     }
-    return <span className="g8-cb-tx" key={'t' + j}>{it.t}</span>
+    // MATN UCH TILLI. Ilgari bu yerda `it.t` xom chiziladi edi, va dars
+    // faylida yozilgan o'zbekcha satr rus tilida ham o'zbekcha qolardi
+    // (bag-report 2026-08-26, 5-bag). `t()` oddiy satrni ham qabul qiladi.
+    return <span className="g8-cb-tx" key={'t' + j}>{t(it.t)}</span>
   }
 
   return (

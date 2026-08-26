@@ -751,24 +751,43 @@ const typeField = async (page, value, where) => {
   return true
 }
 
+// ДЕЙСТВИЕ ПРИБОРА (`.g8-act`). Ряд «действий» порядок сохраняет, а ряд
+// ОСНОВАНИЙ (WhyStep) с 26 августа перемешивается, как и все варианты
+// (баг-репорт, баг 4). Поэтому номер из фикстуры — ПЕРВАЯ попытка, а не
+// единственная: если ряд после неё не сменился, перебираем остальные.
+const tapAct = async (page, k, where) => {
+  const row = () => page.locator('.g8-act')
+  const n = await row().count()
+  if (!n) return false
+  const was = await page.locator('.g8-acts').first().innerText().catch(() => '')
+  const order = [Math.min(k, n - 1)]
+  for (let i = 0; i < n; i += 1) if (i !== order[0]) order.push(i)
+  for (const i of order) {
+    if (await row().count() <= i) break
+    await tap(row().nth(i), where)
+    await page.waitForTimeout(240)
+    const now = await page.locator('.g8-acts').first().innerText().catch(() => '')
+    if (now !== was || await page.locator('.g8-acts').count() === 0) return true
+  }
+  return false
+}
+
 const clickOpt = async (page, id, where) => {
   // Варианты появляются НЕ сразу: на экранах 3 и 4 сначала рвётся черта
   // дроби (420 мс), и только потом встаёт вопрос по ходу. Считать опции
   // сразу — значит мерить не экран, а свою задержку.
   await page.locator('.g8-opt').first().waitFor({ state: 'visible', timeout: 3000 }).catch(() => {})
-  const all = await page.locator('.g8-opt').all()
-  // Кнопки варианта не несут id, поэтому идём по порядку из данных урока:
-  // индексы совпадают, потому что варианты в 8 классе НЕ перемешиваются
-  // на хуке и в правиле (перемешивание — у блица и коротких вопросов).
-  const idx = {
-    table: 0, plot: 1, both: 2, broken: 3,   // хук: порядок из данных урока
-    none: 0, zero: 1, no: 0, yes: 1,         // вопрос по ходу в TapPart
-    a: 0, b: 1, c: 2, d: 3,
-  }[id]
-  if (idx === undefined || !all[idx]) return false
-  await tap(all[idx], where)
-  await page.waitForTimeout(260)
-  return true
+  // ВАРИАНТ ИЩЕТСЯ ПО ИМЕНИ, не по номеру. С 26 августа порядок вариантов
+  // перемешивается прибором (баг-репорт, баг 4: верный ответ всегда стоял
+  // первым в данных), и таблица «id -> индекс» стала врать. Кнопки несут
+  // `data-id`, и фикстура опирается на него.
+  const byId = page.locator(`.g8-opt[data-id="${id}"]`)
+  if (await byId.count()) {
+    await tap(byId.first(), where)
+    await page.waitForTimeout(260)
+    return true
+  }
+  return false
 }
 
 for (const size of SIZES) {
@@ -911,13 +930,20 @@ for (const size of SIZES) {
         await page.waitForTimeout(1500)
       }
     }
-    // Пять примеров подряд: верный вариант первый в данных урока.
+    // Пять примеров подряд. Верный вариант БОЛЬШЕ НЕ ПЕРВЫЙ: с 26 августа
+    // порядок перемешивается прибором (баг-репорт, баг 4). Перебираем
+    // варианты, пока не откроется решение — ровно так же, как это делает
+    // ученик, и так же, как устроены прогоны блица и ленты кадров.
     if (s.drill) {
       for (let k = 0; k < s.drill; k += 1) {
         const opts = page.locator('.g8-dr-opts .g8-opt')
-        if (await opts.count() === 0) break
-        await tap(opts.first(), at)
-        await page.waitForTimeout(260)
+        const n = await opts.count()
+        if (n === 0) break
+        for (let o = 0; o < n; o += 1) {
+          await tap(page.locator('.g8-dr-opts .g8-opt').nth(o), at)
+          await page.waitForTimeout(260)
+          if (await page.locator('.g8-dr-sol').count()) break
+        }
         const nx = page.locator('.g8-dr-next')
         if (await nx.count()) { await tap(nx.first(), at); await page.waitForTimeout(240) }
       }
@@ -1102,29 +1128,20 @@ for (const size of SIZES) {
     // полями acts/fields/acts2/fields2 такая цепочка не описывается: их всего
     // два круга, а шагов бывает три.
     for (const st of s.steps || []) {
-      if (st.act !== undefined) {
-        await tap(page.locator('.g8-act').nth(st.act), at)
-        await page.waitForTimeout(240)
-      }
+      if (st.act !== undefined) await tapAct(page, st.act, at)
       if (st.field !== undefined) await typeField(page, st.field, at)
     }
     for (const id of s.picks || []) await clickOpt(page, id, at)
     for (const v of s.nums || []) await typeField(page, v, at)
     for (const id of s.picksAfter || []) await clickOpt(page, id, at)
-    for (const k of s.acts || []) {
-      await tap(page.locator('.g8-act').nth(k), at)
-      await page.waitForTimeout(220)
-    }
+    for (const k of s.acts || []) await tapAct(page, k, at)
     for (const v of s.fields || []) await typeField(page, v, at)
     if (s.none) {
       const nb = page.locator('.g8-none')
       if (await nb.count()) await tap(nb.first(), at)
       await page.waitForTimeout(200)
     }
-    for (const k of s.acts2 || []) {
-      await tap(page.locator('.g8-act').nth(k), at)
-      await page.waitForTimeout(220)
-    }
+    for (const k of s.acts2 || []) await tapAct(page, k, at)
     for (const id of s.frames2 || []) {
       await tap(page.locator(`.g8-film-k[data-frame="${id}"]`), at)
       await page.waitForTimeout(260)

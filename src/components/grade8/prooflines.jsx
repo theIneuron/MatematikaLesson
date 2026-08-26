@@ -12,7 +12,7 @@
 
 // eslint-disable-next-line no-unused-vars -- LMS грузит сырой jsx в КЛАССИЧЕСКОМ режиме
 import React, { useState } from 'react'
-import { L, MATH_FONT, T, useT } from './core.jsx'
+import { L, MATH_FONT, T, useShuffled, useT } from './core.jsx'
 import { Fields } from './tools.jsx'
 
 const TXT = {
@@ -48,6 +48,8 @@ export function ProofLines({
   const [wrong, setWrong] = useState([])
   const [note2, setNote2] = useState(null)
   const done = li >= lines.length
+  // Variantlar aralashadi (bag-report 2026-08-26, 4-bag).
+  const curOpts = useShuffled(lines[li] ? lines[li].options : null, li)
 
   const choose = (opt) => {
     if (picked) return
@@ -98,8 +100,8 @@ export function ProofLines({
             {i === li ? (
               <>
                 <div className="g8-pl-opts">
-                  {line.options.map((o) => (
-                    <button key={o.id} type="button"
+                  {curOpts.map((o) => (
+                    <button key={o.id} type="button" data-id={o.id}
                       className={'g8-pl-opt' + (picked === o.id ? ' is-ok' : '') + (wrong.indexOf(o.id) !== -1 ? ' is-no' : '')}
                       disabled={!!picked} onClick={() => choose(o)}>{t(o.label)}</button>
                   ))}

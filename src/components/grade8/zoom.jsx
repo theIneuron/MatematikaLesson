@@ -20,7 +20,7 @@
 
 // eslint-disable-next-line no-unused-vars -- LMS грузит сырой jsx в КЛАССИЧЕСКОМ режиме
 import React, { useState } from 'react'
-import { Ask, L, MATH_FONT, Note, Slot, T, useInstructionGate, useSfx, useT } from './core.jsx'
+import { Ask, L, MATH_FONT, Note, Slot, T, useInstructionGate, useSfx, useShuffled, useT } from './core.jsx'
 import { valueAt } from './mathcore.js'
 
 const TXT = {
@@ -109,6 +109,8 @@ export function ZoomLine({
 
   const hi = lo + step * TICKS
   const last = n >= depth
+  // Variantlar aralashadi (bag-report 2026-08-26, 4-bag).
+  const opts = useShuffled(items)
 
   const zoom = () => {
     if (last) return
@@ -170,9 +172,10 @@ export function ZoomLine({
       <Slot mh={last && !picked ? 96 : 0}>
         {last && !picked ? (
           <div className="g8-zl-opts">
-            {items.map((i) => (
+            {opts.map((i) => (
               <button
                 key={i.id}
+                data-id={i.id}
                 type="button"
                 className={'g8-opt' + (wrong.indexOf(i.id) !== -1 ? ' g8-opt-tip' : '')}
                 disabled={!canAnswer}

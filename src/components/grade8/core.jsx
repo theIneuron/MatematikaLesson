@@ -179,6 +179,19 @@ export const UI_TXT = {
     'Вернись к правилу и к экрану',
     'Go back to the rule and to screen',
   ),
+  // Topshiriq tugagach ekranda QOLADIGAN tasdiq. Bag-report 2026-08-26,
+  // 6 va 8-baglar: o'quvchi hammasini yechgan, ekranda esa hech narsa
+  // yo'q — na «to'g'ri», na «tugadi».
+  allDone: L(
+    'Hammasi bajarildi',
+    'Всё разобрано',
+    'All done',
+  ),
+  openNext: L(
+    'Keyingi kadrni oching',
+    'Открой следующий кадр',
+    'Open the next frame',
+  ),
   blitzLead: L(
     "To'rt savol, belgini so'raydi",
     'Четыре вопроса — про признак',
@@ -515,6 +528,55 @@ function chime(up) {
   })
 }
 
+// ============================================================
+// VARIANTLAR TARTIBI. Bag-report 2026-08-26, 4-bag: «testlarda to'g'ri javob
+// har doim birinchi». Tekshirildi: 1136 savoldan 1123 tasida `right: true`
+// birinchi o'rinda turgan — ya'ni o'quvchi o'ylamasdan birinchisini bosib
+// o'tib ketardi.
+//
+// Tuzatish MA'LUMOTDA emas, QATLAMDA: har bir darsda variantlarni qo'lda
+// aralashtirish 1136 joyda qo'lda ish va yangi darsda yana o'sha xato.
+// Aralashtirish EKRAN OCHILGANDA bir marta bo'ladi (`useMemo`), shuning
+// uchun tugmalar bosilganda sakramaydi.
+//
+// `keep: true` bo'lgan variant JOYIDA qoladi: «hech qanday taqiq yo'q» kabi
+// javob ro'yxatning oxirida turishi kerak.
+// ============================================================
+const NO_ITEMS = []
+export function shuffleList(items) {
+  const list = items || NO_ITEMS
+  const move = []
+  const fixed = []
+  list.forEach((it, i) => {
+    if (it && it.keep) fixed.push([i, it])
+    else move.push(it)
+  })
+  for (let i = move.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1))
+    const tmp = move[i]; move[i] = move[j]; move[j] = tmp
+  }
+  fixed.forEach(([i, it]) => move.splice(Math.min(i, move.length), 0, it))
+  return move
+}
+
+// Variantlarni aralashtiradigan ilgak — o'z tugmalarini chizadigan asboblar
+// uchun (`Choice` dan foydalanmaydiganlari). Eslab qolinadigan narsa TARTIB,
+// ya'ni id lar ro'yxati: variantning O'ZI eslab qolinsa, til almashganda
+// eski tildagi yorliq qotib qolardi.
+// `salt` — topshiriq raqami. Usiz kerak: bitta ekrandagi besh topshiriqda
+// id lar bir xil ('a', 'b', 'c'), demak kalit ham bir xil bo'lardi va
+// aralashtirish BIR MARTA hisoblanardi — to'g'ri javob har topshiriqda
+// o'sha yangi o'rinda turib qolardi, ya'ni xato boshqa ko'rinishda qaytardi.
+export function useShuffled(items, salt) {
+  const list = items || NO_ITEMS
+  const keyOf = (x, i) => (x && x.id !== undefined ? x.id : i)
+  const ids = String(salt === undefined ? '' : salt) + '#' + list.map(keyOf).join('|')
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const order = useMemo(() => shuffleList(list.map(keyOf)), [ids])
+  const mixed = order.map((id) => list.find((x, i) => keyOf(x, i) === id)).filter(Boolean)
+  return mixed.length === list.length ? mixed : list
+}
+
 export function useSfx() {
   const okRef = useRef(null)
   const noRef = useRef(null)
@@ -800,15 +862,30 @@ const BADGES = ['A', 'B', 'C', 'D', 'E', 'F']
 // qolganlari xiralashadi.
 // tone: 'ok' (default) | 'cool'. 'cool' \u2014 TAXMIN ekrani: firuza fon, nishoni
 // HARF bo'lib qoladi, galochka YO'Q. Taxmin baholanmaydi (\u00a714).
-export const Choice = ({ items, picked, wrong, onPick, disabled, cols = 1, multi, checked, tone = 'ok', dense }) => {
+export const Choice = ({ items, picked, wrong, onPick, disabled, cols = 1, multi, checked, tone = 'ok', dense, keepOrder, salt }) => {
   const solved = multi ? false : !!picked
   const cool = tone === 'cool'
+  // VARIANTLAR TARTIBI ARALASHADI (bag-report 2026-08-26, 4-bag). Dars
+  // ma'lumotida to'g'ri javob deyarli har doim BIRINCHI yozilgan: 1136
+  // savoldan 1123 tasida. Aralashtirish shu yerda turadi, chunki hamma
+  // asbob variantlarni aynan `Choice` orqali chizadi.
+  //
+  // Eslab qolinadigan narsa — TARTIB (id lar ro'yxati), variantlarning
+  // O'ZI emas: yorliqlar tilga bog'liq, va til almashganda eski nusxa
+  // qotib qolardi. `keepOrder` — tartib ma'noli bo'lgan joy uchun zaxira.
+  const ids = String(salt === undefined ? '' : salt) + '#' + items.map((x) => x.id).join('|')
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const order = useMemo(() => shuffleList(items.map((x) => x.id)), [ids])
+  const mixed = order.map((id) => items.find((x) => x.id === id)).filter(Boolean)
+  // Zaxira: id lar takrorlansa yoki mos kelmasa, ASL tartib qoladi. Variant
+  // YO'QOLIB qolgandan ko'ra tartib eski bo'lgani yaxshi.
+  const shown = keepOrder || mixed.length !== items.length ? items : mixed
   return (
     <div
       className={'g8-choice' + (dense ? ' g8-choice-dense' : '')}
       style={{ gridTemplateColumns: 'repeat(' + cols + ', minmax(0, 1fr))' }}
     >
-      {items.map((item, i) => {
+      {shown.map((item, i) => {
         const isPicked = multi ? (checked || []).indexOf(item.id) !== -1 : picked === item.id
         const isWrong = (wrong || []).indexOf(item.id) !== -1
         const dim = solved && !isPicked && !isWrong
@@ -823,6 +900,10 @@ export const Choice = ({ items, picked, wrong, onPick, disabled, cols = 1, multi
           <button
             type="button"
             key={item.id}
+            // `data-id` — variantning O'ZGARMAS nomi. Tartib endi aralashadi,
+            // demak stend uni RAQAM bo'yicha topa olmaydi (bag-report
+            // 2026-08-26, 4-bag). Nom bo'yicha topadi.
+            data-id={item.id}
             className={cls.join(' ')}
             // Belgilangan variant BOSILMAYDI: ko'p tanlovli savolda uni qayta
             // bosish hech narsa qilmaydi, lekin o'quvchi «ishladi» deb o'ylaydi

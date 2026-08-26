@@ -971,7 +971,7 @@ const S13 = {
       chips: ['24', '4', '6', '4'],
       lines: [
         [{ t: 'P = 20, S = 24   →   x² − 10x + ' }, { slot: '24' }, { t: ' = 0' }],
-        [{ t: 'D = ' }, { slot: '4' }, { t: ',   x = ' }, { slot: '6' }, { t: '  yoki  ' }, { slot: '4' }],
+        [{ t: 'D = ' }, { slot: '4' }, { t: ',   x = ' }, { slot: '6' }, { t: L('  yoki  ', '  или  ', '  or  ') }, { slot: '4' }],
       ],
     },
     tasks: [
@@ -979,21 +979,21 @@ const S13 = {
         chips: ['15', '4', '5', '3'],
         lines: [
           [{ t: 'P = 16, S = 15   →   x² − 8x + ' }, { slot: '15' }, { t: ' = 0' }],
-          [{ t: 'D = ' }, { slot: '4' }, { t: ',   x = ' }, { slot: '5' }, { t: '  yoki  ' }, { slot: '3' }],
+          [{ t: 'D = ' }, { slot: '4' }, { t: ',   x = ' }, { slot: '5' }, { t: L('  yoki  ', '  или  ', '  or  ') }, { slot: '3' }],
         ],
       },
       {
         chips: ['10', '−15'],
         lines: [
           [{ t: 'P = 10, S = 10   →   x² − 5x + ' }, { slot: '10' }, { t: ' = 0' }],
-          [{ t: 'D = ' }, { slot: '−15' }, { t: ',   bunday to\'rtburchak yo\'q' }],
+          [{ t: 'D = ' }, { slot: '−15' }, { t: L(',   bunday to\'rtburchak yo\'q', ',   такого прямоугольника нет', ',   there is no such rectangle') }],
         ],
       },
       {
         chips: ['24', '25', '8', '3'],
         lines: [
           [{ t: 'P = 22, S = 24   →   x² − 11x + ' }, { slot: '24' }, { t: ' = 0' }],
-          [{ t: 'D = ' }, { slot: '25' }, { t: ',   x = ' }, { slot: '8' }, { t: '  yoki  ' }, { slot: '3' }],
+          [{ t: 'D = ' }, { slot: '25' }, { t: ',   x = ' }, { slot: '8' }, { t: L('  yoki  ', '  или  ', '  or  ') }, { slot: '3' }],
         ],
       },
     ],

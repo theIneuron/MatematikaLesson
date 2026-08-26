@@ -905,7 +905,15 @@ const S12 = {
 // ============================================================
 // EKRAN 13. YECHIMNI QADAMLAB YOZISH (1-darsning `fill`): ko'paytma
 // ishorasidan ikkinchi ildizning ishorasini aniqlash.
+//
+// PLITKA SO'Z, demak UCH TILLI. Bu yerda plitkada son emas, «musbat» va
+// «manfiy» so'zlari turadi, va ular rus tilida ham o'zbekcha ko'rinardi
+// (bag-report 2026-08-26, 5-bag). `v` — solishtiriladigan qiymat, `label` —
+// ekrandagi yozuv; javob tarjimaga bog'liq emas.
 // ============================================================
+const POS = { v: 'musbat', label: L('musbat', 'положительный', 'positive') }
+const NEG = { v: 'manfiy', label: L('manfiy', 'отрицательный', 'negative') }
+
 const S13 = {
   eyebrow: L('ISHORANI ANIQLASH', 'ОПРЕДЕЛЕНИЕ ЗНАКА', 'DETERMINING THE SIGN'),
   title: L(
@@ -934,32 +942,32 @@ const S13 = {
     againLabel: UI.againLabel,
     selfLabel: UI.selfLabel,
     demo: {
-      chips: ['-10', 'manfiy'],
+      chips: ['-10', NEG],
       lines: [
-        [{ t: 'x² + 3x − 10 = 0,   x1 musbat   →   q = ' }, { slot: '-10' }],
-        [{ t: 'x1 musbat, demak x2 ' }, { slot: 'manfiy' }],
+        [{ t: L('x² + 3x − 10 = 0,   x1 musbat   →   q = ', 'x² + 3x − 10 = 0,   x1 больше нуля   →   q = ', 'x² + 3x − 10 = 0,   x1 is above zero   →   q = ') }, { slot: '-10' }],
+        [{ t: L('x1 musbat, demak x2 ', 'x1 больше нуля, значит x2 ', 'x1 is above zero, so x2 is ') }, { slot: 'manfiy' }],
       ],
     },
     tasks: [
       {
-        chips: ['12', 'musbat'],
+        chips: ['12', POS],
         lines: [
-          [{ t: 'x² − 7x + 12 = 0,   x1 musbat   →   q = ' }, { slot: '12' }],
-          [{ t: 'ko\'paytma musbat, demak x2 ' }, { slot: 'musbat' }],
+          [{ t: L('x² − 7x + 12 = 0,   x1 musbat   →   q = ', 'x² − 7x + 12 = 0,   x1 больше нуля   →   q = ', 'x² − 7x + 12 = 0,   x1 is above zero   →   q = ') }, { slot: '12' }],
+          [{ t: L('ko\'paytma musbat, demak x2 ', 'произведение положительно, значит x2 ', 'the product is positive, so x2 is ') }, { slot: 'musbat' }],
         ],
       },
       {
-        chips: ['12', 'manfiy'],
+        chips: ['12', NEG],
         lines: [
-          [{ t: 'x² + 8x + 12 = 0,   x1 manfiy   →   q = ' }, { slot: '12' }],
-          [{ t: 'ko\'paytma musbat, demak x2 ' }, { slot: 'manfiy' }],
+          [{ t: L('x² + 8x + 12 = 0,   x1 manfiy   →   q = ', 'x² + 8x + 12 = 0,   x1 меньше нуля   →   q = ', 'x² + 8x + 12 = 0,   x1 is below zero   →   q = ') }, { slot: '12' }],
+          [{ t: L('ko\'paytma musbat, demak x2 ', 'произведение положительно, значит x2 ', 'the product is positive, so x2 is ') }, { slot: 'manfiy' }],
         ],
       },
       {
-        chips: ['-20', 'manfiy'],
+        chips: ['-20', NEG],
         lines: [
-          [{ t: 'x² − x − 20 = 0,   x1 musbat   →   q = ' }, { slot: '-20' }],
-          [{ t: 'ko\'paytma manfiy, demak x2 ' }, { slot: 'manfiy' }],
+          [{ t: L('x² − x − 20 = 0,   x1 musbat   →   q = ', 'x² − x − 20 = 0,   x1 больше нуля   →   q = ', 'x² − x − 20 = 0,   x1 is above zero   →   q = ') }, { slot: '-20' }],
+          [{ t: L('ko\'paytma manfiy, demak x2 ', 'произведение отрицательно, значит x2 ', 'the product is negative, so x2 is ') }, { slot: 'manfiy' }],
         ],
       },
     ],

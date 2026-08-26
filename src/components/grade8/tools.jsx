@@ -22,7 +22,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Ask, Choice, ClosedRow, Counterexample, Frac, L, MATH_FONT, NextStep, Note, OdzLine,
-  Row, RuleCard, Slot, T, UI_TXT, fmt, useInstructionGate, useSfx, useSteps, useT,
+  Row, RuleCard, Slot, T, UI_TXT, fmt, useInstructionGate, useSfx, useShuffled, useSteps, useT,
 } from './core.jsx'
 import { MathField, judgeExpr, judgeOdz } from './math.jsx'
 // Фигура координатной плоскости живёт в `plot.jsx` (там масштаб, оси и пути),
@@ -338,7 +338,7 @@ export function Substitute({ rows, varName = 'a', ask, predict, minChecked = 2, 
 //    satrga yig'iladi (galochka YO'Q), joy keyingisiga bo'shaydi.
 //    items: [{ prompt, show, kind, answer|excluded|of, hints, none, closed }]
 // ============================================================
-export function TaskChain({ items, onSolved, onStep, audio }) {
+export function TaskChain({ items, doneNote, onSolved, onStep, audio }) {
   const t = useT()
   const [idx, setIdx] = useState(0)
   const [closed, setClosed] = useState([])
@@ -363,7 +363,13 @@ export function TaskChain({ items, onSolved, onStep, audio }) {
           audio={audio}
           onOk={() => advance(cur.closed ? t(cur.closed) : (t(cur.prompt) + '  ' + (cur.answer || '')))}
         />
-      ) : null}
+      ) : (
+        // ZANJIR TUGADI. Ilgari oxirgi javobdan keyin ekranda faqat ikki-uch
+        // ingichka satr qolardi va boshqa HECH NARSA: o'quvchi topshiriqni
+        // yechganini ham, davom etsa bo'lishini ham bilmasdi (bag-report
+        // 2026-08-26, 6 va 8-baglar).
+        <Note kind="ok">{t(doneNote || UI_TXT.allDone)}</Note>
+      )}
     </>
   )
 }
@@ -513,6 +519,8 @@ export function Transform({ start, steps, actions, odz, onSolved, onStep, audio,
   const finished = i >= steps.length
   // Amal tanlangan, asos esa hali tanlanmagan: shu holatda ASOS so'raladi.
   const asksWhy = !finished && acted && !open && !!(step && step.why)
+  // Variantlar aralashadi (bag-report 2026-08-26, 4-bag). `i` — qadam raqami.
+  const whyItems = useShuffled(step && step.why ? step.why.items : null, i)
   // QADAMNING O'Z AMALLARI. Ilgari butun ekranga bitta `actions` qatori
   // yotardi, ya'ni ikkinchi qadamda ham birinchi qadamning tugmalari
   // turardi (2-dars, 2026-08-20: 1-qadam yozuvni yozadi, 2-qadam SHARTNI,
@@ -587,8 +595,8 @@ export function Transform({ start, steps, actions, odz, onSolved, onStep, audio,
             <div key={'w' + shake} className={shake ? 'g8-shake' : undefined}>
               <div className="g8-acts g8-why">
                 <span className="g8-acts-tag">{t(step.why.question || TXT.why)}</span>
-                {step.why.items.map((a) => (
-                  <button type="button" key={a.id} className="g8-act" onClick={() => because(a.id)}>
+                {whyItems.map((a) => (
+                  <button type="button" key={a.id} data-id={a.id} className="g8-act" onClick={() => because(a.id)}>
                     {t(a.label)}
                   </button>
                 ))}
@@ -976,6 +984,8 @@ export function Blitz({ items, lead, onSolved, onReady, audio, buildView, scoreL
   const at = holdAt >= 0 ? holdAt : openAt
   const scored = items.filter((q) => state[q.id] && state[q.id].first).length
   const reported = useRef(false)
+  // Variantlar tartibi: aralashtirish `Choice` ichida (bag-report
+  // 2026-08-26, 4-bag). Bu yerda hech narsa qilinmaydi.
 
   const pick = (q, opt) => {
     const src = q.options.find((o) => o.id === opt.id)
@@ -1062,6 +1072,7 @@ export function Blitz({ items, lead, onSolved, onReady, audio, buildView, scoreL
                 : (
               <Choice
                 items={q.options.map((o) => ({ id: o.id, label: t(o.label) }))}
+                salt={q.id}
                 picked={st.picked || null}
                 wrong={st.wrong || []}
                 onPick={(opt) => pick(q, opt)}
@@ -1544,6 +1555,7 @@ export function RuleBuilder({ fragments, answer, wrongHint, card, after, onSolve
   const [built, setBuilt] = useState([])
   const [open, setOpen] = useState(false)
   const [note, setNote] = useState(null)
+  const [bad, setBad] = useState(false)
   const [misses, setMisses] = useState(0)
 
   // Bo'laklar har kirishda aralashadi.
@@ -1563,9 +1575,18 @@ export function RuleBuilder({ fragments, answer, wrongHint, card, after, onSolve
 
   const add = (id) => {
     if (open || built.indexOf(id) !== -1) return
+    // YIG'ILMA TO'LGANDA yangi bo'lak QO'SHILMAYDI. Ilgari qoida to'rtta
+    // bo'lakdan iborat bo'lsa ham beshinchisini qo'yish mumkin edi, va u
+    // xato xabarini JIMGINA o'chirib yuborardi: to'rttada «bunday
+    // yig'ilmadi» chiqib, beshinchisida yo'qolardi, tekshiruv esa umuman
+    // ishlamasdi (bag-report 2026-08-26, 2-bag). Endi o'quvchi ortiqchasini
+    // qo'sha olmaydi — noto'g'risini olib tashlab, o'rniga boshqasini
+    // qo'yadi, va izoh shu paytgacha ekranda turadi.
+    if (built.length >= answer.length) return
     const next = built.concat(id)
     setBuilt(next)
     setNote(null)
+    setBad(false)
     if (next.length !== answer.length) return
     if (next.join('|') === answer.join('|')) {
       setOpen(true)
@@ -1576,6 +1597,7 @@ export function RuleBuilder({ fragments, answer, wrongHint, card, after, onSolve
     }
     setMisses((m) => m + 1)
     setNote(wrongHint || null)
+    setBad(true)
     sfx.playWrong()
     if (audio && wrongHint) audio.say(t(wrongHint))
   }
@@ -1583,6 +1605,7 @@ export function RuleBuilder({ fragments, answer, wrongHint, card, after, onSolve
   const drop = (id) => {
     if (open) return
     setNote(null)
+    setBad(false)
     setBuilt((prev) => prev.filter((x) => x !== id))
   }
 
@@ -1592,7 +1615,7 @@ export function RuleBuilder({ fragments, answer, wrongHint, card, after, onSolve
         <div className="g8-rb-built">
           {built.length
             ? built.map((id, i) => (
-              <button type="button" key={id} data-id={id} className="g8-rb-chip is-built" onClick={() => drop(id)}>
+              <button type="button" key={id} data-id={id} className={'g8-rb-chip is-built' + (bad ? ' is-bad' : '')} onClick={() => drop(id)}>
                 <span className="g8-rb-no">{i + 1}</span>{labelOf(id)}
               </button>
             ))
@@ -1974,6 +1997,18 @@ export function Film({ fig, data, frames, done, onDone, onStep, audio }) {
         <span className="g8-film-say">{cur ? t(cur.text) : ''}</span>
       </Slot>
 
+      {/* LENTA TUGMA EKANI AYTILADI, va LENTADAN OLDIN: ko'z avval nima
+          qilish kerakligini o'qiydi, keyin kadrlarni ko'radi. Kadrlar pastda
+          ingichka qator bo'lib turardi, va o'quvchi ularni bosish kerakligini
+          tushunmasdi: figura birinchi kadrda qotib qolar, «ko'paytuvchi
+          qayerga ketdi» degan savol javobsiz qolardi (bag-report 2026-08-26,
+          7-bag). */}
+      <Slot mh={!done && !needAsk && seen.length < frames.length ? 26 : 0}>
+        {!done && !needAsk && seen.length < frames.length
+          ? <span className="g8-film-next">{t(UI_TXT.openNext)}</span>
+          : null}
+      </Slot>
+
       {/* LENTA. Ko'rilgan kadrda belgi, ochilmagani bosilmaydi. */}
       <div className={'g8-film' + (done ? ' is-done' : '')}>
         {frames.map((f, i) => (
@@ -1983,7 +2018,8 @@ export function Film({ fig, data, frames, done, onDone, onStep, audio }) {
             data-frame={f.id}
             className={'g8-film-k'
               + (i === at ? ' is-at' : '')
-              + (seen.indexOf(i) !== -1 ? ' is-seen' : '')}
+              + (seen.indexOf(i) !== -1 ? ' is-seen' : '')
+              + (i === seen.length && !needAsk ? ' is-ready' : '')}
             disabled={i > seen.length || (needAsk && i !== at)}
             onClick={() => go(i)}
           >
@@ -2000,6 +2036,7 @@ export function Film({ fig, data, frames, done, onDone, onStep, audio }) {
             <Ask>{t(cur.ask.question)}</Ask>
             <Choice
               items={cur.ask.items.map((i) => ({ id: i.id, label: t(i.label) }))}
+              salt={cur.id}
               picked={null}
               wrong={wrong}
               onPick={pick}
@@ -2343,6 +2380,15 @@ export const TOOLS_STYLES = `
   color: ${T.ink2}; transition: background .2s, box-shadow .2s, color .2s;
 }
 .g8-film-k:disabled { opacity: .4; cursor: default; }
+/* KEYINGI OCHILADIGAN KADR: lenta tugma ekani ko'rinib tursin. */
+.g8-film-k.is-ready:not(.is-at) {
+  color: ${T.ink}; background: ${T.paper};
+  box-shadow: 0 6px 18px -12px rgba(${T.shadow},.45), inset 0 0 0 1.5px rgba(${T.accentRgb},.28);
+}
+.g8-film-next {
+  display: block; text-align: center;
+  font-family: 'Manrope', sans-serif; font-size: 11.5px; color: ${T.ink3};
+}
 .g8-film-k.is-seen { color: ${T.ink}; background: ${T.paper}; }
 .g8-film-k.is-at {
   color: ${T.ink}; background: ${T.paper};
@@ -2403,6 +2449,8 @@ export const TOOLS_STYLES = `
 }
 .g8-rb-chip:hover { box-shadow: inset 0 0 0 1.5px rgba(${T.accentRgb},.4); }
 .g8-rb-chip.is-built { background: ${T.graphSoft}; box-shadow: inset 0 0 0 1px rgba(${T.graphRgb},.3); }
+/* Noto'g'ri yig'ilma: qaysi bo'laklarni almashtirish kerakligi KO'RINADI. */
+.g8-rb-chip.is-built.is-bad { background: ${T.tipSoft}; box-shadow: inset 0 0 0 1.5px rgba(${T.tipRgb},.45); }
 .g8-rb-no { font-family: 'JetBrains Mono', monospace; font-size: 10.5px; color: ${T.graph}; }
 
 /* ============ XUKKA QAYTISH (qoida ekranida) ============ */

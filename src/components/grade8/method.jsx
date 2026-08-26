@@ -15,7 +15,7 @@
 
 // eslint-disable-next-line no-unused-vars -- LMS грузит сырой jsx в КЛАССИЧЕСКОМ режиме
 import React, { useState } from 'react'
-import { Ask, L, MATH_FONT, Note, Slot, StepDots, T, useInstructionGate, useSfx, useT } from './core.jsx'
+import { Ask, L, MATH_FONT, Note, Slot, StepDots, T, useInstructionGate, useSfx, useShuffled, useT } from './core.jsx'
 
 const TXT = {
   next: L('Keyingi qadam', 'Следующий шаг', 'Next step'),
@@ -122,6 +122,9 @@ export function SolveTogether({ task, lines, method, onSolved, audio, onStep }) 
   const cur = lines[open - 1]
   const waiting = cur && cur.ask && !picked[open - 1]
   const done = open >= lines.length && !waiting
+  // Variantlar aralashadi (bag-report 2026-08-26, 4-bag): ma'lumotda to'g'ri
+  // javob birinchi yozilgan. `open` — qadam raqami: har qadamda o'z tartibi.
+  const askItems = useShuffled(cur && cur.ask ? cur.ask.items : null, open)
 
   const advance = () => {
     const nextOpen = Math.min(open + 1, lines.length)
@@ -183,9 +186,10 @@ export function SolveTogether({ task, lines, method, onSolved, audio, onStep }) 
           <div className="g8-sv-ask">
             <Ask>{t(cur.ask.question)}</Ask>
             <div className="g8-sv-opts">
-              {cur.ask.items.map((i) => (
+              {askItems.map((i) => (
                 <button
                   key={i.id}
+                  data-id={i.id}
                   type="button"
                   className={'g8-opt' + ((wrong[open - 1] || []).indexOf(i.id) !== -1 ? ' g8-opt-tip' : '')}
                   disabled={!canAnswer}

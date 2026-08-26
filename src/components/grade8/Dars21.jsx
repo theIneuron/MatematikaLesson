@@ -994,7 +994,7 @@ const S13 = {
       chips: ['6', '3'],
       lines: [
         [{ t: '1/x + 1/(x+3) = 1/2   →   x² − x − ' }, { slot: '6' }, { t: ' = 0' }],
-        [{ t: 'ildizlar 3 va minus 2, manfiyi rad etiladi, x = ' }, { slot: '3' }],
+        [{ t: L('ildizlar 3 va minus 2, manfiyi rad etiladi, x = ', 'корни 3 и минус 2, отрицательный отбрасывается, x = ', 'roots 3 and minus 2, the negative one is dropped, x = ') }, { slot: '3' }],
       ],
     },
     tasks: [
@@ -1002,21 +1002,21 @@ const S13 = {
         chips: ['45', '5'],
         lines: [
           [{ t: "ayirma 4, ko'paytma 45   →   b² + 4b − " }, { slot: '45' }, { t: ' = 0' }],
-          [{ t: 'ildizlar 5 va minus 9, manfiyi rad etiladi, b = ' }, { slot: '5' }],
+          [{ t: L('ildizlar 5 va minus 9, manfiyi rad etiladi, b = ', 'корни 5 и минус 9, отрицательный отбрасывается, b = ', 'roots 5 and minus 9, the negative one is dropped, b = ') }, { slot: '5' }],
         ],
       },
       {
         chips: ['24', '6'],
         lines: [
           [{ t: 'P = 20, S = 24   →   x² − 10x + ' }, { slot: '24' }, { t: ' = 0' }],
-          [{ t: 'x = ' }, { slot: '6' }, { t: '  yoki  4' }],
+          [{ t: 'x = ' }, { slot: '6' }, { t: L('  yoki  4', '  или  4', '  or  4') }],
         ],
       },
       {
         chips: ['30', '10'],
         lines: [
           [{ t: '1/x + 1/(x+5) = 1/6   →   x² − 7x − ' }, { slot: '30' }, { t: ' = 0' }],
-          [{ t: 'ildizlar 10 va minus 3, manfiyi rad etiladi, x = ' }, { slot: '10' }],
+          [{ t: L('ildizlar 10 va minus 3, manfiyi rad etiladi, x = ', 'корни 10 и минус 3, отрицательный отбрасывается, x = ', 'roots 10 and minus 3, the negative one is dropped, x = ') }, { slot: '10' }],
         ],
       },
     ],

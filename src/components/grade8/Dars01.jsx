@@ -1604,8 +1604,16 @@ const S14 = {
           // Доля от счёта — ДРОБЬ, а не деление через двоеточие: ученик
           // собирает ровно ту запись, которую потом увидит в учебнике.
           lines: [
-            [{ t: 'Har biriga:  ' }, { frac: [[{ slot: '60000' }], [{ slot: 'n' }]] }],
-            [{ t: 'Shart:  n ' }, { slot: '≠' }, { t: ' ' }, { slot: '0' }],
+            // Yozuvdagi SO'ZLAR uch tilli: rus tilida ular o'zbekcha qolib
+            // ketardi (bag-report 2026-08-26, 5-bag).
+            [
+              { t: L('Har biriga:  ', 'Каждому:  ', 'Each one:  ') },
+              { frac: [[{ slot: '60000' }], [{ slot: 'n' }]] },
+            ],
+            [
+              { t: L('Shart:  n ', 'Условие:  n ', 'Condition:  n ') },
+              { slot: '≠' }, { t: ' ' }, { slot: '0' },
+            ],
           ],
           // Координаты в процентах от высоты поля. Поле стало ниже, чтобы
           // под ним поместился разбор, поэтому нижний ряд поднят: иначе
@@ -1625,7 +1633,7 @@ const S14 = {
           ),
           doneNote: L(
             "Yig'ildi. Odam soni nol bo'lmaydi, shuning uchun shart yozuv bilan yuradi.",
-            'Собрано. Людей не бывает ноль, поэтому условие идёт с записью.',
+            'Собрано. Число людей нулём не бывает, поэтому условие идёт с записью.',
             'Assembled. People are never zero, so the condition travels with the record.',
           ),
         },
