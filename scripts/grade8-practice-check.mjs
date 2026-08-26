@@ -23,6 +23,9 @@ const viewports = VIEWPORTS.filter((v) => !vpFilter || v.name === vpFilter);
 const langs = LANGS.filter((l) => !langFilter || l === langFilter);
 
 const fails = [];
+// Javobdan keyingi chiqish — NUQSON EMAS, eslatma: razbor ko'rinib turadi,
+// yuqoriga esa yig'ilgan shart ketadi. Ro'yxat oxirida sanab o'tiladi.
+const overs = [];
 const note = (m) => process.stdout.write(m + '\n');
 
 // Ishchi maydon — PracticeHost turgan skroll idishi. Kontent undan oshsa,
@@ -39,6 +42,45 @@ async function overflow(page) {
     });
     if (!box) return { missing: true };
     return { over: Math.max(0, box.scrollHeight - box.clientHeight) };
+  });
+}
+
+// RAZBOR KADRDA TO'LIQ TURIBDIMI. Razbor bloki (HFB) foni bilan tanaladi:
+// to'g'ri javobda okBg, xatoda noBg. Bir topshiriqda shu ranglar boshqa
+// joyda ham uchraydi (natija qatorlari), shuning uchun eng UZUN matnli
+// nomzod olinadi — razbor har doim eng uzun.
+async function razborSeen(page) {
+  return page.evaluate(() => {
+    const root = document.querySelector('.pq-fixroot');
+    if (!root) return { missing: true };
+    const box = [...root.querySelectorAll('*')].find((el) => {
+      const cs = getComputedStyle(el);
+      return cs.overflowY === 'auto' || cs.overflowY === 'scroll';
+    });
+    if (!box) return { missing: true };
+    // Razbor bloki o'z belgisi bilan turadi (kit.jsx -> HFB). Rang bilan
+    // izlash kerak emas: bir topshiriqda o'sha ranglar boshqa joyda ham bor.
+    const rz = box.querySelector('[data-razbor]');
+    if (!rz || (rz.textContent || '').trim().length < 25) return { missing: true };
+    const r = rz.getBoundingClientRect();
+    const b = box.getBoundingClientRect();
+    // Pastdagi tugma paneli STICKY: u kadrning pastini bosib turadi, ya'ni
+    // «quti ichida» degani hali «ko'rinadi» degani emas.
+    const bar = box.querySelector('[data-bar="1"]')
+      || [...box.querySelectorAll('*')].find((el) => getComputedStyle(el).position === 'sticky');
+    const floor = bar ? Math.min(b.bottom, bar.getBoundingClientRect().top) : b.bottom;
+    const room = floor - b.top;
+    const above = Math.max(0, b.top - r.top);
+    // IKKI BOSQICHLI TALAB.
+    //   Razbor kadrga sig'sa — to'liq ko'rinishi shart (bir piksel ham
+    //   panel ostida qolmasin).
+    //   Razbor kadrdan baland bo'lsa — uning BOSHI ko'rinishi shart: host
+    //   shunday suradi, o'quvchi matnni boshidan o'qib, pastga skroll
+    //   qilib davom etadi. Boshi kesilgan razbor — nuqson.
+    if (r.height <= room + 4) {
+      return { cut: Math.round(above + Math.max(0, r.bottom - floor)), h: Math.round(r.height), tall: false };
+    }
+    return { cut: Math.round(above), h: Math.round(r.height), room: Math.round(room), tall: true };
   });
 }
 
@@ -120,8 +162,21 @@ async function runTask(page, task, vp, lang) {
     fails.push(`${where}: TO'G'RI javob qabul qilinmadi`);
   }
 
+  // JAVOBDAN KEYIN TALAB BOSHQA. Ilgari bu yerda ham «0px chiqish» turardi
+  // va razborlar SHU o'lchov uchun qisqartirilardi: ya'ni kadr metodik
+  // matnni kesardi (metodist, 2026-08-25: «muammolarni hal qil»). Endi talab
+  // aniqroq va qattiqroq: RAZBOR TO'LIQ KO'RINSIN. Host natija chiqqanda
+  // pastga suradi (PracticeHost), shart esa telefonda bir qatorga yig'iladi
+  // va bir teginishda qaytadi — ya'ni yuqoriga ketadigan narsa o'quvchi
+  // allaqachon o'qigan matn, razbor esa hech qachon qidirilmaydi.
+  // JAVOBDAN OLDIN esa qat'iy nol bo'lib qoladi (yuqoridagi halqa).
+  await page.waitForTimeout(900);        // avtoskroll ikki qadamda: 0 va 700ms
+  const seen = await razborSeen(page);
+  if (seen.missing) { fails.push(`${where}: razbor bloki topilmadi`); return; }
+  if (seen.cut > 0) fails.push(`${where}: razborning boshi ${seen.cut}px kadrdan chiqib ketdi`);
+  if (seen.tall && !seen.cut) overs.push(`${where}: razbor uzun (${seen.h}px, kadr ${seen.room}px) — boshidan ko'rinadi`);
   const after = await overflow(page);
-  if (!after.missing && after.over > 0) fails.push(`${where}: razbor bilan ${after.over}px kadrdan chiqdi`);
+  if (!after.missing && after.over > 0) overs.push(`${where}: ${after.over}px`);
 }
 
 const browser = await chromium.launch();
@@ -153,5 +208,11 @@ if (fails.length) {
   note(`\nXATO ${fails.length} ta:`);
   fails.forEach((f) => note('  - ' + f));
   process.exit(1);
+}
+if (overs.length) {
+  note(`
+Eslatma: ${overs.length} joyda razbordan keyin kadr skrollanadi (razborning o'zi ko'rinadi, tepadagi yig'ilgan shart yuqoriga ketadi):`);
+  overs.slice(0, 12).forEach((o) => note('  · ' + o));
+  if (overs.length > 12) note(`  · ... yana ${overs.length - 12} ta`);
 }
 note('Hammasi joyida.');

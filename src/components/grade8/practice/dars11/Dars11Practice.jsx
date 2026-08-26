@@ -7,7 +7,7 @@
 //
 // 11-dars taqsimoti (kod / mexanika / qiyinlik / teg):
 //   01 C TrueFalse  🟢 compare_claims       06 D PairSlots  🟡 value_pairs
-//   02 E TypeValue  🟢 square_undo          07 G CodeLock   🔴 code_integer_part
+//   02 E TypeValue  🟢 square_undo          07 G CodeLock   🟡 code_integer_part
 //   03 A Choice     🟢 which_bigger         08 I SwapOrder  🔴 compare_steps
 //   04 J MatchPairs 🟡 record_to_condition  09 B Zones      🔴 always_or_sometimes
 //   05 F MarkAll    🟡 always_true_marked   10 H ClozeBank  🔴 rule_words

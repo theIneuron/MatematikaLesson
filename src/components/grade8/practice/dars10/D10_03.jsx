@@ -2,12 +2,15 @@
 // Faqat MA'LUMOT. Mexanika: `practice/kit.jsx` -> TrueFalse.
 // Skelet: DARS07_11_AMALIYOT_SKELET.md §8 (10-dars, 3-pozitsiya)
 //
-// Darsning uchinchi tasdig'i ikki mulohazada YUZMA-YUZ qo'yiladi:
-//   s1  TENGLAMA: x kvadrati qirq to'qqizga teng — ikki yechim, javob «Ha»;
-//   s2  ILDIZ BELGISI: qirq to'qqizdan ildiz plyus-minus yetti emas, javob
-//       «Yo'q» (З29).
-// Ikkisi bir mavzuga tegishli, lekin javoblari qarama-qarshi — aynan shu
-// farq darsning eng nozik joyi.
+// Darsning uchinchi tasdig'i ikki mulohazada YUZMA-YUZ qo'yiladi, va
+// IKKALA JAVOB HAM «HA» (metodist qarori 2026-08-25: ha-yo'q topshiriqlarida
+// javob naqshi bo'lmasin — DARS07_11_AMALIYOT_SKELET.md §10 p. 9):
+//   s1  TENGLAMA: x kvadrati qirq to'qqizga teng — ikki yechim, rost;
+//   s2  ILDIZ BELGISI: qirq to'qqizdan ildiz yettiga teng — bu ham rost.
+// Ikki rost mulohaza bir-biriga ZID ko'rinadi, va aynan shu joyda З29 tutiladi:
+// ildizni plyus-minus yetti deb o'ylagan o'quvchi ikkinchisiga «yo'q» bosadi.
+// Tenglamaning ikki javobi bilan ildiz belgisining bitta soni bir vaqtda
+// to'g'ri bo'lishi — darsning eng nozik joyi.
 // `import React` SHART: LMS xom jsx ni klassik rejimda yuklaydi.
 // eslint-disable-next-line no-unused-vars
 import React from 'react';
@@ -19,7 +22,7 @@ const DATA = {
   items: [
     { id: 's1', tokens: ['x² = 49'], yes: true,
       claim: L('ikki yechimi bor', 'имеет два решения', 'has two solutions') },
-    { id: 's2', tokens: [{ r: '49' }, '= ±7'], yes: false,
+    { id: 's2', tokens: [{ r: '49' }, '= 7'], yes: true,
       claim: L("tenglik to'g'ri", 'равенство верно', 'the equality is true') },
   ],
   yesLabel: L('Ha', 'Да', 'Yes'),

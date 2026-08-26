@@ -371,3 +371,72 @@ sessiyaga ham kerak. Ularga yozish oxirgi qadamda va faylni QAYTA O'QIB bajarila
 
 Tasdiqdan keyin 2-etap: kontent, sborka, reyestr, tekshiruv rejasi va QA — darsma-dars,
 15-darsdan.
+
+---
+
+## 12. BAJARILGANI — 2026-08-25
+
+**Skelet tasdiqlandi** (metodist), va o'sha kuni 2, 3 va 4-etap ham yopildi.
+
+| Etap | Natija |
+|---|---|
+| 2. Kontent | 60 topshiriq, uch tilda matn va har xato yo'lga alohida razbor |
+| 3. Sborka | 66 fayl: `practice/dars15` … `dars20` (har birida 10 ma'lumot + yig'uvchi) |
+| 3. Reyestr | `src/lessons/grade8.js` ning `grade8Amaliy` iga olti yozuv |
+| 4. Tekshiruv rejasi | `scripts/grade8-practice-plan.mjs`: `PLAN_15` … `PLAN_20` |
+
+Umumiy qatlamga hech narsa qo'shilmadi: `kit.jsx` ning o'nligi, `frac.jsx` ning kasr va
+`{ r: … }` tokenlari, `fig.jsx` ning `axis` speci o'sha holida ishlatildi (§9 p. 3
+bajarildi). `kit.jsx`, `PracticeHost.jsx`, `frac.jsx`, `fig.jsx` va nazariy `Dars15-20.jsx`
+fayllariga bir marta ham yozilmadi (§10 bajarildi).
+
+**O'lchovlar** (`http://localhost:5199`, 2026-08-25):
+
+| Tekshiruv | Natija |
+|---|---|
+| `grade8-practice-seq.mjs check` | 15-20 guruhi toza: MIN_DIFF 6 va boshlanishlar takrorlanmaydi |
+| `grade8-practice-check.mjs` (to'g'ri yo'l) | oltala dars — har biri 150 o'tish, 5 o'lcham × 3 til, skroll yo'q |
+| `grade8-practice-check.mjs` `G8_WRONG=1` | oltala dars — har biri 150 o'tish, ball berilmadi, razbor bo'sh emas |
+| `grade8-practice-panel.mjs` | 24 kombinatsiya (6 dars × `telefon`/`telefon-kichik` × ikki yo'l) — 0 joy panel ostida |
+| `grade8-practice-lang.mjs` | 558 fayl toza: UZ da kirill yo'q, apostroflar ASCII |
+| `eslint` (dars15-20) | xato yo'q |
+| `npm run build` | o'tadi |
+| Kadrlar (`grade8-practice-shot.mjs`, telefon) | 16/02 chizma, 15/06 va 17/09 pazl, 20/09 va 20/10 kasrlar — hammasi kadrda |
+
+**Uch tuzatish o'lchovdan keyin kiritildi.**
+
+1. **O'ttiz bir joyda razborning oxirgi satrlari panel ostida qolgan edi**
+   (`grade8-practice-panel.mjs`; eng chuqurisi 20/10 da RU tilida 119px, ya'ni yetti satr).
+   Razborlar uch tilda BIR VAQTDA qisqartirildi — bir tilni qisqartirib ikkinchisini
+   qoldirish mazmunni tillar bo'yicha ayirib qo'yadi. Sonli rad etish `wrongs` ning
+   shartlarida to'liq turadi.
+
+2. **Kasrli 8 kartali `Zones` — eng baland mexanika.** 20/10 da razborni 476 dan 175 belgiga
+   tushirish ham yetmadi: joy kartalarning o'zi bilan ketadi. `itemSize` 15 dan 13 ga,
+   `zoneSize` 14 dan 13 ga tushirildi — kadr toza bo'ldi, kasrlar o'qilishi saqlandi
+   (kadr: `.tmp/shots/dars20-10-ru-telefon-2.png`).
+
+3. **18/04 da o'lchov «qaysi razbor» degan savolni ochdi.** Panel 3px ko'rsatib turdi, va
+   qisqartirish natija bermadi: tekshiruv rejasi `wrongs[0]` ni (i5 chetlab o'tilgan holat)
+   chiqaradi, men esa `wrongs[1]` ni qisqartirgan edim. To'g'ri razborni topish uchun
+   panel ostidagi elementning MATNINI chiqaradigan bir martalik probe yozildi. Xulosa:
+   panel o'lchovi bilan ishlaganda avval `PLAN_NN` ning `no` yo'li qaysi `when` ga
+   tushishini aniqlash kerak, keyin qisqartirish.
+
+**Razbor uzunligi budjeti — 12-14 dagi o'lchovga qo'shimcha** (RU, telefon, panelgacha):
+
+| Mexanika | Chegara |
+|---|---|
+| `Zones` 8 karta, KASRLI kartalar | ≈ 180 belgi va `itemSize` 13 |
+| `Zones` 8 karta, bir satrli yozuv | ≈ 250 belgi |
+| `MarkAll` 6 karta | ≈ 250 belgi |
+| Qolganlari | 12-14 dagi budjet o'z holida |
+
+**Qarz qolgani.** `TIPLAR_AMALIYOT_8SINF.md` shapkasidagi «faqat 1-dars amaliyoti yig'ilgan»
+satri hali eskirgan holda turadi (hozir 1-20 yig'ilgan). Fayl parallel sessiyada ham
+tahrirlanadi, shuning uchun tegilmadi.
+
+**Parallel sessiya haqida yozib qo'yiladi.** Ish o'rtasida parallel sessiya 1-14 amaliyotini
+commit qildi va `origin/main` bilan merge qildi (`6bfa3d59`, `b18d317c`, `4c8ba855`).
+Mening 12-14 im o'sha commitga tushdi, 15-20 esa hali kuzatilmagan holda turadi.
+`src/lessons/grade8.js` va `scripts/grade8-practice-plan.mjs` dagi yozuvlarim saqlandi.

@@ -5,10 +5,12 @@
 // Ikki mulohaza — darsning ikki qimmat joyi:
 //   s1  З35: bir yettidan ning yozuvi cheksiz, lekin son RATSIONAL. Javob «Ha».
 //       Cheksizlikning o'zi hech narsani hal qilmaydi, davr borligi hal qiladi;
-//   s2  З34, oldingi darsdan: ikkidan ildiz qo'shuv ikkidan ildiz to'rtdan
-//       ildizga teng emas. Javob «Yo'q». Bu bir vaqtda ikki narsani tekshiradi —
-//       ildiz ostilari qo'shilmasligini va irratsional son ratsionalga
-//       aylanib qolmasligini.
+//   s2  IKKI IRRATSIONAL SONNING KO'PAYTMASI RATSIONAL bo'lishi mumkin:
+//       ikkidan ildiz karra ikkidan ildiz ikkiga teng, ikki esa ratsional.
+//       Javob «Ha». «Irratsional karra irratsional har doim irratsional»
+//       degan tez xulosa shu yerda yiqiladi.
+// IKKALA JAVOB HAM «HA» (metodist qarori 2026-08-25: ha-yo'q topshiriqlarida
+// javob naqshi bo'lmasin — DARS07_11_AMALIYOT_SKELET.md §10 p. 9).
 // `import React` SHART: LMS xom jsx ni klassik rejimda yuklaydi.
 // eslint-disable-next-line no-unused-vars
 import React from 'react';
@@ -21,9 +23,9 @@ const DATA = {
     { id: 's1', yes: true,
       tokens: [{ n: '1', d: '7' }],
       claim: L("yozuvi cheksiz, lekin son ratsional", 'запись бесконечна, но число рационально', 'the record is endless, yet the number is rational') },
-    { id: 's2', yes: false,
-      tokens: [{ r: '2' }, '+', { r: '2' }, '=', { r: '4' }],
-      claim: L("to'g'ri, demak yig'indi ratsional", 'верно, значит сумма рациональна', 'true, so the sum is rational') },
+    { id: 's2', yes: true,
+      tokens: [{ r: '2' }, '·', { r: '2' }, '=', '2'],
+      claim: L("to'g'ri, demak ko'paytma ratsional", 'верно, значит произведение рационально', 'true, so the product is rational') },
   ],
   yesLabel: L('Ha', 'Да', 'Yes'),
   noLabel: L("Yo'q", 'Нет', 'No'),
@@ -37,14 +39,14 @@ const DATA = {
     'Проверь каждое утверждение: верно — «Да», ложно — «Нет».',
     'Check each claim: true means «Yes», false means «No».'),
   correctText: L(
-    "To'g'ri. Bir yettidan ni bo'lsangiz nol butun bir to'rt ikki sakkiz besh yetti chiqadi va bu bo'lak takrorlanib ketadi — yozuv cheksiz, lekin son kasr ko'rinishida turgani uchun ratsional. Ikkinchisida esa ildiz ostilari qo'shilgan. Ikkidan ildiz qo'shuv ikkidan ildiz ikki karra ikkidan ildizni beradi, ya'ni taxminan ikki butun sakson uch. To'rtdan ildiz esa aniq ikki. Ikki butun sakson uch ikkiga teng emas, demak yig'indi ratsional ham bo'lmadi.",
-    'Верно. Раздели один на семь — выйдет нуль целых сто сорок две тысячи восемьсот пятьдесят семь и эта часть будет повторяться: запись бесконечна, но число записано дробью, значит рационально. А во втором сложили подкоренные. Корень из двух плюс корень из двух дают два корня из двух, то есть примерно два и восемьдесят три. А корень из четырёх ровно два. Два и восемьдесят три не равно двум, значит и рациональной сумма не стала.',
-    'Correct. Divide one by seven and you get zero point one four two eight five seven with that block repeating: the record is endless, yet the number is written as a fraction, so it is rational. In the second, the radicands were added. The root of two plus the root of two gives two roots of two, about two point eight three. The root of four is exactly two. Two point eight three is not two, so the sum did not become rational either.'),
+    "To'g'ri. Bir yettidan ni bo'lsangiz nol butun bir to'rt ikki sakkiz besh yetti chiqadi va bu bo'lak takrorlanib ketadi — yozuv cheksiz, lekin son kasr ko'rinishida turgani uchun ratsional. Ikkinchisi ham rost, lekin boshqa sababdan: ildizning ta'rifi bo'yicha ildizning kvadrati ildiz ostidagi songa teng, ya'ni ikkidan ildiz karra ikkidan ildiz aniq ikki. Ikki esa ratsional son. Demak ikki irratsional son ko'paytirilganda natija ratsional bo'lib qolishi mumkin — qo'shishda esa bunday bo'lmaydi: ikkidan ildiz qo'shuv ikkidan ildiz ikki karra ikkidan ildiz, u irratsional qoladi.",
+    'Верно. Раздели один на семь — выйдет нуль целых сто сорок две тысячи восемьсот пятьдесят семь и эта часть будет повторяться: запись бесконечна, но число записано дробью, значит рационально. Второе тоже верно, но по другой причине: по определению корня квадрат корня равен подкоренному, то есть корень из двух на корень из двух ровно два. А два число рациональное. Значит произведение двух иррациональных чисел может оказаться рациональным — а при сложении так не выйдет: корень из двух плюс корень из двух это два корня из двух, и оно остаётся иррациональным.',
+    'Correct. Divide one by seven and you get zero point one four two eight five seven with that block repeating: the record is endless, yet the number is written as a fraction, so it is rational. The second is true as well, but for a different reason: by the definition of a root, the square of a root equals the radicand, so the root of two times the root of two is exactly two. And two is rational. So a product of two irrational numbers can turn out rational — which does not happen with addition: the root of two plus the root of two is two roots of two and stays irrational.'),
   wrongs: [
     { when: (s) => s.bad.indexOf('s2') !== -1, text: L(
-      "Ikkinchi mulohazada ildiz ostilari qo'shildi. Ikki bir xil had qo'shilsa koeffitsiyent ikkilanadi, ildiz osti esa o'zgarmaydi: natija ikki karra ikkidan ildiz. Son bilan tekshiring: ikkidan ildiz bir butun qirq bir, ikkitasi ikki butun sakson ikki; to'rtdan ildiz esa ikki. Irratsional sonni ikkiga ko'paytirish uni ratsional qilmaydi.",
-      'Во втором утверждении сложили подкоренные. При сложении двух одинаковых слагаемых удваивается коэффициент, а подкоренное не меняется: выходит два корня из двух. Проверь числом: корень из двух один и сорок один, два таких два и восемьдесят два; а корень из четырёх два. Умножение иррационального числа на два рациональным его не делает.',
-      'In the second claim the radicands were added. When two identical terms add, the coefficient doubles and the radicand stays: the result is two roots of two. Check with numbers: the root of two is one point four one, twice that is two point eight two; the root of four is two. Doubling an irrational number does not make it rational.') },
+      "Ikkinchi mulohaza rost. Ildizning ta'rifi shuni beradi: ildizning kvadrati ildiz ostidagi songa teng, ya'ni ikkidan ildiz karra ikkidan ildiz aniq ikki — hisoblash ham kerak emas. Son bilan ko'ring: bir butun qirq bir karra bir butun qirq bir taxminan ikki. Ikki ratsional, demak ikki irratsional sonning ko'paytmasi ratsional bo'lib chiqdi.",
+      'Второе утверждение верно. Это даёт само определение корня: квадрат корня равен подкоренному, то есть корень из двух на корень из двух ровно два — и считать не нужно. Проверь числом: один и сорок один на один и сорок один примерно два. Два рационально, значит произведение двух иррациональных чисел оказалось рациональным.',
+      'The second claim is true. The definition of a root gives it: the square of a root equals the radicand, so the root of two times the root of two is exactly two — no computing needed. Check with numbers: one point four one times one point four one is about two. Two is rational, so the product of two irrational numbers turned out rational.') },
     { when: (s) => s.bad.indexOf('s1') !== -1, text: L(
       "Birinchi mulohaza rost. Bir yettidan ning onli yozuvi haqiqatan tugamaydi, lekin ratsionallik yozuvning uzunligi bilan o'lchanmaydi: son KASR ko'rinishida yozilgan bo'lsa, u ratsional. Bundan tashqari yozuvda takrorlanuvchi bo'lak bor — bir to'rt ikki sakkiz besh yetti aylanib turadi.",
       'Первое утверждение верно. Десятичная запись одной седьмой действительно не заканчивается, но рациональность длиной записи не измеряется: если число записано ДРОБЬЮ, оно рационально. К тому же в записи есть повторяющаяся часть — сто сорок две тысячи восемьсот пятьдесят семь идёт по кругу.',

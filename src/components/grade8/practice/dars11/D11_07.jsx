@@ -1,4 +1,4 @@
-// Dars11 · Amaliyot 07 — Kod · 🔴 · tag: code_integer_part
+// Dars11 · Amaliyot 07 — Kod · 🟡 · tag: code_integer_part
 // Faqat MA'LUMOT. Mexanika: `practice/kit.jsx` -> CodeLock.
 // Skelet: DARS07_11_AMALIYOT_SKELET.md §9 (11-dars, 7-pozitsiya)
 //
@@ -15,7 +15,7 @@ import React from 'react';
 import { CodeLock, L } from '../kit.jsx';
 
 const DATA = {
-  tag: 'code_integer_part', level: '🔴',
+  tag: 'code_integer_part', level: '🟡',
   expr: [{ r: '8' }, ',', { r: '27' }, ',', { r: '50' }], exprSize: 26,
   cards: ['2', '3', '4', '5', '7', '13'],
   answer: ['2', '5', '7'],
