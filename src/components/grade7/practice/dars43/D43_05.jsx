@@ -24,11 +24,11 @@ const DATA = {
     'Один вывод.',
     'One claim.'),
   parts: [
-    { k: 'term', id: 't1', v: 'asosdagi burchaklar teng' },
+    { k: 'term', id: 't1', v: L('asosdagi burchaklar teng', 'углы при основании равны', 'the base angles are equal') },
     { k: 'sign', v: ' ' },
-    { k: 'term', id: 't2', v: 'asos yon tomondan kichik' },
+    { k: 'term', id: 't2', v: L('asos yon tomondan kichik', 'основание меньше боковой', 'the base is smaller than the leg') },
     { k: 'sign', v: ' ' },
-    { k: 'term', id: 't3', v: 'yon tomonlar teng' },
+    { k: 'term', id: 't3', v: L('yon tomonlar teng', 'боковые стороны равны', 'the legs are equal') },
   ],
   want: ['t2'],
   correctText: L(

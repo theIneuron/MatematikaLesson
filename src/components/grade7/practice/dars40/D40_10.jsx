@@ -15,7 +15,7 @@ const DATA = {
     "Boshqa o'quvchining yechimi turibdi. Uchta qadamdan bittasi noto'g'ri: oxirida x ning qiymati kerakli yozuvga qo'yilmagan.",
     'Перед тобой решение другого ученика. Один из трёх шагов неверный: в конце значение x подставили не туда.',
     "Another pupil's solution is shown. One of the three steps is wrong: at the end x was put into the wrong expression."),
-  given: [['3x', 'va', '2x + 30']],
+  given: [['3x', L('va', 'и', 'and'), '2x + 30']],
   givenLabel: L(
     'Vertikal burchaklar:',
     'Вертикальные углы:',
@@ -33,7 +33,7 @@ const DATA = {
     { k: 'sign', v: ' ' },
     { k: 'term', id: 't2', v: 'x = 30' },
     { k: 'sign', v: ' ' },
-    { k: 'term', id: 't3', v: 'burchak = 60°' },
+    { k: 'term', id: 't3', v: L('burchak = 60°', 'угол = 60°', 'angle = 60°') },
   ],
   want: ['t3'],
   correctText: L(

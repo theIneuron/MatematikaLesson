@@ -1045,6 +1045,32 @@ export function Drill({ tasks, solutionLabel, nextLabel, doneNote, stepLabel, on
 
 
 // ============================================================
+// `FactNine` — необязательная карточка "Знаешь ли ты?" ПОСЛЕ решения.
+//
+// Опциональный проп `fact` у FillSolution/Takeaway ниже. Без него ничего
+// не меняется ни в одном другом уроке. Девятиточечная иконка — тот же вид,
+// что и в grade9/asboblar.jsx FactCard (там 9 класс просил именно её),
+// но grade8 не может импортировать из grade9, поэтому здесь свой маленький
+// дубль — компонент крошечный, это не инфраструктура, а один виджет.
+// ============================================================
+const FactNine = ({ badge, text }) => {
+  const t = useT()
+  return (
+    <div className="g8-fact9">
+      <div className="g8-fact9-anim" aria-hidden="true">
+        {Array.from({ length: 9 }).map((_, i) => (
+          <span key={i} style={{ animationDelay: (i * 0.14) + 's' }} />
+        ))}
+      </div>
+      <div className="g8-fact9-body">
+        <p className="g8-fact9-badge"><span className="g8-fact9-dot" />{t(badge)}</p>
+        <p className="g8-fact9-text">{t(text)}</p>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================
 // `FillSolution` — УЧЕНИК ЗАПОЛНЯЕТ ЗАПИСЬ ПО КЛЕТКАМ.
 //
 // Устройство из урока 3 пятого класса («разбор в столбик»): пустые клетки
@@ -1056,7 +1082,7 @@ export function Drill({ tasks, solutionLabel, nextLabel, doneNote, stepLabel, on
 // ============================================================
 export function FillSolution({
   tasks, demo, showLabel, againLabel, selfLabel, repeatLabel, doneNote, stepLabel, nextSay,
-  onSolved, audio,
+  fact, onSolved, audio,
 }) {
   const t = useT()
   const sfx = useSfx()
@@ -1181,6 +1207,7 @@ export function FillSolution({
         <>
           <Note kind="ok">{t(doneNote)}</Note>
           <button type="button" className="g8-fl-again" onClick={again}>{'↻  '}{t(repeatLabel)}</button>
+          {fact ? <FactNine badge={fact.badge} text={fact.text}/> : null}
         </>
       ) : (
         <div className="g8-fl-row">
@@ -1363,7 +1390,7 @@ export function CatchBuild({ lead, lines, tiles, hint, doneNote, onDone, audio }
 /* КОРОТКИЙ ВЫВОД (методист, 2026-08-17). Финал урока — не сводка с
    записями и шпаргалкой, а несколько строк, которые выходят одна за
    другой. Запись, ради которой был урок, стоит первой и рисуется. */
-export function Takeaway({ mark, markNote, lines, bridge, onSolved }) {
+export function Takeaway({ mark, markNote, lines, bridge, fact, onSolved }) {
   const t = useT()
   const [step, setStep] = useState(0)
   const total = lines.length + 2
@@ -1401,6 +1428,7 @@ export function Takeaway({ mark, markNote, lines, bridge, onSolved }) {
       {bridge ? (
         <div className={'g8-tk-bridge' + (step >= total ? ' is-in' : '')}>{t(bridge)}</div>
       ) : null}
+      {fact && step >= total ? <FactNine badge={fact.badge} text={fact.text}/> : null}
     </div>
   )
 }
@@ -2030,6 +2058,28 @@ export const FEED_STYLES = `
 .g8-tk-bridge { font-size: 18px; color: ${T.ink3}; text-align: center;
   opacity: 0; transition: opacity .6s; }
 .g8-tk-bridge.is-in { opacity: 1; }
+
+/* g8-fact9 — необязательная карточка "fact" у FillSolution/Takeaway.
+   T.graph намеренно, не отдельный синий: тогда grade9 recolor (свой
+   makeLesson{recolor}) перекрашивает её в тот же тон, что и остальную
+   "проверочную" палитру урока, а без recolor (любой другой класс) она
+   остаётся в обычном каменном тоне 8 класса. */
+.g8-fact9 { display: flex; gap: clamp(10px, 2vw, 16px); align-items: center;
+  background: ${T.graphSoft}; border-radius: 12px;
+  padding: clamp(9px, 1.6vw, 13px) clamp(11px, 1.8vw, 15px);
+  box-shadow: inset 0 0 0 1px rgba(${T.graphRgb},.26); flex-shrink: 0; }
+.g8-fact9-anim { flex-shrink: 0; width: clamp(46px, 7vw, 60px); height: clamp(46px, 7vw, 60px);
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(4px, .9vw, 6px); }
+.g8-fact9-anim span { width: 100%; aspect-ratio: 1; border-radius: 50%; background: ${T.graph};
+  animation: g8-fact9-pulse 2.2s ease-in-out infinite; }
+@keyframes g8-fact9-pulse { 0%, 100% { opacity: .2; transform: scale(.7); } 50% { opacity: 1; transform: scale(1); } }
+.g8-fact9-body { flex: 1; min-width: 0; }
+.g8-fact9-badge { display: flex; align-items: center; gap: 8px; margin: 0 0 4px;
+  font-family: 'JetBrains Mono', monospace; font-size: clamp(10px, 1.1vw, 11px);
+  font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: ${T.graph}; }
+.g8-fact9-dot { width: 7px; height: 7px; border-radius: 50%; background: ${T.graph}; flex-shrink: 0; }
+.g8-fact9-text { margin: 0; font-size: clamp(12px, 1.3vw, 14px); line-height: 1.4; color: ${T.ink}; }
+@media (prefers-reduced-motion: reduce) { .g8-fact9-anim span { animation: none; opacity: 1; transform: none; } }
 @media (max-width: 760px), (max-height: 720px) {
   .g8-tk-mark { font-size: 40px; }
   .g8-tk-list li { font-size: 18px; padding: 10px 14px; }

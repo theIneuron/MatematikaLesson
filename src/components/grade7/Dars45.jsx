@@ -55,9 +55,9 @@ const S1 = {
   cols: 2,
   probe: {
     question: L(
-      "Bitta kesuvchi ikki parallel chiziqni kesib o'tdi. Birinchi kesishishda burchak 45 daraja chiqdi. Ikkinchi kesishishda xuddi shu joydagi burchak nechcha daraja bo'ladi?",
-      'Одна секущая пересекла две параллельные прямые. На первом пересечении угол вышел 45 градусов. Сколько градусов будет угол на том же месте второго пересечения?',
-      'One transversal crossed two parallel lines. At the first crossing the angle came out 45 degrees. What will the angle in the same position at the second crossing be?',
+      "Bitta kesuvchi ikki parallel chiziqni kesib o'tdi. Birinchi kesishishda burchak 45° chiqdi. Ikkinchi kesishishda xuddi shu joydagi burchak nechcha daraja bo'ladi?",
+      'Одна секущая пересекла две параллельные прямые. На первом пересечении угол вышел 45°. Сколько градусов будет угол на том же месте второго пересечения?',
+      'One transversal crossed two parallel lines. At the first crossing the angle came out 45°. What will the angle in the same position at the second crossing be?',
     ),
     items: [
       {
@@ -170,9 +170,9 @@ const S2 = {
       wrap: true,
       question: null,
       prompt: L(
-        "Bir burchak 45 daraja. Uning qo'shnisi?",
-        'Один угол 45 градусов. Его смежный?',
-        'One angle is 45 degrees. Its adjacent one?',
+        "Bir burchak 45°. Uning qo'shnisi?",
+        'Один угол 45°. Его смежный?',
+        'One angle is 45°. Its adjacent one?',
       ),
       ok: L("Bir yuz sakson dan qirq besh ayirilsa bir yuz o'ttiz besh.", 'Сто восемьдесят минус сорок пять это сто тридцать пять.', 'One hundred eighty minus forty five is one hundred thirty five.'),
       items: [
@@ -290,9 +290,9 @@ const S5 = {
   eyebrow: L("IKKINCHI KO'RINISH", 'ВТОРОЙ ВИД ЗАПИСИ', 'A SECOND WAY TO WRITE IT'),
   title: L('Chizmasiz', 'Без чертежа', 'Without a drawing'),
   given: L(
-    "Kesuvchi ikki parallel chiziqni kesdi. Bir tomonli burchaklardan biri 110 daraja. Ikkinchisi nechcha daraja?",
-    'Секущая пересекла две параллельные прямые. Один из односторонних углов 110 градусов. Сколько градусов второй?',
-    'A transversal crossed two parallel lines. One co-interior angle is 110 degrees. How big is the other?',
+    "Kesuvchi ikki parallel chiziqni kesdi. Bir tomonli burchaklardan biri 110°. Ikkinchisi nechcha daraja?",
+    'Секущая пересекла две параллельные прямые. Один из односторонних углов 110°. Сколько градусов второй?',
+    'A transversal crossed two parallel lines. One co-interior angle is 110°. How big is the other?',
   ),
   template: ['180° − 110° = ', { slot: 0 }],
   parts: [
@@ -486,9 +486,9 @@ const S9 = {
       wrap: true,
       question: null,
       prompt: L(
-        "Mos burchaklardan biri 65 daraja. Ikkinchisi?",
-        'Один из соответственных углов 65 градусов. Второй?',
-        'One corresponding angle is 65 degrees. The other?',
+        "Mos burchaklardan biri 65°. Ikkinchisi?",
+        'Один из соответственных углов 65°. Второй?',
+        'One corresponding angle is 65°. The other?',
       ),
       ok: L("Ham 65: mos burchaklar teng.", 'Тоже 65: соответственные равны.', '65 too: corresponding angles are equal.'),
       items: [
@@ -502,9 +502,9 @@ const S9 = {
       wrap: true,
       question: null,
       prompt: L(
-        "Bir tomonli burchaklardan biri 120 daraja. Ikkinchisi?",
-        'Один из односторонних углов 120 градусов. Второй?',
-        'One co-interior angle is 120 degrees. The other?',
+        "Bir tomonli burchaklardan biri 120°. Ikkinchisi?",
+        'Один из односторонних углов 120°. Второй?',
+        'One co-interior angle is 120°. The other?',
       ),
       ok: L("Oltmish: yig'indisi bir yuz sakson.", 'Шестьдесят: их сумма сто восемьдесят.', 'Sixty: they sum to one hundred eighty.'),
       items: [
@@ -565,9 +565,9 @@ const S10 = {
   step1Cap: L('1-QADAM', 'ШАГ 1', 'STEP 1'),
   step2Cap: L('2-QADAM', 'ШАГ 2', 'STEP 2'),
   given: L(
-    "Kesuvchi ikki parallel chiziqni kesdi va bir burchak 72 daraja chiqdi. Unga MOS burchakni va u bilan BIR TOMONLI burchakni yozing.",
-    'Секущая пересекла две параллельные прямые, и один угол вышел 72 градуса. Запиши СООТВЕТСТВЕННЫЙ ему угол и ОДНОСТОРОННИЙ с ним.',
-    'A transversal crossed two parallel lines and one angle came out 72 degrees. Write the CORRESPONDING angle and the CO-INTERIOR one.',
+    "Kesuvchi ikki parallel chiziqni kesdi va bir burchak 72° chiqdi. Unga MOS burchakni va u bilan BIR TOMONLI burchakni yozing.",
+    'Секущая пересекла две параллельные прямые, и один угол вышел 72°. Запиши СООТВЕТСТВЕННЫЙ ему угол и ОДНОСТОРОННИЙ с ним.',
+    'A transversal crossed two parallel lines and one angle came out 72°. Write the CORRESPONDING angle and the CO-INTERIOR one.',
   ),
   template: ['72°  →  ', { slot: 0 }, ',   180° − 72° = ', { slot: 1 }],
   parts: [
@@ -615,9 +615,9 @@ const S11 = {
   eyebrow: L("FAQAT O'ZINGIZ", 'ТОЛЬКО САМ', 'ON YOUR OWN ONLY'),
   title: L('Almashinuvchi burchak', 'Накрест лежащий угол', 'The alternate angle'),
   given: L(
-    "Kesuvchi ikki parallel chiziqni kesdi. Almashinuvchi burchaklardan biri 38 daraja. Ikkinchisi nechcha daraja?",
-    'Секущая пересекла две параллельные прямые. Один из накрест лежащих углов 38 градусов. Сколько градусов второй?',
-    'A transversal crossed two parallel lines. One alternate angle is 38 degrees. How big is the other?',
+    "Kesuvchi ikki parallel chiziqni kesdi. Almashinuvchi burchaklardan biri 38°. Ikkinchisi nechcha daraja?",
+    'Секущая пересекла две параллельные прямые. Один из накрест лежащих углов 38°. Сколько градусов второй?',
+    'A transversal crossed two parallel lines. One alternate angle is 38°. How big is the other?',
   ),
   template: ['38°  =  ', { slot: 0 }],
   parts: [
@@ -774,9 +774,9 @@ const S14 = {
       wrap: true,
       question: null,
       prompt: L(
-        "Mos burchaklardan biri 50 daraja. Ikkinchisi?",
-        'Один из соответственных углов 50 градусов. Второй?',
-        'One corresponding angle is 50 degrees. The other?',
+        "Mos burchaklardan biri 50°. Ikkinchisi?",
+        'Один из соответственных углов 50°. Второй?',
+        'One corresponding angle is 50°. The other?',
       ),
       ok: L("Ham 50 daraja.", 'Тоже 50 градусов.', '50 degrees too.'),
       items: [

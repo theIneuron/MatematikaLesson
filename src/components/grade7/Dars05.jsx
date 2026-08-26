@@ -42,6 +42,7 @@ import {
   useAdvanceGate,
   useAudio,
   useInstructionGate,
+  qMeta,
   useMobileZoom,
   useT,
 } from './core.jsx'
@@ -313,15 +314,16 @@ function Screen2({ screen, onAnswer, ...rest }) {
   const audio = useAudio(segments)
   const canAnswer = useInstructionGate(audio)
   const [done, setDone] = useState(false)
+  const [at, setAt] = useState(0)
   return (
-    <Frame meta={S2} screen={screen} audio={audio} solved={done} {...rest}>
+    <Frame meta={qMeta(S2, at)} screen={screen} audio={audio} solved={done} {...rest}>
       <ProbeChain
         audio={audio}
         items={S2.items}
         question={S2.question}
         cols={2}
         disabled={!canAnswer}
-        onStep={(i) => audio.step(String(i))}
+        onStep={(i) => { setAt(i); audio.step(String(i)) }}
         onSolved={(r) => { setDone(true); onAnswer({ ...r, screen, role: 'support' }) }}
       />
     </Frame>
@@ -1214,17 +1216,18 @@ function Screen14({ screen, onAnswer, ...rest }) {
   const audio = useAudio(segments)
   const canAnswer = useInstructionGate(audio)
   const [done, setDone] = useState(false)
+  const [at, setAt] = useState(0)
   const resRef = useRef([])
   const total = S14.items.length
   return (
-    <Frame meta={S14} screen={screen} audio={audio} solved={done} {...rest}>
+    <Frame meta={qMeta(S14, at)} screen={screen} audio={audio} solved={done} {...rest}>
       <ProbeChain
         audio={audio}
         items={S14.items}
         question={S14.question}
         cols={2}
         disabled={!canAnswer}
-        onStep={(i) => audio.step(String(i))}
+        onStep={(i) => { setAt(i); audio.step(String(i)) }}
         onItem={(r) => { resRef.current = resRef.current.concat(r) }}
         onSolved={(r) => {
           const list = resRef.current

@@ -36,6 +36,7 @@ import {
   tr,
   useAudio,
   useInstructionGate,
+  qMeta,
   useT,
 } from './core.jsx'
 import {
@@ -221,15 +222,16 @@ function Screen2({ screen, onAnswer, ...rest }) {
   const audio = useAudio(segments)
   const canAnswer = useInstructionGate(audio)
   const [done, setDone] = useState(false)
+  const [at, setAt] = useState(0)
   return (
-    <LessonFrame meta={S2} screen={screen} audio={audio} solved={done} {...rest}>
+    <LessonFrame meta={qMeta(S2, at)} screen={screen} audio={audio} solved={done} {...rest}>
       <ProbeChain
         audio={audio}
         items={S2.items}
         question={S2.question}
         cols={4}
         disabled={!canAnswer}
-        onStep={(i) => audio.step(String(i))}
+        onStep={(i) => { setAt(i); audio.step(String(i)) }}
         onSolved={(r) => { setDone(true); onAnswer({ ...r, screen, role: 'support' }) }}
       />
     </LessonFrame>
@@ -708,15 +710,16 @@ function Screen9({ screen, onAnswer, ...rest }) {
   const audio = useAudio(segments)
   const canAnswer = useInstructionGate(audio)
   const [done, setDone] = useState(false)
+  const [at, setAt] = useState(0)
   return (
-    <LessonFrame meta={S9} screen={screen} audio={audio} solved={done} {...rest}>
+    <LessonFrame meta={qMeta(S9, at)} screen={screen} audio={audio} solved={done} {...rest}>
       <ProbeChain
         audio={audio}
         items={S9.items}
         question={S9.question}
         cols={4}
         disabled={!canAnswer}
-        onStep={(i) => audio.step(String(i))}
+        onStep={(i) => { setAt(i); audio.step(String(i)) }}
         onSolved={(r) => { setDone(true); onAnswer({ ...r, screen, role: 'practice' }) }}
       />
     </LessonFrame>
@@ -1114,16 +1117,17 @@ function Screen14({ screen, onAnswer, ...rest }) {
   const audio = useAudio(segments)
   const canAnswer = useInstructionGate(audio)
   const [done, setDone] = useState(false)
+  const [at, setAt] = useState(0)
   const resRef = useRef([])
   const total = S14.items.length
   return (
-    <LessonFrame meta={S14} screen={screen} audio={audio} solved={done} {...rest}>
+    <LessonFrame meta={qMeta(S14, at)} screen={screen} audio={audio} solved={done} {...rest}>
       <ProbeChain
         audio={audio}
         items={S14.items}
         cols={2}
         disabled={!canAnswer}
-        onStep={(i) => audio.step(String(i))}
+        onStep={(i) => { setAt(i); audio.step(String(i)) }}
         onItem={(r) => { resRef.current = resRef.current.concat(r) }}
         onSolved={(r) => {
           const list = resRef.current

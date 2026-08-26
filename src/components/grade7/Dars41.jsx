@@ -57,9 +57,9 @@ const S1 = {
   cols: 2,
   probe: {
     question: L(
-      "Uchburchakning burchaklari 90, 45 va 45 daraja. Unga nechta nom to'g'ri keladi: bittasi yoki ikkitasi?",
-      'Углы треугольника 90, 45 и 45 градусов. Сколько названий ему подходит: одно или два?',
-      'A triangle has angles of 90, 45 and 45 degrees. How many names fit it: one or two?',
+      "Uchburchakning burchaklari 90°, 45° va 45°. Unga nechta nom to'g'ri keladi: bittasi yoki ikkitasi?",
+      'Углы треугольника 90°, 45° и 45°. Сколько названий ему подходит: одно или два?',
+      'A triangle has angles of 90°, 45° and 45°. How many names fit it: one or two?',
     ),
     items: [
       {
@@ -156,9 +156,9 @@ const S2 = {
       wrap: true,
       question: null,
       prompt: L(
-        "Burchaklari 60, 60 va 60 daraja. Bu qanday uchburchak?",
-        'Углы 60, 60 и 60 градусов. Какой это треугольник?',
-        'The angles are 60, 60 and 60 degrees. What triangle is it?',
+        "Burchaklari 60°, 60° va 60°. Bu qanday uchburchak?",
+        'Углы 60°, 60° и 60°. Какой это треугольник?',
+        'The angles are 60°, 60° and 60°. What triangle is it?',
       ),
       ok: L("Hamma burchagi teng, demak hamma tomoni ham teng: teng tomonli.", 'Все углы равны, значит и все стороны равны: равносторонний.', 'All angles are equal, so all sides are equal: equilateral.'),
       items: [
@@ -191,9 +191,9 @@ const S2 = {
       wrap: true,
       question: null,
       prompt: L(
-        "Uchburchakda 100 darajali burchak bor. Burchaklar bo'yicha bu qanday uchburchak?",
-        'В треугольнике есть угол 100 градусов. Какой это треугольник по углам?',
-        'A triangle has a 100 degree angle. What kind is it by angles?',
+        "Uchburchakda 100° burchak bor. Burchaklar bo'yicha bu qanday uchburchak?",
+        'В треугольнике есть угол 100°. Какой это треугольник по углам?',
+        'A triangle has a 100° angle. What kind is it by angles?',
       ),
       ok: L("Yuz daraja to'g'ri burchakdan katta: o'tmas burchakli.", 'Сто градусов больше прямого: тупоугольный.', 'One hundred degrees is more than a right angle: obtuse.'),
       items: [
@@ -587,9 +587,9 @@ const S10 = {
   step1Cap: L('1-QADAM', 'ШАГ 1', 'STEP 1'),
   step2Cap: L('2-QADAM', 'ШАГ 2', 'STEP 2'),
   given: L(
-    "Uchburchakning tomonlari 5, 5 va 8, burchaklaridan bittasi 100 daraja. Ikki nomini yozing.",
-    'Стороны треугольника 5, 5 и 8, а один из углов 100 градусов. Запиши оба названия.',
-    'A triangle has sides 5, 5 and 8, and one of its angles is 100 degrees. Write both names.',
+    "Uchburchakning tomonlari 5, 5 va 8, burchaklaridan bittasi 100°. Ikki nomini yozing.",
+    'Стороны треугольника 5, 5 и 8, а один из углов 100°. Запиши оба названия.',
+    'A triangle has sides 5, 5 and 8, and one of its angles is 100°. Write both names.',
   ),
   template: ['5 = 5  →  ', { slot: 0 }, ',   100° > 90°  →  ', { slot: 1 }],
   parts: [
@@ -637,9 +637,9 @@ const S11 = {
   eyebrow: L("FAQAT O'ZINGIZ", 'ТОЛЬКО САМ', 'ON YOUR OWN ONLY'),
   title: L('Teng burchaklardan tomonga', 'От равных углов к стороне', 'From equal angles to the side'),
   given: L(
-    "Uchburchakning burchaklari 70, 70 va 40 daraja. Tomonlar bo'yicha turi qanday?",
-    'Углы треугольника 70, 70 и 40 градусов. Какой вид по сторонам?',
-    'A triangle has angles of 70, 70 and 40 degrees. What kind is it by sides?',
+    "Uchburchakning burchaklari 70°, 70° va 40°. Tomonlar bo'yicha turi qanday?",
+    'Углы треугольника 70°, 70° и 40°. Какой вид по сторонам?',
+    'A triangle has angles of 70°, 70° and 40°. What kind is it by sides?',
   ),
   template: ['70° = 70°  →  ', { slot: 0 }],
   parts: [
@@ -739,9 +739,9 @@ const S13 = {
   eyebrow: L("KO'CHIRISH", 'ПЕРЕНОС', 'TRANSFER'),
   title: L('Uy tomi', 'Крыша дома', 'A house roof'),
   given: L(
-    "Tomning ikki yon yog'ochi bir xil uzunlikda kesilgan. Bir tomondagi burchak 35 daraja. Ikkinchi tomondagi burchak nechcha daraja?",
-    'Две боковые балки крыши отрезаны одной длины. Угол с одной стороны 35 градусов. Сколько градусов угол с другой стороны?',
-    'The two roof beams are cut to the same length. The angle on one side is 35 degrees. What is the angle on the other side?',
+    "Tomning ikki yon yog'ochi bir xil uzunlikda kesilgan. Bir tomondagi burchak 35°. Ikkinchi tomondagi burchak nechcha daraja?",
+    'Две боковые балки крыши отрезаны одной длины. Угол с одной стороны 35°. Сколько градусов угол с другой стороны?',
+    'The two roof beams are cut to the same length. The angle on one side is 35°. What is the angle on the other side?',
   ),
   template: ['∠1 = 35°,   ∠2 = ', { slot: 0 }],
   parts: [

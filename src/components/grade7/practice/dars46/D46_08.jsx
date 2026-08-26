@@ -24,11 +24,11 @@ const DATA = {
     'Один вывод.',
     'One claim.'),
   parts: [
-    { k: 'term', id: 't1', v: '3, 4, 6 -- bor' },
+    { k: 'term', id: 't1', v: L('3, 4, 6 -- bor', '3, 4, 6 — есть', '3, 4, 6 — yes') },
     { k: 'sign', v: ' ' },
-    { k: 'term', id: 't2', v: '2, 3, 5 -- bor' },
+    { k: 'term', id: 't2', v: L('2, 3, 5 -- bor', '2, 3, 5 — есть', '2, 3, 5 — yes') },
     { k: 'sign', v: ' ' },
-    { k: 'term', id: 't3', v: "1, 2, 9 -- yo'q" },
+    { k: 'term', id: 't3', v: L("1, 2, 9 -- yo'q", '1, 2, 9 — нет', '1, 2, 9 — no') },
   ],
   want: ['t2'],
   correctText: L(

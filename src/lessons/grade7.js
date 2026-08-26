@@ -42,7 +42,7 @@ export const grade7Nazariy = [
     // BERADIGAN narsaga qurilgan -- amallarning xossalari va soddalashtirish;
     // atama esa faqat NOM.
     slug: 'dars04-ayniyat',
-    title: 'Dars 4. Ayniyat va ayniy ozgartirishlar',
+    title: "Dars 4. Ayniyat va qiymatni saqlaydigan o'zgartirishlar",
     desc: "Bitta son isbot emas: u faqat rad etadi. Isbot esa xossa bilan qayta yozish. 15 slayd, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade7/Dars04.jsx')),
   },
@@ -771,7 +771,7 @@ export const grade7Amaliy = [
   },
   {
     slug: 'dars04-amaliyot-ayniyat',
-    title: "Dars 4. Amaliyot: ayniy ozgartirishlar",
+    title: "Dars 4. Amaliyot: qiymatni saqlaydigan o'zgartirishlar",
     desc: "10 topshiriq: bitta son isbot emas, xossa bilan qayta yozish, ayniylikni tekshirish. Mexanikalar raskladkadan, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade7/practice/dars04/Dars04Practice.jsx')),
   },

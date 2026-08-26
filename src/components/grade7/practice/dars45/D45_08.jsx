@@ -11,7 +11,7 @@ const DATA = {
     "Bir burchak 70°, ikkinchisi x -- ular mos burchaklar. Chiziqlar parallel bo'lishi uchun ular teng bo'lishi kerak.",
     'Один угол 70°, второй x — они соответственные. Чтобы прямые были параллельны, они должны быть равны.',
     'One angle is 70° and the other x — they correspond. For the lines to be parallel they must be equal.'),
-  given: [['70°', 'va', 'x', '--', 'mos']],
+  given: [['70°', L('va', 'и', 'and'), 'x', '--', L('mos', 'соответственный', 'matching')]],
   givenLabel: L('Berilgan:', 'Дано:', 'Given:'),
   cards: [
     { id: 'a', label: 'x' },

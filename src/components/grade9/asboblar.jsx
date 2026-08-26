@@ -163,6 +163,34 @@ const Plane = ({ sc, xLabel, yLabel, children }) => {
 }
 
 // ============================================================
+// 0. FACTCARD — «BILASIZMI?» KARTOCHKASI.
+//
+// 5-sinfda har bir dars faylida qayta yozilgan edi (infra ko'chirish
+// taqiqlangan qoida), shuning uchun bu yerda BIR MARTA. Ekran ULARDAN
+// TUGAGANDAN KEYIN chiqadi (o'quvchi allaqachon yechgan), savol yoki
+// razbor paytida EMAS — 615px balandlikda joy shunga yetmaydi.
+//
+// Ovozga o'qilmaydi: bu qo'shimcha qiziqarli fakt, darsning asosiy
+// yo'lida emas.
+// ============================================================
+export function FactCard({ badge, text }) {
+  const t = useT()
+  return (
+    <div className="g9-fact">
+      <div className="g9-fact-anim" aria-hidden="true">
+        {Array.from({ length: 9 }).map((_, i) => (
+          <span key={i} style={{ animationDelay: (i * 0.14) + 's' }} />
+        ))}
+      </div>
+      <div className="g9-fact-body">
+        <p className="g9-fact-badge"><span className="g9-fact-dot" />{t(badge)}</p>
+        <p className="g9-fact-text">{t(text)}</p>
+      </div>
+    </div>
+  )
+}
+
+// ============================================================
 // 1. MACHINE — QIYMATLAR MASHINASI.
 //
 // O'quvchi son-kartochkani oladi va mashinaga soladi. Son voronkaga tushadi,
@@ -693,7 +721,10 @@ export function TimeScrubber({
       ) : null}
 
       <Slot mh={52}>
-        {note ? <Note kind={jammed ? 'no' : 'ok'}>{t(note)}</Note> : null}
+        {/* metodist, 2026-08-26: chegaradan tashqari — bu xato javob emas,
+            aniqlanish sohasi haqida ma'lumot, shuning uchun "no" (qizil)
+            emas, "info" (ko'k) — xuddi ODZ qatlami rangi. */}
+        {note ? <Note kind={jammed ? 'info' : 'ok'}>{t(note)}</Note> : null}
       </Slot>
     </>
   )
@@ -1315,7 +1346,7 @@ export function RuleBuild({ steps, card, after, onSolved, onStep, audio }) {
 // aylanadi. Tayyor variantlardan tanlash yo'q.
 // ============================================================
 export function Gate({
-  formula, f, queue, ask, answer, after, calcOf, warmup, chart, onSolved, audio, onStep,
+  formula, f, queue, ask, answer, after, calcOf, warmup, chart, fact, onSolved, audio, onStep,
 }) {
   const t = useT()
   const sfx = useSfx()
@@ -1517,6 +1548,7 @@ export function Gate({
               </Plane>
             </div>
           ) : null}
+          {done && fact ? <FactCard badge={fact.badge} text={fact.text}/> : null}
         </>
       ) : null}
     </>
@@ -1687,6 +1719,54 @@ export function Sweep({
 // bo'lsa — hatto izohda ham — satr uziladi va brauzer oq sahifa ko'rsatadi.
 // ============================================================
 export const G9_STYLES = `
+/* FON: metodist 8-9-sinf tetrad-to'rini rad etdi, 5-sinf 11-darsidagi
+   silliq, bir xil fonni tanladi (2026-08-26). Umumiy .lesson-root fonini
+   (to'r + ikki dog') to'liq almashtiradi — faqat shu darsda, chunki
+   .g9-* qatlami faqat shu ekranga qo'shiladi. */
+.lesson-root { background: #F6F4EF; }
+
+/* g8-note-info — YANGI TUR (metodist, 2026-08-26): 3-ekranda «vaqt
+   sirg'ituvchisi» chegaradan chiqsa, bu xato javob emas, aniqlanish
+   sohasi haqida ma'lumot — Note komponentida shunday tur yo'q edi,
+   ok/no ikkisi ham noto'g'ri ma'no berardi (yashil/qizil). Ko'k —
+   tekshiruv qatlami rangi bilan bir xil (recolor, T.graph -> ko'k). */
+.g8-note-info { background: #DFF3F9; box-shadow: inset 0 0 0 1px rgba(1,154,203,.26); }
+.g8-note-info { border-left-color: #019ACB; color: #019ACB; box-shadow: none; }
+
+/* GOTCHA topildi (metodist QA emas, o'z tekshiruvim, 2026-08-26):
+   feed.jsx da .g8-tk-list li ikkita media so'rovda ikki xil font-size
+   oladi — @media (max-height:720px) 18px qo'yadi, undan KEYIN keladigan
+   @media (max-height:820px) buni 20px bilan qayta yozadi (ikkalasi ham
+   615px balandlikda ishlaydi, oxirgisi g'olib chiqadi). Natijada 15-ekran
+   ruscha matnda ikki qatorga o'raladi va "Keyingi dars..." pastga
+   chiqib, ko'rinmay qoladi. Umumiy faylni tuzatish boshqa darslarga
+   tegishi mumkin, shuning uchun faqat shu darsda 18px qaytariladi. */
+@media (max-width: 760px), (max-height: 820px) {
+  .g8-tk-list li { font-size: 18px; padding: 10px 14px; }
+}
+
+/* g9-fact — "Bilasizmi?" kartochkasi (metodist, 2026-08-26). Manba:
+   5-sinf Dars01.jsx (u yerda har dars faylida qayta yozilgan), shu yerda
+   BIR MARTA. 9 nuqta o'rniga rangi xuddi o'sha ko'k (info qatlami bilan
+   bir xil) — faqat shu darsda ishlatiladi (S9, S13, S15). */
+.g9-fact { display: flex; gap: clamp(12px, 2.2vw, 18px); align-items: center;
+  background: #EAF6FB; border-left: 4px solid #019ACB; border-radius: 12px;
+  padding: clamp(10px, 1.8vw, 14px) clamp(12px, 2vw, 16px);
+  box-shadow: 0 6px 16px -6px rgba(1,154,203,.22); flex-shrink: 0; }
+.g9-fact-anim { flex-shrink: 0; width: clamp(52px, 8vw, 68px); height: clamp(52px, 8vw, 68px);
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(4px, 1vw, 7px); }
+.g9-fact-anim span { width: 100%; aspect-ratio: 1; border-radius: 50%; background: #019ACB;
+  box-shadow: 0 0 6px rgba(1,154,203,.6); animation: g9-fact-pulse 2.2s ease-in-out infinite; }
+@keyframes g9-fact-pulse { 0%, 100% { opacity: .2; transform: scale(.7); } 50% { opacity: 1; transform: scale(1); } }
+.g9-fact-body { flex: 1; min-width: 0; }
+.g9-fact-badge { display: flex; align-items: center; gap: 8px; margin: 0 0 4px;
+  font-family: 'JetBrains Mono', monospace; font-size: clamp(10px, 1.1vw, 11px);
+  font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: #019ACB; }
+.g9-fact-dot { width: 7px; height: 7px; border-radius: 50%; background: #019ACB;
+  box-shadow: 0 0 8px rgba(1,154,203,.55); flex-shrink: 0; }
+.g9-fact-text { margin: 0; font-size: clamp(12.5px, 1.35vw, 14.5px); line-height: 1.4; color: #0E0E10; }
+@media (prefers-reduced-motion: reduce) { .g9-fact-anim span { animation: none; opacity: 1; transform: none; } }
+
 /* SAVOL KATTAROQ: metodist «savol vizual ko'rinmayapti» dedi. .g8-ask
    umumiy qatlamda, hamma sinf/dars uchun bitta — shu yerda o'zgartirib
    bo'lmaydi, chunki 40dan ortiq boshqa xuk shu o'lchamga sozlangan.
@@ -1704,57 +1784,20 @@ export const G9_STYLES = `
   display: flex; align-items: center; justify-content: center; text-align: center;
 }
 
-/* SAHNA TORAYADI (1-ekran, metodist QA 2026-08-25): jadval o'z qatorini
-   kesib qo'ymasin deb endi siqilmaydi, shuning uchun taqchillikda faqat
-   sahna qisqarishi kerak — lekin sahna o'zining tabiiy balandligida
-   qotib qolgan edi (kenglik 100%, aspekt nisbat balandlikni belgilardi).
-   Kenglik cheklansa, aspekt nisbat balandlikni ham kichraytiradi. */
-.g9-scene-compact { max-width: 640px; }
-.g9-scene-compact svg { width: auto; max-width: 100%; height: auto; max-height: 122px; }
-
-/* ---------- JARAYON KO'ZGA KO'RINADI ----------
-   Metodist 2026-08-21: «предложи другую структура это не понятно». Sababi
-   chuqurroq edi: jarayon ekranda YO'Q, u faqat matn qatorlari bilan berilgan.
-   Vaqtlar hikoyaga bog'langan: 11 birlikli jarayon 5,6 sekundda o'ynaydi,
-   0 dan 3 gacha ko'tarilish (27 foiz), 3 dan 5 gacha turish (45 foizga
-   qadar), keyin tushish. Plashkalar aynan ko'rsatkich belgilangan
-   chegaradan o'tgan paytda chiqadi.
-
-   2026-08-22, uchinchi urinish: metodist ikki avvalgi variantni ham
-   («shaxta», «choynak») rad etdi — «umuman hech narsaga o'xshamaydi».
-   So'radi: haqiqiy odam yuguradi, o'lchagich EMAS aqlli soat, va hammasi
-   JONLI ko'rinishi kerak. Sahna NOLDAN chizildi.
-
-   Yugurchi trekda g9-runner-ride bilan chapdan o'ngga suradi (translateX,
-   VAQT). Oyoq-qo'l g9-swing-a/-b bilan tez tsiklda tebranadi: BIR XIL
-   kadr, ikkinchisi animation-direction: reverse bilan — shu bitta amal
-   ikki oyoqni qarama-qarshi fazaga qo'yadi. Yurakcha g9-heartbeat bilan
-   taqillaydi. pulse qancha yuqori bo'lsa, tsikl SHUNCHA TEZ (JS'dan
-   animationDuration inline beriladi) — TEZLIK o'zi qiymatni ko'rsatadi,
-   son yoki ustun emas.
-
-   Yurakcha uchun transform-box: fill-box + FOIZLI origin (svg-transform-
-   box-fillbox-gotcha) — u belgi ichida simmetrik, markazga aylanish
-   to'g'ri chiqadi. Oyoq-qo'l uchun esa origin PIKSEL: standart view-box
-   qutisi bilan, chunki tos/yelka nuqtasi aniq koordinata. */
-.g9-swing-a { animation: g9-swing 560ms ease-in-out infinite; }
-.g9-swing-b { animation: g9-swing 560ms ease-in-out infinite reverse; }
-@keyframes g9-swing {
-  0%   { transform: rotate(-24deg); }
-  50%  { transform: rotate(24deg); }
-  100% { transform: rotate(-24deg); }
-}
-.g9-heartbeat { animation-name: g9-heartbeat; animation-timing-function: ease-in-out; animation-iteration-count: infinite; }
-@keyframes g9-heartbeat {
-  0%, 100% { transform: scale(1); }
-  30% { transform: scale(1.3); }
-  45% { transform: scale(1); }
-}
-.g9-runner-ride { animation: g9-runner-ride 5600ms linear 600ms forwards; }
-@keyframes g9-runner-ride {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(120px); }
-}
+/* JADVAL, 1-EKRAN (metodist QA 2026-08-25, "sahna kichik" 2026-08-26):
+   jadval o'z qatorini kesib qo'ymasin deb siqilmaydi (flex-shrink:0,
+   feed.jsx). Avval sahnani ham torraytirgan edim — bu ORTIQCHA bo'lib
+   chiqdi: qator balandligi is-wide variantidan ham torroq qilinsa
+   (38/34), jadvalning o'zi kamroq joy so'raydi va sahna HECH QANDAY
+   qo'shimcha cheklovsiz o'zining tabiiy o'lchamida (~155px) sig'adi —
+   xuddi shu darsning eng birinchi holatidagidek. g9-scene-compact
+   nomi endi noto'g'ri (sahnani kichraytirmaydi), lekin klass DOMda
+   jadval bilan opa-singil bo'lgani uchun CSS ~ tanlagichga kerak
+   qoldirilgan. */
+.g9-scene-compact ~ .g8-pf .g8-pf-row,
+.g9-scene-compact ~ .g8-pf .g8-pf-row > span { min-height: 38px; }
+.g9-scene-compact ~ .g8-pf .g8-pf-row.is-head,
+.g9-scene-compact ~ .g8-pf .g8-pf-row.is-head > span { min-height: 34px; }
 
 /* ---------- TO'P OSMONGA OTILDI ----------
    2026-08-22, beshinchi urinish: metodist «to'p yo'l ustida yurishi kerak»

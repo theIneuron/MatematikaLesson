@@ -42,8 +42,8 @@ const DATA = {
   ],
   items: [
     { id: 'i1', tokens: ['4, 6, 9'], zone: 'z1' },
-    { id: 'i2', tokens: ['5, 7, orasidagi 40°'], zone: 'z2' },
-    { id: 'i3', tokens: ['6, yopishgan 30° va 50°'], zone: 'z3' },
+    { id: 'i2', tokens: [L('5, 7, orasidagi 40°', '5, 7, между ними 40°', '5, 7, included 40°')], zone: 'z2' },
+    { id: 'i3', tokens: [L('6, yopishgan 30° va 50°', '6, прилежащие 30° и 50°', '6, adjacent 30° and 50°')], zone: 'z3' },
   ],
   bank: L(
     "To'plamlar",

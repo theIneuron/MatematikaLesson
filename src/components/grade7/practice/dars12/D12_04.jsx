@@ -20,8 +20,8 @@ const DATA = {
   rows: [
     [{ t: ['x', '+', '3x', '=', '96'] }],
     [{ slot: 0 }, { t: ['=', '96'] }],
-    [{ t: ['birinchi', 'kun', '='] }, { slot: 1 }],
-    [{ t: ['ikkinchi', 'kun', '='] }, { slot: 2 }],
+    [{ t: [L('birinchi', 'первая', 'the first'), L('kun', 'день', 'day'), '='] }, { slot: 1 }],
+    [{ t: [L('ikkinchi', 'вторая', 'the second'), L('kun', 'день', 'day'), '='] }, { slot: 2 }],
   ],
   cards: ['4x', '24', '72', '3x', '32', '96'],
   answer: ['4x', '24', '72'],

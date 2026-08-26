@@ -35,7 +35,7 @@ const DATA = {
     { k: 'sign', v: ' ' },
     { k: 'term', id: 't2', v: '−2 · (−5) = −10' },
     { k: 'sign', v: ' ' },
-    { k: 'term', id: 't3', v: 'javob 15' },
+    { k: 'term', id: 't3', v: L('javob 15', 'ответ 15', 'answer 15') },
   ],
   want: ['t2'],
   correctText: L(

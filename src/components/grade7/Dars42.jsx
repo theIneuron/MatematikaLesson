@@ -300,9 +300,9 @@ const S5 = {
   eyebrow: L("IKKINCHI KO'RINISH", 'ВТОРОЙ ВИД ЗАПИСИ', 'A SECOND WAY TO WRITE IT'),
   title: L('Chizmasiz xulosa', 'Вывод без чертежа', 'A conclusion without a drawing'),
   given: L(
-    "Birinchi uchburchakda tomonlar 7, 4 va ular orasidagi burchak 50 daraja. Ikkinchisida ham xuddi shunday.",
-    'В первом треугольнике стороны 7, 4 и угол между ними 50 градусов. Во втором то же самое.',
-    'The first triangle has sides 7, 4 and a 50 degree angle between them. The second has the same.',
+    "Birinchi uchburchakda tomonlar 7, 4 va ular orasidagi burchak 50°. Ikkinchisida ham xuddi shunday.",
+    'В первом треугольнике стороны 7, 4 и угол между ними 50°. Во втором то же самое.',
+    'The first triangle has sides 7, 4 and a 50° angle between them. The second has the same.',
   ),
   template: ['7 = 7,   4 = 4,   50° = 50°   →   ', { slot: 0 }],
   parts: [
@@ -383,9 +383,9 @@ const S7 = {
   pts: { A: { x: -4, y: -2 }, B: { x: 0, y: -2 }, C: { x: -4, y: 1 } },
   show: { sides: true, angles: true },
   caption: L(
-    "Bu uchburchakning burchaklari 90, 53 va 37 daraja. Boshqa uchburchakda ham xuddi shu burchaklar bo'lsa, ular tengmi?",
-    'Углы этого треугольника 90, 53 и 37 градусов. Если у другого треугольника такие же углы, они равны?',
-    'This triangle has angles of 90, 53 and 37 degrees. If another triangle has the same angles, are they equal?',
+    "Bu uchburchakning burchaklari 90°, 53° va 37°. Boshqa uchburchakda ham xuddi shu burchaklar bo'lsa, ular tengmi?",
+    'Углы этого треугольника 90°, 53° и 37°. Если у другого треугольника такие же углы, они равны?',
+    'This triangle has angles of 90°, 53° and 37°. If another triangle has the same angles, are they equal?',
   ),
   options: [
     { id: 'a', label: L("yo'q, o'lchami har xil bo'lishi mumkin", 'нет, размер может отличаться', 'no, the size may differ') },
@@ -567,9 +567,9 @@ const S10 = {
   step1Cap: L('1-QADAM', 'ШАГ 1', 'STEP 1'),
   step2Cap: L('2-QADAM', 'ШАГ 2', 'STEP 2'),
   given: L(
-    "Ikki uchburchakda bir tomon 8 ga teng, va unga yopishgan burchaklar 40 va 70 daraja. Ikkinchisida ham xuddi shunday.",
-    'У двух треугольников одна сторона равна 8, а прилежащие к ней углы 40 и 70 градусов. У второго то же самое.',
-    'Two triangles have a side equal to 8 with adjacent angles of 40 and 70 degrees. The second is the same.',
+    "Ikki uchburchakda bir tomon 8 ga teng, va unga yopishgan burchaklar 40° va 70°. Ikkinchisida ham xuddi shunday.",
+    'У двух треугольников одна сторона равна 8, а прилежащие к ней углы 40° и 70°. У второго то же самое.',
+    'Two triangles have a side equal to 8 with adjacent angles of 40° and 70°. The second is the same.',
   ),
   template: ['8 = 8,   40° = 40°,   70° = 70°   →   ', { slot: 0 },  ',   ', { slot: 1 }],
   parts: [

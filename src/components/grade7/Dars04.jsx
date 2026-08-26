@@ -38,6 +38,7 @@ import {
   tr,
   useAudio,
   useInstructionGate,
+  qMeta,
   useT,
 } from './core.jsx'
 import {
@@ -55,7 +56,7 @@ import {
 } from './tools.jsx'
 
 const LESSON_ID = 'alg_7_04'
-const LESSON_TITLE = L("Ayniyat va ayniy o'zgartirishlar", 'Тождества и тождественные преобразования', 'Identities and identity transformations')
+const LESSON_TITLE = L("Ayniyat va qiymatni saqlaydigan o'zgartirishlar", 'Тождества и тождественные преобразования', 'Identities and value-preserving transformations')
 const LESSON_NO = L('4-dars', 'Урок 4', 'Lesson 4')
 const BLOCK = { label: L('B1-blok', 'Блок Б1', 'Block B1'), from: 1, to: 6, current: 4 }
 
@@ -219,15 +220,16 @@ function Screen2({ screen, onAnswer, ...rest }) {
   const audio = useAudio(segments)
   const canAnswer = useInstructionGate(audio)
   const [done, setDone] = useState(false)
+  const [at, setAt] = useState(0)
   return (
-    <LessonFrame meta={S2} screen={screen} audio={audio} solved={done} {...rest}>
+    <LessonFrame meta={qMeta(S2, at)} screen={screen} audio={audio} solved={done} {...rest}>
       <ProbeChain
         audio={audio}
         items={S2.items}
         question={S2.question}
         cols={4}
         disabled={!canAnswer}
-        onStep={(i) => audio.step(String(i))}
+        onStep={(i) => { setAt(i); audio.step(String(i)) }}
         onSolved={(r) => { setDone(true); onAnswer({ ...r, screen, role: 'support' }) }}
       />
     </LessonFrame>
@@ -586,9 +588,9 @@ const S8 = {
     badge: L('Qoida', 'Правило', 'The rule'),
     lines: [
       L(
-        "Harfning har qanday qiymatida bajariladigan tenglik ayniyat deyiladi. Ifodani xossalar bilan qayta yozish ayniy o'zgartirish deyiladi.",
+        "Harfning har qanday qiymatida bajariladigan tenglik ayniyat deyiladi. Ifodani xossalar bilan qayta yozish qiymatni saqlaydigan o'zgartirish deyiladi.",
         'Равенство, верное при любом значении буквы, называют тождеством. Переписывание выражения по свойствам называют тождественным преобразованием.',
-        'An equality that holds for every value of the letter is called an identity. Rewriting an expression by the properties is called an identity transformation.',
+        'An equality that holds for every value of the letter is called an identity. Rewriting an expression by the properties is called an value-preserving transformation.',
       ),
       L(
         "Son qo'yish ayniyatni isbotlamaydi, chunki sonlar cheksiz. Lekin bitta son uni rad etishga yetadi.",
@@ -655,7 +657,7 @@ function Screen8({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S9 = {
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
-  title: L('Nimaga ayniy teng', 'Чему тождественно равно', 'What it is identically equal to'),
+  title: L('Nimaga har doim teng', 'Чему тождественно равно', 'What it is always equal to'),
   question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
   items: [
     {
@@ -712,15 +714,16 @@ function Screen9({ screen, onAnswer, ...rest }) {
   const audio = useAudio(segments)
   const canAnswer = useInstructionGate(audio)
   const [done, setDone] = useState(false)
+  const [at, setAt] = useState(0)
   return (
-    <LessonFrame meta={S9} screen={screen} audio={audio} solved={done} {...rest}>
+    <LessonFrame meta={qMeta(S9, at)} screen={screen} audio={audio} solved={done} {...rest}>
       <ProbeChain
         audio={audio}
         items={S9.items}
         question={S9.question}
         cols={2}
         disabled={!canAnswer}
-        onStep={(i) => audio.step(String(i))}
+        onStep={(i) => { setAt(i); audio.step(String(i)) }}
         onSolved={(r) => { setDone(true); onAnswer({ ...r, screen, role: 'practice' }) }}
       />
     </LessonFrame>
@@ -1114,16 +1117,17 @@ function Screen14({ screen, onAnswer, ...rest }) {
   const audio = useAudio(segments)
   const canAnswer = useInstructionGate(audio)
   const [done, setDone] = useState(false)
+  const [at, setAt] = useState(0)
   const resRef = useRef([])
   const total = S14.items.length
   return (
-    <LessonFrame meta={S14} screen={screen} audio={audio} solved={done} {...rest}>
+    <LessonFrame meta={qMeta(S14, at)} screen={screen} audio={audio} solved={done} {...rest}>
       <ProbeChain
         audio={audio}
         items={S14.items}
         cols={2}
         disabled={!canAnswer}
-        onStep={(i) => audio.step(String(i))}
+        onStep={(i) => { setAt(i); audio.step(String(i)) }}
         onItem={(r) => { resRef.current = resRef.current.concat(r) }}
         onSolved={(r) => {
           const list = resRef.current

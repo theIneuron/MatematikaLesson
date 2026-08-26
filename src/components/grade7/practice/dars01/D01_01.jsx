@@ -19,7 +19,7 @@ const T = {
     ask: "Qaysi o'qish to'g'ri?",
     opts: [
       "avval qavs ichida: 3 · 25, keyin 85 − 75; so'ng 24 · 10, oxirida ayirish",
-      "avval 1500 − 24, keyin qavs",
+      'avval 1500 − 24, keyin qavs',
       "avval qavs ichidagi 85 − 3, keyin ko'paytirishlar",
     ],
     correct: "To'g'ri. Qavs ichida ham o'sha qoida: 3 · 25 = 75, 85 − 75 = 10. So'ng 24 · 10 = 240 va 1500 − 240 = 1260.",

@@ -15,7 +15,7 @@ const DATA = {
     'Teng yonli uchburchakda asosdagi ikki burchak teng. Bu xossa tomonlar tengligidan chiqadi.',
     'В равнобедренном треугольнике два угла при основании равны. Это свойство идёт из равенства сторон.',
     'An isosceles triangle has equal base angles. The property follows from the equal sides.'),
-  given: [['asosdagi burchak = 50°']],
+  given: [[L('asosdagi burchak = 50°', 'угол при основании = 50°', 'base angle = 50°')]],
   givenLabel: L(
     'Berilgan:',
     'Дано:',

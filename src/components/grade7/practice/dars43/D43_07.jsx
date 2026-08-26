@@ -15,7 +15,7 @@ const DATA = {
     'Perimetr va asos berilgan. Yon tomonni uch qadamda toping.',
     'Даны периметр и основание. Найди боковую сторону в три шага.',
     'The perimeter and base are given. Find the leg in three steps.'),
-  given: [['P = 38', ',', 'asos 14']],
+  given: [['P = 38', ',', L('asos 14', 'основание 14', 'base 14')]],
   givenLabel: L(
     'Berilgan:',
     'Дано:',
@@ -23,9 +23,9 @@ const DATA = {
   cards: [
     { id: 'a', label: '38 − 14 = 24' },
     { id: 'b', label: '24 : 2 = 12' },
-    { id: 'c', label: 'yon tomon 12' },
+    { id: 'c', label: L('yon tomon 12', 'боковая 12', 'leg 12') },
     { id: 'd', label: '38 : 2 = 19' },
-    { id: 'e', label: 'yon tomon 24' },
+    { id: 'e', label: L('yon tomon 24', 'боковая 24', 'leg 24') },
   ],
   answerSeq: ['a', 'b', 'c'],
   ask: L(

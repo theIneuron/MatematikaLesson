@@ -17,7 +17,7 @@ const DATA = {
     "Birinchi nuqtaning abssissasi nol, ya'ni u b ni beradi. k esa qiymat o'zgarishini abssissa o'zgarishiga bo'lib topiladi.",
     'У первой точки абсцисса ноль, значит она даёт b. А k находим, разделив изменение значения на изменение абсциссы.',
     'The first point has zero abscissa, so it gives b. k comes from the change in value over the change in x.'),
-  given: [['(0; −5)', 'va', '(4; 7)']],
+  given: [['(0; −5)', L('va', 'и', 'and'), '(4; 7)']],
   givenLabel: L(
     'Berilgan:',
     'Дано:',

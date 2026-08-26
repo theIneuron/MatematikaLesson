@@ -12,8 +12,8 @@ const DATA = {
     'Сначала находится соответственный угол — он равен. Потом его смежный — он дополняет до 180.',
     'First the corresponding angle, which is equal. Then its adjacent, which completes 180.'),
   rows: [
-    [{ t: ['48°', 'mos', 'burchagi', '='] }, { slot: 0 }],
-    [{ t: ['uning', "qo'shnisi", '='] }, { slot: 1 }],
+    [{ t: ['48°', L('mos', 'соответственный', 'matching'), L('burchagi', 'угол', 'angle'), '='] }, { slot: 0 }],
+    [{ t: [L('uning', 'его', 'its'), L("qo'shnisi", 'смежный к нему', 'its adjacent'), '='] }, { slot: 1 }],
   ],
   cards: ['48°', '132°', '42°', '96°'],
   answer: ['48°', '132°'],

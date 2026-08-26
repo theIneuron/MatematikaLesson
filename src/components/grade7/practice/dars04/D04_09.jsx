@@ -9,15 +9,15 @@ const DATA = {
   tag: 'id_order', level: '🔴',
   eyebrow: L('Isbot qadamlari', 'Шаги доказательства', 'Steps of a proof'),
   setup: L(
-    "Ayniylik son bilan emas, XOSSALAR bilan isbotlanadi: qavs ochiladi, o'xshash hadlar ixchamlanadi, natija o'ng tomon bilan solishtiriladi.",
+    "Ayniyat son bilan emas, XOSSALAR bilan isbotlanadi: qavs ochiladi, o'xshash hadlar ixchamlanadi, natija o'ng tomon bilan solishtiriladi.",
     'Тождество доказывается не числом, а СВОЙСТВАМИ: раскрыть скобку, привести подобные, сравнить с правой частью.',
     'An identity is proved by PROPERTIES, not numbers: open the bracket, collect like terms, compare with the right side.'),
-  given: [['5(a + 2) − 3a', 'va', '2a + 10']],
+  given: [['5(a + 2) − 3a', L('va', 'и', 'and'), '2a + 10']],
   givenLabel: L('Isbotlash kerak:', 'Доказать:', 'To prove:'),
   cards: [
     { id: 'a', label: '5a + 10 − 3a' },
     { id: 'b', label: '2a + 10' },
-    { id: 'c', label: "chap = o'ng" },
+    { id: 'c', label: L("chap = o'ng", 'левая = правая', 'left = right') },
     { id: 'd', label: '5a + 2 − 3a' },
     { id: 'e', label: '2a + 2' },
   ],
@@ -26,7 +26,7 @@ const DATA = {
   ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
-    "To'g'ri. 5(a + 2) − 3a = 5a + 10 − 3a = 2a + 10 -- o'ng tomon bilan mos keldi, ayniylik isbotlandi.",
+    "To'g'ri. 5(a + 2) − 3a = 5a + 10 − 3a = 2a + 10 -- o'ng tomon bilan mos keldi, ayniyat isbotlandi.",
     'Верно. 5(a + 2) − 3a = 5a + 10 − 3a = 2a + 10 — совпало с правой частью, тождество доказано.',
     'Correct. 5(a + 2) − 3a = 5a + 10 − 3a = 2a + 10 — it matches the right side, so the identity holds.'),
   wrongs: [

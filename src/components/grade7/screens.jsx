@@ -35,6 +35,7 @@ import {
   tr,
   useAudio,
   useInstructionGate,
+  qMeta,
   useT,
 } from './core.jsx'
 import {
@@ -105,15 +106,16 @@ const hookScreen = (S) => function ScreenHook({ screen, onAnswer, ...rest }) {
 const chainScreen = (S) => function ScreenChain({ screen, onAnswer, ...rest }) {
   const { audio, canAnswer } = useShell(S, rest.lang)
   const [done, setDone] = useState(false)
+  const [at, setAt] = useState(0)
   return (
-    <LessonFrame meta={S} screen={screen} audio={audio} solved={done} {...rest}>
+    <LessonFrame meta={qMeta(S, at)} screen={screen} audio={audio} solved={done} {...rest}>
       <ProbeChain
         audio={audio}
         items={S.items}
         question={S.question}
         cols={S.cols || 4}
         disabled={!canAnswer}
-        onStep={(i) => audio.step(String(i))}
+        onStep={(i) => { setAt(i); audio.step(String(i)) }}
         onSolved={(r) => { setDone(true); onAnswer({ ...r, screen, role: S.role || 'practice' }) }}
       />
     </LessonFrame>
@@ -126,17 +128,18 @@ const chainScreen = (S) => function ScreenChain({ screen, onAnswer, ...rest }) {
 const blitzScreen = (S) => function ScreenBlitz({ screen, onAnswer, ...rest }) {
   const { audio, canAnswer } = useShell(S, rest.lang)
   const [done, setDone] = useState(false)
+  const [at, setAt] = useState(0)
   const resRef = useRef([])
   const total = S.items.length
   return (
-    <LessonFrame meta={S} screen={screen} audio={audio} solved={done} {...rest}>
+    <LessonFrame meta={qMeta(S, at)} screen={screen} audio={audio} solved={done} {...rest}>
       <ProbeChain
         audio={audio}
         items={S.items}
         question={S.question}
         cols={S.cols || 2}
         disabled={!canAnswer}
-        onStep={(i) => audio.step(String(i))}
+        onStep={(i) => { setAt(i); audio.step(String(i)) }}
         onItem={(r) => { resRef.current = resRef.current.concat(r) }}
         onSolved={(r) => {
           const list = resRef.current

@@ -17,7 +17,7 @@ const DATA = {
     "Ikki grafik kesishgan nuqtada qiymatlar teng bo'ladi. Ikkinchi grafik gorizontal: y har doim 5.",
     'В точке пересечения двух графиков значения равны. Второй график горизонтальный: y всегда 5.',
     'At the crossing the values are equal. The second graph is horizontal: y is always 5.'),
-  given: [['y = 2x − 1', 'va', 'y = 5']],
+  given: [['y = 2x − 1', L('va', 'и', 'and'), 'y = 5']],
   givenLabel: L(
     'Berilgan:',
     'Дано:',

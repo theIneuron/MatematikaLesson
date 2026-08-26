@@ -15,20 +15,20 @@ const DATA = {
     "Ikki fakt kerak: asosdagi burchaklar teng va uch burchakning yig'indisi 180.",
     'Нужны два факта: углы при основании равны и сумма трёх углов 180.',
     'Two facts are needed: the base angles are equal and the three angles add to 180.'),
-  given: [['uchidagi burchak = 40°']],
+  given: [[L('uchidagi burchak = 40°', 'угол при вершине = 40°', 'apex angle = 40°')]],
   givenLabel: L(
     'Berilgan:',
     'Дано:',
     'Given:'),
   rows: [
     [
-      { t: ['birinchi', 'asos', 'burchagi', '='] },
+      { t: [L('birinchi', 'первая', 'the first'), L('asos', 'основание', 'base'), L('burchagi', 'угол', 'angle'), '='] },
       { slot: 0 },
-      { t: ['ikkinchisi', '='] },
+      { t: [L('ikkinchisi', 'вторая', 'the second'), '='] },
       { slot: 1 },
     ],
   ],
-  cards: ['70°', '70° ham', '140°', '50°'],
+  cards: ['70°', L('70° ham', 'ещё 70°', '70° too'), '140°', '50°'],
   answer: ['70°', '70° ham'],
   ask: L(
     'Kartani bosing, keyin uyani bosing.',

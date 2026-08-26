@@ -17,7 +17,7 @@ const DATA = {
     'Nuqta yozuvida avval abssissa (x), keyin ordinata (y) turadi. Tartib almashsa boshqa nuqta chiqadi.',
     'В записи точки сначала абсцисса (x), потом ордината (y). Если поменять порядок, выйдет другая точка.',
     'A point is written abscissa (x) first, ordinate (y) second. Swapping them gives a different point.'),
-  given: [['abssissa −12', ',', 'ordinata 25']],
+  given: [[L('abssissa −12', 'абсцисса −12', 'abscissa −12'), ',', L('ordinata 25', 'ордината 25', 'ordinate 25')]],
   givenLabel: L(
     'Berilgan:',
     'Дано:',

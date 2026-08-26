@@ -21,9 +21,9 @@ const DATA = {
     'Дано:',
     'Given:'),
   cards: [
-    { id: 'a', label: "uchburchak yo'q" },
+    { id: 'a', label: L("uchburchak yo'q", 'треугольника нет', 'no triangle') },
     { id: 'b', label: '3 + 4 < 8' },
-    { id: 'c', label: 'uchburchak bor' },
+    { id: 'c', label: L('uchburchak bor', 'треугольник есть', 'the triangle exists') },
     { id: 'd', label: '3 + 4 + 8 = 15' },
   ],
   answerSeq: ['a', 'b'],

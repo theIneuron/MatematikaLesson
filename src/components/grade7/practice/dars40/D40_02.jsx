@@ -21,8 +21,8 @@ const DATA = {
     'Дано:',
     'Given:'),
   rows: [
-    [{ t: ["qo'shni", 'burchak', '='] }, { slot: 0 }],
-    [{ t: ['bissektrisa', 'bergan', 'burchak', '='] }, { slot: 1 }],
+    [{ t: [L("qo'shni", 'смежный', 'adjacent'), L('burchak', 'угол', 'angle'), '='] }, { slot: 0 }],
+    [{ t: [L('bissektrisa', 'биссектриса', 'bisector'), L('bergan', 'полученный', 'resulting'), L('burchak', 'угол', 'angle'), '='] }, { slot: 1 }],
   ],
   cards: ['62°', '31°', '59°', '29°'],
   answer: ['62°', '31°'],

@@ -23,9 +23,9 @@ const DATA = {
     'Дано:',
     'Given:'),
   cards: [
-    { id: 'a', label: 'yotadi' },
-    { id: 'b', label: 'yotmaydi' },
-    { id: 'c', label: 'aniqlanmaydi' },
+    { id: 'a', label: L('yotadi', 'лежит', 'it lies on it') },
+    { id: 'b', label: L('yotmaydi', 'не лежит', 'it does not') },
+    { id: 'c', label: L('aniqlanmaydi', 'определить нельзя', 'cannot be decided') },
   ],
   answerSeq: ['a'],
   fieldH: 44,

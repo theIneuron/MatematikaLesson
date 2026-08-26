@@ -15,12 +15,12 @@ const DATA = {
     "To'g'ri burchakli uchburchakning o'tkir burchaklari 2x va 3x. Ikki uyani to'ldiring: x va katta o'tkir burchak.",
     'Острые углы прямоугольного треугольника равны 2x и 3x. Заполни две клетки: x и больший острый угол.',
     'The acute angles of a right triangle are 2x and 3x. Fill both cells: x and the larger acute angle.'),
-  given: [['2x', 'va', '3x']],
+  given: [['2x', L('va', 'и', 'and'), '3x']],
   givenLabel: L(
     "O'tkir burchaklar:",
     'Острые углы:',
     'Acute angles:'),
-  rows: [[{ t: ['x', '='] }, { slot: 0 }, { t: ['katta', 'burchak', '='] }, { slot: 1 }]],
+  rows: [[{ t: ['x', '='] }, { slot: 0 }, { t: [L('katta', 'больший', 'larger'), L('burchak', 'угол', 'angle'), '='] }, { slot: 1 }]],
   cards: ['18', '54°', '36', '36°'],
   answer: ['18', '54°'],
   ask: L(

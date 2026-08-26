@@ -56,9 +56,9 @@ const S1 = {
   cols: 2,
   probe: {
     question: L(
-      "Ikki burchak qo'shni: ular bir to'g'ri chiziqni to'ldiradi. Bittasi 135 daraja. Ikkinchisi nechchi? Tabloda har birining yig'indisi turadi.",
-      'Два угла смежные: вместе они дают развёрнутый. Один из них 135 градусов. Сколько второй? На табло сумма, которая вышла у каждого.',
-      'Two angles are adjacent: together they fill a straight line. One is 135 degrees. How big is the other? The boards show the sum each got.',
+      "Ikki burchak qo'shni: ular bir to'g'ri chiziqni to'ldiradi. Bittasi 135°. Ikkinchisi nechchi? Tabloda har birining yig'indisi turadi.",
+      'Два угла смежные: вместе они дают развёрнутый. Один из них 135°. Сколько второй? На табло сумма, которая вышла у каждого.',
+      'Two angles are adjacent: together they fill a straight line. One is 135°. How big is the other? The boards show the sum each got.',
     ),
     items: [
       {
@@ -137,9 +137,9 @@ const S2 = {
       wrap: true,
       question: null,
       prompt: L(
-        "135 daraja burchak qanday burchak?",
-        'Какой это угол — 135 градусов?',
-        'What kind of angle is 135 degrees?',
+        "135° burchak qanday burchak?",
+        'Какой это угол — 135°?',
+        'What kind of angle is 135°?',
       ),
       ok: L("U to'g'ri burchakdan katta, yoyilganidan kichik: o'tmas burchak.", 'Он больше прямого и меньше развёрнутого: тупой угол.', 'It is more than a right angle and less than a straight one: obtuse.'),
       items: [
@@ -307,9 +307,9 @@ const S5 = {
   eyebrow: L("IKKINCHI KO'RINISH", 'ВТОРОЙ ВИД ЗАПИСИ', 'A SECOND WAY TO WRITE IT'),
   title: L('Chizmasiz hisoblash', 'Счёт без чертежа', 'Computing without a drawing'),
   given: L(
-    "Bir burchak 62 daraja. Uning qo'shnisi nechcha daraja?",
-    'Один угол 62 градуса. Сколько градусов у его смежного?',
-    'One angle is 62 degrees. How many degrees is its adjacent angle?',
+    "Bir burchak 62°. Uning qo'shnisi nechcha daraja?",
+    'Один угол 62°. Сколько градусов у его смежного?',
+    'One angle is 62°. How many degrees is its adjacent angle?',
   ),
   template: ['180° − 62° = ', { slot: 0 }],
   parts: [
@@ -496,9 +496,9 @@ const S9 = {
       wrap: true,
       question: null,
       prompt: L(
-        "Bir burchak 70 daraja. Uning qo'shnisi nechcha daraja?",
-        'Один угол 70 градусов. Сколько градусов его смежный?',
-        'One angle is 70 degrees. How many degrees is its adjacent one?',
+        "Bir burchak 70°. Uning qo'shnisi nechcha daraja?",
+        'Один угол 70°. Сколько градусов его смежный?',
+        'One angle is 70°. How many degrees is its adjacent one?',
       ),
       ok: L("Bir yuz sakson dan yetmish ayirilsa bir yuz o'n chiqadi.", 'Сто восемьдесят минус семьдесят это сто десять.', 'One hundred eighty minus seventy is one hundred ten.'),
       items: [
@@ -512,9 +512,9 @@ const S9 = {
       wrap: true,
       question: null,
       prompt: L(
-        "Ikki chiziq kesishdi. Bir burchak 40 daraja. Unga vertikal burchak nechcha daraja?",
-        'Две прямые пересеклись. Один угол 40 градусов. Сколько градусов вертикальный к нему?',
-        'Two lines crossed. One angle is 40 degrees. How many degrees is the vertical one?',
+        "Ikki chiziq kesishdi. Bir burchak 40°. Unga vertikal burchak nechcha daraja?",
+        'Две прямые пересеклись. Один угол 40°. Сколько градусов вертикальный к нему?',
+        'Two lines crossed. One angle is 40°. How many degrees is the vertical one?',
       ),
       ok: L("Vertikal burchaklar teng, demak u ham 40 daraja.", 'Вертикальные углы равны, значит он тоже 40 градусов.', 'Vertical angles are equal, so it is 40 degrees too.'),
       items: [
@@ -575,9 +575,9 @@ const S10 = {
   step1Cap: L('1-QADAM', 'ШАГ 1', 'STEP 1'),
   step2Cap: L('2-QADAM', 'ШАГ 2', 'STEP 2'),
   given: L(
-    "Ikki chiziq kesishdi, bir burchak 35 daraja. 1-burchak unga qo'shni, 2-burchak esa vertikal.",
-    'Две прямые пересеклись, один угол 35 градусов. Угол 1 ему смежный, а угол 2 вертикальный.',
-    'Two lines crossed, one angle is 35 degrees. Angle 1 is adjacent to it, angle 2 is vertical.',
+    "Ikki chiziq kesishdi, bir burchak 35°. 1-burchak unga qo'shni, 2-burchak esa vertikal.",
+    'Две прямые пересеклись, один угол 35°. Угол 1 ему смежный, а угол 2 вертикальный.',
+    'Two lines crossed, one angle is 35°. Angle 1 is adjacent to it, angle 2 is vertical.',
   ),
   template: ['∠1 = 180° − 35° = ', { slot: 0 }, ',   ∠2 = ', { slot: 1 }],
   parts: [
@@ -626,9 +626,9 @@ const S11 = {
   eyebrow: L("FAQAT O'ZINGIZ", 'ТОЛЬКО САМ', 'ON YOUR OWN ONLY'),
   title: L('Uch burchakni toping', 'Найди три угла', 'Find three angles'),
   given: L(
-    "Ikki chiziq kesishdi, bir burchak 108 daraja. Qo'shni burchakni yozing.",
-    'Две прямые пересеклись, один угол 108 градусов. Запиши смежный угол.',
-    'Two lines crossed, one angle is 108 degrees. Write the adjacent angle.',
+    "Ikki chiziq kesishdi, bir burchak 108°. Qo'shni burchakni yozing.",
+    'Две прямые пересеклись, один угол 108°. Запиши смежный угол.',
+    'Two lines crossed, one angle is 108°. Write the adjacent angle.',
   ),
   template: ['180° − 108° = ', { slot: 0 }],
   parts: [
@@ -728,9 +728,9 @@ const S13 = {
   eyebrow: L('KO\'CHIRISH', 'ПЕРЕНОС', 'TRANSFER'),
   title: L('Chorraha', 'Перекрёсток', 'A crossroads'),
   given: L(
-    "Ikki yo'l kesishdi. Bir burchak 65 daraja. Chorrahaning qarama-qarshi tomonidagi burchak nechcha daraja?",
-    'Две дороги пересеклись. Один угол 65 градусов. Сколько градусов угол с противоположной стороны перекрёстка?',
-    'Two roads crossed. One angle is 65 degrees. How many degrees is the angle on the opposite side?',
+    "Ikki yo'l kesishdi. Bir burchak 65°. Chorrahaning qarama-qarshi tomonidagi burchak nechcha daraja?",
+    'Две дороги пересеклись. Один угол 65°. Сколько градусов угол с противоположной стороны перекрёстка?',
+    'Two roads crossed. One angle is 65°. How many degrees is the angle on the opposite side?',
   ),
   template: ['∠1 = 65°,   ∠2 = ', { slot: 0 }],
   parts: [
@@ -774,9 +774,9 @@ const S14 = {
       wrap: true,
       question: null,
       prompt: L(
-        "Bir burchak 25 daraja. Qo'shnisi nechcha daraja?",
-        'Один угол 25 градусов. Сколько его смежный?',
-        'One angle is 25 degrees. How big is its adjacent one?',
+        "Bir burchak 25°. Qo'shnisi nechcha daraja?",
+        'Один угол 25°. Сколько его смежный?',
+        'One angle is 25°. How big is its adjacent one?',
       ),
       ok: L("Bir yuz sakson dan yigirma besh ayirilsa bir yuz ellik besh.", 'Сто восемьдесят минус двадцать пять это сто пятьдесят пять.', 'One hundred eighty minus twenty five is one hundred fifty five.'),
       items: [

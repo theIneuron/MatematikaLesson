@@ -31,11 +31,11 @@ const DATA = {
     'Один шаг.',
     'One step.'),
   parts: [
-    { k: 'term', id: 't1', v: "x = 0 qo'yiladi" },
+    { k: 'term', id: 't1', v: L("x = 0 qo'yiladi", 'подставляем x = 0', 'substitute x = 0') },
     { k: 'sign', v: ' ' },
     { k: 'term', id: 't2', v: 'y = 7 · 0 − 12' },
     { k: 'sign', v: ' ' },
-    { k: 'term', id: 't3', v: 'nuqta (0; 12)' },
+    { k: 'term', id: 't3', v: L('nuqta (0; 12)', 'точка (0; 12)', 'point (0; 12)') },
   ],
   want: ['t3'],
   correctText: L(

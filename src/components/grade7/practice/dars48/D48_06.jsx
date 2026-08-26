@@ -15,14 +15,14 @@ const DATA = {
     "Ikki tomon berilgan. Uchburchak tengsizligi uchinchi tomonga ikki chegara qo'yadi.",
     'Даны две стороны. Неравенство треугольника ставит третьей стороне две границы.',
     'Two sides are given. The triangle inequality puts two bounds on the third.'),
-  given: [['5', 'va', '9']],
+  given: [['5', L('va', 'и', 'and'), '9']],
   givenLabel: L(
     'Tomonlar:',
     'Стороны:',
     'Sides:'),
   rows: [
-    [{ t: ['uchinchi', 'tomon', '>'] }, { slot: 0 }],
-    [{ t: ['uchinchi', 'tomon', '<'] }, { slot: 1 }],
+    [{ t: [L('uchinchi', 'третья', 'the third'), L('tomon', 'сторона', 'side'), '>'] }, { slot: 0 }],
+    [{ t: [L('uchinchi', 'третья', 'the third'), L('tomon', 'сторона', 'side'), '<'] }, { slot: 1 }],
   ],
   cards: ['4', '14', '5', '45'],
   answer: ['4', '14'],

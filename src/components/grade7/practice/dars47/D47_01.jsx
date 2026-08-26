@@ -15,13 +15,13 @@ const DATA = {
     "Sirkulning bir uchi qadaladi, ikkinchisi bir xil uzoqlikdagi nuqtalarni beradi. A dan va B dan chizilgan yoylar kesishsa, kesishgan nuqta ikkovidan bir xil uzoqlikda bo'ladi.",
     'Одна ножка циркуля стоит на месте, вторая даёт точки на одинаковом расстоянии. Если дуги из A и из B пересеклись, точка пересечения одинаково удалена от обеих.',
     'One compass leg stays put while the other marks points at equal distance. Where arcs from A and B cross, the point is equally far from both.'),
-  given: [['A', 'va', 'B', 'dan', 'yoylar']],
+  given: [['A', L('va', 'и', 'and'), 'B', L('dan', 'из', 'from'), L('yoylar', 'дуги', 'arcs')]],
   givenLabel: L(
     'Berilgan:',
     'Дано:',
     'Given:'),
-  rows: [[{ t: ['sirkul', 'beradi'] }, { slot: 0 }], [{ t: ['P', 'nuqta', 'uchun'] }, { slot: 1 }]],
-  cards: ['teng masofa', 'PA = PB', 'teng burchak', 'PA + PB'],
+  rows: [[{ t: [L('sirkul', 'циркуль', 'compass'), L('beradi', 'даёт', 'gives')] }, { slot: 0 }], [{ t: ['P', L('nuqta', 'точка', 'point'), L('uchun', 'для', 'for')] }, { slot: 1 }]],
+  cards: [L('teng masofa', 'равное расстояние', 'equal distance'), 'PA = PB', L('teng burchak', 'равный угол', 'an equal angle'), 'PA + PB'],
   answer: ['teng masofa', 'PA = PB'],
   ask: L(
     'Kartani bosing, keyin uyani bosing.',

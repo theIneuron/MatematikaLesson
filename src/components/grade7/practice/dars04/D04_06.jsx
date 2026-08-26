@@ -1,6 +1,6 @@
 // Dars04 · Amaliyot 06 — Xato o'zgartirish · 🟡 · fix · tag: id_fix
 // Mexanika: kit.jsx -> TapTerms. Raskladka: 6-o'rin.
-// Uch yozuvdan biri ayniy emas: 5(a − 2) = 5a − 2 (ikkinchi had
+// Uch yozuvdan biri har doim teng emas: 5(a − 2) = 5a − 2 (ikkinchi had
 // ko'paytirilmagan; to'g'risi 5a − 10).
 import React from 'react';
 import { TapTerms, L } from '../kit.jsx';
@@ -9,7 +9,7 @@ const DATA = {
   tag: 'id_fix', level: '🟡',
   eyebrow: L('Xato o\'zgartirish', 'Неверное преобразование', 'The wrong transformation'),
   setup: L(
-    "Uch o'zgartirishdan biri ayniy emas. Har birini son bilan tekshirish mumkin: a = 3 qo'yib ko'ring.",
+    "Uch o'zgartirishdan biri har doim teng emas. Har birini son bilan tekshirish mumkin: a = 3 qo'yib ko'ring.",
     'Одно из трёх преобразований не тождественное. Каждое можно проверить числом: подставь a = 3.',
     'One of the three is not an identity. Each can be checked with a = 3.'),
   ask: L("AYNIY BO'LMAGAN o'zgartirishni belgilang.", 'Отметь НЕ тождественное преобразование.', 'Mark the one that is NOT an identity.'),

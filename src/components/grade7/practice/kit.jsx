@@ -32,9 +32,9 @@
 // tugma. Topshiriq 363px dan oshmasligi kerak -- uslublar shu hisobda
 // ixcham qilingan (`practice/PracticeHost.jsx` dagi izohga qarang).
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { Frac, Row } from './frac.jsx';
+import { Frac, Row, Sup } from './frac.jsx';
 
-export { Frac, Row };
+export { Frac, Row, Sup };
 
 // ============================================================ TIL
 // L() faqat SO'ZLAR uchun. Matematika uchun emas.
@@ -68,7 +68,7 @@ const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none
 // bilan birga sig'ishi kerak, aks holda o'quvchi uni ko'rmaydi.
 export const HFB = ({ ok, text }) => (
   <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginTop: 10, padding: '10px 13px', borderRadius: 12, fontSize: 14.5, lineHeight: 1.4, fontWeight: 600, background: ok ? C.okBg : C.noBg, color: ok ? C.ok : C.no }}>
-    {ok ? <IconOk /> : <IconNo />}<span>{text}</span>
+    {ok ? <IconOk /> : <IconNo />}<span><Sup s={text} /></span>
   </div>
 );
 
@@ -105,6 +105,27 @@ const pickWhy = (data, state, lang) => {
   return tr(data.wrongText, lang);
 };
 
+// Karta SO'Z bo'lsa, u tarjima qilinadi. Lekin javob TEKSHIRUVI o'zbekcha
+// satr bo'yicha qoladi: `answer` va razbor shartlari o'zgarmasin (QA 2026-08-22).
+// Karta yozuvi uzun bo'lsa shrift kichrayadi va matn karta ICHIDA ko'chadi.
+// Sabab (metodist QA si, 2026-08-22): «eng katta tomon 80° qarshisida» kabi
+// yozuv telefonda karta chegarasidan chiqib ketardi.
+const fitFont = (s, base) => {
+  const n = String(s == null ? '' : s).length;
+  if (n <= 4) return base;
+  if (n <= 8) return base - 3;
+  if (n <= 14) return Math.max(15, base - 7);
+  if (n <= 22) return Math.max(13.5, base - 10);
+  return Math.max(12.5, base - 12);
+};
+const WRAP = { whiteSpace: 'normal', textAlign: 'center', lineHeight: 1.15, maxWidth: 250 };
+
+const cardKey = (c) => (c && typeof c === 'object' ? (c.uz || '') : c);
+const cardLbl = (data, key) => {
+  const c = (data.cards || []).find((x) => cardKey(x) === key);
+  return c === undefined ? key : c;
+};
+
 const submitPayload = (data, extra) => ({
   questionText: extra.questionText || '',
   options: extra.options || [],
@@ -117,8 +138,8 @@ const submitPayload = (data, extra) => ({
 // Sarlavha qismi: hamma mexanikada bir xil tartib -- eyebrow, shart, savol.
 const Head = ({ data, lang }) => (
   <>
-    <div style={S.eyebrow}>{tr(data.eyebrow, lang)}</div>
-    {data.setup ? <p style={S.setup}>{tr(data.setup, lang)}</p> : null}
+    <div style={S.eyebrow}><Sup s={tr(data.eyebrow, lang)} /></div>
+    {data.setup ? <p style={S.setup}><Sup s={tr(data.setup, lang)} /></p> : null}
   </>
 );
 
@@ -129,7 +150,7 @@ const Given = ({ data, lang }) => {
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, padding: '5px 0', borderRadius: 12, background: C.bg, border: '1px solid #eef0f4', marginBottom: 4 }}>
       {data.givenLabel ? <span style={{ fontSize: 12, fontWeight: 800, color: C.mute, letterSpacing: '.04em', textTransform: 'uppercase' }}>{tr(data.givenLabel, lang)}</span> : null}
-      {data.given.map((g, i) => <Row key={i} tokens={g} size={22} />)}
+      {data.given.map((g, i) => <Row key={i} tokens={g} size={22} lang={lang} />)}
     </div>
   );
 };
@@ -176,11 +197,11 @@ export function Choice({ data, lang = 'uz', mode = 'answer', initialAnswer = nul
       <Head data={data} lang={lang} />
       {data.expr ? (
         <div style={{ textAlign: 'center', margin: '4px 0 10px' }}>
-          <Row tokens={data.expr} size={data.exprSize || 30} />
+          <Row tokens={data.expr} size={data.exprSize || 30} lang={lang} />
         </div>
       ) : null}
       <Given data={data} lang={lang} />
-      <p style={S.ask}>{tr(data.ask, lang)}</p>
+      <p style={S.ask}><Sup s={tr(data.ask, lang)} /></p>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(' + (data.optCols || 1) + ', minmax(0, 1fr))', gap: 7 }}>
         {order.map((i) => {
           const o = data.opts[i];
@@ -193,7 +214,7 @@ export function Choice({ data, lang = 'uz', mode = 'answer', initialAnswer = nul
           return (
             <button key={i} type="button" data-opt={i} disabled={A.locked} onClick={() => setPicked(i)}
               style={{ display: 'flex', alignItems: 'center', justifyContent: short ? 'center' : 'flex-start', width: '100%', minHeight: short ? 50 : 0, padding: '11px 15px', borderRadius: 13, border: '2px solid ' + bd, background: bg, color: col, fontSize: 15.5, fontWeight: 600, cursor: A.locked ? 'default' : 'pointer', fontFamily: 'inherit', textAlign: short ? 'center' : 'left' }}>
-              {typeof o.label === 'object' && Array.isArray(o.label) ? <Row tokens={o.label} size={20} /> : tr(o.label, lang)}
+              {typeof o.label === 'object' && Array.isArray(o.label) ? <Row tokens={o.label} size={20} lang={lang} /> : <Sup s={tr(o.label, lang)} />}
             </button>
           );
         })}
@@ -206,19 +227,41 @@ export function Choice({ data, lang = 'uz', mode = 'answer', initialAnswer = nul
 // ============================================================ 2. TYPEVALUE
 // Javob klaviaturadan. Manfiy son ham kiritiladi (`allowNeg`), aks holda
 // 7-sinf misollarining yarmi kiritib bo'lmaydigan bo'lib qolardi.
+// Daraja ko'rinishidagi javob (metodist QA si, 2026-08-22): «3⁴ · 3² = 3⁶»
+// javobi ham qabul qilinishi kerak, lekin klaviaturadan yuqori indeks
+// yozib bo'lmaydi. Shuning uchun `^` kiritishga ruxsat berilgan va javob
+// HISOBLANADI: `3^6` ham, `729` ham bir xil son beradi.
+const SUP = { '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9' };
+const POW_RE = /[⁰¹²³⁴⁵⁶⁷⁸⁹]|\^/;
+// `3^6` -> 729; oddiy son o'zgarmaydi; noto'g'ri yozuv NaN beradi.
+const evalTyped = (raw) => {
+  const s = String(raw).trim();
+  const m = s.match(/^(-?\d+)\^(\d+)$/);
+  if (m) return Math.pow(parseInt(m[1], 10), parseInt(m[2], 10));
+  return /^-?\d+$/.test(s) ? parseInt(s, 10) : NaN;
+};
+
 export function TypeValue({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
   const [val, setVal] = useState('');
   const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa?.value != null) setVal(String(sa.value)); } });
+  // Topshiriqda daraja bormi -- shuni yozuvning O'ZIDAN bilamiz, ya'ni
+  // topshiriq fayllariga yangi kalit qo'shilmaydi.
+  const power = useMemo(() => POW_RE.test(JSON.stringify([data.expr || [], data.given || []])), [data]);
   const clean = (raw) => {
-    let s = String(raw).replace(/[^0-9\-−]/g, '').replace(/−/g, '-');
+    // Yuqori indeksli raqamlar `^` ko'rinishiga o'tadi: 3⁶ -> 3^6.
+    let s = String(raw).replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹]+/g,
+      (m) => '^' + m.split('').map((c) => SUP[c]).join(''));
+    s = s.replace(/[^0-9\-−^]/g, '').replace(/−/g, '-');
     const neg = data.allowNeg !== false && s.startsWith('-');
     s = s.replace(/-/g, '');
+    const parts = s.split('^');
+    s = parts.length > 1 ? parts[0] + '^' + parts.slice(1).join('') : s;
     return (neg ? '-' : '') + s;
   };
-  useEffect(() => { onReady?.(val.trim() !== '' && val.trim() !== '-' && !A.checked); }, [val, A.checked, onReady]);
+  useEffect(() => { onReady?.(!Number.isNaN(evalTyped(val)) && !A.checked); }, [val, A.checked, onReady]);
 
   const check = useCallback(() => {
-    const v = parseInt(val, 10);
+    const v = evalTyped(val);
     const correct = v === data.target;
     A.setFb({ correct, why: correct ? null : pickWhy(data, { value: v }, lang) });
     A.setChecked(true);
@@ -235,12 +278,19 @@ export function TypeValue({ data, lang = 'uz', mode = 'answer', initialAnswer = 
       <Given data={data} lang={lang} />
       {data.expr ? (
         <div style={{ textAlign: 'center', margin: '6px 0 14px' }}>
-          <Row tokens={data.expr} size={data.exprSize || 30} />
+          <Row tokens={data.expr} size={data.exprSize || 30} lang={lang} />
         </div>
       ) : null}
-      <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: C.soft, marginBottom: 6 }} htmlFor="kit-in">{tr(data.label, lang)}</label>
+      <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: C.soft, marginBottom: 6 }} htmlFor="kit-in">
+        {tr(data.label, lang)}
+        {power ? (
+          <span style={{ display: 'block', fontSize: 12.5, fontWeight: 600, color: '#8a8f9a', marginTop: 2 }}>
+            {tr(L("Darajani ^ bilan yozish mumkin: 3^6", 'Степень можно записать через ^: 3^6', 'A power can be typed with ^: 3^6'), lang)}
+          </span>
+        ) : null}
+      </label>
       <input id="kit-in" data-input="1" value={val} onChange={(e) => setVal(clean(e.target.value))}
-        inputMode={data.allowNeg === false ? 'numeric' : 'text'} disabled={A.locked} placeholder="0"
+        inputMode={data.allowNeg === false && !power ? 'numeric' : 'text'} disabled={A.locked} placeholder="0"
         style={{ width: '100%', boxSizing: 'border-box', fontSize: 24, fontWeight: 800, textAlign: 'center', padding: '12px 14px', borderRadius: 14, border: '2px solid ' + (A.checked ? (A.fb?.correct ? C.ok : C.no) : '#d6dae3'), background: A.checked ? '#fff' : C.bg, outline: 'none', fontFamily: S.mono.fontFamily }} />
       {A.fb && <HFB ok={A.fb.correct} text={A.fb.correct ? tr(data.correctText, lang) : A.fb.why} />}
     </div>
@@ -257,7 +307,7 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
   const [picked, setPicked] = useState(null);
   const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa?.slots) setSlots(sa.slots); } });
   const used = slots.filter(Boolean);
-  const pool = data.cards.filter((c) => used.indexOf(c) === -1);
+  const pool = data.cards.map(cardKey).filter((c) => used.indexOf(c) === -1);
   const full = slots.every(Boolean);
   useEffect(() => { onReady?.(full && !A.checked); }, [full, A.checked, onReady]);
 
@@ -296,26 +346,27 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
                       minWidth: 74, height: 46, borderRadius: 10, margin: '0 5px',
                       border: '2px ' + (slots[i] ? 'solid' : 'dashed') + ' ' + (slots[i] ? bd : (picked ? C.hot : C.line)),
                       background: slots[i] ? '#fff' : (picked ? '#fff7f2' : C.bg),
-                      ...S.mono, fontSize: 23, color: C.ink, cursor: A.locked ? 'default' : 'pointer',
+                      ...S.mono, fontSize: fitFont(slots[i] ? tr(cardLbl(data, slots[i]), lang) : '', 23), color: C.ink, cursor: A.locked ? 'default' : 'pointer',
+                      ...WRAP, height: 'auto', minHeight: 46, padding: '4px 8px',
                     }}>
-                    {slots[i] || ''}
+                    <Sup s={slots[i] ? tr(cardLbl(data, slots[i]), lang) : ''} />
                   </button>
                 );
               }
-              return <Row key={pi} tokens={part.t} size={size} />;
+              return <Row key={pi} tokens={part.t} size={size} lang={lang} />;
             })}
           </div>
         ))}
       </div>
-      <div style={S.note}>{tr(data.ask, lang)}</div>
+      <div style={S.note}><Sup s={tr(data.ask, lang)} /></div>
       <div style={{ borderTop: '1px dashed ' + C.pale, paddingTop: 9 }}>
         <div style={S.bankLbl}>{String(tr(data.bank, lang)).toUpperCase()}</div>
         <div style={{ display: 'flex', gap: 8, justifyContent: 'center', minHeight: 46, alignItems: 'center', flexWrap: 'wrap' }}>
           {pool.length === 0 && <span style={{ fontSize: 13, color: C.line, fontWeight: 700 }}>—</span>}
           {pool.map((c) => (
             <button key={c} type="button" data-card={c} disabled={A.locked} onClick={() => setPicked(picked === c ? null : c)}
-              style={{ minWidth: 62, padding: '0 10px', height: 46, borderRadius: 12, border: '2px solid ' + (picked === c ? C.hot : C.line), background: picked === c ? C.hotBg : '#fff', ...S.mono, fontSize: 22, color: C.ink, cursor: A.locked ? 'default' : 'pointer' }}>
-              {c}
+              style={{ minWidth: 62, padding: '0 10px', height: 'auto', minHeight: 46, borderRadius: 12, border: '2px solid ' + (picked === c ? C.hot : C.line), background: picked === c ? C.hotBg : '#fff', ...S.mono, fontSize: fitFont(tr(cardLbl(data, c), lang), 21), color: C.ink, cursor: A.locked ? 'default' : 'pointer' , ...WRAP}}>
+              <Sup s={tr(cardLbl(data, c), lang)} />
             </button>
           ))}
         </div>
@@ -353,8 +404,8 @@ export function TapTerms({ data, lang = 'uz', mode = 'answer', initialAnswer = n
     <div style={S.wrap}>
       <Head data={data} lang={lang} />
       <Given data={data} lang={lang} />
-      <p style={S.ask}>{tr(data.ask, lang)}</p>
-      {data.note ? <div style={S.note}>{tr(data.note, lang)}</div> : null}
+      <p style={S.ask}><Sup s={tr(data.ask, lang)} /></p>
+      {data.note ? <div style={S.note}><Sup s={tr(data.note, lang)} /></div> : null}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 2, margin: '8px 0 4px' }}>
         {data.parts.map((p, i) => {
           if (p.k === 'txt') return <span key={i} style={{ ...S.mono, fontSize: size, color: C.brace, padding: '0 3px' }}>{p.v}</span>;
@@ -372,8 +423,8 @@ export function TapTerms({ data, lang = 'uz', mode = 'answer', initialAnswer = n
           }
           return (
             <button key={i} type="button" aria-pressed={on} data-term={p.id} disabled={A.locked} onClick={() => toggle(p.id)}
-              style={{ ...S.mono, fontSize: size, color: col, padding: '6px 10px', margin: '0 1px', borderRadius: 10, border: '2px ' + dash + ' ' + bd, background: bg, cursor: A.locked ? 'default' : 'pointer' }}>
-              {p.v}
+              style={{ ...S.mono, fontSize: fitFont(tr(p.v, lang), size), ...WRAP, color: col, padding: '6px 10px', margin: '0 1px', borderRadius: 10, border: '2px ' + dash + ' ' + bd, background: bg, cursor: A.locked ? 'default' : 'pointer' }}>
+              <Sup s={tr(p.v, lang)} />
             </button>
           );
         })}
@@ -411,17 +462,27 @@ export function MarkAll({ data, lang = 'uz', mode = 'answer', initialAnswer = nu
     <div style={S.wrap}>
       <Head data={data} lang={lang} />
       <Given data={data} lang={lang} />
-      <p style={S.ask}>{tr(data.ask, lang)} {data.note ? <span style={{ fontSize: 13, color: C.mute, fontWeight: 600 }}>{tr(data.note, lang)}</span> : null}</p>
+      <p style={S.ask}><Sup s={tr(data.ask, lang)} /> {data.note ? <span style={{ fontSize: 13, color: C.mute, fontWeight: 600 }}>{tr(data.note, lang)}</span> : null}</p>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(' + (data.col || 180) + 'px, 1fr))', gap: 7 }}>
         {data.items.map((it) => {
           const on = marked.indexOf(it.id) !== -1;
           let bd = '#d6dae3'; let bg = '#fff';
           if (on) { bd = C.hot; bg = C.hotBg; }
-          if (A.checked) { const right = on === !!it.hit; bd = right ? C.ok : C.no; bg = right ? C.okBg : C.noBg; }
+          let bs = 'solid';
+          // Tekshiruvdan keyin rang JAVOBNI ko'rsatadi: yashil -- javobga
+          // kirgan yozuv, qizil -- ortiqcha belgilangan, qizil punktir --
+          // o'tkazib yuborilgan. Belgilanmagan va javobga kirmagan yozuv
+          // betaraf qoladi (ilgari u ham yashil bo'lardi va javob o'qilmasdi).
+          if (A.checked) {
+            if (on && it.hit) { bd = C.ok; bg = C.okBg; }
+            else if (on && !it.hit) { bd = C.no; bg = C.noBg; }
+            else if (!on && it.hit) { bd = C.no; bg = '#fff'; bs = 'dashed'; }
+            else { bd = C.pale; bg = '#fff'; }
+          }
           return (
             <button key={it.id} type="button" aria-pressed={on} data-item={it.id} disabled={A.locked} onClick={() => toggle(it.id)}
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 52, padding: '5px 10px', borderRadius: 13, border: '2px solid ' + bd, background: bg, cursor: A.locked ? 'default' : 'pointer' }}>
-              {it.tokens ? <Row tokens={it.tokens} size={data.itemSize || 23} /> : <span style={{ fontSize: 15, fontWeight: 700, color: C.ink }}>{tr(it.label, lang)}</span>}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 52, padding: '5px 10px', borderRadius: 13, border: '2px ' + bs + ' ' + bd, background: bg, cursor: A.locked ? 'default' : 'pointer' }}>
+              {it.tokens ? <Row tokens={it.tokens} size={data.itemSize || 23} lang={lang} /> : <span style={{ fontSize: 15, fontWeight: 700, color: C.ink }}><Sup s={tr(it.label, lang)} /></span>}
             </button>
           );
         })}
@@ -491,7 +552,7 @@ export function BuildLine({ data, lang = 'uz', mode = 'answer', initialAnswer = 
   const undo = () => { if (A.locked || pos === 0) return; setSeq((s) => { const x = s.slice(); x.splice(pos - 1, 1); return x; }); setPos((p) => p - 1); };
   const check = useCallback(() => {
     const correct = data.answerSeq ? seq.join('|') === data.answerSeq.join('|') : value === data.target;
-    A.setFb({ correct, why: correct ? null : pickWhy(data, { seq, value, line: items.map((i) => i && i.label).join(' ') }, lang) });
+    A.setFb({ correct, why: correct ? null : pickWhy(data, { seq, value, line: items.map((i) => (i ? tr(i.label, lang) : '')).join(' ') }, lang) });
     A.setChecked(true);
     correct ? playCorrect?.() : playWrong?.();
     onSubmit?.(submitPayload(data, {
@@ -522,8 +583,8 @@ export function BuildLine({ data, lang = 'uz', mode = 'answer', initialAnswer = 
               <React.Fragment key={i}>
                 {caret(i)}
                 <button type="button" disabled={A.locked} onClick={() => setPos(i)}
-                  style={{ border: 0, background: 'none', padding: '0 2px', ...S.mono, fontSize: 27, color: toneOf(it && it.label), cursor: A.locked ? 'default' : 'pointer' }}>
-                  {it && it.label}
+                  style={{ border: 0, background: 'none', padding: '0 2px', ...S.mono, fontSize: fitFont(tr(it && it.label, lang), 27), color: toneOf(it && it.label), cursor: A.locked ? 'default' : 'pointer' }}>
+                  <Sup s={it && it.label ? tr(it.label, lang) : ''} />
                 </button>
               </React.Fragment>
             ))}
@@ -537,20 +598,20 @@ export function BuildLine({ data, lang = 'uz', mode = 'answer', initialAnswer = 
           <span style={{ ...S.mono, fontSize: 26, color: A.fb?.correct ? C.ok : C.no }}>{value === null ? '—' : value}</span>
         </div>
       ) : null}
-      <div style={S.note}>{tr(data.ask, lang)}</div>
+      <div style={S.note}><Sup s={tr(data.ask, lang)} /></div>
       <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap', alignItems: 'center' }}>
         {data.cards.map((c) => {
           const used = seq.indexOf(c.id) !== -1;
           return (
             <button key={c.id} type="button" data-card={c.id} disabled={used || A.locked} onClick={() => put(c.id)}
-              style={{ minWidth: 52, padding: '0 9px', height: 48, borderRadius: 13, border: '2px solid ' + (used ? '#eef0f4' : C.line), background: used ? C.bg : '#fff', ...S.mono, fontSize: 23, color: used ? C.line : toneOf(c.label), cursor: (used || A.locked) ? 'default' : 'pointer' }}>
-              {c.label}
+              style={{ minWidth: 52, padding: '0 9px', height: 'auto', minHeight: 48, borderRadius: 13, border: '2px solid ' + (used ? '#eef0f4' : C.line), background: used ? C.bg : '#fff', ...S.mono, fontSize: fitFont(tr(c.label, lang), 22), color: used ? C.line : toneOf(c.label), cursor: (used || A.locked) ? 'default' : 'pointer' , ...WRAP}}>
+              <Sup s={tr(c.label, lang)} />
             </button>
           );
         })}
         <button type="button" disabled={A.locked || pos === 0} onClick={undo}
           style={{ marginLeft: 6, padding: '8px 14px', borderRadius: 12, border: '1.5px solid #d6dae3', background: '#fff', color: (A.locked || pos === 0) ? '#c2c8d2' : C.soft, fontSize: 13.5, fontWeight: 700, cursor: (A.locked || pos === 0) ? 'default' : 'pointer', fontFamily: 'inherit' }}>
-          {tr(data.undo, lang)}
+          {tr(data.undo || L('Orqaga', 'Назад', 'Undo'), lang)}
         </button>
       </div>
       {A.fb && <HFB ok={A.fb.correct} text={A.fb.correct ? tr(data.correctText, lang) : A.fb.why} />}
@@ -601,7 +662,7 @@ export function Zones({ data, lang = 'uz', mode = 'answer', initialAnswer = null
     return (
       <button key={it.id} type="button" disabled={A.locked} data-item={it.id} onClick={(e) => tapItem(it.id, e)}
         style={{ padding: '5px 9px', borderRadius: 10, border: '2px solid ' + bd, background: bg, cursor: A.locked ? 'default' : 'pointer', lineHeight: 1 }}>
-        <Row tokens={it.tokens} size={data.itemSize || 17} color={bad ? C.no : C.ink} tone={!bad} />
+        <Row tokens={it.tokens} size={data.itemSize || 17} color={bad ? C.no : C.ink} tone={!bad} lang={lang} />
       </button>
     );
   };
@@ -612,7 +673,7 @@ export function Zones({ data, lang = 'uz', mode = 'answer', initialAnswer = null
       <div style={{ display: 'flex', flexDirection: 'column', gap: 5, margin: '2px 0' }}>
         {data.zones.map((z) => (
           <div key={z.id} style={{ display: 'flex', alignItems: 'stretch', gap: 8 }}>
-            <div style={{ width: data.zoneLbl || 104, flex: '0 0 ' + (data.zoneLbl || 104) + 'px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', fontSize: 10.5, fontWeight: 800, color: C.mute, letterSpacing: '.03em', textAlign: 'right' }}>{tr(z.label, lang)}</div>
+            <div style={{ width: data.zoneLbl || 104, flex: '0 0 ' + (data.zoneLbl || 104) + 'px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', fontSize: 10.5, fontWeight: 800, color: C.mute, letterSpacing: '.03em', textAlign: 'right' }}><Sup s={tr(z.label, lang)} /></div>
             <div data-zone={z.id} onClick={() => tapZone(z.id)}
               style={{ flex: 1, minHeight: 42, borderRadius: 13, padding: 6, border: '2px dashed ' + (picked ? C.hot : C.pale), background: picked ? '#fff7f2' : C.bg, display: 'flex', flexWrap: 'wrap', gap: 6, alignContent: 'center', justifyContent: 'center', cursor: picked && !A.locked ? 'pointer' : 'default' }}>
               {data.items.filter((it) => place[it.id] === z.id).map(chip)}
@@ -620,7 +681,7 @@ export function Zones({ data, lang = 'uz', mode = 'answer', initialAnswer = null
           </div>
         ))}
       </div>
-      <div style={S.note}>{tr(data.ask, lang)}</div>
+      <div style={S.note}><Sup s={tr(data.ask, lang)} /></div>
       <div style={{ borderTop: '1px dashed ' + C.pale, paddingTop: 8 }}>
         <div style={S.bankLbl}>{String(tr(data.bank, lang)).toUpperCase()}</div>
         <div style={{ display: 'flex', gap: 7, justifyContent: 'center', minHeight: 36, alignItems: 'center', flexWrap: 'wrap' }}>

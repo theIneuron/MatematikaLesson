@@ -41,9 +41,9 @@ const DATA = {
     },
   ],
   items: [
-    { id: 'i1', tokens: ['ikki uchdan teng yoy, ulash'], zone: 'z1' },
-    { id: 'i2', tokens: ['uchdan yoy, tomonlarda teng yoy'], zone: 'z2' },
-    { id: 'i3', tokens: ['AB ochilishi, yangi nuqtadan yoy'], zone: 'z3' },
+    { id: 'i1', tokens: [L('ikki uchdan teng yoy, ulash', 'равные дуги из двух концов, соединить', 'equal arcs from both ends, join')], zone: 'z1' },
+    { id: 'i2', tokens: [L('uchdan yoy, tomonlarda teng yoy', 'дуга из вершины, равные дуги на сторонах', 'arc from the vertex, equal arcs on the sides')], zone: 'z2' },
+    { id: 'i3', tokens: [L('AB ochilishi, yangi nuqtadan yoy', 'раствор AB, дуга из новой точки', 'AB opening, arc from a new point')], zone: 'z3' },
   ],
   bank: L(
     'Qadamlar',

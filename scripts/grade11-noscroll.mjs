@@ -54,6 +54,19 @@ const LESSONS = {
   dars12: 'dars12-logarifmik-tengsizliklar',
   dars13: 'dars13-sistemalar',
   dars14: 'dars14-masalalar',
+  dars35: 'dars35-fazoda-koordinatalar',
+  dars36: 'dars36-vektorlar-amallar',
+  dars37: 'dars37-skalyar-kopaytma',
+  dars38: 'dars38-tekislik-tenglamasi',
+  dars39: 'dars39-tekisliklar-burchagi',
+  dars40: 'dars40-masofalar',
+  dars41: 'dars41-almashtirishlar',
+  dars43: 'dars43-hosila-tezlik',
+  dars44: 'dars44-jadval-va-qoidalar',
+  dars45: 'dars45-urinma-va-tekshirish',
+  dars46: 'dars46-almashtirishlar-sinov',
+  dars47: 'dars47-tenglama-tengsizlik-sinov',
+  dars48: 'dars48-grafiklar-va-yuza-sinov',
 }
 const WANT = process.argv.slice(2).find((a) => !a.startsWith('--')) || 'dars12'
 const SLUG = LESSONS[WANT] || WANT

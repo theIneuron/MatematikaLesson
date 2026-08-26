@@ -23,8 +23,8 @@ const DATA = {
     'Дано:',
     'Given:'),
   rows: [
-    [{ t: ['x', "o'qiga", 'nisbatan'] }, { slot: 0 }],
-    [{ t: ['keyin', 'y', "o'qiga"] }, { slot: 1 }],
+    [{ t: ['x', L("o'qiga", 'относительно оси', 'in the axis'), L('nisbatan', 'относительно', 'relative to')] }, { slot: 0 }],
+    [{ t: [L('keyin', 'потом', 'then'), 'y', L("o'qiga", 'относительно оси', 'in the axis')] }, { slot: 1 }],
   ],
   cards: ['(−4; −9)', '(4; −9)', '(4; 9)', '(9; −4)'],
   answer: ['(−4; −9)', '(4; −9)'],

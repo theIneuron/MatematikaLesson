@@ -1,6 +1,6 @@
 // Dars04 · Amaliyot 05 — Ikki nuqtada tekshirish · 🟡 · chain · tag: id_chain
 // Mexanika: kit.jsx -> SlotsBank (ikki qator). Raskladka: 5-o'rin.
-// 3(x + 2) − x va 2x + 6 ayniy teng.
+// 3(x + 2) − x va 2x + 6 har doim teng.
 //   x = 4:  chap tomon 3 · 6 − 4 = 14
 //   x = 10: o'ng tomon 2 · 10 + 6 = 26 (chap tomon ham 3 · 12 − 10 = 26)
 // Kartalarda takror qiymat yo'q: har uyaga o'z soni.
@@ -11,10 +11,10 @@ const DATA = {
   tag: 'id_chain', level: '🟡',
   eyebrow: L('Ikki nuqtada', 'В двух точках', 'At two points'),
   setup: L(
-    "Ayniy teng yozuvlar har qanday sonda bir xil qiymat beradi. Bir nuqtada chap tomonni, boshqasida o'ng tomonni hisoblab ko'ring.",
+    "Har doim teng yozuvlar har qanday sonda bir xil qiymat beradi. Bir nuqtada chap tomonni, boshqasida o'ng tomonni hisoblab ko'ring.",
     'Тождественно равные записи дают одно значение при любом числе. Посчитай левую часть в одной точке, правую в другой.',
     'Identically equal records agree for every value. Work out the left side at one point and the right at another.'),
-  given: [['3(x + 2) − x', 'va', '2x + 6']],
+  given: [['3(x + 2) − x', L('va', 'и', 'and'), '2x + 6']],
   givenLabel: L('Yozuvlar:', 'Записи:', 'Records:'),
   rows: [
     [{ t: ['3(4', '+', '2)', '−', '4', '='] }, { slot: 0 }],

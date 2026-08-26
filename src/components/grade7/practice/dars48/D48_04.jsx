@@ -15,7 +15,7 @@ const DATA = {
     "Parallel chiziqlarda ichki bir tomonli burchaklar yig'indisi 180. Ikki javob kerak: x va katta burchak.",
     'При параллельных прямых внутренние односторонние углы дают 180. Нужны два ответа: x и больший угол.',
     'With parallel lines the co-interior angles add to 180. Two answers: x and the larger angle.'),
-  given: [['3x', 'va', '2x']],
+  given: [['3x', L('va', 'и', 'and'), '2x']],
   givenLabel: L(
     'Ichki bir tomonli:',
     'Внутренние односторонние:',

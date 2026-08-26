@@ -22,9 +22,9 @@ import D04_09 from './D04_09.jsx';
 import D04_10 from './D04_10.jsx';
 
 const HEAD = {
-  uz: "Dars 4 amaliyoti — 10 topshiriq (ayniy o'zgartirishlar)",
+  uz: "Dars 4 amaliyoti — 10 topshiriq (qiymatni saqlaydigan o'zgartirishlar)",
   ru: 'Практика урока 4 — 10 заданий (тождественные преобразования)',
-  en: 'Lesson 4 practice — 10 tasks (identity transformations)',
+  en: 'Lesson 4 practice — 10 tasks (value-preserving transformations)',
 };
 
 const ITEMS = [
@@ -35,7 +35,7 @@ const ITEMS = [
   { id: '05', label: { uz: "Ikki nuqtada", ru: 'В двух точках', en: 'Two points' }, C: D04_05 },  // chain 🟡 3(x + 2) − x
   { id: '06', label: { uz: "Xato o'zgartirish", ru: 'Неверное преобразование', en: 'Wrong step' }, C: D04_06 },  // fix 🟡 5(a − 2)
   { id: '07', label: { uz: "Ikki had", ru: 'Два члена', en: 'Two terms' }, C: D04_07 },  // slots 🟡 6(2x − 5)
-  { id: '08', label: { uz: "Ayniymi", ru: 'Тождество ли', en: 'Identity or not' }, C: D04_08 },  // sort 🔴 (x + 1)²
+  { id: '08', label: { uz: "Har doim tengmi", ru: 'Тождество ли', en: 'Always equal or not' }, C: D04_08 },  // sort 🔴 (x + 1)²
   { id: '09', label: { uz: "Isbot qadamlari", ru: 'Шаги доказательства', en: 'Proof steps' }, C: D04_09 },  // order 🔴 5(a + 2) − 3a
   { id: '10', label: { uz: "Ikki qavs", ru: 'Две скобки', en: 'Two brackets' }, C: D04_10 },  // build 🔴 3(x + 4) − 2(x − 1)
 ];

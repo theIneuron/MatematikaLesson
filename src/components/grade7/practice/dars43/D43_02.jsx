@@ -15,7 +15,7 @@ const DATA = {
     'Xossa ikki tomonga ishlaydi. Ikki burchagi teng uchburchak haqida nima aytish mumkin?',
     'Свойство работает в обе стороны. Что можно сказать о треугольнике с двумя равными углами?',
     'The property works both ways. What can be said about a triangle with two equal angles?'),
-  given: [['65°', 'va', '65°']],
+  given: [['65°', L('va', 'и', 'and'), '65°']],
   givenLabel: L(
     'Ikki burchak:',
     'Два угла:',

@@ -23,8 +23,8 @@ const DATA = {
     'Варианты:',
     'Choices:'),
   rows: [
-    [{ t: ["ko'ylak", 'va', 'shim', '='] }, { slot: 0 }],
-    [{ t: ['shlyapa', 'bilan', '='] }, { slot: 1 }],
+    [{ t: [L("ko'ylak", 'рубашка', 'shirt'), L('va', 'и', 'and'), L('shim', 'брюки', 'trousers'), '='] }, { slot: 0 }],
+    [{ t: [L('shlyapa', 'шляпа', 'hat'), L('bilan', 'с', 'with'), '='] }, { slot: 1 }],
   ],
   cards: ['24', '48', '10', '12'],
   answer: ['24', '48'],

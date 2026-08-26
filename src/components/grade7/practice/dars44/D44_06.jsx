@@ -15,7 +15,7 @@ const DATA = {
     'Teng yonli uchburchakda asosdagi burchaklar teng. Uchidagi burchak berilgan, asosdagi burchakni toping.',
     'В равнобедренном углы при основании равны. Дан угол при вершине, найди угол при основании.',
     'The base angles are equal. The apex angle is given; find a base angle.'),
-  given: [['uchidagi burchak = 100°']],
+  given: [[L('uchidagi burchak = 100°', 'угол при вершине = 100°', 'apex angle = 100°')]],
   givenLabel: L(
     'Berilgan:',
     'Дано:',

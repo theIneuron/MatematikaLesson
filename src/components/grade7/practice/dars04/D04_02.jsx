@@ -11,7 +11,7 @@ const DATA = {
     "Ikki yozuv teng emasligini ko'rsatish uchun BITTA son yetadi. a = 1 va b = 1 ni qo'yib ikki qiymatni solishtiring.",
     'Чтобы показать неравенство двух записей, достаточно ОДНОГО числа. Подставь a = 1 и b = 1 и сравни значения.',
     'Refuting an identity needs just ONE number. Put a = 1 and b = 1 and compare.'),
-  given: [['(a + b)²', 'va', 'a² + b²']],
+  given: [['(a + b)²', L('va', 'и', 'and'), 'a² + b²']],
   givenLabel: L('Yozuvlar:', 'Записи:', 'Records:'),
   cards: [
     { id: 'a', label: '(1 + 1)² = 4' },
@@ -24,9 +24,9 @@ const DATA = {
   ask: L('Kartani bosish uni chiziqqa qo\'yadi.', 'Нажатие на карточку ставит её в строку.', 'Tapping a card puts it in the line.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
-    "To'g'ri. 4 va 2 -- teng emas, ya'ni yozuvlar ayniy teng bo'lolmaydi. Bitta son rad etish uchun yetdi.",
+    "To'g'ri. 4 va 2 -- teng emas, ya'ni yozuvlar har doim teng bo'lolmaydi. Bitta son rad etish uchun yetdi.",
     'Верно. 4 и 2 не равны, значит записи не тождественны. Одного числа хватило для опровержения.',
-    'Correct. 4 and 2 differ, so the records are not identical. One number sufficed to refute.'),
+    'Correct. 4 and 2 differ, so the records are not always equal. One number sufficed to refute.'),
   wrongs: [
     { when: (s) => s.seq.indexOf('c') !== -1, text: L(
       "(1 + 1)² = 2² = 4, 2 emas: avval qavs ichi hisoblanadi, keyin kvadratga ko'tariladi.",

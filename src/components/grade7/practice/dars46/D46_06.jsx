@@ -23,7 +23,7 @@ const DATA = {
   cards: [
     { id: 'a', label: '28 + x = 90' },
     { id: 'b', label: 'x = 62' },
-    { id: 'c', label: "o'tkir burchak 62°" },
+    { id: 'c', label: L("o'tkir burchak 62°", 'острый угол 62°', 'acute angle 62°') },
     { id: 'd', label: '28 + x = 180' },
     { id: 'e', label: 'x = 152' },
   ],

@@ -38,12 +38,47 @@ const toneOf = (tok) => {
   return null;
 };
 
-export const Row = ({ tokens, size = 28, color = '#1f2430', tone = true }) => (
+// YUQORI INDEKS ALOHIDA RENDER QILINADI (metodist QA si, 2026-08-22).
+// Sabab: yozuv JetBrains Mono da chiziladi, monoshirinada esa `¹` va `⁰`
+// glifi ham TO'LIQ katak egallaydi -- `2¹⁰` ekranda `2¹ ⁰` bo'lib ko'rinadi
+// va o'quvchi buni «2 va 10» deb o'qishi mumkin. Shuning uchun indeks
+// raqamlari oddiy raqamga qaytariladi va kichraytirilgan `sup` da chiziladi.
+const SUP_MAP = { '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4', '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9', '⁻': '−' };
+const SUP_RE = /[⁰¹²³⁴⁵⁶⁷⁸⁹⁻]+/g;
+const withSup = (t, key) => {
+  if (!SUP_RE.test(t)) { SUP_RE.lastIndex = 0; return t; }
+  SUP_RE.lastIndex = 0;
+  const out = []; let last = 0; let m;
+  while ((m = SUP_RE.exec(t))) {
+    if (m.index > last) out.push(t.slice(last, m.index));
+    out.push(
+      <span key={key + '-' + m.index} style={{ fontSize: '0.58em', verticalAlign: 'super', lineHeight: 0, letterSpacing: '-0.04em' }}>
+        {m[0].split('').map((c) => SUP_MAP[c] || c).join('')}
+      </span>,
+    );
+    last = m.index + m[0].length;
+  }
+  if (last < t.length) out.push(t.slice(last));
+  return out;
+};
+
+// Matn ichidagi yuqori indeks ham shu yo'l bilan chiziladi: savol satri,
+// karta yozuvi, razbor -- hammasi bir xil ko'rinsin (metodist QA si).
+export const Sup = ({ s }) => <>{withSup(String(s == null ? '' : s), 'x')}</>;
+
+// Token SO'Z bo'lishi ham mumkin (masalan «va»): matematikaning o'zi
+// tarjima qilinmaydi, lekin yozuv ichidagi so'z tarjima qilinishi SHART --
+// aks holda o'zbekcha so'z rus va ingliz tilida ham chiqib qoladi
+// (metodist QA si, 2026-08-22).
+const trTok = (v, lang) => (v && typeof v === 'object' && !('n' in v) ? (v[lang] || v.uz || '') : v);
+
+export const Row = ({ tokens, size = 28, color = '#1f2430', tone = true, lang = 'uz' }) => (
   <span style={{ display: 'inline-flex', alignItems: 'center', flexWrap: 'wrap', fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: size, fontWeight: 800, color }}>
-    {tokens.map((t, i) => {
-      if (typeof t !== 'string') return <Frac key={i} n={t.n} d={t.d} size={size} />;
+    {tokens.map((tk, i) => {
+      if (tk && typeof tk === 'object' && 'n' in tk) return <Frac key={i} n={tk.n} d={tk.d} size={size} />;
+      const t = String(trTok(tk, lang));
       const c = tone ? toneOf(t) : null;
-      return <span key={i} style={{ padding: '0 3px', ...(c ? { color: c } : null) }}>{t}</span>;
+      return <span key={i} style={{ padding: '0 3px', ...(c ? { color: c } : null) }}>{withSup(t, 'p' + i)}</span>;
     })}
   </span>
 );

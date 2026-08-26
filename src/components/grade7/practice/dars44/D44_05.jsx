@@ -15,7 +15,7 @@ const DATA = {
     "To'g'ri burchakli uchburchakda bir burchak 90, ikkinchisi 35. Uchinchisini uch qadamda toping.",
     'В прямоугольном треугольнике один угол 90, другой 35. Найди третий в три шага.',
     'A right triangle has one angle 90 and another 35. Find the third in three steps.'),
-  given: [['90°', 'va', '35°']],
+  given: [['90°', L('va', 'и', 'and'), '35°']],
   givenLabel: L(
     'Berilgan:',
     'Дано:',
@@ -23,9 +23,9 @@ const DATA = {
   cards: [
     { id: 'a', label: '90 + 35 = 125' },
     { id: 'b', label: '180 − 125 = 55' },
-    { id: 'c', label: 'uchinchisi 55°' },
+    { id: 'c', label: L('uchinchisi 55°', 'третий 55°', 'the third 55°') },
     { id: 'd', label: '90 − 35 = 55' },
-    { id: 'e', label: 'uchinchisi 125°' },
+    { id: 'e', label: L('uchinchisi 125°', 'третий 125°', 'the third 125°') },
   ],
   answerSeq: ['a', 'b', 'c'],
   ask: L(

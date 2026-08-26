@@ -18,13 +18,13 @@ const DATA = {
     "Umumiy maxraj -- ikki maxrajga ham butun bo'linadigan eng kichik son. Uni ko'paytirish bilan ham olish mumkin, lekin son katta bo'lib ketadi.",
     'Общий знаменатель это наименьшее число, которое делится на оба знаменателя. Его можно взять и произведением, но число выйдет больше.',
     'The common denominator is the least number divisible by both. The product also works but gives a larger number.'),
-  given: [['a : 4', 'va', 'a : 6']],
+  given: [['a : 4', L('va', 'и', 'and'), 'a : 6']],
   givenLabel: L(
     'Berilgan:',
     'Дано:',
     'Given:'),
   cards: [
-    { id: 'a', label: 'umumiy maxraj' },
+    { id: 'a', label: L('umumiy maxraj', 'общий знаменатель', 'common denominator') },
     { id: 'b', label: '= 12' },
     { id: 'c', label: '= 24' },
     { id: 'd', label: '= 10' },

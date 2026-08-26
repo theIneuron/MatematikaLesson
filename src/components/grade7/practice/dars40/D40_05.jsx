@@ -15,7 +15,7 @@ const DATA = {
     "Qo'shni burchaklarning yig'indisi 180 gradus. Ikkinchi burchak qavs bilan yoziladi, chunki u butunligicha qo'shiladi.",
     'Сумма смежных углов 180 градусов. Второй угол пишется в скобках, потому что складывается целиком.',
     'Adjacent angles add to 180 degrees. The second angle goes in brackets because it is added as a whole.'),
-  given: [['2x', 'va', 'x + 30']],
+  given: [['2x', L('va', 'и', 'and'), 'x + 30']],
   givenLabel: L(
     "Qo'shni burchaklar:",
     'Смежные углы:',

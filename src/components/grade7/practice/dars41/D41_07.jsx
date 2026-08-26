@@ -15,7 +15,7 @@ const DATA = {
     "Teng yonli uchburchakda ikki yon tomon teng, asos esa boshqa. Perimetr formulasini yig'ing.",
     'У равнобедренного две боковые равны, а основание другое. Собери формулу периметра.',
     'An isosceles triangle has two equal legs and a different base. Build the perimeter formula.'),
-  given: [['a', '--', 'yon tomon', ',', 'b', '--', 'asos']],
+  given: [['a', '--', L('yon tomon', 'боковая сторона', 'the leg'), ',', 'b', '--', L('asos', 'основание', 'base')]],
   givenLabel: L(
     'Belgilash:',
     'Обозначения:',

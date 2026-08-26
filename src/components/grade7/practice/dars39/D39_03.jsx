@@ -17,7 +17,7 @@ const DATA = {
     "Bolaning borish yo'li beshta, qaytish yo'li esa oltita. Sayohat ikki qismdan iborat, ya'ni tanlovlar ketma-ket.",
     'Способов доехать пять, вернуться шесть. Поездка состоит из двух частей, значит выборы идут подряд.',
     'Five ways there and six back. The trip has two parts, so the choices come in sequence.'),
-  given: [['5', 'va', '6']],
+  given: [['5', L('va', 'и', 'and'), '6']],
   givenLabel: L(
     'Berilgan:',
     'Дано:',

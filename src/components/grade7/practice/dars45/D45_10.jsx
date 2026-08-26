@@ -18,9 +18,9 @@ const DATA = {
     { id: 'zn', label: L("Bunday juft yo'q", 'Такой пары нет', 'No such pair') },
   ],
   items: [
-    { id: 'i1', tokens: ['70°', 'va', '70°'], zone: 'zt' },
-    { id: 'i2', tokens: ['70°', 'va', '110°'], zone: 'zs' },
-    { id: 'i3', tokens: ['70°', 'va', '50°'], zone: 'zn' },
+    { id: 'i1', tokens: ['70°', L('va', 'и', 'and'), '70°'], zone: 'zt' },
+    { id: 'i2', tokens: ['70°', L('va', 'и', 'and'), '110°'], zone: 'zs' },
+    { id: 'i3', tokens: ['70°', L('va', 'и', 'and'), '50°'], zone: 'zn' },
   ],
   ask: L('Kartani bosing, keyin zonani bosing. Zonadagi kartani bosish uni qaytarib oladi.',
     'Нажми карточку, затем зону. Нажатие на карточку в зоне возвращает её обратно.',
