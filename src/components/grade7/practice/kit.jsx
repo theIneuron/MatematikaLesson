@@ -154,6 +154,21 @@ const submitPayload = (data, extra) => ({
   meta: { tag: data.tag, level: data.level, ...(data.meta || {}) },
 });
 
+// TELEFON QOIDALARI BIR JOYDA (metodist QA si, 2026-08-22). 640px dan tor
+// ekranda: variantlar bitta ustunda, zona nomi zonaning USTIDA (yon ustun
+// kenglikning choragini yeb qo'yardi), «hammasini belgilash» esa ikki ustunda
+// qoladi -- bitta ustunda oltita yozuv balandlikka sig'maydi.
+const MobileCss = () => (
+  <style>{`
+    @media (max-width: 639.98px) {
+      .pq-opts { grid-template-columns: 1fr !important; }
+      .pq-items { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+      .pq-zrow { flex-direction: column !important; align-items: stretch !important; gap: 2px !important; }
+      .pq-zlbl { width: auto !important; flex: none !important; justify-content: flex-start !important; text-align: left !important; }
+    }
+  `}</style>
+);
+
 // Sarlavha qismi: hamma mexanikada bir xil tartib -- eyebrow, shart, savol.
 const Head = ({ data, lang }) => (
   <>
@@ -167,7 +182,7 @@ const Head = ({ data, lang }) => (
 const Given = ({ data, lang }) => {
   if (!data.given || !data.given.length) return null;
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, padding: '5px 0', borderRadius: 12, background: C.bg, border: '1px solid #eef0f4', marginBottom: 4 }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 14, padding: '5px 0', borderRadius: 12, background: C.bg, border: '1px solid #eef0f4', marginBottom: 4 }}>
       {data.givenLabel ? <span style={{ fontSize: 12, fontWeight: 700, color: C.mute, letterSpacing: '.04em', textTransform: 'uppercase' }}>{tr(data.givenLabel, lang)}</span> : null}
       {data.given.map((g, i) => <Row key={i} tokens={g} size={22} lang={lang} />)}
     </div>
@@ -221,14 +236,7 @@ export function Choice({ data, lang = 'uz', mode = 'answer', initialAnswer = nul
       ) : null}
       <Given data={data} lang={lang} />
       <p style={S.ask}><Sup s={tr(data.ask, lang)} /></p>
-      {/* TELEFONDA VARIANTLAR BITTA USTUNDA (metodist QA si, 2026-08-22):
-          uch ustunda `(x + 7)²` kabi yozuv o'rtasidan ko'chib ketardi. Tor
-          ekranda ustun bitta bo'ladi, yozuv esa butun qoladi. */}
-      <style>{`
-        @media (max-width: 639.98px) {
-          .pq-opts { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
+      <MobileCss />
       <div className="pq-opts" style={{ display: 'grid', gridTemplateColumns: 'repeat(' + (data.optCols || 1) + ', minmax(0, 1fr))', gap: 7 }}>
         {order.map((i) => {
           const o = data.opts[i];
@@ -535,7 +543,8 @@ export function MarkAll({ data, lang = 'uz', mode = 'answer', initialAnswer = nu
       <Head data={data} lang={lang} />
       <Given data={data} lang={lang} />
       <p style={S.ask}><Sup s={tr(data.ask, lang)} /> {data.note ? <span style={{ fontSize: 13, color: C.mute, fontWeight: 600 }}>{tr(data.note, lang)}</span> : null}</p>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(' + (data.col || 180) + 'px, 1fr))', gap: 7 }}>
+      <MobileCss />
+      <div className="pq-items" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(' + (data.col || 180) + 'px, 1fr))', gap: 7 }}>
         {data.items.map((it) => {
           const on = marked.indexOf(it.id) !== -1;
           let bd = '#d6dae3'; let bg = '#fff';
@@ -755,10 +764,11 @@ export function Zones({ data, lang = 'uz', mode = 'answer', initialAnswer = null
     <div style={S.wrap}>
       <Head data={data} lang={lang} />
       <Given data={data} lang={lang} />
+      <MobileCss />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 5, margin: '2px 0' }}>
         {zoneOrder.map((zi) => { const z = data.zones[zi]; return (
-          <div key={z.id} style={{ display: 'flex', alignItems: 'stretch', gap: 8 }}>
-            <div style={{ width: data.zoneLbl || 104, flex: '0 0 ' + (data.zoneLbl || 104) + 'px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', fontSize: 10.5, fontWeight: 700, color: C.mute, letterSpacing: '.03em', textAlign: 'right' }}><Sup s={tr(z.label, lang)} /></div>
+          <div key={z.id} className="pq-zrow" style={{ display: 'flex', alignItems: 'stretch', gap: 8 }}>
+            <div className="pq-zlbl" style={{ width: data.zoneLbl || 104, flex: '0 0 ' + (data.zoneLbl || 104) + 'px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', fontSize: 10.5, fontWeight: 700, color: C.mute, letterSpacing: '.03em', textAlign: 'right' }}><Sup s={tr(z.label, lang)} /></div>
             <div data-zone={z.id} onClick={() => tapZone(z.id)}
               style={{ flex: 1, minHeight: 42, borderRadius: 13, padding: 6, border: '2px dashed ' + (picked ? C.hot : C.pale), background: picked ? '#fff7f2' : C.bg, display: 'flex', flexWrap: 'wrap', gap: 6, alignContent: 'center', justifyContent: 'center', cursor: picked && !A.locked ? 'pointer' : 'default' }}>
               {data.items.filter((it) => place[it.id] === z.id).map(chip)}
