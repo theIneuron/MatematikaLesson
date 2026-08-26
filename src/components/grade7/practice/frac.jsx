@@ -21,7 +21,7 @@ export const Frac = ({ n, d, size = 28, color }) => (
       display: 'inline-flex', flexDirection: 'column', alignItems: 'center',
       verticalAlign: 'middle', margin: '0 5px',
       fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-      fontSize: Math.round(size * 0.72), lineHeight: 1.04, fontWeight: 800,
+      fontSize: Math.round(size * 0.72), lineHeight: 1.04, fontWeight: 700,
       ...(color ? { color } : null),
     }}
   >
@@ -73,7 +73,7 @@ export const Sup = ({ s }) => <>{withSup(String(s == null ? '' : s), 'x')}</>;
 const trTok = (v, lang) => (v && typeof v === 'object' && !('n' in v) ? (v[lang] || v.uz || '') : v);
 
 export const Row = ({ tokens, size = 28, color = '#1f2430', tone = true, lang = 'uz' }) => (
-  <span style={{ display: 'inline-flex', alignItems: 'center', flexWrap: 'wrap', fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: size, fontWeight: 800, color }}>
+  <span style={{ display: 'inline-flex', alignItems: 'center', flexWrap: 'wrap', fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: size, fontWeight: 700, color }}>
     {tokens.map((tk, i) => {
       if (tk && typeof tk === 'object' && 'n' in tk) return <Frac key={i} n={tk.n} d={tk.d} size={size} />;
       const t = String(trTok(tk, lang));

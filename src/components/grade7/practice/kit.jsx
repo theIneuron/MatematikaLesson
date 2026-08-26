@@ -48,12 +48,12 @@ export const tr = (v, lang) => {
 // ============================================================ USLUBLAR
 export const S = {
   wrap: { maxWidth: 640, margin: '0 auto', padding: '4px 2px 8px' },
-  eyebrow: { fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
+  eyebrow: { fontSize: 12, fontWeight: 700, letterSpacing: '.04em', color: '#fe5b1a', textTransform: 'uppercase' },
   setup: { fontSize: 16, lineHeight: 1.45, margin: '5px 0 9px', color: '#374151' },
-  ask: { fontSize: 17, fontWeight: 700, margin: '10px 0 8px' },
+  ask: { fontSize: 17, fontWeight: 600, margin: '10px 0 8px' },
   note: { fontSize: 13, color: '#9aa1ad', fontWeight: 600, margin: '0 0 8px' },
-  bankLbl: { fontSize: 12, fontWeight: 800, color: '#9aa1ad', letterSpacing: '.04em', marginBottom: 6 },
-  mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontWeight: 800 },
+  bankLbl: { fontSize: 12, fontWeight: 700, color: '#9aa1ad', letterSpacing: '.04em', marginBottom: 6 },
+  mono: { fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontWeight: 700 },
 };
 export const C = {
   ink: '#1f2430', soft: '#374151', mute: '#9aa1ad', line: '#cbd5e1', pale: '#e2e8f0',
@@ -107,27 +107,13 @@ const pickWhy = (data, state, lang) => {
 
 // Karta SO'Z bo'lsa, u tarjima qilinadi. Lekin javob TEKSHIRUVI o'zbekcha
 // satr bo'yicha qoladi: `answer` va razbor shartlari o'zgarmasin (QA 2026-08-22).
-// Karta yozuvi uzun bo'lsa shrift kichrayadi va matn karta ICHIDA ko'chadi.
-// Sabab (metodist QA si, 2026-08-22): «eng katta tomon 80° qarshisida» kabi
-// yozuv telefonda karta chegarasidan chiqib ketardi.
-// Ekran klaviaturasining kaliti. O'lchami 390px kenglikda o'n kalit bir
-// qatorga sig'adigan qilib olingan.
-const PADKEY = (locked, w) => ({
-  minWidth: w || 32, height: 36, padding: '0 7px', borderRadius: 10,
-  border: '1.5px solid #d6dae3', background: locked ? '#f4f6f9' : '#fff',
-  color: locked ? '#c2c8d2' : '#1f2430', fontSize: 16, fontWeight: 800,
-  fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-  cursor: locked ? 'default' : 'pointer',
-});
+// JAVOB KARTALARINING O'LCHAMI BITTA (metodist QA si, 2026-08-22): ilgari
+// shrift yozuv uzunligiga qarab kichrayardi va bitta topshiriqda kartalar
+// har xil bo'lib qolardi. Endi hamma javob kartasi bir xil kegl bilan
+// chiziladi, uzun yozuv esa karta ICHIDA ko'chadi.
+const CARD_FS = 18;   // javob kartasi: bank, uya, so'zli had
+const LINE_FS = 22;   // yig'ilgan javob qatori
 
-const fitFont = (s, base) => {
-  const n = String(s == null ? '' : s).length;
-  if (n <= 4) return base;
-  if (n <= 8) return base - 3;
-  if (n <= 14) return Math.max(15, base - 7);
-  if (n <= 22) return Math.max(13.5, base - 10);
-  return Math.max(12.5, base - 12);
-};
 const WRAP = { whiteSpace: 'normal', textAlign: 'center', lineHeight: 1.15, maxWidth: 250 };
 
 const cardKey = (c) => (c && typeof c === 'object' ? (c.uz || '') : c);
@@ -159,7 +145,7 @@ const Given = ({ data, lang }) => {
   if (!data.given || !data.given.length) return null;
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, padding: '5px 0', borderRadius: 12, background: C.bg, border: '1px solid #eef0f4', marginBottom: 4 }}>
-      {data.givenLabel ? <span style={{ fontSize: 12, fontWeight: 800, color: C.mute, letterSpacing: '.04em', textTransform: 'uppercase' }}>{tr(data.givenLabel, lang)}</span> : null}
+      {data.givenLabel ? <span style={{ fontSize: 12, fontWeight: 700, color: C.mute, letterSpacing: '.04em', textTransform: 'uppercase' }}>{tr(data.givenLabel, lang)}</span> : null}
       {data.given.map((g, i) => <Row key={i} tokens={g} size={22} lang={lang} />)}
     </div>
   );
@@ -301,7 +287,7 @@ export function TypeValue({ data, lang = 'uz', mode = 'answer', initialAnswer = 
       </label>
       <input id="kit-in" data-input="1" value={val} onChange={(e) => setVal(clean(e.target.value))}
         inputMode={data.allowNeg === false && !power ? 'numeric' : 'text'} disabled={A.locked} placeholder="0"
-        style={{ width: '100%', boxSizing: 'border-box', fontSize: 24, fontWeight: 800, textAlign: 'center', padding: '12px 14px', borderRadius: 14, border: '2px solid ' + (A.checked ? (A.fb?.correct ? C.ok : C.no) : '#d6dae3'), background: A.checked ? '#fff' : C.bg, outline: 'none', fontFamily: S.mono.fontFamily }} />
+        style={{ width: '100%', boxSizing: 'border-box', fontSize: 24, fontWeight: 700, textAlign: 'center', padding: '12px 14px', borderRadius: 14, border: '2px solid ' + (A.checked ? (A.fb?.correct ? C.ok : C.no) : '#d6dae3'), background: A.checked ? '#fff' : C.bg, outline: 'none', fontFamily: S.mono.fontFamily }} />
       {/* EKRAN KLAVIATURASI (metodist qarori 2026-08-22): javobni telefonda
           ham, kompyuterda ham bir xil kiritish kerak. Tizim klaviaturasi
           telefonda `^` ni bermaydi va raqamli rejimda belgilar yashiringan,
@@ -380,7 +366,7 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
                       minWidth: 74, height: 46, borderRadius: 10, margin: '0 5px',
                       border: '2px ' + (slots[i] ? 'solid' : 'dashed') + ' ' + (slots[i] ? bd : (picked ? C.hot : C.line)),
                       background: slots[i] ? '#fff' : (picked ? '#fff7f2' : C.bg),
-                      ...S.mono, fontSize: fitFont(slots[i] ? tr(cardLbl(data, slots[i]), lang) : '', 23), color: C.ink, cursor: A.locked ? 'default' : 'pointer',
+                      ...S.mono, fontSize: LINE_FS, color: C.ink, cursor: A.locked ? 'default' : 'pointer',
                       ...WRAP, height: 'auto', minHeight: 46, padding: '4px 8px',
                     }}>
                     <Sup s={slots[i] ? tr(cardLbl(data, slots[i]), lang) : ''} />
@@ -399,7 +385,7 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
           {pool.length === 0 && <span style={{ fontSize: 13, color: C.line, fontWeight: 700 }}>—</span>}
           {pool.map((c) => (
             <button key={c} type="button" data-card={c} disabled={A.locked} onClick={() => setPicked(picked === c ? null : c)}
-              style={{ minWidth: 62, padding: '0 10px', height: 'auto', minHeight: 46, borderRadius: 12, border: '2px solid ' + (picked === c ? C.hot : C.line), background: picked === c ? C.hotBg : '#fff', ...S.mono, fontSize: fitFont(tr(cardLbl(data, c), lang), 21), color: C.ink, cursor: A.locked ? 'default' : 'pointer' , ...WRAP}}>
+              style={{ minWidth: 62, padding: '0 10px', height: 'auto', minHeight: 46, borderRadius: 12, border: '2px solid ' + (picked === c ? C.hot : C.line), background: picked === c ? C.hotBg : '#fff', ...S.mono, fontSize: CARD_FS, color: C.ink, cursor: A.locked ? 'default' : 'pointer' , ...WRAP}}>
               <Sup s={tr(cardLbl(data, c), lang)} />
             </button>
           ))}
@@ -434,6 +420,9 @@ export function TapTerms({ data, lang = 'uz', mode = 'answer', initialAnswer = n
   useRegister(check, registerCheck);
 
   const size = data.exprSize || 30;
+  // Hadlar SO'Z bo'lsa (xulosalar ro'yxati), yozuv kegli kartalar bilan bir xil
+  // bo'ladi: aks holda bir topshiriqda uch xil o'lcham chiqadi.
+  const wordy = (data.parts || []).some((p) => p.k === 'term' && /\s/.test(String(tr(p.v, lang))));
   return (
     <div style={S.wrap}>
       <Head data={data} lang={lang} />
@@ -442,10 +431,10 @@ export function TapTerms({ data, lang = 'uz', mode = 'answer', initialAnswer = n
       {data.note ? <div style={S.note}><Sup s={tr(data.note, lang)} /></div> : null}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 2, margin: '8px 0 4px' }}>
         {data.parts.map((p, i) => {
-          if (p.k === 'txt') return <span key={i} style={{ ...S.mono, fontSize: size, color: C.brace, padding: '0 3px' }}>{p.v}</span>;
-          if (p.k === 'op') return <span key={i} style={{ ...S.mono, fontSize: size + 4, color: C.stage1, padding: '2px 12px', margin: '0 4px', borderRadius: 9, background: '#f3eefa' }}>{p.v}</span>;
+          if (p.k === 'txt') return <span key={i} style={{ ...S.mono, fontSize: wordy ? CARD_FS : size, color: C.brace, padding: '0 3px' }}>{p.v}</span>;
+          if (p.k === 'op') return <span key={i} style={{ ...S.mono, fontSize: wordy ? CARD_FS : size + 4, color: C.stage1, padding: '2px 12px', margin: '0 4px', borderRadius: 9, background: '#f3eefa' }}>{p.v}</span>;
           // 'sign' — oddiy amal belgisi: bosilmaydi, lekin ta'kidlanmaydi ham.
-          if (p.k === 'sign') return <span key={i} style={{ ...S.mono, fontSize: size, color: (p.v === '·' || p.v === ':') ? C.stage2 : C.stage1, padding: '0 7px' }}>{p.v}</span>;
+          if (p.k === 'sign') return <span key={i} style={{ ...S.mono, fontSize: wordy ? CARD_FS : size, color: (p.v === '·' || p.v === ':') ? C.stage2 : C.stage1, padding: '0 7px' }}>{p.v}</span>;
           const on = marked.indexOf(p.id) !== -1;
           let bd = C.line; let bg = C.bg; let col = C.ink; let dash = 'dashed';
           if (on) { bd = C.hot; bg = C.hotBg; dash = 'solid'; }
@@ -457,7 +446,7 @@ export function TapTerms({ data, lang = 'uz', mode = 'answer', initialAnswer = n
           }
           return (
             <button key={i} type="button" aria-pressed={on} data-term={p.id} disabled={A.locked} onClick={() => toggle(p.id)}
-              style={{ ...S.mono, fontSize: fitFont(tr(p.v, lang), size), ...WRAP, color: col, padding: '6px 10px', margin: '0 1px', borderRadius: 10, border: '2px ' + dash + ' ' + bd, background: bg, cursor: A.locked ? 'default' : 'pointer' }}>
+              style={{ ...S.mono, fontSize: wordy ? CARD_FS : size, ...WRAP, color: col, padding: '6px 10px', margin: '0 1px', borderRadius: 10, border: '2px ' + dash + ' ' + bd, background: bg, cursor: A.locked ? 'default' : 'pointer' }}>
               <Sup s={tr(p.v, lang)} />
             </button>
           );
@@ -520,7 +509,7 @@ export function MarkAll({ data, lang = 'uz', mode = 'answer', initialAnswer = nu
           return (
             <button key={it.id} type="button" aria-pressed={on} data-item={it.id} disabled={A.locked} onClick={() => toggle(it.id)}
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 52, padding: '5px 10px', borderRadius: 13, border: '2px ' + bs + ' ' + bd, background: bg, cursor: A.locked ? 'default' : 'pointer' }}>
-              {it.tokens ? <Row tokens={it.tokens} size={data.itemSize || 23} lang={lang} /> : <span style={{ fontSize: 15, fontWeight: 700, color: C.ink }}><Sup s={tr(it.label, lang)} /></span>}
+              {it.tokens ? <Row tokens={it.tokens} size={data.itemSize || 23} lang={lang} /> : <span style={{ fontSize: CARD_FS, fontWeight: 600, color: C.ink }}><Sup s={tr(it.label, lang)} /></span>}
             </button>
           );
         })}
@@ -621,7 +610,7 @@ export function BuildLine({ data, lang = 'uz', mode = 'answer', initialAnswer = 
               <React.Fragment key={i}>
                 {caret(i)}
                 <button type="button" disabled={A.locked} onClick={() => setPos(i)}
-                  style={{ border: 0, background: 'none', padding: '0 2px', ...S.mono, fontSize: fitFont(tr(it && it.label, lang), 27), color: toneOf(it && it.label), cursor: A.locked ? 'default' : 'pointer' }}>
+                  style={{ border: 0, background: 'none', padding: '0 2px', ...S.mono, fontSize: LINE_FS, color: toneOf(it && it.label), cursor: A.locked ? 'default' : 'pointer' }}>
                   <Sup s={it && it.label ? tr(it.label, lang) : ''} />
                 </button>
               </React.Fragment>
@@ -642,7 +631,7 @@ export function BuildLine({ data, lang = 'uz', mode = 'answer', initialAnswer = 
           const used = seq.indexOf(c.id) !== -1;
           return (
             <button key={c.id} type="button" data-card={c.id} disabled={used || A.locked} onClick={() => put(c.id)}
-              style={{ minWidth: 52, padding: '0 9px', height: 'auto', minHeight: 48, borderRadius: 13, border: '2px solid ' + (used ? '#eef0f4' : C.line), background: used ? C.bg : '#fff', ...S.mono, fontSize: fitFont(tr(c.label, lang), 22), color: used ? C.line : toneOf(c.label), cursor: (used || A.locked) ? 'default' : 'pointer' , ...WRAP}}>
+              style={{ minWidth: 52, padding: '0 9px', height: 'auto', minHeight: 48, borderRadius: 13, border: '2px solid ' + (used ? '#eef0f4' : C.line), background: used ? C.bg : '#fff', ...S.mono, fontSize: CARD_FS, color: used ? C.line : toneOf(c.label), cursor: (used || A.locked) ? 'default' : 'pointer' , ...WRAP}}>
               <Sup s={tr(c.label, lang)} />
             </button>
           );
@@ -711,7 +700,7 @@ export function Zones({ data, lang = 'uz', mode = 'answer', initialAnswer = null
       <div style={{ display: 'flex', flexDirection: 'column', gap: 5, margin: '2px 0' }}>
         {data.zones.map((z) => (
           <div key={z.id} style={{ display: 'flex', alignItems: 'stretch', gap: 8 }}>
-            <div style={{ width: data.zoneLbl || 104, flex: '0 0 ' + (data.zoneLbl || 104) + 'px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', fontSize: 10.5, fontWeight: 800, color: C.mute, letterSpacing: '.03em', textAlign: 'right' }}><Sup s={tr(z.label, lang)} /></div>
+            <div style={{ width: data.zoneLbl || 104, flex: '0 0 ' + (data.zoneLbl || 104) + 'px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', fontSize: 10.5, fontWeight: 700, color: C.mute, letterSpacing: '.03em', textAlign: 'right' }}><Sup s={tr(z.label, lang)} /></div>
             <div data-zone={z.id} onClick={() => tapZone(z.id)}
               style={{ flex: 1, minHeight: 42, borderRadius: 13, padding: 6, border: '2px dashed ' + (picked ? C.hot : C.pale), background: picked ? '#fff7f2' : C.bg, display: 'flex', flexWrap: 'wrap', gap: 6, alignContent: 'center', justifyContent: 'center', cursor: picked && !A.locked ? 'pointer' : 'default' }}>
               {data.items.filter((it) => place[it.id] === z.id).map(chip)}
