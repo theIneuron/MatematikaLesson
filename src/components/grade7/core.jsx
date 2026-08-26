@@ -4767,6 +4767,18 @@ sup.g7-idx { vertical-align: .46em; }
 }
 .g7-fg-svg.is-live { cursor: crosshair; border-color: ${T.accent}; box-shadow: 0 0 0 3px ${T.accentSoft}; }
 .g7-fg-node { fill: rgba(24, 34, 36, .16); }
+/* Uch ko'chirilishini kutayotgan chizmada to'r ISHCHI bo'lib ko'rinadi. */
+.g7-fg-node.is-live {
+  fill: rgba(24, 34, 36, .32);
+  transform-box: fill-box; transform-origin: center;
+  animation: g7-fg-ripple .52s ease-out 1;
+}
+@keyframes g7-fg-ripple {
+  0% { opacity: 1; transform: scale(1); }
+  45% { opacity: 1; transform: scale(1.9); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) { .g7-fg-node.is-live { animation: none; } }
 .g7-fg-seg { stroke: ${T.ink}; stroke-width: 2.2; stroke-linecap: round; }
 .g7-fg-seg.is-mark { stroke: ${T.graph}; stroke-width: 3.4; }
 /* O'CHGAN element: u YO'Q emas, u YETMAYDI. Shuning uchun ko'rinadi, lekin

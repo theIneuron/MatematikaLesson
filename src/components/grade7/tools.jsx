@@ -5369,9 +5369,29 @@ export function Figure({
             {/* To'r TUGUNLAR bilan beriladi, chiziq bilan emas: chizmada
                 asosiy narsa figura, to'r esa faqat qayerga bosish mumkinligini
                 ko'rsatadi. */}
-            {ints(R.x0, R.x1).map((x) => ints(R.y0, R.y1).map((y) => (
-              <circle key={'n' + x + '_' + y} className="g7-fg-node" cx={sx(x)} cy={sy(y)} r="1.4" />
-            )))}
+            {/* NUQTALAR ISHLAYOTGANINI KO'RSATADI. Kutish paytida ular
+                yiriklashadi va to'qlashadi -- shundagina «bosish mumkin»
+                degan ma'no chiqadi; oddiy holatda esa qog'oz foni bo'lib
+                qoladi (metodist 2026-08-26: «ular ishchi ekani bilinsin»).
+                Bir marta TO'LQIN o'tadi: ko'chadigan uchdan boshlab, chetga
+                qarab. Harakat bir martalik, chunki uzluksiz miltillash
+                chizmaning o'zi bilan raqobat qilardi -- sinfda hamma puls
+                sanoqli (5 marta) va reduced-motion da o'chadi. */}
+            {ints(R.x0, R.x1).map((x) => ints(R.y0, R.y1).map((y) => {
+              const far = waiting && move && now[move]
+                ? Math.hypot(x - now[move].x, y - now[move].y)
+                : 0
+              return (
+                <circle
+                  key={'n' + x + '_' + y}
+                  className={'g7-fg-node' + (waiting ? ' is-live' : '')}
+                  cx={sx(x)}
+                  cy={sy(y)}
+                  r={waiting ? 2.2 : 1.4}
+                  style={waiting ? { animationDelay: Math.min(far * 0.05, 0.62).toFixed(2) + 's' } : undefined}
+                />
+              )
+            }))}
 
             {/* NUQTA NOMLARI FAQAT KO'CHIRISH PAYTIDA. Topshiriq nuqtani
                 RAQAM bilan ataydi («C ni uch ; uch nuqtaga ko'chiring»), to'r
