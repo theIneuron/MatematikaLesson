@@ -21,3 +21,16 @@ export const grade9Nazariy = [
     Component: lazy(() => import('../components/grade9/Dars01.jsx')),
   },
 ]
+
+// 9-sinf AMALIYOTI. Metodist qarori 2026-08-26: 52 dars x 10 topshiriq,
+// har darsda AYNAN o'sha o'nta mexanika, faqat ketma-ketlik boshqa.
+// Kontrakt: src/books/grade9/TIPLAR_AMALIYOT_9SINF.md.
+// Amaliyot ovozsiz. Marshrut: /9-sinf/matematika/amaliy/<slug>.
+export const grade9Amaliy = [
+  {
+    slug: 'dars01-amaliyot',
+    title: "Dars 1 amaliyoti — funksiya va aniqlanish sohasi (10 topshiriq)",
+    desc: "10 topshiriq, 10 xil mexanika: juftliklardan funksiyani ajratish, jadvalni ikki tomonga to'ldirish, grafik bo'yicha to'rtta hukm, tekislikka nuqta qo'yish, formulalarni taqiq turi bo'yicha guruhlash, ikkita taqiqni yozish, sohani o'qda ko'rsatish, yechim qadamlarini tartibga solish, birinchi xato qatorni topish, to'rtta yozuvni sohasi bilan moslashtirish. UZ/RU/EN, ovozsiz.",
+    Component: lazy(() => import('../components/grade9/practice/dars01/Dars01Practice.jsx')),
+  },
+]

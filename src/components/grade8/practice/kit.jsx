@@ -169,7 +169,24 @@ const Head = ({ data, lang, done }) => {
 // Berilgan qiymatlar qatori (a = 4, b = −3). Matematika — `data.given`,
 // so'z — `data.givenLabel`.
 const Given = ({ data, lang }) => {
+  // `fig` — TAYYOR TUGUN (chizma, grafik, o'q). 9-sinf amaliyoti uchun
+  // qo'shildi (2026-08-26): `TrueFalse`, `Choice` va boshqalarga rasm
+  // kerak bo'lgani uchun ularni nusxalash noto'g'ri bo'lardi. 8-sinfning
+  // 550 topshirig'idan birortasi `fig` bermaydi, shuning uchun bu
+  // qo'shimcha ularning xatti-harakatini o'zgartirmaydi.
+  if (data.fig) {
+    return (
+      <>
+        <div style={{ display: 'flex', justifyContent: 'center', margin: '2px 0 4px' }}>{data.fig}</div>
+        {data.given && data.given.length ? <GivenRow data={data} lang={lang} /> : null}
+      </>
+    );
+  }
   if (!data.given || !data.given.length) return null;
+  return <GivenRow data={data} lang={lang} />;
+};
+
+const GivenRow = ({ data, lang }) => {
   return (
     // `flexWrap` va gorizontal padding (QA 2026-08-26): uzun yorliq bilan
     // chizma bir qatorga sig'masa, ular ko'chadi, chetga tiralmaydi.
@@ -179,6 +196,13 @@ const Given = ({ data, lang }) => {
     </div>
   );
 };
+
+// 9-SINF AMALIYOTI SHU YERDAN OLADI (2026-08-26). Sinfning o'z mexanikalari
+// `grade9/practice/asboblar9.jsx` da yoziladi, lekin shapka, razborni
+// tanlash va javob paketi umumiy bo'lib qolishi kerak — aks holda ular
+// nusxalanardi (CLAUDE.md §5). Faqat `export` qo'shildi, kod tegilmadi.
+// eslint-disable-next-line react-refresh/only-export-components
+export { Head, Given, pickWhy, submitPayload, useIsPhone, useIsShort, parseSet, num, near, Cell, ExprPad };
 
 // ============================================================ 1. CHOICE
 // Tayyor javobni tanlash. Etalon §1.1 ga ko'ra bu KUCHSIZ tekshiruv,
@@ -1218,7 +1242,7 @@ export function AuditRows({ data, lang = 'uz', mode = 'answer', initialAnswer = 
 
   return (
     <div style={S.wrap}>
-      <Head data={data} lang={lang} done={A.checked} />
+      <Given data={data} lang={lang} />
       <p style={{ ...S.ask, margin: '2px 0 6px' }}>{tr(data.ask, lang)}</p>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginBottom: 6 }}>
         {data.rows.map((r, i) => {
@@ -1230,7 +1254,7 @@ export function AuditRows({ data, lang = 'uz', mode = 'answer', initialAnswer = 
             <button key={r.id} type="button" data-row={r.id} disabled={A.locked} onClick={() => setPicked(r.id)}
               style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '3px 9px', borderRadius: 10, border: '2px solid ' + bd, background: bg, cursor: A.locked ? 'default' : 'pointer', textAlign: 'left' }}>
               <span style={{ ...S.mono, fontSize: 13, color: C.mute, flex: '0 0 16px' }}>{i + 1}</span>
-              {r.tokens ? <Row tokens={r.tokens} size={data.exprSize || 20} /> : <span style={{ ...S.mono, fontSize: 15, color: C.ink }}>{tr(r.text, lang)}</span>}
+              <LineBody l={{ label: r.text, tokens: r.tokens }} data={data} lang={lang} size={data.exprSize || 20} />
             </button>
           );
         })}
@@ -1703,6 +1727,18 @@ export function HoleSlider({ data, lang = 'uz', mode = 'answer', initialAnswer =
 // ============================================================ 18. ORDERLINES
 // Yechim satrlarini ketma-ketlikka qo'yadi. TORTISH YO'Q: bankdan satrni
 // bosasiz -- u ro'yxat oxiriga tushadi; ro'yxatdagini bosasiz -- qaytib chiqadi.
+// Qadam kartasi. `tokens` — matematika, `label` — SO'Z (9-sinf amaliyoti uchun
+// qo'shildi 2026-08-26: yechim zanjirida «Ildiz ostida manfiy son bo'lmaydi»
+// kabi so'z qadamlari ham bor). Ikkalasi bir kartada ham tura oladi: shunda
+// so'z uch tilda, matematika esa bitta nusxada qoladi. 8-sinfning hamma
+// kartalarida faqat `tokens` bor — ular uchun hech nima o'zgarmaydi.
+const LineBody = ({ l, data, lang, size }) => (
+  <>
+    {l.label ? <span style={{ fontSize: 14, fontWeight: 700, color: C.ink, lineHeight: 1.25, textAlign: 'left' }}>{tr(l.label, lang)}</span> : null}
+    {l.tokens ? <Row tokens={l.tokens} size={size || data.itemSize || 17} /> : null}
+  </>
+);
+
 export function OrderLines({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
   const [seq, setSeq] = useState([]);
   const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa?.seq) setSeq(sa.seq); } });
@@ -1726,7 +1762,7 @@ export function OrderLines({ data, lang = 'uz', mode = 'answer', initialAnswer =
   const lineOf = (id) => data.lines.find((l) => l.id === id);
   return (
     <div style={S.wrap}>
-      <Head data={data} lang={lang} done={A.checked} />
+      <Given data={data} lang={lang} />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 4, margin: '5px 0 6px', minHeight: 40 }}>
         {seq.map((id, i) => {
           const good = A.checked && A.fb?.correct;
@@ -1737,7 +1773,7 @@ export function OrderLines({ data, lang = 'uz', mode = 'answer', initialAnswer =
               onClick={() => setSeq((s) => s.filter((x) => x !== id))}
               style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '3px 8px', borderRadius: 10, border: '2px solid ' + bd, background: bg, cursor: A.locked ? 'default' : 'pointer', textAlign: 'left' }}>
               <span style={{ ...S.mono, fontSize: 12, color: C.mute, flex: '0 0 14px' }}>{i + 1}</span>
-              <Row tokens={lineOf(id).tokens} size={data.itemSize || 17} />
+              <LineBody l={lineOf(id)} data={data} lang={lang} />
             </button>
           );
         })}
@@ -1748,7 +1784,7 @@ export function OrderLines({ data, lang = 'uz', mode = 'answer', initialAnswer =
           {rest.map((l) => (
             <button key={l.id} type="button" data-card={l.id} disabled={A.locked} onClick={() => setSeq((s) => s.concat(l.id))}
               style={{ display: 'flex', alignItems: 'center', padding: '3px 8px', borderRadius: 10, border: '1.5px solid ' + C.line, background: '#fff', cursor: 'pointer', textAlign: 'left' }}>
-              <Row tokens={l.tokens} size={data.itemSize || 17} />
+              <LineBody l={l} data={data} lang={lang} />
             </button>
           ))}
         </div>

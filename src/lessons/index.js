@@ -6,7 +6,7 @@ import { grade5Nazariy, grade5Amaliy } from './grade5.js'
 import { grade6Nazariy, grade6Amaliy } from './grade6.js'
 import { grade7Nazariy, grade7Amaliy } from './grade7.js'
 import { grade8Nazariy, grade8Amaliy } from './grade8.js'
-import { grade9Nazariy } from './grade9.js'
+import { grade9Nazariy, grade9Amaliy } from './grade9.js'
 import { grade10Nazariy } from './grade10.js'
 import { grade11Nazariy } from './grade11.js'
 import { informatika3Nazariy } from './informatika3.js'
@@ -43,7 +43,7 @@ const REGISTRY = {
   '6-sinf': { matematika: { nazariy: grade6Nazariy, amaliy: grade6Amaliy } },
   '7-sinf': { matematika: { nazariy: grade7Nazariy, amaliy: grade7Amaliy } },
   '8-sinf': { matematika: { nazariy: grade8Nazariy, amaliy: grade8Amaliy } },
-  '9-sinf': { matematika: { nazariy: grade9Nazariy } },
+  '9-sinf': { matematika: { nazariy: grade9Nazariy, amaliy: grade9Amaliy } },
   '10-sinf': { matematika: { nazariy: grade10Nazariy } },
   '11-sinf': { matematika: { nazariy: grade11Nazariy } },
 }
