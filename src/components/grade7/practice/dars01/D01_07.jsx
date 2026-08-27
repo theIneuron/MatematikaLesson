@@ -16,6 +16,7 @@
 // jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Row } from '../frac.jsx';
+import { useNarrow } from '../kit.jsx';
 
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
 const IconNo = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="15" y1="9" x2="9" y2="15" /><line x1="9" y1="9" x2="15" y2="15" /></svg>);
@@ -82,6 +83,9 @@ export default function D01_07(props) {
   const { lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit } = props || {};
   const t = T[lang] || T.uz;
   const isReview = mode === 'review';
+  // Tor ekranda yozuv kichrayadi, aks holda birinchi qator ko'chib ketadi.
+  const narrow = useNarrow();
+  const EXPR = narrow ? 20 : 26;
   const [slots, setSlots] = useState([null, null, null]);
   const [picked, setPicked] = useState(null);
   const [fb, setFb] = useState(null);
@@ -127,7 +131,7 @@ export default function D01_07(props) {
   const slotBox = (i) => (
     <button type="button" disabled={locked} data-slot={i} onClick={() => tapSlot(i)}
       style={{
-        minWidth: 74, height: 48, borderRadius: 10, margin: '0 4px',
+        minWidth: narrow ? 54 : 74, height: 48, borderRadius: 10, margin: '0 4px',
         border: '2px ' + (slots[i] ? 'solid' : 'dashed') + ' ' + (slots[i] ? bd : (picked ? '#fe5b1a' : '#cbd5e1')),
         background: slots[i] ? '#fff' : (picked ? '#fff7f2' : '#f8fafc'),
         fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: 24, fontWeight: 800,
@@ -150,23 +154,23 @@ export default function D01_07(props) {
           faylda takrorlanadi; qatlamdagi tuzatish bu yerga yetib kelmaydi. */}
       <div style={{ display: 'grid', gridTemplateColumns: 'auto auto auto', columnGap: 4, rowGap: 8, justifyContent: 'center', alignItems: 'center', width: 'fit-content', maxWidth: '100%', margin: '14px auto 10px' }}>
         <div style={{ justifySelf: 'end', display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
-          <Row tokens={['−2100', ':', '30', '+', F35, '·', '250']} size={26} />
+          <Row tokens={['−2100', ':', '30', '+', F35, '·', '250']} size={EXPR} />
         </div>
-        <div style={{ justifySelf: 'center' }}><Row tokens={['=']} size={26} /></div>
+        <div style={{ justifySelf: 'center' }}><Row tokens={['=']} size={EXPR} /></div>
         <div />
 
         <div style={{ justifySelf: 'end', display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
           {slotBox(0)}
-          <Row tokens={LINES[0].after} size={26} />
+          <Row tokens={LINES[0].after} size={EXPR} />
         </div>
-        <div />
+        <div style={{ justifySelf: 'center' }}><Row tokens={['=']} size={EXPR} /></div>
         <div />
 
         <div style={{ justifySelf: 'end', display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
-          <Row tokens={['−70', '+']} size={26} />
+          <Row tokens={['−70', '+']} size={EXPR} />
           {slotBox(1)}
         </div>
-        <div style={{ justifySelf: 'center' }}><Row tokens={['=']} size={26} /></div>
+        <div style={{ justifySelf: 'center' }}><Row tokens={['=']} size={EXPR} /></div>
         <div style={{ justifySelf: 'start' }}>{slotBox(2)}</div>
       </div>
 

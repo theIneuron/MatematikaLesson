@@ -175,6 +175,19 @@ const MobileCss = () => (
   `}</style>
 );
 
+// TOR EKRANNI BILISH (metodist QA si, 2026-08-22): amaliyot ildizi 640px dan
+// tor ekranda 390px qilib qotiriladi, ya'ni ichkarida joy oz. Yozuv kegli va
+// katak kengligi shu holatda kichrayadi -- aks holda qator ko'chib ketadi.
+export function useNarrow() {
+  const [narrow, setNarrow] = useState(typeof window !== 'undefined' && window.innerWidth < 640);
+  useEffect(() => {
+    const on = () => setNarrow(window.innerWidth < 640);
+    window.addEventListener('resize', on);
+    return () => window.removeEventListener('resize', on);
+  }, []);
+  return narrow;
+}
+
 // Sarlavha qismi: hamma mexanikada bir xil tartib -- eyebrow, shart, savol.
 const Head = ({ data, lang }) => (
   <>
@@ -403,7 +416,8 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
   useRegister(check, registerCheck);
 
   const bd = A.checked ? (A.fb?.correct ? C.ok : C.no) : C.line;
-  const size = data.exprSize || 26;
+  const narrow = useNarrow();
+  const size = narrow ? Math.min(data.exprSize || 26, 20) : (data.exprSize || 26);
   // Qatorni «=» bo'yicha ikkiga bo'lamiz: chap tomon, belgi, o'ng tomon.
   const gridRows = data.rows.map((row) => {
     const left = []; const right = []; let eq = false;
@@ -428,11 +442,11 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
           return (
             <button key={pi} type="button" data-slot={i} disabled={A.locked} onClick={() => tapSlot(i)}
               style={{
-                minWidth: 74, borderRadius: 10, margin: '0 5px',
+                minWidth: narrow ? 54 : 74, borderRadius: 10, margin: narrow ? '0 2px' : '0 5px',
                 border: '2px ' + (slots[i] ? 'solid' : 'dashed') + ' ' + (slots[i] ? bd : (picked ? C.hot : C.line)),
                 background: slots[i] ? '#fff' : (picked ? '#fff7f2' : C.bg),
-                ...S.mono, fontSize: LINE_FS, color: C.ink, cursor: A.locked ? 'default' : 'pointer',
-                ...WRAP, height: 'auto', minHeight: 46, padding: '4px 8px',
+                ...S.mono, fontSize: narrow ? 18 : LINE_FS, color: C.ink, cursor: A.locked ? 'default' : 'pointer',
+                ...WRAP, height: 'auto', minHeight: narrow ? 40 : 46, padding: narrow ? '3px 6px' : '4px 8px',
               }}>
               <Sup s={slots[i] ? tr(cardLbl(data, slots[i]), lang) : ''} />
             </button>
