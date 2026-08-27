@@ -169,6 +169,8 @@ const MobileCss = () => (
       .pq-items { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
       .pq-zrow { flex-direction: column !important; align-items: stretch !important; gap: 2px !important; }
       .pq-zlbl { width: auto !important; flex: none !important; justify-content: flex-start !important; text-align: left !important; }
+      .pq-expr { gap: 0 !important; }
+      .pq-expr > * { font-size: 17px !important; padding-left: 4px !important; padding-right: 4px !important; margin-left: 0 !important; margin-right: 0 !important; }
     }
   `}</style>
 );
@@ -489,7 +491,12 @@ export function TapTerms({ data, lang = 'uz', mode = 'answer', initialAnswer = n
       <Given data={data} lang={lang} />
       <p style={S.ask}><Sup s={tr(data.ask, lang)} /></p>
       {data.note ? <div style={S.note}><Sup s={tr(data.note, lang)} /></div> : null}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 2, margin: '8px 0 4px' }}>
+      <MobileCss />
+      {/* Formula bitta qatorda tursin (metodist QA si, 2026-08-22): telefonda
+          «(7m − 4) − (2m − 9)» ikki qatorga bo'linib, qavs pastda qolardi.
+          Tor ekranda kegl va ichki bo'shliqlar kichrayadi -- yozuv butun
+          ko'rinadi. So'zlar ro'yxatiga bu tegmaydi: u ko'chishi kerak. */}
+      <div className={wordy ? undefined : 'pq-expr'} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 2, margin: '8px 0 4px' }}>
         {data.parts.map((p, i) => {
           if (p.k === 'txt') return <span key={i} style={{ ...S.mono, fontSize: wordy ? CARD_FS : size, color: C.ink, padding: '0 3px' }}>{p.v}</span>;
           if (p.k === 'op') return <span key={i} style={{ ...S.mono, fontSize: wordy ? CARD_FS : size + 4, color: C.ink, padding: '2px 12px', margin: '0 4px', borderRadius: 9, background: '#f3eefa' }}>{p.v}</span>;
