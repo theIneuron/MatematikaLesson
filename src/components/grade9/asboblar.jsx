@@ -61,6 +61,24 @@ const TXT = {
   oddCheck: L('Toqlik sinovi', 'Проверка на нечётность', 'Odd check'),
   matches: L('mos keldi', 'совпало', 'matches'),
   noMatch: L('mos kelmadi', 'не совпало', 'does not match'),
+  saTest: L('Sonni qo\'yib tekshirish', 'Проверить числом', 'Check with a number'),
+  saConfirm: L('Javobni tasdiqlash', 'Подтвердить ответ', 'Confirm the answer'),
+  saTryAgain: L(
+    "Bo'yalgan oraliqlar hali mos emas, qayta tekshiring",
+    'Закрашенные промежутки пока не совпадают, проверь снова',
+    'The painted intervals do not match yet, check again',
+  ),
+  saHint: L(
+    "Grafikka qarang: egri chiziq shu oraliqda Ox dan yuqorimi yoki pastmi?",
+    'Посмотри на график: кривая на этом промежутке выше оси Ox или ниже?',
+    'Look at the graph: is the curve above the Ox axis on this interval, or below?',
+  ),
+  ovConfirm: L('Javobni tasdiqlash', 'Подтвердить ответ', 'Confirm the answer'),
+  ovTryAgain: L(
+    "Bo'yalgan oraliqlar hali mos emas: yuqoridagi ikkala qatorga ham qarang",
+    'Закрашенные промежутки пока не совпадают: посмотри на обе полосы сверху',
+    'The painted intervals do not match yet: look at both strips above',
+  ),
 }
 
 // ============================================================
@@ -1917,6 +1935,550 @@ export function Parity({
 }
 
 // ============================================================
+// 9. SIGNAXIS — GRAFIK VA SON O'QI (PODXOD_9SINF.md, «Pribor 1»).
+// SINFNING BOSH ASBOBI: 13 darsda ishlatiladi (Б1 1-6, Б3 14-20). Bu yerda
+// UNING BIRINCHI, SODDA holati — faqat ikki turli haqiqiy nol, teshik nuqta
+// yo'q (u 17-darsda qo'shiladi).
+//
+// Ikki bog'langan qism. Tepada — parabola (Plane). Pastda — son o'qi, xuddi
+// shu nollar bilan, lekin tikligsiz: faqat har bir oraliqda ishora.
+//
+// TO'RT QADAM, hammasi BOSISH bilan: (1) ikkita nolni chipdan o'qqa qo'yish,
+// (2) eng o'ng oraliqning ishorasini SONNI QO'YIB isbotlash — bu DALIL,
+// taxmin emas, (3) qolgan ikki oraliqning ishorasini GRAFIKDAN o'qib topish
+// (Ox dan yuqorimi, pastmi — noto'g'ri tanlov grafikka qaytaradi), (4)
+// berilgan tengsizlikka mos oraliq(lar)ni bosib bo'yash. Javob YOZILMAYDI,
+// YIG'ILADI: bo'yalgan joy — javobning o'zi.
+//
+// `strict`: true — qat'iy tengsizlik (>, <), chegara nuqta OCHIQ doira;
+// false — qat'iy emas (≥, ≤), chegara nuqta TO'LIQ doira.
+// `target`: 'gt' | 'ge' — musbat oraliqlar kerak; 'lt' | 'le' — manfiylar.
+//
+// `roots` elementi ODDIY SON yoki `{ x, excluded: true }` bo'lishi mumkin
+// (2026-08-27, 17-dars: kasr-ratsional tengsizlik). Oddiy sonda nuqta turi
+// `strict` ga qarab belgilanadi — bu numeratorning nol nuqtasi. `excluded:
+// true` bo'lsa nuqta HAR DOIM ochiq, `strict` qiymatidan qat'i nazar — bu
+// maxrajning nol nuqtasi, u qat'iy bo'lmagan tengsizlikda ham javobga
+// kirmaydi, chunki bo'lishda nolga bo'lish aniqlanmagan.
+// ============================================================
+export function SignAxis({
+  f, from, to, yFrom, yTo, roots, strict, target,
+  ask, after, xLabel, yLabel,
+  onSolved, audio, onStep,
+}) {
+  const t = useT()
+  const sfx = useSfx()
+  const canAnswer = useInstructionGate(audio)
+  const sc = useMemo(() => scaleOf({ from, to, yFrom, yTo }), [from, to, yFrom, yTo])
+  // O'ZINING kichik masshtabi: `scaleOf` katta tekislikning 200-balandlik
+  // koordinatasiga moslangan, 74-balandlikdagi o'q panelida ishlatilsa,
+  // chiziq CHARчavadan tashqarida chizilib, umuman ko'rinmay qoladi (2026-08-27
+  // topilgan xato). Chap-o'ng chegara katta tekislik bilan BIR XIL, shu
+  // sabab ikkala qism ustma-ust to'g'ri keladi.
+  const AXIS_H = 74
+  const axisSc = useMemo(() => ({
+    left: VB.l,
+    right: VB.w - VB.r,
+    px: (x) => VB.l + ((x - from) / (to - from)) * ((VB.w - VB.r) - VB.l),
+  }), [from, to])
+  const baseY = AXIS_H / 2
+  const r = useMemo(() => roots
+    .map((v) => (typeof v === 'object' ? v : { x: v, excluded: false }))
+    .sort((a, b) => a.x - b.x), [roots])
+
+  const [placed, setPlaced] = useState([])
+  const [tested, setTested] = useState(false)
+  const [signs, setSigns] = useState({})
+  const [wrongAt, setWrongAt] = useState(null)
+  const [painted, setPainted] = useState([])
+  const [note, setNote] = useState(null)
+  const [done, setDone] = useState(false)
+  const stepRef = useRef(onStep)
+  useEffect(() => { stepRef.current = onStep }, [onStep])
+
+  const bothPlaced = placed.length >= r.length
+  const bounds = [from, ...r.map((rr) => rr.x), to]
+  const intervalCount = r.length + 1
+  const lastI = intervalCount - 1
+  const mid = (i) => (bounds[i] + bounds[i + 1]) / 2
+  const realSign = (i) => (f(mid(i)) > 0 ? '+' : '-')
+  const allSigns = Object.keys(signs).length >= intervalCount
+
+  const placeRoot = (k) => {
+    if (!canAnswer || placed.includes(k)) return
+    const next = placed.concat([k])
+    setPlaced(next)
+    sfx.playCorrect()
+    if (stepRef.current) stepRef.current('root' + next.length)
+  }
+
+  const runTest = () => {
+    if (!canAnswer || tested || !bothPlaced) return
+    setSigns((s) => ({ ...s, [lastI]: realSign(lastI) }))
+    setTested(true)
+    sfx.playCorrect()
+    if (stepRef.current) stepRef.current('test')
+  }
+
+  const pickSign = (i, guess) => {
+    if (!canAnswer || !tested || signs[i] !== undefined) return
+    const real = realSign(i)
+    if (guess !== real) {
+      setWrongAt(i)
+      setNote(TXT.saHint)
+      sfx.playWrong()
+      return
+    }
+    setWrongAt(null)
+    setNote(null)
+    setSigns((s) => ({ ...s, [i]: real }))
+    sfx.playCorrect()
+    if (stepRef.current) stepRef.current('sign' + i)
+  }
+
+  const togglePaint = (i) => {
+    if (!canAnswer || !allSigns || done) return
+    setPainted((p) => (p.includes(i) ? p.filter((x) => x !== i) : p.concat([i])))
+    setNote(null)
+  }
+
+  const wants = (i) => (target === 'gt' || target === 'ge' ? signs[i] === '+' : signs[i] === '-')
+
+  const confirm = () => {
+    if (!canAnswer || !allSigns || done) return
+    const all = Array.from({ length: intervalCount }, (_, i) => i)
+    const want = all.filter(wants)
+    const ok = want.length === painted.length && want.every((i) => painted.includes(i))
+    if (!ok) {
+      sfx.playWrong()
+      setNote(TXT.saTryAgain)
+      return
+    }
+    sfx.playCorrect()
+    setDone(true)
+    setNote(after || null)
+    if (audio && after) audio.say(t(after))
+    if (stepRef.current) stepRef.current('paint')
+    if (onSolved) onSolved({ correct: true, tries: 1 })
+  }
+
+  const labelOf = (i) => (signs[i] === undefined ? '?' : signs[i])
+
+  return (
+    <>
+      <Slot mh={40}>{ask ? <Ask>{t(ask)}</Ask> : null}</Slot>
+
+      <Plane sc={sc} xLabel={xLabel} yLabel={yLabel}>
+        <g className="g9-real"><path d={pathOf(f, sc)} /></g>
+        <line className="g9-sa-ox" x1={sc.left} y1={sc.py(0)} x2={sc.right} y2={sc.py(0)} />
+      </Plane>
+
+      {!bothPlaced ? (
+        <div className="g9-chips">
+          {r.map((rr, k) => (
+            <button
+              key={'r' + k}
+              type="button"
+              className={'g9-chip' + (placed.includes(k) ? ' is-used' : '')}
+              style={{ fontFamily: MATH_FONT }}
+              disabled={!canAnswer || placed.includes(k)}
+              onClick={() => placeRoot(k)}
+            >
+              x = {fmt(rr.x)}
+            </button>
+          ))}
+        </div>
+      ) : null}
+
+      {bothPlaced ? (
+        <svg className="g9-sa" viewBox={'0 0 ' + VB.w + ' ' + AXIS_H} preserveAspectRatio="xMidYMid meet" role="img">
+          <line className="g9-sa-line" x1={axisSc.left} y1={baseY} x2={axisSc.right} y2={baseY} />
+          {r.map((rr, k) => (
+            <g key={'d' + k}>
+              <circle
+                className={'g9-sa-dot' + ((strict || rr.excluded) ? ' is-open' : ' is-filled')}
+                cx={axisSc.px(rr.x)} cy={baseY} r="4.4"
+              />
+              <text className="g9-sa-rootlabel" x={axisSc.px(rr.x)} y={baseY + 20} textAnchor="middle"
+                style={{ fontFamily: MATH_FONT }}>{fmt(rr.x)}</text>
+            </g>
+          ))}
+          {Array.from({ length: intervalCount }, (_, i) => i).map((i) => {
+            const x1 = axisSc.px(Math.max(bounds[i], from))
+            const x2 = axisSc.px(Math.min(bounds[i + 1], to))
+            const known = signs[i] !== undefined
+            const isPainted = painted.includes(i)
+            return (
+              <g key={'seg' + i}>
+                <line
+                  className={'g9-sa-seg'
+                    + (known ? ' is-known' : '')
+                    + (isPainted ? ' is-painted' : '')
+                    + (wrongAt === i ? ' is-wrong' : '')}
+                  x1={x1} y1={baseY} x2={x2} y2={baseY}
+                />
+                <text className="g9-sa-sign" x={(x1 + x2) / 2} y={baseY - 10} textAnchor="middle">
+                  {labelOf(i)}
+                </text>
+                {canAnswer && !done && allSigns ? (
+                  <rect
+                    x={x1} y={baseY - 26} width={Math.max(x2 - x1, 1)} height="52"
+                    className="g9-sa-hit"
+                    data-seg={i}
+                    onClick={() => togglePaint(i)}
+                  />
+                ) : null}
+              </g>
+            )
+          })}
+        </svg>
+      ) : null}
+
+      {bothPlaced && !tested ? (
+        <button type="button" className="g9-go" disabled={!canAnswer} onClick={runTest}>
+          {t(TXT.saTest)}
+        </button>
+      ) : null}
+
+      <Slot mh={26}>
+        {tested && signs[lastI] !== undefined ? (
+          <div className="g9-sa-note" style={{ fontFamily: MATH_FONT }}>
+            x = {fmt(mid(lastI))}: f(x) {signs[lastI] === '+' ? '>' : '<'} 0
+          </div>
+        ) : null}
+      </Slot>
+
+      {tested && !allSigns ? (
+        <div className="g9-sa-picks">
+          {Array.from({ length: lastI }, (_, i) => i).filter((i) => signs[i] === undefined).map((i) => (
+            <div key={'pk' + i} className="g9-sa-pickrow">
+              <span className="g9-sa-picklabel" style={{ fontFamily: MATH_FONT }}>
+                {i === 0 ? ('x < ' + fmt(bounds[1])) : (fmt(bounds[i]) + ' < x < ' + fmt(bounds[i + 1]))}
+              </span>
+              <button type="button" className="g9-chip" disabled={!canAnswer} onClick={() => pickSign(i, '+')}>+</button>
+              <button type="button" className="g9-chip" disabled={!canAnswer} onClick={() => pickSign(i, '-')}>−</button>
+            </div>
+          ))}
+        </div>
+      ) : null}
+
+      {allSigns && !done ? (
+        <button type="button" className="g9-go" disabled={!canAnswer} onClick={confirm}>
+          {t(TXT.saConfirm)}
+        </button>
+      ) : null}
+
+      <Slot mh={52}>
+        {note ? <Note kind={done ? 'ok' : 'no'}>{t(note)}</Note> : null}
+      </Slot>
+    </>
+  )
+}
+
+// ============================================================
+// 10. TRACK — TENGLAMA: HAR IKKI TOMONGA BIRDAN QADAM (PODXOD_9SINF.md,
+// «Pribor 4»). 7 darsda ishlatiladi (Б2, 7-13). Bu yerda UNING BIRINCHI,
+// SODDA holati — butun tenglama (maxrajda harf yo'q), begona ildiz xavfi
+// yo'q, shuning uchun ⚠ belgisi hali ishlatilmaydi.
+//
+// Yozuv ostida doim kichik satr turadi: qaysi x larda tenglik to'g'ri.
+// Boshida noma'lum (?), oxirida bitta son ({ 2 } kabi). Bu prибор
+// KENGAYTIRILADI: 8-darsda (kasr-ratsional) `to.set` ichiga `risky: true`
+// bilan begona ildiz qo'shiladi va ⚠ belgisi shu yerdan chiqadi — asbobning
+// o'zi o'zgarmaydi, faqat ma'lumot boyiydi.
+//
+// Har qadamda TO'G'RI amal bilan bir yoki ikkita ISHORA XATOSI variant
+// beriladi (qavs ochishda yoki had ko'chirishda) — noto'g'ri bosilganda
+// asbob TAYYOR javob bermaydi, faqat izoh (`hint`) beradi.
+// ============================================================
+export function Track({
+  start, steps, note, checkAsk, checkFn, onSolved, audio, onStep,
+}) {
+  const t = useT()
+  const sfx = useSfx()
+  const canAnswer = useInstructionGate(audio)
+  const [at, setAt] = useState(0)
+  const [rec, setRec] = useState(start)
+  const [wrong, setWrong] = useState([])
+  const [msg, setMsg] = useState(null)
+  const [msgOk, setMsgOk] = useState(false)
+  const [done, setDone] = useState(false)
+  const [checked, setChecked] = useState(false)
+  const [verified, setVerified] = useState(null)
+  const stepRef = useRef(onStep)
+  useEffect(() => { stepRef.current = onStep }, [onStep])
+
+  const step = steps[at]
+  const set = rec.set || []
+  const hasRisky = set.some((s) => s.risky)
+  const needsCheck = !!checkFn && hasRisky
+
+  const pick = (opt) => {
+    if (!canAnswer || done) return
+    const src = step.actions.find((a) => a.id === opt.id)
+    if (!src) return
+    if (src.right) {
+      setRec(src.to)
+      setWrong([])
+      setMsg(src.note || null)
+      setMsgOk(true)
+      sfx.playCorrect()
+      if (stepRef.current) stepRef.current('a' + (at + 1))
+      if (audio && src.note) audio.say(t(src.note))
+      const next = at + 1
+      if (next >= steps.length) {
+        setDone(true)
+        // Xavfli nomzod bo'lsa, `onSolved` TEKSHIRUV bosilgach chaqiriladi
+        // (`runCheck`): rad etish o'quvchining o'z bosishi bilan sodir
+        // bo'ladi, avtomatik emas (PODXOD_9SINF.md, «Pribor 4»).
+        if (!needsCheck && onSolved) onSolved({ correct: true, tries: 1 })
+      } else {
+        setAt(next)
+      }
+      return
+    }
+    setWrong((p) => (p.includes(opt.id) ? p : p.concat(opt.id)))
+    setMsg(src.hint || null)
+    setMsgOk(false)
+    sfx.playWrong()
+    if (audio && src.hint) audio.say(t(src.hint))
+  }
+
+  const runCheck = () => {
+    if (!canAnswer || checked) return
+    const result = {}
+    set.forEach((s, i) => { result[i] = checkFn(s.value) })
+    setVerified(result)
+    setChecked(true)
+    sfx.playCorrect()
+    if (stepRef.current) stepRef.current('check')
+    if (audio && note) audio.say(t(note))
+    if (onSolved) onSolved({ correct: true, tries: 1 })
+  }
+
+  const showFinalNote = done && (!needsCheck || checked)
+
+  return (
+    <>
+      <div className="g9-tr">
+        <div className="g9-tr-rec" style={{ fontFamily: MATH_FONT }}>
+          <span>{rec.left}</span>
+          <span className="g9-tr-eq">=</span>
+          <span>{rec.right}</span>
+        </div>
+        <div className="g9-tr-set" style={{ fontFamily: MATH_FONT }}>
+          {'{ '}
+          {set.length ? set.map((s, i) => {
+            const v = verified ? verified[i] : undefined
+            return (
+              <span key={i} className={'g9-tr-item'
+                + (s.risky && v === undefined ? ' is-risky' : '')
+                + (v === false ? ' is-struck' : '')
+                + (v === true ? ' is-ok' : '')}>
+                {s.value}{s.risky && v === undefined ? ' ⚠' : ''}{i < set.length - 1 ? ', ' : ''}
+              </span>
+            )
+          }) : <span className="g9-tr-unknown">?</span>}
+          {' }'}
+        </div>
+      </div>
+
+      <Slot mh={54}>
+        {!done ? (
+          <div className="g9-tr-ask">
+            <Ask>{t(step.ask)}</Ask>
+            <div className="g9-tr-acts">
+              {step.actions.map((a) => (
+                <button
+                  key={a.id}
+                  type="button"
+                  className={'g9-chip' + (wrong.includes(a.id) ? ' is-stuck' : '')}
+                  style={{ fontFamily: MATH_FONT }}
+                  disabled={!canAnswer}
+                  onClick={() => pick(a)}
+                >
+                  {t(a.label)}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
+        {done && needsCheck && !checked ? (
+          <div className="g9-tr-ask">
+            <Ask>{t(checkAsk)}</Ask>
+            <button type="button" className="g9-go" disabled={!canAnswer} onClick={runCheck}>
+              {t(TXT.saTest)}
+            </button>
+          </div>
+        ) : null}
+      </Slot>
+
+      <Slot mh={52}>
+        {showFinalNote && note ? <Note kind="ok">{t(note)}</Note> : (msg ? <Note kind={msgOk ? 'ok' : 'no'}>{t(msg)}</Note> : null)}
+      </Slot>
+    </>
+  )
+}
+
+// ============================================================
+// 11. OVERLAP — TENGSIZLIKLAR TIZIMI: IKKI QATORNI USTMA-UST QO'YISH
+// (yangi prибор, 16-darsda birinchi marta, PODXOD_9SINF.md da oldindan
+// rejalashtirilmagan — mavzudan chiqdi). 18-darsda («majmua») xuddi shu
+// asbob `mode="or"` bilan qayta ishlatiladi: kod EMAS, gapga qarab
+// tanlangan `mode` o'zgaradi.
+//
+// Har bir tengsizlikning yechimi allaqachon TOPILGAN va tayyor holda
+// keladi (`layers[i].intervals`) — bu asbob ildiz IZLAMAYDI, u FAQAT
+// ikki (yoki undan ortiq) tayyor yechimni bitta o'qda solishtiradi.
+// Yuqorida har bir tengsizlikning o'z qatori (faqat ma'lumot uchun,
+// bosilmaydi), pastda esa umumiy o'q: o'quvchi har ikkala qatorga ham
+// mos keladigan (mode="and") yoki kamida bittasiga mos keladigan
+// (mode="or") oraliqlarni bosib bo'yaydi. Chegara nuqtaning ochiq yoki
+// yopiqligi HISOBLAB chiqariladi (qaysi tengsizlikdan kelgani qo'lda
+// kuzatilmaydi): nuqta natijaga kirsa — yopiq, kirmasa — ochiq.
+// ============================================================
+export function Overlap({
+  from, to, layers, mode = 'and', layerLabels,
+  ask, after, onSolved, audio, onStep,
+}) {
+  const t = useT()
+  const sfx = useSfx()
+  const canAnswer = useInstructionGate(audio)
+
+  const axisSc = useMemo(() => ({
+    left: VB.l,
+    right: VB.w - VB.r,
+    px: (x) => VB.l + ((x - from) / (to - from)) * ((VB.w - VB.r) - VB.l),
+  }), [from, to])
+
+  const covers = (layer, x) => layer.intervals.some((iv) => {
+    const loOk = iv.openA ? x > iv.a : x >= iv.a
+    const hiOk = iv.openB ? x < iv.b : x <= iv.b
+    return loOk && hiOk
+  })
+  const combined = (x) => {
+    const flags = layers.map((l) => covers(l, x))
+    return mode === 'and' ? flags.every(Boolean) : flags.some(Boolean)
+  }
+
+  const bounds = useMemo(() => {
+    const pts = new Set([from, to])
+    layers.forEach((l) => l.intervals.forEach((iv) => {
+      if (iv.a > from && iv.a < to) pts.add(iv.a)
+      if (iv.b > from && iv.b < to) pts.add(iv.b)
+    }))
+    return Array.from(pts).sort((a, b) => a - b)
+  }, [from, to, layers])
+  const segCount = bounds.length - 1
+  const mid = (i) => (bounds[i] + bounds[i + 1]) / 2
+  const wants = (i) => combined(mid(i))
+
+  const [painted, setPainted] = useState([])
+  const [done, setDone] = useState(false)
+  const [note, setNote] = useState(null)
+  const stepRef = useRef(onStep)
+  useEffect(() => { stepRef.current = onStep }, [onStep])
+
+  const togglePaint = (i) => {
+    if (!canAnswer || done) return
+    setPainted((p) => (p.includes(i) ? p.filter((x) => x !== i) : p.concat([i])))
+    setNote(null)
+  }
+
+  const confirm = () => {
+    if (!canAnswer || done) return
+    const all = Array.from({ length: segCount }, (_, i) => i)
+    const want = all.filter(wants)
+    const ok = want.length === painted.length && want.every((i) => painted.includes(i))
+    if (!ok) {
+      sfx.playWrong()
+      setNote(TXT.ovTryAgain)
+      return
+    }
+    sfx.playCorrect()
+    setDone(true)
+    setNote(after || null)
+    if (audio && after) audio.say(t(after))
+    if (stepRef.current) stepRef.current('paint')
+    if (onSolved) onSolved({ correct: true, tries: 1 })
+  }
+
+  const STRIP_H = 34
+  const AXIS_H = 56
+
+  return (
+    <>
+      <Slot mh={40}>{ask ? <Ask>{t(ask)}</Ask> : null}</Slot>
+
+      <div className="g9-ov">
+        {layers.map((layer, li) => (
+          <div key={'layer' + li} className="g9-ov-row">
+            {layerLabels && layerLabels[li] ? (
+              <div className="g9-ov-label">{t(layerLabels[li])}</div>
+            ) : null}
+            <svg className="g9-ov-strip" viewBox={'0 0 ' + VB.w + ' ' + STRIP_H} preserveAspectRatio="xMidYMid meet" role="img">
+              <line className="g9-ov-base" x1={axisSc.left} y1={STRIP_H / 2} x2={axisSc.right} y2={STRIP_H / 2} />
+              {layer.intervals.map((iv, ii) => {
+                const x1 = axisSc.px(Math.max(iv.a, from))
+                const x2 = axisSc.px(Math.min(iv.b, to))
+                return <line key={'seg' + ii} className="g9-ov-seg" x1={x1} y1={STRIP_H / 2} x2={x2} y2={STRIP_H / 2} />
+              })}
+              {layer.intervals.flatMap((iv, ii) => ([
+                (iv.a > from && iv.a < to) ? (
+                  <circle key={ii + 'a'} className={'g9-ov-dot' + (iv.openA ? ' is-open' : ' is-filled')}
+                    cx={axisSc.px(iv.a)} cy={STRIP_H / 2} r="4" />
+                ) : null,
+                (iv.b > from && iv.b < to) ? (
+                  <circle key={ii + 'b'} className={'g9-ov-dot' + (iv.openB ? ' is-open' : ' is-filled')}
+                    cx={axisSc.px(iv.b)} cy={STRIP_H / 2} r="4" />
+                ) : null,
+              ]))}
+            </svg>
+          </div>
+        ))}
+
+        <svg className="g9-ov-axis" viewBox={'0 0 ' + VB.w + ' ' + AXIS_H} preserveAspectRatio="xMidYMid meet" role="img">
+          <line className="g9-sa-line" x1={axisSc.left} y1={AXIS_H / 2} x2={axisSc.right} y2={AXIS_H / 2} />
+          {bounds.slice(1, -1).map((p, i) => (
+            <g key={'b' + i}>
+              <circle className={'g9-sa-dot' + (combined(p) ? ' is-filled' : ' is-open')}
+                cx={axisSc.px(p)} cy={AXIS_H / 2} r="4.4" />
+              <text className="g9-sa-rootlabel" x={axisSc.px(p)} y={AXIS_H / 2 + 20} textAnchor="middle"
+                style={{ fontFamily: MATH_FONT }}>{fmt(p)}</text>
+            </g>
+          ))}
+          {Array.from({ length: segCount }, (_, i) => i).map((i) => {
+            const x1 = axisSc.px(Math.max(bounds[i], from))
+            const x2 = axisSc.px(Math.min(bounds[i + 1], to))
+            const isPainted = painted.includes(i)
+            return (
+              <g key={'s' + i}>
+                <line className={'g9-sa-seg is-known' + (isPainted ? ' is-painted' : '')}
+                  x1={x1} y1={AXIS_H / 2} x2={x2} y2={AXIS_H / 2} />
+                {canAnswer && !done ? (
+                  <rect x={x1} y={AXIS_H / 2 - 26} width={Math.max(x2 - x1, 1)} height="52"
+                    className="g9-sa-hit" data-seg={i} onClick={() => togglePaint(i)} />
+                ) : null}
+              </g>
+            )
+          })}
+        </svg>
+      </div>
+
+      {!done ? (
+        <button type="button" className="g9-go" disabled={!canAnswer} onClick={confirm}>
+          {t(TXT.ovConfirm)}
+        </button>
+      ) : null}
+
+      <Slot mh={52}>
+        {note ? <Note kind={done ? 'ok' : 'no'}>{t(note)}</Note> : null}
+      </Slot>
+    </>
+  )
+}
+
+// ============================================================
 // 8. USLUBLAR. Prefiks g9-: umumiy qatlamning g8- klasslari bilan
 // to'qnashmaydi. Shkala va ranglar YADRODAN olinadi (T, MATH_FONT) — sinf
 // o'zining palitrasini yasamaydi, farq ASBOBDA.
@@ -2126,6 +2688,51 @@ export const G9_STYLES = `
 .g9-chip:disabled { cursor: default; }
 .g9-chip.is-used { opacity: .34; }
 .g9-chip.is-stuck { box-shadow: inset 0 0 0 2px ${T.tip}; color: ${T.tip}; opacity: 1; }
+
+/* ---------- SIGNAXIS: GRAFIK + SON O'QI (Pribor 1) ---------- */
+.g9-sa-ox { stroke: rgba(23,26,29,.28); stroke-width: 1.4; }
+.g9-sa { width: 100%; max-width: 460px; margin: 4px auto 0; display: block; }
+.g9-sa-line { stroke: rgba(23,26,29,.28); stroke-width: 2; }
+.g9-sa-dot { fill: ${T.ink}; stroke: ${T.bg}; stroke-width: 2; }
+.g9-sa-dot.is-open { fill: ${T.bg}; stroke: ${T.ink}; stroke-width: 2; }
+.g9-sa-rootlabel { font-size: 11px; fill: ${T.ink3}; }
+.g9-sa-seg { stroke: rgba(23,26,29,.24); stroke-width: 6; stroke-linecap: round; }
+.g9-sa-seg.is-known { stroke: ${T.ink2}; }
+.g9-sa-seg.is-painted { stroke: ${T.ok}; }
+.g9-sa-seg.is-wrong { stroke: ${T.tip}; }
+.g9-sa-sign { font-size: 15px; font-weight: 700; fill: ${T.ink2}; }
+.g9-sa-hit { fill: transparent; cursor: pointer; }
+.g9-sa-hit:hover { fill: rgba(31,122,77,.08); }
+.g9-sa-note { font-size: clamp(14px, 1.7vw, 17px); color: ${T.ink}; text-align: center; }
+.g9-sa-picks { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.g9-sa-pickrow { display: flex; align-items: center; gap: 10px; }
+.g9-sa-picklabel { font-size: clamp(14px, 1.6vw, 17px); color: ${T.ink2}; min-width: 6.5em; text-align: right; }
+
+/* ---------- TRACK: TENGLAMA QADAMI (Pribor 4) ---------- */
+.g9-tr { display: flex; flex-direction: column; align-items: center; gap: 10px;
+  width: 100%; max-width: 560px; margin: 0 auto; padding: 18px 22px; border-radius: 18px;
+  background: ${T.paper}; box-shadow: inset 0 0 0 1px rgba(23,26,29,.08); }
+.g9-tr-rec { display: flex; align-items: center; gap: 12px;
+  font-size: clamp(19px, 2.2vw, 26px); color: ${T.ink}; }
+.g9-tr-eq { color: ${T.accent}; font-weight: 700; }
+.g9-tr-set { font-size: clamp(14px, 1.6vw, 17px); color: ${T.ink2}; }
+.g9-tr-item.is-risky { color: ${T.tip}; font-weight: 600; }
+.g9-tr-item.is-struck { color: ${T.tip}; text-decoration: line-through; opacity: .7; }
+.g9-tr-item.is-ok { color: ${T.ok}; font-weight: 600; }
+.g9-tr-unknown { color: ${T.ink3}; }
+.g9-tr-ask { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; }
+.g9-tr-acts { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; width: 100%; }
+
+/* ---------- OVERLAP: TENGSIZLIKLAR TIZIMI (Pribor 1 ustiga qurilgan) ---------- */
+.g9-ov { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 460px; margin: 4px auto 0; }
+.g9-ov-row { display: flex; flex-direction: column; gap: 2px; }
+.g9-ov-label { font-size: clamp(12px, 1.4vw, 14px); color: ${T.ink3}; }
+.g9-ov-strip { width: 100%; display: block; }
+.g9-ov-base { stroke: rgba(23,26,29,.18); stroke-width: 1.4; }
+.g9-ov-seg { stroke: ${T.ink2}; stroke-width: 6; stroke-linecap: round; }
+.g9-ov-dot { fill: ${T.ink2}; stroke: ${T.bg}; stroke-width: 2; }
+.g9-ov-dot.is-open { fill: ${T.bg}; stroke: ${T.ink2}; stroke-width: 2; }
+.g9-ov-axis { width: 100%; margin-top: 6px; display: block; }
 
 /* ---------- QADAM-BAQADAM NAZARIYA + HARFLI JAVOB (4-ekran) ---------- */
 /* 2026-08-23: avval avtomatik ketma-ketlik edi, metodist «yanada
