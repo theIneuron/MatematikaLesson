@@ -143,6 +143,12 @@ const groupRow = (row) => {
   return out;
 };
 
+// Ustun bo'lib turish sharti (metodist qarori 2026-08-22, «global»): karta
+// yozuvida SO'Z bo'lsa yoki u uzun bo'lsa -- tor ekranda karta butun kenglikni
+// oladi. Faqat qisqa sonli kartalar yonma-yon qoladi: ulardan ustun yasash
+// balandlikni behuda yeydi, u esa bizda tanqis.
+const wordCard = (s) => /[A-Za-z]{3,}/.test(String(s)) || String(s).length > 10;
+
 const cardKey = (c) => (c && typeof c === 'object' ? (c.uz || '') : c);
 const cardLbl = (data, key) => {
   const c = (data.cards || []).find((x) => cardKey(x) === key);
@@ -167,6 +173,7 @@ const MobileCss = () => (
     @media (max-width: 639.98px) {
       .pq-opts { grid-template-columns: 1fr !important; }
       .pq-items { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+      .pq-items-1 { grid-template-columns: 1fr !important; }
       .pq-zrow { flex-direction: column !important; align-items: stretch !important; gap: 2px !important; }
       .pq-zlbl { width: auto !important; flex: none !important; justify-content: flex-start !important; text-align: left !important; }
       .pq-expr { gap: 0 !important; }
@@ -417,7 +424,7 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
 
   const bd = A.checked ? (A.fb?.correct ? C.ok : C.no) : C.line;
   const narrow = useNarrow();
-  const stackBank = narrow && data.cards.some((c) => String(tr(cardKey(c), lang)).length > 10);
+  const stackBank = narrow && data.cards.some((c) => wordCard(String(tr(cardLbl(data, cardKey(c)), lang))));
   // Yozuvda SO'Z bo'lsa (masalan «ikkinchi o'tkir burchak»), tor ekranda kegl
   // yana kichrayadi: so'zli podpis raqamdan uzun va qatorni ko'chirib yuboradi.
   const wordyRow = (data.rows || []).some((row) => row.some((part) => (part.t || []).some((x) => /[A-Za-z']{3,}/.test(String(tr(x, lang))))));
@@ -608,6 +615,8 @@ export function TapTerms({ data, lang = 'uz', mode = 'answer', initialAnswer = n
 export function MarkAll({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
   const [marked, setMarked] = useState([]);
   const itemOrder = useMemo(() => (data.noShuffle ? data.items.map((_, i) => i) : shuffled(data.items.length)), [data]);
+  // Yozuvlarida so'z bo'lsa, tor ekranda ular bitta ustunda turadi.
+  const wordItems = (data.items || []).some((it) => wordCard(tr(it.label, lang) || (it.tokens || []).map((x) => tr(x, lang)).join(' ')));
   const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa?.marked) setMarked(sa.marked); } });
   useEffect(() => { onReady?.(marked.length > 0 && !A.checked); }, [marked, A.checked, onReady]);
 
@@ -633,7 +642,7 @@ export function MarkAll({ data, lang = 'uz', mode = 'answer', initialAnswer = nu
       <Given data={data} lang={lang} />
       <p style={S.ask}><Sup s={tr(data.ask, lang)} /> {data.note ? <span style={{ fontSize: 13, color: C.mute, fontWeight: 600 }}>{tr(data.note, lang)}</span> : null}</p>
       <MobileCss />
-      <div className="pq-items" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(' + (data.col || 180) + 'px, 1fr))', gap: 7 }}>
+      <div className={wordItems ? 'pq-items-1' : 'pq-items'} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(' + (data.col || 180) + 'px, 1fr))', gap: 7 }}>
         {data.items.map((it) => {
           const on = marked.indexOf(it.id) !== -1;
           let bd = '#d6dae3'; let bg = '#fff';
@@ -717,7 +726,7 @@ export function BuildLine({ data, lang = 'uz', mode = 'answer', initialAnswer = 
   // variantlar kabi -- har biri butun kenglikda, bittadan qatorda. Qisqa
   // kartalar (son, bir had) avvalgidek yonma-yon qoladi.
   const narrow = useNarrow();
-  const stackCards = narrow && data.cards.some((c) => String(tr(c.label, lang)).length > 10);
+  const stackCards = narrow && data.cards.some((c) => wordCard(String(tr(c.label, lang))));
   const [pos, setPos] = useState(0);       // kursor o'rni
   const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa?.seq) { setSeq(sa.seq); setPos(sa.seq.length); } } });
   const byId = (id) => data.cards.find((c) => c.id === id);
