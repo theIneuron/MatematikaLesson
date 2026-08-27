@@ -23,7 +23,7 @@ const DATA = {
     [{ t: ['5x', '='] }, { slot: 0 }],
     [{ t: ['x', '='] }, { slot: 1 }],
   ],
-  cards: ['240', '48', '360', '60', '5', '75'],
+  cards: ['240', '48', '360', '60', '5', '1200'],
   answer: ['240', '48'],
   ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
@@ -40,15 +40,15 @@ const DATA = {
       "60 bu eski javob. Birinchi bo'lakda 240 km bosilgan: 240 : 5 = 48.",
       '60 это ответ к другой задаче. На первом участке пройдено 240 км: 240 : 5 = 48.',
       '60 belongs to another task. The first leg covered 240 km: 240 : 5 = 48.') },
-    { when: (s) => s.slots[1] === '75', text: L(
-      "75 bu 300 : 4, ya'ni oxirgi 60 km hisobga olinmagan. Ular tezlik bilan bosilgan yo'lga kirmaydi.",
-      '75 это 300 : 4, то есть последние 60 км не учтены. Они не входят в путь, пройденный с этой скоростью.',
-      '75 is 300 : 4, so the last 60 km were not taken out. They are not part of the distance driven at that speed.') },
+    { when: (s) => s.slots[1] === '1200', text: L(
+      "1200 bu 240 · 5. Tezlik topish uchun yo'l vaqtga BO'LINADI: 240 : 5 = 48.",
+      '1200 это 240 · 5. Чтобы найти скорость, путь ДЕЛЯТ на время: 240 : 5 = 48.',
+      '1200 is 240 · 5. Speed comes from dividing the distance by the time: 240 : 5 = 48.') },
   ],
   wrongText: L(
-    "Avval 60 km ni ayirib, tezlik bilan bosilgan yo'lni toping. Keyin uni 4 soatga bo'ling.",
-    'Сначала вычти 60 км и найди путь, пройденный с этой скоростью. Потом раздели его на 4 часа.',
-    'First take the 60 km away to get the distance driven at that speed. Then divide it by the 4 hours.'),
+    "Avval 60 km ni ayirib, tezlik bilan bosilgan yo'lni toping. Keyin uni 5 soatga bo'ling.",
+    'Сначала вычти 60 км и найди путь, пройденный с этой скоростью. Потом раздели его на 5 часов.',
+    'First take the 60 km away to get the distance driven at that speed. Then divide it by the 5 hours.'),
 };
 
 export default function D12_07(props) { return <SlotsBank data={DATA} {...props} />; }
