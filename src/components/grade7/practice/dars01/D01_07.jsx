@@ -14,7 +14,7 @@
 // hamda 220: bu −70 ni +70 deb olganda chiqadi.
 //
 // jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Row } from '../frac.jsx';
 import { useNarrow } from '../kit.jsx';
 
@@ -44,6 +44,21 @@ const LINES = [
   { before: [], after: [] },   // uchinchi qator: [katak]
 ];
 const ANSWER = ['−70', '150', '80'];
+// KARTALAR TARTIBI ARALASHTIRILADI (metodist qarori 2026-08-22): bank
+// javob tartibida turardi va topshiriqni chapdan o'ngga bosib yechish
+// mumkin edi. Aralashtirish faqat KO'RSATISHGA tegadi -- javob va razbor
+// shartlari o'zgarmaydi. 1-dars amaliyoti umumiy qatlamdan tashqarida,
+// shuning uchun `shuffled` shu yerda ham kerak.
+const shuffled = (n) => {
+  const idx = [];
+  for (let i = 0; i < n; i++) idx.push(i);
+  for (let i = n - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const x = idx[i]; idx[i] = idx[j]; idx[j] = x;
+  }
+  return idx;
+};
+
 const CARDS = ['−70', '150', '80', '70', '−150', '220'];
 
 const T = {
@@ -93,7 +108,8 @@ export default function D01_07(props) {
 
   const locked = isReview || checked;
   const used = slots.filter(Boolean);
-  const pool = CARDS.filter((c) => used.indexOf(c) === -1);
+  const bank = useMemo(() => shuffled(CARDS.length).map((i) => CARDS[i]), []);
+  const pool = bank.filter((c) => used.indexOf(c) === -1);
   const full = slots.every(Boolean);
 
   useEffect(() => {
