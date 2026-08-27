@@ -517,7 +517,7 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
           {pool.length === 0 && <span style={{ fontSize: 13, color: C.line, fontWeight: 700 }}>—</span>}
           {pool.map((c) => (
             <button key={c} type="button" data-card={c} disabled={A.locked} onClick={() => setPicked(picked === c ? null : c)}
-              style={{ minWidth: stackBank ? 0 : 62, width: stackBank ? '100%' : undefined, maxWidth: stackBank ? '100%' : 'min(250px, 100%)', padding: '0 10px', height: 'auto', minHeight: stackBank ? 42 : 46, borderRadius: 12, border: '2px solid ' + (picked === c ? C.hot : C.line), background: picked === c ? C.hotBg : '#fff', ...S.mono, fontSize: CARD_FS, color: C.ink, cursor: A.locked ? 'default' : 'pointer' , ...WRAP}}>
+              style={{ minWidth: stackBank ? 0 : 62, width: stackBank ? '100%' : undefined, padding: '0 10px', height: 'auto', minHeight: stackBank ? 42 : 46, borderRadius: 12, border: '2px solid ' + (picked === c ? C.hot : C.line), background: picked === c ? C.hotBg : '#fff', ...S.mono, fontSize: CARD_FS, color: C.ink, cursor: A.locked ? 'default' : 'pointer' , ...WRAP, maxWidth: stackBank ? '100%' : 'min(250px, 100%)' }}>
               <Sup s={tr(cardLbl(data, c), lang)} />
             </button>
           ))}
@@ -785,7 +785,7 @@ export function BuildLine({ data, lang = 'uz', mode = 'answer', initialAnswer = 
           const used = seq.indexOf(c.id) !== -1;
           return (
             <button key={c.id} type="button" data-card={c.id} disabled={used || A.locked} onClick={() => put(c.id)}
-              style={{ minWidth: stackCards ? 0 : 52, width: stackCards ? '100%' : undefined, maxWidth: stackCards ? '100%' : 'min(250px, 100%)', padding: '0 9px', height: 'auto', minHeight: stackCards ? 42 : 48, borderRadius: 13, border: '2px solid ' + (used ? '#eef0f4' : C.line), background: used ? C.bg : '#fff', ...S.mono, fontSize: CARD_FS, color: used ? C.line : toneOf(c.label), cursor: (used || A.locked) ? 'default' : 'pointer' , ...WRAP}}>
+              style={{ minWidth: stackCards ? 0 : 52, width: stackCards ? '100%' : undefined, padding: '0 9px', height: 'auto', minHeight: stackCards ? 42 : 48, borderRadius: 13, border: '2px solid ' + (used ? '#eef0f4' : C.line), background: used ? C.bg : '#fff', ...S.mono, fontSize: CARD_FS, color: used ? C.line : toneOf(c.label), cursor: (used || A.locked) ? 'default' : 'pointer' , ...WRAP, maxWidth: stackCards ? '100%' : 'min(250px, 100%)' }}>
               <Sup s={tr(c.label, lang)} />
             </button>
           );
