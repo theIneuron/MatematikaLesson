@@ -460,7 +460,7 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
             </button>
           );
         }
-        return <Row key={pi} tokens={part.t} size={size} lang={lang} />;
+        return <Row key={pi} tokens={part.t} size={size} lang={lang} align={side === 'l' ? 'end' : (side === 'r' ? 'start' : 'center')} />;
       })}
     </span>
   ));
@@ -477,7 +477,7 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
       <div style={{ display: 'grid', gridTemplateColumns: hasEq ? 'auto auto auto' : 'auto', columnGap: 4, rowGap: 6, justifyContent: 'center', alignItems: 'center', width: 'fit-content', maxWidth: '100%', margin: '8px auto 6px' }}>
         {gridRows.map((g, ri) => (hasEq ? (
           <React.Fragment key={ri}>
-            <div style={{ justifySelf: 'end', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>{renderSide(g.left, ri, 'l')}</div>
+            <div style={{ justifySelf: 'end', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 2, justifyContent: 'flex-end', textAlign: 'right' }}>{renderSide(g.left, ri, 'l')}</div>
             <div style={{ justifySelf: 'center', ...S.mono, fontSize: size, color: C.ink, padding: '0 4px' }}>{g.eq || ''}</div>
             <div style={{ justifySelf: 'start', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>{renderSide(g.right, ri, 'r')}</div>
           </React.Fragment>
