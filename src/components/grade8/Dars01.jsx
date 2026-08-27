@@ -640,9 +640,9 @@ const S4 = {
     // Экранный текст короткий, разбор целиком уходит в озвучку: абзац под
     // записями ученик не читает, он смотрит на подписи (методист, 2026-08-17).
     afterSay: L(
-      "Belgilar o'sha, joy boshqa. Ikkala yozuv ham ratsional ifoda: harflar va sonlar amal belgilari bilan. Birinchisida harfga bo'linmaydi, shuning uchun u butun ifoda. Ikkinchisida chiziq ostida harf turibdi, shuning uchun u kasr ifoda, uni ratsional kasr deb ataymiz. Va a nol bo'lsa, ilova hisoblay olmaydi.",
-      'Знаки те же, место разное. Обе записи — рациональные выражения: буквы и числа со знаками действий. В первой на букву не делят, поэтому она целое выражение. Во второй под чертой стоит буква, поэтому она дробное выражение, его называют рациональной дробью. И если a равно нулю, приложение не посчитает.',
-      'Same symbols, different place. Both records are rational expressions: letters and numbers with operation signs. In the first nothing is divided by a letter, so it is an integral expression. In the second a letter stands below the bar, so it is a fractional expression, called a rational fraction. And if a is zero, the app cannot compute.',
+      "Belgilar o'sha, joy boshqa. Ikkala yozuv ham ratsional ifoda. Harflar va sonlar amal belgilari bilan. Birinchisida harfga bo'linmaydi, shuning uchun u butun ifoda. Ikkinchisida chiziq ostida harf turibdi, shuning uchun u kasr ifoda, uni ratsional kasr deb ataymiz. Va a nol bo'lsa, ilova hisoblay olmaydi.",
+      'Знаки те же, место разное. Обе записи это рациональные выражения. Буквы и числа со знаками действий. В первой на букву не делят, поэтому она целое выражение. Во второй под чертой стоит буква, поэтому она дробное выражение, его называют рациональной дробью. И если a равно нулю, приложение не посчитает.',
+      'Same symbols, different place. Both records are rational expressions. Letters and numbers with operation signs. In the first nothing is divided by a letter, so it is an integral expression. In the second a letter stands below the bar, so it is a fractional expression, called a rational fraction. And if a is zero, the app cannot compute.',
     ),
   },
 }
@@ -1337,9 +1337,9 @@ const S12 = {
       {
         expr: <Row size="big" align="center">{F('3', '2x − 8')}</Row>,
         ok: L(
-          "Ha. 2x = 8 dan x = 4 chiqadi, o'n olti emas. Ikkiga bo'linadi, ko'paytirilmaydi.",
-          'Да. Из 2x = 8 выходит x = 4, а не шестнадцать. На два делят, а не умножают.',
-          'Yes. From 2x = 8 you get x = 4, not sixteen. You divide by two, not multiply.',
+          "Ha. Ikki x sakkizga teng bo'lsa, x to'rtga teng chiqadi, o'n olti emas. Ikkiga bo'linadi, ko'paytirilmaydi.",
+          'Да. Из два икс равно восьми выходит икс равен четырём, а не шестнадцать. На два делят, а не умножают.',
+          'Yes. From two x equals eight you get x equals four, not sixteen. You divide by two, not multiply.',
         ),
         question: L(
           "Aziz yozdi: 2x − 8 = 0 → 2x = 8 → x = 16 → x ≠ 16. Qaysi qator noto'g'ri?",
@@ -1368,7 +1368,7 @@ const S12 = {
         items: [
           { id: 'a', right: true, label: L("Yo'q, x ≠ 6", 'Нет, x ≠ 6', 'No, it is x ≠ 6') },
           { id: 'b', label: L('Ha, to\'g\'ri', 'Да, верно', 'Yes, correct'), hint: L('Suratdagi nol qiymatni nol qiladi, aniqlanmasligini bermaydi.', 'Нуль в числителе делает значение нулём, а не запретом.', 'A zero in the numerator makes the value zero, not a restriction.') },
-          { id: 'c', label: L('Ikkalasi ham: x ≠ 0 va x ≠ 6', 'Оба: x ≠ 0 и x ≠ 6', 'Both: x ≠ 0 and x ≠ 6'), hint: L('Nolda qiymat bor va u nolga teng, nol bo\'lingan olti.', 'При нуле значение есть и равно нулю: нуль делить на минус шесть.', 'At zero the value exists and equals zero: zero divided by minus six.') },
+          { id: 'c', label: L('Ikkalasi ham: x ≠ 0 va x ≠ 6', 'Оба: x ≠ 0 и x ≠ 6', 'Both: x ≠ 0 and x ≠ 6'), hint: L('Nolda qiymat bor va u nolga teng, nol bo\'lingan olti.', 'При нуле значение есть и равно нулю. Нуль делить на минус шесть.', 'At zero the value exists and equals zero. Zero divided by minus six.') },
         ],
         solution: ['x − 6 = 0', 'x = 6', 'x ≠ 6'],
       },

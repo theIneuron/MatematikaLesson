@@ -1058,8 +1058,8 @@ const S12 = {
         expr: <Row size="big" align="center">{'√(9 · 4)'}</Row>,
         ok: L(
           "Ha. Bu yerda ko'paytuvchilarga bo'lish ishlaydi, uch karra ikki olti.",
-          'Да. Здесь раздача по множителям работает: три на два шесть.',
-          'Yes. Here distributing over factors works: three times two is six.',
+          'Да. Здесь раздача по множителям работает. Три на два шесть.',
+          'Yes. Here distributing over factors works. Three times two is six.',
         ),
         question: L('Qiymati qancha?', 'Чему равно значение?', 'What is the value?'),
         items: [
@@ -1238,9 +1238,9 @@ const S14 = {
           { id: 'add', label: L("Javobni ikki marta qo'shib", 'Сложить ответ дважды', 'Add the answer twice') },
         ],
         hint: L(
-          "Ta'rifga qaytamiz: qiymatning KVADRATI ildiz ostidagi ifodaga teng.",
-          'Возвращаемся к определению: КВАДРАТ значения равен подкоренному.',
-          'Back to the definition: the SQUARE of the value equals the radicand.',
+          "Ta'rifga qaytamiz. Qiymatning KVADRATI ildiz ostidagi ifodaga teng.",
+          'Возвращаемся к определению. КВАДРАТ значения равен подкоренному.',
+          'Back to the definition. The SQUARE of the value equals the radicand.',
         ),
         ok: L(
           "Kvadratga oshirib tekshirish har safar ishlaydi, taxmin qilish esa yo'q.",
@@ -1270,9 +1270,9 @@ const S14 = {
             { id: 't5', v: '25', x: 20, y: 50 },
           ],
           hint: L(
-            "Kvadratlar jadvalini eslang: yigirma besh va o'ttiz olti.",
-            'Вспомни таблицу квадратов: двадцать пять и тридцать шесть.',
-            'Recall the table of squares: twenty five and thirty six.',
+            "Kvadratlar jadvalini eslang. Yigirma besh va o'ttiz olti.",
+            'Вспомни таблицу квадратов. Двадцать пять и тридцать шесть.',
+            'Recall the table of squares. Twenty five and thirty six.',
           ),
           doneNote: L(
             "Yig'ildi. Ildiz besh va olti orasida, chunki kvadratlari yigirma besh va o'ttiz olti.",

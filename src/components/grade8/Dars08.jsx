@@ -380,8 +380,8 @@ const S2 = {
         hints: {
           '-81': L(
             "Juft daraja musbat chiqadi. To'rtta minus juft juft ko'paytiriladi.",
-            'Чётная степень выходит положительной: четыре минуса перемножаются парами.',
-            'An even power comes out positive: four minuses multiply in pairs.',
+            'Чётная степень выходит положительной. Четыре минуса перемножаются парами.',
+            'An even power comes out positive. Four minuses multiply in pairs.',
           ),
           '-12': L(
             "Bu ko'paytirish. Daraja to'rt marta ko'paytirishni bildiradi.",
@@ -456,8 +456,8 @@ const S3 = {
       ),
       '-2': L(
         "Manfiy son ham chiqmaydi. Musbat sonni ikkiga bo'lsak musbat qoladi.",
-        'Отрицательное тоже не выйдет: положительное на два делится в положительное.',
-        'A negative will not come out either: a positive divided by two stays positive.',
+        'Отрицательное тоже не выйдет. Положительное на два делится в положительное.',
+        'A negative will not come out either. A positive divided by two stays positive.',
       ),
       '*': L(
         "Yuqoridagi qiymatni ikkiga bo'ling.",
@@ -569,6 +569,12 @@ const S4 = {
           'Какое основание встанет в скобках?',
           'Which base goes into the brackets?',
         ),
+        // Javob `sqrt(`/`abs(`/`^` talab qiladi, kompyuter klaviaturasida
+        // bunday belgi yo'q — maydon ustida belgi qatori turadi (2026-08-27).
+        // Javob `sqrt(`/`abs(`/`^` talab qiladi, kompyuter klaviaturasida
+        // bunday belgi yo'q — maydon QATORINING ICHIDA uchta tugma turadi
+        // (`√(`, `|(`, `^`), balandlik o'zgarmaydi (2026-08-27).
+        mathKeys: true,
         answer: '5^3',
         accepts: ['125'],
         hints: {
@@ -940,13 +946,19 @@ const S5 = {
           'Запиши ответ в общем виде',
           'Write the answer in general form',
         ),
+        // Javob `sqrt(`/`abs(`/`^` talab qiladi, kompyuter klaviaturasida
+        // bunday belgi yo'q — maydon ustida belgi qatori turadi (2026-08-27).
+        // Javob `sqrt(`/`abs(`/`^` talab qiladi, kompyuter klaviaturasida
+        // bunday belgi yo'q — maydon QATORINING ICHIDA uchta tugma turadi
+        // (`√(`, `|(`, `^`), balandlik o'zgarmaydi (2026-08-27).
+        mathKeys: true,
         answer: 'abs(a)',
         accepts: ['abs(a)'],
         hints: {
           'a': L(
             "Minus uchni qo'yib ko'ring, chapda uch chiqadi, o'ngda minus uch.",
-            'Подставь минус три: слева выйдет три, справа минус три.',
-            'Substitute minus three: the left gives three, the right minus three.',
+            'Подставь минус три. Слева выйдет три, справа минус три.',
+            'Substitute minus three. The left gives three, the right minus three.',
           ),
           '-a': L(
             "Musbat a da bu manfiy chiqadi, ildiz esa nomanfiy.",
@@ -1045,9 +1057,9 @@ const S6 = {
               id: 'pos',
               label: L('Faqat musbatni', 'Только положительное', 'Only a positive one'),
               hint: L(
-                "Nol ham bo'ladi: nolning ildizi nol. Shuning uchun nomanfiy.",
-                'Нуль тоже годится: корень из нуля это нуль. Поэтому неотрицательное.',
-                'Zero fits as well: the root of zero is zero. Hence non-negative.',
+                "Nol ham bo'ladi. Nolning ildizi nol. Shuning uchun nomanfiy.",
+                'Нуль тоже годится. Корень из нуля это нуль. Поэтому неотрицательное.',
+                'Zero fits as well. The root of zero is zero. Hence non-negative.',
               ),
             },
           ],
@@ -1477,6 +1489,12 @@ const S10 = {
           'Write the answer',
         ),
         kind: 'expr',
+        // Javob `sqrt(`/`abs(`/`^` talab qiladi, kompyuter klaviaturasida
+        // bunday belgi yo'q — maydon ustida belgi qatori turadi (2026-08-27).
+        // Javob `sqrt(`/`abs(`/`^` talab qiladi, kompyuter klaviaturasida
+        // bunday belgi yo'q — maydon QATORINING ICHIDA uchta tugma turadi
+        // (`√(`, `|(`, `^`), balandlik o'zgarmaydi (2026-08-27).
+        mathKeys: true,
         answer: 'abs(a^3)',
         accepts: ['abs(a)^3'],
         hints: {
@@ -1564,8 +1582,8 @@ const S11 = {
         ),
         'a^4': L(
           "Ildiz ko'rsatkichni ikki barobar kamaytiradi, sakkizdan ikki chiqadi.",
-          'Корень уменьшает показатель вдвое: из восьми выходит два.',
-          'The root halves the exponent: eight becomes two.',
+          'Корень уменьшает показатель вдвое. Из восьми выходит два.',
+          'The root halves the exponent. Eight becomes two.',
         ),
         '0': L(
           "Bir xil ifodalarni bo'lganda bir chiqadi, nol emas.",
@@ -1685,8 +1703,8 @@ const S12 = {
     hints: {
       'r1': L(
         "Bu satr to'g'ri, ildiz ostida haqiqatan yig'indi.",
-        'Эта строка верна: под корнем действительно сумма.',
-        'This line is correct: there really is a sum under the root.',
+        'Эта строка верна. Под корнем действительно сумма.',
+        'This line is correct. There really is a sum under the root.',
       ),
       'r3': L(
         "Bu yuqoridagi satrdan to'g'ri chiqarilgan. Xato balandroqda.",
@@ -1883,9 +1901,9 @@ const S14 = {
           { id: 'third', label: L('a ning uchdan biri', 'Треть от a', 'One third of a') },
         ],
         hint: L(
-          "Qatorni eslang: yarim ko'rsatkich kvadrat ildizni bergan edi.",
-          'Вспомни ряд: половинный показатель давал квадратный корень.',
-          'Recall the row: a half exponent gave the square root.',
+          "Qatorni eslang. Yarim ko'rsatkich kvadrat ildizni bergan edi.",
+          'Вспомни ряд. Половинный показатель давал квадратный корень.',
+          'Recall the row. A half exponent gave the square root.',
         ),
         ok: L(
           "Maxrajdagi son ildizning darajasi bo'ladi, surat esa ildiz ostidagi daraja.",

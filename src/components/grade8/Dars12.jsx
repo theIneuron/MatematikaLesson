@@ -468,68 +468,80 @@ const S4 = {
 // EKRAN 5. BLOKNING MEXANIKASI — QAYTA YOZISH VA ASOS (`transform` va
 // WhyStep). 1-darsdan farq qiladigan YAGONA ekran.
 //
-// Yozuv √(36a²), a manfiy. Ikki qadam: ildizni ko'paytuvchilarga ajratish,
-// keyin har bir ildizni hisoblash. Ikkinchi qadamda modul qaytadi (11-dars).
+// QAYTA YARATILDI 2026-08-27 (metodist qarori). Ikki narsa tuzatildi.
+//
+// 1. MODUL OLIB TASHLANDI. Avval bu yerda √(36a²), a < 0 turardi: bitta
+//    ekranda IKKI yangi narsa — shu darsning xossasi (ildiz KO'PAYTUVCHILARGA
+//    bo'linadi) va 11-darsning MODULI. Ikkinchi qadam xossani emas, modulni
+//    so'rardi. Modul darsda o'z joyida qoladi: 10-ekran (harf bilan) va
+//    12-ekran (shart buzilgan tuzoq). Bu ekranda faqat XOSSA qoladi.
+//
+// 2. ILDIZ BELGISINI YOZISH TALAB QILINMAYDI. Avval o'quvchi maydonga
+//    `sqrt(36)*sqrt(a^2)` kabi yozuvni kirituvi kerak edi — kompyuter
+//    klaviaturasida ildiz belgisi yo'q, ekran klaviaturasi esa FAQAT
+//    telefonda ko'rinadi (`math.jsx`, `useIsPhone`). Endi ikki qadamda ham
+//    javob — SON: `kind: 'number'`. Xossaning o'zi TUGMALARDA yashaydi:
+//    amal va ASOS tanlanadi, yozuv esa qatorlarda o'zi yig'iladi.
+//
+// SONLAR: √(9 · 64). Ikkisi ham to'liq kvadrat, harf yo'q, shart yo'q.
+// 1-qadam — ildiz ko'paytuvchilarga bo'linadi va birinchi ildiz: 3.
+// 2-qadam — ikkinchi ildiz hisoblanadi va ko'paytma: 24.
+// Natija 6-ekranning javobi (√1600 = 40) bilan ustma-ust tushmaydi.
+//
+// `notAsked` — javobi SHU qadamda so'ralmagan son uchun (masalan darrov
+// yozilgan 24). Razbor beriladi, qarshi misol YO'Q (`math.jsx`).
 // ============================================================
 const S5 = {
   eyebrow: L('QAYTA YOZISH', 'ПЕРЕПИСАТЬ', 'REWRITE IT'),
   title: L(
-    "√(36a²) ni sodda ko'rinishga keltiring",
-    'Приведи √(36a²) к простому виду',
-    'Bring √(36a²) to a simple form',
+    "√(9 · 64) ni hisoblang",
+    'Вычисли √(9 · 64)',
+    'Compute √(9 · 64)',
   ),
   audio: [
     A('mount',
-      "Ildiz ostida ikki ko'paytuvchi bor, va ikkalasi ham nomanfiy. a manfiy deb berilgan.",
-      'Под корнем два множителя, и оба неотрицательны. Дано, что a отрицательно.',
-      'The radicand has two factors and both are non-negative. It is given that a is negative.'),
+      "Ildiz ostida ikki son ko'paytirilgan. Ikkalasi ham to'liq kvadrat.",
+      'Под корнем два числа, они перемножены. Оба полных квадрата.',
+      'Under the root two numbers are multiplied. Both are perfect squares.'),
     W('s2',
-      "Ildiz ko'paytuvchilarga bo'lindi, chunki o'ttiz olti ham, a kvadrat ham nomanfiy.",
-      'Корень раздался по множителям, потому что и тридцать шесть, и a квадрат неотрицательны.',
-      'The root distributed over the factors because both thirty six and a squared are non-negative.'),
+      "Ildiz ko'paytuvchilarga bo'lindi va birinchi ildiz uch chiqdi.",
+      'Корень раздался по множителям, и первый корень вышел три.',
+      'The root distributed over the factors and the first root came out three.'),
     W('s3',
-      "Ikkinchi ildiz modulni berdi, va a manfiy bo'lgani uchun modul minus a ga teng.",
-      'Второй корень дал модуль, и поскольку a отрицательно, модуль равен минус a.',
-      'The second root gave the modulus, and since a is negative the modulus equals minus a.'),
+      "Ikkinchi ildiz sakkiz. Uch karra sakkiz yigirma to'rt, jadval kerak bo'lmadi.",
+      'Второй корень восемь. Три на восемь двадцать четыре, таблица не понадобилась.',
+      'The second root is eight. Three times eight is twenty four, no table was needed.'),
   ],
   props: {
     start: (
       <Row size="row" align="center">
-        {'√(36a²),   a < 0'}
+        {'√(9 · 64)'}
       </Row>
     ),
-    actions: [
-      { id: 'split', label: L("Ildizni ko'paytuvchilarga bo'lish", 'Раздать корень по множителям', 'Distribute the root over the factors') },
-      { id: 'terms', label: L("Ildizni hadlarga bo'lish", 'Раздать корень по слагаемым', 'Distribute the root over the terms') },
-      { id: 'sq', label: L("Yozuvni kvadratga oshirish", 'Возвести запись в квадрат', 'Square the record') },
-      { id: 'half', label: L("Ildiz ostini ikkiga bo'lish", 'Разделить подкоренное на два', 'Halve the radicand') },
-    ],
     steps: [
+      // 1-QADAM. Ildizni ko'paytuvchilarga bo'lish, keyin birinchi ildiz.
       {
+        actions: [
+          { id: 'split', label: L("Ildizni ko'paytuvchilarga bo'lish", 'Раздать корень по множителям', 'Distribute the root over the factors') },
+          { id: 'terms', label: L("Ildizni hadlarga bo'lish", 'Раздать корень по слагаемым', 'Distribute the root over the terms') },
+          { id: 'sq', label: L('Yozuvni kvadratga oshirish', 'Возвести запись в квадрат', 'Square the record') },
+        ],
         action: 'split',
         wrongs: [
           {
             action: 'terms',
             hint: L(
-              "Ildiz ostida had yo'q, ko'paytma turibdi. Hadlarga bo'lish esa umuman ishlamaydi.",
-              'Под корнем нет слагаемых, стоит произведение. А по слагаемым раздавать вообще нельзя.',
-              'There are no terms under the root, only a product. And distributing over terms never works.',
+              "Ildiz ostida had yo'q, ko'paytma turibdi. Yig'indi uchun bunday xossa umuman yo'q.",
+              'Под корнем нет слагаемых, стоит произведение. А для суммы такого свойства вообще нет.',
+              'There are no terms under the root, only a product. And for a sum there is no such property at all.',
             ),
           },
           {
             action: 'sq',
             hint: L(
-              "Kvadratga oshirsak, yozuv boshqa yozuv bo'lib qoladi.",
-              'Если возвести в квадрат, запись станет другой записью.',
-              'Squaring turns the record into a different record.',
-            ),
-          },
-          {
-            action: 'half',
-            hint: L(
-              "Ildiz ostini ikkiga bo'lish qiymatni o'zgartiradi.",
-              'Деление подкоренного на два меняет значение.',
-              'Halving the radicand changes the value.',
+              "Kvadratga oshirsak, yozuv boshqa yozuv bo'lib qoladi. Qiymat esa saqlanishi kerak.",
+              'Если возвести в квадрат, запись станет другой записью. А значение должно сохраняться.',
+              'Squaring turns the record into a different record. But the value must stay the same.',
             ),
           },
         ],
@@ -537,7 +549,7 @@ const S5 = {
           question: L('Nima asosda?', 'На основании чего?', 'On what grounds?'),
           items: [
             {
-              id: 'mul',
+              id: 'nonneg',
               right: true,
               label: L(
                 "Ko'paytmadan ildiz, ikki ko'paytuvchi nomanfiy",
@@ -546,12 +558,16 @@ const S5 = {
               ),
             },
             {
-              id: 'mod',
-              label: L('√(a²) = |a|', '√(a²) = |a|', '√(a²) = |a|'),
+              id: 'squares',
+              label: L(
+                "Ikkisi ham to'liq kvadrat",
+                'Оба числа полные квадраты',
+                'Both numbers are perfect squares',
+              ),
               hint: L(
-                "Bu keyingi qadamda kerak bo'ladi, hozir ildiz hali bo'linmadi.",
-                'Это понадобится на следующем шаге, сейчас корень ещё не раздан.',
-                'That is needed on the next step; the root has not been distributed yet.',
+                "To'liq kvadrat keyingi qadamni oson qiladi. Bo'linish uchun nomanfiylik yetadi.",
+                'Полный квадрат облегчает следующий шаг. Для самой раздачи достаточно неотрицательности.',
+                'Being a perfect square makes the next step easy. For the distribution itself non-negativity is enough.',
               ),
             },
             {
@@ -569,127 +585,147 @@ const S5 = {
             },
           ],
         },
+        kind: 'number',
         ask: L(
-          "Yozuv qanday bo'ldi? Yozing",
-          'Что получилось? Запиши',
-          'What came out? Write it down',
+          "Birinchi ildiz nechaga teng? Son yozing",
+          'Чему равен первый корень? Запиши число',
+          'What does the first root equal? Write the number',
         ),
-        answer: 'sqrt(36)*sqrt(a^2)',
-        accepts: ['sqrt(a^2)*sqrt(36)', '6*sqrt(a^2)'],
+        answer: '3',
+        notAsked: {
+          '24': L(
+            "Bu butun natija. Hozir faqat birinchi ildiz so'raldi.",
+            'Это весь результат. Сейчас спрашивают только первый корень.',
+            'That is the whole result. Right now only the first root is asked for.',
+          ),
+          '8': L(
+            "Bu ikkinchi ildiz. Birinchisi so'raldi, ya'ni to'qqizning ildizi.",
+            'Это второй корень. Спрашивают первый, то есть корень из девяти.',
+            'That is the second root. The first one is asked for, the root of nine.',
+          ),
+        },
         hints: {
-          'sqrt(36)+sqrt(a^2)': L(
-            "Ko'paytma qo'shishga aylanmaydi, ildiz ostida karra turgan edi.",
-            'Произведение не превращается в сумму, под корнем стояло умножение.',
-            'A product does not turn into a sum; the radicand held a multiplication.',
+          '81': L(
+            "To'qqiz kvadratga oshirildi. Ildiz esa teskari amal.",
+            'Девять возвели в квадрат. А корень это обратное действие.',
+            'Nine was squared. But a root is the opposite action.',
           ),
-          '6*a': L(
-            "Ikkinchi ildizda modul chiqadi, a esa manfiy. Bu keyingi qadam.",
-            'Во втором корне выйдет модуль, а a отрицательно. Это следующий шаг.',
-            'The second root gives a modulus, and a is negative. That is the next step.',
-          ),
-          '36*sqrt(a^2)': L(
-            "O'ttiz oltidan ildiz olti, o'ttiz olti emas.",
-            'Корень из тридцати шести равен шести, а не тридцати шести.',
-            'The root of thirty six is six, not thirty six.',
+          '4.5': L(
+            "Ildiz ikkiga bo'lish emas. Kvadrati to'qqiz bo'lgan son kerak.",
+            'Корень это не деление на два. Нужно число, квадрат которого девять.',
+            'A root is not halving. You need the number whose square is nine.',
           ),
         },
         show: (
           <Row size="row" align="center">
-            {'√(36a²) = √36 · √(a²)'}
+            {'√(9 · 64) = √9 · √64 = 3 · √64'}
           </Row>
         ),
       },
+      // 2-QADAM. Ikkinchi ildiz va ko'paytma. Javob ham SON.
       {
         actions: [
-          { id: 'modneg', label: L("Modulni minus a bilan yozish", 'Записать модуль как минус a', 'Write the modulus as minus a') },
-          { id: 'modpos', label: L("Modulni a bilan yozish", 'Записать модуль как a', 'Write the modulus as a') },
-          { id: 'drop', label: L("Modulni tashlab yuborish", 'Отбросить модуль', 'Drop the modulus') },
+          { id: 'each', label: L("Ikkinchi ildizni hisoblab, ko'paytirish", 'Вычислить второй корень и перемножить', 'Compute the second root and multiply') },
+          { id: 'add', label: L("Ikki ildizni qo'shish", 'Сложить два корня', 'Add the two roots') },
+          { id: 'back', label: L("Sonlarni bitta ildiz ostiga qaytarish", 'Вернуть числа под один корень', 'Put the numbers back under one root') },
         ],
-        action: 'modneg',
+        action: 'each',
         wrongs: [
           {
-            action: 'modpos',
+            action: 'add',
             hint: L(
-              "a manfiy, ildiz esa manfiy son bermaydi. Minus ikkini tekshiring.",
-              'a отрицательно, а корень отрицательного не даёт. Проверь на минус двух.',
-              'a is negative, but a root never gives a negative. Check it at minus two.',
+              "Ildizlar orasida karra turibdi, qo'shish emas.",
+              'Между корнями стоит умножение, а не сложение.',
+              'Between the roots stands a multiplication, not an addition.',
             ),
           },
           {
-            action: 'drop',
+            action: 'back',
             hint: L(
-              "Modulni tashlasak, a manfiy bo'lganda javob manfiy chiqadi.",
-              'Если отбросить модуль, при отрицательном a ответ выйдет отрицательным.',
-              'Dropping the modulus makes the answer negative for negative a.',
+              "Bu bizni boshlang'ich yozuvga qaytaradi. Ildizlar ajratilgan, endi ular hisoblanadi.",
+              'Это вернёт нас к исходной записи. Корни разделены, теперь их считают.',
+              'That takes us back to the original record. The roots are separated, now they get computed.',
             ),
           },
         ],
         why: {
           question: L(
-            "Nima uchun minus a?",
-            'Почему минус a?',
-            'Why minus a?',
+            "Ikkinchi ildiz nima uchun butun chiqadi?",
+            'Почему второй корень выходит целым?',
+            'Why does the second root come out whole?',
           ),
           items: [
             {
-              id: 'neg',
+              id: 'squares',
               right: true,
               label: L(
-                "a manfiy, minus a esa musbat",
-                'a отрицательно, а минус a положительно',
-                'a is negative, so minus a is positive',
+                "Sakkiz kvadrat oltmish to'rt",
+                'Восемь в квадрате шестьдесят четыре',
+                'Eight squared is sixty four',
               ),
             },
             {
-              id: 'six',
+              id: 'halves',
               label: L(
-                "Oltining oldida minus turadi",
-                'Минус стоит перед шестёркой',
-                'The minus stands before the six',
+                "Ildiz sonni ikkiga bo'ladi",
+                'Корень делит число на два',
+                'A root halves the number',
               ),
               hint: L(
-                "Olti o'zgarmaydi, u √36 dan chiqdi va musbat.",
-                'Шесть не меняется, она вышла из корня из тридцати шести и положительна.',
-                'The six does not change; it came from the root of thirty six and is positive.',
+                "Oltmish to'rtning yarmi o'ttiz ikki, ildizi esa sakkiz. Ildiz ikkiga bo'lish emas.",
+                'Половина шестидесяти четырёх это тридцать два, а корень восемь. Корень это не деление на два.',
+                'Half of sixty four is thirty two, but the root is eight. A root is not halving.',
               ),
             },
             {
-              id: 'sign',
+              id: 'round',
               label: L(
-                "Ildiz belgisi minus beradi",
-                'Знак корня даёт минус',
-                'The root sign gives a minus',
+                'Son yaxlit',
+                'Число круглое',
+                'The number is round',
               ),
               hint: L(
-                "Ildiz belgisi hech qachon manfiy son bermaydi.",
-                'Знак корня никогда не даёт отрицательного числа.',
-                'The root sign never gives a negative number.',
+                "Yaxlitlik hech narsa bermaydi. Yigirmaning ildizi butun emas.",
+                'Круглость ничего не даёт. Корень из двадцати не целый.',
+                'Roundness gives nothing. The root of twenty is not whole.',
               ),
             },
           ],
         },
+        kind: 'number',
         ask: L(
-          "Yozuvni oxirigacha yozing",
-          'Запиши до конца',
-          'Write it to the end',
+          'Butun natijani yozing',
+          'Запиши весь результат',
+          'Write the whole result',
         ),
-        answer: '-6a',
-        accepts: ['0-6*a', '6*(0-a)'],
-        hints: {
-          '6a': L(
-            "a manfiy, demak olti karra a ham manfiy. Ildiz esa manfiy son bermaydi.",
-            'a отрицательно, значит шесть на a тоже отрицательно. А корень отрицательного не даёт.',
-            'a is negative, so six times a is negative too. But a root never gives a negative.',
+        answer: '24',
+        notAsked: {
+          '8': L(
+            "Bu ikkinchi ildiz. Endi ikkisini ko'paytiring.",
+            'Это второй корень. Теперь перемножь оба.',
+            'That is the second root. Now multiply the two.',
           ),
-          '6': L(
-            "Ikkinchi ko'paytuvchi yo'qolmaydi, u minus a bo'lib qoladi.",
-            'Второй множитель не исчезает, он становится минус a.',
-            'The second factor does not vanish, it becomes minus a.',
+          '3': L(
+            "Bu birinchi ildiz. Endi ikkisini ko'paytiring.",
+            'Это первый корень. Теперь перемножь оба.',
+            'That is the first root. Now multiply the two.',
+          ),
+        },
+        hints: {
+          '11': L(
+            "Ildizlar qo'shilmadi, ular ko'paytiriladi. Uch karra sakkiz.",
+            'Корни не складывают, их перемножают. Три на восемь.',
+            'Roots are not added, they are multiplied. Three times eight.',
+          ),
+          '576': L(
+            "Bu ildiz ostidagi son, ildizning o'zi emas.",
+            'Это число под корнем, а не сам корень.',
+            'That is the number under the root, not the root itself.',
           ),
         },
         show: (
           <Row size="row" align="center">
-            {'6 · |a| = −6a,   a < 0'}
+            {'3 · √64 = 3 · 8 = 24'}
           </Row>
         ),
       },

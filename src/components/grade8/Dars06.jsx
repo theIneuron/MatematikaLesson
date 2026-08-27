@@ -1205,8 +1205,8 @@ const S6 = {
               label: L('2 va 1', '2 и 1', '2 and 1'),
               hint: L(
                 "Bo'lish bajarilishi kerak, qavsni bo'luvchiga bo'lamiz.",
-                'Деление надо выполнить: скобку делим на делитель.',
-                'The division must be performed: the bracket is divided by the divisor.',
+                'Деление надо выполнить. Скобку делим на делитель.',
+                'The division must be performed. The bracket is divided by the divisor.',
               ),
             },
           ],
@@ -1339,8 +1339,8 @@ const S7 = {
       ),
       '*': L(
         "Ikki joyga qarang, maxrajga va bo'luvchining suratiga.",
-        'Смотри в два места: знаменатель и числитель делителя.',
-        'Look in two places: the denominator and the numerator of the divisor.',
+        'Смотри в два места. Знаменатель и числитель делителя.',
+        'Look in two places. The denominator and the numerator of the divisor.',
       ),
     },
     note: L(
@@ -1503,8 +1503,8 @@ const S9 = {
         hints: {
           '(x*(x+1))/(2*(x+1))': L(
             "Qisqartirish qolib ketdi. Qavs ikkala qismda ham bor.",
-            'Сокращение не доведено: скобка есть в обеих частях.',
-            'The reducing is unfinished: the bracket is in both parts.',
+            'Сокращение не доведено. Скобка есть в обеих частях.',
+            'The reducing is unfinished. The bracket is in both parts.',
           ),
           '2/x': L(
             "Iks suratda edi, u yuqorida qoladi.",
@@ -1852,8 +1852,8 @@ const S12 = {
     hints: {
       'r1': L(
         "Bu satr to'g'ri, umumiy maxraj kvadratlar ayirmasi.",
-        'Эта строка верна: общий знаменатель это разность квадратов.',
-        'This line is correct: the common denominator is the difference of squares.',
+        'Эта строка верна. Общий знаменатель это разность квадратов.',
+        'This line is correct. The common denominator is the difference of squares.',
       ),
       'r2': L(
         "Bu ham to'g'ri, bo'lish shunday bajariladi.",

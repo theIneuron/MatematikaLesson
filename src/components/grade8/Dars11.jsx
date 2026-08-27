@@ -587,18 +587,27 @@ const S5 = {
           'Что получилось? Запиши',
           'What came out? Write it down',
         ),
+        // Javob `sqrt(`/`abs(`/`^` talab qiladi, kompyuter klaviaturasida
+        // bunday belgi yo'q — maydon QATORINING ICHIDA uchta tugma turadi
+        // (`√(`, `|(`, `^`), balandlik o'zgarmaydi (2026-08-27).
+        mathKeys: true,
         answer: '6+sqrt(a^2)',
         accepts: ['sqrt(a^2)+6'],
+        // `6-a` — ekranning OXIRGI javobi, va `a < 0` da u `6+|a|` ga TENG.
+        // Shuning uchun `hints` emas, `notAsked`: qarshi misol sonlarini
+        // `a = 12` da chiqarardi, shart esa manfiy a. Faqat razbor (2026-08-27).
+        notAsked: {
+          '6-a': L(
+            "Bu keyingi qadamning javobi. Hozir faqat birinchi hadni yozing.",
+            'Это ответ следующего шага. Сейчас запиши только первое слагаемое.',
+            'That is the next step answer. For now write only the first term.',
+          ),
+        },
         hints: {
           '6+a': L(
             "Ikkinchi hadga hali tegilmadi. Uning ildizi va kvadrati o'z joyida qoladi.",
             'Второе слагаемое пока не тронуто. Его корень и квадрат остаются на месте.',
             'The second term is untouched for now. Its root and square stay in place.',
-          ),
-          '6-a': L(
-            "Bu keyingi qadamning javobi. Hozir faqat birinchi hadni yozing.",
-            'Это ответ следующего шага. Сейчас запиши только первое слагаемое.',
-            'That is the next step\'s answer. For now write only the first term.',
           ),
           '36+sqrt(a^2)': L(
             "Olti kvadratga oshirilmaydi, kvadrat ildizni yechadi.",
@@ -688,6 +697,20 @@ const S5 = {
         ),
         answer: '6-a',
         accepts: ['6+(0-a)', '0-a+6'],
+        // Oldingi qator `6+|a|` ham `a < 0` da javobga TENG: modul ochilmagani
+        // uchun xato, qarshi misol uchun emas — shuning uchun `notAsked`.
+        notAsked: {
+          '6+sqrt(a^2)': L(
+            "Modul hali ochilmadi. a manfiy bo'lganda u nimaga tengligini yozing.",
+            'Модуль ещё не раскрыт. Запиши, чему он равен при отрицательном a.',
+            'The modulus is not opened yet. Write what it equals for negative a.',
+          ),
+          '6+abs(a)': L(
+            "Modul hali ochilmadi. a manfiy bo'lganda u nimaga tengligini yozing.",
+            'Модуль ещё не раскрыт. Запиши, чему он равен при отрицательном a.',
+            'The modulus is not opened yet. Write what it equals for negative a.',
+          ),
+        },
         hints: {
           '6+a': L(
             "a manfiy bo'lgani uchun uni qo'shsak javob kamayadi. Modul esa qo'shadi.",

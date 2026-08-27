@@ -22,6 +22,11 @@ const TXT = {
   placeNum: L('son', 'число', 'number'),
   none: L("qisqartirish mumkin emas", 'сокращать нечего', 'nothing to reduce'),
   wrongVar: L('Topshiriqda boshqa harf turgan.', 'В задании стоит другая буква.', 'The task uses a different letter.'),
+  numberNo: L(
+    "Bu son emas. Qadamni yana bir bor o'qing.",
+    'Это не то число. Прочитай шаг ещё раз.',
+    'That is not the number. Read the step once more.',
+  ),
   domainMine: L(
     'Bu qiymatda sizning yozuvingizda qiymat yo\'q, javobda esa bor. Yozuvlar teng emas.',
     'При этом значении у твоей записи значения нет, а у ответа есть. Записи не равны.',
@@ -65,7 +70,7 @@ export function useIsPhone(breakpoint = 640) {
 
 // --------------------------------------------------------------------------
 // Javobni baholash. Qaytadi: { ok, why, note, at, mine, ref }
-//   why: 'ok' | 'parse' | 'vars' | 'value' | 'domain'
+//   why: 'ok' | 'parse' | 'vars' | 'value' | 'domain' | 'notAsked'
 // `hints` — aynan shu noto'g'ri yozuv uchun yozilgan razbor (dars ma'lumoti).
 // Bo'lmasa — kontrprimer o'zi gapiradi: son va ikki qiymat.
 // --------------------------------------------------------------------------
@@ -76,6 +81,18 @@ export function judgeExpr(mine, task) {
   const p = parse(src)
   if (p.error) return { ok: false, why: 'parse', note: UI_TXT.writeMore, at: p.error.pos }
 
+  // `notAsked` — YOZUV SHART OSTIDA TENG, lekin bu qadamda so'ralgan narsa
+  // emas (11- va 12-darslar, 2026-08-27). Ikki yo'nalishda bo'ladi: keyingi
+  // qadamning javobi oldindan yozilgan, yoki oldingi qator o'zgarmay ko'chirilgan.
+  //
+  // Bunday javobga QARSHI MISOL KO'RSATILMAYDI. `checkIdentity` shartni
+  // (masalan `a < 0`) bilmaydi: u butun po'lda solishtiradi va `a = 12` dagi
+  // farqni dalil qilib beradi — `a = 12` esa shartga kirmaydi, ya'ni sonlar
+  // YOLG'ON gapiradi. Shu yo'lda faqat razbor chiqadi: `why: 'notAsked'`,
+  // `Verdict` uchun oddiy `Note`. Qadam YOPILMAYDI — so'ralgan qadam boshqa.
+  const notAsked = matchHint(src, task.notAsked || {})
+  if (notAsked) return { ok: false, why: 'notAsked', note: notAsked }
+
   // Darsda yozilgan razbor bo'lsa — aynan u ishlatiladi.
   const keyed = matchHint(src, hints)
 
@@ -83,6 +100,14 @@ export function judgeExpr(mine, task) {
   if (r.ok) return { ok: true, points: r.points }
   if (r.why === 'vars') return { ok: false, why: 'vars', note: keyed || TXT.wrongVar }
   if (r.why === 'value') {
+    // JAVOB SON bo'lsa (harfsiz ifoda) qarshi misol ISHLAMAYDI va ZARARLI:
+    // soxta nuqta chiqadi (`x = 12` — bunday harf topshiriqda yo'q), va
+    // yonidagi «boshlang'ich 3» TO'G'RI JAVOBNI oshkor qiladi. Shu holatda
+    // faqat razbor beriladi (2026-08-27). Harfli ifodada hammasi avvalgidek:
+    // son va ikki qiymat — 8-sinfning asosiy javob shakli (§2.1 p.4).
+    const refP = parse(task.answer)
+    const numeric = !refP.error && refP.vars && refP.vars.size === 0
+    if (numeric) return { ok: false, why: 'value', note: keyed || TXT.numberNo }
     return {
       ok: false, why: 'value', note: keyed || null,
       at: pointText(r.point), mine: r.mine, ref: r.ref,
@@ -138,7 +163,7 @@ function pointText(point) {
 // --------------------------------------------------------------------------
 export const MathField = ({
   value, onChange, onSubmit, kind = 'expr', disabled, done,
-  none, onNone, noneLabel, placeholder, label, width,
+  none, onNone, noneLabel, placeholder, label, width, mathKeys,
 }) => {
   const t = useT()
   const phone = useIsPhone()
@@ -200,6 +225,26 @@ export const MathField = ({
           onChange={(e) => onChange(e.target.value)}
           onKeyDown={(e) => { if (e.key === 'Enter' && onSubmit) { e.preventDefault(); onSubmit() } }}
         />
+        {/* BELGI TUGMALARI MAYDON QATORINING ICHIDA (metodist, 2026-08-27:
+            «men klaviaturada ildiz belgisini yozolmayman»). Kompyuter
+            klaviaturasida `√` yo'q, `sqrt(` sintaksisi esa o'quvchiga
+            aytilmagan. Ekran klaviaturasi faqat telefonda ko'rinadi.
+
+            NIMA UCHUN QATOR ICHIDA, ostida EMAS: maydon ostidagi alohida
+            qator o'ttiz piksel oladi va balandlik budjetini buzadi —
+            8-darsning 4- va 5-ekranida «Davom etish» yopilib qoldi
+            (prokliklash, 2026-08-27). Qator ichida balandlik o'zgarmaydi:
+            maydonning o'zi 44px, tugma 30px. */}
+        {mathKeys && !phone && !done && !disabled ? (
+          <span className="g8-field-keys">
+            {INLINE_KEYS.map((k) => (
+              <button type="button" key={k} className="g8-key g8-key-in"
+                onClick={() => insert(k)}>
+                {k === 'sqrt(' ? '√(' : k === 'abs(' ? '|(' : k}
+              </button>
+            ))}
+          </span>
+        ) : null}
         {onSubmit ? (
           <button type="button" className="g8-field-go" onClick={onSubmit} disabled={disabled || done || !String(value || '').trim()}>
             {t(UI_TXT.check)}
@@ -220,6 +265,9 @@ export const MathField = ({
 }
 
 // Ekran klaviaturasi. Ikki qator (§10.1). Kompyuterda YO'Q.
+// Maydon qatorining ichidagi uchta belgi: klaviaturada yo'q, sintaksisi
+// esa o'quvchiga aytilmagan. Qolgan hamma narsa klaviaturada teriladi.
+const INLINE_KEYS = ['sqrt(', 'abs(', '^']
 const ROW_NUM = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 'a', 'b', 'x', 'y', 'n']
 const ROW_OP = ['+', '-', '*', '/', '(', ')', '^', 'sqrt(', 'abs(', '!=']
 
@@ -354,6 +402,9 @@ export const MATH_STYLES = `
 }
 .g8-key:active { background: ${T.accentSoft}; box-shadow: inset 0 0 0 1px rgba(${T.accentRgb},.4); }
 .g8-key-w { min-width: 38px; }
+/* MAYDON QATORI ICHIDAGI BELGILAR: balandlik maydonning o'zidan oshmaydi. */
+.g8-field-keys { display: flex; gap: 4px; flex-shrink: 0; }
+.g8-key-in { height: 30px; min-width: 30px; font-size: 15px; }
 /* SON KLAVIATURASI: o'n ikki tugma BIR qatorda. 390 px da keng tugmalar
    ikkinchi qatorga o'tib ketardi va 64 piksel egallardi (2026-08-20). */
 .g8-kb-row.is-num .g8-key { min-width: 25px; padding: 0 2px; }
