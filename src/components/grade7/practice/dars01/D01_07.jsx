@@ -161,13 +161,7 @@ export default function D01_07(props) {
 
         <div style={{ justifySelf: 'end', display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
           {slotBox(0)}
-          <Row tokens={LINES[0].after} size={EXPR} />
-        </div>
-        <div style={{ justifySelf: 'center' }}><Row tokens={['=']} size={EXPR} /></div>
-        <div />
-
-        <div style={{ justifySelf: 'end', display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
-          <Row tokens={['−70', '+']} size={EXPR} />
+          <Row tokens={['+']} size={EXPR} />
           {slotBox(1)}
         </div>
         <div style={{ justifySelf: 'center' }}><Row tokens={['=']} size={EXPR} /></div>
