@@ -408,9 +408,13 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
     <div style={S.wrap}>
       <Head data={data} lang={lang} />
       <Given data={data} lang={lang} />
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'center', margin: '8px 0 6px' }}>
+      {/* QATORLAR BIR CHIZIQDAN BOSHLANADI (metodist QA si, 2026-08-22):
+          ilgari har qator ALOHIDA markazlanardi va zanjir qiyshiq narvonga
+          o'xshab qolardi. Endi butun blok markazda turadi, qatorlar esa
+          bir xil chapdan boshlanadi -- qadamlar ustma-ust o'qiladi. */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-start', width: 'fit-content', maxWidth: '100%', margin: '8px auto 6px' }}>
         {data.rows.map((row, ri) => (
-          <div key={ri} style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', gap: 2 }}>
+          <div key={ri} style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-start', gap: 2 }}>
             {/* YOZUV VA UYA BIRGA KO'CHADI (metodist QA si, 2026-08-22): ilgari
                 qatorda ikki bo'sh katak bo'lsa, telefonda «f(0) =» yuqorida, katagi esa
                 pastda qolardi. Endi har «yozuv + katak» juftligi bitta bo'lak
