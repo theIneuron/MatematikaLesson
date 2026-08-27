@@ -417,6 +417,7 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
 
   const bd = A.checked ? (A.fb?.correct ? C.ok : C.no) : C.line;
   const narrow = useNarrow();
+  const stackBank = narrow && data.cards.some((c) => String(tr(cardKey(c), lang)).length > 10);
   // Yozuvda SO'Z bo'lsa (masalan «ikkinchi o'tkir burchak»), tor ekranda kegl
   // yana kichrayadi: so'zli podpis raqamdan uzun va qatorni ko'chirib yuboradi.
   const wordyRow = (data.rows || []).some((row) => row.some((part) => (part.t || []).some((x) => /[A-Za-z']{3,}/.test(String(tr(x, lang))))));
@@ -512,11 +513,11 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
       <div style={S.note}><Sup s={tr(data.ask, lang)} /></div>
       <div style={{ borderTop: '1px dashed ' + C.pale, paddingTop: 9 }}>
         <div style={S.bankLbl}>{String(tr(data.bank, lang)).toUpperCase()}</div>
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', minHeight: 46, alignItems: 'center', flexWrap: 'wrap', maxWidth: '100%' }}>
+        <div style={{ display: 'flex', gap: stackBank ? 6 : 8, justifyContent: 'center', minHeight: 46, alignItems: stackBank ? 'stretch' : 'center', flexDirection: stackBank ? 'column' : 'row', flexWrap: 'wrap', maxWidth: '100%' }}>
           {pool.length === 0 && <span style={{ fontSize: 13, color: C.line, fontWeight: 700 }}>—</span>}
           {pool.map((c) => (
             <button key={c} type="button" data-card={c} disabled={A.locked} onClick={() => setPicked(picked === c ? null : c)}
-              style={{ minWidth: 62, padding: '0 10px', height: 'auto', minHeight: 46, borderRadius: 12, border: '2px solid ' + (picked === c ? C.hot : C.line), background: picked === c ? C.hotBg : '#fff', ...S.mono, fontSize: CARD_FS, color: C.ink, cursor: A.locked ? 'default' : 'pointer' , ...WRAP}}>
+              style={{ minWidth: stackBank ? 0 : 62, width: stackBank ? '100%' : undefined, padding: '0 10px', height: 'auto', minHeight: stackBank ? 42 : 46, borderRadius: 12, border: '2px solid ' + (picked === c ? C.hot : C.line), background: picked === c ? C.hotBg : '#fff', ...S.mono, fontSize: CARD_FS, color: C.ink, cursor: A.locked ? 'default' : 'pointer' , ...WRAP}}>
               <Sup s={tr(cardLbl(data, c), lang)} />
             </button>
           ))}
@@ -712,6 +713,11 @@ export const evalSeq = (items) => {
 export function BuildLine({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
   const [seq, setSeq] = useState([]);      // karta id lari
   const cardOrder = useMemo(() => (data.noShuffle ? data.cards.map((_, i) => i) : shuffled(data.cards.length)), [data]);
+  // TELEFONDA UZUN KARTALAR USTUN BO'LIB TURADI (metodist qarori 2026-08-22):
+  // variantlar kabi -- har biri butun kenglikda, bittadan qatorda. Qisqa
+  // kartalar (son, bir had) avvalgidek yonma-yon qoladi.
+  const narrow = useNarrow();
+  const stackCards = narrow && data.cards.some((c) => String(tr(c.label, lang)).length > 10);
   const [pos, setPos] = useState(0);       // kursor o'rni
   const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa?.seq) { setSeq(sa.seq); setPos(sa.seq.length); } } });
   const byId = (id) => data.cards.find((c) => c.id === id);
@@ -774,12 +780,12 @@ export function BuildLine({ data, lang = 'uz', mode = 'answer', initialAnswer = 
         </div>
       ) : null}
       <div style={S.note}><Sup s={tr(data.ask, lang)} /></div>
-      <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap', alignItems: 'center', maxWidth: '100%' }}>
+      <div style={{ display: 'flex', gap: stackCards ? 6 : 8, justifyContent: 'center', flexWrap: 'wrap', alignItems: stackCards ? 'stretch' : 'center', flexDirection: stackCards ? 'column' : 'row', maxWidth: '100%' }}>
         {data.cards.map((c) => {
           const used = seq.indexOf(c.id) !== -1;
           return (
             <button key={c.id} type="button" data-card={c.id} disabled={used || A.locked} onClick={() => put(c.id)}
-              style={{ minWidth: 52, padding: '0 9px', height: 'auto', minHeight: 48, borderRadius: 13, border: '2px solid ' + (used ? '#eef0f4' : C.line), background: used ? C.bg : '#fff', ...S.mono, fontSize: CARD_FS, color: used ? C.line : toneOf(c.label), cursor: (used || A.locked) ? 'default' : 'pointer' , ...WRAP}}>
+              style={{ minWidth: stackCards ? 0 : 52, width: stackCards ? '100%' : undefined, padding: '0 9px', height: 'auto', minHeight: stackCards ? 42 : 48, borderRadius: 13, border: '2px solid ' + (used ? '#eef0f4' : C.line), background: used ? C.bg : '#fff', ...S.mono, fontSize: CARD_FS, color: used ? C.line : toneOf(c.label), cursor: (used || A.locked) ? 'default' : 'pointer' , ...WRAP}}>
               <Sup s={tr(c.label, lang)} />
             </button>
           );
