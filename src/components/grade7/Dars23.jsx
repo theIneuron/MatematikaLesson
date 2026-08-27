@@ -119,7 +119,7 @@ const S2 = {
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -483,7 +483,7 @@ const S9 = {
   kind: 'chain',
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
   title: L('Javobni toping', 'Найди ответ', 'Find the answer'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -748,9 +748,9 @@ const S13 = {
     'Expand the product and write the terms that fall into the second group.',
   ),
   checkNote: L(
-    "Minus uch karra ikki x minus olti x, minus uch karra minus bir esa musbat uch beradi. Bu ikkovi ikkinchi guruh.",
-    'Минус три на два x это минус шесть x, а минус три на минус один это плюс три. Эти два и есть вторая группа.',
-    'Minus three times two x is minus six x, and minus three times minus one is plus three. Those two are the second group.',
+    "−3 · 2x = −6x, −3 · (−1) = +3. Bu ikkovi ikkinchi guruh.",
+    '−3 · 2x = −6x, а −3 · (−1) = +3. Эти два и есть вторая группа.',
+    '−3 · 2x = −6x, and −3 · (−1) = +3. Those two are the second group.',
   ),
   wrongs: [
     { key: 'c', tag: 'Z6', hint: L("Minus uch ikki x ga ko'paytiriladi, ya'ni olti x chiqadi.", 'Минус три умножается на два x, значит выйдет шесть x.', 'Minus three is multiplied by two x, so six x comes out.') },
@@ -773,7 +773,7 @@ const S14 = {
   items: [
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: 'ab + 2a + 3b + 6',
       ok: L("Birinchi guruhdan a, ikkinchisidan uch chiqdi.", 'Из первой группы вынесли a, из второй тройку.', 'The first group gave a, the second gave three.'),
       items: [
@@ -785,7 +785,7 @@ const S14 = {
     },
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: 'x³ − x² + 4x − 4',
       ok: L("Birinchi guruhdan x kvadrat, ikkinchisidan to'rt chiqdi, qavs x minus bir.", 'Из первой группы вынесли x в квадрате, из второй четвёрку, скобка x минус один.', 'The first group gave x squared, the second gave four, and the bracket is x minus one.'),
       items: [

@@ -605,9 +605,9 @@ const S6 = {
   ],
   answer: ['p5', 'p2', 'p11'],
   prompt: L(
-    "a teng 5, b teng 2. a qo'shuv 3b qatorini yig'ing va qiymatni toping.",
-    'a равно 5, b равно 2. Собери строку a + 3b и найди значение.',
-    'a equals 5, b equals 2. Build the line a + 3b and find the value.',
+    "a = 5, b = 2. a + 3b qatorini yig'ing va qiymatini toping.",
+    'a = 5, b = 2. Собери строку a + 3b и найди её значение.',
+    'a = 5, b = 2. Build the line a + 3b and find its value.',
   ),
   checkNote: L(
     "Har xil o'zgaruvchi har xil joy, va har biri o'z sonini kutadi",
@@ -824,7 +824,7 @@ function Screen8({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S9 = {
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
-  title: L('Uchtasi ketma-ket', 'Три подряд', 'Three in a row'),
+  title: L('Uchta qiymatni topamiz', 'Находим три значения', 'Finding three values'),
   reward: {
     title: L('Uchtasi ham topildi', 'Все три найдены', 'All three found'),
     text: L(
@@ -838,8 +838,8 @@ const S9 = {
       template: ['4 · ', { slot: 0 }, ' = ', { slot: 1 }],
       parts: [{ id: 'p7', label: '7' }, { id: 'p28', label: '28' }, { id: 'p47', label: '47' }, { id: 'p11', label: '11' }],
       answer: ['p7', 'p28'],
-      prompt: L("4x, bunda x teng 7. Qatorni yig'ing.", '4x, где x равно 7. Собери строку.', '4x, where x equals 7. Build the line.'),
-      checkNote: L("4 karra 7 bu 28", '4 умножить на 7 это 28', '4 times 7 is 28'),
+      prompt: L("4x, bunda x = 7. Qatorni yig'ing.", '4x, где x = 7. Собери строку.', '4x, where x = 7. Build the line.'),
+      checkNote: L("4 · 7 = 28", '4 · 7 = 28', '4 · 7 = 28'),
       wrongs: [
         { key: 'p7|p47', tag: 'Z2', hint: L("47 bu yonma-yon turgan 4 va 7. Ular orasida ko'paytirish bor.", '47 это 4 и 7, стоящие рядом. Между ними умножение.', '47 is 4 and 7 side by side. Between them is a multiplication.') },
         { key: 'p7|p11', tag: 'Z2', hint: L("11 bu 4 qo'shuv 7. Yozuvda esa qo'shish emas, ko'paytirish yashiringan.", '11 это 4 плюс 7. А в записи спрятано не сложение, а умножение.', '11 is 4 plus 7. But what is hidden in the expression is a multiplication, not an addition.') },
@@ -850,8 +850,8 @@ const S9 = {
       template: [{ slot: 0 }, ' + 9 = ', { slot: 1 }],
       parts: [{ id: 'q7', label: '7' }, { id: 'q16', label: '16' }, { id: 'q79', label: '79' }, { id: 'q63', label: '63' }],
       answer: ['q7', 'q16'],
-      prompt: L("x qo'shuv 9, bunda x teng 7. Qatorni yig'ing.", 'x плюс 9, где x равно 7. Собери строку.', 'x plus 9, where x equals 7. Build the line.'),
-      checkNote: L('7 qo\'shuv 9 bu 16', '7 плюс 9 это 16', '7 plus 9 is 16'),
+      prompt: L("x + 9, bunda x = 7. Qatorni yig'ing.", 'x + 9, где x = 7. Собери строку.', 'x + 9, where x = 7. Build the line.'),
+      checkNote: L('7 + 9 = 16', '7 + 9 = 16', '7 + 9 = 16'),
       wrongs: [
         { key: 'q7|q79', tag: 'Z2', hint: L("79 bu yonma-yon yozilgan 7 va 9. Ular orasida qo'shish belgisi turibdi.", '79 это 7 и 9, записанные рядом. Между ними стоит знак сложения.', '79 is 7 and 9 written side by side. Between them stands an addition sign.') },
         { key: 'q7|q63', tag: 'Z3', hint: L("63 bu 7 karra 9. Belgiga qarang, u ko'paytirish emas.", '63 это 7 умножить на 9. Посмотри на знак, он не умножение.', '63 is 7 times 9. Look at the sign, it is not a multiplication.') },
@@ -862,8 +862,8 @@ const S9 = {
       template: [{ slot: 0 }, ' : 2 = ', { slot: 1 }],
       parts: [{ id: 'w8', label: '8' }, { id: 'w4', label: '4' }, { id: 'w16', label: '16' }, { id: 'w82', label: '82' }],
       answer: ['w8', 'w4'],
-      prompt: L("x bo'lish 2, bunda x teng 8. Qatorni yig'ing.", 'x разделить на 2, где x равно 8. Собери строку.', 'x divided by 2, where x equals 8. Build the line.'),
-      checkNote: L('8 ni 2 ga bo\'lsak 4 bo\'ladi', '8 разделить на 2 будет 4', '8 divided by 2 is 4'),
+      prompt: L("x : 2, bunda x = 8. Qatorni yig'ing.", 'x : 2, где x = 8. Собери строку.', 'x : 2, where x = 8. Build the line.'),
+      checkNote: L('8 ni 2 ga bo\'lsak 4 bo\'ladi', '8 : 2 будет 4', '8 : 2 = 4'),
       wrongs: [
         { key: 'w8|w16', tag: 'Z3', hint: L("16 bu 8 karra 2. Belgiga qarang, u bo'lish.", '16 это 8 умножить на 2. Посмотри на знак, он деление.', '16 is 8 times 2. Look at the sign, it is a division.') },
         { key: 'w8|w82', tag: 'Z2', hint: L("82 bu yonma-yon yozilgan 8 va 2. Ular orasida amal belgisi bor.", '82 это 8 и 2, записанные рядом. Между ними стоит знак действия.', '82 is 8 and 2 written side by side. There is an operation sign between them.') },
@@ -1010,9 +1010,9 @@ const S11 = {
   ],
   answer: ['mp', 'v3'],
   prompt: L(
-    "2x qo'shuv y, bunda x teng 2, y teng minus 1. Iks allaqachon qo'yilgan. y ni qo'ying va qiymatni toping.",
-    '2x плюс y, где x равно 2, y равно минус 1. Икс уже подставлен. Поставь y и найди значение.',
-    '2x plus y, where x equals 2 and y equals minus 1. The x is already in. Put y in and find the value.',
+    "2x + y, bunda x = 2, y = −1. x allaqachon qo'yilgan. y ni qo'ying va qiymatni toping.",
+    '2x + y, где x = 2, y = −1. x уже подставлен. Поставь y и найди значение.',
+    '2x + y, where x = 2 and y = −1. The x is already in. Put y in and find the value.',
   ),
   checkNote: L(
     "Manfiy son o'z ishorasi bilan birga qo'yiladi, shuning uchun qavsga olinadi",
@@ -1168,9 +1168,9 @@ const S13 = {
       parts: [{ id: 'mul', label: '·' }, { id: 'add', label: '+' }, { id: 'pn', label: 'n' }, { id: 'p250', label: '250' }],
       answer: ['mul', 'pn'],
       prompt: L(
-        "Bog'da n tup olma bor, har biridan o'rtacha 30 kilogramm hosil olinadi. Yig'iladigan hosilni ko'rsatadigan yozuvni yig'ing.",
-        'В саду n яблонь, с каждой в среднем 30 килограммов плодов. Собери запись, которая показывает весь урожай.',
-        'A garden has n apple trees, each giving 30 kilograms on average. Build the expression for the whole harvest.',
+        "Bog'da n tup olma, har biridan 30 kg hosil. Butun hosilni n orqali yozing.",
+        'В саду n яблонь, с каждой по 30 кг. Запиши весь урожай через n.',
+        'A garden has n apple trees, 30 kg from each. Write the whole harvest through n.',
       ),
       checkNote: L('Yozuv har qanday bog\' uchun bitta, tup soni esa keyin qo\'yiladi', 'Запись одна на любой сад, а число яблонь подставляют потом', 'One expression for any garden, and the number of trees goes in later'),
       wrongs: [
@@ -1184,9 +1184,9 @@ const S13 = {
       parts: [{ id: 'a7500', label: '7500' }, { id: 'a280', label: '280' }, { id: 'a750', label: '750' }, { id: 'a75000', label: '75000' }],
       answer: ['a7500'],
       prompt: L(
-        "Endi n teng 250 bo'lganda hosilni hisoblang.",
-        'Теперь посчитай урожай при n равном 250.',
-        'Now work out the harvest at n equal to 250.',
+        "Endi n = 250 bo'lganda hosilni hisoblang.",
+        'Теперь посчитай урожай при n = 250.',
+        'Now work out the harvest at n = 250.',
       ),
       checkNote: L('Yozuv o\'zgarmadi, faqat n o\'rnidagi son o\'zgardi', 'Запись не изменилась, изменилось только число на месте n', 'The expression did not change, only the number in the place of n did'),
       wrongs: [
@@ -1295,7 +1295,7 @@ const S14 = {
     {
       wrap: true,
       question: null,
-      prompt: L("a qo'shuv 5 yozuvi nechta har xil qiymat bera oladi?", 'Сколько разных значений может дать запись a + 5?', 'How many different values can the expression a + 5 give?'),
+      prompt: L("a + 5 yozuvi nechta har xil qiymat bera oladi?", 'Сколько разных значений может дать запись a + 5?', 'How many different values can the expression a + 5 give?'),
       ok: L("O'zgaruvchi son uchun joy tutib turadi.", 'Переменная держит место для числа.', 'A variable holds a place for a number.'),
       items: [
         { id: 'a', correct: true, label: L("O'zgaruvchi o'rniga qancha son qo'ysak", 'Сколько чисел поставим вместо буквы', 'As many as the numbers put in its place') },

@@ -116,7 +116,7 @@ const S2 = {
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -285,9 +285,9 @@ const S5 = {
     'Work out the value.',
   ),
   checkNote: L(
-    "Uch karra to'rt o'n ikki, undan ikki ayirilsa o'n bo'ladi. Boshqa javob chiqmaydi -- shuning uchun bu funksiya.",
-    'Три на четыре двенадцать, минус два это десять. Другого ответа не выйдет — поэтому это функция.',
-    'Three times four is twelve, minus two is ten. No other answer is possible — that is why it is a function.',
+    "3 · 4 = 12, 12 − 2 = 10. Boshqa javob chiqmaydi -- shuning uchun bu funksiya.",
+    '3 · 4 = 12, 12 − 2 = 10. Другого ответа не выйдет — поэтому это функция.',
+    '3 · 4 = 12, 12 − 2 = 10. No other answer is possible — that is why it is a function.',
   ),
   wrongs: [
     { key: 'b', tag: 'Z6', hint: L("Ikki ayiriladi, qo'shilmaydi.", 'Два вычитается, а не прибавляется.', 'Two is subtracted, not added.') },
@@ -454,7 +454,7 @@ const S9 = {
   kind: 'chain',
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
   title: L('Funksiyami yoki yo\'q', 'Функция или нет', 'A function or not'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -610,9 +610,9 @@ const S10 = {
     'Work out the two values.',
   ),
   checkNote: L(
-    "To'rt karra ikki sakkiz, undan uch ayirilsa besh. x nol bo'lganda esa faqat manfiy uch qoladi.",
-    'Четыре на два восемь, минус три это пять. А при x равном нулю остаётся только минус три.',
-    'Four times two is eight, minus three is five. At x equal to zero only minus three remains.',
+    "4 · 2 = 8, 8 − 3 = 5. x = 0 bo'lganda esa faqat −3 qoladi.",
+    '4 · 2 = 8, 8 − 3 = 5. А при x = 0 остаётся только −3.',
+    '4 · 2 = 8, 8 − 3 = 5. At x = 0 only −3 remains.',
   ),
   wrongs: [
     { key: 'c', tag: 'Z6', hint: L("To'rt karra ikki sakkiz, uch qo'shilmaydi, ayiriladi.", 'Четыре на два восемь, три не прибавляется, а вычитается.', 'Four times two is eight, three is subtracted, not added.') },
@@ -680,9 +680,9 @@ const S11 = {
     'Find the argument.',
   ),
   checkNote: L(
-    "O'n birdan besh ayirilsa olti, olti ikkiga bo'linsa uch. Tekshirish: ikki karra uch qo'shuv besh o'n bir.",
-    'Одиннадцать минус пять это шесть, шесть на два это три. Проверка: два на три плюс пять это одиннадцать.',
-    'Eleven minus five is six, six by two is three. Check: two times three plus five is eleven.',
+    "11 − 5 = 6, 6 : 2 = 3. Tekshirish: 2 · 3 + 5 = 11.",
+    '11 − 5 = 6, 6 : 2 = 3. Проверка: 2 · 3 + 5 = 11.',
+    '11 − 5 = 6, 6 : 2 = 3. Check: 2 · 3 + 5 = 11.',
   ),
   wrongs: [
     { key: 'b', tag: 'Z6', hint: L("Besh ayirilgandan keyin ikkiga bo'lish qoldi.", 'После вычитания пяти осталось разделить на два.', 'After subtracting five, dividing by two is left.') },
@@ -781,9 +781,9 @@ const S13 = {
     'Work out the price for three kilograms, in thousands of sums.',
   ),
   checkNote: L(
-    "Sakkiz karra uch yigirma to'rt. Har og'irlik uchun narx bitta, shuning uchun bu funksiya.",
-    'Восемь на три двадцать четыре. На каждый вес цена одна, поэтому это функция.',
-    'Eight times three is twenty four. Each weight has one price, so this is a function.',
+    "8 · 3 = 24. Har og'irlik uchun narx bitta, shuning uchun bu funksiya.",
+    '8 · 3 = 24. На каждый вес цена одна, поэтому это функция.',
+    '8 · 3 = 24. Each weight has one price, so this is a function.',
   ),
   wrongs: [
     { key: 'b', tag: 'Z6', hint: L("Narx og'irlikka KO'PAYTIRILADI, qo'shilmaydi.", 'Цена УМНОЖАЕТСЯ на вес, а не складывается с ним.', 'The price is MULTIPLIED by the weight, not added to it.') },

@@ -114,7 +114,7 @@ const S2 = {
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -471,7 +471,7 @@ const S8 = {
         'By SIDES: two equal is isosceles, three equal is equilateral, all different is scalene.',
       ),
       L(
-        "BURCHAKLAR bo'yicha: hammasi 90 dan kichik bo'lsa o'tkir burchakli, bittasi 90 bo'lsa to'g'ri burchakli, bittasi 90 dan katta bo'lsa o'tmas burchakli. Ikki bo'linish MUSTAQIL: bir uchburchakka ikkitadan nom to'g'ri keladi.",
+        "BURCHAKLAR bo'yicha: hammasi 90° dan kichik bo'lsa o'tkir burchakli, bittasi 90° bo'lsa to'g'ri burchakli, bittasi 90° dan katta bo'lsa o'tmas burchakli. Ikki bo'linish MUSTAQIL: bir uchburchakka ikkitadan nom to'g'ri keladi.",
         'По УГЛАМ: все меньше 90 это остроугольный, один равен 90 это прямоугольный, один больше 90 это тупоугольный. Две классификации НЕЗАВИСИМЫ: одному треугольнику подходят два названия.',
         'By ANGLES: all under 90 is acute, one equal to 90 is right-angled, one over 90 is obtuse. The two classifications are INDEPENDENT: one triangle fits two names.',
       ),
@@ -501,7 +501,7 @@ const S9 = {
   kind: 'chain',
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
   title: L('Turini aniqlang', 'Определи вид', 'Name the kind'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -605,7 +605,7 @@ const S10 = {
     'Put the name by sides in the first gap and the name by angles in the second.',
   ),
   checkNote: L(
-    "Ikki teng tomon teng yonli nomini beradi, 90 dan katta burchak esa o'tmas burchakli nomini. Bir uchburchak, ikki nom.",
+    "Ikki teng tomon teng yonli nomini beradi, 90° dan katta burchak esa o'tmas burchakli nomini. Bir uchburchak, ikki nom.",
     'Две равные стороны дают название равнобедренный, а угол больше 90 название тупоугольный. Один треугольник, два названия.',
     'Two equal sides give the name isosceles, and an angle over 90 gives obtuse. One triangle, two names.',
   ),

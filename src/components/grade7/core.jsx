@@ -2260,8 +2260,8 @@ html, body { margin: 0; padding: 0; }
 .g7-idx { font-size: max(10.5px, .68em); font-weight: 700; letter-spacing: .01em; font-style: normal; }
 sub.g7-idx { vertical-align: -.20em; }
 sup.g7-idx { vertical-align: .46em; }
-.g7-hint { font-size: clamp(15.5px, 2vw, 18.5px); line-height: 1.45; color: ${T.ink2}; }
-.g7-ask { font-size: clamp(16px, 2.1vw, 19.5px); line-height: 1.4; font-weight: 700; color: ${T.ink}; }
+.g7-hint { font-size: clamp(15px, 1.9vw, 17.5px); line-height: 1.45; color: ${T.ink2}; }
+.g7-ask { font-size: clamp(15.5px, 2.1vw, 18px); line-height: 1.4; font-weight: 500; color: ${T.ink}; }
 .g7-tag {
   display: inline-flex; align-items: center; gap: 6px;
   /* Flex ustun ichida inline-flex ham CHO'ZILADI (align-items: stretch),
@@ -3209,7 +3209,7 @@ sup.g7-idx { vertical-align: .46em; }
     min-height: 26px !important;
     gap: 6px !important;
   }
-  .g7-ask { font-size: 13px; line-height: 1.32; }
+  .g7-ask { line-height: 1.32; }
   .g7-claim .g7-tag { font-size: 9.5px; padding: 2px 5px; }
   .g7-fb { padding: 7px 9px; }
 
@@ -3494,11 +3494,14 @@ sup.g7-idx { vertical-align: .46em; }
   background: transparent;
   color: ${T.ink};
   font-family: 'Manrope', sans-serif;
-  font-weight: 700;
+  /* SAVOL QALIN EMAS (metodist 2026-08-26): qalinlik savolni emas,
+     YORLIQNI (TOPSHIRIQ, 1-QADAM) ajratadi. Savol to'q rangda turadi,
+     izoh esa kulrangda -- farq shunda. */
+  font-weight: 500;
   /* Interfeys shrifti (texnik topshiriq: Manrope 15-18). Formula mono
      bo'lgani uchun savolni ham serif qilib qo'ysak, kadrda uch shrift
      bo'lardi. */
-  font-size: clamp(16px, 2.2vw, 19px);
+  font-size: clamp(15.5px, 2.1vw, 18px);
   line-height: 1.3;
   text-align: left;
 }
@@ -3563,7 +3566,7 @@ sup.g7-idx { vertical-align: .46em; }
   margin: 0; text-align: left; flex-shrink: 0;
   /* O'lcham SHU YERDA qayta beriladi: umumiy .g7-ask telefonda 13px ga
      tushadi, topshiriq esa o'qilishi SHART -- metodist brifi 15-18. */
-  font-size: clamp(15px, 1.9vw, 17.5px);
+  font-size: clamp(15.5px, 2.1vw, 18px);
   line-height: 1.35;
 }
 .g7-ask-row > span:last-child { min-width: 0; flex: 1; }
@@ -4810,7 +4813,7 @@ sup.g7-idx { vertical-align: .46em; }
    umuman ajrata olmadi (2026-08-22). Izoh ekranning SHARTINI aytadi --
    uni o'qimasdan topshiriq tushunilmaydi, ya'ni u bezak emas. Endi
    asosiy matn rangida va bir yarim pog'ona yirikroq. */
-.g7-ts-cap { text-align: center; font-size: 15px; line-height: 1.35; color: ${T.ink}; }
+.g7-ts-cap { text-align: center; font-size: clamp(15px, 1.9vw, 17.5px); line-height: 1.45; color: ${T.ink2}; }
 @keyframes g7-ts-in { 0% { opacity: 0; transform: translateY(-5px); } 100% { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .g7-ts-chip { animation-duration: .01ms; } }
 

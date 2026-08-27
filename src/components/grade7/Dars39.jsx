@@ -115,7 +115,7 @@ const S2 = {
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -284,9 +284,9 @@ const S5 = {
     'Write the product.',
   ),
   checkNote: L(
-    "To'rt karra uch o'n ikki. Har muzqaymoq uch variant beradi, va muzqaymoq to'rtta.",
-    'Четыре на три двенадцать. Каждое мороженое даёт три варианта, а мороженого четыре.',
-    'Four times three is twelve. Each ice cream gives three variants, and there are four kinds.',
+    "4 · 3 = 12. Har muzqaymoq uch variant beradi, va muzqaymoq to'rtta.",
+    '4 · 3 = 12. Каждое мороженое даёт три варианта, а мороженого четыре.',
+    '4 · 3 = 12. Each ice cream gives three variants, and there are four kinds.',
   ),
   wrongs: [
     { key: 'c', tag: 'Z1', hint: L("Bu yig'indi, bizga esa ko'paytma kerak.", 'Это сумма, а нужно произведение.', 'That is the sum, but a product is needed.') },
@@ -450,7 +450,7 @@ const S9 = {
   kind: 'chain',
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
   title: L('Javobni toping', 'Найди ответ', 'Find the answer'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -554,9 +554,9 @@ const S10 = {
     'Multiply two groups first, then multiply by the third.',
   ),
   checkNote: L(
-    "Uch karra to'rt o'n ikki, keyin o'n ikki karra ikki yigirma to'rt. Uch qadamli tanlovda uch ko'paytuvchi bo'ladi.",
-    'Три на четыре двенадцать, потом двенадцать на два двадцать четыре. В выборе из трёх шагов три множителя.',
-    'Three times four is twelve, then twelve times two is twenty four. A three step choice has three factors.',
+    "3 · 4 = 12, keyin 12 · 2 = 24. Uch qadamli tanlovda uch ko'paytuvchi bo'ladi.",
+    '3 · 4 = 12, потом 12 · 2 = 24. В выборе из трёх шагов три множителя.',
+    '3 · 4 = 12, then 12 · 2 = 24. A three step choice has three factors.',
   ),
   wrongs: [
     { key: 'c', tag: 'Z1', hint: L("Bu yig'indi, bizga esa ko'paytma kerak.", 'Это сумма, а нужно произведение.', 'That is the sum, but a product is needed.') },
@@ -707,9 +707,9 @@ const S13 = {
     'How many codes there are.',
   ),
   checkNote: L(
-    "Har xonaga o'n raqam mos keladi, xonalar esa ikkita: o'n karra o'n yuz. Nol dan to'qqiz gacha o'n raqam bor, to'qqiz emas.",
-    'На каждый разряд подходит десять цифр, а разрядов два: десять на десять сто. От нуля до девяти десять цифр, а не девять.',
-    'Each place takes ten digits and there are two places: ten times ten is one hundred. From zero to nine there are ten digits, not nine.',
+    "Har xonaga 10 raqam mos keladi, xonalar esa ikkita: 10 · 10 = 100. 0 dan 9 gacha 10 ta raqam bor, 9 ta emas.",
+    'На каждый разряд подходит 10 цифр, а разрядов два: 10 · 10 = 100. От 0 до 9 десять цифр, а не девять.',
+    'Each place takes 10 digits and there are two places: 10 · 10 = 100. From 0 to 9 there are ten digits, not nine.',
   ),
   wrongs: [
     { key: 'b', tag: 'Z1', hint: L("Bu yig'indi. Har xona alohida tanlanadi, demak ko'paytiriladi.", 'Это сумма. Каждый разряд выбирается отдельно, значит умножается.', 'That is the sum. Each place is chosen separately, so they multiply.') },

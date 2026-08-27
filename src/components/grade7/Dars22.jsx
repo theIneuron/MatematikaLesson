@@ -121,7 +121,7 @@ const S2 = {
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -476,7 +476,7 @@ const S9 = {
   kind: 'chain',
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
   title: L('Javobni toping', 'Найди ответ', 'Find the answer'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -734,7 +734,7 @@ const S14 = {
   items: [
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '10x³ − 15x²',
       ok: L("Besh ikkala sonni bo'ladi, x kvadrat ikkala hadda bor.", 'Пять делит оба числа, x в квадрате есть в обоих членах.', 'Five divides both numbers, x squared is in both terms.'),
       items: [
@@ -746,7 +746,7 @@ const S14 = {
     },
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '3a + 3',
       ok: L("Ikkinchi had ko'paytuvchiga teng, qavsda birlik qoldi.", 'Второй член равен множителю, в скобке осталась единица.', 'The second term equals the factor, a one is left in the bracket.'),
       items: [
@@ -774,7 +774,7 @@ const S14 = {
     },
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '−5x² + 10x',
       ok: L("Birinchi had manfiy, shuning uchun minus ham chiqadi va qavsda ishora almashadi.", 'Первый член отрицательный, поэтому минус тоже выносится и знак в скобке меняется.', 'The first term is negative, so the minus comes out and the sign inside flips.'),
       items: [

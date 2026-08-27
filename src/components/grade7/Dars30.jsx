@@ -113,7 +113,7 @@ const S2 = {
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -451,7 +451,7 @@ const S9 = {
   kind: 'chain',
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
   title: L('Javobni toping', 'Найди ответ', 'Find the answer'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -535,9 +535,9 @@ const S10 = {
     'Expand the square and carry over the subtracted term.',
   ),
   checkNote: L(
-    "Ikki karra uch x karra bir olti x beradi. Ayiriladigan had esa to'qqiz x kvadrat bo'lib qoladi.",
-    'Два на три x на один это шесть x. А вычитаемый член так и остаётся девять x в квадрате.',
-    'Two by three x by one is six x. And the subtracted term stays nine x squared.',
+    "2 · 3x · 1 = 6x. Ayiriladigan had esa 9x² bo'lib qoladi.",
+    '2 · 3x · 1 = 6x. А вычитаемый член так и остаётся 9x².',
+    '2 · 3x · 1 = 6x. And the subtracted term stays 9x².',
   ),
   wrongs: [
     { key: 'c', tag: 'Z2', hint: L("Ko'paytma ikki marta olinadi.", 'Произведение берётся дважды.', 'The product is taken twice.') },
@@ -708,7 +708,7 @@ const S14 = {
   items: [
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '(x + 1)² − (x − 1)²',
       ok: L("Kvadratlar va birlar yo'q bo'ldi, o'rta hadlar qo'shildi.", 'Квадраты и единицы уничтожились, средние члены сложились.', 'The squares and the ones cancelled, the middle terms added.'),
       items: [
@@ -720,7 +720,7 @@ const S14 = {
     },
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '(a + 5)² − a²',
       ok: L("a kvadratlar yo'q bo'ldi.", 'a в квадрате уничтожились.', 'The a squares cancelled.'),
       items: [
@@ -748,7 +748,7 @@ const S14 = {
     },
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '(x − 3)(x + 3) − x²',
       ok: L("x kvadratlar yo'q bo'ldi, son qoldi.", 'x в квадрате уничтожились, осталось число.', 'The x squares cancelled, a number remains.'),
       items: [

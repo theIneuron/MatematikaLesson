@@ -250,7 +250,7 @@ function Screen1({ screen, onAnswer, ...rest }) {
 const S2 = {
   eyebrow: L('TAYANCH', 'ОПОРА', 'WARM-UP'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Nimaga teng?', 'Чему равно?', 'What does it equal?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   items: [
     {
       prompt: 'a · a · a · a',
@@ -764,7 +764,7 @@ function Screen8({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S9 = {
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
-  title: L('Uchtasi ketma-ket', 'Три подряд', 'Three in a row'),
+  title: L("Uchta bir hadni tartibga solamiz", 'Приводим три одночлена в порядок', 'Putting three monomials in order'),
   reward: {
     title: L('Uchtasi ham topildi', 'Все три найдены', 'All three found'),
     text: L(
@@ -1016,7 +1016,11 @@ const S12 = {
       'Поставь коэффициент со знаком и пересчитай значение.',
       'Put in the coefficient with its sign and recompute the value.',
     ),
-    checkNote: L("Minus bir karra to'rt karra uch teng minus o'n ikki", 'Минус один умножить на четыре и на три равно минус двенадцать', 'Minus one times four times three is minus twelve'),
+    checkNote: L(
+    "−1 · 4 · 3 = −12",
+    '−1 · 4 · 3 = −12',
+    '−1 · 4 · 3 = −12',
+  ),
     wrongs: [
       { key: 'a|d', tag: 'Z1', hint: L("Koeffitsiyent manfiy bo'lsa, natija ham manfiy bo'ladi.", 'Если коэффициент отрицательный, результат тоже отрицательный.', 'A negative coefficient makes the result negative.') },
       { key: '*', tag: 'Z1', hint: L("Harflar oldida faqat minus turibdi, demak koeffitsiyent minus bir.", 'Перед буквами стоит только минус, значит коэффициент минус один.', 'Only a minus stands before the letters, so the coefficient is minus one.') },
@@ -1121,7 +1125,11 @@ const S13 = {
         'Теперь найди значение −2x²y.',
         'Now find the value of −2x²y.',
       ),
-      checkNote: L("x kvadrat to'qqiz, minus ikki karra to'qqiz karra bir teng minus o'n sakkiz", 'x в квадрате девять, минус два умножить на девять и на один равно минус восемнадцать', 'x squared is nine, minus two times nine times one is minus eighteen'),
+      checkNote: L(
+    "x kvadrat 9, −2 · 9 · 1 = −18",
+    'x в квадрате 9, −2 · 9 · 1 = −18',
+    'x squared is 9, −2 · 9 · 1 = −18',
+  ),
       wrongs: [
         { key: 'f', tag: 'Z1', hint: L("Koeffitsiyent manfiy, demak natija ham manfiy.", 'Коэффициент отрицательный, значит и результат.', 'The coefficient is negative, so is the result.') },
         { key: 'h', tag: 'Z6', hint: L("Minus olti bu minus ikki karra uch. x esa KVADRATDA: to'qqiz.", 'Минус шесть это минус два на три. А x в КВАДРАТЕ: девять.', 'Minus six is minus two times three. But x is SQUARED: nine.') },
@@ -1183,7 +1191,7 @@ function Screen13({ screen, onAnswer, ...rest }) {
 const S14 = {
   eyebrow: L('BLITS', 'БЛИЦ', 'QUICK ROUND'),
   title: L("To'rt savol", 'Четыре вопроса', 'Four questions'),
-  question: L('Nimaga teng?', 'Чему равно?', 'What does it equal?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   items: [
     {
       wrap: true,

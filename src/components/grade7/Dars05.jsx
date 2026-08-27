@@ -602,7 +602,7 @@ const S7 = {
     { id: 'wrong', expr: '−a − 7', sub: () => '−10 − 7', val: () => -17 },
   ],
   probe: {
-    question: L("a teng 10 bo'lganda −(a − 7) nechaga teng?", 'Чему равно −(a − 7) при a = 10?', 'What is −(a − 7) when a = 10?'),
+    question: L("a = 10 bo'lganda −(a − 7) nechaga teng?", 'Чему равно −(a − 7) при a = 10?', 'What is −(a − 7) when a = 10?'),
     items: [
       { id: 'a', label: '−3', correct: true },
       { id: 'b', label: '−17', tag: 'Z2', hint: L("Minus faqat a ga tegdi, yettilikka yetib bormadi. Qavs ichida ikkita qo'shiluvchi bor.", 'Минус дошёл только до a, до семёрки не добрался. В скобке два слагаемых.', 'The minus reached only the a, never the seven. The bracket holds two terms.') },
@@ -749,7 +749,7 @@ function Screen8({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S9 = {
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
-  title: L('Uchtasi ketma-ket', 'Три подряд', 'Three in a row'),
+  title: L('Uchta qavsni ochamiz', 'Раскрываем три скобки', 'Opening three brackets'),
   reward: {
     title: L('Uchtasi ham topildi', 'Все три найдены', 'All three found'),
     text: L(
@@ -1091,7 +1091,7 @@ const S13 = {
         'Запиши 50 − 12 − 8 со скобкой. Какие числа попадут внутрь?',
         'Write 50 − 12 − 8 using a bracket. Which numbers go inside?',
       ),
-      checkNote: L('50 ayirish 20 teng 30, va boshlang\'ich yozuv ham 30 beradi', '50 минус 20 равно 30, и исходная запись тоже даёт 30', '50 minus 20 is 30, and the original expression gives 30 as well'),
+      checkNote: L('50 − 20 = 30, va boshlang\'ich yozuv ham 30 beradi', '50 − 20 = 30, и исходная запись тоже даёт 30', '50 − 20 = 30, and the original expression gives 30 as well'),
       wrongs: [
         { key: 'p30|p20', tag: 'Z6', hint: L("Bu allaqachon hisoblangan sonlar. Qavs ichiga boshlang'ich yozuvdagi sonlar tushadi.", 'Это уже посчитанные числа. Внутрь скобки идут числа из исходной записи.', 'Those are already-computed numbers. The numbers from the original expression go inside.') },
         { key: '*', tag: 'Z6', hint: L("Ikkala son ham minus bilan turgandi, qavs ichida esa ular qo'shiluvchi bo'lib qoladi.", 'Оба числа стояли с минусом, а внутри скобки они становятся слагаемыми.', 'Both numbers stood with a minus, and inside the bracket they become terms of a sum.') },
@@ -1179,7 +1179,7 @@ const S14 = {
       ],
     },
     {
-      prompt: L("−(a − 7), bunda a teng 10", '−(a − 7), где a равно 10', '−(a − 7), where a equals 10'),
+      prompt: L("−(a − 7), bunda a = 10", '−(a − 7), где a = 10', '−(a − 7), where a = 10'),
       wrap: true,
       ok: L("Yolg'iz minus ham har bir ishorani ag'daradi.", 'Одинокий минус тоже переворачивает каждый знак.', 'A lone minus flips every sign as well.'),
       items: [
@@ -1192,7 +1192,7 @@ const S14 = {
     {
       wrap: true,
       question: null,
-      prompt: L("Qavs oldidagi minus nima qiladi?", 'Что делает минус перед скобкой?', 'What does a minus before a bracket do?'),
+      prompt: L("Qavs oldidagi minus ichkaridagi ishoralar bilan nima qiladi?", 'Что минус перед скобкой делает со знаками внутри?', 'What does a minus before a bracket do to the signs inside?'),
       ok: L("Ichidagi har bir qo'shiluvchining ishorasini ag'daradi.", 'Меняет знак каждого слагаемого внутри.', 'It flips the sign of every term inside.'),
       items: [
         { id: 'a', correct: true, label: L("Har bir qo'shiluvchining ishorasini ag'daradi", 'Меняет знак каждого слагаемого внутри', 'Flips the sign of every term inside') },

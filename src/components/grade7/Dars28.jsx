@@ -114,7 +114,7 @@ const S2 = {
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
   title: L('Uch formula', 'Три формулы', 'Three formulas'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -469,7 +469,7 @@ const S9 = {
   kind: 'chain',
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
   title: L('Formulani tanlang', 'Выбери формулу', 'Choose the formula'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -642,9 +642,9 @@ const S11 = {
     'Read the mark yourself and write the middle term.',
   ),
   checkNote: L(
-    "Qavslar bir xil, demak bu ayirmaning kvadrati. Ikki karra ko'paytma ikki karra olti karra x, ya'ni o'n ikki x, va u ayiriladi.",
-    'Скобки одинаковые, значит это квадрат разности. Двойное произведение это два на шесть на x, то есть двенадцать x, и оно вычитается.',
-    'Identical brackets, so this is a square of a difference. The double product is two by six by x, that is twelve x, and it is subtracted.',
+    "Qavslar bir xil, demak bu ayirmaning kvadrati. Ikki karra ko'paytma: 2 · 6 · x = 12x, va u ayiriladi.",
+    'Скобки одинаковые, значит это квадрат разности. Двойное произведение: 2 · 6 · x = 12x, и оно вычитается.',
+    'Identical brackets, so this is a square of a difference. The double product: 2 · 6 · x = 12x, and it is subtracted.',
   ),
   wrongs: [
     { key: 'b', tag: 'Z3', hint: L("Qavsda ayirish turibdi, demak o'rta had manfiy.", 'В скобке вычитание, значит средний член отрицательный.', 'The bracket has a minus, so the middle term is negative.') },
@@ -728,9 +728,9 @@ const S13 = {
   eyebrow: L('KO\'CHIRISH', 'ПЕРЕНОС', 'TRANSFER'),
   title: L('Qaysi maydon kattaroq', 'Какой участок больше', 'Which plot is bigger'),
   given: L(
-    "Tomoni x qo'shuv besh bo'lgan kvadrat maydon va x karra x qo'shuv o'n bo'lgan to'rtburchak maydon. Kvadrat qanchaga kattaroq?",
-    'Квадратный участок со стороной x плюс пять и прямоугольный участок x на x плюс десять. Насколько квадрат больше?',
-    'A square plot with side x plus five and a rectangular plot x by x plus ten. By how much is the square bigger?',
+    "Kvadrat maydonning tomoni x + 5, to'rtburchak maydonniki esa x va x + 10. Kvadrat qanchaga kattaroq?",
+    'У квадратного участка сторона x + 5, у прямоугольного стороны x и x + 10. Насколько квадрат больше?',
+    'The square plot has side x + 5, the rectangular one has sides x and x + 10. By how much is the square bigger?',
   ),
   // YOZUV QISQARTIRILDI: to'liq holida u 57 belgi edi, ikkinchi qatorga
   // tushardi va ekran balandligidan 28px oshib ketardi (o'lchov 2026-08-22,
@@ -774,7 +774,7 @@ const S14 = {
   items: [
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '(x + 9)(x − 9)',
       ok: L("Hadlar bir xil, ishoralar boshqa.", 'Члены одинаковы, знаки разные.', 'Same terms, different signs.'),
       items: [
@@ -786,7 +786,7 @@ const S14 = {
     },
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '(2y − 3)²',
       ok: L("Qavslar bir xil: o'rta had bor va u manfiy.", 'Скобки одинаковые: средний член есть и он отрицательный.', 'Identical brackets: the middle term is there and negative.'),
       items: [

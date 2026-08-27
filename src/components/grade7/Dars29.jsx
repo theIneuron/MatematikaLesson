@@ -114,7 +114,7 @@ const S2 = {
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -470,7 +470,7 @@ const S9 = {
   kind: 'chain',
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
   title: L('Ajratmani toping', 'Найди разложение', 'Find the factorization'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -554,9 +554,9 @@ const S10 = {
     'Write the two roots.',
   ),
   checkNote: L(
-    "Yigirma besh y kvadratning ildizi besh y, to'rtning ildizi ikki. Tekshiruv: ikki karra besh y karra ikki yigirma y beradi.",
-    'Корень из двадцати пяти y в квадрате это пять y, корень из четырёх два. Проверка: два на пять y на два даёт двадцать y.',
-    'The root of twenty five y squared is five y, the root of four is two. Check: two by five y by two gives twenty y.',
+    "25y² ning ildizi 5y, 4 niki 2. Tekshiruv: 2 · 5y · 2 = 20y.",
+    'Корень из 25y² это 5y, из 4 это 2. Проверка: 2 · 5y · 2 = 20y.',
+    'The root of 25y² is 5y, of 4 is 2. Check: 2 · 5y · 2 = 20y.',
   ),
   wrongs: [
     { key: 'c', tag: 'Z4', hint: L("Besh y karra besh y yigirma besh y kvadrat beradi.", 'Пять y на пять y это двадцать пять y в квадрате.', 'Five y times five y is twenty five y squared.') },
@@ -723,9 +723,9 @@ const S13 = {
     'Work out the product.',
   ),
   checkNote: L(
-    "Birinchi qavs bir, ikkinchisi sakson bir. Bir karra sakson bir sakson bir beradi.",
-    'Первая скобка это один, вторая восемьдесят один. Один на восемьдесят один это восемьдесят один.',
-    'The first bracket is one, the second eighty one. One times eighty one is eighty one.',
+    "Birinchi qavs 1, ikkinchisi 81. 1 · 81 = 81.",
+    'Первая скобка 1, вторая 81. 1 · 81 = 81.',
+    'The first bracket is 1, the second 81. 1 · 81 = 81.',
   ),
   wrongs: [
     { key: 'b', tag: 'Z6', hint: L("Birinchi qavs birga teng, lekin u ikkinchisiga ko'paytiriladi.", 'Первая скобка равна одному, но её умножают на вторую.', 'The first bracket is one, but it is multiplied by the second.') },
@@ -748,7 +748,7 @@ const S14 = {
   items: [
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: 'x² + 2x + 1',
       ok: L("Chetdagilar x va birning kvadrati.", 'Крайние это квадраты x и единицы.', 'The outer ones are squares of x and one.'),
       items: [
@@ -760,7 +760,7 @@ const S14 = {
     },
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '4a² − 25',
       ok: L("Ildizlar ikki a va besh.", 'Корни два a и пять.', 'The roots are two a and five.'),
       items: [
@@ -788,7 +788,7 @@ const S14 = {
     },
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '9 − 6x + x²',
       ok: L("Chetdagilar uch va x ning kvadrati, o'rtadagisi manfiy.", 'Крайние это квадраты трёх и x, а средний отрицательный.', 'The outer ones are squares of three and x, and the middle is negative.'),
       items: [

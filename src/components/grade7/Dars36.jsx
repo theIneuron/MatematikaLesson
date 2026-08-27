@@ -114,7 +114,7 @@ const S2 = {
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -278,9 +278,9 @@ const S5 = {
     'Work out the two values.',
   ),
   checkNote: L(
-    "x nol bo'lganda faqat b qoladi, ya'ni manfiy ikki. x uch bo'lganda uchdan ikki ayirilib bir chiqadi.",
-    'При x равном нулю остаётся только b, то есть минус два. При x равном трём из трёх вычитается два и выходит один.',
-    'At x zero only b remains, that is minus two. At x three, two is taken from three and one comes out.',
+    "x = 0 bo'lganda faqat b qoladi, ya'ni −2. x = 3 bo'lganda 3 − 2 = 1.",
+    'При x = 0 остаётся только b, то есть −2. При x = 3: 3 − 2 = 1.',
+    'At x = 0 only b remains, that is −2. At x = 3: 3 − 2 = 1.',
   ),
   wrongs: [
     { key: 'c', tag: 'Z3', hint: L("x nol bo'lganda manfiy ikki qoladi, musbat ikki emas.", 'При x равном нулю остаётся минус два, а не плюс два.', 'At x zero minus two remains, not plus two.') },
@@ -442,7 +442,7 @@ const S9 = {
   kind: 'chain',
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
   title: L('Javobni toping', 'Найди ответ', 'Find the answer'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -541,9 +541,9 @@ const S10 = {
     'Work out the ordinates of the two points.',
   ),
   checkNote: L(
-    "x nol bo'lganda faqat manfiy bir qoladi. x ikki bo'lganda uch karra ikki olti, undan bir ayirilsa besh.",
-    'При x равном нулю остаётся только минус один. При x равном двум три на два шесть, минус один это пять.',
-    'At x zero only minus one remains. At x two, three times two is six, minus one is five.',
+    "x = 0 bo'lganda faqat −1 qoladi. x = 2 bo'lganda 3 · 2 = 6, 6 − 1 = 5.",
+    'При x = 0 остаётся только −1. При x = 2: 3 · 2 = 6, 6 − 1 = 5.',
+    'At x = 0 only −1 remains. At x = 2: 3 · 2 = 6, 6 − 1 = 5.',
   ),
   wrongs: [
     { key: 'c', tag: 'Z3', hint: L("Yozuvda ayirish turibdi, demak x nolda manfiy bir qoladi.", 'В записи вычитание, значит при x равном нулю остаётся минус один.', 'The record subtracts, so at x zero minus one remains.') },
@@ -696,9 +696,9 @@ const S13 = {
     'How far in three hours.',
   ),
   checkNote: L(
-    "O'n ikki karra uch o'ttiz olti. Grafik koordinatalar boshidan chiqadi: nol soatda yo'l ham nol.",
-    'Двенадцать на три тридцать шесть. График выходит из начала координат: за ноль часов путь тоже ноль.',
-    'Twelve times three is thirty six. The graph starts at the origin: zero hours means zero distance.',
+    "12 · 3 = 36. Grafik koordinatalar boshidan chiqadi: 0 soatda yo'l ham 0.",
+    '12 · 3 = 36. График выходит из начала координат: за 0 часов путь тоже 0.',
+    '12 · 3 = 36. The graph starts at the origin: 0 hours means 0 distance.',
   ),
   wrongs: [
     { key: 'b', tag: 'Z6', hint: L("Tezlik vaqtga KO'PAYTIRILADI, qo'shilmaydi.", 'Скорость УМНОЖАЕТСЯ на время, а не складывается с ним.', 'The speed is MULTIPLIED by the time, not added to it.') },

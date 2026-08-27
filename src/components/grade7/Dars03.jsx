@@ -450,9 +450,9 @@ const S4 = {
       parts: [{ id: 'eq', label: '=' }, { id: 'ne', label: '≠' }],
       answer: ['ne'],
       prompt: L(
-        "Endi bo'lish uchun.",
-        'Теперь для деления.',
-        'Now for the division.',
+        "Endi bo'lish uchun belgi qo'ying.",
+        'Теперь поставь знак для деления.',
+        'Now put the sign for the division.',
       ),
       checkNote: L("3 va birdan kichik son. Bo'lishda ham almashmaydi", '3 и число меньше единицы. В делении тоже не меняются', '3 and a number less than one. Division does not swap either'),
       wrongs: [
@@ -589,9 +589,9 @@ const S6 = {
   ],
   answer: ['p8', 'p833'],
   prompt: L(
-    "7 · (111 + 8). Ikkinchi yo'lni yig'ing va qiymatni toping.",
-    '7 · (111 + 8). Собери второй путь и найди значение.',
-    '7 · (111 + 8). Build the second path and find the value.',
+    "7 · (111 + 8). Taqsimot xossasi bilan yig'ing va qiymatni toping.",
+    '7 · (111 + 8). Собери через распределительное свойство и найди значение.',
+    '7 · (111 + 8). Build it through the distributive property and find the value.',
   ),
   checkNote: L('777 va 56, jami 833. Qavs ichidan hisoblaganda ham 833', '777 и 56, вместе 833. Если считать через скобку, тоже 833', '777 and 56 make 833. Counting through the bracket also gives 833'),
   wrongs: [
@@ -643,7 +643,7 @@ const S7 = {
     { id: 'half', expr: '3a + 5', sub: () => '3 · 2 + 5', val: () => 11 },
   ],
   probe: {
-    question: L("a teng 2 bo'lganda 3(a + 5) nechaga teng?", 'Чему равно 3(a + 5) при a = 2?', 'What is 3(a + 5) when a = 2?'),
+    question: L("a = 2 bo'lganda 3(a + 5) nechaga teng?", 'Чему равно 3(a + 5) при a = 2?', 'What is 3(a + 5) when a = 2?'),
     items: [
       { id: 'a', label: '21', correct: true },
       { id: 'b', label: '11', tag: 'Z3', hint: L("11 bu 3 karra 2 qo'shuv 5. Uchlik beshlikka yetib bormagan.", '11 это 3 умножить на 2 плюс 5. Тройка не дошла до пятёрки.', '11 is 3 times 2 plus 5. The three never reached the five.') },
@@ -791,7 +791,7 @@ function Screen8({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S9 = {
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
-  title: L('Uchtasi ketma-ket', 'Три подряд', 'Three in a row'),
+  title: L('Uchtasini qulay yo\'l bilan', 'Три — удобным путём', 'Three the convenient way'),
   reward: {
     title: L('Uchtasi ham topildi', 'Все три найдены', 'All three found'),
     text: L(
@@ -806,7 +806,7 @@ const S9 = {
       parts: [{ id: 'p100', label: '100' }, { id: 'p2800', label: '2800' }, { id: 'p1260', label: '1260' }, { id: 'p145', label: '145' }],
       answer: ['p100', 'p2800'],
       prompt: L("28 · 45 + 28 · 55. Umumiy ko'paytuvchini tashqariga oling va hisoblang.", '28 · 45 + 28 · 55. Вынеси общий множитель и посчитай.', '28 · 45 + 28 · 55. Take the common factor out and work it out.'),
-      checkNote: L('45 va 55 jami 100, keyin 28 karra 100', '45 и 55 вместе дают 100, потом 28 умножить на 100', '45 and 55 make 100, then 28 times 100'),
+      checkNote: L('45 va 55 jami 100, keyin 28 · 100', '45 и 55 вместе дают 100, потом 28 · 100', '45 and 55 make 100, then 28 · 100'),
       wrongs: [
         { key: 'p100|p1260', tag: 'Z6', hint: L("1260 bu 28 karra 45, ya'ni faqat birinchi qism. Ikkinchisi ham qo'shilishi kerak.", '1260 это 28 умножить на 45, то есть только первая часть. Вторую тоже надо прибавить.', '1260 is 28 times 45, only the first part. The second has to be added too.') },
         { key: '*', tag: 'Z6', hint: L("Ikkala qismda ham 28 bor. Uni tashqariga oling, ichida esa 45 qo'shuv 55 qoladi.", 'В обеих частях есть 28. Вынеси его, а внутри останется 45 плюс 55.', 'Both parts have a 28. Take it out and 45 plus 55 stays inside.') },
@@ -816,8 +816,8 @@ const S9 = {
       template: ['72 · ', { slot: 0 }, '  =  ', { slot: 1 }],
       parts: [{ id: 'q100', label: '100' }, { id: 'q7200', label: '7200' }, { id: 'q178', label: '178' }, { id: 'q10008', label: '10008' }],
       answer: ['q100', 'q7200'],
-      prompt: L("72 · 139 − 72 · 39. Endi ayirish bilan. Umumiy ko'paytuvchini oling.", '72 · 139 − 72 · 39. Теперь с вычитанием. Вынеси общий множитель.', '72 · 139 − 72 · 39. Now with a subtraction. Take the common factor out.'),
-      checkNote: L('139 ayirish 39 teng 100, keyin 72 karra 100', '139 минус 39 равно 100, потом 72 умножить на 100', '139 minus 39 is 100, then 72 times 100'),
+      prompt: L("72 · 139 − 72 · 39. Bu safar ayirish. Umumiy ko'paytuvchini qavsdan tashqariga oling.", '72 · 139 − 72 · 39. Здесь вычитание. Вынеси общий множитель за скобку.', '72 · 139 − 72 · 39. Here it is a subtraction. Take the common factor outside the bracket.'),
+      checkNote: L('139 − 39 = 100, keyin 72 · 100', '139 − 39 = 100, потом 72 · 100', '139 − 39 = 100, then 72 · 100'),
       wrongs: [
         { key: 'q178|q7200', tag: 'Z2', hint: L("178 bu 139 qo'shuv 39. Ikki qism orasida ayirish turibdi.", '178 это 139 плюс 39. Между двумя частями стоит вычитание.', '178 is 139 plus 39. Between the two parts there is a subtraction.') },
         { key: '*', tag: 'Z6', hint: L("Qavs ichida 139 dan 39 ni ayirish qoladi.", 'Внутри скобки останется 139 минус 39.', 'Inside the bracket 139 minus 39 remains.') },
@@ -828,7 +828,7 @@ const S9 = {
       parts: [{ id: 'w100', label: '100' }, { id: 'w1700', label: '1700' }, { id: 'w425', label: '425' }, { id: 'w29', label: '29' }],
       answer: ['w100', 'w1700'],
       prompt: L("25 · 17 · 4. Qulay juftni toping va hisoblang.", '25 · 17 · 4. Найди удобную пару и посчитай.', '25 · 17 · 4. Find the handy pair and work it out.'),
-      checkNote: L('25 karra 4 teng 100, keyin 100 karra 17', '25 умножить на 4 равно 100, потом 100 умножить на 17', '25 times 4 is 100, then 100 times 17'),
+      checkNote: L('25 · 4 = 100, keyin 100 · 17', '25 · 4 = 100, потом 100 · 17', '25 · 4 = 100, then 100 · 17'),
       wrongs: [
         { key: 'w425|w1700', tag: 'Z1', hint: L("425 bu 25 karra 17. Bu ham mumkin, lekin yumaloq son bermaydi. Boshqa juftga qarang.", '425 это 25 умножить на 17. Так тоже можно, но круглого числа не выйдет. Посмотри на другую пару.', '425 is 25 times 17. That is allowed too, but no round number. Look at the other pair.') },
         { key: '*', tag: 'Z1', hint: L("Yumaloq son beradigan juft yozuvning ikki chekkasida turibdi.", 'Пара, дающая круглое число, стоит по краям записи.', 'The pair that gives a round number sits at the two ends.') },
@@ -964,7 +964,7 @@ const S11 = {
     '145 · 49 + 145 · 51. Посчитай с одного взгляда, шаги на экране не появятся.',
     '145 · 49 + 145 · 51. Work it out at a glance, no steps will appear on screen.',
   ),
-  checkNote: L('49 va 51 jami 100, keyin 145 karra 100', '49 и 51 вместе дают 100, потом 145 умножить на 100', '49 and 51 make 100, then 145 times 100'),
+  checkNote: L('49 va 51 jami 100, keyin 145 · 100', '49 и 51 вместе дают 100, потом 145 · 100', '49 and 51 make 100, then 145 · 100'),
   wrongs: [
     { key: 'p100|p7105', tag: 'Z6', hint: L("7105 bu 145 karra 49, ya'ni faqat birinchi qism.", '7105 это 145 умножить на 49, то есть только первая часть.', '7105 is 145 times 49, only the first part.') },
     { key: 'p2|p290', tag: 'Z6', hint: L("Ikkita qism bor, lekin ular qo'shilmaydi, ularning ichidagi sonlar qo'shiladi.", 'Частей две, но складываются не они, а числа внутри них.', 'There are two parts, but it is the numbers inside them that add up, not the parts.') },
@@ -1128,7 +1128,7 @@ const S13 = {
         'Теперь посчитай удобным порядком: какая пара даёт круглое число?',
         'Now count in the handy order: which pair gives a round number?',
       ),
-      checkNote: L('25 karra 4 teng 100, keyin 100 karra 2', '25 умножить на 4 равно 100, потом 100 умножить на 2', '25 times 4 is 100, then 100 times 2'),
+      checkNote: L('25 · 4 = 100, keyin 100 · 2', '25 · 4 = 100, потом 100 · 2', '25 · 4 = 100, then 100 · 2'),
       wrongs: [
         { key: 'a50|a200', tag: 'Z1', hint: L("50 bu 25 karra 2. Bu ham mumkin, lekin yumaloq son 25 va 4 dan chiqadi.", '50 это 25 умножить на 2. Так тоже можно, но круглое число даёт пара 25 и 4.', '50 is 25 times 2. Allowed too, but the round number comes from 25 and 4.') },
         { key: '*', tag: 'Z1', hint: L("Uchta sondan qaysi ikkitasi roppa-rosa yuz beradi?", 'Какие два из трёх чисел дают ровно сто?', 'Which two of the three numbers give exactly a hundred?') },
@@ -1230,7 +1230,7 @@ const S14 = {
     {
       wrap: true,
       question: null,
-      prompt: L("Taqsimot xossasi nima qiladi?", 'Что делает распределительное свойство?', 'What does the distributive property do?'),
+      prompt: L("Taqsimot xossasi qavs ichidagi har bir had bilan nima qiladi?", 'Что распределительное свойство делает с каждым слагаемым в скобке?', 'What does the distributive property do with each term inside the bracket?'),
       ok: L("Ko'paytuvchini qavs ichidagi har bir qo'shiluvchiga yuboradi.", 'Отправляет множитель к каждому слагаемому в скобке.', 'It sends the factor to every term in the bracket.'),
       items: [
         { id: 'a', correct: true, label: L("Ko'paytuvchini har bir qo'shiluvchiga yuboradi", 'Отправляет множитель к каждому слагаемому', 'Sends the factor to every term') },

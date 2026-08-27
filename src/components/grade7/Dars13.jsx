@@ -248,7 +248,7 @@ function Screen1({ screen, onAnswer, ...rest }) {
 const S2 = {
   eyebrow: L('TAYANCH', 'ОПОРА', 'WARM-UP'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Nimaga teng?', 'Чему равно?', 'What does it equal?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   items: [
     {
       prompt: '(−2)³',
@@ -394,7 +394,7 @@ const S4 = {
   expr: '2a³   va   (2a)³',
   probe: {
     question: L(
-      "a teng 2 bo'lsa, bu ikki yozuv nechaga teng?",
+      "a = 2 bo'lsa, bu ikki yozuv nechaga teng?",
       'Если a = 2, чему равны эти две записи?',
       'If a = 2, what do these two records equal?',
     ),
@@ -780,7 +780,7 @@ function Screen8({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S9 = {
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
-  title: L('Uchtasi ketma-ket', 'Три подряд', 'Three in a row'),
+  title: L("Uchta darajani sanaymiz", 'Считаем три степени', 'Counting three powers'),
   reward: {
     title: L('Uchtasi ham topildi', 'Все три найдены', 'All three found'),
     text: L(
@@ -1026,7 +1026,7 @@ const S12 = {
       'Двойка из скобки тоже входит в степень. Посчитай верно.',
       'The two from the bracket enters the power too. Work it out correctly.',
     ),
-    checkNote: L("Tekshiruv: 2a teng 6, va 6 kub 216", 'Проверка: 2a равно 6, а 6 в кубе это 216', 'Check: 2a is 6 and 6 cubed is 216'),
+    checkNote: L("Tekshiruv: 2a = 6, va 6 kub 216", 'Проверка: 2a = 6, а 6 в кубе это 216', 'Check: 2a = 6 and 6 cubed is 216'),
     wrongs: [
       { key: 'a2|a54', tag: 'Z2', hint: L("Ikkilik ham uch marta ko'paytiriladi: 2 karra 2 karra 2 teng 8.", 'Двойка тоже умножается трижды: 2 на 2 на 2 это 8.', 'The two multiplies three times as well: 2 times 2 times 2 is 8.') },
       { key: '*', tag: 'Z2', hint: L("Lentada uchta ikkilik va uchta a bor.", 'В ленте три двойки и три a.', 'The tape holds three twos and three a.') },
@@ -1112,9 +1112,9 @@ const S13 = {
     '2¹⁰ has ten twos, 2⁷ has seven. How many times bigger is the first?',
   ),
   checkNote: L(
-    "Uchta ortiqcha ikkilik, ya'ni 2 karra 2 karra 2 teng 8 marta. Tekshiruv: 1024 bo'lish 128 teng 8",
-    'Три лишние двойки, то есть 2 на 2 на 2 это 8 раз. Проверка: 1024 разделить на 128 равно 8',
-    'Three extra twos, that is 2 times 2 times 2, eight times. Check: 1024 divided by 128 is 8',
+    "Uchta ortiqcha ikkilik, ya'ni 2 · 2 · 2 = 8 marta. Tekshiruv: 1024 : 128 = 8",
+    'Три лишние двойки, то есть 2 на 2 на 2 = 8 раз. Проверка: 1024 : 128 = 8',
+    'Three extra twos, that is 2 · 2 · 2, eight times. Check: 1024 : 128 = 8',
   ),
   wrongs: [
     { key: 'a3', tag: 'Z1', hint: L("Uchlik bu ortiqcha muljitellar SONI. Ular esa ko'paytiriladi, qo'shilmaydi: 2 karra 2 karra 2.", 'Тройка это КОЛИЧЕСТВО лишних множителей. А они умножаются, не складываются: 2 на 2 на 2.', 'Three is the COUNT of extra factors. They multiply, not add: 2 times 2 times 2.') },
@@ -1166,7 +1166,7 @@ function Screen13({ screen, onAnswer, ...rest }) {
 const S14 = {
   eyebrow: L('BLITS', 'БЛИЦ', 'QUICK ROUND'),
   title: L("To'rt savol", 'Четыре вопроса', 'Four questions'),
-  question: L('Nimaga teng?', 'Чему равно?', 'What does it equal?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   items: [
     {
       wrap: true,

@@ -119,7 +119,7 @@ const S2 = {
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -488,7 +488,7 @@ const S9 = {
   kind: 'chain',
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
   title: L('Javobni toping', 'Найди ответ', 'Find the answer'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -747,7 +747,7 @@ const S14 = {
   items: [
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '(6x + 3) : 3',
       ok: L("Uchlik ikkala haddan chiqdi.", 'Тройка вынеслась из обоих членов.', 'The three came out of both terms.'),
       items: [
@@ -775,7 +775,7 @@ const S14 = {
     },
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: 'b/4 + b/2',
       ok: L("Umumiy maxraj to'rt: ikkinchi kasrning surati ikkiga ko'paytirildi.", 'Общий знаменатель четыре: числитель второй дроби домножен на два.', 'The common denominator is four: the second numerator was multiplied by two.'),
       items: [
@@ -787,7 +787,7 @@ const S14 = {
     },
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '(x² − 4)/(x − 2)',
       ok: L("Surat ajratildi va bitta qavs qisqardi.", 'Числитель разложен, и одна скобка сократилась.', 'The numerator factored and one bracket cancelled.'),
       items: [

@@ -117,7 +117,7 @@ const S2 = {
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
   title: L('Uchta fakt', 'Три факта', 'Three facts'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -303,7 +303,7 @@ const S5 = {
     'Work out the base angle.',
   ),
   checkNote: L(
-    "Ikki fakt birga ishladi: yig'indi 180 dan uchdagi burchak ayirildi, qolgani esa ikki TENG burchakka bo'lindi.",
+    "Ikki fakt birga ishladi: 180° dan uchdagi burchak ayirildi, qolgani esa ikki TENG burchakka bo'lindi.",
     'Два факта сработали вместе: из суммы 180 вычли угол при вершине, а остаток разделили на два РАВНЫХ угла.',
     'Two facts worked together: the apex angle was taken from the 180, and the remainder split into two EQUAL angles.',
   ),
@@ -470,7 +470,7 @@ const S9 = {
   kind: 'chain',
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
   title: L('Blok bo\'ylab', 'По всему блоку', 'Across the block'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {

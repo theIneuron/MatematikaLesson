@@ -114,7 +114,7 @@ const S2 = {
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -445,7 +445,7 @@ const S9 = {
   kind: 'chain',
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
   title: L('Javobni toping', 'Найди ответ', 'Find the answer'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -549,9 +549,9 @@ const S10 = {
     'Find k and write the formula.',
   ),
   checkNote: L(
-    "k ni topish uchun ordinata abssissaga bo'linadi: olti bo'lingan ikki uch. So'ngra uch karra to'rt o'n ikki.",
-    'Чтобы найти k, ординату делят на абсциссу: шесть на два три. Затем три на четыре двенадцать.',
-    'To find k, divide the ordinate by the abscissa: six by two is three. Then three times four is twelve.',
+    "k ni topish uchun ordinata abssissaga bo'linadi: 6 : 2 = 3. So'ngra 3 · 4 = 12.",
+    'Чтобы найти k, ординату делят на абсциссу: 6 : 2 = 3. Затем 3 · 4 = 12.',
+    'To find k, divide the ordinate by the abscissa: 6 : 2 = 3. Then 3 · 4 = 12.',
   ),
   wrongs: [
     { key: 'c', tag: 'Z6', hint: L("Uch karra to'rt o'n ikki beradi.", 'Три на четыре это двенадцать.', 'Three times four is twelve.') },

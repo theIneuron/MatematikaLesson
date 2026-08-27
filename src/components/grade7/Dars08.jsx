@@ -250,12 +250,12 @@ function Screen1({ screen, onAnswer, ...rest }) {
 const S2 = {
   eyebrow: L('TAYANCH', 'ОПОРА', 'WARM-UP'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Nimaga teng?', 'Чему равно?', 'What does it equal?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   items: [
     {
       wrap: true,
       question: null,
-      prompt: L("5 soni x qo'shuv 4 teng 9 tenglamaning ildizimi?", 'Является ли 5 корнем уравнения x + 4 = 9?', 'Is 5 a root of the equation x + 4 = 9?'),
+      prompt: L("5 soni x + 4 = 9 tenglamaning ildizimi?", 'Является ли 5 корнем уравнения x + 4 = 9?', 'Is 5 a root of the equation x + 4 = 9?'),
       ok: L("Ikkala tomon ham to'qqiz berdi.", 'Обе части дали девять.', 'Both sides gave nine.'),
       items: [
         { id: 'a', correct: true, label: L('Ha', 'Да', 'Yes') },
@@ -532,7 +532,7 @@ const S7 = {
   title: L("Koeffitsiyent nol bo'lsa", 'Когда коэффициент нуль', 'When the coefficient is zero'),
   expr: '0 · x = 5',
   probe: {
-    question: L("0 karra x teng 5 tenglikni nechta son to'g'ri qiladi?", 'Сколько чисел делают верным равенство 0 · x = 5?', 'How many numbers make 0 · x = 5 true?'),
+    question: L("0 · x = 5 tenglikni nechta son to'g'ri qiladi?", 'Сколько чисел делают верным равенство 0 · x = 5?', 'How many numbers make 0 · x = 5 true?'),
     items: [
       { id: 'none', correct: true, label: L("Bittasi ham yo'q", 'Ни одного', 'None') },
       { id: 'zero', tag: 'Z4', label: L("Bitta, nol", 'Одно, нуль', 'One, zero'), hint: L("Nolni qo'ying: nol karra nol bu nol, o'ngda esa besh. Ildiz nol bo'lish va ildiz yo'q bo'lish -- ikki boshqa narsa.", 'Поставь нуль: нуль умножить на нуль это нуль, а справа пять. Корень нуль и отсутствие корней это разное.', 'Put in zero: zero times zero is zero, and the right side is five. A root of zero and no root are different things.') },
@@ -682,7 +682,7 @@ function Screen8({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S9 = {
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
-  title: L('Uchtasi ketma-ket', 'Три подряд', 'Three in a row'),
+  title: L('Uchta tenglamani yechamiz', 'Решаем три уравнения', 'Solving three equations'),
   reward: {
     title: L('Uchtasi ham topildi', 'Все три найдены', 'All three found'),
     text: L(
@@ -696,8 +696,8 @@ const S9 = {
       template: ['x + 6 = 15,     x = ', { slot: 0 }],
       parts: [{ id: 'p9', label: '9' }, { id: 'p21', label: '21' }, { id: 'p6', label: '6' }, { id: 'p90', label: '90' }],
       answer: ['p9'],
-      prompt: L("x qo'shuv 6 teng 15. Ildizni toping.", 'x + 6 = 15. Найди корень.', 'x + 6 = 15. Find the root.'),
-      checkNote: L("Ikkala tomondan 6 ayirildi: 9 qo'shuv 6 teng 15", 'Из обеих частей вычли 6: 9 плюс 6 равно 15', 'Six was taken from both sides: 9 plus 6 is 15'),
+      prompt: L("x + 6 = 15. Ildizni toping.", 'x + 6 = 15. Найди корень.', 'x + 6 = 15. Find the root.'),
+      checkNote: L("Ikkala tomondan 6 ayirildi: 9 + 6 = 15", 'Из обеих частей вычли 6: 9 + 6 = 15', 'Six was taken from both sides: 9 + 6 = 15'),
       wrongs: [
         { key: 'p21', tag: 'Z1', hint: L("21 bu 15 qo'shuv 6. Oltilikni qo'shish emas, AYIRISH kerak edi.", '21 это 15 плюс 6. Шестёрку надо было не прибавить, а ВЫЧЕСТЬ.', '21 is 15 plus 6. The six had to be TAKEN AWAY, not added.') },
         { key: '*', tag: 'Z1', hint: L("Ikkala tomondan oltini ayiring va nima qolishini ko'ring.", 'Вычти шесть из обеих частей и посмотри, что останется.', 'Take six from both sides and see what is left.') },
@@ -707,8 +707,8 @@ const S9 = {
       template: ['7x = 42,     x = ', { slot: 0 }],
       parts: [{ id: 'q6', label: '6' }, { id: 'q35', label: '35' }, { id: 'q49', label: '49' }, { id: 'q294', label: '294' }],
       answer: ['q6'],
-      prompt: L("7x teng 42. Ildizni toping.", '7x = 42. Найди корень.', '7x = 42. Find the root.'),
-      checkNote: L("Ikkala tomon 7 ga bo'lindi: 7 karra 6 teng 42", 'Обе части разделили на 7: 7 умножить на 6 равно 42', 'Both sides were divided by 7: 7 times 6 is 42'),
+      prompt: L("7x = 42. Ildizni toping.", '7x = 42. Найди корень.', '7x = 42. Find the root.'),
+      checkNote: L("Ikkala tomon 7 ga bo'lindi: 7 · 6 = 42", 'Обе части разделили на 7: 7 · 6 = 42', 'Both sides were divided by 7: 7 · 6 = 42'),
       wrongs: [
         { key: 'q35', tag: 'Z2', hint: L("35 bu 42 ayirish 7. x oldida ko'paytirish turibdi, demak BO'LISH kerak.", '35 это 42 минус 7. Перед x умножение, значит нужно ДЕЛЕНИЕ.', '35 is 42 minus 7. There is a multiplication before x, so DIVISION is needed.') },
         { key: '*', tag: 'Z2', hint: L("Ikkala tomonni yettiga bo'ling.", 'Раздели обе части на семь.', 'Divide both sides by seven.') },
@@ -718,8 +718,8 @@ const S9 = {
       template: ['4x − 3 = 17,     x = ', { slot: 0 }],
       parts: [{ id: 'w5', label: '5' }, { id: 'w20', label: '20' }, { id: 'w14', label: '14' }, { id: 'w3', label: '3' }],
       answer: ['w5'],
-      prompt: L("4x ayirish 3 teng 17. Ildizni toping.", '4x − 3 = 17. Найди корень.', '4x − 3 = 17. Find the root.'),
-      checkNote: L("Avval 3 qo'shildi, keyin 4 ga bo'lindi: 4 karra 5 ayirish 3 teng 17", 'Сначала прибавили 3, потом разделили на 4: 4 умножить на 5 минус 3 равно 17', 'First 3 was added, then divided by 4: 4 times 5 minus 3 is 17'),
+      prompt: L("4x − 3 = 17. Ildizni toping.", '4x − 3 = 17. Найди корень.', '4x − 3 = 17. Find the root.'),
+      checkNote: L("Avval 3 qo'shildi, keyin 4 ga bo'lindi: 4 · 5 − 3 = 17", 'Сначала прибавили 3, потом разделили на 4: 4 · 5 − 3 = 17', 'First 3 was added, then divided by 4: 4 · 5 − 3 = 17'),
       wrongs: [
         { key: 'w14', tag: 'Z6', hint: L("14 bu 17 ayirish 3. Uchlik chap tomonda MINUS bilan turibdi, demak uni qo'shish kerak.", '14 это 17 минус 3. Тройка стоит слева с МИНУСОМ, значит её надо прибавить.', '14 is 17 minus 3. The three stands on the left with a MINUS, so it must be added.') },
         { key: '*', tag: 'Z6', hint: L("Ikki qadam: avval uchlikni yo'qoting, keyin to'rtga bo'ling.", 'Два шага: сначала убери тройку, потом раздели на четыре.', 'Two steps: remove the three first, then divide by four.') },
@@ -838,14 +838,14 @@ const S11 = {
   ],
   answer: ['p4'],
   prompt: L(
-    "9x qo'shuv 4 teng 40. Tarozi ham, qadamlar ham ekranda ko'rinmaydi.",
+    "9x + 4 = 40. Tarozi ham, qadamlar ham ekranda ko'rinmaydi.",
     '9x + 4 = 40. Ни весов, ни шагов на экране не будет.',
     '9x + 4 = 40. Neither the balance nor the steps will appear.',
   ),
   checkNote: L(
-    "Ikkala tomondan 4 ayirildi, keyin 9 ga bo'lindi: 9 karra 4 qo'shuv 4 teng 40",
-    'Из обеих частей вычли 4, потом разделили на 9: 9 умножить на 4 плюс 4 равно 40',
-    'Four was taken from both sides, then divided by 9: 9 times 4 plus 4 is 40',
+    "Ikkala tomondan 4 ayirildi, keyin 9 ga bo'lindi: 9 · 4 + 4 = 40",
+    'Из обеих частей вычли 4, потом разделили на 9: 9 · 4 + 4 = 40',
+    'Four was taken from both sides, then divided by 9: 9 · 4 + 4 = 40',
   ),
   wrongs: [
     { key: 'p36', tag: 'Z6', hint: L("36 bu 40 ayirish 4, ya'ni faqat birinchi qadam. To'qqizga bo'lish qolib ketdi.", '36 это 40 минус 4, то есть только первый шаг. Разделить на девять осталось несделанным.', '36 is 40 minus 4, only the first step. Dividing by nine was left undone.') },
@@ -917,11 +917,11 @@ const S12 = {
     parts: [{ id: 'v15', label: '15' }, { id: 'v5', label: '5' }, { id: 'v22', label: '22' }, { id: 'v29', label: '29' }],
     answer: ['v15', 'v5'],
     prompt: L(
-      "3x qo'shuv 7 teng 22. Yettini IKKALA tomondan ayiring va yechimni oxirigacha olib boring.",
+      "3x + 7 = 22. Yettini IKKALA tomondan ayiring va yechimni oxirigacha olib boring.",
       '3x + 7 = 22. Вычти семь из ОБЕИХ частей и доведи решение до конца.',
       '3x + 7 = 22. Take the seven from BOTH sides and finish the solution.',
     ),
-    checkNote: L("3 karra 5 qo'shuv 7 teng 22. Ildiz butun son ekan, kasr emas", '3 умножить на 5 плюс 7 равно 22. Корень оказался целым, а не дробным', '3 times 5 plus 7 is 22. The root turned out whole, not fractional'),
+    checkNote: L("3 · 5 + 7 = 22. Ildiz butun son ekan, kasr emas", '3 · 5 + 7 = 22. Корень оказался целым, а не дробным', '3 · 5 + 7 = 22. The root turned out whole, not fractional'),
     wrongs: [
       { key: 'v15|v22', tag: 'Z1', hint: L("Chap tomonda 3x qoldi. Uni uchga bo'ling.", 'Слева осталось 3x. Раздели его на три.', 'The left side is 3x. Divide it by three.') },
       { key: '*', tag: 'Z1', hint: L("22 dan 7 ni ayiring, keyin chiqqan sonni 3 ga bo'ling.", 'Вычти из 22 семёрку, потом раздели полученное на 3.', 'Take seven from 22, then divide the result by 3.') },
@@ -1013,7 +1013,7 @@ const S13 = {
         'Теперь реши уравнение: сколько стоит одна тетрадь?',
         'Now solve the equation: how much is one notebook?',
       ),
-      checkNote: L("3 karra 10 qo'shuv 20 teng 50. Javob to'g'ri", '3 умножить на 10 плюс 20 равно 50. Ответ верный', '3 times 10 plus 20 is 50. The answer is right'),
+      checkNote: L("3 · 10 + 20 = 50. Javob to'g'ri", '3 · 10 + 20 = 50. Ответ верный', '3 · 10 + 20 = 50. The answer is right'),
       wrongs: [
         { key: 'q30', tag: 'Z6', hint: L("30 bu 50 ayirish 20, ya'ni uchta daftarning narxi. Bittasi esa uch marta kam.", '30 это 50 минус 20, то есть цена трёх тетрадей. А одна втрое дешевле.', '30 is 50 minus 20, the price of three notebooks. One is three times less.') },
         { key: '*', tag: 'Z6', hint: L("Avval yigirmani ikkala tomondan ayiring, keyin uchga bo'ling.", 'Сначала вычти двадцать из обеих частей, потом раздели на три.', 'First take twenty from both sides, then divide by three.') },
@@ -1078,12 +1078,12 @@ function Screen13({ screen, onAnswer, ...rest }) {
 const S14 = {
   eyebrow: L('BLITS', 'БЛИЦ', 'QUICK ROUND'),
   title: L("To'rt savol", 'Четыре вопроса', 'Four questions'),
-  question: L('Nimaga teng?', 'Чему равно?', 'What does it equal?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   items: [
     {
       wrap: true,
       question: null,
-      prompt: L("x qo'shuv 8 teng 20 tenglamaning ildizi?", 'Корень уравнения x + 8 = 20?', 'The root of the equation x + 8 = 20?'),
+      prompt: L("x + 8 = 20 tenglamaning ildizi?", 'Корень уравнения x + 8 = 20?', 'The root of the equation x + 8 = 20?'),
       ok: L("Ikkala tomondan sakkiz ayirildi.", 'Из обеих частей вычли восемь.', 'Eight was taken from both sides.'),
       items: [
         { id: 'a', label: '12', correct: true },
@@ -1095,7 +1095,7 @@ const S14 = {
     {
       wrap: true,
       question: null,
-      prompt: L("6x teng 18 tenglamaning ildizi?", 'Корень уравнения 6x = 18?', 'The root of the equation 6x = 18?'),
+      prompt: L("6x = 18 tenglamaning ildizi?", 'Корень уравнения 6x = 18?', 'The root of the equation 6x = 18?'),
       ok: L("Ikkala tomon oltiga bo'lindi.", 'Обе части разделили на шесть.', 'Both sides were divided by six.'),
       items: [
         { id: 'a', label: '3', correct: true },
@@ -1107,7 +1107,7 @@ const S14 = {
     {
       wrap: true,
       question: null,
-      prompt: L("0 karra x teng 0 tenglamani nechta son to'g'ri qiladi?", 'Сколько чисел делают верным 0 · x = 0?', 'How many numbers make 0 · x = 0 true?'),
+      prompt: L("0 · x = 0 tenglamani nechta son to'g'ri qiladi?", 'Сколько чисел делают верным 0 · x = 0?', 'How many numbers make 0 · x = 0 true?'),
       ok: L("Nolga ko'paytirilgan har qanday son nol beradi.", 'Любое число, умноженное на нуль, даёт нуль.', 'Any number times zero gives zero.'),
       items: [
         { id: 'a', correct: true, label: L('Hamma son', 'Все числа', 'Every number') },

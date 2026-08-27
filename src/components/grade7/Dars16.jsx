@@ -171,7 +171,7 @@ function Screen1({ screen, onAnswer, ...rest }) {
 const S2 = {
   eyebrow: L('TAYANCH', 'ОПОРА', 'WARM-UP'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Nimaga teng?', 'Чему равно?', 'What does it equal?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   items: [
     {
       prompt: 'a³ · a²',
@@ -640,7 +640,7 @@ function Screen8({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S9 = {
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
-  title: L('Uchtasi ketma-ket', 'Три подряд', 'Three in a row'),
+  title: L("Uchta ko'paytmani yig'amiz", 'Собираем три произведения', 'Building three products'),
   reward: {
     title: L('Uchtasi ham topildi', 'Все три найдены', 'All three found'),
     text: L(
@@ -655,7 +655,7 @@ const S9 = {
       parts: [{ id: 'a', label: '8x⁴' }, { id: 'b', label: '6x⁴' }, { id: 'c', label: '8x³' }, { id: 'd', label: '8x⁵' }],
       answer: ['a'],
       prompt: L("Bir xil harf, ko'rsatkichlar qo'shiladi.", 'Одинаковая буква, показатели складываются.', 'The same letter, the exponents add.'),
-      checkNote: L("4 karra 2 teng 8; bitta va uchta x birga to'rtta", '4 на 2 это 8; одна и три x вместе четыре', '4 times 2 is 8; one and three x make four'),
+      checkNote: L("4 · 2 = 8; bitta va uchta x birga to'rtta", '4 на 2 = 8; одна и три x вместе четыре', '4 · 2 = 8; one and three x make four'),
       wrongs: [
         { key: 'b', tag: 'Z1', hint: L("Olti bu 4 qo'shuv 2.", 'Шесть это 4 плюс 2.', 'Six is 4 plus 2.') },
         { key: '*', tag: 'Z2', hint: L("x lar sonini sanang: bitta va uchta.", 'Посчитай количество x: одна и три.', 'Count the x: one and three.') },
@@ -666,7 +666,11 @@ const S9 = {
       parts: [{ id: 'e', label: '−6a³b²' }, { id: 'f', label: '6a³b²' }, { id: 'g', label: '−6a²b' }, { id: 'h', label: '−5a³b²' }],
       answer: ['e'],
       prompt: L("Ikki harf va manfiy koeffitsiyent.", 'Две буквы и отрицательный коэффициент.', 'Two letters and a negative coefficient.'),
-      checkNote: L("Minus ikki karra uch teng minus olti; a lar uchta, b lar ikkita", 'Минус два на три это минус шесть; a три, b две', 'Minus two times three is minus six; three a, two b'),
+      checkNote: L(
+    "−2 · 3 = −6; a lar uchta, b lar ikkita",
+    '−2 · 3 = −6; a три, b две',
+    '−2 · 3 = −6; three a, two b',
+  ),
       wrongs: [
         { key: 'f', tag: 'Z4', hint: L("Ishora yo'qolib qoldi.", 'Знак потерялся.', 'The sign got lost.') },
         { key: 'h', tag: 'Z1', hint: L("Besh bu qo'shishning natijasi.", 'Пять это результат сложения.', 'Five is the result of adding.') },
@@ -806,9 +810,9 @@ const S11 = {
     'Three monomials multiplied. The last has no number written.',
   ),
   checkNote: L(
-    "2 karra 3 karra 1 teng 6; x lar bitta, ikkita va bitta -- jami to'rtta",
-    '2 на 3 на 1 это 6; x одна, две и одна — всего четыре',
-    '2 times 3 times 1 is 6; one, two and one x make four',
+    "2 · 3 · 1 = 6; x lar bitta, ikkita va bitta -- jami to'rtta",
+    '2 на 3 на 1 = 6; x одна, две и одна — всего четыре',
+    '2 · 3 · 1 = 6; one, two and one x make four',
   ),
   wrongs: [
     { key: 'b', tag: 'Z2', hint: L("Oxirgi x ham sanaladi: bitta qo'shuv ikkita qo'shuv bitta.", 'Последняя x тоже считается: одна плюс две плюс одна.', 'The last x counts too: one plus two plus one.') },
@@ -881,7 +885,7 @@ const S12 = {
       'Посчитай коэффициенты верно. А показатель как и был.',
       'Work the coefficients out correctly. The exponent stays as it was.',
     ),
-    checkNote: L("3 karra 4 teng 12; ikkita va uchta a birga beshta", '3 на 4 это 12; два и три a вместе пять', '3 times 4 is 12; two and three a make five'),
+    checkNote: L("3 · 4 = 12; ikkita va uchta a birga beshta", '3 на 4 = 12; два и три a вместе пять', '3 · 4 = 12; two and three a make five'),
     wrongs: [
       { key: 'c|b', tag: 'Z1', hint: L("Yetti bu 3 qo'shuv 4. Koeffitsiyentlar KO'PAYTIRILADI.", 'Семь это 3 плюс 4. Коэффициенты УМНОЖАЮТСЯ.', 'Seven is 3 plus 4. The coefficients MULTIPLY.') },
       { key: '*', tag: 'Z5', hint: L("Sonlarni ko'paytiring, ko'rsatkichlarni qo'shing.", 'Числа перемножь, показатели сложи.', 'Multiply the numbers, add the exponents.') },
@@ -965,9 +969,9 @@ const S13 = {
     'Which monomial times 3a² gives 12a⁵?',
   ),
   checkNote: L(
-    "Koeffitsiyent: 12 bo'lish 3 teng 4. Ko'rsatkich: 5 ayirish 2 teng 3. Tekshiruv: 4a³ karra 3a² teng 12a⁵",
-    'Коэффициент: 12 разделить на 3 это 4. Показатель: 5 минус 2 это 3. Проверка: 4a³ · 3a² = 12a⁵',
-    'Coefficient: 12 divided by 3 is 4. Exponent: 5 minus 2 is 3. Check: 4a³ · 3a² = 12a⁵',
+    "Koeffitsiyent: 12 : 3 = 4. Ko'rsatkich: 5 − 2 = 3. Tekshiruv: 4a³ · 3a² = 12a⁵",
+    'Коэффициент: 12 : 3 = 4. Показатель: 5 − 2 = 3. Проверка: 4a³ · 3a² = 12a⁵',
+    'Coefficient: 12 : 3 = 4. Exponent: 5 − 2 = 3. Check: 4a³ · 3a² = 12a⁵',
   ),
   wrongs: [
     { key: 'b', tag: 'Z1', hint: L("To'qqiz bu 12 ayirish 3. Koeffitsiyentlar ko'paytiriladi, demak teskari amal BO'LISH.", 'Девять это 12 минус 3. Коэффициенты перемножаются, значит обратное действие ДЕЛЕНИЕ.', 'Nine is 12 minus 3. The coefficients multiply, so the inverse is DIVISION.') },
@@ -1018,7 +1022,7 @@ function Screen13({ screen, onAnswer, ...rest }) {
 const S14 = {
   eyebrow: L('BLITS', 'БЛИЦ', 'QUICK ROUND'),
   title: L("To'rt savol", 'Четыре вопроса', 'Four questions'),
-  question: L('Nimaga teng?', 'Чему равно?', 'What does it equal?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   items: [
     {
       wrap: true,

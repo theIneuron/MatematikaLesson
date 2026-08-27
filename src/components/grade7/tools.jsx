@@ -706,7 +706,20 @@ export function AuditRows({ rows, answerId, hints, tags, proof, prompt, promptCa
   // Qator matni Fx dan O'TKAZILMAYDI: Fx son va harfni boshqa shriftga
   // olib chiqadi, ya'ni blok ichiga IKKINCHI shrift kirardi -- aynan shu
   // rad etilgan.
-  const mathRows = rows.length > 0 && rows.every((r) => looksMath(t(r.text)))
+  // TUZOQ PANELI HAMMA DARSDA BIR XIL KO'RINADI. Ilgari shrift TO'PLAM
+  // bo'yicha tanlanardi: qatorlarning hammasi matematik bo'lsa -- formula
+  // shrifti, orasida so'z bo'lsa -- interfeys shrifti. Natijada bitta ekran
+  // 18 darsda bir xil, 30 darsda boshqacha chiqardi (metodist 2026-08-26,
+  // ikki surat yonma-yon).
+  //
+  // Panel -- YECHIM YOZUVI: qadamlar ketma-ketligi, orasida izoh bo'lishi
+  // mumkin. Yozuv esa sinfda formula shriftida yoziladi, shuning uchun
+  // tanlov formula shrifti foydasiga hal qilindi: raqamlar ustma-ust
+  // tizilib turadi va tuzoq ekrani hamma darsda bir xil.
+  //
+  // Telefonda o'lchandi: eng uzun so'zli qator (43 belgi, 47-dars) 390 px
+  // da chetdan chiqmaydi.
+  const mathRows = true
 
   const pick = (id) => {
     if (solved) return

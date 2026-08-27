@@ -116,7 +116,7 @@ const S2 = {
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -441,7 +441,7 @@ const S9 = {
   kind: 'chain',
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
   title: L('Javobni toping', 'Найди ответ', 'Find the answer'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -559,9 +559,9 @@ const S10 = {
     'Work out the two values.',
   ),
   checkNote: L(
-    "Manfiy ikki karra uch manfiy olti, qo'shuv bir manfiy besh. x nol bo'lganda esa faqat b qoladi.",
-    'Минус два на три это минус шесть, плюс один минус пять. А при x равном нулю остаётся только b.',
-    'Minus two times three is minus six, plus one is minus five. At x zero only b remains.',
+    "−2 · 3 = −6, −6 + 1 = −5. x = 0 bo'lganda esa faqat b qoladi.",
+    '−2 · 3 = −6, −6 + 1 = −5. А при x = 0 остаётся только b.',
+    '−2 · 3 = −6, −6 + 1 = −5. At x = 0 only b remains.',
   ),
   wrongs: [
     { key: 'c', tag: 'Z3', hint: L("k manfiy, demak ko'paytma ham manfiy chiqadi.", 'k отрицательный, значит и произведение отрицательно.', 'k is negative, so the product is negative too.') },
@@ -610,9 +610,9 @@ const S11 = {
     'Compute and draw the conclusion.',
   ),
   checkNote: L(
-    "To'rt karra ikki sakkiz, undan uch ayirilsa besh. Nuqtaning ordinatasi ham besh, demak nuqta grafikda turadi.",
-    'Четыре на два восемь, минус три это пять. Ордината точки тоже пять, значит точка лежит на графике.',
-    'Four times two is eight, minus three is five. The ordinate is five too, so the point lies on the graph.',
+    "4 · 2 = 8, 8 − 3 = 5. Nuqtaning ordinatasi ham 5, demak nuqta grafikda turadi.",
+    '4 · 2 = 8, 8 − 3 = 5. Ордината точки тоже 5, значит точка лежит на графике.',
+    '4 · 2 = 8, 8 − 3 = 5. The ordinate is 5 too, so the point lies on the graph.',
   ),
   wrongs: [
     { key: 'c', tag: 'Z6', hint: L("Uch ayiriladi, qo'shilmaydi.", 'Три вычитается, а не прибавляется.', 'Three is subtracted, not added.') },

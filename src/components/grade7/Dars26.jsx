@@ -113,7 +113,7 @@ const S2 = {
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -457,7 +457,7 @@ const S9 = {
   kind: 'chain',
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
   title: L('Javobni toping', 'Найди ответ', 'Find the answer'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -690,9 +690,9 @@ const S13 = {
   eyebrow: L('KO\'CHIRISH', 'ПЕРЕНОС', 'TRANSFER'),
   title: L('Ustunsiz hisoblash', 'Счёт без столбика', 'Computing without long multiplication'),
   given: L(
-    "Ellik birni qirq to'qqizga ko'paytiramiz, lekin ustunda emas: bu ellik qo'shuv bir karra ellik minus bir.",
-    'Умножим пятьдесят один на сорок девять, но не в столбик: это пятьдесят плюс один на пятьдесят минус один.',
-    'Let us multiply fifty one by forty nine, but not in a column: it is fifty plus one times fifty minus one.',
+    "51 · 49 ni ustunda emas, boshqacha hisoblaymiz: bu (50 + 1)(50 − 1).",
+    'Умножим 51 · 49, но не в столбик: это (50 + 1)(50 − 1).',
+    'Let us multiply 51 · 49, but not in a column: it is (50 + 1)(50 − 1).',
   ),
   template: ['51 · 49  =  (50 + 1)(50 − 1)  =  2500 − ', { slot: 0 }],
   parts: [
@@ -733,7 +733,7 @@ const S14 = {
   items: [
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '(a − 6)(a + 6)',
       ok: L("O'rtadagilar yo'q bo'ldi.", 'Средние уничтожились.', 'The middle ones cancelled.'),
       items: [
@@ -745,7 +745,7 @@ const S14 = {
     },
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '25 − x²',
       ok: L("Birinchi kvadrat yigirma besh, shuning uchun beshlik oldinda turadi.", 'Первый квадрат это двадцать пять, поэтому пятёрка стоит первой.', 'The first square is twenty five, so the five comes first.'),
       items: [
@@ -773,7 +773,7 @@ const S14 = {
     },
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '(2m − 5n)(2m + 5n)',
       ok: L("Ikki koeffitsiyent ham kvadratga ko'tarildi.", 'Оба коэффициента возведены в квадрат.', 'Both coefficients got squared.'),
       items: [

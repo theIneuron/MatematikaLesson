@@ -119,7 +119,7 @@ const S2 = {
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   items: [
     {
       prompt: '3a · 2a',
@@ -425,7 +425,7 @@ const S9 = {
   kind: 'chain',
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
   title: L('Javobni toping', 'Найди ответ', 'Find the answer'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -676,7 +676,7 @@ const S14 = {
   items: [
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '3a(2a + 5)',
       ok: L("Ikki katak, ikkalasi ham hisoblandi.", 'Две клетки, обе посчитаны.', 'Two cells, both worked out.'),
       items: [
@@ -688,7 +688,7 @@ const S14 = {
     },
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '−2a⁴(14ab + 2,5b)',
       ok: L("Ishora ikkala katakka ham bordi.", 'Знак дошёл до обеих клеток.', 'The sign reached both cells.'),
       items: [
@@ -712,7 +712,7 @@ const S14 = {
     },
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '(x⁷ − x⁶ + x⁴)x³',
       ok: L("Ko'rsatkichlar qo'shildi, ko'paytuvchi o'ngda turgan bo'lsa ham.", 'Показатели сложились, хотя множитель стоял справа.', 'The exponents added, even though the factor stood on the right.'),
       items: [
