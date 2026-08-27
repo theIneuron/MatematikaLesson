@@ -955,8 +955,8 @@ const S5 = {
           ),
           '(2x)/(x-1)': L(
             "Belgiga qarang, bo'luvchining suratida x plyus bir edi.",
-            'Посмотри на знак: в числителе делителя было x плюс один.',
-            'Look at the sign: the numerator of the divisor held x plus one.',
+            'Посмотри на знак. В числителе делителя было x плюс один.',
+            'Look at the sign. The numerator of the divisor held x plus one.',
           ),
         },
         show: (
@@ -1338,8 +1338,8 @@ const S7 = {
       ),
       '*': L(
         "Ikki maxraj va bo'luvchining surati, uchta joyga qarang.",
-        'Два знаменателя и числитель делителя: смотри в три места.',
-        'Two denominators and the numerator of the divisor: look in three places.',
+        'Два знаменателя и числитель делителя. Смотри в три места.',
+        'Two denominators and the numerator of the divisor. Look in three places.',
       ),
     },
     note: L(
@@ -1469,8 +1469,8 @@ const S9 = {
         hints: {
           '3a/(5a)': L(
             "Qisqartirish qolib ketdi. a surat va maxrajda ham bor.",
-            'Сокращение не доведено: a есть и сверху, и снизу.',
-            'The reducing is unfinished: a is both above and below.',
+            'Сокращение не доведено. a есть и сверху, и снизу.',
+            'The reducing is unfinished. a is both above and below.',
           ),
           '5/3': L(
             "Surat suratga ketadi. Uchlik yuqorida edi.",
@@ -1542,8 +1542,8 @@ const S9 = {
           ),
           '3/(a+1)': L(
             "Belgiga qarang, suratda a minus bir edi.",
-            'Посмотри на знак: в числителе было a минус один.',
-            'Look at the sign: the numerator held a minus one.',
+            'Посмотри на знак. В числителе было a минус один.',
+            'Look at the sign. The numerator held a minus one.',
           ),
         },
         closed: L('teskarisi 3/(a − 1)', 'обратная 3/(a − 1)', 'the reciprocal is 3/(a − 1)'),
@@ -1862,8 +1862,8 @@ const S12 = {
       ),
       'r2': L(
         "Bu ham to'g'ri, qavslar va iks qisqaradi.",
-        'И это верно: скобки и икс сокращаются.',
-        'This is correct too: the brackets and the x reduce away.',
+        'И это верно. Скобки и икс сокращаются.',
+        'This is correct too. The brackets and the x reduce away.',
       ),
       'r4': L(
         "Javobning o'zi to'g'ri. Xato shartlar satrida.",

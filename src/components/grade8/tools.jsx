@@ -400,6 +400,7 @@ function ChainItem({ item, onOk, audio }) {
           onChange={(x) => { j.setVal(x); setNoneWrong(null) }}
           onSubmit={j.submit}
           done={j.done}
+          mathKeys={item.mathKeys}
           none={item.none !== undefined}
           noneLabel={item.noneLabel}
           onNone={pressNone}
@@ -480,6 +481,7 @@ function FieldOne({ field, onOk, audio }) {
         onChange={(x) => { j.setVal(x); setNoneWrong(null) }}
         onSubmit={j.submit}
         done={j.done}
+        mathKeys={field.mathKeys}
         none={field.none !== undefined}
         noneLabel={field.noneLabel}
         onNone={pressNone}

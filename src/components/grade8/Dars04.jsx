@@ -729,8 +729,8 @@ const S4 = {
             action: 'open',
             hint: L(
               "Qavs allaqachon ochilgan, surat ikki iks minus to'rt.",
-              'Скобка уже раскрыта: числитель это два икс минус четыре.',
-              'The bracket is already opened: the numerator is two x minus four.',
+              'Скобка уже раскрыта. Числитель это два икс минус четыре.',
+              'The bracket is already opened. The numerator is two x minus four.',
             ),
           },
         ],
@@ -1069,8 +1069,8 @@ const S5 = {
         hints: {
           '5x+1': L(
             "Uchlik qavsga ham ko'paytiriladi, uch karra bir uch beradi.",
-            'Тройка умножается и на единицу в скобке: три на один это три.',
-            'The three multiplies the one in the bracket as well: three times one is three.',
+            'Тройка умножается и на единицу в скобке. Три на один это три.',
+            'The three multiplies the one in the bracket as well. Three times one is three.',
           ),
           '5': L(
             "Faqat sonlar qo'shilgan. Iksli hadlar ham bor.",
@@ -1376,13 +1376,13 @@ const S7 = {
       ),
       '0': L(
         "Nolda ikkala maxraj ham nolga aylanmaydi, minus bir va bir chiqadi.",
-        'При нуле ни один знаменатель в нуль не обращается: выходит минус один и один.',
-        'At zero neither denominator becomes zero: they give minus one and one.',
+        'При нуле ни один знаменатель в нуль не обращается. Выходит минус один и один.',
+        'At zero neither denominator becomes zero. They give minus one and one.',
       ),
       '*': L(
         "Ikki maxrajga qarang, har biri o'z qiymatida nolga aylanadi.",
-        'Посмотри на оба знаменателя: каждый обращается в нуль при своём значении.',
-        'Look at both denominators: each becomes zero at its own value.',
+        'Посмотри на оба знаменателя. Каждый обращается в нуль при своём значении.',
+        'Look at both denominators. Each becomes zero at its own value.',
       ),
     },
     note: L(
@@ -1782,8 +1782,8 @@ const S11 = {
         ),
         '2a/(a-2)': L(
           "Ikkinchi maxraj yo'qoldi, umumiy maxraj ikkisining ko'paytmasi.",
-          'Второй знаменатель потерялся: общий знаменатель это произведение обоих.',
-          'The second denominator got lost: the common denominator is the product of both.',
+          'Второй знаменатель потерялся. Общий знаменатель это произведение обоих.',
+          'The second denominator got lost. The common denominator is the product of both.',
         ),
       },
     },
@@ -1899,8 +1899,8 @@ const S12 = {
     hints: {
       'r1': L(
         "Bu satr to'g'ri, maxrajlar haqiqatan bir xil.",
-        'Эта строка верна: знаменатели действительно одинаковые.',
-        'This line is correct: the denominators really are equal.',
+        'Эта строка верна. Знаменатели действительно одинаковые.',
+        'This line is correct. The denominators really are equal.',
       ),
       'r3': L(
         "Javob yuqoridagi satrdan to'g'ri chiqarilgan. Xato balandroqda.",
@@ -1909,8 +1909,8 @@ const S12 = {
       ),
       'r4': L(
         "Bu rost, iks minus bir bittada nolga aylanadi.",
-        'Это правда: икс минус один обращается в нуль при единице.',
-        'That is true: x minus one becomes zero at one.',
+        'Это правда. Икс минус один обращается в нуль при единице.',
+        'That is true. x minus one becomes zero at one.',
       ),
     },
     ask: {

@@ -370,7 +370,7 @@ const S5 = {
       "Har qadamda amal va asoslanish tanlanadi.",
       'На каждом шаге выбирается действие и его основание.',
       'At each step, the action and its justification are chosen.'),
-    W('a2',
+    W('s3',
       "Ikkinchi qadamda manfiy daraja kasrga aylandi.",
       'На втором шаге отрицательная степень превратилась в дробь.',
       'In the second step, the negative power turned into a fraction.'),

@@ -547,8 +547,8 @@ const S3 = {
                 label: L('Faqat surat', 'Только числитель', 'Only the numerator'),
                 hint: L(
                   "Chiziq ostiga qarang, u yerda ham m paydo bo'lgan.",
-                  'Посмотри под черту: там тоже появилось m.',
-                  'Look below the bar: m appeared there too.',
+                  'Посмотри под черту. Там тоже появилось m.',
+                  'Look below the bar. M appeared there too.',
                 ),
               },
               {
@@ -556,8 +556,8 @@ const S3 = {
                 label: L('Faqat maxraj', 'Только знаменатель', 'Only the denominator'),
                 hint: L(
                   "Chiziq ustiga qarang, u yerda ham m turibdi.",
-                  'Посмотри над чертой: там тоже стоит m.',
-                  'Look above the bar: m stands there as well.',
+                  'Посмотри над чертой. Там тоже стоит m.',
+                  'Look above the bar. M stands there as well.',
                 ),
               },
               {
@@ -1438,8 +1438,8 @@ const S9 = {
           ),
           'a != 5': L(
             "Nol shart ko'paytirishdan oldin ham bor edi, maxrajda a turibdi.",
-            'Условие про нуль было и до умножения: в знаменателе стоит a.',
-            'The condition about zero existed before the multiplication: the denominator holds a.',
+            'Условие про нуль было и до умножения. В знаменателе стоит a.',
+            'The condition about zero existed before the multiplication. The denominator holds a.',
           ),
         },
         closed: L('a ≠ 0, a ≠ 5', 'a ≠ 0, a ≠ 5', 'a ≠ 0, a ≠ 5'),
@@ -1726,13 +1726,13 @@ const S12 = {
     hints: {
       'r1': L(
         "Bu satr to'g'ri. Uchni x ga ko'paytirsak 3x chiqadi.",
-        'Эта строка верна: три умножить на икс это 3x.',
-        'This line is correct: three times x is 3x.',
+        'Эта строка верна. Три умножить на икс это 3x.',
+        'This line is correct. Three times x is 3x.',
       ),
       'r2': L(
         "Bu ham to'g'ri. Surat ham, maxraj ham x ga ko'paytirilgan.",
-        'И это верно: и числитель, и знаменатель умножены на икс.',
-        'This is correct too: both numerator and denominator are multiplied by x.',
+        'И это верно. И числитель, и знаменатель умножены на икс.',
+        'This is correct too. Both numerator and denominator are multiplied by x.',
       ),
       'r4': L(
         "Javobning o'zi to'g'ri yozilgan. Xato yuqoridagi satrda.",
@@ -1884,8 +1884,8 @@ const S14 = {
         ],
         hint: L(
           "Sonlarda tekshiring. Ikki beshdan nol butun to'rt, besh sakkizdan esa boshqa son.",
-          'Проверь на числах: две пятых это 0,4, а пять восьмых уже другое число.',
-          'Check with numbers: two fifths is 0.4, while five eighths is a different number.',
+          'Проверь на числах. Две пятых это 0,4, а пять восьмых уже другое число.',
+          'Check with numbers. Two fifths is 0.4, while five eighths is a different number.',
         ),
         ok: L(
           "Ikkalasi bitta songa ko'paytirilganda qiymat saqlanadi.",

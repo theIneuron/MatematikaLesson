@@ -2101,4 +2101,27 @@ html, body { margin: 0; padding: 0; }
   .g8-lead { font-size: 14.5px; }
   .g8-frac-big .g8-frac-n, .g8-frac-big .g8-frac-d { font-size: 26px; }
 }
+
+/* ====================================================================
+   XUK SAHNASI JOY YETMASA SIQILADI (2026-08-27, QA topdi).
+
+   Yuqoridagi izoh (.g8-scene-hook { flex: 0 1 auto }) shuni aytadi:
+   «сцена держит свой размер и сжимается только при нехватке места».
+   Amalda siqilmasdi: flex elementning min-height i sukut bo'yicha
+   auto, ya'ni kontentdan pastga tushmaydi, ichidagi svg ning
+   balandligi esa clamp(...) bilan qat'iy berilgan. Natijada uzun
+   savol va uzun javob kartochkalari bo'lgan ekranlarda ustun tashib
+   ketardi: 13 geometriya darsida javob kartochkalarining pastki qatori
+   pastki panel ostiga kirib ketgan edi (o'lchov: 53-darsda noutbukda
+   55px, telefonda 66px).
+
+   Tuzatish PASTGA QARAB ishlaydi: min-height: 0 va svg ga siqilish
+   ruxsati. Joy yetadigan ekranlarda hech narsa o'zgarmaydi — flexbox
+   siqishni faqat tashib ketganda qo'llaydi. Balandlik CHEGARALARI
+   (clamp, 22vh) tegilmagan: ular yuqoriga qarab ishlaydi.
+   ==================================================================== */
+/* PREFIKS .lesson-root SHART: method.jsx da .g8-scene ga display block
+   beriladi va u KEYIN yuklanadi, ya'ni bir klassli qoida ustun chiqadi. */
+.lesson-root .g8-scene-hook { min-height: 0; display: flex; flex-direction: column; }
+.lesson-root .g8-scene-hook > svg { min-height: 0; flex: 0 1 auto; }
 `

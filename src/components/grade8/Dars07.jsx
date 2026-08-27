@@ -725,8 +725,8 @@ const S5 = {
     checkAt: (v) => v < 0,
     after: L(
       "Ko'rdingiz. Manfiy k da tarmoqlar ikkinchi va to'rtinchi chorakda.",
-      'Видно: при отрицательном k ветви во второй и четвёртой четверти.',
-      'You can see it: with a negative k the branches sit in the second and fourth quadrants.',
+      'Видно. При отрицательном k ветви во второй и четвёртой четверти.',
+      'You can see it. With a negative k the branches sit in the second and fourth quadrants.',
     ),
   },
 }
@@ -1358,13 +1358,13 @@ const S12 = {
     hints: {
       'r1': L(
         "Bu satr to'g'ri, minus olti manfiy son.",
-        'Эта строка верна: минус шесть отрицательное число.',
-        'This line is correct: minus six is a negative number.',
+        'Эта строка верна. Минус шесть отрицательное число.',
+        'This line is correct. Minus six is a negative number.',
       ),
       'r3': L(
         "Bu ham to'g'ri, minus oltini ikkiga bo'lsak minus uch chiqadi. Xato balandroqda.",
-        'И это верно: минус шесть разделить на два это минус три. Ошибка выше.',
-        'This is correct too: minus six over two is minus three. The error is higher.',
+        'И это верно. Минус шесть разделить на два это минус три. Ошибка выше.',
+        'This is correct too. Minus six over two is minus three. The error is higher.',
       ),
       'r4': L(
         "Soha to'g'ri yozilgan. Xato choraklar haqidagi satrda.",
@@ -1487,9 +1487,9 @@ const S14 = {
           { id: 'diff', label: L('Ayirma y − x', 'Разность y − x', 'The difference y − x') },
         ],
         hint: L(
-          "Jadvalga qaytib qarang: bir va olti, ikki va uch.",
-          'Посмотри снова таблицу: один и шесть, два и три.',
-          'Look at the table again: one and six, two and three.',
+          "Jadvalga qaytib qarang. Bir va olti, ikki va uch.",
+          'Посмотри снова таблицу. Один и шесть, два и три.',
+          'Look at the table again. One and six, two and three.',
         ),
         ok: L(
           "Nisbat to'g'ri proporsionallikda o'zgarmaydi, ko'paytma esa teskarisida.",

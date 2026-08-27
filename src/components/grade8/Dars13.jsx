@@ -587,6 +587,10 @@ const S5 = {
           'Что получилось? Запиши',
           'What came out? Write it down',
         ),
+        // Javob `sqrt(`/`abs(`/`^` talab qiladi, kompyuter klaviaturasida
+        // bunday belgi yo'q — maydon QATORINING ICHIDA uchta tugma turadi
+        // (`√(`, `|(`, `^`), balandlik o'zgarmaydi (2026-08-27).
+        mathKeys: true,
         answer: '6*sqrt(2)+3*sqrt(2)',
         accepts: ['sqrt(36*2)+sqrt(9*2)', '3*sqrt(2)+6*sqrt(2)'],
         hints: {
@@ -681,6 +685,10 @@ const S5 = {
           'Запиши до конца',
           'Write it to the end',
         ),
+        // Javob `sqrt(`/`abs(`/`^` talab qiladi, kompyuter klaviaturasida
+        // bunday belgi yo'q — maydon QATORINING ICHIDA uchta tugma turadi
+        // (`√(`, `|(`, `^`), balandlik o'zgarmaydi (2026-08-27).
+        mathKeys: true,
         answer: '9*sqrt(2)',
         accepts: ['sqrt(162)', 'sqrt(81*2)'],
         hints: {

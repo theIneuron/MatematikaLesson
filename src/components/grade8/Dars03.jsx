@@ -367,8 +367,8 @@ const S2 = {
         hints: {
           'a-9': L(
             "To'qqizni ham uchga bo'lish kerak, uch karra uch to'qqiz.",
-            'Девятку тоже надо разделить на три: три на три это девять.',
-            'The nine must be divided by three as well: three times three is nine.',
+            'Девятку тоже надо разделить на три. Три на три это девять.',
+            'The nine must be divided by three as well. Three times three is nine.',
           ),
           'a+3': L(
             "To'qqiz oldida minus turibdi, u qavsda ham saqlanadi.",
@@ -630,8 +630,8 @@ const S4 = {
               label: L("O'xshash hadlarni yig'ish", 'Приведение подобных', 'Collecting like terms'),
               hint: L(
                 "O'xshash hadlar yo'q, 3a va 9 boshqa turdagi hadlar.",
-                'Подобных слагаемых нет: 3a и 9 разного рода.',
-                'There are no like terms: 3a and 9 are of different kinds.',
+                'Подобных слагаемых нет. 3a и 9 разного рода.',
+                'There are no like terms. 3a and 9 are of different kinds.',
               ),
             },
           ],
@@ -656,8 +656,8 @@ const S4 = {
           ),
           'a-3': L(
             "Belgiga qarang, maxrajda a plyus uch turibdi.",
-            'Посмотри на знак: в знаменателе a плюс три.',
-            'Look at the sign: the denominator holds a plus three.',
+            'Посмотри на знак. В знаменателе a плюс три.',
+            'Look at the sign. The denominator holds a plus three.',
           ),
         },
         show: (
@@ -688,8 +688,8 @@ const S4 = {
             action: 'add',
             hint: L(
               "Qo'shish bu yerda amal emas, qavslar bir xil ko'paytuvchi.",
-              'Сложение здесь не действие: скобки это одинаковый множитель.',
-              'Addition is not the action here: the brackets are the same factor.',
+              'Сложение здесь не действие. Скобки это одинаковый множитель.',
+              'Addition is not the action here. The brackets are the same factor.',
             ),
           },
         ],
@@ -736,8 +736,8 @@ const S4 = {
           ),
           '3(a+3)': L(
             "Maxrajdagi qavs ham ketishi kerak, u bo'linadi.",
-            'Скобка в знаменателе тоже уходит: на неё делят.',
-            'The bracket in the denominator leaves as well: we divide by it.',
+            'Скобка в знаменателе тоже уходит. На неё делят.',
+            'The bracket in the denominator leaves as well. We divide by it.',
           ),
           'a+3': L(
             "Uchlik ko'paytuvchi sifatida qoladi, qavs esa ketadi.",
@@ -948,8 +948,8 @@ const S5 = {
           ),
           '(a-4)(a+1)': L(
             "Ko'paytirib ko'ring, o'rtada qo'shimcha had chiqadi.",
-            'Перемножь: в середине появится лишнее слагаемое.',
-            'Multiply it out: an extra term appears in the middle.',
+            'Перемножь. В середине появится лишнее слагаемое.',
+            'Multiply it out. An extra term appears in the middle.',
           ),
         },
         show: (
@@ -970,7 +970,7 @@ const S5 = {
             action: 'open',
             hint: L(
               "Ochsak, boshlang'ich yozuv qaytadi. Qavs qisqartirish uchun kerak.",
-              'Раскроем — вернётся исходная запись. Скобка нужна для сокращения.',
+              'Раскроем, и вернётся исходная запись. Скобка нужна для сокращения.',
               'Opening brings back the original record. The bracket is needed for reducing.',
             ),
           },
@@ -1193,8 +1193,8 @@ const S6 = {
               label: L('3 va 3', '3 и 3', '3 and 3'),
               hint: L(
                 "Chapda avval qo'shiladi, keyin bo'linadi. Uch plyus uch olti, olti bo'lingan uch ikki.",
-                'Слева сначала складывают, потом делят: три плюс три шесть, шесть на три два.',
-                'On the left you add first, then divide: three plus three is six, six over three is two.',
+                'Слева сначала складывают, потом делят. Три плюс три шесть, шесть на три два.',
+                'On the left you add first, then divide. Three plus three is six, six over three is two.',
               ),
             },
             {
@@ -1619,8 +1619,8 @@ const S10 = {
         hints: {
           '2(a+2)': L(
             "Bo'lingan qavs ketadi. Bo'lish a plyus ikkiga qilingan.",
-            'Уходит та скобка, на которую делили: a плюс два.',
-            'The bracket we divided by leaves: a plus two.',
+            'Уходит та скобка, на которую делили. a плюс два.',
+            'The bracket we divided by leaves. a plus two.',
           ),
           'a-2': L(
             "Ikkilik ko'paytuvchi bo'lib qoladi, u qisqarmaydi.",
@@ -1704,8 +1704,8 @@ const S11 = {
         ),
         '3/(a*a-16)': L(
           "Maxraj ham qisqaradi, u yerda a plyus to'rt ko'paytuvchisi bor.",
-          'Знаменатель тоже сокращается: в нём есть множитель a плюс четыре.',
-          'The denominator reduces too: it holds the factor a plus four.',
+          'Знаменатель тоже сокращается. В нём есть множитель a плюс четыре.',
+          'The denominator reduces too. It holds the factor a plus four.',
         ),
       },
     },
@@ -1820,13 +1820,13 @@ const S12 = {
     hints: {
       'r1': L(
         "Bu satr to'g'ri, kvadratlar ayirmasi shunday ajratiladi.",
-        'Эта строка верна: разность квадратов так и разлагается.',
-        'This line is correct: that is how a difference of squares factors.',
+        'Эта строка верна. Разность квадратов так и разлагается.',
+        'This line is correct. That is how a difference of squares factors.',
       ),
       'r2': L(
         "Bu ham to'g'ri, a minus ikki ikkala qismda ham ko'paytuvchi.",
-        'И это верно: a минус два множитель в обеих частях.',
-        'This is correct too: a minus two is a factor in both parts.',
+        'И это верно. a минус два множитель в обеих частях.',
+        'This is correct too. a minus two is a factor in both parts.',
       ),
       'r4': L(
         "Uchda tekshirish rost, lekin bitta son hech narsani isbotlamaydi.",
@@ -1950,8 +1950,8 @@ const S14 = {
         ],
         hint: L(
           "a uchga teng bo'lsa tekshiring, chapda ikki chiqadi.",
-          'Проверь при a, равном трём: слева выйдет два.',
-          'Check at a equal to three: the left gives two.',
+          'Проверь при a, равном трём. Слева выйдет два.',
+          'Check at a equal to three. The left gives two.',
         ),
         ok: L(
           "Uchlik yig'indining hadi, ko'paytuvchi emas, shuning uchun qisqarmaydi.",
@@ -2030,8 +2030,8 @@ const S14 = {
         ),
         ok: L(
           "Bitta son xatoni topadi. Mos kelish esa hali isbot emas, isbot almashtirishning o'zi.",
-          'Одно число находит ошибку. А совпадение ещё не доказательство: доказательство это само преобразование.',
-          'One number finds the error. A match is not a proof yet: the transformation itself is the proof.',
+          'Одно число находит ошибку. А совпадение ещё не доказательство. Доказательство это само преобразование.',
+          'One number finds the error. A match is not a proof yet. The transformation itself is the proof.',
         ),
       },
     ],
