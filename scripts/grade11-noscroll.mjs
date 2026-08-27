@@ -67,6 +67,13 @@ const LESSONS = {
   dars46: 'dars46-almashtirishlar-sinov',
   dars47: 'dars47-tenglama-tengsizlik-sinov',
   dars48: 'dars48-grafiklar-va-yuza-sinov',
+  dars49: 'dars49-matnli-masalalar-yakun',
+  dars51: 'dars51-planimetriya-sinov',
+  dars52: 'dars52-stereometriya-sinov',
+  dars53: 'dars53-vektorlar-sinov',
+  dars54: 'dars54-tayyorlov-varianti',
+  dars55: 'dars55-kompleks-amaliyot',
+  dars56: 'dars56-takrorlash-kurs-yakuni',
 }
 const WANT = process.argv.slice(2).find((a) => !a.startsWith('--')) || 'dars12'
 const SLUG = LESSONS[WANT] || WANT

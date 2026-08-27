@@ -60,7 +60,9 @@ const S1 = {
   role: 'hook',
   eyebrow: L('Hosila', 'Производная', 'The derivative'),
   title: L('Ikkinchi sekundda qancha', 'Сколько во вторую секунду', 'How fast at the second second'),
-  expr: L('yo\'l vaqtning kvadrati', 'путь равен квадрату времени', 'the path is time squared'),
+  // HERO satri o'ralmaydi va telefonda ~20 belgi sig'adi: ruscha gap
+  // 44 px kesilgan edi. Endi bu FORMULA, shartni esa ovoz aytadi.
+  expr: 's (t) = t²',
   rows: [
     {
       id: 'a',

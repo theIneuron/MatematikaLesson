@@ -2960,6 +2960,17 @@ export function SpaceFrame({
   // (kabinet proyeksiyasida 0,5).
   yaw0 = 0,
   depth0 = 0.5,
+  // YOZUVNING POLI VA MASSHTABI. Asbobning yozuvlari chizmaning O'Z birligida
+  // beriladi, va chizma keyin slotga sig'dirish uchun kichraytiriladi -- ya'ni
+  // yozuv ham u bilan kichrayadi. 11-sinfda slot keng, kichraytirish yo'q, va
+  // 11 birlik ekranda 11 pikselga tushadi. Boshqa sinfda slot torroq bo'lsa,
+  // o'sha 11 birlik 9 pikselga aylanadi -- va 10,5 piksellik poldan past
+  // tushadi (10-sinfda o'lchangan, 2026-08-21).
+  //
+  // `textScale` -- tashqi qatlam masshtabni O'LCHAB berishi uchun: chizma
+  // kichrayganida yozuv teng darajada kattalashadi va ekranda o'z o'lchamida
+  // qoladi. Standarti bir, ya'ni 11-sinf uchun hech narsa o'zgarmaydi.
+  textScale = 1,
 }) {
   // HOOKLAR ENG BOSHDA. Bu asbobda erta `return` yo'q, lekin qoida bir
   // xil: SpinBoard da holat rejim tekshiruvidan keyin turgani uchun React
@@ -3200,6 +3211,10 @@ export function SpaceFrame({
   // ---------- matn ----------
   // Indeks `tspan` bilan chiziladi, Unicode belgi bilan emas: shriftda
   // pastki indeks HARFGA o'xshab ketadi (etalon §7).
+  // Har yozuvning O'Z poli: 11 birlik. Ilgari o'qlardagi sonlar 9,5 birlik
+  // bilan yozilgan edi, ya'ni kichraytirishsiz ham poldan past chiqardi.
+  const FS = (v) => Math.max(11, (v || 13) * textScale)
+
   const label = (p, text, tone, opts) => {
     const o = opts || {}
     const A = P(p)
@@ -3213,7 +3228,7 @@ export function SpaceFrame({
         key={o.key}
         x={A[0] + (flip ? -Math.abs(dxx) : dxx)}
         y={A[1] + (o.dy === undefined ? -7 : o.dy)}
-        fontSize={o.size || 13}
+        fontSize={FS(o.size)}
         fontWeight={o.weight || 700}
         fontStyle={o.roman ? 'normal' : 'italic'}
         fill={tone}
@@ -3221,7 +3236,7 @@ export function SpaceFrame({
         textAnchor={o.anchor || (flip ? 'end' : 'start')}
       >
         {text}
-        {o.sub ? <tspan fontSize={(o.size || 13) * 0.72} dy="3" fontStyle="normal">{o.sub}</tspan> : null}
+        {o.sub ? <tspan fontSize={Math.max(11, FS(o.size) * 0.72)} dy="3" fontStyle="normal">{o.sub}</tspan> : null}
       </text>
     )
   }
@@ -3479,7 +3494,7 @@ export function SpaceFrame({
                     <circle cx={A[0]} cy={A[1]} r="1.6" fill={T.ink3} />
                     {axisNums
                       ? (
-                        <text x={A[0] + ax.nx} y={A[1] + ax.ny} fontSize="9.5" fill={T.ink3}
+                        <text x={A[0] + ax.nx} y={A[1] + ax.ny} fontSize={FS(9.5)} fill={T.ink3}
                           textAnchor={ax.na} fontFamily="'JetBrains Mono', monospace">{v}</text>
                       ) : null}
                   </g>
@@ -3581,9 +3596,9 @@ export function SpaceFrame({
                   proyeksiyada bissektrisalar yaqin ko'rinadi va sonlar
                   ustma-ust tushardi -- 212 px da esa umuman o'qilmasdi.
                   Yashil son -- javob, kulrangi -- qo'shimchasi. */}
-              <text x={6} y={height - 4} fontSize="12" fontWeight="700" fontFamily={MATH_FONT}>
+              <text x={6} y={height - 4} fontSize={FS(12)} fontWeight="700" fontFamily={MATH_FONT}>
                 <tspan fill={T.ok}>{tt(SPACE_UI.answer) + ' ' + numTxt(acute) + '°'}</tspan>
-                <tspan dx="9" fill={T.ink3} fontSize="11.5">{'/ ' + numTxt(Math.max(phi, 180 - phi)) + '°'}</tspan>
+                <tspan dx="9" fill={T.ink3} fontSize={FS(11.5)}>{'/ ' + numTxt(Math.max(phi, 180 - phi)) + '°'}</tspan>
               </text>
             </g>
           )
@@ -4209,6 +4224,289 @@ export function SecantBoard({
               ? txt(padL, H - 5, S(eq), { key: 'eq', anchor: 'start', size: 13, fill: T.accent })
               : null}
           </g>
+        ) : null}
+      </svg>
+      {caption !== undefined
+        ? <div className="g11-expr g11-expr-sm g11-wrap" style={{ textAlign: 'center', color: T.ink2 }}><Fx>{S(caption)}</Fx></div>
+        : null}
+      {note
+        ? <div className="g11-expr g11-expr-sm g11-wrap" style={{ textAlign: 'center', color: T.ink2 }}><Fx>{S(note)}</Fx></div>
+        : null}
+    </div>
+  )
+}
+
+// ============================================================
+// PlaneBoard -- B7 blokining asbobi: TEKIS CHIZMA (planimetriya).
+//
+// NEGA KERAK. 11-sinfda fazoviy asboblar bor (`SpinBoard`, `SpaceFrame`),
+// tekis chizma esa yo'q edi: balandligi bilan uchburchak, ichki burchagi
+// bilan aylana, o'xshash uchburchaklar juftligi -- birortasini ham
+// mavjud asboblar chizmaydi. Etalon 1.1 `graph` rolini olib tashlashga
+// faqat «temada ma'noli chizma bo'lmasa» ruxsat beradi, planimetriyada
+// esa chizmaning O'ZI mavzu.
+//
+// MA'LUMOT BILAN BOSHQARILADI, rejim bilan emas: figura nuqtalar,
+// kesmalar, burchaklar va aylanalardan yig'iladi. Shu sababli bitta
+// asbob uchburchakni ham, aylanani ham, o'xshashlik juftligini ham
+// chizadi -- va yangi figura uchun kod O'ZGARMAYDI.
+//
+// MIQYOS BIR XIL ikki o'q bo'yicha: aks holda aylana ellipsga, to'g'ri
+// burchak esa o'tmas burchakka aylanardi (6-sinfda aynan shu xato
+// bo'lgan). Ko'rinish oynasi ko'rinadigan geometriyadan HISOBLANADI,
+// shuning uchun dars ma'lumotida `xDomain` yozish shart emas.
+//
+// Ochilish: har bir elementda `showAt` -- kadr raqami. Ovoz gapirganda
+// chizma o'sha qadamda to'ladi.
+// ============================================================
+export function PlaneBoard({
+  pts = [],          // [{ id, at: [x, y], label, sub, dx, dy, tone, showAt, hollow }]
+  segs = [],         // [{ from, to, tone, dash, width, label, ticks, showAt }]
+  angles = [],       // [{ at, from, to, label, right, tone, showAt }]
+  circles = [],      // [{ at: [x, y], r, tone, dash, showAt }]
+  fills = [],        // [{ ids: ['A','B','C'], tone, showAt }]
+  marks = [],        // [{ at: [x, y], label, tone, showAt }]  -- yozuvsiz belgi
+  phase = 99,
+  height = 190,
+  pad = 30,
+  caption,
+  note,
+  answer,            // pastdagi javob yozuvi (son yoki matn)
+  answerLabel,
+}) {
+  const tt = useT()
+  const S = (v) => (isTri(v) ? tt(v) : v)
+
+  const H = height
+  const shown = (o) => phase >= (o.showAt || 0)
+
+  const P = {}
+  pts.forEach((p) => { P[p.id] = p.at })
+  const at = (id) => (Array.isArray(id) ? id : P[id])
+
+  // KO'RINISH OYNASI ko'rinadigan geometriyadan yig'iladi.
+  const xs = []
+  const ys = []
+  pts.filter(shown).forEach((p) => { xs.push(p.at[0]); ys.push(p.at[1]) })
+  circles.filter(shown).forEach((c) => {
+    xs.push(c.at[0] - c.r, c.at[0] + c.r)
+    ys.push(c.at[1] - c.r, c.at[1] + c.r)
+  })
+  marks.filter(shown).forEach((m) => { xs.push(m.at[0]); ys.push(m.at[1]) })
+  // Hech narsa ko'rinmasa ham chizma yiqilmasligi kerak.
+  if (!xs.length) { xs.push(0, 1); ys.push(0, 1) }
+
+  const x0 = Math.min(...xs)
+  const x1 = Math.max(...xs)
+  const y0 = Math.min(...ys)
+  const y1 = Math.max(...ys)
+  const readRow = answer !== undefined ? 17 : 0
+  // POL va SHIFT bir xil: pastdagi nuqtaning yorlig'i 16 px pastga tushadi,
+  // va 14 px joy unga yetmagan -- yozuv chizmadan chiqib ketgan edi
+  // (mashina tekshiruvi ushladi, ko'z ko'rmadi).
+  const availH = H - pad * 2 - readRow
+  const spanX = Math.max(0.001, x1 - x0)
+  const spanY = Math.max(0.001, y1 - y0)
+  // OYNA KENGLIGI MAZMUNDAN. Miqyos ikki o'q bo'yicha bir xil (aks holda
+  // aylana ellipsga aylanadi), va shu sababli baland figura kartochkaning
+  // faqat o'rtasini egallardi -- yon tomonlarda bo'sh joy qolardi. Oyna
+  // kengligini mazmunga tenglashtiramiz: SVG konteynerga cho'ziladi va
+  // chizma butun kenglikni egallaydi. B5 blokida `SpaceFrame` da xuddi
+  // shu tuzatish qilingan.
+  const kFit = availH / spanY
+  const W = Math.max(200, Math.min(900, spanX * kFit + pad * 2))
+  const availW = W - pad * 2
+  // MIQYOS BITTA: kichigi olinadi, shunda figura buzilmaydi.
+  const k = Math.min(availW / spanX, availH / spanY)
+  const cx = (x0 + x1) / 2
+  const cy = (y0 + y1) / 2
+  const px = (x) => W / 2 + (x - cx) * k
+  const py = (y) => pad + availH / 2 - (y - cy) * k
+
+  const tone = (t) => TONES[t || 'ink'] || T.ink
+
+  const txt = (x, y, s, opt) => (
+    <text
+      key={opt.key}
+      x={x}
+      y={y}
+      textAnchor={opt.anchor || 'middle'}
+      fontSize={opt.size || 12.5}
+      fontWeight={opt.weight || 700}
+      fill={opt.fill || T.ink2}
+      fontFamily={MATH_FONT}
+      className={opt.cls}
+    >
+      {s}
+    </text>
+  )
+
+  // Kesma o'rtasidagi TENGLIK belgilari: bir, ikki yoki uchta chizmoq.
+  const tickMarks = (a, b, n, col, key) => {
+    const ax = px(a[0]); const ay = py(a[1])
+    const bx = px(b[0]); const by = py(b[1])
+    const mx = (ax + bx) / 2; const my = (ay + by) / 2
+    const len = Math.max(1e-6, Math.hypot(bx - ax, by - ay))
+    const ux = (bx - ax) / len; const uy = (by - ay) / len
+    const nx = -uy; const ny = ux
+    const out = []
+    for (let i = 0; i < n; i += 1) {
+      const off = (i - (n - 1) / 2) * 5
+      out.push(
+        <line
+          key={key + 't' + i}
+          x1={mx + ux * off - nx * 5}
+          y1={my + uy * off - ny * 5}
+          x2={mx + ux * off + nx * 5}
+          y2={my + uy * off + ny * 5}
+          stroke={col}
+          strokeWidth="1.6"
+        />,
+      )
+    }
+    return out
+  }
+
+  return (
+    <div className="g11-graph" style={{ width: '100%', flexShrink: 0, minWidth: 0 }}>
+      <svg viewBox={'0 0 ' + W + ' ' + H} width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" style={{ display: 'block', maxHeight: H }}>
+        {/* YUZA bo'yog'i eng ostida: chiziqlar uning ustida qoladi. */}
+        {fills.filter(shown).map((f, i) => (
+          <polygon
+            key={'f' + i}
+            points={f.ids.map((id) => px(at(id)[0]) + ',' + py(at(id)[1])).join(' ')}
+            fill={f.tone === 'ok' ? T.okSoft : T.accentSoft}
+            opacity={f.opacity === undefined ? 0.85 : f.opacity}
+          />
+        ))}
+
+        {circles.filter(shown).map((c, i) => (
+          <circle
+            key={'c' + i}
+            cx={px(c.at[0])}
+            cy={py(c.at[1])}
+            r={c.r * k}
+            fill="none"
+            stroke={tone(c.tone)}
+            strokeWidth={c.width || 2.2}
+            strokeDasharray={c.dash || undefined}
+          />
+        ))}
+
+        {segs.filter(shown).map((sg, i) => {
+          const a = at(sg.from)
+          const b = at(sg.to)
+          if (!a || !b) return null
+          const col = tone(sg.tone)
+          const mx = (px(a[0]) + px(b[0])) / 2
+          const my = (py(a[1]) + py(b[1])) / 2
+          // Yozuv kesmaga PERPENDIKULAR suriladi, ustiga tushmaydi.
+          const len = Math.max(1e-6, Math.hypot(px(b[0]) - px(a[0]), py(b[1]) - py(a[1])))
+          const nx = -(py(b[1]) - py(a[1])) / len
+          const ny = (px(b[0]) - px(a[0])) / len
+          return (
+            <g key={'s' + i} className={sg.showAt ? 'g11-in' : undefined}>
+              <line
+                x1={px(a[0])} y1={py(a[1])} x2={px(b[0])} y2={py(b[1])}
+                stroke={col}
+                strokeWidth={sg.width || 2.4}
+                strokeDasharray={sg.dash || undefined}
+              />
+              {sg.ticks ? tickMarks(a, b, sg.ticks, col, 's' + i) : null}
+              {/* Yozuv kesmadan 17 px suriladi: 13 px da punktir balandlik
+                  ustiga tushib qolgan edi (stend ushladi). */}
+              {sg.label !== undefined
+                ? txt(mx + nx * 17, my + ny * 17 + 4, S(sg.label), { key: 'sl' + i, size: 12, fill: col })
+                : null}
+            </g>
+          )
+        })}
+
+        {angles.filter(shown).map((an, i) => {
+          const o = at(an.at)
+          const a = at(an.from)
+          const b = at(an.to)
+          if (!o || !a || !b) return null
+          const col = tone(an.tone || 'accent')
+          const ox = px(o[0]); const oy = py(o[1])
+          const dir = (q) => {
+            const dx = px(q[0]) - ox; const dy = py(q[1]) - oy
+            const L2 = Math.max(1e-6, Math.hypot(dx, dy))
+            return [dx / L2, dy / L2]
+          }
+          const u = dir(a)
+          const v = dir(b)
+          const R = an.r || 20
+          if (an.right) {
+            // TO'G'RI burchak kvadrat bilan belgilanadi.
+            const q = R * 0.62
+            return (
+              <path
+                key={'a' + i}
+                d={'M ' + (ox + u[0] * q) + ' ' + (oy + u[1] * q)
+                  + ' L ' + (ox + (u[0] + v[0]) * q) + ' ' + (oy + (u[1] + v[1]) * q)
+                  + ' L ' + (ox + v[0] * q) + ' ' + (oy + v[1] * q)}
+                fill="none"
+                stroke={col}
+                strokeWidth="1.7"
+              />
+            )
+          }
+          const p1 = [ox + u[0] * R, oy + u[1] * R]
+          const p2 = [ox + v[0] * R, oy + v[1] * R]
+          const cross = u[0] * v[1] - u[1] * v[0]
+          const sweep = cross > 0 ? 1 : 0
+          const mid = [(u[0] + v[0]) / 2, (u[1] + v[1]) / 2]
+          const ml = Math.max(1e-6, Math.hypot(mid[0], mid[1]))
+          return (
+            <g key={'a' + i}>
+              <path
+                d={'M ' + p1[0] + ' ' + p1[1] + ' A ' + R + ' ' + R + ' 0 0 ' + sweep + ' ' + p2[0] + ' ' + p2[1]}
+                fill="none"
+                stroke={col}
+                strokeWidth="1.7"
+              />
+              {an.label !== undefined
+                ? txt(ox + (mid[0] / ml) * (R + 15), oy + (mid[1] / ml) * (R + 15) + 4, S(an.label), { key: 'al' + i, size: 12, fill: col })
+                : null}
+            </g>
+          )
+        })}
+
+        {marks.filter(shown).map((m, i) => (
+          <g key={'m' + i}>
+            <circle cx={px(m.at[0])} cy={py(m.at[1])} r="3.4" fill={tone(m.tone || 'ink')} />
+            {m.label !== undefined
+              ? txt(px(m.at[0]), py(m.at[1]) - 9, S(m.label), { key: 'ml' + i, size: 11.5, fill: tone(m.tone || 'ink') })
+              : null}
+          </g>
+        ))}
+
+        {pts.filter(shown).map((p, i) => (
+          <g key={'p' + i} className={p.showAt ? 'g11-in' : undefined}>
+            <circle
+              cx={px(p.at[0])}
+              cy={py(p.at[1])}
+              r="4.6"
+              fill={p.hollow ? T.paper : tone(p.tone)}
+              stroke={p.hollow ? tone(p.tone) : 'none'}
+              strokeWidth={p.hollow ? 2.6 : 0}
+            />
+            {p.label !== undefined
+              ? txt(
+                px(p.at[0]) + (p.dx === undefined ? 0 : p.dx),
+                py(p.at[1]) + (p.dy === undefined ? -11 : p.dy),
+                S(p.label),
+                { key: 'pl' + i, size: 13, fill: T.ink2 },
+              )
+              : null}
+          </g>
+        ))}
+
+        {answer !== undefined ? (
+          <text x={W - 6} y={H - 4} textAnchor="end" fontSize="13" fontWeight="700" fill={T.accent} fontFamily={MATH_FONT}>
+            {(answerLabel ? S(answerLabel) + ' = ' : '') + S(answer)}
+          </text>
         ) : null}
       </svg>
       {caption !== undefined
