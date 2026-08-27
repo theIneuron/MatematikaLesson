@@ -477,9 +477,9 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
       <div style={{ display: 'grid', gridTemplateColumns: hasEq ? 'auto auto auto' : 'auto', columnGap: 4, rowGap: 6, justifyContent: 'center', alignItems: 'center', width: 'fit-content', maxWidth: '100%', margin: '8px auto 6px' }}>
         {gridRows.map((g, ri) => (hasEq ? (
           <React.Fragment key={ri}>
-            <div style={{ justifySelf: 'end', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 2, justifyContent: 'flex-end', textAlign: 'right' }}>{renderSide(g.left, ri, 'l')}</div>
+            <div style={{ justifySelf: 'end', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 2, justifyContent: 'flex-end', textAlign: 'right', minWidth: 0 }}>{renderSide(g.left, ri, 'l')}</div>
             <div style={{ justifySelf: 'center', ...S.mono, fontSize: size, color: C.ink, padding: '0 4px' }}>{g.eq || ''}</div>
-            <div style={{ justifySelf: 'start', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>{renderSide(g.right, ri, 'r')}</div>
+            <div style={{ justifySelf: 'start', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 2, minWidth: 0 }}>{renderSide(g.right, ri, 'r')}</div>
           </React.Fragment>
         ) : (
           <div key={ri} style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 2, justifyContent: 'center' }}>{renderSide(g.left, ri, 'o')}</div>
@@ -541,7 +541,15 @@ export function TapTerms({ data, lang = 'uz', mode = 'answer', initialAnswer = n
           «(7m − 4) − (2m − 9)» ikki qatorga bo'linib, qavs pastda qolardi.
           Tor ekranda kegl va ichki bo'shliqlar kichrayadi -- yozuv butun
           ko'rinadi. So'zlar ro'yxatiga bu tegmaydi: u ko'chishi kerak. */}
-      <div className={wordy ? undefined : 'pq-expr'} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 2, margin: '8px 0 4px' }}>
+      {/* SO'ZLI RO'YXAT USTUN BO'LIB TURADI (metodist QA si, 2026-08-22):
+          uch xulosa qatorga sig'masa, ikkitasi yonma-yon, uchinchisi pastda
+          qolardi -- ro'yxat emas, tasodifiy joylashuv ko'rinardi. Formula esa
+          bitta qator bo'lib qoladi: uning bo'laklari yozuvning o'zi. */}
+      <div className={wordy ? undefined : 'pq-expr'} style={{
+        display: 'flex', alignItems: 'center', margin: '8px 0 4px',
+        flexDirection: wordy ? 'column' : 'row',
+        justifyContent: 'center', flexWrap: 'wrap', gap: wordy ? 6 : 2,
+      }}>
         {data.parts.map((p, i) => {
           if (p.k === 'txt') return <span key={i} style={{ ...S.mono, fontSize: wordy ? CARD_FS : size, color: C.ink, padding: '0 3px' }}>{p.v}</span>;
           if (p.k === 'op') return <span key={i} style={{ ...S.mono, fontSize: wordy ? CARD_FS : size + 4, color: C.ink, padding: '2px 12px', margin: '0 4px', borderRadius: 9, background: '#f3eefa' }}>{p.v}</span>;
