@@ -417,17 +417,25 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
 
   const bd = A.checked ? (A.fb?.correct ? C.ok : C.no) : C.line;
   const narrow = useNarrow();
-  const size = narrow ? Math.min(data.exprSize || 26, 20) : (data.exprSize || 26);
+  // Yozuvda SO'Z bo'lsa (masalan «ikkinchi o'tkir burchak»), tor ekranda kegl
+  // yana kichrayadi: so'zli podpis raqamdan uzun va qatorni ko'chirib yuboradi.
+  const wordyRow = (data.rows || []).some((row) => row.some((part) => (part.t || []).some((x) => /[A-Za-z']{3,}/.test(String(tr(x, lang))))));
+  const size = narrow ? (wordyRow ? 16 : 20) : (data.exprSize || 26);
   // Qatorni «=» bo'yicha ikkiga bo'lamiz: chap tomon, belgi, o'ng tomon.
+  // Ustunni AJRATUVCHI belgi bo'yicha topamiz: «=» dan tashqari «--» va «→»
+  // ham ishlatiladi («eng katta tomon -- [katak]»). Ilgari faqat «=» qaralardi
+  // va bunday qator butunlay chap ustunga tushib, tekislanmay qolardi.
+  const SEPS = ['=', '--', '→', '->'];
   const gridRows = data.rows.map((row) => {
-    const left = []; const right = []; let eq = false;
+    const left = []; const right = []; let eq = null;
     row.forEach((part) => {
       if (part.slot != null) { (eq ? right : left).push(part); return; }
       const toks = part.t || [];
-      const k = eq ? -1 : toks.indexOf('=');
+      let k = -1;
+      if (!eq) { for (let i = 0; i < toks.length; i++) { if (SEPS.indexOf(toks[i]) !== -1) { k = i; break; } } }
       if (k === -1) { (eq ? right : left).push(part); return; }
       if (k > 0) left.push({ t: toks.slice(0, k) });
-      eq = true;
+      eq = toks[k];
       if (k + 1 < toks.length) right.push({ t: toks.slice(k + 1) });
     });
     return { left, eq, right };
@@ -442,7 +450,7 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
           return (
             <button key={pi} type="button" data-slot={i} disabled={A.locked} onClick={() => tapSlot(i)}
               style={{
-                minWidth: narrow ? 54 : 74, borderRadius: 10, margin: narrow ? '0 2px' : '0 5px',
+                minWidth: narrow ? (wordyRow ? 46 : 54) : 74, borderRadius: 10, margin: narrow ? '0 2px' : '0 5px',
                 border: '2px ' + (slots[i] ? 'solid' : 'dashed') + ' ' + (slots[i] ? bd : (picked ? C.hot : C.line)),
                 background: slots[i] ? '#fff' : (picked ? '#fff7f2' : C.bg),
                 ...S.mono, fontSize: narrow ? 18 : LINE_FS, color: C.ink, cursor: A.locked ? 'default' : 'pointer',
@@ -470,7 +478,7 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
         {gridRows.map((g, ri) => (hasEq ? (
           <React.Fragment key={ri}>
             <div style={{ justifySelf: 'end', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>{renderSide(g.left, ri, 'l')}</div>
-            <div style={{ justifySelf: 'center', ...S.mono, fontSize: size, color: C.ink, padding: '0 4px' }}>{g.eq ? '=' : ''}</div>
+            <div style={{ justifySelf: 'center', ...S.mono, fontSize: size, color: C.ink, padding: '0 4px' }}>{g.eq || ''}</div>
             <div style={{ justifySelf: 'start', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>{renderSide(g.right, ri, 'r')}</div>
           </React.Fragment>
         ) : (
