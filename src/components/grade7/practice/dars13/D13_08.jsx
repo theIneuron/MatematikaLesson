@@ -23,7 +23,7 @@ const DATA = {
   ],
   cards: ['125', '16', '2000', '15', '8', '1000'],
   answer: ['125', '16', '2000'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 5³ = 125, 2⁴ = 16, keyin 125 · 16 = 2000. Asoslar boshqa bo'lgani uchun boshqa yo'l yo'q.",

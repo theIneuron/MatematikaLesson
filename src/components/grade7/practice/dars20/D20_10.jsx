@@ -22,7 +22,7 @@ const DATA = {
   ],
   cards: ['12p³', '−8p²', '17p³', '−3p²', '7p³', '−13p²'],
   answer: ['12p³', '−8p²', '17p³', '−3p²'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. Birinchi qator: 4p · 3p² = 12p³, 4p · 2p = 8p². Ikkinchisi: 5p · p² = 5p³ va 5p · p = 5p², ya'ni 12 + 5 = 17 va −8 + 5 = −3.",

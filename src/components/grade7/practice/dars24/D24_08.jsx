@@ -18,7 +18,7 @@ const DATA = {
   ],
   cards: ['4x³y', '−3x', '4x³', '−3xy', '+3x', '4x³y²'],
   answer: ['4x³y', '−3x'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. Birinchi hadda y dan bittasi qoldi: 3 − 2 = 1. Ikkinchisida esa 2 − 2 = 0, y yo'qoldi.",

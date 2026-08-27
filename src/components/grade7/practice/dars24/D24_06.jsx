@@ -18,7 +18,7 @@ const DATA = {
   ],
   cards: ['8n³', '−5n', '3', '8n⁷', '−5n⁵', '13'],
   answer: ['8n³', '−5n', '3'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 32 : 4 = 8 va 5 − 2 = 3; 20 : 4 = 5 va 3 − 2 = 1. n = 1 bo'lganda 8 − 5 = 3.",

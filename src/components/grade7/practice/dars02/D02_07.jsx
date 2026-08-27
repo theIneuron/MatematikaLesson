@@ -23,7 +23,7 @@ const DATA = {
   ],
   cards: ['16', '20', '−4', '8', '9', '4'],
   answer: ['16', '20', '−4'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. Avval ikkinchi bosqich: 4 · 4 = 16 va 5 · 4 = 20. So'ng 16 − 20 = −4: ayiriladigan son kattaroq edi.",
@@ -35,7 +35,7 @@ const DATA = {
       'x · x это умножение: 4 · 4 = 16. А 8 получается из 4 + 4.',
       'x · x is a multiplication: 4 · 4 = 16. The 8 comes from 4 + 4.') },
     { when: (s) => s.slots[2] === '4', text: L(
-      "Oxirgi uyaga qarang: 16 dan 20 ayirilmoqda, ya'ni natija manfiy bo'ladi.",
+      "Oxirgi katakka qarang: 16 dan 20 ayirilmoqda, ya'ni natija manfiy bo'ladi.",
       'Посмотри на последнюю клетку: из 16 вычитают 20, значит результат отрицательный.',
       'Look at the last cell: 20 is taken from 16, so the result is negative.') },
     { when: (s) => s.slots[1] === '9', text: L(

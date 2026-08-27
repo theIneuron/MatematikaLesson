@@ -17,7 +17,7 @@ const DATA = {
   ],
   cards: ['3(m + n)', '+k(m + n)', '3(m + k)', '+n(m + k)'],
   answer: ['3(m + n)', '+k(m + n)'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. Birinchi ikki hadda 3 umumiy, keyingi ikkitasida k umumiy. Ikki qavs ham (m + n) chiqdi.",

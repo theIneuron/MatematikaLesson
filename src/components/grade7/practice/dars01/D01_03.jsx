@@ -18,7 +18,7 @@
 //   +13 -- 5 va 8 ni qo'shib, minusni tashlab ketgan
 //   +3  -- ayirmaning ishorasini teskari olgan
 //
-// HAMMASI YOKI HECH NARSA: ikki uya ham to'g'ri bo'lishi kerak.
+// HAMMASI YOKI HECH NARSA: ikki bo'sh katak ham to'g'ri bo'lishi kerak.
 //
 // jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
 import React, { useState, useEffect, useRef, useCallback } from 'react';
@@ -50,7 +50,7 @@ const T = {
   uz: {
     eyebrow: "Harfli ifodalarni qo'shish", title: "O'xshash hadlar",
     setup: "Ikki ifoda qo'shiladi. O'xshash hadlar yig'iladi: harfli hadlar harflilar bilan, sonlar sonlar bilan.",
-    ask: "Natijani kartalardan yig'ing: kartani bosing, keyin uyani bosing.",
+    ask: "Natijani kartalardan yig'ing: kartani bosing, keyin bo'sh katakni bosing.",
     bank: "Kartalar",
     correct: "To'g'ri. 3a va 2a o'xshash hadlar, koeffitsientlari qo'shiladi va 5a chiqadi. Sonlar ham qo'shiladi: 5 ga minus 8 qo'shilsa minus 3 bo'ladi.",
     wrongCoefMul: "Koeffitsientlar qo'shiladi, ko'paytirilmaydi: 3a ga 2a qo'shilsa 5a bo'ladi, 6a emas.",

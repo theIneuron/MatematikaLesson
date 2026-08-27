@@ -22,7 +22,7 @@ const DATA = {
   ],
   cards: ['−10', '−7', '10', '7', '−13', '13'],
   answer: ['−10', '−7'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 5 · (−2) = −10, keyin −10 + 3 = −7. O'ng tomon ham −7, ya'ni x = −2 shu tenglamaning ildizi.",

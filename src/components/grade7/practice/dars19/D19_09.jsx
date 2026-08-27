@@ -19,7 +19,7 @@ const DATA = {
   ],
   cards: ['5x²', '+5xy', '+y²', '9x²', '−5xy', '−y²'],
   answer: ['5x²', '+5xy', '+y²'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. x²: 7 − 2 = 5. xy: −3 + 8 = 5. y² ning o'xshashi yo'q, shuning uchun o'zgarmaydi.",

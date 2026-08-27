@@ -22,7 +22,7 @@ const DATA = {
   ],
   cards: ['x³', 'x¹⁰', 'x¹¹', 'x⁷', 'x²⁵', 'x²'],
   answer: ['x³', 'x¹⁰'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. Bo'lishda 7 − 4 = 3, ya'ni x³. Darajaning darajasida 2 · 5 = 10, ya'ni x¹⁰.",

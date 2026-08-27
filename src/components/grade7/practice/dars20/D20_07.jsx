@@ -20,7 +20,7 @@ const DATA = {
   ],
   cards: ['10x²y', '−15xy²', '10xy', '−15xy', '7x²y', '−8xy²'],
   answer: ['10x²y', '−15xy²'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 5xy · 2x = 10x²y: x ikkita bo'ldi, y bittalik qoldi. 5xy · 3y = 15xy²: endi y ikkita.",

@@ -3049,7 +3049,7 @@ sup.g7-idx { vertical-align: .46em; }
 /* ============ ANIMATSIYALAR ============
    Faqat matematik jihatdan O'ZGARGAN narsa harakatlanadi.
    Oddiy o'tish 240-420 ms, murakkab qayta qurish 700 ms gacha.
-   Prujina FAQAT belgini uyaga qo'yishda.                                   */
+   Prujina FAQAT belgini katakka qo'yishda.                                   */
 /* --g7-rev: joriy ovoz bo'lagining baholangan uzunligi. Ochilish gap bilan
    BIRGA ketadi: uzun gap -> sekin ochilish. useNarratedSteps o'rnatadi. */
 .g7-in { opacity: 0; animation: g7-in .52s cubic-bezier(.22,.61,.36,1) forwards; }
@@ -3073,8 +3073,8 @@ sup.g7-idx { vertical-align: .46em; }
   100% { opacity: 1; transform: scaleY(1) translateY(0); }
 }
 
-/* Prujina -- FAQAT uyaga qo'yishda */
-/* Prujina -- FAQAT uyaga qo'yishda, va yumshoq: 4% dan oshmaydi. */
+/* Prujina -- FAQAT katakka qo'yishda */
+/* Prujina -- FAQAT katakka qo'yishda, va yumshoq: 4% dan oshmaydi. */
 .g7-snap { animation: g7-snap .5s cubic-bezier(.34,1.32,.5,1) both; }
 @keyframes g7-snap { 0% { transform: scale(.88); opacity: 0; } 60% { transform: scale(1.04); opacity: 1; } 100% { transform: scale(1); } }
 
@@ -3086,7 +3086,7 @@ sup.g7-idx { vertical-align: .46em; }
 .g7-pop { animation: g7-pop .5s cubic-bezier(.22,.61,.36,1) both; }
 @keyframes g7-pop { 0% { opacity: 0; transform: translateY(5px); } 100% { opacity: 1; transform: translateY(0); } }
 
-/* Xato belgi uyadan QAYTADI */
+/* Xato belgi katakdan QAYTADI */
 .g7-shakebox { overflow: clip; }
 .g7-shake { animation: g7-shake .3s cubic-bezier(.22,.61,.36,1) 2; }
 @keyframes g7-shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
@@ -3260,7 +3260,7 @@ sup.g7-idx { vertical-align: .46em; }
 .g7-fb-neutral { background: ${T.graphSoft}; border-left-color: ${T.graph}; }
 .g7-fb-neutral .g7-fb-cap { color: ${T.graph}; }
 
-/* Bo'sh uya: nima kutilayotgani ko'rinadi. */
+/* Bo'sh katak: nima kutilayotgani ko'rinadi. */
 .g7-frame {
   border: 1px dashed ${T.line};
   border-radius: 11px;

@@ -23,7 +23,7 @@ const DATA = {
   ],
   cards: ['10000', '−10000', '1000', '−1000', '40', '−40'],
   answer: ['10000', '−10000'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. (−10)⁴ da to'rtta minus ko'paytiriladi -- juft son, natija musbat: 10000. −10⁴ da esa avval 10⁴ = 10000 hisoblanadi, keyin minus qo'yiladi: −10000.",

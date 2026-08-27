@@ -21,7 +21,7 @@ const DATA = {
   ],
   cards: ['−2y', '−7', '4y', '−12', '+2y', '+2'],
   answer: ['−2y', '−7', '4y', '−12'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. Minus ikki hadni ham ag'dardi: −2y va −7. Keyin 6y − 2y = 4y, −5 − 7 = −12.",

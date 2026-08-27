@@ -24,7 +24,7 @@ const DATA = {
   ],
   cards: ['16', 'z²⁰', '48', 'z²³', '8', 'z⁶⁰'],
   answer: ['16', 'z²⁰', '48', 'z²³'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. Birinchi qator: 2⁴ = 16 va 5 · 4 = 20. Ikkinchisi: 16 · 3 = 48 va 20 + 3 = 23. Ko'paytirishda ko'rsatkichlar qo'shiladi.",

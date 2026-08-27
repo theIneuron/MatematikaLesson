@@ -22,7 +22,7 @@ const DATA = {
   ],
   cards: ['−12', '10', '−2', '12', '−10', '2'],
   answer: ['−12', '10', '−2'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 3 · (−4) = −12 va 2 · 5 = 10. Manfiy va musbat sonni qo'shganda katta modul yutadi: −2.",
@@ -30,7 +30,7 @@ const DATA = {
     'Correct. 3 · (−4) = −12 and 2 · 5 = 10. When adding numbers of different signs the larger magnitude wins: −2.'),
   wrongs: [
     { when: (s) => s.slots[0] === '12', text: L(
-      "Birinchi uyada ishora yo'qoldi: 3 ni minus to'rtga ko'paytirsa manfiy son chiqadi.",
+      "Birinchi katakda ishora yo'qoldi: 3 ni minus to'rtga ko'paytirsa manfiy son chiqadi.",
       'В первой клетке потерялся знак: 3 умножить на минус четыре даёт отрицательное число.',
       'The sign is lost in the first cell: 3 times minus four gives a negative number.') },
     { when: (s) => s.slots[1] === '−10', text: L(
@@ -38,7 +38,7 @@ const DATA = {
       'Во втором слагаемом отрицательного числа нет: b = 5, значит 2 · 5 = 10.',
       'There is no negative number in the second term: b = 5, so 2 · 5 = 10.') },
     { when: (s) => s.slots[2] === '2', text: L(
-      "Oxirgi uyaga qarang: minus o'n ikkiga o'n qo'shilsa, minus ikki chiqadi. Modul kattasi manfiy edi.",
+      "Oxirgi katakka qarang: minus o'n ikkiga o'n qo'shilsa, minus ikki chiqadi. Modul kattasi manfiy edi.",
       'Посмотри на последнюю клетку: к минус двенадцати прибавили десять — получится минус два. Больший по модулю был отрицательным.',
       'Look at the last cell: ten added to minus twelve gives minus two. The larger magnitude was the negative one.') },
   ],

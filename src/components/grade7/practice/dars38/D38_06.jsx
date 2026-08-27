@@ -12,7 +12,7 @@ const DATA = {
     'Способ сложения',
     'Adding method'),
   setup: L(
-    "Ikki tenglamani qo'shsak y yo'qoladi: +y va −y bir-birini yo'q qiladi. Ikki uyani to'ldiring.",
+    "Ikki tenglamani qo'shsak y yo'qoladi: +y va −y bir-birini yo'q qiladi. Ikki bo'sh katakni to'ldiring.",
     'Если сложить два уравнения, y исчезнет: +y и −y уничтожают друг друга. Заполни две клетки.',
     'Adding the equations kills y: +y and −y cancel. Fill both cells.'),
   given: [['x + y = 14', ';', 'x − y = 6']],
@@ -24,7 +24,7 @@ const DATA = {
   cards: ['10', '4', '20', '8'],
   answer: ['10', '4'],
   ask: L(
-    'Kartani bosing, keyin uyani bosing.',
+    "Kartani bosing, keyin bo'sh katakni bosing.",
     'Нажми карточку, затем клетку.',
     'Tap a card, then tap a cell.'),
   bank: L(
@@ -53,7 +53,7 @@ const DATA = {
     {
       when: (s) => s.slots.indexOf(null) !== -1,
       text: L(
-        "Hamma uya to'ldirilishi kerak.",
+        "Hamma bo'sh katak to'ldirilishi kerak.",
         'Надо заполнить все клетки.',
         'Every cell must be filled.'),
     },

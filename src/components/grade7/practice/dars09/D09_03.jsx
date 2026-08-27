@@ -28,7 +28,7 @@ const DATA = {
   ],
   cards: ['−x', '14', '5x', '−14', 'x', '−6'],
   answer: ['−x', '14'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 2x − 3x = −x, −4 − 10 = −14. So'ng ikki tomon (−1) ga bo'linadi va x = 14 chiqadi. Tekshirish: ikki tomon ham 38.",

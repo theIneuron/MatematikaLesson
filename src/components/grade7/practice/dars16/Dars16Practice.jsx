@@ -30,7 +30,7 @@ const HEAD = {
 const ITEMS = [
   { id: '01', label: { uz: 'Qoida', ru: 'Правило', en: 'Rule' }, C: D16_01 },                  // 4x² · 25x³ 🟢 mul_rule
   { id: '02', label: { uz: 'Ishora', ru: 'Знак', en: 'Sign' }, C: D16_02 },                    // −15a³ · 20a 🟢 mul_coef_sign
-  { id: '03', label: { uz: 'Ikki uya', ru: 'Две клетки', en: 'Two cells' }, C: D16_03 },       // 12b⁴ · 8b³ 🟡 mul_two_slots
+  { id: '03', label: { uz: "Ikki bo'sh katak", ru: 'Две клетки', en: 'Two cells' }, C: D16_03 },       // 12b⁴ · 8b³ 🟡 mul_two_slots
   { id: '04', label: { uz: 'Ikki harf', ru: 'Две буквы', en: 'Two letters' }, C: D16_04 },     // 5c²d · 40cd³ 🟡 mul_two_letters
   { id: '05', label: { uz: 'Bir xil', ru: 'То же', en: 'Same' }, C: D16_05 },                  // 36y⁵ 🟡 same_as_36y5
   { id: '06', label: { uz: "Ko'rsatkich", ru: 'Показатель', en: 'Exponent' }, C: D16_06 },     // 7x¹² · 8x⁹ 🟡 mul_big_exp

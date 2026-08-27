@@ -3,7 +3,7 @@
 // 3(x + 2) − x va 2x + 6 har doim teng.
 //   x = 4:  chap tomon 3 · 6 − 4 = 14
 //   x = 10: o'ng tomon 2 · 10 + 6 = 26 (chap tomon ham 3 · 12 − 10 = 26)
-// Kartalarda takror qiymat yo'q: har uyaga o'z soni.
+// Kartalarda takror qiymat yo'q: har katakka o'z soni.
 import React from 'react';
 import { SlotsBank, L } from '../kit.jsx';
 
@@ -22,7 +22,7 @@ const DATA = {
   ],
   cards: ['14', '26', '18', '20'],
   answer: ['14', '26'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 3 · 6 − 4 = 14, va x = 10 da 2 · 10 + 6 = 26. Chap tomon ham 3 · 12 − 10 = 26 beradi.",

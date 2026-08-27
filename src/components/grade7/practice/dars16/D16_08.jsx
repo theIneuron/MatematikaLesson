@@ -21,7 +21,7 @@ const DATA = {
   ],
   cards: ['120', 'a⁶', '−120', 'a⁵', '19', 'a⁷'],
   answer: ['120', 'a⁶'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. Minuslar ikkita, ya'ni son musbat: 5 · 12 · 2 = 120. Ko'rsatkichlar 2 + 3 + 1 = 6.",

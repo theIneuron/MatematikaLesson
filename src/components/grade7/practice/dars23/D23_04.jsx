@@ -18,7 +18,7 @@ const DATA = {
   ],
   cards: ['2(a + b)', '+c(a + b)', '(a + b)', '(2 + c)', '2(a + c)', '(a + 2)'],
   answer: ['2(a + b)', '+c(a + b)', '(a + b)', '(2 + c)'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. Ikki guruhda ham (a + b) chiqdi, oldidagi hadlar 2 va c: javob (a + b)(2 + c).",

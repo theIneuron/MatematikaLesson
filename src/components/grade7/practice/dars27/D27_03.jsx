@@ -18,7 +18,7 @@ const DATA = {
   ],
   cards: ['m³ + 15m²', '+75m + 125', '216', 'm³ + 5m²', '+25m + 125', '146'],
   answer: ['m³ + 15m²', '+75m + 125', '216'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 3 · m² · 5 = 15m², 3 · m · 25 = 75m, 5³ = 125. m = 1 bo'lganda 1 + 15 + 75 + 125 = 216, va 6³ = 216.",

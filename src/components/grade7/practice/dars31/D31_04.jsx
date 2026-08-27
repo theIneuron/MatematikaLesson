@@ -17,7 +17,7 @@ const DATA = {
   ],
   cards: ['(2k − 5)', '(4k² + 10k + 25)', '(2k + 5)', '(4k² − 10k + 25)'],
   answer: ['(2k − 5)', '(4k² + 10k + 25)'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. Ayirma uchun (2k − 5), to'liqsiz kvadratda esa plyus: 4k² + 10k + 25.",

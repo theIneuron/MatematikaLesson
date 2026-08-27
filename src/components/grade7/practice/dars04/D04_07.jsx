@@ -1,4 +1,4 @@
-// Dars04 · Amaliyot 07 — Ikkita uya · 🟡 · slots · tag: id_slots
+// Dars04 · Amaliyot 07 — Ikkita bo'sh katak · 🟡 · slots · tag: id_slots
 // Mexanika: kit.jsx -> SlotsBank. Raskladka: 7-o'rin.
 // 6(2x − 5) = 12x − 30.
 import React from 'react';
@@ -16,7 +16,7 @@ const DATA = {
   ],
   cards: ['12x', '−30', '−5', '8x', '+30', '12'],
   answer: ['12x', '−30'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 6 · 2x = 12x va 6 · 5 = 30, ishorasi minus: 12x − 30.",

@@ -19,7 +19,7 @@ const DATA = {
   ],
   cards: ['8t²', '−3t', '−5', '+5', '−8t²', '+3t'],
   answer: ['8t²', '−3t', '−5'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. Darajasi bo'yicha: 8t² (ikkinchi daraja), −3t (birinchi), −5 (ozod had). Uchtasining ham ishorasi o'zgarmadi.",

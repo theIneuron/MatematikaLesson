@@ -21,7 +21,7 @@ const DATA = {
   ],
   cards: ['4', 'a⁶', '2', 'a⁵', 'a⁹', '8'],
   answer: ['4', 'a⁶'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 2² = 4 va (a³)² = a⁶, ya'ni javob 4a⁶. Ikki ko'paytuvchi ham darajaga ko'tarildi.",

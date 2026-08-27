@@ -20,7 +20,7 @@ const DATA = {
   ],
   cards: ['16', 'x¹²', '8', 'x⁷', '2', 'x¹⁶'],
   answer: ['16', 'x¹²'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 2⁴ = 16 va (x³)⁴ = x¹² (3 · 4 = 12). Javob 16x¹².",

@@ -19,7 +19,7 @@ const DATA = {
   ],
   cards: ['a² + 8a + 16', 'a² + 8a + 7', '9', 'a² + 16', 'a² + 7a + 7', '23'],
   answer: ['a² + 8a + 16', 'a² + 8a + 7', '9'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. Ikki yozuvda ham a² + 8a bor, faqat sonlar boshqa: 16 − 7 = 9.",

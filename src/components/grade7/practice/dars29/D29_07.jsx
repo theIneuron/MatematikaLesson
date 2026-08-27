@@ -1,4 +1,4 @@
-// Dars29 · Amaliyot 07 — Uch uya · 🟡 · slots · tag: fact_slots
+// Dars29 · Amaliyot 07 — Uch bo'sh katak · 🟡 · slots · tag: fact_slots
 // Mexanika: kit.jsx -> SlotsBank. Raskladka: 7-o'rin.
 // 3k³ − 12k = 3k(k² − 4) = 3k(k − 2)(k + 2).
 import React from 'react';
@@ -16,7 +16,7 @@ const DATA = {
   ],
   cards: ['3k', '(k − 2)', '(k + 2)', '3', '(k − 4)', '(k² + 4)'],
   answer: ['3k', '(k − 2)', '(k + 2)'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 3k chiqdi, qavs ichida k² − 4 qoldi va u (k − 2)(k + 2) ga ajraladi.",

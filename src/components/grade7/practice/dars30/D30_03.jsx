@@ -18,7 +18,7 @@ const DATA = {
   ],
   cards: ['5y − 15', '+2y + 8', '7y', '−7', '5y − 3', '+7'],
   answer: ['5y − 15', '+2y + 8', '7y', '−7'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 5y + 2y = 7y, sonlar esa −15 + 8 = −7.",

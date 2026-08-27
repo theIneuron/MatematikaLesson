@@ -18,7 +18,7 @@ const DATA = {
   ],
   cards: ['8n²', '(5n + 3)', '64', '8n³', '(5n − 3)', '16'],
   answer: ['8n²', '(5n + 3)', '64'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 8n²(5n + 3), n = 1 bo'lganda 8 · 8 = 64. Tekshirish: 40 + 24 = 64.",

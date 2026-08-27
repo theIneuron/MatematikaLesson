@@ -17,7 +17,7 @@ const DATA = {
   ],
   cards: ['p³', '+6p²q', '+12pq²', '+8q³', '+3p²q', '+2q³'],
   answer: ['p³', '+6p²q', '+12pq²', '+8q³'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 3 · p² · 2q = 6p²q; 3 · p · 4q² = 12pq²; (2q)³ = 8q³.",

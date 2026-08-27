@@ -18,7 +18,7 @@
 // MEXANIKALAR (1-dars amaliyotidan olindi, xatti-harakati o'sha):
 //   Choice     -- uchta-to'rtta o'qishdan bittasi (faqat 1-2 «isinish» uchun)
 //   TypeValue  -- javob klaviaturadan, manfiy son ham mumkin
-//   SlotsBank  -- uyalar va kartalar banki; bir yoki bir necha qator
+//   SlotsBank  -- kataklar va kartalar banki; bir yoki bir necha qator
 //   TapTerms   -- yozuvning O'ZIDA hadlarni belgilash
 //   MarkAll    -- bir nechta yozuvni belgilash, «hammasi yoki hech narsa»
 //   BuildLine  -- kartalardan yozuv yig'ish, kursor istalgan joyga
@@ -111,7 +111,7 @@ const pickWhy = (data, state, lang) => {
 // shrift yozuv uzunligiga qarab kichrayardi va bitta topshiriqda kartalar
 // har xil bo'lib qolardi. Endi hamma javob kartasi bir xil kegl bilan
 // chiziladi, uzun yozuv esa karta ICHIDA ko'chadi.
-const CARD_FS = 18;   // javob kartasi: bank, uya, so'zli had
+const CARD_FS = 18;   // javob kartasi: bank, katak, so'zli had
 const LINE_FS = 22;   // yig'ilgan javob qatori
 
 const WRAP = { whiteSpace: 'normal', textAlign: 'center', lineHeight: 1.15, maxWidth: 250 };
@@ -131,7 +131,7 @@ const shuffled = (n) => {
   return idx;
 };
 
-// Qatorni «yozuv + uya» bo'laklariga bo'ladi: bo'lak ichida ko'chirish yo'q.
+// Qatorni «yozuv + katak» bo'laklariga bo'ladi: bo'lak ichida ko'chirish yo'q.
 const groupRow = (row) => {
   const out = []; let cur = [];
   row.forEach((part) => { cur.push(part); if (part.slot != null) { out.push(cur); cur = []; } });
@@ -362,8 +362,8 @@ export function TypeValue({ data, lang = 'uz', mode = 'answer', initialAnswer = 
 
 // ============================================================ 3. SLOTSBANK
 // Uyalar va kartalar banki. `rows` — yozuvning qatorlari; qatorda tokenlar
-// yoki `{ slot: n }`. Kartani bosasiz, keyin uyani bosasiz.
-// «Hammasi yoki hech narsa»: uyalarning hammasi to'g'ri bo'lishi kerak.
+// yoki `{ slot: n }`. Kartani bosasiz, keyin katakni bosasiz.
+// «Hammasi yoki hech narsa»: kataklarning hammasi to'g'ri bo'lishi kerak.
 export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
   const n = data.answer.length;
   const [slots, setSlots] = useState(Array(n).fill(null));
@@ -406,8 +406,8 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
         {data.rows.map((row, ri) => (
           <div key={ri} style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', gap: 2 }}>
             {/* YOZUV VA UYA BIRGA KO'CHADI (metodist QA si, 2026-08-22): ilgari
-                qatorda ikki uya bo'lsa, telefonda «f(0) =» yuqorida, uyasi esa
-                pastda qolardi. Endi har «yozuv + uya» juftligi bitta bo'lak
+                qatorda ikki bo'sh katak bo'lsa, telefonda «f(0) =» yuqorida, katagi esa
+                pastda qolardi. Endi har «yozuv + katak» juftligi bitta bo'lak
                 bo'lib ko'chadi, ya'ni tor ekranda ustun bo'lib joylashadi. */}
             {groupRow(row).map((grp, gi) => (
               <span key={gi} style={{ display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap', margin: '2px 4px' }}>

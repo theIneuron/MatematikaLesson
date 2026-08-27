@@ -23,7 +23,7 @@ const DATA = {
   ],
   cards: ['45000', '15000', '57000', '19000', '3', '5000'],
   answer: ['45000', '15000'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 3x = 51000 − 6000 = 45000, keyin x = 45000 : 3 = 15000. Ya'ni bitta kitob 15000 so'm.",

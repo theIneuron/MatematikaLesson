@@ -5,7 +5,7 @@
 //   x + 3x = 96  ->  4x = 96  ->  x = 24 (birinchi kun)
 //   ikkinchi kun: 3 · 24 = 72
 // Tekshirish: 24 + 72 = 96.
-// Oxirgi uya ATAYLAB: tenglamaning ildizi birinchi kunni beradi, savol esa
+// Oxirgi katak ATAYLAB: tenglamaning ildizi birinchi kunni beradi, savol esa
 // ikkinchi kun haqida ham bo'lishi mumkin.
 import React from 'react';
 import { SlotsBank, L } from '../kit.jsx';
@@ -25,7 +25,7 @@ const DATA = {
   ],
   cards: ['4x', '24', '72', '3x', '32', '96'],
   answer: ['4x', '24', '72'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. x + 3x = 4x, ya'ni 4x = 96 va x = 24. Ikkinchi kun uch barobar ko'p: 3 · 24 = 72. Tekshirish: 24 + 72 = 96.",

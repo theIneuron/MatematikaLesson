@@ -22,7 +22,7 @@ const DATA = {
   ],
   cards: ['15', 'x⁵', '8', 'x⁶', '35', 'x⁹'],
   answer: ['15', 'x⁵'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 3 · 5 = 15, ko'rsatkichlar esa 2 + 3 = 5. Javob 15x⁵.",

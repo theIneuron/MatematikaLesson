@@ -32,7 +32,7 @@ const ITEMS = [
   { id: '01', label: { uz: "Qaysi biri", ru: 'Какой множитель', en: 'Which factor' }, C: D22_01 },  // choice 🟢 20y³ + 35y²
   { id: '02', label: { uz: "Qavsga olish", ru: 'В скобку', en: 'Into a bracket' }, C: D22_02 },  // bracket 🟢 12c² + 18c
   { id: '03', label: { uz: "Tartib", ru: 'Порядок', en: 'Order' }, C: D22_03 },  // order 🟢 9x² − 36x
-  { id: '04', label: { uz: "Uch uya", ru: 'Три клетки', en: 'Three cells' }, C: D22_04 },  // slots 🟡 24m⁵ − 16m³
+  { id: '04', label: { uz: "Uch bo'sh katak", ru: 'Три клетки', en: 'Three cells' }, C: D22_04 },  // slots 🟡 24m⁵ − 16m³
   { id: '05', label: { uz: "Minus", ru: 'Минус', en: 'Minus' }, C: D22_05 },  // build 🟡 −15t⁴ − 25t²
   { id: '06', label: { uz: "Ikki harf", ru: 'Две буквы', en: 'Two letters' }, C: D22_06 },  // slots 🟡 21x⁴y − 14x²y³
   { id: '07', label: { uz: "Ikki qadam", ru: 'Два шага', en: 'Two steps' }, C: D22_07 },  // chain 🟡 40n³ + 24n²

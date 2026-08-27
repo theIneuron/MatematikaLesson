@@ -21,7 +21,7 @@ const DATA = {
   ],
   cards: ['10y²', '−9y', '1', '10y⁴', '−5y', '2'],
   answer: ['10y²', '−9y', '1'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 6y² va 4y² o'xshash: 6 + 4 = 10. Keyin y = 1 bo'lganda 10 − 9 = 1.",

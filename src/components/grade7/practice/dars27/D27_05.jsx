@@ -17,7 +17,7 @@ const DATA = {
   ],
   cards: ['8a³', '+36a²', '+54a', '+27', '+18a²', '+27a'],
   answer: ['8a³', '+36a²', '+54a', '+27'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. (2a)³ = 8a³; 3 · 4a² · 3 = 36a²; 3 · 2a · 9 = 54a; 3³ = 27.",

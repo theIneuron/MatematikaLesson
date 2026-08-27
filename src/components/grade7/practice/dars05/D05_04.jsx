@@ -22,7 +22,7 @@ const DATA = {
   ],
   cards: ['3a', '7a', 'a', '+11', '−5', '+5'],
   answer: ['3a', '+11'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 5a − 2a = 3a, sonlar esa 3 + 8 = 11: minus qavsni ochganda 8 qo'shiluvchiga aylandi.",

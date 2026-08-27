@@ -18,7 +18,7 @@ const DATA = {
   ],
   cards: ['(y + 10)', '(y² − 10y + 100)', '1000', '(y − 10)', '(y² + 10y + 100)', '100'],
   answer: ['(y + 10)', '(y² − 10y + 100)', '1000'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 1000 = 10³. y = 0 bo'lganda 10 · 100 = 1000, ya'ni ajratish to'g'ri.",

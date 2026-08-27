@@ -18,7 +18,7 @@ const DATA = {
   ],
   cards: ['x² + 8x + 16', '−(x² − 8x + 16)', '16x', '32', '8x', '−(x² + 8x + 16)'],
   answer: ['x² + 8x + 16', '−(x² − 8x + 16)', '16x'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. x² − x² = 0, 16 − 16 = 0, o'rta hadlar esa 8x + 8x = 16x.",

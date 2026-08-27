@@ -23,7 +23,7 @@ const DATA = {
   ],
   cards: ['6m', '12m', 'm', '+7', '−7', '+15'],
   answer: ['6m', '+7'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. Harflilar: 9m − 3m = 6m. Sonlar: −4 + 11 = 7. Javob 6m + 7 -- ikki had qoldi, ular o'xshash emas.",

@@ -25,7 +25,7 @@ const DATA = {
   ],
   cards: ['4700', '9,4', '4690,6', '470', '4,7', '4709,4'],
   answer: ['4700', '9,4', '4690,6'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 1000 · 4,7 = 4700 va 2 · 4,7 = 9,4. Ayirmasi 4690,6, ya'ni 998 · 4,7 ning o'zi.",

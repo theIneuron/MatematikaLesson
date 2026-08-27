@@ -24,7 +24,7 @@ const DATA = {
   ],
   cards: ['x', '7x', '3x', '−7', '−13', '−5'],
   answer: ['x', '−7'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. Harfli hadlar: 4x − x − 2x = x. Sonlar: −9 + 3 − 1 = −7. Javob x − 7.",

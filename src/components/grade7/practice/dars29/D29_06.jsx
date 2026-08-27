@@ -18,7 +18,7 @@ const DATA = {
   ],
   cards: ['2', '(x² + 6x + 9)', '2', '(x + 3)²', '2x', '(x + 9)²'],
   answer: ['2', '(x² + 6x + 9)', '2', '(x + 3)²'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 2 chiqarildi, qavs ichida x² + 6x + 9 qoldi. Bu to'liq kvadrat: 9 = 3² va 2 · x · 3 = 6x.",

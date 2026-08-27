@@ -22,7 +22,7 @@ const DATA = {
   ],
   cards: ['240', '60', '360', '90', '4', '75'],
   answer: ['240', '60'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 4x = 300 − 60 = 240, keyin x = 240 : 4 = 60. Tezlik 60 km/soat.",

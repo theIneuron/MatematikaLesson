@@ -27,7 +27,7 @@ const DATA = {
   ],
   cards: ['2x', '10', '5', '4x', '−2', '2'],
   answer: ['2x', '10', '5'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 3x − x = 2x, 4 + 6 = 10, keyin 10 : 2 = 5. Tekshirish: 3 · (5 − 2) = 9 va 5 + 4 = 9.",

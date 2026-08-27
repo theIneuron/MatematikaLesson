@@ -23,7 +23,7 @@ const DATA = {
   ],
   cards: ['2x', '6x', '2', '+12', '+3', '+15'],
   answer: ['2x', '+12'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 4 · x = 4x va 4 · 3 = 12. Keyin 4x − 2x = 2x, son esa 12 bo'lib qoladi: 2x + 12.",

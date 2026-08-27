@@ -17,7 +17,7 @@ const DATA = {
   ],
   cards: ['48°', '132°', '42°', '96°'],
   answer: ['48°', '132°'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. Mos burchak 48°, uning qo'shnisi 180 − 48 = 132°.",

@@ -22,7 +22,7 @@ const DATA = {
   ],
   cards: ['−2x²', '+x', '2x²', '−2x', '+2x²', '−x'],
   answer: ['−2x²', '+x', '2x²', '−2x'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. Uchinchi qavs ochilib −2x² + x berdi. Keyin x²: 3 + 1 − 2 = 2, x: 1 − 4 + 1 = −2. Javob 2x² − 2x.",

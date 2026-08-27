@@ -23,7 +23,7 @@ const DATA = {
   ],
   cards: ['8', '−2', '2', '−8', '15', '−15'],
   answer: ['8', '−2'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. Birinchi holatda x = 5 + 3 = 8, ikkinchisida x = −5 + 3 = −2. Tekshirish: |8 − 3| = 5 va |−2 − 3| = 5.",

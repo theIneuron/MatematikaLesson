@@ -27,7 +27,7 @@ const DATA = {
   cards: ['62°', '31°', '59°', '29°'],
   answer: ['62°', '31°'],
   ask: L(
-    'Kartani bosing, keyin uyani bosing.',
+    "Kartani bosing, keyin bo'sh katakni bosing.",
     'Нажми карточку, затем клетку.',
     'Tap a card, then tap a cell.'),
   bank: L(
@@ -56,7 +56,7 @@ const DATA = {
     {
       when: (s) => s.slots.indexOf(null) !== -1,
       text: L(
-        "Ikki uya ham to'ldirilishi kerak.",
+        "Ikki bo'sh katak ham to'ldirilishi kerak.",
         'Надо заполнить обе клетки.',
         'Both cells must be filled.'),
     },

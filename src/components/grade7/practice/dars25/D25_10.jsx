@@ -18,7 +18,7 @@ const DATA = {
   ],
   cards: ['4x²', '+20x + 25', '49', '2x²', '+10x + 25', '29'],
   answer: ['4x²', '+20x + 25', '49'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 4x² + 20x + 25; x = 1 bo'lganda 4 + 20 + 25 = 49. Asl yozuvda ham (2 + 5)² = 49.",

@@ -1,4 +1,4 @@
-// Dars22 · Amaliyot 04 — Uch uya · 🟡 · slots · tag: factor_slots
+// Dars22 · Amaliyot 04 — Uch bo'sh katak · 🟡 · slots · tag: factor_slots
 // Mexanika: kit.jsx -> SlotsBank. Raskladka: 4-o'rin.
 // 24m⁵ − 16m³ = 8m³(3m² − 2). Sonlar: 24 va 16 ning umumiy bo'luvchisi 8.
 // Harf: eng kichik daraja m³. Qoldiqlar: 3m² va 2.
@@ -9,7 +9,7 @@ const DATA = {
   tag: 'factor_slots', level: '🟡',
   eyebrow: L("Uch bo'lak", 'Три части', 'Three parts'),
   setup: L(
-    "Uch uyani to'ldirish kerak: qavs oldidagi umumiy ko'paytuvchi va qavs ichidagi ikki qoldiq. Qoldiqlar bo'lish orqali topiladi.",
+    "Uch bo'sh katakni to'ldirish kerak: qavs oldidagi umumiy ko'paytuvchi va qavs ichidagi ikki qoldiq. Qoldiqlar bo'lish orqali topiladi.",
     'Надо заполнить три клетки: общий множитель перед скобкой и два частных внутри. Частные находятся делением.',
     'Three cells to fill: the common factor in front and the two quotients inside. The quotients come from dividing.'),
   rows: [
@@ -17,7 +17,7 @@ const DATA = {
   ],
   cards: ['8m³', '3m²', '−2', '8m²', '3m³', '+2'],
   answer: ['8m³', '3m²', '−2'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 24 va 16 ning umumiy bo'luvchisi 8, eng kichik daraja m³. 24m⁵ : 8m³ = 3m², 16m³ : 8m³ = 2.",

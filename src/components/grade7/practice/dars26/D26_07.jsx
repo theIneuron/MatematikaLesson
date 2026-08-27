@@ -17,7 +17,7 @@ const DATA = {
   ],
   cards: ['9x²', '−64y²', '+64y²', '9x', '−16xy', '−8y²'],
   answer: ['9x²', '−64y²'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. (3x)² = 9x², (8y)² = 64y², orasida minus: 9x² − 64y².",

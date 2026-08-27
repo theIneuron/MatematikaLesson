@@ -12,7 +12,7 @@ const DATA = {
     'С буквой',
     'With a letter'),
   setup: L(
-    "To'g'ri burchakli uchburchakning o'tkir burchaklari 2x va 3x. Ikki uyani to'ldiring: x va katta o'tkir burchak.",
+    "To'g'ri burchakli uchburchakning o'tkir burchaklari 2x va 3x. Ikki bo'sh katakni to'ldiring: x va katta o'tkir burchak.",
     'Острые углы прямоугольного треугольника равны 2x и 3x. Заполни две клетки: x и больший острый угол.',
     'The acute angles of a right triangle are 2x and 3x. Fill both cells: x and the larger acute angle.'),
   given: [['2x', L('va', 'и', 'and'), '3x']],
@@ -24,7 +24,7 @@ const DATA = {
   cards: ['18', '54°', '36', '36°'],
   answer: ['18', '54°'],
   ask: L(
-    'Kartani bosing, keyin uyani bosing.',
+    "Kartani bosing, keyin bo'sh katakni bosing.",
     'Нажми карточку, затем клетку.',
     'Tap a card, then tap a cell.'),
   bank: L(
@@ -53,7 +53,7 @@ const DATA = {
     {
       when: (s) => s.slots.indexOf(null) !== -1,
       text: L(
-        "Hamma uya to'ldirilishi kerak.",
+        "Hamma bo'sh katak to'ldirilishi kerak.",
         'Надо заполнить все клетки.',
         'Every cell must be filled.'),
     },

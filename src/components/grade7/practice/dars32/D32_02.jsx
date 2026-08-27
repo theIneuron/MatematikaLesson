@@ -18,7 +18,7 @@ const DATA = {
   ],
   cards: ['2a', '+3', '5', '4a', '+6', '10'],
   answer: ['2a', '+3', '5'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 4a : 2 = 2a va 6 : 2 = 3. a = 1 bo'lganda 2 + 3 = 5, asl yozuvda ham (4 + 6) : 2 = 5.",

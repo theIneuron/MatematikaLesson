@@ -36,11 +36,11 @@ function useRegister(check, registerCheck) {
 }
 
 const F35 = { n: 3, d: 5 };
-// Uch qator: har birida bitta uya. Uya to'ldirilgach yozuv qisqaradi.
+// Uch qator: har birida bitta bo'sh katak. Uya to'ldirilgach yozuv qisqaradi.
 const LINES = [
   { before: ['−2100', ':', '30', '+', F35, '·', '250', '='], after: ['+', F35, '·', '250'] },
-  { before: [], after: [] },   // ikkinchi qator: −70 + [uya]
-  { before: [], after: [] },   // uchinchi qator: [uya]
+  { before: [], after: [] },   // ikkinchi qator: −70 + [katak]
+  { before: [], after: [] },   // uchinchi qator: [katak]
 ];
 const ANSWER = ['−70', '150', '80'];
 const CARDS = ['−70', '150', '80', '70', '−150', '220'];
@@ -49,8 +49,8 @@ const T = {
   uz: {
     eyebrow: 'Qadamlar zanjiri', title: 'Oraliq qiymatlar',
     setup: 'Yechim uch qadamda yoziladi. Har qatorda BITTA amal hisoblanadi.',
-    ask: 'Uyalarni to\'ldiring: kartani bosing, keyin uyani bosing.',
-    slot: 'uya', bank: 'Kartalar',
+    ask: "Uyalarni to'ldiring: kartani bosing, keyin bo'sh katakni bosing.",
+    slot: 'katak', bank: 'Kartalar',
     correct: 'To\'g\'ri. Avval ikkinchi bosqich: −2100 : 30 = −70 va uch beshdan ikki yuz ellik 150. So\'ng −70 + 150 = 80.',
     wrongSign: 'Ishoraga qarang: −2100 ni 30 ga bo\'lganda manfiy son chiqadi. Manfiy va musbat sonni qo\'shganda katta modul yutadi.',
     wrongFrac: 'Uch beshdan ikki yuz ellikni hisoblang: ikki yuz ellikni beshga bo\'lib, uchga ko\'paytirasiz.',

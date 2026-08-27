@@ -1,4 +1,4 @@
-// Dars16 · Amaliyot 03 — Ikki uyani to'ldirish · 🟡 · tag: mul_two_slots
+// Dars16 · Amaliyot 03 — Ikki bo'sh katakni to'ldirish · 🟡 · tag: mul_two_slots
 // Faqat MA'LUMOT. Mexanika: `practice/kit.jsx` -> SlotsBank.
 //
 // 12b⁴ · 8b³ = 96b⁷. Koeffitsiyent: 12 · 8 = 96. Ko'rsatkich: 4 + 3 = 7.
@@ -18,7 +18,7 @@ const DATA = {
   ],
   cards: ['96', 'b⁷', '20', 'b¹²', '4', 'b¹'],
   answer: ['96', 'b⁷'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 12 · 8 = 96, ko'rsatkichlar esa 4 + 3 = 7. Javob 96b⁷.",
@@ -43,7 +43,7 @@ const DATA = {
       '4 is the exponent of the first monomial, not a coefficient. The coefficient is the product of the numbers: 96.') },
   ],
   wrongText: L(
-    "Ikki uyani alohida to'ldiring: birinchisiga sonlar ko'paytmasi, ikkinchisiga qo'shilgan ko'rsatkichli harf.",
+    "Ikki bo'sh katakni alohida to'ldiring: birinchisiga sonlar ko'paytmasi, ikkinchisiga qo'shilgan ko'rsatkichli harf.",
     'Заполни две клетки по отдельности: в первую произведение чисел, во вторую букву со сложенным показателем.',
     'Fill the two cells separately: the product of the numbers first, then the letter with the added exponent.'),
 };

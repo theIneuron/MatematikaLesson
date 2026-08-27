@@ -24,7 +24,7 @@ const DATA = {
   ],
   cards: ['21', '7', '11', '63', '3', '−7'],
   answer: ['21', '7'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 3|x| = 16 + 5 = 21, keyin |x| = 21 : 3 = 7. Endi ikki holat: x = 7 yoki x = −7.",

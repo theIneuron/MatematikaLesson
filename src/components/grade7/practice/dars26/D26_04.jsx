@@ -18,7 +18,7 @@ const DATA = {
   ],
   cards: ['(11 − t)', '(11 + t)', '120', '(11 − t)²', '(121 − t)', '122'],
   answer: ['(11 − t)', '(11 + t)', '120'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 121 = 11², ya'ni (11 − t)(11 + t). t = 1 bo'lganda 10 · 12 = 120, va 121 − 1 = 120.",

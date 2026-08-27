@@ -16,7 +16,7 @@ const DATA = {
   ],
   cards: ['10000', '−400', '+4', '−200', '+2', '−4'],
   answer: ['10000', '−400', '+4'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 100² = 10000, o'rta had −2 · 100 · 2 = −400, oxirida (−2)² = +4. Yig'indisi 9604.",

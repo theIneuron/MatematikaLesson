@@ -439,7 +439,7 @@ export function RuleGate({ probe, rule, swap, onSolved, onStep, disabled, audio 
 }
 
 // ============================================================
-// SlotFill -- bo'sh uyalarni to'ldirish: belgilar yoki bo'laklar.
+// SlotFill -- bo'sh kataklarni to'ldirish: belgilar yoki bo'laklar.
 // Tekshiruv SON QO'YIB bajariladi.
 // ============================================================
 export function SlotFill({ template, parts, answer, checkNote, wrongs, onSolved, onStep, prompt, promptCap, tightAsk, wide, noReset, disabled, audio }) {

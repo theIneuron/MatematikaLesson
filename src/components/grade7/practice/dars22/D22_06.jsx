@@ -17,7 +17,7 @@ const DATA = {
   ],
   cards: ['7x²y', '3x²', '−2y²', '7x²', '3x²y', '+2y²'],
   answer: ['7x²y', '3x²', '−2y²'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 21x⁴y : 7x²y = 3x², 14x²y³ : 7x²y = 2y². Umumiy ko'paytuvchi 7x²y.",

@@ -16,7 +16,7 @@ const DATA = {
   ],
   cards: ['25c²', '+40cd', '+16d²', '+20cd', '5c²', '+4d²'],
   answer: ['25c²', '+40cd', '+16d²'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. (5c)² = 25c², 2 · 5c · 4d = 40cd, (4d)² = 16d².",

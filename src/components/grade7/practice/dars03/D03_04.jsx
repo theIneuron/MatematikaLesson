@@ -24,7 +24,7 @@ const DATA = {
   ],
   cards: ['−35000', '1400', '−33600', '35000', '−1400', '−36400'],
   answer: ['−35000', '1400', '−33600'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 5000 · (−7) = −35000 va 200 · (−7) = −1400, lekin u ayiriladi: −35000 + 1400 = −33600. Tekshirish: 4800 · 7 = 33600.",

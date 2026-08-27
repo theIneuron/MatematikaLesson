@@ -17,7 +17,7 @@ const DATA = {
   ],
   cards: ['y² − 4y', '+6y − 24', 'y²', '+2y − 24', 'y² + 4y', '+10y − 24'],
   answer: ['y² − 4y', '+6y − 24', 'y²', '+2y − 24'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. y · (−4) = −4y va 6 · y = +6y, ya'ni −4y + 6y = +2y. Ozod had 6 · (−4) = −24.",

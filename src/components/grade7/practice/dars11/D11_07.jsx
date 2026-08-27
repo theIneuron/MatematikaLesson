@@ -4,7 +4,7 @@
 // «Bir son ikkinchisidan 7 ga katta, ikkovi birga 43.»
 // Kichigi x bo'lsa: x + (x + 7) = 43 -> 2x + 7 = 43 -> 2x = 36 -> x = 18,
 // kattasi esa 18 + 7 = 25. Tekshirish: 18 + 25 = 43 va 25 − 18 = 7.
-// Oxirgi uya ATAYLAB: tenglamaning ildizi 18, lekin masalaning javobi IKKI
+// Oxirgi katak ATAYLAB: tenglamaning ildizi 18, lekin masalaning javobi IKKI
 // son. Ikkinchisini topmasdan javob to'liq bo'lmaydi.
 import React from 'react';
 import { SlotsBank, L } from '../kit.jsx';
@@ -24,7 +24,7 @@ const DATA = {
   ],
   cards: ['36', '18', '25', '50', '21', '22'],
   answer: ['36', '18', '25'],
-  ask: L('Kartani bosing, keyin uyani bosing.', 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
+  ask: L("Kartani bosing, keyin bo'sh katakni bosing.", 'Нажми карточку, затем клетку.', 'Tap a card, then tap a cell.'),
   bank: L('Kartalar', 'Карточки', 'Cards'),
   correctText: L(
     "To'g'ri. 2x = 43 − 7 = 36, x = 18 -- kichik son. Kattasi 18 + 7 = 25. Tekshirish: 18 + 25 = 43.",
