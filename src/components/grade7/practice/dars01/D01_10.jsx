@@ -31,7 +31,7 @@
 // joylashganlar belgilanadi (amaliyot qoidasi).
 //
 // jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Row } from '../frac.jsx';
 
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
@@ -56,6 +56,21 @@ const F23 = { n: 2, d: 3 };
 const F58 = { n: 5, d: 8 };
 // Zonalar tepadan pastga: manfiy, nol, musbat -- son o'qidagi tartib.
 const ZONES = ['zneg', 'zzero', 'zpos'];
+// KARTALAR TARTIBI ARALASHTIRILADI (metodist qarori 2026-08-22): bank
+// javob tartibida turardi va topshiriqni chapdan o'ngga bosib yechish
+// mumkin edi. Aralashtirish faqat KO'RSATISHGA tegadi -- javob va razbor
+// shartlari o'zgarmaydi. 1-dars amaliyoti umumiy qatlamdan tashqarida,
+// shuning uchun `shuffled` shu yerda ham kerak.
+const shuffled = (n) => {
+  const idx = [];
+  for (let i = 0; i < n; i++) idx.push(i);
+  for (let i = n - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const x = idx[i]; idx[i] = idx[j]; idx[j] = x;
+  }
+  return idx;
+};
+
 const ITEMS = [
   { id: 'i1', tokens: ['−1800', ':', '45', '+', '20'], zone: 'zneg' },
   { id: 'i2', tokens: [F23, '·', '900', '−', '600'], zone: 'zzero' },
@@ -110,7 +125,8 @@ export default function D01_10(props) {
   const [checked, setChecked] = useState(false);
 
   const locked = isReview || checked;
-  const pool = ITEMS.filter((it) => !place[it.id]);
+  const bank = useMemo(() => shuffled(ITEMS.length).map((i) => ITEMS[i]), []);
+  const pool = bank.filter((it) => !place[it.id]);
   const all = ITEMS.every((it) => place[it.id]);
   const wrongIds = ITEMS.filter((it) => place[it.id] && place[it.id] !== it.zone).map((it) => it.id);
 

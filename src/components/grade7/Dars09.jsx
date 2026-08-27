@@ -251,7 +251,7 @@ function Screen1({ screen, onAnswer, ...rest }) {
 const S2 = {
   eyebrow: L('TAYANCH', 'ОПОРА', 'WARM-UP'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Nimaga teng?', 'Чему равно?', 'What does it equal?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   items: [
     {
       prompt: '−5 + 5',
@@ -266,7 +266,7 @@ const S2 = {
     {
       wrap: true,
       question: null,
-      prompt: L("3x teng 12 tenglamaning ildizi?", 'Корень уравнения 3x = 12?', 'The root of 3x = 12?'),
+      prompt: L("3x = 12 tenglamaning ildizi?", 'Корень уравнения 3x = 12?', 'The root of 3x = 12?'),
       ok: L("Ikkala tomon uchga bo'lindi.", 'Обе части разделили на три.', 'Both sides were divided by three.'),
       items: [
         { id: 'a', label: '4', correct: true },
@@ -393,7 +393,7 @@ const S4 = {
     'We move the eight to the right. With which sign does it go?',
   ),
   checkNote: L(
-    "Chapda minus sakkiz edi, o'ngga plyus sakkiz bo'lib o'tdi: 5x teng 20",
+    "Chapda minus sakkiz edi, o'ngga plyus sakkiz bo'lib o'tdi: 5x = 20",
     'Слева было минус восемь, вправо перешло плюс восемь: 5x = 20',
     'It was minus eight on the left and crossed as plus eight: 5x = 20',
   ),
@@ -545,7 +545,7 @@ const S7 = {
   expr: '36 + 4x = 4x + 35',
   probe: {
     question: L(
-      "4x ikkala tomondan ketdi. 36 teng 35 qoldi. Bu nimani anglatadi?",
+      "4x ikkala tomondan ketdi. 36 = 35 qoldi. Bu nimani anglatadi?",
       'После ухода 4x осталось 36 = 35. Что это значит?',
       'After the 4x is gone, 36 = 35 remains. What does that mean?',
     ),
@@ -716,7 +716,7 @@ function Screen8({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S9 = {
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
-  title: L('Uchtasi ketma-ket', 'Три подряд', 'Three in a row'),
+  title: L('Uchtasini ko\'chirib yechamiz', 'Решаем три переносом', 'Solving three by moving terms'),
   reward: {
     title: L('Uchtasi ham topildi', 'Все три найдены', 'All three found'),
     text: L(
@@ -730,8 +730,8 @@ const S9 = {
       template: ['3x − 8 = x + 6,     x = ', { slot: 0 }],
       parts: [{ id: 'p7', label: '7' }, { id: 'p1', label: '−1' }, { id: 'p14', label: '14' }, { id: 'p2', label: '2' }],
       answer: ['p7'],
-      prompt: L("3x ayirish 8 teng x qo'shuv 6. Ildizni toping.", '3x − 8 = x + 6. Найди корень.', '3x − 8 = x + 6. Find the root.'),
-      checkNote: L("x chapga, 8 o'ngga: 2x teng 14", 'x влево, 8 вправо: 2x = 14', 'x to the left, 8 to the right: 2x = 14'),
+      prompt: L("3x − 8 = x + 6. Ildizni toping.", '3x − 8 = x + 6. Найди корень.', '3x − 8 = x + 6. Find the root.'),
+      checkNote: L("x chapga, 8 o'ngga: 2x = 14", 'x влево, 8 вправо: 2x = 14', 'x to the left, 8 to the right: 2x = 14'),
       wrongs: [
         { key: 'p14', tag: 'Z6', hint: L("14 bu 2x ning qiymati. Uni ikkiga bo'lish qolib ketdi.", '14 это значение 2x. Разделить на два осталось несделанным.', '14 is the value of 2x. Dividing by two was left undone.') },
         { key: '*', tag: 'Z1', hint: L("x ni chapga, sakkizni o'ngga ko'chiring va ikkala ishorani ham almashtiring.", 'Перенеси x влево, восьмёрку вправо и поменяй оба знака.', 'Move the x left and the eight right, flipping both signs.') },
@@ -741,8 +741,8 @@ const S9 = {
       template: ['2x + 9 = 15 − x,     x = ', { slot: 0 }],
       parts: [{ id: 'q2', label: '2' }, { id: 'q8', label: '8' }, { id: 'q6', label: '6' }, { id: 'q24', label: '24' }],
       answer: ['q2'],
-      prompt: L("Xukdagi tenglama. Endi uni o'zingiz yeching.", 'Уравнение с хука. Теперь реши его сам.', 'The equation from the hook. Now solve it yourself.'),
-      checkNote: L("3x teng 6, demak x teng 2. Xukdagi birinchi o'quvchi haq edi", '3x = 6, значит x = 2. Первый ученик на хуке был прав', '3x = 6, so x = 2. The first student on the hook was right'),
+      prompt: L("Darsning boshidagi tenglama. Endi uni o'zingiz yeching.", 'Уравнение с начала урока. Теперь реши его сам.', 'The equation from the start of the lesson. Now solve it yourself.'),
+      checkNote: L("3x = 6, demak x = 2. Xukdagi birinchi o'quvchi haq edi", '3x = 6, значит x = 2. Первый ученик на хуке был прав', '3x = 6, so x = 2. The first student on the hook was right'),
       wrongs: [
         { key: 'q8', tag: 'Z1', hint: L("8 bu ishora almashtirilmagan javob. Minus x chapga plyus x bo'lib o'tadi.", '8 это ответ без смены знака. Минус x переходит влево как плюс x.', '8 is the answer without flipping the sign. Minus x crosses to the left as plus x.') },
         { key: '*', tag: 'Z1', hint: L("Ikkala hadni ham ko'chiring va ishoralarni almashtiring.", 'Перенеси оба слагаемых и поменяй знаки.', 'Move both terms and flip the signs.') },
@@ -753,7 +753,7 @@ const S9 = {
       parts: [{ id: 'w0', label: '0' }, { id: 'w1', label: '1' }, { id: 'w2', label: '2' }, { id: 'w6', label: '6' }],
       answer: ['w0'],
       prompt: L("Diqqat: ikkala tomonda ham uchlik bor.", 'Внимание: тройка есть в обеих частях.', 'Careful: there is a three on each side.'),
-      checkNote: L("Uchliklar yo'qoldi, 3x teng 0 qoldi. Ildiz nol, va bu ildiz yo'q degani emas", 'Тройки ушли, осталось 3x = 0. Корень нуль, и это не то же, что корней нет', 'The threes cancelled, leaving 3x = 0. The root is zero, which is not the same as no roots'),
+      checkNote: L("Uchliklar yo'qoldi, 3x = 0 qoldi. Ildiz nol, va bu ildiz yo'q degani emas", 'Тройки ушли, осталось 3x = 0. Корень нуль, и это не то же, что корней нет', 'The threes cancelled, leaving 3x = 0. The root is zero, which is not the same as no roots'),
       wrongs: [
         { key: 'w6', tag: 'Z3', hint: L("6 bu uchliklarni qo'shib yuborilgan javob. Ular bir xil, demak yo'qoladi.", '6 это ответ, где тройки сложили. Они одинаковые, значит уничтожаются.', '6 is the answer where the threes were added. They are equal, so they cancel.') },
         { key: '*', tag: 'Z3', hint: L("Bir xil hadlarni yo'qoting, keyin qolganini yeching.", 'Уничтожь одинаковые слагаемые, потом реши остаток.', 'Cancel the equal terms, then solve what is left.') },
@@ -818,7 +818,7 @@ const S10 = {
       parts: [{ id: 'p6x', label: '6x' }, { id: 'p15', label: '15' }, { id: 'p2x', label: '2x' }, { id: 'p5', label: '5' }],
       answer: ['p6x', 'p15'],
       prompt: L(
-        "4x ayirish 9 teng 3 karra qavs 2x ayirish 5. Qavsni oching.",
+        "4x − 9 = 3(2x − 5). Qavsni oching.",
         '4x − 9 = 3(2x − 5). Раскрой скобку.',
         '4x − 9 = 3(2x − 5). Open the bracket.',
       ),
@@ -837,7 +837,7 @@ const S10 = {
         'Теперь перенеси и найди корень.',
         'Now move the terms and find the root.',
       ),
-      checkNote: L("4 karra 3 ayirish 9 teng 3, va 3 karra qavs 6 ayirish 5 ham 3", '4 умножить на 3 минус 9 равно 3, и 3 умножить на скобку 6 минус 5 тоже 3', '4 times 3 minus 9 is 3, and 3 times the bracket 6 minus 5 is 3 too'),
+      checkNote: L("4 · 3 − 9 = 3, va 3 karra qavs 6 − 5 ham 3", '4 · 3 − 9 = 3, и 3 умножить на скобку 6 − 5 тоже 3', '4 · 3 − 9 = 3, and 3 times the bracket 6 − 5 = 3 too'),
       wrongs: [
         { key: 'q12', tag: 'Z1', hint: L("Minus 12 bu ishora almashtirilmagan javob. Minus 2x chapga o'tsa plyus bo'ladi.", 'Минус 12 это ответ без смены знака. Минус 2x при переносе влево станет плюсом.', 'Minus 12 is the answer without flipping the sign. Minus 2x becomes a plus on the left.') },
         { key: '*', tag: 'Z1', hint: L("6x ni chapga, 9 ni o'ngga ko'chiring.", 'Перенеси 6x влево, а 9 вправо.', 'Move the 6x left and the 9 right.') },
@@ -911,14 +911,14 @@ const S11 = {
   ],
   answer: ['p5'],
   prompt: L(
-    "7x ayirish 12 teng 2x qo'shuv 13. Qadamlarni o'zingiz o'ylang.",
+    "7x − 12 = 2x + 13. Qadamlarni o'zingiz o'ylang.",
     '7x − 12 = 2x + 13. Шаги держишь в голове.',
     '7x − 12 = 2x + 13. You hold the steps in your head.',
   ),
   checkNote: L(
-    "5x teng 25, demak x teng 5. Tekshiruv: 35 ayirish 12 teng 23, va 10 qo'shuv 13 ham 23",
-    '5x = 25, значит x = 5. Проверка: 35 минус 12 равно 23, и 10 плюс 13 тоже 23',
-    '5x = 25, so x = 5. Check: 35 minus 12 is 23, and 10 plus 13 is 23 too',
+    "5x = 25, demak x = 5. Tekshiruv: 35 − 12 = 23, va 10 + 13 ham 23",
+    '5x = 25, значит x = 5. Проверка: 35 − 12 = 23, и 10 + 13 тоже 23',
+    '5x = 25, so x = 5. Check: 35 − 12 = 23, and 10 + 13 = 23 too',
   ),
   wrongs: [
     { key: 'p25', tag: 'Z6', hint: L("25 bu 5x ning qiymati. Beshga bo'lish qolib ketdi.", '25 это значение 5x. Разделить на пять осталось несделанным.', '25 is the value of 5x. Dividing by five was left undone.') },
@@ -989,7 +989,7 @@ const S12 = {
       'Перенеси оба слагаемых верно и доведи решение до конца.',
       'Move both terms correctly and finish the solution.',
     ),
-    checkNote: L("4x teng 12, x teng 3. Tekshiruv: 18 ayirish 5 teng 13, va 6 qo'shuv 7 ham 13", '4x = 12, x = 3. Проверка: 18 минус 5 равно 13, и 6 плюс 7 тоже 13', '4x = 12, x = 3. Check: 18 minus 5 is 13, and 6 plus 7 is 13 too'),
+    checkNote: L("4x = 12, x = 3. Tekshiruv: 18 − 5 = 13, va 6 + 7 ham 13", '4x = 12, x = 3. Проверка: 18 − 5 = 13, и 6 + 7 тоже 13', '4x = 12, x = 3. Check: 18 − 5 = 13, and 6 + 7 = 13 too'),
     wrongs: [
       { key: 'v_minus|v3', tag: 'Z1', hint: L("Chapda minus besh turgandi, demak o'ngga plyus besh bo'lib o'tadi.", 'Слева было минус пять, значит вправо перейдёт плюс пять.', 'It was minus five on the left, so it crosses as plus five.') },
       { key: '*', tag: 'Z1', hint: L("2x ni chapga ko'chirganda minus bo'ladi, beshni o'ngga ko'chirganda plyus bo'ladi.", 'При переносе 2x влево будет минус, при переносе пятёрки вправо будет плюс.', 'Moving the 2x left gives a minus, moving the five right gives a plus.') },
@@ -1081,7 +1081,7 @@ const S13 = {
         'Теперь реши: сколько стоит одна тетрадь?',
         'Now solve it: how much is one notebook?',
       ),
-      checkNote: L("2 karra 100 qo'shuv 300 teng 500, va 5 karra 100 ham 500", '2 умножить на 100 плюс 300 равно 500, и 5 умножить на 100 тоже 500', '2 times 100 plus 300 is 500, and 5 times 100 is 500 too'),
+      checkNote: L("2 · 100 + 300 = 500, va 5 · 100 ham 500", '2 · 100 + 300 = 500, и 5 · 100 тоже 500', '2 · 100 + 300 = 500, and 5 · 100 = 500 too'),
       wrongs: [
         { key: 'q300', tag: 'Z6', hint: L("300 bu yetkazishning narxi, daftarniki emas. 3x teng 300 dan x ni toping.", '300 это цена доставки, а не тетради. Найди x из 3x = 300.', '300 is the delivery price, not the notebook. Find x from 3x = 300.') },
         { key: '*', tag: 'Z1', hint: L("2x ni o'ngga ko'chiring: 300 teng 3x.", 'Перенеси 2x вправо: 300 = 3x.', 'Move the 2x to the right: 300 = 3x.') },
@@ -1146,12 +1146,12 @@ function Screen13({ screen, onAnswer, ...rest }) {
 const S14 = {
   eyebrow: L('BLITS', 'БЛИЦ', 'QUICK ROUND'),
   title: L("To'rt savol", 'Четыре вопроса', 'Four questions'),
-  question: L('Nimaga teng?', 'Чему равно?', 'What does it equal?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   items: [
     {
       wrap: true,
       question: null,
-      prompt: L("4x ayirish 6 teng x qo'shuv 9 tenglamaning ildizi?", 'Корень уравнения 4x − 6 = x + 9?', 'The root of 4x − 6 = x + 9?'),
+      prompt: L("4x − 6 = x + 9 tenglamaning ildizi?", 'Корень уравнения 4x − 6 = x + 9?', 'The root of 4x − 6 = x + 9?'),
       ok: L("x chapga, oltilik o'ngga: 3x teng 15.", 'x влево, шестёрка вправо: 3x = 15.', 'x to the left, the six to the right: 3x = 15.'),
       items: [
         { id: 'a', label: '5', correct: true },
@@ -1175,7 +1175,7 @@ const S14 = {
     {
       wrap: true,
       question: null,
-      prompt: L("9 qo'shuv 5x teng 5x qo'shuv 9 tenglamani nechta son to'g'ri qiladi?", 'Сколько чисел делают верным 9 + 5x = 5x + 9?', 'How many numbers make 9 + 5x = 5x + 9 true?'),
+      prompt: L("9 + 5x = 5x + 9 tenglamani nechta son to'g'ri qiladi?", 'Сколько чисел делают верным 9 + 5x = 5x + 9?', 'How many numbers make 9 + 5x = 5x + 9 true?'),
       ok: L("Ikkala tomon bir xil, demak tenglik har doim to'g'ri.", 'Обе части одинаковые, значит равенство верно всегда.', 'Both sides are the same, so the equality always holds.'),
       items: [
         { id: 'a', correct: true, label: L('Hamma son', 'Все числа', 'Every number') },

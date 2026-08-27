@@ -97,8 +97,8 @@ const S1 = {
   },
   probe: {
     question: L(
-      "Ikki yozuv a teng 2 da bir xil son berdi. Bu ular HAR DOIM teng degani bo'ladimi?",
-      'Две записи при a равном 2 дали одно и то же число. Значит ли это, что они равны ВСЕГДА?',
+      "Ikki yozuv a = 2 da bir xil son berdi. Bu ular HAR DOIM teng degani bo'ladimi?",
+      'Две записи при a = 2 дали одно и то же число. Значит ли это, что они равны ВСЕГДА?',
       'Two records gave the same number at a equal to 2. Does that mean they are ALWAYS equal?',
     ),
     items: [
@@ -175,7 +175,7 @@ function Screen1({ screen, onAnswer, ...rest }) {
 const S2 = {
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   items: [
     {
       prompt: '3(a + 5)',
@@ -658,7 +658,7 @@ function Screen8({ screen, onAnswer, ...rest }) {
 const S9 = {
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
   title: L('Nimaga har doim teng', 'Чему тождественно равно', 'What it is always equal to'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   items: [
     {
       prompt: '2(2x − 5) − 3(−2x + 1)',
@@ -762,7 +762,7 @@ const S10 = {
     { key: '*', tag: 'Z3', hint: L("Ikkala ko'paytuvchi ham manfiy, ikkala qavsda ham x manfiy edi.", 'Оба множителя отрицательны, и в обеих скобках x был отрицательным.', 'Both factors are negative, and in both brackets the x was negative.') },
   ],
   probe: {
-    question: L("Endi o'xshash hadlarni ixchamlang. Javob nima?", 'Теперь приведи подобные члены. Каков ответ?', 'Now collect the like terms. What is the answer?'),
+    question: L("Endi o'xshash hadlarni ixchamlang. Qiymati nechaga teng?", 'Теперь приведи подобные члены. Чему равно значение?', 'Now collect the like terms. What is its value?'),
     items: [
       { id: 'a', correct: true, label: '14x − 59' },
       { id: 'b', tag: 'Z6', label: '14x − 31', hint: L("Minus o'n to'rt va minus qirq besh qo'shiladi.", 'Минус четырнадцать и минус сорок пять складываются.', 'Minus fourteen and minus forty five add up.') },
@@ -1008,9 +1008,9 @@ const S13 = {
     'Which number comes out of the bracket?',
   ),
   checkNote: L(
-    "Olti karra ikki x o'n ikki x, olti karra uch esa o'n sakkiz. Ikkala had ham to'g'ri chiqdi.",
-    'Шесть на два x это двенадцать x, а шесть на три восемнадцать. Оба члена вышли верно.',
-    'Six times two x is twelve x, and six times three is eighteen. Both terms came out right.',
+    "6 · 2x = 12x, 6 · 3 = 18. Ikkala had ham to'g'ri chiqdi.",
+    '6 · 2x = 12x, 6 · 3 = 18. Оба члена вышли верно.',
+    '6 · 2x = 12x, 6 · 3 = 18. Both terms came out right.',
   ),
   wrongs: [
     { key: 'b', tag: 'Z6', hint: L("To'rt karra ikki x sakkiz x beradi, o'n ikki emas.", 'Четыре на два x даёт восемь x, а не двенадцать.', 'Four times two x gives eight x, not twelve.') },
@@ -1081,7 +1081,7 @@ const S14 = {
     },
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '2(2x − 5) − 3(−2x + 1)',
       ok: L("Minus uch ikkala ishorani ag'dardi.", 'Минус три перевернул оба знака.', 'Minus three flipped both signs.'),
       items: [

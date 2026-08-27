@@ -114,7 +114,7 @@ const S2 = {
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -481,7 +481,7 @@ const S9 = {
   kind: 'chain',
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
   title: L('Yetarlimi', 'Достаточно ли', 'Is it enough'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {

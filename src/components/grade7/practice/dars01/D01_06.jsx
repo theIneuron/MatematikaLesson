@@ -18,7 +18,7 @@
 // 510 ni beradi, lekin u KEYINGI emas, oxirgi qator.
 //
 // jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Row } from '../frac.jsx';
 
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
@@ -43,6 +43,21 @@ const GIVEN = [
   { tokens: [{ n: 5, d: 6 }, '·', '720', '−', '90'] },
   { tokens: [{ n: 5, d: 6 }, '·', '630'], bad: true },
 ];
+// KARTALAR TARTIBI ARALASHTIRILADI (metodist qarori 2026-08-22): bank
+// javob tartibida turardi va topshiriqni chapdan o'ngga bosib yechish
+// mumkin edi. Aralashtirish faqat KO'RSATISHGA tegadi -- javob va razbor
+// shartlari o'zgarmaydi. 1-dars amaliyoti umumiy qatlamdan tashqarida,
+// shuning uchun `shuffled` shu yerda ham kerak.
+const shuffled = (n) => {
+  const idx = [];
+  for (let i = 0; i < n; i++) idx.push(i);
+  for (let i = n - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const x = idx[i]; idx[i] = idx[j]; idx[j] = x;
+  }
+  return idx;
+};
+
 const CARDS = [
   { id: 'c600', label: '600' },
   { id: 'c90', label: '90' },
@@ -103,6 +118,7 @@ export default function D01_06(props) {
 
   const locked = isReview || checked;
   const labelOf = (id) => CARDS.find((c) => c.id === id).label;
+  const cardOrder = useMemo(() => shuffled(CARDS.length), []);
   const line = seq.map(labelOf);
   const ready = seq.length > 0 && !checked;
 
@@ -177,7 +193,7 @@ export default function D01_06(props) {
 
       <div style={{ fontSize: 13, color: '#9aa1ad', fontWeight: 600, margin: '2px 0 6px' }}>{t.ask}</div>
       <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap', alignItems: 'center' }}>
-        {CARDS.map((c) => {
+        {cardOrder.map((ci) => { const c = CARDS[ci];
           const used = seq.indexOf(c.id) !== -1;
           return (
             <button key={c.id} type="button" disabled={used || locked} onClick={() => put(c.id)}

@@ -118,7 +118,7 @@ const S2 = {
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -455,7 +455,7 @@ const S9 = {
   kind: 'chain',
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
   title: L('Javobni toping', 'Найди ответ', 'Find the answer'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -597,9 +597,9 @@ const S10 = {
     'Work out the left sides of both equations.',
   ),
   checkNote: L(
-    "Ikki minus bir bir beradi, ikki qo'shuv bir esa uch. Ikkovi ham tenglamalarning o'ng tomoniga to'g'ri keldi.",
-    'Два минус один это один, а два плюс один это три. Оба совпали с правыми частями уравнений.',
-    'Two minus one is one, two plus one is three. Both matched the right sides.',
+    "2 − 1 = 1, 2 + 1 = 3. Ikkovi ham tenglamalarning o'ng tomoniga to'g'ri keldi.",
+    '2 − 1 = 1, 2 + 1 = 3. Оба совпали с правыми частями уравнений.',
+    '2 − 1 = 1, 2 + 1 = 3. Both matched the right sides.',
   ),
   wrongs: [
     { key: 'c', tag: 'Z6', hint: L("Ikki minus bir bir beradi, ikki emas.", 'Два минус один это один, а не два.', 'Two minus one is one, not two.') },
@@ -667,9 +667,9 @@ const S11 = {
     'Compute the first equation and conclude.',
   ),
   checkNote: L(
-    "Uch minus nol uch beradi, tenglamaning o'ng tomoni esa bir. Bitta tenglama bajarilmasa, juftlik yechim bo'lmaydi -- ikkinchisini tekshirish shart emas.",
-    'Три минус ноль это три, а справа в уравнении один. Если хотя бы одно уравнение не выполнилось, пара не решение — второе проверять не обязательно.',
-    'Three minus zero is three, but the right side is one. If even one equation fails, the pair is not a solution — no need to check the other.',
+    "3 − 0 = 3, tenglamaning o'ng tomoni esa 1. Bitta tenglama bajarilmasa, juftlik yechim bo'lmaydi -- ikkinchisini tekshirish shart emas.",
+    '3 − 0 = 3, а справа в уравнении 1. Если хотя бы одно уравнение не выполнилось, пара не решение — второе проверять не обязательно.',
+    '3 − 0 = 3, but the right side is 1. If even one equation fails, the pair is not a solution, and the second need not be checked.',
   ),
   wrongs: [
     { key: 'c', tag: 'Z6', hint: L("Uch minus nol uchga teng.", 'Три минус ноль это три.', 'Three minus zero is three.') },
@@ -727,10 +727,10 @@ const S12 = {
       'Substitute into the second equation and fix the conclusion.',
     ),
     checkNote: L(
-      "Uch qo'shuv bir to'rt beradi, tenglamaning o'ng tomoni esa uch. Demak chizmadan olingan nuqta yechim emas: ko'z bilan olingan javob tekshiruvdan o'tmadi.",
-      'Три плюс один это четыре, а справа в уравнении три. Значит взятая с чертежа точка не решение: ответ на глаз проверку не прошёл.',
-      'Three plus one is four, but the right side is three. So the point taken from the drawing is not a solution: the eyeball answer failed the check.',
-    ),
+    "3 + 1 = 4, tenglamaning o'ng tomoni esa 3. Demak chizmadan olingan nuqta yechim emas: ko'z bilan olingan javob tekshiruvdan o'tmadi.",
+    '3 + 1 = 4, а справа в уравнении 3. Значит взятая с чертежа точка не решение: ответ на глаз проверку не прошёл.',
+    '3 + 1 = 4, but the right side is 3. So the point taken from the drawing is not a solution: the eyeball answer failed the check.',
+  ),
     wrongs: [
       { key: 'c', tag: 'Z6', hint: L("Uch qo'shuv bir to'rtga teng.", 'Три плюс один это четыре.', 'Three plus one is four.') },
       { key: 'd', tag: 'Z2', hint: L("To'rt va uch teng emas.", 'Четыре и три не равны.', 'Four and three differ.') },

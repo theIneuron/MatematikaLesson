@@ -171,7 +171,7 @@ function Screen1({ screen, onAnswer, ...rest }) {
 const S2 = {
   eyebrow: L('TAYANCH', 'ОПОРА', 'WARM-UP'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Nimaga teng?', 'Чему равно?', 'What does it equal?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   items: [
     {
       prompt: '(2a)³',
@@ -439,9 +439,9 @@ const S6 = {
     'The coefficient is minus one and it is taken four times too.',
   ),
   checkNote: L(
-    "To'rtta minus bir musbat beradi; x ning ko'rsatkichi 3 karra 4 teng 12, y esa 1 karra 4",
+    "To'rtta minus bir musbat beradi; x ning ko'rsatkichi 3 · 4 = 12, y esa 1 · 4",
     'Четыре минус единицы дают плюс; показатель x это 3 на 4, то есть 12, а y это 1 на 4',
-    'Four minus ones give a plus; the x exponent is 3 times 4, that is 12, and y is 1 times 4',
+    'Four minus ones give a plus; the x exponent is 3 · 4, that is 12, and y is 1 · 4',
   ),
   wrongs: [
     { key: 'b', tag: 'Z3', hint: L("To'rtta minus juft son, ular bir-birini yo'qotadi.", 'Четыре минуса это чётное число, они гасят друг друга.', 'Four minuses is even, they cancel out.') },
@@ -486,8 +486,8 @@ const S7 = {
   expr: '6a³ : 2a⁵',
   probe: {
     question: L(
-      "Ko'rsatkichlarni ayirsak, 3 ayirish 5 chiqadi. Natija bir hadmi?",
-      'Если вычесть показатели, выйдет 3 минус 5. Является ли результат одночленом?',
+      "Ko'rsatkichlarni ayirsak, 3 − 5 chiqadi. Natija bir hadmi?",
+      'Если вычесть показатели, выйдет 3 − 5. Является ли результат одночленом?',
       'Subtracting the exponents gives 3 minus 5. Is the result a monomial?',
     ),
     items: [
@@ -652,7 +652,7 @@ function Screen8({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S9 = {
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
-  title: L('Uchtasi ketma-ket', 'Три подряд', 'Three in a row'),
+  title: L("Uchta bir hadni darajaga ko'taramiz", 'Возводим три одночлена в степень', 'Raising three monomials to a power'),
   reward: {
     title: L('Uchtasi ham topildi', 'Все три найдены', 'All three found'),
     text: L(
@@ -679,7 +679,7 @@ const S9 = {
       parts: [{ id: 'e', label: '−a¹⁰' }, { id: 'f', label: 'a¹⁰' }, { id: 'g', label: '−a⁷' }, { id: 'h', label: '−a²⁵' }],
       answer: ['e'],
       prompt: L("Beshta minus: toq yoki juft?", 'Пять минусов: чётно или нечётно?', 'Five minuses: even or odd?'),
-      checkNote: L("Beshta minus toq, ishora qoladi; ko'rsatkich esa 2 karra 5", 'Пять минусов нечётно, знак остаётся; показатель это 2 на 5', 'Five minuses is odd, the sign stays; the exponent is 2 times 5'),
+      checkNote: L("Beshta minus toq, ishora qoladi; ko'rsatkich esa 2 · 5", 'Пять минусов нечётно, знак остаётся; показатель это 2 на 5', 'Five minuses is odd, the sign stays; the exponent is 2 · 5'),
       wrongs: [
         { key: 'f', tag: 'Z3', hint: L("Beshta minus toq son.", 'Пять минусов это нечётное число.', 'Five minuses is odd.') },
         { key: 'g', tag: 'Z6', hint: L("Yetti bu 2 qo'shuv 5. Bu yerda ko'paytirish.", 'Семь это 2 плюс 5. А здесь умножение.', 'Seven is 2 plus 5. Here it is multiplication.') },
@@ -820,9 +820,9 @@ const S11 = {
     'A negative coefficient, an even power. The two letters have different exponents.',
   ),
   checkNote: L(
-    "Minus uchning kvadrati to'qqiz; x da 2 karra 2, y da 3 karra 2",
+    "Minus uchning kvadrati to'qqiz; x da 2 · 2, y da 3 · 2",
     'Квадрат минус трёх это девять; у x это 2 на 2, у y это 3 на 2',
-    'Minus three squared is nine; for x it is 2 times 2, for y it is 3 times 2',
+    'Minus three squared is nine; for x it is 2 · 2, for y it is 3 · 2',
   ),
   wrongs: [
     { key: 'b', tag: 'Z3', hint: L("Juft daraja minusni yo'qotadi: ikkita minus bir-birini so'ndiradi.", 'Чётная степень убирает минус: два минуса гасят друг друга.', 'An even power removes the minus: two minuses cancel.') },
@@ -895,7 +895,7 @@ const S12 = {
       'Посчитай коэффициент верно. А показатель буквы как и был.',
       'Work the coefficient out correctly. The letter exponent stays as it was.',
     ),
-    checkNote: L("Ikkilik TO'RT marta olinadi: 2 karra 2 karra 2 karra 2 teng 16", 'Двойка берётся ЧЕТЫРЕ раза: 2 на 2 на 2 на 2 это 16', 'The two is taken FOUR times: 2 times 2 times 2 times 2 is 16'),
+    checkNote: L("Ikkilik TO'RT marta olinadi: 2 · 2 · 2 · 2 = 16", 'Двойка берётся ЧЕТЫРЕ раза: 2 на 2 на 2 на 2 = 16', 'The two is taken FOUR times: 2 · 2 · 2 · 2 = 16'),
     wrongs: [
       { key: 'c|b', tag: 'Z5', hint: L("Sakkiz bu uchta ikkilik. Tashqi ko'rsatkich esa to'rt.", 'Восемь это три двойки. А внешний показатель четыре.', 'Eight is three twos. The outer exponent is four.') },
       { key: '*', tag: 'Z1', hint: L("Koeffitsiyent tashqi darajaga ko'tariladi.", 'Коэффициент возводится во внешнюю степень.', 'The coefficient is raised to the outer power.') },
@@ -978,9 +978,9 @@ const S13 = {
     'Divide the coefficient, subtract the exponents.',
   ),
   checkNote: L(
-    "12 bo'lish 3 teng 4; a da 5 ayirish 2, b da 3 ayirish 1. Tekshiruv: 4a³b² karra 3a²b teng 12a⁵b³",
-    '12 разделить на 3 это 4; у a это 5 минус 2, у b это 3 минус 1. Проверка: 4a³b² · 3a²b = 12a⁵b³',
-    '12 divided by 3 is 4; for a it is 5 minus 2, for b it is 3 minus 1. Check: 4a³b² · 3a²b = 12a⁵b³',
+    "12 : 3 = 4; a da 5 − 2, b da 3 − 1. Tekshiruv: 4a³b² karra 3a²b = 12a⁵b³",
+    '12 : 3 = 4; у a это 5 − 2, у b это 3 − 1. Проверка: 4a³b² · 3a²b = 12a⁵b³',
+    '12 : 3 = 4; for a it is 5 − 2, for b it is 3 − 1. Check: 4a³b² · 3a²b = 12a⁵b³',
   ),
   wrongs: [
     { key: 'b', tag: 'Z1', hint: L("To'qqiz bu 12 ayirish 3. Koeffitsiyentda BO'LISH kerak.", 'Девять это 12 минус 3. В коэффициенте нужно ДЕЛЕНИЕ.', 'Nine is 12 minus 3. The coefficient needs DIVISION.') },
@@ -1031,7 +1031,7 @@ function Screen13({ screen, onAnswer, ...rest }) {
 const S14 = {
   eyebrow: L('BLITS', 'БЛИЦ', 'QUICK ROUND'),
   title: L("To'rt savol", 'Четыре вопроса', 'Four questions'),
-  question: L('Nimaga teng?', 'Чему равно?', 'What does it equal?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   items: [
     {
       wrap: true,

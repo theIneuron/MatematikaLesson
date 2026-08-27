@@ -168,7 +168,7 @@ const S1 = {
   },
   probe: {
     question: L(
-      "Ikki o'quvchi 2a qo'shuv 3a ni ixchamladi. Biri 6a, ikkinchisi 5a deb yozdi. Kim to'g'ri qildi?",
+      "Ikki o'quvchi 2a + 3a ni ixchamladi. Biri 6a, ikkinchisi 5a deb yozdi. Kim to'g'ri qildi?",
       'Два ученика упростили 2a + 3a. Один написал 6a, другой 5a. Кто сделал верно?',
       'Two students simplified 2a + 3a. One wrote 6a, the other 5a. Who did it right?',
     ),
@@ -402,7 +402,7 @@ const S4 = {
   ],
   answer: ['p7'],
   prompt: L(
-    "4p qo'shuv 8t qo'shuv 3p. Faqat o'xshash hadlarni ixchamlang.",
+    "4p + 8t + 3p. Faqat o'xshash hadlarni ixchamlang.",
     '4p + 8t + 3p. Приведи только подобные слагаемые.',
     '4p + 8t + 3p. Collect only the like terms.',
   ),
@@ -470,9 +470,9 @@ const S5 = {
   ],
   answer: ['p5'],
   prompt: L(
-    "2a bu a qo'shuv a, 3a esa a qo'shuv a qo'shuv a. Hammasi bo'lib nechta a bor?",
-    '2a это a плюс a, а 3a это a плюс a плюс a. Сколько всего a?',
-    '2a is a plus a, and 3a is a plus a plus a. How many a are there in all?',
+    "2a bu a + a, 3a esa a + a + a. Hammasi bo'lib nechta a bor?",
+    '2a это a + a, а 3a это a + a + a. Сколько всего a?',
+    '2a is a + a, and 3a is a + a + a. How many a are there in all?',
   ),
   checkNote: L(
     "Beshta a. Koeffitsiyent -- bu shunchaki harflar SONI",
@@ -542,9 +542,9 @@ const S6 = {
     'In the first term no number is visible before the letter. Which number goes into the bracket?',
   ),
   checkNote: L(
-    "Ko'rinmaydigan bir ham qavsga tushadi, va 1 qo'shuv 3 to'rtga teng",
-    'Невидимая единица тоже уходит в скобку, и 1 плюс 3 равно четырём',
-    'The invisible one goes into the bracket too, and 1 plus 3 is four',
+    "Ko'rinmaydigan bir ham qavsga tushadi, va 1 + 3 to'rtga teng",
+    'Невидимая единица тоже уходит в скобку, и 1 + 3 равно четырём',
+    'The invisible one goes into the bracket too, and 1 + 3 is four',
   ),
   wrongs: [
     { key: 'p0|p3', tag: 'Z4', hint: L("Nol bo'lganda birinchi had umuman yo'qolardi. Lekin u yozuvda turibdi.", 'Если бы там был нуль, первое слагаемое исчезло бы совсем. А оно в записи стоит.', 'If it were zero, the first term would vanish entirely. But it is there in the line.') },
@@ -595,7 +595,7 @@ const S7 = {
     { id: 'bad', expr: '15p', sub: () => '15 · 2', val: () => 30 },
   ],
   probe: {
-    question: L("p teng 2 bo'lganda 4p qo'shuv 8 qo'shuv 3p nechaga teng?", 'Чему равно 4p + 8 + 3p при p = 2?', 'What is 4p + 8 + 3p when p = 2?'),
+    question: L("p = 2 bo'lganda 4p + 8 + 3p nechaga teng?", 'Чему равно 4p + 8 + 3p при p = 2?', 'What is 4p + 8 + 3p when p = 2?'),
     items: [
       { id: 'a', label: '22', correct: true },
       { id: 'b', label: '30', tag: 'Z2', hint: L("30 uchala son qo'shilib, keyin 2 ga ko'paytirilganda chiqadi. Sakkizning yonida harf yo'q.", '30 получается, если сложить все три числа и умножить на 2. А у восьмёрки буквы нет.', '30 comes from adding all three numbers and multiplying by 2. But the eight has no letter.') },
@@ -741,7 +741,7 @@ function Screen8({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S9 = {
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
-  title: L('Uchtasi ketma-ket', 'Три подряд', 'Three in a row'),
+  title: L('Uchta yozuvni ixchamlaymiz', 'Приводим три записи', 'Collecting three expressions'),
   reward: {
     title: L('Uchtasi ham topildi', 'Все три найдены', 'All three found'),
     text: L(
@@ -755,8 +755,8 @@ const S9 = {
       template: ['6a − 3a + 5a  =  ', { slot: 0 }, 'a'],
       parts: [{ id: 'p8', label: '8' }, { id: 'p14', label: '14' }, { id: 'p2', label: '2' }, { id: 'p90', label: '90' }],
       answer: ['p8'],
-      prompt: L("6a ayirish 3a qo'shuv 5a. Ixchamlang.", '6a − 3a + 5a. Приведи подобные.', '6a − 3a + 5a. Collect the like terms.'),
-      checkNote: L('6 ayirish 3 qo\'shuv 5 teng 8', '6 минус 3 плюс 5 равно 8', '6 minus 3 plus 5 is 8'),
+      prompt: L("6a − 3a + 5a. Ixchamlang.", '6a − 3a + 5a. Приведи подобные.', '6a − 3a + 5a. Collect the like terms.'),
+      checkNote: L('6 − 3 + 5 = 8', '6 − 3 + 5 = 8', '6 − 3 + 5 = 8'),
       wrongs: [
         { key: 'p14', tag: 'Z5', hint: L("14 bu uchala sonning yig'indisi. Ikkinchi son oldida minus turibdi.", '14 это сумма всех трёх чисел. А перед вторым стоит минус.', '14 is the sum of all three. But the second one has a minus before it.') },
         { key: '*', tag: 'Z5', hint: L("Koeffitsiyentlarni ISHORASI bilan qo'shing: 6, minus 3, qo'shuv 5.", 'Складывай коэффициенты ВМЕСТЕ со знаками: 6, минус 3, плюс 5.', 'Add the coefficients WITH their signs: 6, minus 3, plus 5.') },
@@ -766,8 +766,8 @@ const S9 = {
       template: ['14b − 8b + 4b  =  ', { slot: 0 }, 'b'],
       parts: [{ id: 'q10', label: '10' }, { id: 'q26', label: '26' }, { id: 'q2', label: '2' }, { id: 'q18', label: '18' }],
       answer: ['q10'],
-      prompt: L("14b ayirish 8b qo'shuv 4b. Ixchamlang.", '14b − 8b + 4b. Приведи подобные.', '14b − 8b + 4b. Collect the like terms.'),
-      checkNote: L('14 ayirish 8 qo\'shuv 4 teng 10', '14 минус 8 плюс 4 равно 10', '14 minus 8 plus 4 is 10'),
+      prompt: L("14b − 8b + 4b. Ixchamlang.", '14b − 8b + 4b. Приведи подобные.', '14b − 8b + 4b. Collect the like terms.'),
+      checkNote: L('14 − 8 + 4 = 10', '14 − 8 + 4 = 10', '14 − 8 + 4 = 10'),
       wrongs: [
         { key: 'q26', tag: 'Z5', hint: L("Ikkinchi had oldida minus turibdi, uni qo'shib bo'lmaydi.", 'Перед вторым слагаемым стоит минус, его нельзя прибавлять.', 'The second term has a minus, it cannot be added.') },
         { key: '*', tag: 'Z5', hint: L("Ishoralarni yozuvdan ko'chiring: 14, minus 8, qo'shuv 4.", 'Перенеси знаки из записи: 14, минус 8, плюс 4.', 'Carry the signs across from the line: 14, minus 8, plus 4.') },
@@ -777,8 +777,8 @@ const S9 = {
       template: ['2b − 3b + 8b  =  ', { slot: 0 }, 'b'],
       parts: [{ id: 'w7', label: '7' }, { id: 'w13', label: '13' }, { id: 'w3', label: '3' }, { id: 'w48', label: '48' }],
       answer: ['w7'],
-      prompt: L("2b ayirish 3b qo'shuv 8b. Ixchamlang.", '2b − 3b + 8b. Приведи подобные.', '2b − 3b + 8b. Collect the like terms.'),
-      checkNote: L('2 ayirish 3 minus bir beradi, keyin qo\'shuv 8 teng 7', '2 минус 3 даёт минус один, потом плюс 8 равно 7', '2 minus 3 gives minus one, then plus 8 is 7'),
+      prompt: L("2b − 3b + 8b. Ixchamlang.", '2b − 3b + 8b. Приведи подобные.', '2b − 3b + 8b. Collect the like terms.'),
+      checkNote: L('2 − 3 minus bir beradi, keyin qo\'shuv 8 = 7', '2 − 3 даёт минус один, потом плюс 8 = 7', '2 − 3 gives minus one, then plus 8 = 7'),
       wrongs: [
         { key: 'w13', tag: 'Z5', hint: L("Bu uchala sonning yig'indisi. Ikkinchisi manfiy.", 'Это сумма всех трёх. Второе отрицательное.', 'That is the sum of all three. The second one is negative.') },
         { key: '*', tag: 'Z5', hint: L("2 dan 3 ni ayirsak minus bir chiqadi. Endi unga 8 ni qo'shing.", 'Из 2 вычесть 3 будет минус один. Теперь прибавь 8.', '2 minus 3 is minus one. Now add 8.') },
@@ -845,14 +845,14 @@ const S10 = {
   ],
   answer: ['p2', 'p5', 'p3'],
   prompt: L(
-    "6p ayirish 3q qo'shuv 3 ayirish 4p ayirish 2q. Har bir harf uchun alohida ishlang, harfsiz had esa o'z joyida qoladi.",
+    "6p − 3q + 3 − 4p − 2q. Har bir harf uchun alohida ishlang, harfsiz had esa o'z joyida qoladi.",
     '6p − 3q + 3 − 4p − 2q. Работай с каждой буквой отдельно, а слагаемое без буквы остаётся на месте.',
     '6p − 3q + 3 − 4p − 2q. Work with each letter separately, and the term with no letter stays put.',
   ),
   checkNote: L(
-    "p uchun 6 ayirish 4, q uchun minus 3 ayirish 2, uchlik esa tegilmadi",
-    'Для p: 6 минус 4. Для q: минус 3 минус 2. Тройку не тронули',
-    'For p: 6 minus 4. For q: minus 3 minus 2. The three was left alone',
+    "p uchun 6 − 4, q uchun minus 3 − 2, uchlik esa tegilmadi",
+    'Для p: 6 − 4. Для q: минус 3 − 2. Тройку не тронули',
+    'For p: 6 − 4. For q: minus 3 − 2. The three was left alone',
   ),
   wrongs: [
     { key: 'p2|p1|p3', tag: 'Z5', hint: L("q uchun ikkala koeffitsiyent ham manfiy: minus 3 va minus 2. Ularni ishorasi bilan qo'shing.", 'У q оба коэффициента отрицательные: минус 3 и минус 2. Сложи их вместе со знаками.', 'Both coefficients of q are negative: minus 3 and minus 2. Add them with their signs.') },
@@ -912,14 +912,14 @@ const S11 = {
   ],
   answer: ['p3', 'p10'],
   prompt: L(
-    "5x qo'shuv 3 ayirish 2x qo'shuv 7. Ixchamlang, qadamlar ekranda ko'rinmaydi.",
+    "5x + 3 − 2x + 7. Ixchamlang, qadamlar ekranda ko'rinmaydi.",
     '5x + 3 − 2x + 7. Приведи подобные, шаги на экране не появятся.',
     '5x + 3 − 2x + 7. Collect the like terms, no steps will appear.',
   ),
   checkNote: L(
-    "x uchun 5 ayirish 2, sonlar uchun 3 qo'shuv 7",
-    'Для x: 5 минус 2. Для чисел: 3 плюс 7',
-    'For x: 5 minus 2. For the numbers: 3 plus 7',
+    "x uchun 5 − 2, sonlar uchun 3 + 7",
+    'Для x: 5 − 2. Для чисел: 3 + 7',
+    'For x: 5 − 2. For the numbers: 3 + 7',
   ),
   wrongs: [
     { key: 'p7|p10', tag: 'Z5', hint: L("x oldidagi ikkinchi son minus bilan turibdi. 5 va 2 ni qo'shmang, ayiring.", 'Второе число при x стоит с минусом. Не складывай 5 и 2, а вычитай.', 'The second number at x has a minus. Do not add 5 and 2, subtract.') },
@@ -1151,7 +1151,7 @@ function Screen13({ screen, onAnswer, ...rest }) {
 const S14 = {
   eyebrow: L('BLITS', 'БЛИЦ', 'QUICK ROUND'),
   title: L("To'rt savol", 'Четыре вопроса', 'Four questions'),
-  question: L('Nimaga teng?', 'Чему равно?', 'What does it equal?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   items: [
     {
       prompt: '4a + 5a',
@@ -1176,7 +1176,7 @@ const S14 = {
     {
       wrap: true,
       question: null,
-      prompt: L("3x qo'shuv 2y ni ixchamlash mumkinmi?", 'Можно ли привести 3x + 2y?', 'Can 3x + 2y be collected?'),
+      prompt: L("3x + 2y ni ixchamlash mumkinmi?", 'Можно ли привести 3x + 2y?', 'Can 3x + 2y be collected?'),
       ok: L("Harfiy qismlari har xil, demak ular o'xshash emas.", 'Буквенные части разные, значит слагаемые не подобны.', 'The letter parts differ, so the terms are not alike.'),
       items: [
         { id: 'a', correct: true, label: L("Yo'q, harflar har xil", 'Нет, буквы разные', 'No, the letters differ') },

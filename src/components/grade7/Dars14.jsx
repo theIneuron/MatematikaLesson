@@ -249,7 +249,7 @@ function Screen1({ screen, onAnswer, ...rest }) {
 const S2 = {
   eyebrow: L('TAYANCH', 'ОПОРА', 'WARM-UP'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Nimaga teng?', 'Чему равно?', 'What does it equal?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   items: [
     {
       prompt: '(3a)³',
@@ -754,7 +754,7 @@ function Screen8({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S9 = {
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
-  title: L('Uchtasi ketma-ket', 'Три подряд', 'Three in a row'),
+  title: L("Uchta xossani qo'llaymiz", 'Применяем три свойства', 'Applying three properties'),
   reward: {
     title: L('Uchtasi ham topildi', 'Все три найдены', 'All three found'),
     text: L(
@@ -924,9 +924,9 @@ const S11 = {
     'Three powers multiplied, one base. The exponents carry a letter.',
   ),
   checkNote: L(
-    "n qo'shuv 2n qo'shuv 5n teng 8n. Harfli ko'rsatkich ham oddiy ko'rsatkich kabi qo'shiladi",
-    'n плюс 2n плюс 5n равно 8n. Буквенный показатель складывается так же, как обычный',
-    'n plus 2n plus 5n is 8n. A letter exponent adds just like a number',
+    "n qo'shuv 2n + 5n = 8n. Harfli ko'rsatkich ham oddiy ko'rsatkich kabi qo'shiladi",
+    'n плюс 2n + 5n = 8n. Буквенный показатель складывается так же, как обычный',
+    'n plus 2n + 5n = 8n. A letter exponent adds just like a number',
   ),
   wrongs: [
     { key: 'b', tag: 'Z6', hint: L("O'n n bu n qo'shuv 2n qo'shuv 7n bo'lardi. Uchinchi ko'rsatkich esa 5n.", 'Десять n вышло бы из n плюс 2n плюс 7n. А третий показатель 5n.', 'Ten n would come from n plus 2n plus 7n. The third exponent is 5n.') },
@@ -1080,7 +1080,11 @@ const S13 = {
         'Сначала раскроем скобки: в степени степени показатели умножают.',
         'First open the brackets: a power of a power multiplies the exponents.',
       ),
-      checkNote: L("Besh karra olti bu 30, to'rt karra besh bu 20", 'Пять на шесть это 30, четыре на пять это 20', 'Five times six is 30, four times five is 20'),
+      checkNote: L(
+    "5 · 6 = 30, 4 · 5 = 20",
+    '5 · 6 = 30, 4 · 5 = 20',
+    '5 · 6 = 30, 4 · 5 = 20',
+  ),
       wrongs: [
         { key: 'c|b', tag: 'Z2', hint: L("O'n bir bu besh qo'shuv olti. Darajaning darajasida esa ko'paytiriladi.", 'Одиннадцать это пять плюс шесть. А в степени степени умножают.', 'Eleven is five plus six. A power of a power multiplies.') },
         { key: '*', tag: 'Z2', hint: L("Har qavsda ko'rsatkichlarni ko'paytiring.", 'В каждой скобке умножь показатели.', 'Multiply the exponents in each bracket.') },
@@ -1091,8 +1095,8 @@ const S13 = {
       parts: [{ id: 'e', label: '⁵' }, { id: 'f', label: '32' }, { id: 'g', label: '⁵⁹' }, { id: 'h', label: '10' }],
       answer: ['e', 'f'],
       prompt: L(
-        "Endi ko'paytirishda qo'shamiz, bo'lishda ayiramiz: 9 qo'shuv 30 qo'shuv 20 ayirish 54.",
-        'Теперь в умножении складываем, в делении вычитаем: 9 плюс 30 плюс 20 минус 54.',
+        "Endi ko'paytirishda qo'shamiz, bo'lishda ayiramiz: 9 + 30 + 20 − 54.",
+        'Теперь в умножении складываем, в делении вычитаем: 9 + 30 + 20 − 54.',
         'Now add for multiplication and subtract for division: 9 plus 30 plus 20 minus 54.',
       ),
       checkNote: L("Ko'rsatkich besh, qiymat esa 32", 'Показатель пять, а значение 32', 'The exponent is five and the value is 32'),
@@ -1157,7 +1161,7 @@ function Screen13({ screen, onAnswer, ...rest }) {
 const S14 = {
   eyebrow: L('BLITS', 'БЛИЦ', 'QUICK ROUND'),
   title: L("To'rt savol", 'Четыре вопроса', 'Four questions'),
-  question: L('Nimaga teng?', 'Чему равно?', 'What does it equal?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   items: [
     {
       wrap: true,

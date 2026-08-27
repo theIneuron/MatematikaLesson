@@ -123,7 +123,7 @@ const S2 = {
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   items: [
     {
       prompt: '2x(x + 5)',
@@ -466,7 +466,7 @@ const S9 = {
   kind: 'chain',
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
   title: L('Javobni toping', 'Найди ответ', 'Find the answer'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -551,9 +551,9 @@ const S10 = {
     'The two outer products are written. Write the two middle ones.',
   ),
   checkNote: L(
-    "Uch x karra besh o'n besh x, manfiy ikki karra ikki x esa manfiy to'rt x.",
-    'Три x на пять это пятнадцать x, а минус два на два x это минус четыре x.',
-    'Three x times five is fifteen x, and minus two times two x is minus four x.',
+    "3x · 5 = 15x, −2 · 2x = −4x.",
+    '3x · 5 = 15x, а −2 · 2x = −4x.',
+    '3x · 5 = 15x, and −2 · 2x = −4x.',
   ),
   wrongs: [
     { key: 'c', tag: 'Z6', hint: L("Manfiy ikki beshga emas, ikki x ga ko'paytiriladi.", 'Минус два умножается на два x, а не на пять.', 'Minus two is multiplied by two x, not by five.') },
@@ -705,9 +705,9 @@ const S13 = {
     'Start from the last product: it must give minus twenty.',
   ),
   checkNote: L(
-    "Manfiy besh karra to'rt manfiy yigirma beradi, o'rtada esa sakkiz a dan o'n besh a ayirilib manfiy yetti a chiqadi.",
-    'Минус пять на четыре даёт минус двадцать, а в середине из восьми a вычитается пятнадцать a и выходит минус семь a.',
-    'Minus five times four gives minus twenty, and in the middle fifteen a is taken from eight a, giving minus seven a.',
+    "−5 · 4 = −20, o'rtada esa 8a − 15a = −7a.",
+    '−5 · 4 = −20, а в середине 8a − 15a = −7a.',
+    '−5 · 4 = −20, and in the middle 8a − 15a = −7a.',
   ),
   wrongs: [
     { key: 'b', tag: 'Z3', hint: L("Manfiy besh karra manfiy to'rt musbat yigirma berardi, bizga esa manfiy kerak.", 'Минус пять на минус четыре дало бы плюс двадцать, а нужен минус.', 'Minus five times minus four would give plus twenty, but a minus is needed.') },
@@ -730,7 +730,7 @@ const S14 = {
   items: [
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '(x + 1)(x + 6)',
       ok: L("Birlik ham had, u ikki ko'paytmada qatnashdi.", 'Единица тоже член, она участвовала в двух произведениях.', 'One is a term too, it took part in two products.'),
       items: [
@@ -742,7 +742,7 @@ const S14 = {
     },
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '(a − 3)(a + 3)',
       ok: L("O'rta ikki ko'paytma bir-birini yo'q qildi.", 'Два средних произведения уничтожили друг друга.', 'The two middle products cancelled each other.'),
       items: [
@@ -770,7 +770,7 @@ const S14 = {
     },
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '(2y + 1)(3y − 2)',
       ok: L("O'rtada uch y dan to'rt y ayirildi va bitta manfiy y qoldi.", 'В середине из трёх y вычлось четыре y и остался один минус y.', 'In the middle four y was taken from three y and one minus y was left.'),
       items: [

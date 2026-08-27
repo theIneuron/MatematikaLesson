@@ -21,9 +21,9 @@ const DATA = {
     'Дано:',
     'Given:'),
   cards: [
-    { id: 'a', label: L('burchak A', 'угол A', 'angle A') },
-    { id: 'b', label: L('= burchak C', '= угол C', '= angle C') },
-    { id: 'c', label: L('= burchak B', '= угол B', '= angle B') },
+    { id: 'a', label: '∠A' },
+    { id: 'b', label: '= ∠C' },
+    { id: 'c', label: '= ∠B' },
     { id: 'd', label: '= 90°' },
   ],
   answerSeq: ['a', 'b'],

@@ -58,10 +58,10 @@ const S1 = {
   cols: 2,
   probe: {
     question: L(
-      "Bir qo'shuv ikkining kubi. Bittasi kublarni qo'shdi, ikkinchisi to'rt had hisobladi. Tabloda natija turadi. Aslida nechchi bo'ladi?",
-      'Один плюс два в кубе. Один сложил кубы, другой посчитал четыре члена. На табло результат. Сколько на самом деле?',
-      'One plus two, cubed. One student added the cubes, the other counted four terms. The boards show the results. What is it really?',
-    ),
+    "(1 + 2)³. Bittasi kublarni qo'shdi, ikkinchisi to'rt had hisobladi. Tabloda natija turadi. Aslida nechchi bo'ladi?",
+    '(1 + 2)³. Один сложил кубы, другой посчитал четыре члена. На табло результат. Сколько на самом деле?',
+    '(1 + 2)³. One student added the cubes, the other counted four terms. The boards show the results. What is it really?',
+  ),
     items: [
       {
         id: 'four',
@@ -117,7 +117,7 @@ const S2 = {
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -456,7 +456,7 @@ const S9 = {
   kind: 'chain',
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
   title: L('Javobni toping', 'Найди ответ', 'Find the answer'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 1,
   items: [
     {
@@ -540,9 +540,9 @@ const S10 = {
     'Write the two middle terms. The last one is there.',
   ),
   checkNote: L(
-    "Uch karra x kvadrat karra uch to'qqiz x kvadrat beradi. Uch karra x karra to'qqiz esa yigirma yetti x.",
-    'Три на x в квадрате на три это девять x в квадрате. Три на x на девять это двадцать семь x.',
-    'Three by x squared by three is nine x squared. Three by x by nine is twenty seven x.',
+    "3 · x² · 3 = 9x², 3 · x · 9 = 27x.",
+    '3 · x² · 3 = 9x², 3 · x · 9 = 27x.',
+    '3 · x² · 3 = 9x², 3 · x · 9 = 27x.',
   ),
   wrongs: [
     { key: 'c', tag: 'Z1', hint: L("Uchlik ko'paytuvchi majburiy: o'xshash kataklar uchta.", 'Тройной множитель обязателен: подобных клеток три.', 'The factor of three is required: there are three like cells.') },
@@ -672,9 +672,9 @@ const S13 = {
   eyebrow: L('KO\'CHIRISH', 'ПЕРЕНОС', 'TRANSFER'),
   title: L('O\'n birning kubi', 'Куб одиннадцати', 'Eleven cubed'),
   given: L(
-    "O'n birni kubga ko'taramiz: o'n bir bu o'n qo'shuv bir.",
-    'Возведём одиннадцать в куб: одиннадцать это десять плюс один.',
-    'Let us cube eleven: eleven is ten plus one.',
+    "11³ ni hisoblaymiz: 11 = 10 + 1.",
+    'Возведём 11³: 11 = 10 + 1.',
+    'Let us cube 11³: 11 = 10 + 1.',
   ),
   template: ['11³  =  (10 + 1)³  =  1000 + ', { slot: 0 }, ' + ', { slot: 1 }, ' + 1'],
   parts: [
@@ -690,9 +690,9 @@ const S13 = {
     'Work out the two middle terms.',
   ),
   checkNote: L(
-    "Uch karra yuz karra bir uch yuz beradi, uch karra o'n karra bir esa o'ttiz. Hammasi bir ming uch yuz o'ttiz bir.",
-    'Три на сто на один это триста, три на десять на один это тридцать. Всего тысяча триста тридцать один.',
-    'Three by one hundred by one is three hundred, three by ten by one is thirty. In all, one thousand three hundred thirty one.',
+    "3 · 100 · 1 = 300, 3 · 10 · 1 = 30. Hammasi 1331.",
+    '3 · 100 · 1 = 300, 3 · 10 · 1 = 30. Всего 1331.',
+    '3 · 100 · 1 = 300, 3 · 10 · 1 = 30. In all 1331.',
   ),
   wrongs: [
     { key: 'c', tag: 'Z1', hint: L("Uchlik ko'paytuvchi majburiy: uch karra yuz.", 'Тройной множитель обязателен: три на сто.', 'The factor of three is required: three times one hundred.') },
@@ -715,7 +715,7 @@ const S14 = {
   items: [
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '(x + 2)³',
       ok: L("Uchliklar olti va o'n ikki koeffitsiyentni berdi.", 'Тройки дали коэффициенты шесть и двенадцать.', 'The threes gave the coefficients six and twelve.'),
       items: [
@@ -727,7 +727,7 @@ const S14 = {
     },
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '(y − 2)³',
       ok: L("Ishoralar navbatlashdi.", 'Знаки чередовались.', 'The signs alternated.'),
       items: [
@@ -774,7 +774,7 @@ const S14 = {
     },
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '(3x + 1)³',
       ok: L("Uch x kubda yigirma yetti x kub, kvadratda esa to'qqiz x kvadrat.", 'Три x в кубе это двадцать семь x в кубе, а в квадрате девять x в квадрате.', 'Three x cubed is twenty seven x cubed, and squared it is nine x squared.'),
       items: [

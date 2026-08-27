@@ -173,7 +173,7 @@ function Screen1({ screen, onAnswer, ...rest }) {
 const S2 = {
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   items: [
     {
       prompt: '4x + 9 − x − 6',
@@ -662,7 +662,7 @@ function Screen8({ screen, onAnswer, ...rest }) {
 const S9 = {
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
   title: L('Javobni toping', 'Найди ответ', 'Find the answer'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   items: [
     {
       prompt: '(6a² − 9ab − 7b²) + (−8a² + ab + 6b²)',
@@ -768,7 +768,7 @@ const S10 = {
     { key: '*', tag: 'Z1', hint: L("Minus ikkala hadga ham tarqaladi.", 'Минус относится к обоим членам.', 'The minus reaches both terms.') },
   ],
   probe: {
-    question: L("Endi o'xshash hadlarni ixchamlang. Javob nima?", 'Теперь приведи подобные члены. Каков ответ?', 'Now collect the like terms. What is the answer?'),
+    question: L("Endi o'xshash hadlarni ixchamlang. Qiymati nechaga teng?", 'Теперь приведи подобные члены. Чему равно значение?', 'Now collect the like terms. What is its value?'),
     items: [
       { id: 'a', correct: true, label: '16x − 17y' },
       { id: 'b', tag: 'Z6', label: '16x − 9y', hint: L("Uchta y li had bor: to'rt, to'rt va to'qqiz, hammasi manfiy.", 'Членов с y три: четыре, четыре и девять, все отрицательные.', 'There are three y terms: four, four and nine, all negative.') },
@@ -1070,7 +1070,7 @@ const S14 = {
   items: [
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '(3a − 4b) − (−6a + 7b)',
       ok: L("Minus ikkala hadning ishorasini almashtirdi.", 'Минус поменял знак у обоих членов.', 'The minus flipped the sign of both terms.'),
       items: [
@@ -1082,7 +1082,7 @@ const S14 = {
     },
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '(a² − a + 7) − (a² + a + 8)',
       ok: L("a kvadratlar so'ndi.", 'a в квадрате погасились.', 'The a squared cancelled.'),
       items: [
@@ -1106,7 +1106,7 @@ const S14 = {
     },
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '(x² + 5x + 4) − (x² + 5x − 4)',
       ok: L("Harfli hadlar so'ndi, son qoldi.", 'Члены с буквами погасились, осталось число.', 'The letter terms cancelled, a number is left.'),
       items: [

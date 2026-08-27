@@ -115,7 +115,7 @@ const S2 = {
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -456,7 +456,7 @@ const S9 = {
   kind: 'chain',
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
   title: L('Javobni toping', 'Найди ответ', 'Find the answer'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -540,9 +540,9 @@ const S10 = {
     'Write the first and the middle terms. The last one is already there.',
   ),
   checkNote: L(
-    "Besh x ni kvadratga ko'tarsak yigirma besh x kvadrat. Ikki karra ko'paytma esa ikki karra besh x karra ikki, ya'ni yigirma x.",
-    'Пять x в квадрате это двадцать пять x в квадрате. Двойное произведение это два на пять x на два, то есть двадцать x.',
-    'Five x squared is twenty five x squared. The double product is two times five x times two, that is twenty x.',
+    "(5x)² = 25x². Ikki karra ko'paytma: 2 · 5x · 2 = 20x.",
+    '(5x)² = 25x². Двойное произведение: 2 · 5x · 2 = 20x.',
+    '(5x)² = 25x². The double product: 2 · 5x · 2 = 20x.',
   ),
   wrongs: [
     { key: 'c', tag: 'Z4', hint: L("Besh x karra besh x yigirma besh x kvadrat beradi.", 'Пять x на пять x это двадцать пять x в квадрате.', 'Five x times five x is twenty five x squared.') },
@@ -605,9 +605,9 @@ const S11 = {
     'Build it by the formula.',
   ),
   checkNote: L(
-    "Ikki karra ko'paytma bu ikki karra a karra yetti, ya'ni o'n to'rt a. Yettining kvadrati qirq to'qqiz.",
-    'Двойное произведение это два на a на семь, то есть четырнадцать a. Квадрат семи это сорок девять.',
-    'The double product is two times a times seven, that is fourteen a. The square of seven is forty nine.',
+    "Ikki karra ko'paytma: 2 · a · 7 = 14a. 7² = 49.",
+    'Двойное произведение: 2 · a · 7 = 14a. 7² = 49.',
+    'The double product: 2 · a · 7 = 14a. 7² = 49.',
   ),
   wrongs: [
     { key: 'c', tag: 'Z1', hint: L("a karra yetti katagi ikkita.", 'Клеток с a на семь две.', 'There are two cells with a times seven.') },
@@ -664,10 +664,10 @@ const S12 = {
       'Write the missing product and put the answer right.',
     ),
     checkNote: L(
-      "Kataklar to'rtta: x karra x, x karra to'rt, to'rt karra x va to'rt karra to'rt. O'rtadagi ikkitasi sakkiz x beradi.",
-      'Клеток четыре: x на x, x на четыре, четыре на x и четыре на четыре. Два средних дают восемь x.',
-      'There are four cells: x by x, x by four, four by x and four by four. The two middle ones give eight x.',
-    ),
+    "Kataklar to'rtta: x · x, x · 4, 4 · x va 4 · 4. O'rtadagi ikkitasi 8x beradi.",
+    'Клеток четыре: x · x, x · 4, 4 · x и 4 · 4. Два средних дают 8x.',
+    'There are four cells: x · x, x · 4, 4 · x and 4 · 4. The two middle ones give 8x.',
+  ),
     wrongs: [
       { key: 'c', tag: 'Z2', hint: L("To'rt karra x da x harfi qoladi.", 'В четыре на x буква x остаётся.', 'In four times x the letter x stays.') },
       { key: 'd', tag: 'Z6', hint: L("O'rta ko'paytma ikkita, har biri to'rt x.", 'Средних произведений два, каждое по четыре x.', 'There are two middle products, four x each.') },
@@ -709,9 +709,9 @@ const S13 = {
     'The double product and the square of the second.',
   ),
   checkNote: L(
-    "Ikki karra o'ttiz karra bir oltmish beradi, birning kvadrati esa bir. Hammasi bo'lib to'qqiz yuz oltmish bir.",
-    'Два на тридцать на один это шестьдесят, а один в квадрате это один. Всего девятьсот шестьдесят один.',
-    'Two times thirty times one is sixty, and one squared is one. In all, nine hundred sixty one.',
+    "2 · 30 · 1 = 60, 1² = 1. Hammasi 961.",
+    '2 · 30 · 1 = 60, 1² = 1. Всего 961.',
+    '2 · 30 · 1 = 60, 1² = 1. In all 961.',
   ),
   wrongs: [
     { key: 'c', tag: 'Z1', hint: L("Ko'paytma ikki marta olinadi: ikki karra o'ttiz karra bir.", 'Произведение берётся дважды: два на тридцать на один.', 'The product is taken twice: two times thirty times one.') },
@@ -734,7 +734,7 @@ const S14 = {
   items: [
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '(x + 6)²',
       ok: L("Ikki karra ko'paytma o'n ikki x.", 'Двойное произведение это двенадцать x.', 'The double product is twelve x.'),
       items: [
@@ -746,7 +746,7 @@ const S14 = {
     },
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '(2a − 1)²',
       ok: L("Koeffitsiyent kvadratga ko'tarildi, o'rta had manfiy.", 'Коэффициент возведён в квадрат, средний член отрицательный.', 'The coefficient is squared and the middle term is negative.'),
       items: [
@@ -774,7 +774,7 @@ const S14 = {
     },
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '(3y + 4)²',
       ok: L("Uch y kvadratga ko'tarildi, o'rta had yigirma to'rt y.", 'Три y возвели в квадрат, средний член двадцать четыре y.', 'Three y was squared, and the middle term is twenty four y.'),
       items: [

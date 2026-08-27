@@ -172,7 +172,7 @@ const S1 = {
   },
   probe: {
     question: L(
-      "Ikkalasi ham x teng 3 topdi, javob esa boshqa yozdi. Nega?",
+      "Ikkalasi ham x = 3 topdi, javob esa boshqa yozdi. Nega?",
       'Оба получили x = 3, а ответы записали разные. Почему?',
       'Both got x = 3 but wrote different answers. Why?',
     ),
@@ -255,7 +255,7 @@ function Screen1({ screen, onAnswer, ...rest }) {
 const S2 = {
   eyebrow: L('TAYANCH', 'ОПОРА', 'WARM-UP'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Nimaga teng?', 'Чему равно?', 'What does it equal?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   items: [
     {
       prompt: '3x − x',
@@ -270,7 +270,7 @@ const S2 = {
     {
       wrap: true,
       question: null,
-      prompt: L("2x teng 6 tenglamaning ildizi?", 'Корень уравнения 2x = 6?', 'The root of 2x = 6?'),
+      prompt: L("2x = 6 tenglamaning ildizi?", 'Корень уравнения 2x = 6?', 'The root of 2x = 6?'),
       ok: L("Ikkala tomon ikkiga bo'lindi.", 'Обе части разделили на два.', 'Both sides were divided by two.'),
       items: [
         { id: 'a', label: '3', correct: true },
@@ -562,7 +562,7 @@ const S6 = {
   ],
   answer: ['p9'],
   prompt: L(
-    "Savol dastlabki ip haqida edi, u esa jadvalda 3x. x teng 3 ni qo'ying va javobni toping.",
+    "Savol dastlabki ip haqida edi, u esa jadvalda 3x. x = 3 ni qo'ying va javobni toping.",
     'Вопрос был про пряжу в начале, а она в таблице это 3x. Подставь x = 3 и найди ответ.',
     'The question was about the yarn at the start, which is 3x in the table. Put x = 3 and find the answer.',
   ),
@@ -634,7 +634,7 @@ const S7 = {
         'Девочек вдвое больше, чем мальчиков, всего 27. Заверши уравнение.',
         'Twice as many girls as boys, 27 in all. Finish the equation.',
       ),
-      checkNote: L("3x teng 27, demak x teng 9", '3x = 27, значит x = 9', '3x = 27, so x = 9'),
+      checkNote: L("3x = 27, demak x = 9", '3x = 27, значит x = 9', '3x = 27, so x = 9'),
       wrongs: [
         { key: 'q9', tag: 'Z4', hint: L("To'qqiz bu javob, u hali topilmagan. Tenglamada shartdagi son turadi.", 'Девять это ответ, он ещё не найден. В уравнении стоит число из условия.', 'Nine is the answer, not yet found. The equation takes the number from the condition.') },
         { key: '*', tag: 'Z4', hint: L("Shartda bitta son bor: hammasi yigirma yetti nafar.", 'В условии есть одно число: всего двадцать семь человек.', 'The condition gives one number: twenty seven in all.') },
@@ -645,7 +645,7 @@ const S7 = {
       parts: [{ id: 'w9', label: '9' }, { id: 'w18', label: '18' }, { id: 'w27', label: '27' }, { id: 'w3', label: '3' }],
       answer: ['w9'],
       prompt: L(
-        "x teng 9. Savol o'g'il bolalar haqida edi. Javobni yozing.",
+        "x = 9. Savol o'g'il bolalar haqida edi. Javobni yozing.",
         'x = 9. Вопрос был про мальчиков. Запиши ответ.',
         'x = 9. The question was about the boys. Write the answer.',
       ),
@@ -803,7 +803,7 @@ function Screen8({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S9 = {
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
-  title: L('Uchtasi ketma-ket', 'Три подряд', 'Three in a row'),
+  title: L("Uchta masaladan javob", 'Три задачи до ответа', 'Three problems through to the answer'),
   reward: {
     title: L('Uchtasi ham topildi', 'Все три найдены', 'All three found'),
     text: L(
@@ -837,7 +837,7 @@ const S9 = {
         'Вместе у них 30 тетрадей. Заверши уравнение.',
         'Together they have 30 notebooks. Finish the equation.',
       ),
-      checkNote: L("5x teng 30, demak x teng 6", '5x = 30, значит x = 6', '5x = 30, so x = 6'),
+      checkNote: L("5x = 30, demak x = 6", '5x = 30, значит x = 6', '5x = 30, so x = 6'),
       wrongs: [
         { key: 'q6', tag: 'Z4', hint: L("Olti bu javob, u hali topilmagan. Tenglamada shartdagi son turadi.", 'Шесть это ответ, он ещё не найден. В уравнении стоит число из условия.', 'Six is the answer, not yet found. The equation takes the number from the condition.') },
         { key: '*', tag: 'Z4', hint: L("Shartda bitta son bor: hammasi o'ttizta.", 'В условии есть одно число: всего тридцать.', 'The condition gives one number: thirty in all.') },
@@ -848,11 +848,11 @@ const S9 = {
       parts: [{ id: 'w24', label: '24' }, { id: 'w6', label: '6' }, { id: 'w30', label: '30' }, { id: 'w5', label: '5' }],
       answer: ['w24'],
       prompt: L(
-        "x teng 6. Savol Anvardagi daftarlar haqida. Javobni yozing.",
+        "x = 6. Savol Anvardagi daftarlar haqida. Javobni yozing.",
         'x = 6. Вопрос про тетради Анвара. Запиши ответ.',
         'x = 6. The question is about Anvar notebooks. Write the answer.',
       ),
-      checkNote: L("Anvarda 4x, ya'ni 24 ta. Tekshiruv: 6 qo'shuv 24 teng 30", 'У Анвара 4x, то есть 24. Проверка: 6 плюс 24 равно 30', 'Anvar has 4x, that is 24. Check: 6 plus 24 is 30'),
+      checkNote: L("Anvarda 4x, ya'ni 24 ta. Tekshiruv: 6 + 24 = 30", 'У Анвара 4x, то есть 24. Проверка: 6 + 24 = 30', 'Anvar has 4x, that is 24. Check: 6 + 24 = 30'),
       wrongs: [
         { key: 'w6', tag: 'Z1', hint: L("Olti bu x, ya'ni Sardordagi daftarlar. Savol Anvar haqida.", 'Шесть это x, то есть тетради Сардора. Вопрос про Анвара.', 'Six is x, the notebooks Sardor has. The question is about Anvar.') },
         { key: '*', tag: 'Z1', hint: L("Anvardagi daftarlar 4x deb yozilgan.", 'Тетради Анвара записаны как 4x.', 'Anvar notebooks were written as 4x.') },
@@ -1006,7 +1006,7 @@ const S11 = {
     'A library has five times as many maths books as physics books. There are 42 in all. How many maths books?',
   ),
   checkNote: L(
-    "Fizika kitoblari x, matematika 5x. 6x teng 42, x teng 7, matematika esa 5x teng 35",
+    "Fizika kitoblari x, matematika 5x. 6x = 42, x = 7, matematika esa 5x = 35",
     'Книги по физике x, по математике 5x. 6x = 42, x = 7, а по математике 5x = 35',
     'Physics books x, maths 5x. 6x = 42, x = 7, and maths is 5x = 35',
   ),
@@ -1086,7 +1086,7 @@ const S12 = {
       'Вопрос был про отца. Посчитай верный ответ.',
       'The question was about the father. Work out the right answer.',
     ),
-    checkNote: L("Tekshiruv: 36 qo'shuv 12 teng 48, va 36 soni 12 dan uch marta ko'p", 'Проверка: 36 плюс 12 равно 48, и 36 втрое больше 12', 'Check: 36 plus 12 is 48, and 36 is three times 12'),
+    checkNote: L("Tekshiruv: 36 + 12 = 48, va 36 soni 12 dan uch marta ko'p", 'Проверка: 36 + 12 = 48, и 36 втрое больше 12', 'Check: 36 + 12 = 48, and 36 is three times 12'),
     wrongs: [
       { key: 'v12', tag: 'Z1', hint: L("O'n ikki bu o'g'ilning yoshi. Ota uch marta katta.", 'Двенадцать это возраст сына. Отец втрое старше.', 'Twelve is the son age. The father is three times older.') },
       { key: '*', tag: 'Z1', hint: L("Otaning yoshi 3x deb yozilgan, x esa o'n ikki.", 'Возраст отца записан как 3x, а x равен двенадцати.', 'The father age was written as 3x, and x is twelve.') },
@@ -1187,11 +1187,11 @@ const S13 = {
       ],
       answer: ['q35'],
       prompt: L(
-        "Tenglamani yechsak x teng 7. Savol kattaroq miqdor haqida bo'lsa, javob nima?",
+        "Tenglamani yechsak x = 7. Savol kattaroq miqdor haqida bo'lsa, javob nima?",
         'Решив уравнение, получим x = 7. Если вопрос про большую величину, каков ответ?',
         'Solving it gives x = 7. If the question is about the larger quantity, what is the answer?',
       ),
-      checkNote: L("Kattasi 5x, ya'ni 35. Tekshiruv: 7 qo'shuv 35 teng 42", 'Большая это 5x, то есть 35. Проверка: 7 плюс 35 равно 42', 'The larger is 5x, that is 35. Check: 7 plus 35 is 42'),
+      checkNote: L("Kattasi 5x, ya'ni 35. Tekshiruv: 7 + 35 = 42", 'Большая это 5x, то есть 35. Проверка: 7 + 35 = 42', 'The larger is 5x, that is 35. Check: 7 + 35 = 42'),
       wrongs: [
         { key: 'q7', tag: 'Z1', hint: L("Yetti bu x, ya'ni kichigi. Savol kattasi haqida.", 'Семь это x, то есть меньшая. Вопрос про большую.', 'Seven is x, the smaller one. The question is about the larger.') },
         { key: '*', tag: 'Z1', hint: L("Kattasi 5x, x esa yetti.", 'Большая это 5x, а x равен семи.', 'The larger is 5x, and x is seven.') },
@@ -1253,7 +1253,7 @@ function Screen13({ screen, onAnswer, ...rest }) {
 const S14 = {
   eyebrow: L('BLITS', 'БЛИЦ', 'QUICK ROUND'),
   title: L("To'rt savol", 'Четыре вопроса', 'Four questions'),
-  question: L('Nimaga teng?', 'Чему равно?', 'What does it equal?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   items: [
     {
       wrap: true,
@@ -1307,7 +1307,7 @@ const S14 = {
       wrap: true,
       question: null,
       prompt: L(
-        "O'g'il x, ota 3x. x teng 12 chiqdi. Savol ota haqida bo'lsa, javob nima?",
+        "O'g'il x, ota 3x. x = 12 chiqdi. Savol ota haqida bo'lsa, javob nima?",
         'Сын x, отец 3x. Вышло x = 12. Если вопрос про отца, каков ответ?',
         'Son x, father 3x. It came out x = 12. If the question is about the father, what is the answer?',
       ),

@@ -167,7 +167,7 @@ const S1 = {
   },
   probe: {
     question: L(
-      "Ikkinchi darsda 12 karra a yozuviga istalgan sonni qo'yardik. Endi yonida tenglik belgisi va 36 turibdi. Nima o'zgardi?",
+      "Ikkinchi darsda 12 · a yozuviga istalgan sonni qo'yardik. Endi yonida tenglik belgisi va 36 turibdi. Nima o'zgardi?",
       'Во втором уроке в запись 12 · a мы ставили любое число. Теперь рядом знак равенства и 36. Что изменилось?',
       'In lesson two we put any number into 12 · a. Now there is an equals sign and 36 beside it. What changed?',
     ),
@@ -251,7 +251,7 @@ function Screen1({ screen, onAnswer, ...rest }) {
 const S2 = {
   eyebrow: L('TAYANCH', 'ОПОРА', 'WARM-UP'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Nimaga teng?', 'Чему равно?', 'What does it equal?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   items: [
     {
       prompt: '12 · 3',
@@ -266,7 +266,7 @@ const S2 = {
     {
       wrap: true,
       question: null,
-      prompt: L("5 qo'shuv 4 teng 10 tenglik to'g'rimi?", 'Верно ли равенство 5 + 4 = 10?', 'Is the equality 5 + 4 = 10 true?'),
+      prompt: L("5 + 4 = 10 tenglik to'g'rimi?", 'Верно ли равенство 5 + 4 = 10?', 'Is the equality 5 + 4 = 10 true?'),
       ok: L("Tenglik ikki tomoni bir xil son bo'lgandagina to'g'ri bo'ladi.", 'Равенство верно только тогда, когда обе части дают одно число.', 'An equality is true only when both sides give the same number.'),
       items: [
         { id: 'a', correct: true, label: L("Yo'q, chapda 9, o'ngda 10", 'Нет, слева 9, справа 10', 'No, nine on the left and ten on the right') },
@@ -278,7 +278,7 @@ const S2 = {
     {
       wrap: true,
       question: null,
-      prompt: L("12 karra a yozuvi nechta har xil qiymat bera oladi?", 'Сколько разных значений может дать запись 12 · a?', 'How many different values can the expression 12 · a give?'),
+      prompt: L("12 · a yozuvi nechta har xil qiymat bera oladi?", 'Сколько разных значений может дать запись 12 · a?', 'How many different values can the expression 12 · a give?'),
       ok: L("Ifodada o'zgaruvchi son uchun joy tutib turadi.", 'В выражении переменная держит место для числа.', 'In an expression a variable holds a place for a number.'),
       items: [
         { id: 'a', correct: true, label: L("Qancha son qo'ysak, shuncha", 'Сколько чисел поставим, столько', 'As many as the numbers we put in') },
@@ -331,7 +331,7 @@ const S3 = {
     { id: 'left', expr: '12 · a', sub: (n) => '12 · ' + n, val: (n) => 12 * n },
   ],
   probe: {
-    question: L("12 karra a teng 36 tenglikni nechta son to'g'ri qiladi?", 'Сколько чисел делают равенство 12 · a = 36 верным?', 'How many numbers make the equality 12 · a = 36 true?'),
+    question: L("12 · a = 36 tenglikni nechta son to'g'ri qiladi?", 'Сколько чисел делают равенство 12 · a = 36 верным?', 'How many numbers make the equality 12 · a = 36 true?'),
     items: [
       { id: 'one', correct: true, label: L('Bittasi', 'Одно', 'One') },
       { id: 'many', tag: 'Z1', label: L("Qancha qo'ysak, shuncha", 'Сколько ни поставим, столько', 'As many as we care to put in'), hint: L("Uchta son qo'ydingiz, va faqat bittasida qatorlar teng bo'ldi. Qolgan ikkitasida yo'q.", 'Ты поставил три числа, и только при одном строки совпали. При двух других нет.', 'You put in three numbers, and the rows matched at only one. Not at the other two.') },
@@ -392,14 +392,14 @@ const S4 = {
   ],
   answer: ['p5'],
   prompt: L(
-    "x qo'shuv 4 teng 9. Qaysi son x o'rniga turganda tenglik to'g'ri bo'ladi?",
+    "x + 4 = 9. Qaysi son x o'rniga turganda tenglik to'g'ri bo'ladi?",
     'x + 4 = 9. Какое число на месте x делает равенство верным?',
     'x + 4 = 9. Which number in the place of x makes the equality true?',
   ),
   checkNote: L(
-    "5 qo'shuv 4 teng 9. Ikkala tomon bir xil, demak 5 ildiz",
-    '5 плюс 4 равно 9. Обе части совпали, значит 5 корень',
-    '5 plus 4 is 9. Both sides match, so 5 is the root',
+    "5 + 4 = 9. Ikkala tomon bir xil, demak 5 ildiz",
+    '5 + 4 = 9. Обе части совпали, значит 5 корень',
+    '5 + 4 = 9. Both sides match, so 5 is the root',
   ),
   wrongs: [
     { key: 'p13', tag: 'Z2', hint: L("13 bu 9 qo'shuv 4, ya'ni ikkala sonning yig'indisi. Ildiz esa x o'rniga TURADIGAN son.", '13 это 9 плюс 4, то есть сумма обоих чисел. А корень это число, которое СТАНОВИТСЯ на место x.', '13 is 9 plus 4, the sum of both numbers. But a root is the number that TAKES the place of x.') },
@@ -458,7 +458,7 @@ const S5 = {
     { id: 'right', role: 'source', expr: '7', sub: () => '7', val: () => 7 },
   ],
   probe: {
-    question: L("3 soni 3x ayirish 2 teng 7 tenglamaning ildizimi?", 'Является ли число 3 корнем уравнения 3x − 2 = 7?', 'Is the number 3 a root of the equation 3x − 2 = 7?'),
+    question: L("3 soni 3x − 2 = 7 tenglamaning ildizimi?", 'Является ли число 3 корнем уравнения 3x − 2 = 7?', 'Is the number 3 a root of the equation 3x − 2 = 7?'),
     items: [
       { id: 'yes', correct: true, label: L("Ha", 'Да', 'Yes') },
       { id: 'no', tag: 'Z3', label: L("Yo'q", 'Нет', 'No'), hint: L("Chap tomonni hisoblang: 3 karra 3 ayirish 2. Chiqqan son 7 bilan bir xilmi?", 'Посчитай левую часть: 3 умножить на 3 минус 2. Совпало ли это число с семёркой?', 'Work out the left side: 3 times 3 minus 2. Does it match the seven?') },
@@ -518,14 +518,14 @@ const S6 = {
   ],
   answer: ['p4'],
   prompt: L(
-    "5x teng 20. Qaysi son x o'rniga turganda tenglik to'g'ri bo'ladi?",
+    "5x = 20. Qaysi son x o'rniga turganda tenglik to'g'ri bo'ladi?",
     '5x = 20. Какое число на месте x делает равенство верным?',
     '5x = 20. Which number in the place of x makes the equality true?',
   ),
   checkNote: L(
-    '5 karra 4 teng 20. Tenglik to\'g\'ri, demak 4 ildiz',
-    '5 умножить на 4 равно 20. Равенство верное, значит 4 корень',
-    '5 times 4 is 20. The equality is true, so 4 is the root',
+    '5 · 4 = 20. Tenglik to\'g\'ri, demak 4 ildiz',
+    '5 · 4 = 20. Равенство верное, значит 4 корень',
+    '5 · 4 = 20. The equality is true, so 4 is the root',
   ),
   wrongs: [
     { key: 'p15', tag: 'Z2', hint: L("15 bu 20 ayirish 5. Lekin 5 bilan x orasida ko'paytirish turibdi, ayirish emas.", '15 это 20 минус 5. Но между 5 и x стоит умножение, а не вычитание.', '15 is 20 minus 5. But between the 5 and the x there is a multiplication, not a subtraction.') },
@@ -576,7 +576,7 @@ const S7 = {
     { id: 'right', role: 'source', expr: 'x', sub: (n) => String(n), val: (n) => n },
   ],
   probe: {
-    question: L("x qo'shuv 5 teng x tenglikni qaysi son to'g'ri qiladi?", 'Какое число делает равенство x + 5 = x верным?', 'Which number makes the equality x + 5 = x true?'),
+    question: L("x + 5 = x tenglikni qaysi son to'g'ri qiladi?", 'Какое число делает равенство x + 5 = x верным?', 'Which number makes the equality x + 5 = x true?'),
     items: [
       { id: 'none', correct: true, label: L("Bittasi ham yo'q", 'Ни одно', 'None') },
       { id: 'zero', tag: 'Z4', label: '0', hint: L("Nolni qo'ying: chapda 5, o'ngda 0. Bular teng emas. Ildizi nol bo'lish va ildizi yo'q bo'lish -- ikki boshqa narsa.", 'Поставь нуль: слева 5, справа 0. Это не равно. Корень нуль и отсутствие корней это разные вещи.', 'Put in zero: five on the left, zero on the right. Not equal. A root of zero and no root at all are different things.') },
@@ -722,7 +722,7 @@ function Screen8({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S9 = {
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
-  title: L('Uchtasi ketma-ket', 'Три подряд', 'Three in a row'),
+  title: L('Uchta ildizni topamiz', 'Находим три корня', 'Finding three roots'),
   reward: {
     title: L('Uchtasi ham topildi', 'Все три найдены', 'All three found'),
     text: L(
@@ -736,8 +736,8 @@ const S9 = {
       template: ['x − 7 = 3,     x = ', { slot: 0 }],
       parts: [{ id: 'p10', label: '10' }, { id: 'p4', label: '4' }, { id: 'p21', label: '21' }, { id: 'p3', label: '3' }],
       answer: ['p10'],
-      prompt: L("x ayirish 7 teng 3. Ildizni toping.", 'x − 7 = 3. Найди корень.', 'x − 7 = 3. Find the root.'),
-      checkNote: L('10 ayirish 7 teng 3, tenglik to\'g\'ri', '10 минус 7 равно 3, равенство верное', '10 minus 7 is 3, the equality is true'),
+      prompt: L("x − 7 = 3. Ildizni toping.", 'x − 7 = 3. Найди корень.', 'x − 7 = 3. Find the root.'),
+      checkNote: L('10 − 7 = 3, tenglik to\'g\'ri', '10 − 7 = 3, равенство верное', '10 − 7 = 3, the equality is true'),
       wrongs: [
         { key: 'p4', tag: 'Z2', hint: L("4 bu 7 ayirish 3. Uni qo'ysangiz, chapda minus 3 chiqadi.", '4 это 7 минус 3. Подставь его, и слева выйдет минус 3.', '4 is 7 minus 3. Substitute it and the left gives minus 3.') },
         { key: '*', tag: 'Z3', hint: L("Har bir sonni qo'yib, chap tomonni hisoblang. Qaysi biri 3 beradi.", 'Подставь каждое число и посчитай левую часть. Какое из них даст 3.', 'Substitute each number and work out the left side. Which gives 3.') },
@@ -747,8 +747,8 @@ const S9 = {
       template: ['4x = 24,     x = ', { slot: 0 }],
       parts: [{ id: 'q6', label: '6' }, { id: 'q20', label: '20' }, { id: 'q28', label: '28' }, { id: 'q96', label: '96' }],
       answer: ['q6'],
-      prompt: L("4x teng 24. Ildizni toping.", '4x = 24. Найди корень.', '4x = 24. Find the root.'),
-      checkNote: L('4 karra 6 teng 24, tenglik to\'g\'ri', '4 умножить на 6 равно 24, равенство верное', '4 times 6 is 24, the equality is true'),
+      prompt: L("4x = 24. Ildizni toping.", '4x = 24. Найди корень.', '4x = 24. Find the root.'),
+      checkNote: L('4 · 6 = 24, tenglik to\'g\'ri', '4 · 6 = 24, равенство верное', '4 · 6 = 24, the equality is true'),
       wrongs: [
         { key: 'q20', tag: 'Z2', hint: L("20 bu 24 ayirish 4. Lekin 4 bilan x orasida ko'paytirish turibdi.", '20 это 24 минус 4. Но между 4 и x стоит умножение.', '20 is 24 minus 4. But between the 4 and the x there is a multiplication.') },
         { key: '*', tag: 'Z3', hint: L("Qaysi son 4 ga ko'paytirilganda 24 beradi.", 'Какое число при умножении на 4 даёт 24.', 'Which number times 4 gives 24.') },
@@ -758,8 +758,8 @@ const S9 = {
       template: ['x : 3 = 5,     x = ', { slot: 0 }],
       parts: [{ id: 'w15', label: '15' }, { id: 'w8', label: '8' }, { id: 'w2', label: '2' }, { id: 'w53', label: '53' }],
       answer: ['w15'],
-      prompt: L("x bo'lish 3 teng 5. Ildizni toping.", 'x : 3 = 5. Найди корень.', 'x : 3 = 5. Find the root.'),
-      checkNote: L('15 ni 3 ga bo\'lsak 5, tenglik to\'g\'ri', '15 разделить на 3 будет 5, равенство верное', '15 divided by 3 is 5, the equality is true'),
+      prompt: L("x : 3 = 5. Ildizni toping.", 'x : 3 = 5. Найди корень.', 'x : 3 = 5. Find the root.'),
+      checkNote: L('15 ni 3 ga bo\'lsak 5, tenglik to\'g\'ri', '15 : 3 будет 5, равенство верное', '15 : 3 = 5, the equality is true'),
       wrongs: [
         { key: 'w8', tag: 'Z2', hint: L("8 bu 3 qo'shuv 5. Yozuvda esa bo'lish turibdi.", '8 это 3 плюс 5. А в записи стоит деление.', '8 is 3 plus 5. But the line has a division.') },
         { key: '*', tag: 'Z3', hint: L("Qaysi son 3 ga bo'linganda 5 beradi.", 'Какое число при делении на 3 даёт 5.', 'Which number divided by 3 gives 5.') },
@@ -824,7 +824,7 @@ const S10 = {
       parts: [{ id: 'p11', label: '11' }, { id: 'p15', label: '15' }, { id: 'p7', label: '7' }, { id: 'p3', label: '3' }],
       answer: ['p11'],
       prompt: L(
-        "3x ayirish 4 teng 11. Avval beshni tekshiramiz: chap tomon nechaga teng?",
+        "3x − 4 = 11. Avval beshni tekshiramiz: chap tomon nechaga teng?",
         '3x − 4 = 11. Сначала проверим пятёрку: чему равна левая часть?',
         '3x − 4 = 11. First check the five: what does the left side equal?',
       ),
@@ -917,14 +917,14 @@ const S11 = {
   ],
   answer: ['p6'],
   prompt: L(
-    "2x qo'shuv 3 teng 15. Jadval ham, qadamlar ham ekranda ko'rinmaydi.",
+    "2x + 3 = 15. Jadval ham, qadamlar ham ekranda ko'rinmaydi.",
     '2x + 3 = 15. Ни таблицы, ни шагов на экране не будет.',
     '2x + 3 = 15. Neither a table nor the steps will appear.',
   ),
   checkNote: L(
-    '2 karra 6 qo\'shuv 3 teng 15, tenglik to\'g\'ri',
-    '2 умножить на 6 плюс 3 равно 15, равенство верное',
-    '2 times 6 plus 3 is 15, the equality is true',
+    '2 · 6 + 3 = 15, tenglik to\'g\'ri',
+    '2 · 6 + 3 = 15, равенство верное',
+    '2 · 6 + 3 = 15, the equality is true',
   ),
   wrongs: [
     { key: 'p9', tag: 'Z5', hint: L("9 bu 15 ayirish 6. Lekin 2 ga ko'paytirish ham bor.", '9 это 15 минус 6. Но есть ещё умножение на 2.', '9 is 15 minus 6. But there is also the multiplication by 2.') },
@@ -1089,7 +1089,7 @@ const S13 = {
         'Теперь найди корень и проверь его.',
         'Now find the root and check it.',
       ),
-      checkNote: L("25 qo'shuv 20 teng 45. Tenglik to'g'ri, demak o'ylangan son 25", '25 плюс 20 равно 45. Равенство верное, значит задумали 25', '25 plus 20 is 45. The equality is true, so the number thought of was 25'),
+      checkNote: L("25 + 20 = 45. Tenglik to'g'ri, demak o'ylangan son 25", '25 + 20 = 45. Равенство верное, значит задумали 25', '25 + 20 = 45. The equality is true, so the number thought of was 25'),
       wrongs: [
         { key: 'q65', tag: 'Z2', hint: L("65 bu 45 qo'shuv 20. Uni qo'ysangiz, chapda 85 chiqadi.", '65 это 45 плюс 20. Подставь его, и слева выйдет 85.', '65 is 45 plus 20. Substitute it and the left gives 85.') },
         { key: '*', tag: 'Z3', hint: L("Har bir sonni qo'yib, chap tomonni hisoblang. Qaysi biri 45 beradi.", 'Подставь каждое число и посчитай левую часть. Какое из них даст 45.', 'Substitute each number and work out the left side. Which gives 45.') },
@@ -1154,12 +1154,12 @@ function Screen13({ screen, onAnswer, ...rest }) {
 const S14 = {
   eyebrow: L('BLITS', 'БЛИЦ', 'QUICK ROUND'),
   title: L("To'rt savol", 'Четыре вопроса', 'Four questions'),
-  question: L('Nimaga teng?', 'Чему равно?', 'What does it equal?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   items: [
     {
       wrap: true,
       question: null,
-      prompt: L("4x teng 24 tenglamaning ildizi qaysi son?", 'Какое число корень уравнения 4x = 24?', 'Which number is the root of the equation 4x = 24?'),
+      prompt: L("4x = 24 tenglamaning ildizi qaysi son?", 'Какое число корень уравнения 4x = 24?', 'Which number is the root of the equation 4x = 24?'),
       ok: L("To'rtga ko'paytirilganda yigirma to'rt beradigan son.", 'Число, которое при умножении на четыре даёт двадцать четыре.', 'The number that times four gives twenty four.'),
       items: [
         { id: 'a', label: '6', correct: true },
@@ -1181,7 +1181,7 @@ const S14 = {
     {
       wrap: true,
       question: null,
-      prompt: L("x qo'shuv 5 teng x tenglamaning nechta ildizi bor?", 'Сколько корней у уравнения x + 5 = x?', 'How many roots does the equation x + 5 = x have?'),
+      prompt: L("x + 5 = x tenglamaning nechta ildizi bor?", 'Сколько корней у уравнения x + 5 = x?', 'How many roots does the equation x + 5 = x have?'),
       ok: L("Chap tomon har doim beshga katta, shuning uchun tenglik hech qachon to'g'ri bo'lmaydi.", 'Левая часть всегда на пять больше, поэтому равенство не бывает верным.', 'The left side is always five bigger, so the equality is never true.'),
       items: [
         { id: 'a', correct: true, label: L("Bittasi ham yo'q", 'Ни одного', 'None') },

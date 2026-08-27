@@ -117,7 +117,7 @@ const S2 = {
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -300,9 +300,9 @@ const S6 = {
     'Divide each term by 5x².',
   ),
   checkNote: L(
-    "O'n beshni beshga bo'lsak uch, to'rtta x dan ikkitasi o'chadi. Yigirma beshni beshga bo'lsak besh, va x lar butunlay o'chadi.",
-    'Пятнадцать на пять это три, из четырёх x вычёркиваются две. Двадцать пять на пять это пять, и все x вычеркнуты.',
-    'Fifteen by five is three, and two of the four x are crossed out. Twenty five by five is five, and all the x are gone.',
+    "15 : 5 = 3, to'rtta x dan ikkitasi o'chadi. 25 : 5 = 5, va x lar butunlay o'chadi.",
+    '15 : 5 = 3, из четырёх x вычёркиваются две. 25 : 5 = 5, и все x вычеркнуты.',
+    '15 : 5 = 3, and two of the four x are crossed out. 25 : 5 = 5, and all the x are gone.',
   ),
   wrongs: [
     { key: 'c', tag: 'Z4', hint: L("To'rtdan ikkini ayirsak ikki qoladi, ya'ni x kvadrat.", 'Четыре минус два это два, значит x в квадрате.', 'Four minus two is two, so x squared.') },
@@ -456,7 +456,7 @@ const S9 = {
   kind: 'chain',
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
   title: L('Javobni toping', 'Найди ответ', 'Find the answer'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -540,9 +540,9 @@ const S10 = {
     'Divide each term. Count the letters separately.',
   ),
   checkNote: L(
-    "Yigirma to'rtni oltiga bo'lsak to'rt, a lardan ikkitasi o'chadi, b lardan bittasi o'chadi. Ikkinchi hadda esa b butunlay o'chadi.",
-    'Двадцать четыре на шесть это четыре, из a вычёркиваются две, из b одна. А во втором члене b вычёркивается полностью.',
-    'Twenty four by six is four, two a are crossed out and one b. In the second term the b is fully crossed out.',
+    "24 : 6 = 4, a lardan ikkitasi o'chadi, b lardan bittasi o'chadi. Ikkinchi hadda esa b butunlay o'chadi.",
+    '24 : 6 = 4, из a вычёркиваются две, из b одна. А во втором члене b вычёркивается полностью.',
+    '24 : 6 = 4, two a are crossed out and one b. In the second term the b is fully crossed out.',
   ),
   wrongs: [
     { key: 'c', tag: 'Z2', hint: L("Birinchi hadda b ikkita edi, bittasi qoladi.", 'В первом члене b было две, одна остаётся.', 'The first term had two b, so one is left.') },
@@ -586,9 +586,9 @@ const S11 = {
     'Write the first and the last terms. The middle one is already there.',
   ),
   checkNote: L(
-    "Yettidan uchni ayirsak to'rt qoladi. Oxirgi had bo'luvchiga teng, shuning uchun undan birlik qoladi.",
-    'Семь минус три это четыре. Последний член равен делителю, поэтому от него остаётся единица.',
-    'Seven minus three is four. The last term equals the divisor, so a one is left of it.',
+    "7 − 3 = 4. Oxirgi had bo'luvchiga teng, shuning uchun undan birlik qoladi.",
+    '7 − 3 = 4. Последний член равен делителю, поэтому от него остаётся единица.',
+    '7 − 3 = 4. The last term equals the divisor, so a one is left of it.',
   ),
   wrongs: [
     { key: 'c', tag: 'Z4', hint: L("Bo'lishda ko'rsatkichlar ayiriladi, qo'shilmaydi.", 'При делении показатели вычитаются, а не складываются.', 'When dividing, the exponents subtract, they do not add.') },
@@ -643,10 +643,10 @@ const S12 = {
       'Work out the second quotient and put the answer right.',
     ),
     checkNote: L(
-      "Sakkizni to'rtga bo'lsak ikki, uchta a dan ikkitasi o'chadi va bittasi qoladi.",
-      'Восемь на четыре это два, из трёх a вычёркиваются две и одна остаётся.',
-      'Eight by four is two, two of the three a are crossed out and one stays.',
-    ),
+    "8 : 4 = 2, uchta a dan ikkitasi o'chadi va bittasi qoladi.",
+    '8 : 4 = 2, из трёх a вычёркиваются две и одна остаётся.',
+    '8 : 4 = 2, two of the three a are crossed out and one stays.',
+  ),
     wrongs: [
       { key: 'c', tag: 'Z1', hint: L("Bo'luvchi ikkinchi hadga ham boradi.", 'Делитель доходит и до второго члена.', 'The divisor reaches the second term too.') },
       { key: 'd', tag: 'Z1', hint: L("Javobning ikkinchi hadi ham tuzatiladi.", 'Второй член ответа тоже исправляется.', 'The second term of the answer gets fixed too.') },
@@ -714,7 +714,7 @@ const S14 = {
   items: [
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: 'x⁹ : x³',
       ok: L("Ko'rsatkichlar ayirildi.", 'Показатели вычлись.', 'The exponents subtracted.'),
       items: [
@@ -726,7 +726,7 @@ const S14 = {
     },
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '(10a³ − 10a²) : 10a²',
       ok: L("Ikkinchi had bo'luvchiga teng va birlik berdi.", 'Второй член равен делителю и дал единицу.', 'The second term equals the divisor and gave a one.'),
       items: [
@@ -754,7 +754,7 @@ const S14 = {
     },
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '(−15x⁵ + 6x³) : 3x³',
       ok: L("Birinchi had manfiy qoldi, ikkinchisi musbat.", 'Первый член остался отрицательным, второй положительным.', 'The first term stayed negative, the second positive.'),
       items: [

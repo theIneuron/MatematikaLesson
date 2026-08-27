@@ -143,6 +143,12 @@ const groupRow = (row) => {
   return out;
 };
 
+// Ustun bo'lib turish sharti (metodist qarori 2026-08-22, «global»): karta
+// yozuvida SO'Z bo'lsa yoki u uzun bo'lsa -- tor ekranda karta butun kenglikni
+// oladi. Faqat qisqa sonli kartalar yonma-yon qoladi: ulardan ustun yasash
+// balandlikni behuda yeydi, u esa bizda tanqis.
+const wordCard = (s) => /[A-Za-z]{3,}/.test(String(s)) || String(s).length > 10;
+
 const cardKey = (c) => (c && typeof c === 'object' ? (c.uz || '') : c);
 const cardLbl = (data, key) => {
   const c = (data.cards || []).find((x) => cardKey(x) === key);
@@ -167,6 +173,7 @@ const MobileCss = () => (
     @media (max-width: 639.98px) {
       .pq-opts { grid-template-columns: 1fr !important; }
       .pq-items { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+      .pq-items-1 { grid-template-columns: 1fr !important; }
       .pq-zrow { flex-direction: column !important; align-items: stretch !important; gap: 2px !important; }
       .pq-zlbl { width: auto !important; flex: none !important; justify-content: flex-start !important; text-align: left !important; }
       .pq-expr { gap: 0 !important; }
@@ -174,6 +181,19 @@ const MobileCss = () => (
     }
   `}</style>
 );
+
+// TOR EKRANNI BILISH (metodist QA si, 2026-08-22): amaliyot ildizi 640px dan
+// tor ekranda 390px qilib qotiriladi, ya'ni ichkarida joy oz. Yozuv kegli va
+// katak kengligi shu holatda kichrayadi -- aks holda qator ko'chib ketadi.
+export function useNarrow() {
+  const [narrow, setNarrow] = useState(typeof window !== 'undefined' && window.innerWidth < 640);
+  useEffect(() => {
+    const on = () => setNarrow(window.innerWidth < 640);
+    window.addEventListener('resize', on);
+    return () => window.removeEventListener('resize', on);
+  }, []);
+  return narrow;
+}
 
 // Sarlavha qismi: hamma mexanikada bir xil tartib -- eyebrow, shart, savol.
 const Head = ({ data, lang }) => (
@@ -367,7 +387,7 @@ export function TypeValue({ data, lang = 'uz', mode = 'answer', initialAnswer = 
 }
 
 // ============================================================ 3. SLOTSBANK
-// Uyalar va kartalar banki. `rows` — yozuvning qatorlari; qatorda tokenlar
+// Kataklar va kartalar banki. `rows` — yozuvning qatorlari; qatorda tokenlar
 // yoki `{ slot: n }`. Kartani bosasiz, keyin katakni bosasiz.
 // «Hammasi yoki hech narsa»: kataklarning hammasi to'g'ri bo'lishi kerak.
 export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
@@ -403,21 +423,62 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
   useRegister(check, registerCheck);
 
   const bd = A.checked ? (A.fb?.correct ? C.ok : C.no) : C.line;
-  const size = data.exprSize || 26;
+  const narrow = useNarrow();
+  const stackBank = narrow && data.cards.some((c) => wordCard(String(tr(cardLbl(data, cardKey(c)), lang))));
+  // Yozuvda SO'Z bo'lsa (masalan «ikkinchi o'tkir burchak»), tor ekranda kegl
+  // yana kichrayadi: so'zli podpis raqamdan uzun va qatorni ko'chirib yuboradi.
+  const wordyRow = (data.rows || []).some((row) => row.some((part) => (part.t || []).some((x) => /[A-Za-z']{3,}/.test(String(tr(x, lang))))));
+  const size = narrow ? (wordyRow ? 16 : 20) : (data.exprSize || 26);
   // Qatorni «=» bo'yicha ikkiga bo'lamiz: chap tomon, belgi, o'ng tomon.
-  const gridRows = data.rows.map((row) => {
-    const left = []; const right = []; let eq = false;
+  // Ustunni AJRATUVCHI belgi bo'yicha topamiz: «=» dan tashqari «--» va «→»
+  // ham ishlatiladi («eng katta tomon -- [katak]»). Ilgari faqat «=» qaralardi
+  // va bunday qator butunlay chap ustunga tushib, tekislanmay qolardi.
+  const SEPS = ['=', '--', '→', '->'];
+  const isSep = (x) => SEPS.indexOf(String(x)) !== -1;
+  // Bitta qatorda BIR NECHTA juftlik bo'lishi mumkin: «birinchi burchak = [katak]
+  // ikkinchisi = [katak]». Bunday qator ALOHIDA setka qatorlariga bo'linadi,
+  // aks holda ikkinchi juftlik birinchisining o'ng ustuniga tushib qolardi
+  // (metodist QA si, 2026-08-22).
+  const splitRow = (row) => {
+    let seps = 0; let slots = 0;
     row.forEach((part) => {
-      if (part.slot != null) { (eq ? right : left).push(part); return; }
-      const toks = part.t || [];
-      const k = eq ? -1 : toks.indexOf('=');
-      if (k === -1) { (eq ? right : left).push(part); return; }
-      if (k > 0) left.push({ t: toks.slice(0, k) });
-      eq = true;
-      if (k + 1 < toks.length) right.push({ t: toks.slice(k + 1) });
+      if (part.slot != null) { slots += 1; return; }
+      (part.t || []).forEach((x) => { if (isSep(x)) seps += 1; });
     });
-    return { left, eq, right };
-  });
+    const out = [];
+    let cur = { left: [], eq: null, right: [] };
+    const flush = () => { out.push(cur); cur = { left: [], eq: null, right: [] }; };
+    // Qatorda ajratuvchi belgi BO'LMASA, lekin katak bo'lsa («yechim [katak]»),
+    // podpis chap ustunda, katak esa o'ng ustunda turadi -- shunda u yuqoridagi
+    // qator katagi bilan bir vertikalda bo'ladi (metodist QA si, 2026-08-22).
+    if (seps === 0 && slots > 0) {
+      const i = row.findIndex((part) => part.slot != null);
+      return [{ left: row.slice(0, i), eq: null, right: row.slice(i) }];
+    }
+    const pairMode = seps >= 2 && slots >= 2;
+    row.forEach((part) => {
+      if (part.slot != null) {
+        (cur.eq ? cur.right : cur.left).push(part);
+        if (pairMode && cur.eq) flush();
+        return;
+      }
+      const toks = part.t || [];
+      let buf = [];
+      toks.forEach((x) => {
+        if (isSep(x) && (!cur.eq || pairMode)) {
+          if (buf.length) { (cur.eq ? cur.right : cur.left).push({ t: buf }); buf = []; }
+          if (cur.eq && pairMode) flush();
+          cur.eq = String(x);
+          return;
+        }
+        buf.push(x);
+      });
+      if (buf.length) (cur.eq ? cur.right : cur.left).push({ t: buf });
+    });
+    if (cur.left.length || cur.right.length || cur.eq) out.push(cur);
+    return out;
+  };
+  const gridRows = data.rows.reduce((acc, row) => acc.concat(splitRow(row)), []);
   const hasEq = gridRows.some((g) => g.eq);
   // Bir tomonni chizish. «Yozuv + katak» juftligi bitta bo'lak bo'lib ko'chadi.
   const renderSide = (parts, ri, side) => groupRow(parts).map((grp, gi) => (
@@ -428,17 +489,17 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
           return (
             <button key={pi} type="button" data-slot={i} disabled={A.locked} onClick={() => tapSlot(i)}
               style={{
-                minWidth: 74, borderRadius: 10, margin: '0 5px',
+                minWidth: narrow ? (wordyRow ? 46 : 54) : 74, borderRadius: 10, margin: narrow ? '0 2px' : '0 5px',
                 border: '2px ' + (slots[i] ? 'solid' : 'dashed') + ' ' + (slots[i] ? bd : (picked ? C.hot : C.line)),
                 background: slots[i] ? '#fff' : (picked ? '#fff7f2' : C.bg),
-                ...S.mono, fontSize: LINE_FS, color: C.ink, cursor: A.locked ? 'default' : 'pointer',
-                ...WRAP, height: 'auto', minHeight: 46, padding: '4px 8px',
+                ...S.mono, fontSize: narrow ? 18 : LINE_FS, color: C.ink, cursor: A.locked ? 'default' : 'pointer',
+                ...WRAP, height: 'auto', minHeight: narrow ? 40 : 46, padding: narrow ? '3px 6px' : '4px 8px',
               }}>
               <Sup s={slots[i] ? tr(cardLbl(data, slots[i]), lang) : ''} />
             </button>
           );
         }
-        return <Row key={pi} tokens={part.t} size={size} lang={lang} />;
+        return <Row key={pi} tokens={part.t} size={size} lang={lang} align={side === 'l' ? 'end' : (side === 'r' ? 'start' : 'center')} />;
       })}
     </span>
   ));
@@ -455,9 +516,9 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
       <div style={{ display: 'grid', gridTemplateColumns: hasEq ? 'auto auto auto' : 'auto', columnGap: 4, rowGap: 6, justifyContent: 'center', alignItems: 'center', width: 'fit-content', maxWidth: '100%', margin: '8px auto 6px' }}>
         {gridRows.map((g, ri) => (hasEq ? (
           <React.Fragment key={ri}>
-            <div style={{ justifySelf: 'end', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>{renderSide(g.left, ri, 'l')}</div>
-            <div style={{ justifySelf: 'center', ...S.mono, fontSize: size, color: C.ink, padding: '0 4px' }}>{g.eq ? '=' : ''}</div>
-            <div style={{ justifySelf: 'start', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>{renderSide(g.right, ri, 'r')}</div>
+            <div style={{ justifySelf: 'end', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 2, justifyContent: 'flex-end', textAlign: 'right', minWidth: 0 }}>{renderSide(g.left, ri, 'l')}</div>
+            <div style={{ justifySelf: 'center', ...S.mono, fontSize: size, color: C.ink, padding: '0 4px' }}>{g.eq || ''}</div>
+            <div style={{ justifySelf: 'start', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 2, minWidth: 0 }}>{renderSide(g.right, ri, 'r')}</div>
           </React.Fragment>
         ) : (
           <div key={ri} style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 2, justifyContent: 'center' }}>{renderSide(g.left, ri, 'o')}</div>
@@ -466,11 +527,11 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
       <div style={S.note}><Sup s={tr(data.ask, lang)} /></div>
       <div style={{ borderTop: '1px dashed ' + C.pale, paddingTop: 9 }}>
         <div style={S.bankLbl}>{String(tr(data.bank, lang)).toUpperCase()}</div>
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', minHeight: 46, alignItems: 'center', flexWrap: 'wrap', maxWidth: '100%' }}>
+        <div style={{ display: 'flex', gap: stackBank ? 6 : 8, justifyContent: 'center', minHeight: 46, alignItems: stackBank ? 'stretch' : 'center', flexDirection: stackBank ? 'column' : 'row', flexWrap: 'wrap', width: '100%', maxWidth: '100%' }}>
           {pool.length === 0 && <span style={{ fontSize: 13, color: C.line, fontWeight: 700 }}>—</span>}
           {pool.map((c) => (
             <button key={c} type="button" data-card={c} disabled={A.locked} onClick={() => setPicked(picked === c ? null : c)}
-              style={{ minWidth: 62, padding: '0 10px', height: 'auto', minHeight: 46, borderRadius: 12, border: '2px solid ' + (picked === c ? C.hot : C.line), background: picked === c ? C.hotBg : '#fff', ...S.mono, fontSize: CARD_FS, color: C.ink, cursor: A.locked ? 'default' : 'pointer' , ...WRAP}}>
+              style={{ minWidth: stackBank ? 0 : 62, width: stackBank ? '100%' : undefined, padding: '0 10px', height: 'auto', minHeight: stackBank ? 42 : 46, borderRadius: 12, border: '2px solid ' + (picked === c ? C.hot : C.line), background: picked === c ? C.hotBg : '#fff', ...S.mono, fontSize: CARD_FS, color: C.ink, cursor: A.locked ? 'default' : 'pointer' , ...WRAP, maxWidth: stackBank ? '100%' : 'min(250px, 100%)' }}>
               <Sup s={tr(cardLbl(data, c), lang)} />
             </button>
           ))}
@@ -519,7 +580,15 @@ export function TapTerms({ data, lang = 'uz', mode = 'answer', initialAnswer = n
           «(7m − 4) − (2m − 9)» ikki qatorga bo'linib, qavs pastda qolardi.
           Tor ekranda kegl va ichki bo'shliqlar kichrayadi -- yozuv butun
           ko'rinadi. So'zlar ro'yxatiga bu tegmaydi: u ko'chishi kerak. */}
-      <div className={wordy ? undefined : 'pq-expr'} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: 2, margin: '8px 0 4px' }}>
+      {/* SO'ZLI RO'YXAT USTUN BO'LIB TURADI (metodist QA si, 2026-08-22):
+          uch xulosa qatorga sig'masa, ikkitasi yonma-yon, uchinchisi pastda
+          qolardi -- ro'yxat emas, tasodifiy joylashuv ko'rinardi. Formula esa
+          bitta qator bo'lib qoladi: uning bo'laklari yozuvning o'zi. */}
+      <div className={wordy ? undefined : 'pq-expr'} style={{
+        display: 'flex', alignItems: 'center', margin: '8px 0 4px',
+        flexDirection: wordy ? 'column' : 'row',
+        justifyContent: 'center', flexWrap: 'wrap', gap: wordy ? 6 : 2,
+      }}>
         {data.parts.map((p, i) => {
           if (p.k === 'txt') return <span key={i} style={{ ...S.mono, fontSize: wordy ? CARD_FS : size, color: C.ink, padding: '0 3px' }}>{p.v}</span>;
           if (p.k === 'op') return <span key={i} style={{ ...S.mono, fontSize: wordy ? CARD_FS : size + 4, color: C.ink, padding: '2px 12px', margin: '0 4px', borderRadius: 9, background: '#f3eefa' }}>{p.v}</span>;
@@ -553,6 +622,8 @@ export function TapTerms({ data, lang = 'uz', mode = 'answer', initialAnswer = n
 export function MarkAll({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
   const [marked, setMarked] = useState([]);
   const itemOrder = useMemo(() => (data.noShuffle ? data.items.map((_, i) => i) : shuffled(data.items.length)), [data]);
+  // Yozuvlarida so'z bo'lsa, tor ekranda ular bitta ustunda turadi.
+  const wordItems = (data.items || []).some((it) => wordCard(tr(it.label, lang) || (it.tokens || []).map((x) => tr(x, lang)).join(' ')));
   const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa?.marked) setMarked(sa.marked); } });
   useEffect(() => { onReady?.(marked.length > 0 && !A.checked); }, [marked, A.checked, onReady]);
 
@@ -578,7 +649,7 @@ export function MarkAll({ data, lang = 'uz', mode = 'answer', initialAnswer = nu
       <Given data={data} lang={lang} />
       <p style={S.ask}><Sup s={tr(data.ask, lang)} /> {data.note ? <span style={{ fontSize: 13, color: C.mute, fontWeight: 600 }}>{tr(data.note, lang)}</span> : null}</p>
       <MobileCss />
-      <div className="pq-items" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(' + (data.col || 180) + 'px, 1fr))', gap: 7 }}>
+      <div className={wordItems ? 'pq-items-1' : 'pq-items'} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(' + (data.col || 180) + 'px, 1fr))', gap: 7 }}>
         {data.items.map((it) => {
           const on = marked.indexOf(it.id) !== -1;
           let bd = '#d6dae3'; let bg = '#fff';
@@ -658,6 +729,11 @@ export const evalSeq = (items) => {
 export function BuildLine({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
   const [seq, setSeq] = useState([]);      // karta id lari
   const cardOrder = useMemo(() => (data.noShuffle ? data.cards.map((_, i) => i) : shuffled(data.cards.length)), [data]);
+  // TELEFONDA UZUN KARTALAR USTUN BO'LIB TURADI (metodist qarori 2026-08-22):
+  // variantlar kabi -- har biri butun kenglikda, bittadan qatorda. Qisqa
+  // kartalar (son, bir had) avvalgidek yonma-yon qoladi.
+  const narrow = useNarrow();
+  const stackCards = narrow && data.cards.some((c) => wordCard(String(tr(c.label, lang))));
   const [pos, setPos] = useState(0);       // kursor o'rni
   const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa?.seq) { setSeq(sa.seq); setPos(sa.seq.length); } } });
   const byId = (id) => data.cards.find((c) => c.id === id);
@@ -720,12 +796,12 @@ export function BuildLine({ data, lang = 'uz', mode = 'answer', initialAnswer = 
         </div>
       ) : null}
       <div style={S.note}><Sup s={tr(data.ask, lang)} /></div>
-      <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap', alignItems: 'center', maxWidth: '100%' }}>
+      <div style={{ display: 'flex', gap: stackCards ? 6 : 8, justifyContent: 'center', flexWrap: 'wrap', alignItems: stackCards ? 'stretch' : 'center', flexDirection: stackCards ? 'column' : 'row', width: '100%', maxWidth: '100%' }}>
         {data.cards.map((c) => {
           const used = seq.indexOf(c.id) !== -1;
           return (
             <button key={c.id} type="button" data-card={c.id} disabled={used || A.locked} onClick={() => put(c.id)}
-              style={{ minWidth: 52, padding: '0 9px', height: 'auto', minHeight: 48, borderRadius: 13, border: '2px solid ' + (used ? '#eef0f4' : C.line), background: used ? C.bg : '#fff', ...S.mono, fontSize: CARD_FS, color: used ? C.line : toneOf(c.label), cursor: (used || A.locked) ? 'default' : 'pointer' , ...WRAP}}>
+              style={{ minWidth: stackCards ? 0 : 52, width: stackCards ? '100%' : undefined, padding: '0 9px', height: 'auto', minHeight: stackCards ? 42 : 48, borderRadius: 13, border: '2px solid ' + (used ? '#eef0f4' : C.line), background: used ? C.bg : '#fff', ...S.mono, fontSize: CARD_FS, color: used ? C.line : toneOf(c.label), cursor: (used || A.locked) ? 'default' : 'pointer' , ...WRAP, maxWidth: stackCards ? '100%' : 'min(250px, 100%)' }}>
               <Sup s={tr(c.label, lang)} />
             </button>
           );

@@ -250,7 +250,7 @@ function Screen1({ screen, onAnswer, ...rest }) {
 const S2 = {
   eyebrow: L('TAYANCH', 'ОПОРА', 'WARM-UP'),
   title: L('Modul nima edi', 'Что такое модуль', 'What the absolute value was'),
-  question: L('Nimaga teng?', 'Чему равно?', 'What does it equal?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   items: [
     {
       prompt: '|−7|',
@@ -277,7 +277,7 @@ const S2 = {
     {
       wrap: true,
       question: null,
-      prompt: L("x ayirish 3 ifoda qaysi sonda nolga aylanadi?", 'При каком числе выражение x − 3 обращается в нуль?', 'For which number does the expression x − 3 become zero?'),
+      prompt: L("x − 3 ifoda qaysi sonda nolga aylanadi?", 'При каком числе выражение x − 3 обращается в нуль?', 'For which number does the expression x − 3 become zero?'),
       ok: L("Bu son bugun markaz bo'lib xizmat qiladi.", 'Это число сегодня послужит центром.', 'That number will serve as the centre today.'),
       items: [
         { id: 'a', label: '3', correct: true },
@@ -581,12 +581,12 @@ const S7 = {
   ],
   answer: ['p_m4'],
   prompt: L(
-    "Beshinchi ekrandagi tenglamaning birinchi holati: x ayirish 3 teng 4. Ikkinchi holatni to'ldiring.",
+    "Beshinchi ekrandagi tenglamaning birinchi holati: x − 3 = 4. Ikkinchi holatni to'ldiring.",
     'Первый случай уравнения с пятого экрана такой: x − 3 = 4. Допиши второй случай.',
     'The first case of the equation from screen five is x − 3 = 4. Complete the second case.',
   ),
   checkNote: L(
-    "x ayirish 3 teng 4 dan x teng 7, x ayirish 3 teng minus 4 dan x teng minus 1",
+    "x ayirish 3 = 4 dan x = 7, x ayirish 3 teng minus 4 dan x teng minus 1",
     'Из x − 3 = 4 выходит x = 7, из x − 3 = −4 выходит x = −1',
     'From x − 3 = 4 comes x = 7, from x − 3 = −4 comes x = −1',
   ),
@@ -735,7 +735,7 @@ function Screen8({ screen, onAnswer, ...rest }) {
 // ============================================================
 const S9 = {
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
-  title: L('Uchtasi ketma-ket', 'Три подряд', 'Three in a row'),
+  title: L("Uchta modulli tenglama", 'Три уравнения с модулем', 'Three equations with absolute value'),
   reward: {
     title: L('Uchtasi ham topildi', 'Все три найдены', 'All three found'),
     text: L(
@@ -978,7 +978,11 @@ const S12 = {
       'Запиши второе уравнение и реши его.',
       'Write the second equation and solve it.',
     ),
-    checkNote: L("Minus sakkiz qo'shuv olti bu minus ikki, uning moduli esa ikki. Ildiz ikkita: minus to'rt va minus sakkiz", 'Минус восемь плюс шесть это минус два, его модуль два. Корней два: минус четыре и минус восемь', 'Minus eight plus six is minus two, whose absolute value is two. Two roots: minus four and minus eight'),
+    checkNote: L(
+    "−8 + 6 = −2, uning moduli esa 2. Ildiz ikkita: −4 va −8",
+    '−8 + 6 = −2, его модуль 2. Корней два: −4 и −8',
+    '−8 + 6 = −2, and its absolute value is 2. Two roots: −4 and −8',
+  ),
     wrongs: [
       { key: 'v2|v8', tag: 'Z1', hint: L("Birinchi tenglamada ikki bor edi. Ikkinchisi undan ISHORA bilan farq qiladi.", 'В первом уравнении двойка уже была. Второе отличается от него ЗНАКОМ.', 'The two was already in the first equation. The second differs from it by the SIGN.') },
       { key: '*', tag: 'Z1', hint: L("Modul ichidagi ifoda minus ikkiga ham teng bo'lishi mumkin, chunki masofa baribir ikki.", 'Выражение внутри модуля может равняться и минус двум, расстояние всё равно два.', 'The expression inside can equal minus two as well, the distance is still two.') },
@@ -1135,7 +1139,7 @@ function Screen13({ screen, onAnswer, ...rest }) {
 const S14 = {
   eyebrow: L('BLITS', 'БЛИЦ', 'QUICK ROUND'),
   title: L("To'rt savol", 'Четыре вопроса', 'Four questions'),
-  question: L('Nimaga teng?', 'Чему равно?', 'What does it equal?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   items: [
     {
       wrap: true,

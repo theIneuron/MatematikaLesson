@@ -112,7 +112,7 @@ const S2 = {
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -449,7 +449,7 @@ const S9 = {
   kind: 'chain',
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
   title: L('Uchinchi burchakni toping', 'Найди третий угол', 'Find the third angle'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 2,
   items: [
     {
@@ -553,9 +553,9 @@ const S10 = {
     'Write the remainder and each base angle.',
   ),
   checkNote: L(
-    "Bir yuz sakson dan uchdagi burchak ayiriladi, qolgani esa ikki teng burchakka bo'linadi: har biri 70 daraja.",
-    'Из ста восьмидесяти вычитается угол при вершине, а остаток делится на два равных угла: по 70 градусов.',
-    'The apex angle is taken from one hundred eighty and the remainder splits into two equal angles: 70 degrees each.',
+    "180° dan uchdagi burchak ayiriladi, qolgani esa ikki teng burchakka bo'linadi: har biri 70°.",
+    'Из 180° вычитается угол при вершине, остаток делится на два равных: по 70°.',
+    'The apex angle is taken from 180° and the remainder splits into two equal angles: 70° each.',
   ),
   wrongs: [
     { key: 'c', tag: 'Z6', hint: L("Bir yuz sakson dan qirq ayirilsa bir yuz qirq qoladi.", 'Сто восемьдесят минус сорок это сто сорок.', 'One hundred eighty minus forty is one hundred forty.') },
@@ -603,9 +603,9 @@ const S11 = {
     'Work out the third angle.',
   ),
   checkNote: L(
-    "Yigirma besh qo'shuv to'qson besh bir yuz yigirma beradi, bir yuz sakson dan bir yuz yigirma ayirilsa oltmish qoladi.",
-    'Двадцать пять плюс девяносто пять это сто двадцать, сто восемьдесят минус сто двадцать это шестьдесят.',
-    'Twenty five plus ninety five is one hundred twenty, and one hundred eighty minus that is sixty.',
+    "25° + 95° = 120°, 180° − 120° = 60°.",
+    '25° + 95° = 120°, 180° − 120° = 60°.',
+    '25° + 95° = 120°, 180° − 120° = 60°.',
   ),
   wrongs: [
     { key: 'b', tag: 'Z6', hint: L("Qo'shishni tekshiring: yigirma besh va to'qson besh.", 'Проверь сложение: двадцать пять и девяносто пять.', 'Check the addition: twenty five and ninety five.') },

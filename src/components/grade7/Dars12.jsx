@@ -261,7 +261,7 @@ function Screen1({ screen, onAnswer, ...rest }) {
 const S2 = {
   eyebrow: L('TAYANCH', 'ОПОРА', 'WARM-UP'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Nimaga teng?', 'Чему равно?', 'What does it equal?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   items: [
     {
       prompt: '40 − 22',
@@ -439,8 +439,8 @@ const S4 = {
       parts: [{ id: 'e', label: '300(40 − x)' }, { id: 'f', label: '300 − x' }, { id: 'g', label: '300 · 40 − x' }, { id: 'h', label: '300x' }],
       answer: ['e'],
       prompt: L(
-        "Makkajo'xori 300 so'm/kg. 40 ayirish x kg necha so'm?",
-        'Кукуруза по 300 сум/кг. Сколько стоят 40 минус x кг?',
+        "Makkajo'xori 300 so'm/kg. 40 − x kg necha so'm?",
+        'Кукуруза по 300 сум/кг. Сколько стоят 40 − x кг?',
         'Corn at 300 a kg. What do 40 minus x kg cost?',
       ),
       checkNote: L("Butun massa 300 ga ko'paytiriladi, shuning uchun qavs kerak", 'Вся масса умножается на 300, поэтому нужна скобка', 'The whole mass is multiplied by 300, so a bracket is needed'),
@@ -515,7 +515,7 @@ const S5 = {
         'Чтобы раскрыть скобку, умножь 300 на каждое слагаемое.',
         'To open the bracket, multiply 300 by each term.',
       ),
-      checkNote: L("300 karra 40 bu 12 000, 300 karra x bu 300x", '300 умножить на 40 это 12 000, а 300 на x это 300x', '300 times 40 is 12,000 and 300 times x is 300x'),
+      checkNote: L("300 · 40 = 12 000, 300 karra x bu 300x", '300 · 40 = 12 000, а 300 на x это 300x', '300 · 40 = 12,000 and 300 times x is 300x'),
       wrongs: [
         { key: 'c|b', tag: 'Z3', hint: L("340 bu 300 qo'shuv 40. Qavsni ochishda KO'PAYTIRILADI.", '340 это 300 плюс 40. При раскрытии скобки УМНОЖАЮТ.', '340 is 300 plus 40. Opening a bracket means MULTIPLYING.') },
         { key: '*', tag: 'Z3', hint: L("Ikkala hadga ham 300 ni ko'paytiring: qirqqa va x ga.", 'Умножь на 300 оба слагаемых: сорок и x.', 'Multiply both terms by 300: the forty and the x.') },
@@ -526,8 +526,8 @@ const S5 = {
       parts: [{ id: 'e', label: '200x' }, { id: 'f', label: '800x' }, { id: 'g', label: '200' }, { id: 'h', label: '−200x' }],
       answer: ['e'],
       prompt: L(
-        "O'xshash hadlarni ixchamlang: 500x ayirish 300x.",
-        'Приведи подобные: 500x минус 300x.',
+        "O'xshash hadlarni ixchamlang: 500x − 300x.",
+        'Приведи подобные: 500x − 300x.',
         'Collect like terms: 500x minus 300x.',
       ),
       checkNote: L("Koeffitsiyentlar ayiriladi, harf umumiy qoladi", 'Коэффициенты вычитают, буква остаётся общей', 'The coefficients subtract and the letter stays'),
@@ -639,9 +639,9 @@ const S7 = {
     'The seeds are 22 kg. How many kilograms of corn?',
   ),
   checkNote: L(
-    "Tekshiruv: 22 karra 500 bu 11 000, 18 karra 300 bu 5 400, jami 16 400",
-    'Проверка: 22 на 500 это 11 000, 18 на 300 это 5 400, вместе 16 400',
-    'Check: 22 times 500 is 11,000, 18 times 300 is 5,400, together 16,400',
+    "Tekshiruv: 22 · 500 = 11 000, 18 · 300 = 5 400, jami 16 400",
+    'Проверка: 22 на 500 = 11 000, 18 на 300 = 5 400, вместе 16 400',
+    'Check: 22 · 500 = 11,000, 18 · 300 = 5,400, together 16,400',
   ),
   wrongs: [
     { key: 'p22', tag: 'Z4', hint: L("22 bu kungaboqar. Makkajo'xori qolgan qism.", '22 это семечки. Кукуруза это остаток.', '22 is the seeds. The corn is what is left.') },
@@ -801,7 +801,7 @@ const S9 = {
         'Два велосипедиста выехали навстречу с 60 км: 12 и 18 км/ч. Заверши уравнение.',
         'Two cyclists set out towards each other from 60 km: 12 and 18 km/h. Finish the equation.',
       ),
-      checkNote: L("30t teng 60, demak t teng 2", '30t = 60, значит t = 2', '30t = 60, so t = 2'),
+      checkNote: L("30t = 60, demak t = 2", '30t = 60, значит t = 2', '30t = 60, so t = 2'),
       wrongs: [
         { key: 'c', tag: 'Z4', hint: L("Ikki bu javob, u hali topilmagan. Tenglamada shartdagi son turadi.", 'Два это ответ, он ещё не найден. В уравнении стоит число из условия.', 'Two is the answer, not yet found. The equation takes the number from the condition.') },
         { key: '*', tag: 'Z5', hint: L("Shartda bitta masofa bor: oltmish kilometr.", 'В условии одно расстояние: шестьдесят километров.', 'The condition gives one distance: sixty kilometres.') },
@@ -816,7 +816,7 @@ const S9 = {
         'Через сколько часов они встретятся?',
         'After how many hours do they meet?',
       ),
-      checkNote: L("Tekshiruv: 12 karra 2 bu 24, 18 karra 2 bu 36, jami 60", 'Проверка: 12 на 2 это 24, 18 на 2 это 36, вместе 60', 'Check: 12 times 2 is 24, 18 times 2 is 36, together 60'),
+      checkNote: L("Tekshiruv: 12 · 2 = 24, 18 · 2 = 36, jami 60", 'Проверка: 12 на 2 = 24, 18 на 2 = 36, вместе 60', 'Check: 12 · 2 = 24, 18 · 2 = 36, together 60'),
       wrongs: [
         { key: 'f', tag: 'Z4', hint: L("O'ttiz bu ikkalasining birlashgan tezligi, vaqt emas.", 'Тридцать это их общая скорость, а не время.', 'Thirty is their combined speed, not the time.') },
         { key: '*', tag: 'Z6', hint: L("Oltmishni o'ttizga bo'ling.", 'Раздели шестьдесят на тридцать.', 'Divide sixty by thirty.') },
@@ -890,7 +890,7 @@ const S10 = {
         'В третьем ящике 30, всего 90. Заверши уравнение.',
         'The third crate has 30, ninety in all. Finish the equation.',
       ),
-      checkNote: L("3x qo'shuv 30 teng 90, demak 3x teng 60", '3x плюс 30 равно 90, значит 3x равно 60', '3x plus 30 is 90, so 3x is 60'),
+      checkNote: L("3x + 30 = 90, demak 3x = 60", '3x + 30 = 90, значит 3x = 60', '3x + 30 = 90, so 3x = 60'),
       wrongs: [
         { key: 'b', tag: 'Z5', hint: L("80 shartda yo'q. Tenglamada faqat berilgan son turadi: to'qson.", 'В условии нет 80. В уравнении стоит только данное число: девяносто.', 'There is no 80 in the condition. The equation takes the given number: ninety.') },
         { key: '*', tag: 'Z5', hint: L("Shartda umumiy son bor: to'qson.", 'В условии есть общее число: девяносто.', 'The condition gives the total: ninety.') },
@@ -901,11 +901,11 @@ const S10 = {
       parts: [{ id: 'e', label: '26' }, { id: 'f', label: '30' }, { id: 'g', label: '80' }, { id: 'h', label: '20' }],
       answer: ['h'],
       prompt: L(
-        "3x teng 60. Birinchi qutida nechta olma bor?",
+        "3x = 60. Birinchi qutida nechta olma bor?",
         '3x = 60. Сколько яблок в первом ящике?',
         '3x = 60. How many apples are in the first crate?',
       ),
-      checkNote: L("3x teng 60, x teng 20. Tekshiruv: 20 qo'shuv 40 qo'shuv 30 teng 90", '3x = 60, x = 20. Проверка: 20 плюс 40 плюс 30 равно 90', '3x = 60, x = 20. Check: 20 plus 40 plus 30 is 90'),
+      checkNote: L("3x = 60, x = 20. Tekshiruv: 20 + 40 + 30 = 90", '3x = 60, x = 20. Проверка: 20 + 40 + 30 = 90', '3x = 60, x = 20. Check: 20 + 40 + 30 = 90'),
       wrongs: [
         { key: 'f', tag: 'Z4', hint: L("O'ttiz bu uchinchi qutidagi olmalar. Savol birinchisi haqida.", 'Тридцать это яблоки третьего ящика. Вопрос про первый.', 'Thirty is the third crate. The question is about the first.') },
         { key: '*', tag: 'Z6', hint: L("O'ttizni ko'chiring: 3x teng 60. Keyin uchga bo'ling.", 'Перенеси тридцать: 3x = 60. Потом раздели на три.', 'Move the thirty: 3x = 60. Then divide by three.') },
@@ -978,9 +978,9 @@ const S11 = {
     'Twenty notebooks: thick ones 900 sums, thin ones 500. In all 14,000 sums. How many are thick?',
   ),
   checkNote: L(
-    "900x qo'shuv 500 qavs 20 ayirish x teng 14 000, ya'ni 400x teng 4 000, x teng 8... tekshiring",
-    '900x плюс 500 скобка 20 минус x равно 14 000, то есть 400x = 4 000, x = 8... проверь',
-    '900x plus 500 times the bracket 20 minus x is 14,000, so 400x = 4,000 and x = 8... check it',
+    "900x + 500 qavs 20 ayirish x = 14 000, ya'ni 400x = 4 000, x = 8... tekshiring",
+    '900x + 500 скобка 20 минус x = 14 000, то есть 400x = 4 000, x = 8... проверь',
+    '900x + 500 times the bracket 20 minus x is 14,000, so 400x = 4,000 and x = 8... check it',
   ),
   wrongs: [
     { key: 'p12', tag: 'Z4', hint: L("O'n ikki bu yupqa daftarlar soni. Savol qalinlari haqida.", 'Двенадцать это тонкие тетради. Вопрос про толстые.', 'Twelve is the thin notebooks. The question is about the thick ones.') },
@@ -1056,7 +1056,7 @@ const S12 = {
       'Запиши синие через x и доведи решение до конца.',
       'Write the blue ones through x and finish the solution.',
     ),
-    checkNote: L("200x qo'shuv 15 000 ayirish 300x teng 13 000, ya'ni 100x teng 2 000, x teng 20", '200x плюс 15 000 минус 300x равно 13 000, то есть 100x = 2 000, x = 20', '200x plus 15,000 minus 300x is 13,000, so 100x = 2,000 and x = 20'),
+    checkNote: L("200x + 15 000 − 300x = 13 000, ya'ni 100x = 2 000, x = 20", '200x + 15 000 − 300x = 13 000, то есть 100x = 2 000, x = 20', '200x + 15,000 − 300x = 13,000, so 100x = 2,000 and x = 20'),
     wrongs: [
       { key: 'a|d', tag: 'Z6', hint: L("O'ttiz bu ko'k sharlar soni. Savol qizillari haqida.", 'Тридцать это синие шары. Вопрос про красные.', 'Thirty is the blue balloons. The question is about the red ones.') },
       { key: '*', tag: 'Z2', hint: L("Umumiy sondan qizillarni ayiring: 50 ayirish x.", 'Вычти красные из общего числа: 50 минус x.', 'Take the red ones from the total: 50 minus x.') },
@@ -1198,7 +1198,7 @@ function Screen13({ screen, onAnswer, ...rest }) {
 const S14 = {
   eyebrow: L('BLITS', 'БЛИЦ', 'QUICK ROUND'),
   title: L("To'rt savol", 'Четыре вопроса', 'Four questions'),
-  question: L('Nimaga teng?', 'Чему равно?', 'What does it equal?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   items: [
     {
       wrap: true,
@@ -1248,7 +1248,7 @@ const S14 = {
       wrap: true,
       question: null,
       prompt: L(
-        "Jami 40 kg, x teng 22 chiqdi. Savol ikkinchi mahsulot haqida. Javob?",
+        "Jami 40 kg, x = 22 chiqdi. Savol ikkinchi mahsulot haqida. Javob?",
         'Всего 40 кг, вышло x = 22. Вопрос про второй продукт. Ответ?',
         'Forty kg in all, x came out 22. The question is about the second product. The answer?',
       ),

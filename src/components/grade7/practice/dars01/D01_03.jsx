@@ -21,7 +21,7 @@
 // HAMMASI YOKI HECH NARSA: ikki bo'sh katak ham to'g'ri bo'lishi kerak.
 //
 // jsx-question kontrakti: onReady/registerCheck/onSubmit. O'z tugmasi yo'q.
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Row } from '../frac.jsx';
 
 const IconOk = () => (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>);
@@ -44,6 +44,21 @@ function useRegister(check, registerCheck) {
 
 const EXPR = ['(', '3a', '+', '5', ')', '+', '(', '2a', '−', '8', ')'];
 const ANSWER = ['5a', '−3'];
+// KARTALAR TARTIBI ARALASHTIRILADI (metodist qarori 2026-08-22): bank
+// javob tartibida turardi va topshiriqni chapdan o'ngga bosib yechish
+// mumkin edi. Aralashtirish faqat KO'RSATISHGA tegadi -- javob va razbor
+// shartlari o'zgarmaydi. 1-dars amaliyoti umumiy qatlamdan tashqarida,
+// shuning uchun `shuffled` shu yerda ham kerak.
+const shuffled = (n) => {
+  const idx = [];
+  for (let i = 0; i < n; i++) idx.push(i);
+  for (let i = n - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const x = idx[i]; idx[i] = idx[j]; idx[j] = x;
+  }
+  return idx;
+};
+
 const CARDS = ['5a', '6a', 'a', '−3', '+13', '+3'];
 
 const T = {
@@ -93,7 +108,8 @@ export default function D01_03(props) {
 
   const locked = isReview || checked;
   const used = slots.filter(Boolean);
-  const pool = CARDS.filter((c) => used.indexOf(c) === -1);
+  const bank = useMemo(() => shuffled(CARDS.length).map((i) => CARDS[i]), []);
+  const pool = bank.filter((c) => used.indexOf(c) === -1);
   const full = slots.every(Boolean);
 
   useEffect(() => {

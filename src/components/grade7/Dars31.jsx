@@ -115,7 +115,7 @@ const S2 = {
   role: 'support',
   eyebrow: L('TAYANCH', 'ОПОРА', 'THE GROUNDWORK'),
   title: L('Uchta savol', 'Три вопроса', 'Three questions'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 1,
   items: [
     {
@@ -478,7 +478,7 @@ const S9 = {
   kind: 'chain',
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
   title: L('Ajratmani toping', 'Найди разложение', 'Find the factorization'),
-  question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+  question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
   cols: 1,
   items: [
     {
@@ -775,7 +775,7 @@ const S14 = {
   items: [
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: 'x³ + 8',
       ok: L("Ildizlar x va ikki.", 'Корни x и два.', 'The roots are x and two.'),
       items: [
@@ -787,7 +787,7 @@ const S14 = {
     },
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: 'y³ − 1',
       ok: L("Qavsda ayirish, to'liqsiz kvadrat butunlay musbat.", 'В скобке вычитание, неполный квадрат целиком положителен.', 'The bracket subtracts, the incomplete square is all positive.'),
       items: [
@@ -815,7 +815,7 @@ const S14 = {
     },
     {
       wrap: false,
-      question: L('Javob nima?', 'Каков ответ?', 'What is the answer?'),
+      question: L('Qiymati nechaga teng?', 'Чему равно значение?', 'What is its value?'),
       prompt: '8a³ − 27',
       ok: L("Ildizlar ikki a va uch.", 'Корни два a и три.', 'The roots are two a and three.'),
       items: [

@@ -72,8 +72,11 @@ export const Sup = ({ s }) => <>{withSup(String(s == null ? '' : s), 'x')}</>;
 // (metodist QA si, 2026-08-22).
 const trTok = (v, lang) => (v && typeof v === 'object' && !('n' in v) ? (v[lang] || v.uz || '') : v);
 
-export const Row = ({ tokens, size = 28, color = '#1f2430', tone = true, lang = 'uz' }) => (
-  <span style={{ display: 'inline-flex', alignItems: 'center', flexWrap: 'wrap', fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: size, fontWeight: 700, color }}>
+// `align` -- yozuv ko'chganda qatorlar qayerga tortilishi: chapga, o'ngga
+// yoki markazga. Ustunli tekislashda chap ustun O'NGGA tortiladi, aks holda
+// ko'chgan podpis ajratuvchi belgidan uzoqlashib, yozuv qiyshiq ko'rinadi.
+export const Row = ({ tokens, size = 28, color = '#1f2430', tone = true, lang = 'uz', align = 'center' }) => (
+  <span style={{ display: 'inline-flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: align === 'end' ? 'flex-end' : (align === 'start' ? 'flex-start' : 'center'), fontFamily: "'JetBrains Mono', ui-monospace, monospace", fontSize: size, fontWeight: 700, color }}>
     {tokens.map((tk, i) => {
       if (tk && typeof tk === 'object' && 'n' in tk) return <Frac key={i} n={tk.n} d={tk.d} size={size} />;
       const t = String(trTok(tk, lang));
