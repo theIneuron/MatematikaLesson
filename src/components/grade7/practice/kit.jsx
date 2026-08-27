@@ -404,45 +404,64 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
 
   const bd = A.checked ? (A.fb?.correct ? C.ok : C.no) : C.line;
   const size = data.exprSize || 26;
+  // Qatorni «=» bo'yicha ikkiga bo'lamiz: chap tomon, belgi, o'ng tomon.
+  const gridRows = data.rows.map((row) => {
+    const left = []; const right = []; let eq = false;
+    row.forEach((part) => {
+      if (part.slot != null) { (eq ? right : left).push(part); return; }
+      const toks = part.t || [];
+      const k = eq ? -1 : toks.indexOf('=');
+      if (k === -1) { (eq ? right : left).push(part); return; }
+      if (k > 0) left.push({ t: toks.slice(0, k) });
+      eq = true;
+      if (k + 1 < toks.length) right.push({ t: toks.slice(k + 1) });
+    });
+    return { left, eq, right };
+  });
+  const hasEq = gridRows.some((g) => g.eq);
+  // Bir tomonni chizish. «Yozuv + katak» juftligi bitta bo'lak bo'lib ko'chadi.
+  const renderSide = (parts, ri, side) => groupRow(parts).map((grp, gi) => (
+    <span key={side + ri + '-' + gi} style={{ display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap', margin: '2px 2px' }}>
+      {grp.map((part, pi) => {
+        if (part.slot != null) {
+          const i = part.slot;
+          return (
+            <button key={pi} type="button" data-slot={i} disabled={A.locked} onClick={() => tapSlot(i)}
+              style={{
+                minWidth: 74, borderRadius: 10, margin: '0 5px',
+                border: '2px ' + (slots[i] ? 'solid' : 'dashed') + ' ' + (slots[i] ? bd : (picked ? C.hot : C.line)),
+                background: slots[i] ? '#fff' : (picked ? '#fff7f2' : C.bg),
+                ...S.mono, fontSize: LINE_FS, color: C.ink, cursor: A.locked ? 'default' : 'pointer',
+                ...WRAP, height: 'auto', minHeight: 46, padding: '4px 8px',
+              }}>
+              <Sup s={slots[i] ? tr(cardLbl(data, slots[i]), lang) : ''} />
+            </button>
+          );
+        }
+        return <Row key={pi} tokens={part.t} size={size} lang={lang} />;
+      })}
+    </span>
+  ));
   return (
     <div style={S.wrap}>
       <Head data={data} lang={lang} />
       <Given data={data} lang={lang} />
-      {/* QATORLAR BIR CHIZIQDAN BOSHLANADI (metodist QA si, 2026-08-22):
-          ilgari har qator ALOHIDA markazlanardi va zanjir qiyshiq narvonga
-          o'xshab qolardi. Endi butun blok markazda turadi, qatorlar esa
-          bir xil chapdan boshlanadi -- qadamlar ustma-ust o'qiladi. */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-start', width: 'fit-content', maxWidth: '100%', margin: '8px auto 6px' }}>
-        {data.rows.map((row, ri) => (
-          <div key={ri} style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-start', gap: 2 }}>
-            {/* YOZUV VA UYA BIRGA KO'CHADI (metodist QA si, 2026-08-22): ilgari
-                qatorda ikki bo'sh katak bo'lsa, telefonda «f(0) =» yuqorida, katagi esa
-                pastda qolardi. Endi har «yozuv + katak» juftligi bitta bo'lak
-                bo'lib ko'chadi, ya'ni tor ekranda ustun bo'lib joylashadi. */}
-            {groupRow(row).map((grp, gi) => (
-              <span key={gi} style={{ display: 'inline-flex', alignItems: 'center', whiteSpace: 'nowrap', margin: '2px 4px' }}>
-            {grp.map((part, pi) => {
-              if (part.slot != null) {
-                const i = part.slot;
-                return (
-                  <button key={pi} type="button" data-slot={i} disabled={A.locked} onClick={() => tapSlot(i)}
-                    style={{
-                      minWidth: 74, height: 46, borderRadius: 10, margin: '0 5px',
-                      border: '2px ' + (slots[i] ? 'solid' : 'dashed') + ' ' + (slots[i] ? bd : (picked ? C.hot : C.line)),
-                      background: slots[i] ? '#fff' : (picked ? '#fff7f2' : C.bg),
-                      ...S.mono, fontSize: LINE_FS, color: C.ink, cursor: A.locked ? 'default' : 'pointer',
-                      ...WRAP, height: 'auto', minHeight: 46, padding: '4px 8px',
-                    }}>
-                    <Sup s={slots[i] ? tr(cardLbl(data, slots[i]), lang) : ''} />
-                  </button>
-                );
-              }
-              return <Row key={pi} tokens={part.t} size={size} lang={lang} />;
-            })}
-              </span>
-            ))}
-          </div>
-        ))}
+      {/* USTUNLAR BO'YICHA TEKISLASH (metodist qarori 2026-08-22): qadamlar
+          daftardagidek ustma-ust tursin. Ustunlar YOZUVNING O'ZIDAN olinadi:
+          birinchi «=» belgisi qatorni ikkiga bo'ladi -- chap tomon, tenglik
+          belgisi, o'ng tomon. Shuning uchun topshiriq fayllarini o'zgartirish
+          kerak bo'lmadi. «=» umuman yo'q topshiriqlarda (masalan «qavs ochiladi
+          -- katak») qatorlar avvalgidek yonma-yon chiziladi. */}
+      <div style={{ display: 'grid', gridTemplateColumns: hasEq ? 'auto auto auto' : 'auto', columnGap: 4, rowGap: 6, justifyContent: 'center', alignItems: 'center', width: 'fit-content', maxWidth: '100%', margin: '8px auto 6px' }}>
+        {gridRows.map((g, ri) => (hasEq ? (
+          <React.Fragment key={ri}>
+            <div style={{ justifySelf: 'end', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>{renderSide(g.left, ri, 'l')}</div>
+            <div style={{ justifySelf: 'center', ...S.mono, fontSize: size, color: C.ink, padding: '0 4px' }}>{g.eq ? '=' : ''}</div>
+            <div style={{ justifySelf: 'start', display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>{renderSide(g.right, ri, 'r')}</div>
+          </React.Fragment>
+        ) : (
+          <div key={ri} style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 2, justifyContent: 'center' }}>{renderSide(g.left, ri, 'o')}</div>
+        )))}
       </div>
       <div style={S.note}><Sup s={tr(data.ask, lang)} /></div>
       <div style={{ borderTop: '1px dashed ' + C.pale, paddingTop: 9 }}>
