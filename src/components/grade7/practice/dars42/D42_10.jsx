@@ -17,7 +17,7 @@ const DATA = {
     'A proof starts from the elements and ends with the conclusion. Place the three steps in order.'),
   cards: [
     { id: 'a', label: L('AB = A₁B₁ va AC = A₁C₁', 'AB = A₁B₁ и AC = A₁C₁', 'AB = A₁B₁ and AC = A₁C₁') },
-    { id: 'b', label: L('burchak A = burchak A₁', 'угол A = угол A₁', 'angle A = angle A₁') },
+    { id: 'b', label: '∠A = ∠A₁' },
     { id: 'c', label: L('uchburchaklar teng', 'треугольники равны', 'the triangles are equal') },
     { id: 'd', label: L('perimetrlar teng', 'периметры равны', 'the perimeters are equal') },
     { id: 'e', label: 'BC = B₁C₁' },

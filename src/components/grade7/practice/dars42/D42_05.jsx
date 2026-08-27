@@ -1,6 +1,8 @@
 // Dars42 · Amaliyot 05 — Mos elementlar · 🟡 · slots · tag: eq_slots
 // Mexanika: kit.jsx -> SlotsBank. Raskladka: 5-o'rin `slots`.
-// Teng uchburchaklar: AB = 8 -> A₁B₁ = 8; burchak C = 55° -> burchak C₁ = 55°.
+// Teng uchburchaklar: AB = 8 -> A₁B₁ = 8; ∠C = 55° -> ∠C₁ = 55°.
+// BURCHAK BELGISI (metodist qarori 2026-08-22): yozuvda «burchak C» emas,
+// ∠C. So'z faqat uchi nomlanmagan joyda qoladi («o'tkir burchak = 35°»).
 import React from 'react';
 import { SlotsBank, L } from '../kit.jsx';
 
@@ -15,12 +17,12 @@ const DATA = {
     "Uchburchaklar teng. Mos elementlarni to'ldiring: tomon tomonga, burchak burchakka.",
     'Треугольники равны. Заполни соответственные элементы: сторона к стороне, угол к углу.',
     'The triangles are equal. Fill in the matching elements: side to side, angle to angle.'),
-  given: [['AB = 8', ',', L('burchak C = 55°', 'угол C = 55°', 'angle C = 55°')]],
+  given: [['AB = 8', ',', '∠C = 55°']],
   givenLabel: L(
     'Berilgan:',
     'Дано:',
     'Given:'),
-  rows: [[{ t: ['A₁B₁', '='] }, { slot: 0 }, { t: [L('burchak', 'угол', 'angle'), 'C₁', '='] }, { slot: 1 }]],
+  rows: [[{ t: ['A₁B₁', '='] }, { slot: 0 }, { t: ['∠C₁', '='] }, { slot: 1 }]],
   cards: ['8', '55°', '16', '35°'],
   answer: ['8', '55°'],
   ask: L(
