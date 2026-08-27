@@ -58,18 +58,29 @@ export default function Dars26Practice({ lang = 'uz' }) {
       {/* MOBIL_DESKTOP_MOSLASH.md naqshi + AMALIYOT_GLOBAL_STANDART.md 1-band: fon #fff7ed. */}
       <style>{`
         .pq-fixroot{position:fixed;inset:0;overflow:hidden;background:#fff7ed;display:flex;flex-direction:column;zoom:var(--pqz,1);}
-        @media (max-width:639.98px){.pq-fixroot{width:390px;}}
+        /* TELEFONDA SARLAVHA JOY YEMASIN (metodist QA si, 2026-08-22): o'nta
+           tugma besh qatorga yoyilib, topshiriq ekrandan pastga tushib ketardi.
+           Tor ekranda tugmalar BITTA qatorda, yon tomonga suriladi. */
+        @media (max-width:639.98px){
+          .pq-fixroot{width:390px;}
+          .pq-head{padding:46px 10px 7px !important;}
+          .pq-title{font-size:12.5px !important;margin-bottom:2px;}
+          .pq-chips{flex-wrap:nowrap !important;overflow-x:auto;scrollbar-width:none;}
+          .pq-chips::-webkit-scrollbar{display:none;}
+        }
       `}</style>
-      <div style={{
+      <div className="pq-head" style={{
         flexShrink: 0, display: 'flex', flexWrap: 'wrap', gap: 7, alignItems: 'center',
         padding: '56px 12px 10px', borderBottom: '1px solid #eef0f4',
       }}>
-        <strong style={{ fontSize: 14, color: '#1f2430', width: '100%' }}>{HEAD[lang] || HEAD.uz}</strong>
+        <strong className="pq-title" style={{ fontSize: 14, color: '#1f2430', width: '100%' }}>{HEAD[lang] || HEAD.uz}</strong>
+        <div className="pq-chips" style={{ display: 'flex', flexWrap: 'wrap', gap: 7, alignItems: 'center', width: '100%' }}>
         {ITEMS.map((item, i) => (
           <button key={item.id} type="button" style={chip(i === idx)} onClick={() => setIdx(i)}>
             {i + 1} · {item.label[lang] || item.label.uz}
           </button>
         ))}
+        </div>
       </div>
 
       <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'auto' }}>
