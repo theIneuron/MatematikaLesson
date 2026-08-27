@@ -426,20 +426,44 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
   // ham ishlatiladi («eng katta tomon -- [katak]»). Ilgari faqat «=» qaralardi
   // va bunday qator butunlay chap ustunga tushib, tekislanmay qolardi.
   const SEPS = ['=', '--', '→', '->'];
-  const gridRows = data.rows.map((row) => {
-    const left = []; const right = []; let eq = null;
+  const isSep = (x) => SEPS.indexOf(String(x)) !== -1;
+  // Bitta qatorda BIR NECHTA juftlik bo'lishi mumkin: «birinchi burchak = [katak]
+  // ikkinchisi = [katak]». Bunday qator ALOHIDA setka qatorlariga bo'linadi,
+  // aks holda ikkinchi juftlik birinchisining o'ng ustuniga tushib qolardi
+  // (metodist QA si, 2026-08-22).
+  const splitRow = (row) => {
+    let seps = 0; let slots = 0;
     row.forEach((part) => {
-      if (part.slot != null) { (eq ? right : left).push(part); return; }
-      const toks = part.t || [];
-      let k = -1;
-      if (!eq) { for (let i = 0; i < toks.length; i++) { if (SEPS.indexOf(toks[i]) !== -1) { k = i; break; } } }
-      if (k === -1) { (eq ? right : left).push(part); return; }
-      if (k > 0) left.push({ t: toks.slice(0, k) });
-      eq = toks[k];
-      if (k + 1 < toks.length) right.push({ t: toks.slice(k + 1) });
+      if (part.slot != null) { slots += 1; return; }
+      (part.t || []).forEach((x) => { if (isSep(x)) seps += 1; });
     });
-    return { left, eq, right };
-  });
+    const out = [];
+    let cur = { left: [], eq: null, right: [] };
+    const flush = () => { out.push(cur); cur = { left: [], eq: null, right: [] }; };
+    const pairMode = seps >= 2 && slots >= 2;
+    row.forEach((part) => {
+      if (part.slot != null) {
+        (cur.eq ? cur.right : cur.left).push(part);
+        if (pairMode && cur.eq) flush();
+        return;
+      }
+      const toks = part.t || [];
+      let buf = [];
+      toks.forEach((x) => {
+        if (isSep(x) && (!cur.eq || pairMode)) {
+          if (buf.length) { (cur.eq ? cur.right : cur.left).push({ t: buf }); buf = []; }
+          if (cur.eq && pairMode) flush();
+          cur.eq = String(x);
+          return;
+        }
+        buf.push(x);
+      });
+      if (buf.length) (cur.eq ? cur.right : cur.left).push({ t: buf });
+    });
+    if (cur.left.length || cur.right.length || cur.eq) out.push(cur);
+    return out;
+  };
+  const gridRows = data.rows.reduce((acc, row) => acc.concat(splitRow(row)), []);
   const hasEq = gridRows.some((g) => g.eq);
   // Bir tomonni chizish. «Yozuv + katak» juftligi bitta bo'lak bo'lib ko'chadi.
   const renderSide = (parts, ri, side) => groupRow(parts).map((grp, gi) => (
