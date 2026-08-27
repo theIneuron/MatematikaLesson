@@ -114,7 +114,11 @@ const pickWhy = (data, state, lang) => {
 const CARD_FS = 18;   // javob kartasi: bank, katak, so'zli had
 const LINE_FS = 22;   // yig'ilgan javob qatori
 
-const WRAP = { whiteSpace: 'normal', textAlign: 'center', lineHeight: 1.15, maxWidth: 250 };
+// Karta yozuvi hech qachon chegaradan chiqmasin: uzun yozuv ichida ko'chadi,
+// bo'shliqsiz uzun yozuv esa oxirgi chora sifatida bo'linadi. Kenglik ham
+// bankdan oshmaydi -- telefonda karta ekrandan chiqib ketmaydi.
+const WRAP = { whiteSpace: 'normal', textAlign: 'center', lineHeight: 1.15,
+  maxWidth: 'min(250px, 100%)', overflowWrap: 'break-word' };
 
 // KARTALAR TARTIBI ARALASHTIRILADI (metodist QA si, 2026-08-22): bank javob
 // tartibida turardi va topshiriqni kartalarni chapdan o'ngga bosib yechish
@@ -437,7 +441,7 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
       <div style={S.note}><Sup s={tr(data.ask, lang)} /></div>
       <div style={{ borderTop: '1px dashed ' + C.pale, paddingTop: 9 }}>
         <div style={S.bankLbl}>{String(tr(data.bank, lang)).toUpperCase()}</div>
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', minHeight: 46, alignItems: 'center', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', minHeight: 46, alignItems: 'center', flexWrap: 'wrap', maxWidth: '100%' }}>
           {pool.length === 0 && <span style={{ fontSize: 13, color: C.line, fontWeight: 700 }}>—</span>}
           {pool.map((c) => (
             <button key={c} type="button" data-card={c} disabled={A.locked} onClick={() => setPicked(picked === c ? null : c)}
@@ -686,7 +690,7 @@ export function BuildLine({ data, lang = 'uz', mode = 'answer', initialAnswer = 
         </div>
       ) : null}
       <div style={S.note}><Sup s={tr(data.ask, lang)} /></div>
-      <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap', alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap', alignItems: 'center', maxWidth: '100%' }}>
         {data.cards.map((c) => {
           const used = seq.indexOf(c.id) !== -1;
           return (
