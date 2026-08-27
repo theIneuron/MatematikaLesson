@@ -36,7 +36,7 @@ function useRegister(check, registerCheck) {
 }
 
 const F35 = { n: 3, d: 5 };
-// Uch qator: har birida bitta bo'sh katak. Uya to'ldirilgach yozuv qisqaradi.
+// Uch qator: har birida bitta bo'sh katak. Katak to'ldirilgach yozuv qisqaradi.
 const LINES = [
   { before: ['−2100', ':', '30', '+', F35, '·', '250', '='], after: ['+', F35, '·', '250'] },
   { before: [], after: [] },   // ikkinchi qator: −70 + [katak]
@@ -49,7 +49,7 @@ const T = {
   uz: {
     eyebrow: 'Qadamlar zanjiri', title: 'Oraliq qiymatlar',
     setup: 'Yechim uch qadamda yoziladi. Har qatorda BITTA amal hisoblanadi.',
-    ask: "Uyalarni to'ldiring: kartani bosing, keyin bo'sh katakni bosing.",
+    ask: "Bo'sh kataklarni to'ldiring: kartani bosing, keyin bo'sh katakni bosing.",
     slot: 'katak', bank: 'Kartalar',
     correct: 'To\'g\'ri. Avval ikkinchi bosqich: −2100 : 30 = −70 va uch beshdan ikki yuz ellik 150. So\'ng −70 + 150 = 80.',
     wrongSign: 'Ishoraga qarang: −2100 ni 30 ga bo\'lganda manfiy son chiqadi. Manfiy va musbat sonni qo\'shganda katta modul yutadi.',
@@ -142,18 +142,32 @@ export default function D01_07(props) {
       <div style={S.eyebrow}>{t.eyebrow}</div>
       <p style={S.setup}>{t.setup}</p>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center', margin: '14px 0 10px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
-          <Row tokens={LINES[0].before} size={26} />
+      {/* USTUNLAR BO'YICHA TEKISLASH (metodist qarori 2026-08-22): uch qadam
+          ustma-ust turadi, «=» belgisi bitta ustunda. Ilgari yozuv BITTA
+          uzun qator edi va ekranda ixtiyoriy joydan ko'chib ketardi.
+          DIQQAT: 1-dars amaliyoti umumiy qatlamdan (kit.jsx) TASHQARIDA
+          yozilgan -- u 5-sinfdan ko'chirilgan. Shuning uchun tekislash shu
+          faylda takrorlanadi; qatlamdagi tuzatish bu yerga yetib kelmaydi. */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'auto auto auto', columnGap: 4, rowGap: 8, justifyContent: 'center', alignItems: 'center', width: 'fit-content', maxWidth: '100%', margin: '14px auto 10px' }}>
+        <div style={{ justifySelf: 'end', display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
+          <Row tokens={['−2100', ':', '30', '+', F35, '·', '250']} size={26} />
+        </div>
+        <div style={{ justifySelf: 'center' }}><Row tokens={['=']} size={26} /></div>
+        <div />
+
+        <div style={{ justifySelf: 'end', display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
           {slotBox(0)}
           <Row tokens={LINES[0].after} size={26} />
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
+        <div />
+        <div />
+
+        <div style={{ justifySelf: 'end', display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
           <Row tokens={['−70', '+']} size={26} />
           {slotBox(1)}
-          <Row tokens={['=']} size={26} />
-          {slotBox(2)}
         </div>
+        <div style={{ justifySelf: 'center' }}><Row tokens={['=']} size={26} /></div>
+        <div style={{ justifySelf: 'start' }}>{slotBox(2)}</div>
       </div>
 
       <p style={S.ask}>{t.ask}</p>

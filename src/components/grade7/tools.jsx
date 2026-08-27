@@ -589,7 +589,7 @@ export function SlotFill({ template, parts, answer, checkNote, wrongs, onSolved,
               {t(UI.check)}
             </Btn>
             {/* `noReset` -- amaliyotda «Qaytadan» YO'Q (metodist qarori
-                2026-08-20: u kerak emas). Uyani bosib tarkibini almashtirish
+                2026-08-20: u kerak emas). Katakni bosib tarkibini almashtirish
                 mumkin, ya'ni tugmasiz ham hech qayerda qotib qolinmaydi.
                 Nazariy darslarga tegilmadi: 1-12 darslar shu ko'rinishda
                 topshirilgan. */}

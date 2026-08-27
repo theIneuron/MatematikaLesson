@@ -367,7 +367,7 @@ export function TypeValue({ data, lang = 'uz', mode = 'answer', initialAnswer = 
 }
 
 // ============================================================ 3. SLOTSBANK
-// Uyalar va kartalar banki. `rows` — yozuvning qatorlari; qatorda tokenlar
+// Kataklar va kartalar banki. `rows` — yozuvning qatorlari; qatorda tokenlar
 // yoki `{ slot: n }`. Kartani bosasiz, keyin katakni bosasiz.
 // «Hammasi yoki hech narsa»: kataklarning hammasi to'g'ri bo'lishi kerak.
 export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
