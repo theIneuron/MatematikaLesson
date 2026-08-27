@@ -448,6 +448,13 @@ export function SlotsBank({ data, lang = 'uz', mode = 'answer', initialAnswer = 
     const out = [];
     let cur = { left: [], eq: null, right: [] };
     const flush = () => { out.push(cur); cur = { left: [], eq: null, right: [] }; };
+    // Qatorda ajratuvchi belgi BO'LMASA, lekin katak bo'lsa («yechim [katak]»),
+    // podpis chap ustunda, katak esa o'ng ustunda turadi -- shunda u yuqoridagi
+    // qator katagi bilan bir vertikalda bo'ladi (metodist QA si, 2026-08-22).
+    if (seps === 0 && slots > 0) {
+      const i = row.findIndex((part) => part.slot != null);
+      return [{ left: row.slice(0, i), eq: null, right: row.slice(i) }];
+    }
     const pairMode = seps >= 2 && slots >= 2;
     row.forEach((part) => {
       if (part.slot != null) {
