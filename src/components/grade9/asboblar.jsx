@@ -55,6 +55,12 @@ const TXT = {
   ruleFirst: L('Qoidada nima BIRINCHI keladi?', 'Что в правиле идёт первым?', 'What comes first in the rule?'),
   ruleNext: L('Keyin nima keladi?', 'Что идёт дальше?', 'What comes next?'),
   ruleHere: L("Qoida shu yerda yig'iladi", 'Правило собирается здесь', 'The rule is built here'),
+  placeNext: L('Keyingi nuqtani qo\'yish', 'Поставить следующую точку', 'Place the next point'),
+  nextStep: L('Keyingi qadam', 'Следующий шаг', 'Next step'),
+  evenCheck: L('Juftlik sinovi', 'Проверка на чётность', 'Even check'),
+  oddCheck: L('Toqlik sinovi', 'Проверка на нечётность', 'Odd check'),
+  matches: L('mos keldi', 'совпало', 'matches'),
+  noMatch: L('mos kelmadi', 'не совпало', 'does not match'),
 }
 
 // ============================================================
@@ -68,7 +74,7 @@ const TXT = {
 // ============================================================
 const VB = { w: 420, h: 200, l: 34, r: 16, t: 14, b: 26 }
 
-const scaleOf = ({ from, to, yFrom, yTo }) => {
+export const scaleOf = ({ from, to, yFrom, yTo }) => {
   const left = VB.l
   const right = VB.w - VB.r
   const top = VB.t
@@ -82,7 +88,7 @@ const scaleOf = ({ from, to, yFrom, yTo }) => {
   }
 }
 
-const pathOf = (f, sc) => {
+export const pathOf = (f, sc) => {
   const n = 240
   let d = ''
   let open = false
@@ -118,7 +124,7 @@ const niceStep = (span) => {
 // Tekislik FAQAT chizadi: unga bosish hech bir asbobga kerak emas (xuk
 // savolga o'tdi, 2026-08-21). Bosish ishlovchisi olib tashlandi — ishlatilmagan
 // kod fayl haqida yolg'on gapirishni boshlaydi.
-const Plane = ({ sc, xLabel, yLabel, children }) => {
+export const Plane = ({ sc, xLabel, yLabel, children }) => {
   const t = useT()
   const xStep = niceStep(sc.to - sc.from)
   const yStep = niceStep(sc.yTo - sc.yFrom)
@@ -1711,7 +1717,207 @@ export function Sweep({
 }
 
 // ============================================================
-// 6. USLUBLAR. Prefiks g9-: umumiy qatlamning g8- klasslari bilan
+// 6. MONOTONE — O'SISH YOKI KAMAYISHNING QADAMLAB ISBOTI.
+//
+// 2026-08-26, metodist: 3 va 4-ekran juda yengil chiqqan edi (ikkita
+// hisoblash — bitta savol). Endi bitta ekran BITTA xossani (faqat
+// o'sish YOKI faqat kamayish) to'liq isbot sifatida quradi: o'quvchi
+// nuqtalarni birma-bir GRAFIKKA qo'yadi (bosish bilan, sudramasdan),
+// har ikkinchi nuqtadan keyin x va y solishtiruvi jonlanadi, va oxirida
+// umumiy xulosa (o'suvchi yoki kamayuvchi ta'rifining o'zi) ochiladi.
+// Sudrash yo'q, formula tayyor holda sayohatga chiqmaydi — o'quvchi
+// buni o'z qo'li bilan, qadam-baqadam yig'adi (§ «harakat tugma bilan»).
+// ============================================================
+export function Monotone({
+  f, xs, from, to, yFrom, yTo, xLabel, yLabel, ask, ruleLine, after,
+  onSolved, audio, onStep,
+}) {
+  const t = useT()
+  const sfx = useSfx()
+  const canAnswer = useInstructionGate(audio)
+  const sc = useMemo(() => scaleOf({ from, to, yFrom, yTo }), [from, to, yFrom, yTo])
+  const [placed, setPlaced] = useState(0)
+  const [done, setDone] = useState(false)
+  const stepRef = useRef(onStep)
+  useEffect(() => { stepRef.current = onStep }, [onStep])
+
+  const ys = xs.map((x) => f(x))
+  const all = placed >= xs.length
+
+  const place = () => {
+    if (!canAnswer || all) return
+    const next = placed + 1
+    setPlaced(next)
+    sfx.playCorrect()
+    if (stepRef.current) stepRef.current('p' + next)
+    if (next >= xs.length) {
+      setDone(true)
+      if (audio && after) audio.say(t(after))
+      if (onSolved) onSolved({ correct: true, tries: 1 })
+    }
+  }
+
+  const dots = xs.slice(0, placed)
+
+  return (
+    <>
+      <Slot mh={40}>{ask ? <Ask>{t(ask)}</Ask> : null}</Slot>
+
+      <Plane sc={sc} xLabel={xLabel} yLabel={yLabel}>
+        <g className="g9-real"><path d={pathOf(f, sc)} /></g>
+        <g className="g9-dots">
+          {dots.map((x, i) => (
+            <circle
+              key={i} cx={sc.px(x)} cy={sc.py(f(x))} r="4.6"
+              className="g9-mono-dot" style={{ animationDelay: (i * 60) + 'ms' }}
+            />
+          ))}
+        </g>
+      </Plane>
+
+      {placed > 0 ? (
+        <div className="g9-vtable">
+          <div className="g9-vtable-row">
+            <span className="g9-vtable-lbl">x</span>
+            {dots.map((x, i) => (
+              <React.Fragment key={'x' + i}>
+                {i > 0 ? <span className="g9-mono-rel">{'<'}</span> : null}
+                <span className="g9-vtable-cell is-hit" style={{ fontFamily: MATH_FONT }}>{fmt(x)}</span>
+              </React.Fragment>
+            ))}
+          </div>
+          <div className="g9-vtable-row">
+            <span className="g9-vtable-lbl">y</span>
+            {dots.map((x, i) => (
+              <React.Fragment key={'y' + i}>
+                {i > 0 ? (
+                  <span className="g9-mono-rel">{ys[i] > ys[i - 1] ? '<' : ys[i] < ys[i - 1] ? '>' : '='}</span>
+                ) : null}
+                <span className="g9-vtable-cell is-hit" style={{ fontFamily: MATH_FONT }}>{fmt(f(x))}</span>
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
+      <Slot mh={48}>
+        {!all ? (
+          <button type="button" className="g9-go" disabled={!canAnswer} onClick={place}>
+            {t(TXT.placeNext)}
+          </button>
+        ) : null}
+      </Slot>
+
+      <Slot mh={62}>
+        {done && ruleLine ? <Note kind="ok">{t(ruleLine)}</Note> : null}
+      </Slot>
+    </>
+  )
+}
+
+// ============================================================
+// 7. PARITY — JUFTLIK VA TOQLIKNI FARQLASH ISBOTI.
+//
+// 2026-08-26, metodist: «полное объяснение как доказательство, различать
+// эти вещи в одном примере». Bitta funksiya, bitta x — lekin IKKALA sinov
+// ham (juftlik VA toqlik) shu bir misolda ochiladi: shuning uchun aynan
+// FARQLASH o'rgatiladi, faqat tayyor xulosa aytilmaydi. To'rt qadam:
+// f(x) hisoblanadi va nuqta grafikka tushadi, f(−x) hisoblanadi va
+// ikkinchi nuqta tushadi (Monotone'dagi kabi bosish bilan, sudramasdan),
+// keyin ikkala sinov ham navbat bilan ochiladi — biri mos keladi, biri
+// yo'q, va aynan shu qarama-qarshilikdan xulosa chiqadi.
+// ============================================================
+export function Parity({
+  f, x, from, to, yFrom, yTo, xLabel, yLabel, ask, ruleLine, after,
+  onSolved, audio, onStep,
+}) {
+  const t = useT()
+  const sfx = useSfx()
+  const canAnswer = useInstructionGate(audio)
+  const sc = useMemo(() => scaleOf({ from, to, yFrom, yTo }), [from, to, yFrom, yTo])
+  const [stage, setStage] = useState(0)
+  const [done, setDone] = useState(false)
+  const stepRef = useRef(onStep)
+  useEffect(() => { stepRef.current = onStep }, [onStep])
+
+  const fx = f(x)
+  const fmx = f(-x)
+  const evenOk = fmx === fx
+  const oddOk = fmx === -fx
+
+  const next = () => {
+    if (!canAnswer || stage >= 4) return
+    const n = stage + 1
+    setStage(n)
+    sfx.playCorrect()
+    if (stepRef.current) stepRef.current('p' + n)
+    if (n >= 4) {
+      setDone(true)
+      if (audio && after) audio.say(t(after))
+      if (onSolved) onSolved({ correct: true, tries: 1 })
+    }
+  }
+
+  return (
+    <>
+      <Slot mh={40}>{ask ? <Ask>{t(ask)}</Ask> : null}</Slot>
+
+      <Plane sc={sc} xLabel={xLabel} yLabel={yLabel}>
+        <g className="g9-real"><path d={pathOf(f, sc)} /></g>
+        <g className="g9-dots">
+          {stage >= 1 ? <circle cx={sc.px(x)} cy={sc.py(fx)} r="4.6" /> : null}
+          {stage >= 2 ? <circle cx={sc.px(-x)} cy={sc.py(fmx)} r="4.6" /> : null}
+        </g>
+      </Plane>
+
+      <div className="g9-par-steps">
+        {stage >= 1 ? (
+          <div className="g9-par-line" style={{ fontFamily: MATH_FONT }}>
+            f({fmt(x)}) = {fmt(fx)}
+          </div>
+        ) : null}
+        {stage >= 2 ? (
+          <div className="g9-par-line" style={{ fontFamily: MATH_FONT }}>
+            f(−{fmt(x)}) = {fmt(fmx)}
+          </div>
+        ) : null}
+        {stage >= 3 ? (
+          <div className={'g9-par-line g9-par-check' + (evenOk ? ' is-ok' : ' is-no')}>
+            <span className="g9-par-cap">{t(TXT.evenCheck)}</span>
+            <span style={{ fontFamily: MATH_FONT }}>
+              f(−{fmt(x)}) {evenOk ? '=' : '≠'} f({fmt(x)})
+            </span>
+            <span className="g9-par-verdict">{t(evenOk ? TXT.matches : TXT.noMatch)}</span>
+          </div>
+        ) : null}
+        {stage >= 4 ? (
+          <div className={'g9-par-line g9-par-check' + (oddOk ? ' is-ok' : ' is-no')}>
+            <span className="g9-par-cap">{t(TXT.oddCheck)}</span>
+            <span style={{ fontFamily: MATH_FONT }}>
+              f(−{fmt(x)}) {oddOk ? '=' : '≠'} −f({fmt(x)})
+            </span>
+            <span className="g9-par-verdict">{t(oddOk ? TXT.matches : TXT.noMatch)}</span>
+          </div>
+        ) : null}
+      </div>
+
+      <Slot mh={48}>
+        {!done ? (
+          <button type="button" className="g9-go" disabled={!canAnswer} onClick={next}>
+            {t(TXT.nextStep)}
+          </button>
+        ) : null}
+      </Slot>
+
+      <Slot mh={62}>
+        {done && ruleLine ? <Note kind="ok">{t(ruleLine)}</Note> : null}
+      </Slot>
+    </>
+  )
+}
+
+// ============================================================
+// 8. USLUBLAR. Prefiks g9-: umumiy qatlamning g8- klasslari bilan
 // to'qnashmaydi. Shkala va ranglar YADRODAN olinadi (T, MATH_FONT) — sinf
 // o'zining palitrasini yasamaydi, farq ASBOBDA.
 //
@@ -2084,7 +2290,12 @@ export const G9_STYLES = `
   border-radius: 16px; background: ${T.paper};
   box-shadow: 0 10px 26px -12px rgba(${T.shadow},.22), inset 0 0 0 1px rgba(${T.accentRgb},.3);
   animation: g9-pop 340ms cubic-bezier(.22,.9,.3,1) both; }
-.g9-summary .g9-plane { max-height: min(17vh, 140px); }
+/* 2026-08-27, metodist QA: 1366x615 balandlikda YECHIM kartochkasi + jadval
+   + grafik birga 19px chiqib ketardi (o'ram kesib tashlardi, ko'zga
+   ko'rinmasdan) — Dars01 va Dars02 ikkalasida ham, chunki ikkalasi ham shu
+   umumiy blokni ishlatadi. 17vh dan 14vh ga tushirish shu 19px ni yopadi.
+   DIQQAT: bu izohda teskari apostrof ISHLATILMASIN — shablon satr uziladi. */
+.g9-summary .g9-plane { max-height: min(14vh, 120px); }
 .g9-summary .g9-real path { animation-delay: 950ms; animation-duration: 1400ms; }
 .g9-summary .g9-dots circle { animation-delay: 550ms; }
 /* 6-ekranda (Gate) grafik+jadval JAVOB yozuvi olib tashlangach KENGROQ
@@ -2104,6 +2315,27 @@ export const G9_STYLES = `
   animation: g9-pop 320ms cubic-bezier(.22,.9,.3,1) both; }
 .g9-vtable-cell.is-hit { color: ${T.ok}; background: rgba(${T.okRgb || '46,125,80'},.12);
   box-shadow: inset 0 0 0 1.4px ${T.ok}; }
+/* MONOTONE (3, 4-ekran): jadval qatorlari orasidagi nisbat belgisi —
+   flex:1 EMAS, kichik va qattiq kenglikda, aks holda son katakchalari
+   bilan bir xil bo'lib qoladi va qator siqilib ketadi. */
+.g9-mono-rel { flex: 0 0 auto; width: 20px; text-align: center; font-weight: 700;
+  color: ${T.accent}; font-family: ${MATH_FONT}; font-size: clamp(14px, 1.7vw, 18px);
+  opacity: 0; animation: g9-pop 260ms cubic-bezier(.22,.9,.3,1) both; animation-delay: 120ms; }
+
+/* ---------- PARITY (5, 6-ekran): qadamlar ro'yxati ---------- */
+.g9-par-steps { width: 100%; max-width: 560px; margin: 0 auto; display: flex;
+  flex-direction: column; gap: 6px; }
+.g9-par-line { padding: 7px 12px; border-radius: 10px; background: ${T.bg};
+  font-size: clamp(14px, 1.6vw, 17px); color: ${T.ink};
+  opacity: 0; animation: g9-pop 300ms cubic-bezier(.22,.9,.3,1) both; }
+.g9-par-check { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.g9-par-cap { font-family: 'Manrope', system-ui, sans-serif; font-size: 10px;
+  font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: ${T.ink3}; }
+.g9-par-verdict { font-family: 'Manrope', system-ui, sans-serif; font-size: 12px; font-weight: 700; }
+.g9-par-check.is-ok { box-shadow: inset 0 0 0 1.4px ${T.ok}; }
+.g9-par-check.is-ok .g9-par-verdict { color: ${T.ok}; }
+.g9-par-check.is-no { box-shadow: inset 0 0 0 1.4px ${T.tip}; }
+.g9-par-check.is-no .g9-par-verdict { color: ${T.tip}; }
 
 /* ---------- MINI-GRAFIK (7-ekran, GraphPick) ---------- */
 /* 2x2 TO'R: metodist «kattaroq bo'lsin» dedi — to'rttasi bir qatorda
@@ -2271,3 +2503,34 @@ export const G9_STYLES = `
   .g9-mach-fig svg { max-height: 15vh; }
 }
 `
+
+// ============================================================
+// SINF PALITRASI (metodist qarori, 2026-08-06, 2026-08-27 sinf bo'yicha
+// qat'iylashtirildi): 8-9-sinf standart palitrasi rad etildi, 5-sinf
+// 11-darsi (`grade5/Dars11.jsx`) palitrasi tanlandi. T.* ranglar
+// `G9_STYLES` ichida minglab qatorda qattiq yozilgan, CSS bilan tanlab
+// bo'lmaydi — shuning uchun matn almashtirish (`recolor`, screens.jsx).
+// Neytral (ink/paper/fon asosi) tegilmagan: ikkalasida ham deyarli bir
+// xil, farq ko'zga ko'rinmaydi.
+//
+// BIR MARTA SHU YERDA: Dars01 avval o'z nusxasini saqlagan edi (o'sha
+// paytda «faqat shu darsga» deb yozilgan), Dars02 esa umuman ulamagan
+// edi — ikkala dars boshqa-boshqa ko'rinardi (metodist, 2026-08-27).
+// Endi HAR BIR 9-sinf darsi shu konstantani import qiladi va
+// `makeLesson({ ..., recolor: G9_RECOLOR })` ga uzatadi — rang faqat shu
+// yerda o'zgaradi, har safar 45 faylni emas.
+// ============================================================
+export const G9_RECOLOR = [
+  ['#C9542C', '#FF4F28'],       // accent: kulrang g'isht -> yorqin qizil-sariq
+  ['#F8E7DE', '#FFE8E1'],       // accentSoft
+  ['201,84,44', '255,79,40'],   // accentRgb
+  ['#A55D19', '#FF4F28'],       // tip = tipInk = no (xato/eslatma) -> accent bilan bir xil, 5-sinfdagidek
+  ['#FBEDD9', '#FFE8E1'],       // tipSoft -> accentSoft
+  ['165,93,25', '255,79,40'],   // tipRgb
+  ['#28774A', '#1F7A4D'],       // ok (to'g'ri javob) -> 5-sinf yashili
+  ['#E5F2E9', '#E3F0E8'],       // okSoft
+  ['40,119,74', '31,122,77'],   // okRgb
+  ['#6B5B45', '#019ACB'],       // graph = cool (tekshiruv qatlami) -> 5-sinf ko'gi
+  ['#EDE4D3', '#DFF3F9'],       // graphSoft = coolSoft
+  ['107,91,69', '1,154,203'],   // graphRgb
+]

@@ -66,7 +66,7 @@ import { SceneBand } from '../grade8/method.jsx'
 import { A, W, makeLesson } from '../grade8/screens.jsx'
 import { F } from '../grade8/tools.jsx'
 import {
-  CheckReveal, G9_STYLES, Gate, GraphPick, RecallMC, RuleBuild,
+  CheckReveal, G9_RECOLOR, G9_STYLES, Gate, GraphPick, RecallMC, RuleBuild,
   TimeScrubber, Trace,
 } from './asboblar.jsx'
 
@@ -471,7 +471,6 @@ const S1 = {
         id: 'twice',
         right: true,
         show: L('1 balandlik → 2 payt', '1 высота → 2 момента', '1 height → 2 moments'),
-        name: L('bir balandlik, ikki payt', 'одна высота, два момента', 'one height, two moments'),
       },
       {
         id: 'jump',
@@ -2112,26 +2111,8 @@ export const SCREENS = [
   { role: 'summary',  tool: 'takeaway', scene: <FinalScene/>, ...S15 },
 ]
 
-// PALITRA (metodist, 2026-08-26): 8-9-sinf palitrasi rad etildi, 5-sinf
-// 11-darsi (`grade5/Dars11.jsx`) palitrasi yoqdi — u yerga ko'chirildi.
-// T.* ranglar minglab qatorda qattiq yozilgan (STYLES..FEED_STYLES), CSS
-// bilan tanlab bo'lmaydi — shuning uchun matn almashtirish (`recolor`,
-// screens.jsx). Neytral (ink/paper/fon asosi) tegilmadi: ikkalasida ham
-// deyarli bir xil, farq ko'zga ko'rinmaydi. Ranglar FAQAT shu darsda
-// almashadi — boshqa hech qaysi 8/9-sinf darsiga tegmaydi.
-const RECOLOR = [
-  ['#C9542C', '#FF4F28'],       // accent: kulrang g'isht -> yorqin qizil-sariq
-  ['#F8E7DE', '#FFE8E1'],       // accentSoft
-  ['201,84,44', '255,79,40'],   // accentRgb
-  ['#A55D19', '#FF4F28'],       // tip = tipInk = no (xato/eslatma) -> accent bilan bir xil, 5-sinfdagidek
-  ['#FBEDD9', '#FFE8E1'],       // tipSoft -> accentSoft
-  ['165,93,25', '255,79,40'],   // tipRgb
-  ['#28774A', '#1F7A4D'],       // ok (to'g'ri javob) -> 5-sinf yashili
-  ['#E5F2E9', '#E3F0E8'],       // okSoft
-  ['40,119,74', '31,122,77'],   // okRgb
-  ['#6B5B45', '#019ACB'],       // graph = cool (tekshiruv qatlami) -> 5-sinf ko'gi
-  ['#EDE4D3', '#DFF3F9'],       // graphSoft = coolSoft
-  ['107,91,69', '1,154,203'],   // graphRgb
-]
-
-export default makeLesson({ META, STATEMENTS, MISS, SCREENS, styles: G9_STYLES, recolor: RECOLOR })
+// PALITRA: sinf bo'yicha bitta konstanta, `asboblar.jsx`dagi `G9_RECOLOR`
+// (metodist, 2026-08-06, 2026-08-27 sinf bo'yicha qat'iylashtirildi).
+// Bu yerda alohida nusxa yo'q — har bir 9-sinf darsi rangni bitta joydan
+// oladi.
+export default makeLesson({ META, STATEMENTS, MISS, SCREENS, styles: G9_STYLES, recolor: G9_RECOLOR })

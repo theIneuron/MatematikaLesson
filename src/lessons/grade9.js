@@ -20,6 +20,42 @@ export const grade9Nazariy = [
     desc: "To'p uchirish: qiymatlar mashinasi, vaqt sirg'ituvchisi, moslik taxtasi, juftliklardan iz, aniqlanish sohasi o'tkazish punkti. Qoidani o'quvchi o'zi yig'adi, keyin mashqlar, xato qatorni topish va qadamlab yechim. Ta'rif darslikdan (9-§, 37-bet). 15 ekran, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade9/Dars01.jsx')),
   },
+  {
+    // 2026-08-26. Эталон уровня — урок 1 (своя механика под тему), но
+    // приборы идут по блокам (PODXOD_9SINF.md §12), решение методиста в
+    // этой же сессии. Новой механики в этом уроке нет: чтение графика и
+    // сравнение (x; f(x)) с (−x; f(−x)) закрыты готовыми экранами общего
+    // слоя (RecallMC, CheckReveal — уже были в Dars01, Drill — из
+    // grade8/feed.jsx). Полный прибор 1 (график + ось со знаками) сюда
+    // не пишется: знаковая таблица впервые понадобится в уроке 6.
+    slug: 'dars02-funksiya-xossalari',
+    title: 'Dars 2. Funksiyaning xossalari',
+    desc: "Harorat kun davomida: o'sish va kamayish bitta grafikda, keyin y=x², y=x³, y=2x+1 orqali juftlik va toqlik. Qoida darslikdan so'zma-so'z (RU va UZ nashri), na juft na toq holat darslikning o'z misolida. 15 ekran, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade9/Dars02.jsx')),
+  },
+  {
+    // 2026-08-27. Darslik §1 (ta'rif, 5-bet, rejada ko'rsatilmagan lekin
+    // mavzu nomi shuni talab qiladi), §2 (7-8-bet, faqat uchi/nol farqi —
+    // qolgani 2-darsda), §3 (10-11-bet, koeffitsient a). Yangi asbob yo'q:
+    // RecallMC/CheckReveal va Drill, 1-2-darsda QA topgan ikki grabladan
+    // (sahna klassi, CheckReveal grafik balandligi) boshidanoq xoli.
+    slug: 'dars03-kvadrat-funksiya',
+    title: 'Dars 3. Kvadrat funksiya',
+    desc: "Ikki parabola bir xil qoidadan: ta'rif y=ax²+bx+c, funksiyaning nollari (x²−3x misolida), nol va uchi farqi, koeffitsient a ning cho'zish/siqish/aks etish ta'siri. Qoida darslikdan so'zma-so'z. 15 ekran, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade9/Dars03.jsx')),
+  },
+  {
+    // 2026-08-27. Darslik §4 (14-17-bet: to'liq kvadratni ajratish, uchi
+    // formulasi x0=−b/2a), §5 (18-19-bet: besh qadamli qurish algoritmi).
+    // Butun dars darslikning aynan o'z misolida (y=x²−4x+3, 1-masala,
+    // 18-bet). Yangi asbob yo'q: RecallMC/RuleScreen (1-3-darsdan) va
+    // yakuniy yig'ish uchun `Trace` (Dars01dan) — besh nuqtani birma-bir
+    // qo'yib, parabolani ulardan chiqaradi.
+    slug: 'dars04-parabola',
+    title: 'Dars 4. Parabola',
+    desc: "Yangi uchi qayerda turishini formula bilan bilish: x0=−b/2a, y0=y(x0). Simmetriya o'qi (tik chiziq, Ox emas), nollar va besh nuqtadan (uchi, ikki nol, ikki simmetrik nuqta) parabolani yig'ish — darslikning o'z misolida (y=x²−4x+3). 15 ekran, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade9/Dars04.jsx')),
+  },
 ]
 
 // 9-sinf AMALIYOTI. Metodist qarori 2026-08-26: 52 dars x 10 topshiriq,
