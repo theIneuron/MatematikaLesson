@@ -126,7 +126,12 @@ Qiyinlik o'qi hamma darsda bir xil: `🟢🟢🟢 🟡🟡🟡🟡 🔴🔴🔴`
 
 Raskladka qoidalari:
 
-1. Raskladka dars nomeri bilan aniqlanadi — qayta yig'ilsa o'sha chiqadi.
+1. Raskladka dars nomeri bilan aniqlanadi — qayta yig'ilsa o'sha chiqadi. Qoida
+   KODDA: `scripts/grade9-practice-layout.mjs`. O'nta mexanika qiyinlik guruhlariga
+   bo'lingan (yashil 1-3, sariq 4-7, qizil 8-10) va har guruh faqat O'Z ICHIDA
+   aralashadi. Shu bitta qaror p. 2, 3 va 4 ni avtomatik bajaradi; skript ularni
+   52 darsning hammasida tekshiradi. `n = 1` da u 1-darsning yig'ilgan tartibini
+   aynan qaytaradi.
 2. Yonma-yon bir xil mexanika turmaydi.
 3. 1-pozitsiyaga boshqaruvi tushuntirishni talab qiladigan mexanika qo'yilmaydi:
    **Sonlar o'qi, Tartib, Xato qator, Belgilash** birinchi kelmaydi. Birinchi — Test,
@@ -147,9 +152,9 @@ src/components/grade9/practice/
                                Javobni kiritish, Sonlar o'qi, Xato qator; va
                                `FuncGraph` — grafikning o'zi (mexanika emas, rasm)
   Amaliyot.jsx               — o'ram, SINFGA BITTA: makePractice({ HEAD, ITEMS })
-  dars01/
-    D01_01.jsx … D01_10.jsx  — bitta topshiriq = bitta fayl, ichida FAQAT ma'lumot
-    Dars01Practice.jsx       — META + ITEMS, makePractice chaqiradi
+  dars01/ … dars04/
+    DNN_01.jsx … DNN_10.jsx  — bitta topshiriq = bitta fayl, ichida FAQAT ma'lumot
+    DarsNNPractice.jsx       — HEAD + ITEMS, makePractice chaqiradi
 ```
 
 O'ram va beshta mexanika **import qilinadi**, nusxalanmaydi:
@@ -183,8 +188,10 @@ Amaliyot ovozsiz.
 ```
 npx vite --port 5199
 
+node scripts/grade9-practice-layout.mjs --all         # raskladka: 52 dars, qoidalar buzilmaydimi
 node scripts/grade9-practice-check.mjs                # to'g'ri javoblar bilan 10/10 + skroll yo'q
 G9_WRONG=1 node scripts/grade9-practice-check.mjs     # noto'g'ri yo'llar: razbor BOR va bo'sh emas
+G9_LESSON=dars03 node scripts/grade9-practice-check.mjs   # bitta dars
 npx eslint src/components/grade9/practice
 npm run build
 ```

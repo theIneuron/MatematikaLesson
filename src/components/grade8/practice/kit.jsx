@@ -2050,7 +2050,10 @@ export function TrueFalse({ data, lang = 'uz', mode = 'answer', initialAnswer = 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 4, margin: '4px 0 5px' }}>
         {data.items.map((it) => (
           <div key={it.id} style={{ display: 'flex', alignItems: 'center', gap: phone ? 5 : 7, padding: phone ? '2px 3px 2px 6px' : '2px 4px 2px 8px', borderRadius: 10, border: '1.5px solid ' + C.pale, background: '#fff' }}>
-            <Row tokens={it.tokens} size={data.itemSize || (phone ? 15 : 17)} />
+            {/* 9-sinf 10-darsida mulohaza butunlay SO'ZDAN iborat bo'ldi
+                (kesishishlar SONI haqida): `tokens` bo'lmasa ifoda qatori
+                umuman chizilmaydi. Qo'shimcha, buzmaydi. */}
+            {it.tokens ? <Row tokens={it.tokens} size={data.itemSize || (phone ? 15 : 17)} /> : null}
             {it.at ? <span style={{ ...S.mono, fontSize: phone ? 11.5 : 13, color: C.soft, whiteSpace: 'nowrap' }}>{it.at}</span> : null}
             <span style={{ flex: 1, fontSize: phone ? 11 : 12.5, fontWeight: 600, color: C.soft, lineHeight: 1.2 }}>{tr(it.claim, lang)}</span>
             {btn(it, true)}
