@@ -658,7 +658,7 @@ const S10 = {
           { id: 'a', right: true, label: L('Uchta: 0, 3, minus uch', 'Три: 0, 3, минус три', 'Three: 0, 3, minus three') },
           { id: 'b', label: L('Ikkita: 3, minus uch', 'Два: 3, минус три', 'Two: 3, minus three'), hint: L("Umumiy ko'paytuvchi x ni unutmang: u ham nolga aylanadigan nuqta beradi.", 'Не забудь про общий множитель x: он тоже даёт точку, где значение равно нулю.', 'Do not forget the common factor x: it also gives a point where the value is zero.') },
         ],
-        solution: ['x³ − 9x = x(x² − 9) = x(x − 3)(x + 3)', 'Ildizlar: 0, 3, −3'],
+        solution: ['x³ − 9x = x(x² − 9) = x(x − 3)(x + 3)', L('Ildizlar: 0, 3, −3', 'Корни: 0, 3, −3', 'Roots: 0, 3, −3')],
       },
       {
         expr: 'x³ + x² − 6x',
@@ -668,7 +668,7 @@ const S10 = {
           { id: 'a', right: true, label: L('Uchta: 0, 2, minus uch', 'Три: 0, 2, минус три', 'Three: 0, 2, minus three') },
           { id: 'b', label: L('Ikkita: 2, minus uch', 'Два: 2, минус три', 'Two: 2, minus three'), hint: L("Bu yerda ham x umumiy ko'paytuvchi: u nol ildizini beradi, uni tashlab ketmang.", 'Здесь тоже x общий множитель: он даёт корень ноль, его нельзя пропускать.', 'Here too x is the common factor: it gives the root zero, do not skip it.') },
         ],
-        solution: ['x³ + x² − 6x = x(x² + x − 6) = x(x + 3)(x − 2)', 'Ildizlar: 0, −3, 2'],
+        solution: ['x³ + x² − 6x = x(x² + x − 6) = x(x + 3)(x − 2)', L('Ildizlar: 0, −3, 2', 'Корни: 0, −3, 2', 'Roots: 0, −3, 2')],
       },
       {
         expr: '(x² − 4)(x − 1)',
@@ -678,7 +678,7 @@ const S10 = {
           { id: 'a', right: true, label: L('Uchta: 2, minus ikki, bir', 'Три: 2, минус два, один', 'Three: 2, minus two, one') },
           { id: 'b', label: L('Ikkita: 2, bir', 'Два: 2, один', 'Two: 2, one'), hint: L("X kvadrat minus to'rt ham ayirmalar kvadrati: u x minus ikki va x qo'shi ikkiga ajraladi.", 'X в квадрате минус четыре тоже разность квадратов: раскладывается на x минус два и x плюс два.', 'X squared minus four is also a difference of squares: it factors into x minus two and x plus two.') },
         ],
-        solution: ['(x² − 4)(x − 1) = (x − 2)(x + 2)(x − 1)', 'Ildizlar: 2, −2, 1'],
+        solution: ['(x² − 4)(x − 1) = (x − 2)(x + 2)(x − 1)', L('Ildizlar: 2, −2, 1', 'Корни: 2, −2, 1', 'Roots: 2, −2, 1')],
       },
       {
         expr: 'x⁴ − x²',
@@ -688,7 +688,7 @@ const S10 = {
           { id: 'a', right: true, label: L('Uchta: 0 (takroriy), 1, minus bir', 'Три: 0 (повторяющийся), 1, минус один', 'Three: 0 (repeated), 1, minus one') },
           { id: 'b', label: L("To'rtta: 0, 0, 1, minus bir", 'Четыре: 0, 0, 1, минус один', 'Four: 0, 0, 1, minus one'), hint: L("Nol ikki marta qatnashsa ham, o'qda u FAQAT BITTA nuqta: har xil ildizlar sanaladi, takrorlanganlari emas.", 'Хоть ноль и участвует дважды, на оси это ТОЛЬКО ОДНА точка: считаются разные корни, а не повторения.', 'Even though zero appears twice, on the axis it is only ONE point: different roots are counted, not repetitions.') },
         ],
-        solution: ['x⁴ − x² = x²(x² − 1) = x²(x − 1)(x + 1)', 'Ildizlar: 0 (ikki marta), 1, −1 — o\'qda uchta nuqta'],
+        solution: ['x⁴ − x² = x²(x² − 1) = x²(x − 1)(x + 1)', L("Ildizlar: 0 (ikki marta), 1, −1 — o'qda uchta nuqta", 'Корни: 0 (дважды), 1, −1, на оси три точки', 'Roots: 0 (twice), 1, −1, three points on the axis')],
       },
     ],
   },
@@ -732,7 +732,7 @@ const S11 = {
           { id: 'a', right: true, label: L('Beshta', 'Пять', 'Five') },
           { id: 'b', label: L("To'rtta", 'Четыре', 'Four'), hint: L("To'rtta ildiz o'qni beshta bo'lakka bo'ladi, to'rtta emas: har bir yangi ildiz bitta qo'shimcha bo'lak beradi.", 'Четыре корня делят ось на пять частей, а не на четыре: каждый новый корень даёт один дополнительный кусок.', 'Four roots split the axis into five pieces, not four: each new root gives one additional piece.') },
         ],
-        solution: ["To'rtta har xil ildiz", 'Oraliqlar soni: to\'rt qo\'shi bir teng besh'],
+        solution: [L("To'rtta har xil ildiz", 'Четыре разных корня', 'Four different roots'), L("Oraliqlar soni: to'rt qo'shi bir teng besh", 'Промежутков: четыре плюс один равно пять', 'Intervals: four plus one equals five')],
       },
       {
         expr: '(x + 2)² (x − 5) < 0',
@@ -742,7 +742,7 @@ const S11 = {
           { id: 'a', right: true, label: L("Yo'q, ishora saqlanadi", 'Нет, знак сохраняется', 'No, the sign stays the same') },
           { id: 'b', label: L('Ha, har doimgidek almashadi', 'Да, меняется, как обычно', 'Yes, it changes as usual'), hint: L("Bu ko'paytuvchi kvadratga ko'tarilgan, ya'ni ikki marta takrorlangan: 5-ekranni eslang, u yerda ham xuddi shunday edi.", 'Этот множитель возведён в квадрат, то есть повторяется дважды: вспомни 5 экран, там было то же самое.', 'This factor is squared, that is, repeated twice: recall screen 5, it was the same there.') },
         ],
-        solution: ["X qo'shi ikki, kvadratga ko'tarilgan", "Bu nuqtada ishora o'zgarmaydi"],
+        solution: [L("X qo'shi ikki, kvadratga ko'tarilgan", 'X плюс два, возведён в квадрат', 'X plus two, squared'), L("Bu nuqtada ishora o'zgarmaydi", 'В этой точке знак не меняется', 'The sign does not change here')],
       },
       {
         expr: '(x + 1)(x − 3)² (x − 6) < 0',
@@ -752,7 +752,7 @@ const S11 = {
           { id: 'a', right: true, label: L("To'rtta oraliq, uchta nuqta", 'Четыре промежутка, три точки', 'Four intervals, three points') },
           { id: 'b', label: L("Beshta oraliq, to'rtta nuqta", 'Пять промежутков, четыре точки', 'Five intervals, four points'), hint: L("X minus uch ko'paytuvchisi ikki marta yozilgan bo'lsa ham, o'qqa FAQAT BIR marta qo'yiladi: nuqtalar soni takrorlanishga emas, har xil ildizlarga bog'liq.", 'Хоть множитель x минус три и записан дважды, на ось он ставится ТОЛЬКО ОДИН раз: число точек зависит от разных корней, а не от повторений.', 'Even though the factor x minus three is written twice, it is placed on the axis only ONCE: the number of points depends on different roots, not repetitions.') },
         ],
-        solution: ['Nuqtalar: minus bir, uch, olti', "To'rt oraliq (uchta nuqta, bittasi takroriy)"],
+        solution: [L('Nuqtalar: minus bir, uch, olti', 'Точки: минус один, три, шесть', 'Points: minus one, three, six'), L("To'rt oraliq (uchta nuqta, bittasi takroriy)", 'Четыре промежутка (три точки, одна повторная)', 'Four intervals (three points, one repeated)')],
       },
     ],
   },
@@ -790,11 +790,11 @@ const S12 = {
     ),
     tasks: [
       {
-        expr: '(x + 1)² (x − 2) < 0, Kamola javobga x = −1 ni ham qoshgan',
+        expr: '(x + 1)² (x − 2) < 0',
         question: L(
-          "X qo'shi bir nuqtasida bu funksiyaning qiymati nechaga teng: nolgami, manfiygami?",
-          'Чему равно значение этой функции в точке минус один: нулю или отрицательному числу?',
-          'What is the value of this function at the point minus one: zero, or a negative number?',
+          "Kamola javobga minus bir nuqtasini ham qo'shgan. Shu nuqtada qiymat nolgami, manfiygami?",
+          'Камола добавила в ответ и точку минус один. Значение в этой точке нулевое или отрицательное?',
+          'Kamola also added the point minus one into the answer. Is the value at this point zero, or negative?',
         ),
         ok: L(
           "Ha, aynan nolga teng. Tengsizlik qat'iy (kichik, teng emas), demak nol qiymat beruvchi nuqta javobga kirmaydi: Kamola xato qildi.",
@@ -813,8 +813,8 @@ const S12 = {
           },
         ],
         solution: [
-          'x = −1 da (x + 1)²(x − 2) = 0, tengsizlik esa qat\'iy',
-          "To'g'ri javob: x = −1 kirmaydi",
+          L("x = −1 da (x + 1)²(x − 2) = 0, tengsizlik esa qat'iy", 'при x = −1 (x + 1)²(x − 2) = 0, а неравенство строгое', 'at x = −1 (x + 1)²(x − 2) = 0, and the inequality is strict'),
+          L("To'g'ri javob: x = −1 kirmaydi", 'Верный ответ: x = −1 не входит', 'Correct answer: x = −1 does not belong'),
         ],
       },
     ],
@@ -868,8 +868,8 @@ const S13 = {
           { id: 'b', label: L('Manfiy', 'Отрицательный', 'Negative'), hint: L("To'rtga teng qiymatni qo'yib ko'ring: to'rtta ko'paytuvchining hammasi musbat chiqadi, ko'paytma ham musbat bo'ladi.", 'Подставь значение четыре: все четыре множителя окажутся положительными, и произведение тоже.', 'Substitute the value four: all four factors come out positive, and so does the product.') },
         ],
         solution: [
-          "Eng o'ngda: musbat (isbotlangan)",
-          'Chapga almashtirib: minus, plyus, minus, plyus, minus',
+          L("Eng o'ngda: musbat (isbotlangan)", 'Крайний справа: положительный (доказано)', 'Far right: positive (proved)'),
+          L('Chapga almashtirib: minus, plyus, minus, plyus, minus', 'Чередуя влево: минус, плюс, минус, плюс, минус', 'Alternating leftwards: minus, plus, minus, plus, minus'),
         ],
       },
     ],

@@ -722,7 +722,7 @@ const S10 = {
           { id: 'a', right: true, label: '(4; −3)  ·  (−3; 4)' },
           { id: 'b', label: L("Faqat (4; −3)", 'Только (4; −3)', 'Only (4; −3)') },
         ],
-        solution: ['Ikkala tartib ham javob', '(4; −3) va (−3; 4)'],
+        solution: [L('Ikkala tartib ham javob', 'Оба порядка это ответ', 'Both orders are answers'), L('(4; −3) va (−3; 4)', '(4; −3) и (−3; 4)', '(4; −3) and (−3; 4)')],
       },
     ],
   },
@@ -770,7 +770,7 @@ const S11 = {
           { id: 'a', right: true, label: L('Ha, mos keladi', 'Да, подходит', 'Yes, it fits') },
           { id: 'b', label: L("Yo'q, mos kelmaydi", 'Нет, не подходит', 'No, it does not fit'), hint: L("Ikkala tenglamani ham hisoblang: bir qo'shi uch to'rt beradi, bir karra uch uch beradi, ikkalasi ham to'g'ri.", 'Посчитай оба уравнения: один плюс три даёт четыре, один на три даёт три, оба верны.', 'Compute both equations: one plus three gives four, one times three gives three, both correct.') },
         ],
-        solution: ['1 + 3 = 4', '1 · 3 = 3', "Mos keladi"],
+        solution: ['1 + 3 = 4', '1 · 3 = 3', L('Mos keladi', 'Подходит', 'It fits')],
       },
       {
         expr: 'x + y = 4,  xy = 3,  (2; 2)',
@@ -784,7 +784,7 @@ const S11 = {
           { id: 'a', label: L('Ha, mos keladi', 'Да, подходит', 'Yes, it fits') },
           { id: 'b', right: true, label: L("Yo'q, mos kelmaydi", 'Нет, не подходит', 'No, it does not fit') },
         ],
-        solution: ['2 + 2 = 4 (togri)', '2 · 2 = 4 (3 emas)', "Mos kelmaydi"],
+        solution: [L("2 + 2 = 4 (to'g'ri)", '2 + 2 = 4 (верно)', '2 + 2 = 4 (correct)'), L('2 · 2 = 4 (3 emas)', '2 · 2 = 4 (не 3)', '2 · 2 = 4 (not 3)'), L('Mos kelmaydi', 'Не подходит', 'It does not fit')],
       },
       {
         expr: 'x + y = 4,  xy = 3,  (3; 1)',
@@ -798,7 +798,7 @@ const S11 = {
           { id: 'a', label: L("Ha, bir xil", 'Да, та же самая', 'Yes, the same') },
           { id: 'b', right: true, label: L("Yo'q, ikkinchi, boshqa javob", 'Нет, второй, другой ответ', 'No, a second, different answer') },
         ],
-        solution: ['3 + 1 = 4', '3 · 1 = 3', "Mos keladi, lekin (1;3) dan boshqa juftlik"],
+        solution: ['3 + 1 = 4', '3 · 1 = 3', L("Mos keladi, lekin (1;3) dan boshqa juftlik", 'Подходит, но это пара, отличная от (1;3)', 'It fits, but it is a different pair from (1;3)')],
       },
     ],
   },
@@ -836,11 +836,11 @@ const S12 = {
     ),
     tasks: [
       {
-        expr: 'x + y = 6,  xy = 5, Aziz: (5; 1)',
+        expr: 'x + y = 6,  xy = 5',
         question: L(
-          "Aziz faqat bitta javob yozdi. Tenglamaning ikkinchi ildizini toping: yana javob bormi?",
-          'Азиз записал только один ответ. Найди второй корень уравнения: есть ли ещё ответ?',
-          'Aziz wrote only one answer. Find the second root of the equation: is there another answer?',
+          "Aziz faqat (5; 1) javobini yozdi. Tenglamaning ikkinchi ildizini toping: yana javob bormi?",
+          'Азиз записал только ответ (5; 1). Найди второй корень уравнения: есть ли ещё ответ?',
+          'Aziz wrote only the answer (5; 1). Find the second root of the equation: is there another answer?',
         ),
         ok: L(
           "Ha, bor. Z kvadrat minus olti z qo'shi besh tenglamasining ikkita ildizi bor: besh va bir. Demak ikkinchi javob ham bor: (bir; besh).",
@@ -861,7 +861,7 @@ const S12 = {
         solution: [
           'z² − 6z + 5 = 0',
           '(z − 5)(z − 1) = 0',
-          "To'liq javob: (5; 1) va (1; 5)",
+          L("To'liq javob: (5; 1) va (1; 5)", 'Полный ответ: (5; 1) и (1; 5)', 'Full answer: (5; 1) and (1; 5)'),
         ],
       },
     ],

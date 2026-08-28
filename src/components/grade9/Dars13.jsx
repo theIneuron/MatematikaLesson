@@ -637,14 +637,18 @@ const S9 = {
         solution: ['s² = 1,5 · 4s', 's² = 6s'],
       },
       {
-        expr: 's² − 6s = 0, s ikki xonali son uchun mos qiymatini tanlang',
-        question: L('S ning qaysi qiymati masalaga mos keladi?', 'Какое значение s подходит задаче?', 'Which value of s fits the problem?'),
+        expr: 's² − 6s = 0',
+        question: L(
+          "N ikki xonali son bo'lishi kerak. S ning qaysi qiymati masalaga mos keladi?",
+          'N должно быть двузначным числом. Какое значение s подходит задаче?',
+          'N must be a two-digit number. Which value of s fits the problem?',
+        ),
         ok: L("Ha. S nol N ni nolga aylantiradi, bu ikki xonali son emas, shuning uchun s olti tanlanadi.", 'Да. s равный нулю превращает N в ноль, а это не двузначное число, поэтому выбирается s равный шести.', 'Yes. s equal to zero turns N into zero, which is not a two-digit number, so s equal to six is chosen.'),
         items: [
           { id: 'a', right: true, label: 's = 6' },
           { id: 'b', label: 's = 0', hint: L("S nol bo'lsa N ham nolga teng bo'ladi, nol esa ikki xonali son emas.", 'Если s равен нулю, N тоже будет равен нулю, а ноль не двузначное число.', 'If s equals zero, N also equals zero, and zero is not a two-digit number.') },
         ],
-        solution: ['s(s − 6) = 0', 's = 0 rad etiladi', 's = 6, N = 24'],
+        solution: ['s(s − 6) = 0', L('s = 0 rad etiladi', 's = 0 отбрасывается', 's = 0 is rejected'), 's = 6, N = 24'],
       },
     ],
   },
@@ -692,7 +696,7 @@ const S10 = {
           { id: 'a', right: true, label: 'a = 5b' },
           { id: 'b', label: 'a = b + 5', hint: L("Marta katta ko'paytirishni bildiradi, birlikka katta emas: qo'shish emas, ko'paytirish kerak.", 'В несколько раз больше означает умножение, а не больше на: нужно не сложение, а умножение.', '"Times greater" means multiplication, not "greater by": multiplication is needed, not addition.') },
         ],
-        solution: ['Besh marta katta = kopaytirish', 'a = 5b'],
+        solution: [L("Besh marta katta = ko'paytirish", 'В пять раз больше = умножение', 'Five times greater = multiplication'), 'a = 5b'],
       },
       {
         expr: 'x ~ y',
@@ -706,7 +710,7 @@ const S10 = {
           { id: 'a', right: true, label: 'x = y + 7' },
           { id: 'b', label: 'x = 7y', hint: L("Birlikka katta qo'shishni bildiradi, marta katta emas: ko'paytirish emas, qo'shish kerak.", 'На столько-то больше означает сложение, а не в несколько раз больше: нужно не умножение, а сложение.', '"More by" means addition, not "times greater": addition is needed, not multiplication.') },
         ],
-        solution: ['Yetti birlik katta = qoshish', 'x = y + 7'],
+        solution: [L("Yetti birlik katta = qo'shish", 'На семь больше = сложение', 'Seven more = addition'), 'x = y + 7'],
       },
       {
         expr: 'x + y = 20',
@@ -734,7 +738,7 @@ const S10 = {
           { id: 'a', right: true, label: 'xy = 36' },
           { id: 'b', label: 'x + y = 36', hint: L("Ko'paytma so'zi qo'shishni emas, ko'paytirishni bildiradi.", 'Слово произведение означает не сложение, а умножение.', 'The word "product" means not addition, but multiplication.') },
         ],
-        solution: ['Kopaytma = korpaytirish', 'xy = 36'],
+        solution: [L("Ko'paytma = ko'paytirish", 'Произведение = умножение', 'Product = multiplication'), 'xy = 36'],
       },
     ],
   },
@@ -792,7 +796,10 @@ const S11 = {
           { id: 'a', label: L('Ha, kiradi', 'Да, входит', 'Yes, it does') },
           { id: 'b', right: true, label: L("Yo'q, rad etiladi", 'Нет, отбрасывается', 'No, it is rejected') },
         ],
-        solution: ["Uzunlik manfiy bolishi mumkin emas", "Nomzod rad etiladi"],
+        solution: [
+          L("Uzunlik manfiy bo'lishi mumkin emas", 'Длина не может быть отрицательной', 'A length cannot be negative'),
+          L('Nomzod rad etiladi', 'Кандидат отбрасывается', 'The candidate is rejected'),
+        ],
       },
       {
         expr: 'N = 4s,  s = 5',
@@ -839,11 +846,11 @@ const S12 = {
     ),
     tasks: [
       {
-        expr: 's = 9, Nodira javobi: 9',
+        expr: 's = 9',
         question: L(
-          "Masala nimani so'ragan edi: raqamlar yig'indisinimi yoki ikki xonali sonning o'zinimi?",
-          'Что спрашивала задача: сумму цифр или само двузначное число?',
-          'What did the problem ask for: the digit sum or the two-digit number itself?',
+          "Nodira javob sifatida to'qqizni yozdi. Masala nimani so'ragan edi: raqamlar yig'indisinimi yoki ikki xonali sonning o'zinimi?",
+          'Нодира записала ответом девять. Что спрашивала задача: сумму цифр или само двузначное число?',
+          'Nodira wrote nine as the answer. What did the problem ask for: the digit sum or the two-digit number itself?',
         ),
         ok: L(
           "Ikki xonali sonning o'zini. S bu faqat oraliq natija, yakuniy javob N, ya'ni yigirma yetti.",
@@ -862,9 +869,9 @@ const S12 = {
           },
         ],
         solution: [
-          's = 9 faqat yordamchi natija',
+          L('s = 9 faqat yordamchi natija', 's = 9 это только промежуточный результат', 's = 9 is only an intermediate result'),
           'N = 3 · 9 = 27',
-          "To'g'ri javob: yigirma yetti",
+          L("To'g'ri javob: yigirma yetti", 'Верный ответ: двадцать семь', 'Correct answer: twenty-seven'),
         ],
       },
     ],

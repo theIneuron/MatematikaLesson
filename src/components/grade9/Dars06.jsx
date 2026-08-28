@@ -685,7 +685,11 @@ const S10 = {
           { id: 'a', right: true, label: L('Ikkita', 'Два', 'Two') },
           { id: 'b', label: L('Bitta', 'Один', 'One'), hint: L("Bu yerda ham tashqi ikki oraliq musbat, ular ajralgan.", 'Здесь тоже два крайних промежутка положительны, они разделены.', 'Here too the two outer intervals are positive, and they are separate.') },
         ],
-        solution: ['Nollar: 1, 4', "Tashqi ikki oraliq musbat", 'x < 1 yoki x > 4'],
+        solution: [
+          L('Nollar: 1, 4', 'Нули: 1, 4', 'Zeros: 1, 4'),
+          L('Tashqi ikki oraliq musbat', 'Два внешних промежутка положительны', 'The two outer intervals are positive'),
+          L('x < 1 yoki x > 4', 'x < 1 или x > 4', 'x < 1 or x > 4'),
+        ],
       },
       {
         expr: 'y = (x + 2)(x − 5) < 0',
@@ -695,7 +699,11 @@ const S10 = {
           { id: 'a', right: true, label: L("O'rtada", 'В середине', 'In the middle') },
           { id: 'b', label: L('Tashqarida', 'Снаружи', 'Outside'), hint: L("Tashqi oraliqlar bu yerda musbat, tengsizlik esa manfiylikni so'raydi.", 'Крайние промежутки здесь положительны, а неравенство спрашивает про отрицательность.', 'The outer intervals here are positive, and the inequality asks about negativity.') },
         ],
-        solution: ['Nollar: −2, 5', "O'rtadagi oraliq manfiy", '−2 < x < 5'],
+        solution: [
+          L('Nollar: −2, 5', 'Нули: −2, 5', 'Zeros: −2, 5'),
+          L("O'rtadagi oraliq manfiy", 'Средний промежуток отрицателен', 'The middle interval is negative'),
+          '−2 < x < 5',
+        ],
       },
       {
         expr: 'y = (x − 3)(x + 1) ≥ 0',
@@ -705,7 +713,11 @@ const S10 = {
           { id: 'a', right: true, label: L('Ha, kiradi', 'Да, входят', 'Yes, they belong') },
           { id: 'b', label: L("Yo'q, kirmaydi", 'Нет, не входят', 'No, they do not belong'), hint: L("Belgiga qarang: katta yoki TENG, bu qat'iy emas degani.", 'Посмотри на знак: больше или РАВНО, это значит не строго.', 'Look at the sign: greater than OR EQUAL, that means non-strict.') },
         ],
-        solution: ["Belgi qat'iy emas", 'Chegara nollar javobga kiradi', 'x ≤ −1 yoki x ≥ 3'],
+        solution: [
+          L("Belgi qat'iy emas", 'Знак нестрогий', 'The sign is not strict'),
+          L('Chegara nollar javobga kiradi', 'Граничные нули входят в ответ', 'The boundary zeros belong in the answer'),
+          L('x ≤ −1 yoki x ≥ 3', 'x ≤ −1 или x ≥ 3', 'x ≤ −1 or x ≥ 3'),
+        ],
       },
       {
         expr: 'y = (x + 4)(x − 2) > 0',
@@ -715,7 +727,11 @@ const S10 = {
           { id: 'a', label: L('Ha, qanoatlantiradi', 'Да, удовлетворяет', 'Yes, it does'), hint: L("Nolni qo'yib hisoblang: to'rt karra minus ikki, natija manfiy chiqadi, tengsizlik esa musbatlikni so'raydi.", 'Подставь ноль и посчитай: четыре, умноженное на минус два, даёт отрицательное число, а неравенство требует положительного.', 'Substitute zero and compute: four times minus two gives a negative number, and the inequality asks for positive.') },
           { id: 'b', right: true, label: L("Yo'q, qanoatlantirmaydi", 'Нет, не удовлетворяет', 'No, it does not') },
         ],
-        solution: ['Nollar: −4, 2', "Nol o'rtadagi oraliqda, u yerda ishora manfiy", 'x = 0 javobga kirmaydi'],
+        solution: [
+          L('Nollar: −4, 2', 'Нули: −4, 2', 'Zeros: −4, 2'),
+          L("Nol o'rtadagi oraliqda, u yerda ishora manfiy", 'Нуль в среднем промежутке, там знак отрицательный', 'Zero is in the middle interval, where the sign is negative'),
+          L('x = 0 javobga kirmaydi', 'x = 0 не входит в ответ', 'x = 0 does not belong in the answer'),
+        ],
       },
     ],
   },
@@ -759,7 +775,10 @@ const S11 = {
           { id: 'a', right: true, label: L("Yo'q, kirmaydi", 'Нет, не входят', 'No, they do not') },
           { id: 'b', label: L('Ha, kiradi', 'Да, входят', 'Yes, they do'), hint: L("Belgida tenglik yo'q, faqat qat'iy katta.", 'В знаке нет равенства, только строго больше.', 'The sign has no equality, only strictly greater.') },
         ],
-        solution: ["Belgi qat'iy: >", 'Chegara nollar javobdan chiqadi'],
+        solution: [
+          L("Belgi qat'iy: >", 'Знак строгий: >', 'The sign is strict: >'),
+          L('Chegara nollar javobdan chiqadi', 'Граничные нули исключаются из ответа', 'The boundary zeros are excluded from the answer'),
+        ],
       },
       {
         expr: 'x² − 4 ≤ 0',
@@ -769,7 +788,10 @@ const S11 = {
           { id: 'a', right: true, label: L('Ha, kiradi', 'Да, входят', 'Yes, they do') },
           { id: 'b', label: L("Yo'q, kirmaydi", 'Нет, не входят', 'No, they do not'), hint: L("Belgiga qarang: kichik yoki TENG, tenglik bor.", 'Посмотри на знак: меньше или РАВНО, равенство есть.', 'Look at the sign: less than OR EQUAL, equality is present.') },
         ],
-        solution: ["Belgi qat'iy emas: ≤", 'Chegara nollar javobga kiradi'],
+        solution: [
+          L("Belgi qat'iy emas: ≤", 'Знак нестрогий: ≤', 'The sign is not strict: ≤'),
+          L('Chegara nollar javobga kiradi', 'Граничные нули входят в ответ', 'The boundary zeros belong in the answer'),
+        ],
       },
       {
         expr: 'x² − 4 ≥ 0',
@@ -779,7 +801,10 @@ const S11 = {
           { id: 'a', right: true, label: L("To'liq doira", 'Полный кружок', 'Filled circle') },
           { id: 'b', label: L('Ochiq doira', 'Открытый кружок', 'Open circle'), hint: L("Ochiq doira faqat qat'iy tengsizlikda ishlatiladi, bu yerda tenglik bor.", 'Открытый кружок используется только в строгом неравенстве, а здесь есть равенство.', 'The open circle is used only for a strict inequality, and here there is equality.') },
         ],
-        solution: ["Belgi qat'iy emas: ≥", "To'liq doira"],
+        solution: [
+          L("Belgi qat'iy emas: ≥", 'Знак нестрогий: ≥', 'The sign is not strict: ≥'),
+          L("To'liq doira", 'Полный кружок', 'Filled circle'),
+        ],
       },
     ],
   },
@@ -816,11 +841,11 @@ const S12 = {
     ),
     tasks: [
       {
-        expr: 'x² − 5x + 6 > 0, Kamola: x > 2',
+        expr: 'x² − 5x + 6 > 0',
         question: L(
-          "Kamolaning yozuvida ikki butun besh o'ndan bu javobga kiradi. Tekshiring: bu to'g'rimi?",
-          'В записи Камолы два целых пять десятых входит в ответ. Проверь: это верно?',
-          "In Kamola's notation, two point five belongs to the answer. Check: is this right?",
+          "Kamola javobni x ikkidan katta deb yozdi. Unda ikki butun besh o'ndan ham javobga kiradi. Tekshiring: bu to'g'rimi?",
+          'Камола записала ответ как x больше двух. Тогда два целых пять десятых тоже входит в ответ. Проверь: это верно?',
+          "Kamola wrote the answer as x greater than two. Then two point five also belongs to the answer. Check: is this right?",
         ),
         ok: L(
           "Yo'q, noto'g'ri. Ikki butun besh o'ndan o'rtadagi manfiy oraliqda turibdi, u yerda funksiya qiymati manfiy, tengsizlikka mos kelmaydi.",
@@ -841,7 +866,7 @@ const S12 = {
         solution: [
           'y(2,5) = 2,5² − 5 · 2,5 + 6',
           'y(2,5) = 6,25 − 12,5 + 6 = −0,25',
-          "To'g'ri javob: x < 2 yoki x > 3",
+          L("To'g'ri javob: x < 2 yoki x > 3", 'Верный ответ: x < 2 или x > 3', 'Correct answer: x < 2 or x > 3'),
         ],
       },
     ],
@@ -892,7 +917,11 @@ const S13 = {
           { id: 'b', label: '(x − 1)(x − 4) > 0', hint: L("Bu belgi tashqi oraliqlarni beradi, o'rtadagini emas.", 'Этот знак даёт крайние промежутки, а не средний.', 'This sign gives the outer intervals, not the middle one.') },
           { id: 'c', label: '(x − 1)(x − 4) ≤ 0', hint: L("Ochiq doira qat'iy emaslikka emas, aynan qat'iylikka mos keladi.", 'Открытый кружок соответствует именно строгости, а не нестрогости.', 'The open circle matches strictness, not non-strictness.') },
         ],
-        solution: ["O'rtadagi oraliq manfiy: <", "Ochiq doira: qat'iy", '(x − 1)(x − 4) < 0'],
+        solution: [
+          L("O'rtadagi oraliq manfiy: <", 'Средний промежуток отрицателен: <', 'The middle interval is negative: <'),
+          L("Ochiq doira: qat'iy", 'Открытый кружок: строго', 'Open circle: strict'),
+          '(x − 1)(x − 4) < 0',
+        ],
       },
       {
         expr: 'x1 = −2, x2 = 3',
@@ -906,7 +935,11 @@ const S13 = {
           { id: 'a', right: true, label: '(x + 2)(x − 3) ≥ 0' },
           { id: 'b', label: '(x + 2)(x − 3) ≤ 0', hint: L("Bu belgi o'rtadagi oraliqni beradi, tashqilarini emas.", 'Этот знак даёт средний промежуток, а не крайние.', 'This sign gives the middle interval, not the outer ones.') },
         ],
-        solution: ['Tashqi ikki oraliq musbat: ≥', "To'liq doira: qat'iy emas", '(x + 2)(x − 3) ≥ 0'],
+        solution: [
+          L('Tashqi ikki oraliq musbat: ≥', 'Два внешних промежутка положительны: ≥', 'The two outer intervals are positive: ≥'),
+          L("To'liq doira: qat'iy emas", 'Полный кружок: нестрого', 'Filled circle: not strict'),
+          '(x + 2)(x − 3) ≥ 0',
+        ],
       },
     ],
   },

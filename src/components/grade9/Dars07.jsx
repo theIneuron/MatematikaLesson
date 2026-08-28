@@ -796,7 +796,7 @@ const S10 = {
           { id: 'a', right: true, label: '−5x − 1' },
           { id: 'b', label: '−5x + 1', hint: L("Ikkinchi had ham ishorasini o'zgartirishi kerak, faqat birinchisi emas.", 'Второе слагаемое тоже должно поменять знак, а не только первое.', 'The second term must flip sign too, not only the first.') },
         ],
-        solution: ["Minus bir deb hisoblang", '−1 · 5x = −5x', '−1 · 1 = −1'],
+        solution: [L("Minus bir deb hisoblang", 'Считай это как минус один', 'Treat it as minus one'), '−1 · 5x = −5x', '−1 · 1 = −1'],
       },
       {
         expr: '3(2x − 4)',
@@ -880,7 +880,7 @@ const S11 = {
           { id: 'a', right: true, label: L("To'g'ri, ikkala tomon ham to'qqiz", 'Верен, обе части равны девяти', 'Correct, both sides equal nine') },
           { id: 'b', label: L("Noto'g'ri, tomonlar har xil chiqadi", 'Неверен, части получаются разными', 'Incorrect, the sides come out different'), hint: L("Qo'yib hisoblang: ikki karra besh minus bir, to'qqiz. Besh qo'shi to'rt, to'qqiz. Ikkalasi teng.", 'Подставь и посчитай: два на пять минус один, девять. Пять плюс четыре, девять. Обе равны.', 'Substitute and compute: two times five minus one is nine. Five plus four is nine. Both equal.') },
         ],
-        solution: ['2 · 5 − 1 = 9', '5 + 4 = 9', "To'g'ri: 9 = 9"],
+        solution: ['2 · 5 − 1 = 9', '5 + 4 = 9', L("To'g'ri: 9 = 9", 'Верно: 9 = 9', 'Correct: 9 = 9')],
       },
     ],
   },
@@ -918,11 +918,11 @@ const S12 = {
     ),
     tasks: [
       {
-        expr: '3(x − 1) = 2x + 4, Sardor: x = 5',
+        expr: '3(x − 1) = 2x + 4',
         question: L(
-          "Sardorning javobini tekshiring: besh sonini asl tenglamaga qo'ying. To'g'ri chiqadimi?",
-          'Проверь ответ Сардора: подставь число пять в исходное уравнение. Получается верно?',
-          "Check Sardor's answer: substitute five into the original equation. Does it come out right?",
+          "Sardor javobni x besh deb yozdi. Besh sonini asl tenglamaga qo'ying: to'g'ri chiqadimi?",
+          'Сардор записал ответ как x равно пяти. Подставь число пять в исходное уравнение: получается верно?',
+          "Sardor wrote the answer as x equals five. Substitute five into the original equation: does it come out right?",
         ),
         ok: L(
           "Yo'q, to'g'ri emas. Chap tomon o'n ikki, o'ng tomon o'n to'rt, ular teng emas, demak x besh emas.",
@@ -944,7 +944,7 @@ const S12 = {
           '3(x − 1) = 3x − 3',
           '3x − 3 = 2x + 4',
           '3x − 2x = 4 + 3',
-          "To'g'ri javob: x = 7",
+          L("To'g'ri javob: x = 7", 'Верный ответ: x = 7', 'Correct answer: x = 7'),
         ],
       },
     ],

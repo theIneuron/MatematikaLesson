@@ -656,7 +656,10 @@ const S10 = {
           { id: 'a', right: true, label: L('Surat: besh. Maxraj: minus ikki', 'Числитель: пять. Знаменатель: минус два', 'Numerator: five. Denominator: minus two') },
           { id: 'b', label: L('Surat: minus ikki. Maxraj: besh', 'Числитель: минус два. Знаменатель: пять', 'Numerator: minus two. Denominator: five'), hint: L("Surat yuqorida turibdi: x minus besh. Uning nol nuqtasi besh, minus ikki emas.", 'Числитель находится сверху: x минус пять. Его нулевая точка пять, а не минус два.', 'The numerator is on top: x minus five. Its zero point is five, not minus two.') },
         ],
-        solution: ['Surat: x − 5 = 0  →  x = 5', 'Maxraj: x + 2 = 0  →  x = −2'],
+        solution: [
+          L('Surat: x − 5 = 0  →  x = 5', 'Числитель: x − 5 = 0  →  x = 5', 'Numerator: x − 5 = 0  →  x = 5'),
+          L('Maxraj: x + 2 = 0  →  x = −2', 'Знаменатель: x + 2 = 0  →  x = −2', 'Denominator: x + 2 = 0  →  x = −2'),
+        ],
       },
       {
         expr: '(x² − 4)/(x + 1)',
@@ -666,7 +669,10 @@ const S10 = {
           { id: 'a', right: true, label: L('Surat: ikki va minus ikki. Maxraj: minus bir', 'Числитель: два и минус два. Знаменатель: минус один', 'Numerator: two and minus two. Denominator: minus one') },
           { id: 'b', label: L('Surat: faqat ikki. Maxraj: minus bir', 'Числитель: только два. Знаменатель: минус один', 'Numerator: only two. Denominator: minus one'), hint: L("X kvadrat minus to'rt ayirmalar kvadrati: u x minus ikki va x qo'shi ikkiga ajraladi, ikkita nol beradi.", 'X в квадрате минус четыре это разность квадратов: раскладывается на x минус два и x плюс два, даёт два нуля.', 'X squared minus four is a difference of squares: it factors into x minus two and x plus two, giving two zeros.') },
         ],
-        solution: ['Surat: x² − 4 = (x − 2)(x + 2)  →  x = 2, x = −2', 'Maxraj: x + 1 = 0  →  x = −1'],
+        solution: [
+          L('Surat: x² − 4 = (x − 2)(x + 2)  →  x = 2, x = −2', 'Числитель: x² − 4 = (x − 2)(x + 2)  →  x = 2, x = −2', 'Numerator: x² − 4 = (x − 2)(x + 2)  →  x = 2, x = −2'),
+          L('Maxraj: x + 1 = 0  →  x = −1', 'Знаменатель: x + 1 = 0  →  x = −1', 'Denominator: x + 1 = 0  →  x = −1'),
+        ],
       },
       {
         expr: '(x + 6)/(x² − x − 6)',
@@ -676,7 +682,10 @@ const S10 = {
           { id: 'a', right: true, label: L('Surat: minus olti. Maxraj: uch va minus ikki', 'Числитель: минус шесть. Знаменатель: три и минус два', 'Numerator: minus six. Denominator: three and minus two') },
           { id: 'b', label: L('Surat: minus olti. Maxraj: faqat uch', 'Числитель: минус шесть. Знаменатель: только три', 'Numerator: minus six. Denominator: only three'), hint: L("Maxrajni ko'paytuvchilarga ajrating: x kvadrat minus x minus olti ikkita ildizga ega, faqat bittasi emas.", 'Разложи знаменатель на множители: x в квадрате минус x минус шесть имеет два корня, а не один.', 'Factor the denominator: x squared minus x minus six has two roots, not just one.') },
         ],
-        solution: ['Surat: x + 6 = 0  →  x = −6', 'Maxraj: x² − x − 6 = (x − 3)(x + 2)  →  x = 3, x = −2'],
+        solution: [
+          L('Surat: x + 6 = 0  →  x = −6', 'Числитель: x + 6 = 0  →  x = −6', 'Numerator: x + 6 = 0  →  x = −6'),
+          L('Maxraj: x² − x − 6 = (x − 3)(x + 2)  →  x = 3, x = −2', 'Знаменатель: x² − x − 6 = (x − 3)(x + 2)  →  x = 3, x = −2', 'Denominator: x² − x − 6 = (x − 3)(x + 2)  →  x = 3, x = −2'),
+        ],
       },
     ],
   },
@@ -713,34 +722,43 @@ const S11 = {
     ),
     tasks: [
       {
-        expr: '(x − 2)/(x − 5) ≥ 0,   nuqta: x = 2',
+        expr: '(x − 2)/(x − 5) ≥ 0,   x = 2',
         question: L('X ikkiga teng nuqta javobga kiradimi?', 'Входит ли точка x равное двум в ответ?', 'Does the point x equal to two belong in the answer?'),
         ok: L("Ha. Ikki suratning nol nuqtasi, tengsizlik esa qat'iy emas: tenglik ruxsat etiladi.", 'Да. Два это нулевая точка числителя, а неравенство нестрогое: равенство разрешено.', 'Yes. Two is the numerator\'s zero point, and the inequality is non-strict: equality is allowed.'),
         items: [
           { id: 'a', right: true, label: L("Ha, kiradi", 'Да, входит', 'Yes, it belongs') },
           { id: 'b', label: L("Yo'q, kirmaydi", 'Нет, не входит', 'No, it does not belong'), hint: L("Ikki suratda joylashgan (x minus ikki), maxrajda emas. Tengsizlik katta yoki teng bo'lgani uchun suratning nol nuqtasi javobga kiradi.", 'Два находится в числителе (x минус два), а не в знаменателе. Так как неравенство больше или равно, нулевая точка числителя входит в ответ.', 'Two sits in the numerator (x minus two), not the denominator. Since the inequality is greater than or equal, the numerator\'s zero point belongs in the answer.') },
         ],
-        solution: ['X = 2: surat nol nuqtasi', "Tengsizlik qat'iy emas: nuqta kiradi"],
+        solution: [
+          L('X = 2: surat nol nuqtasi', 'X = 2: нулевая точка числителя', 'X = 2: numerator zero point'),
+          L("Tengsizlik qat'iy emas: nuqta kiradi", 'Неравенство нестрогое: точка входит', 'The inequality is not strict: the point belongs'),
+        ],
       },
       {
-        expr: '(x − 2)/(x − 5) ≥ 0,   nuqta: x = 5',
+        expr: '(x − 2)/(x − 5) ≥ 0,   x = 5',
         question: L('X beshga teng nuqta javobga kiradimi?', 'Входит ли точка x равное пяти в ответ?', 'Does the point x equal to five belong in the answer?'),
         ok: L("Yo'q. Besh maxrajning nol nuqtasi: u yerda kasr aniqlanmagan, tengsizlik turi bunga ta'sir qilmaydi.", 'Нет. Пять это нулевая точка знаменателя: там дробь не определена, тип неравенства на это не влияет.', 'No. Five is the denominator\'s zero point: the fraction is undefined there, the type of inequality does not affect this.'),
         items: [
           { id: 'a', right: true, label: L("Yo'q, kirmaydi", 'Нет, не входит', 'No, it does not belong') },
           { id: 'b', label: L("Ha, chunki tengsizlik qat'iy emas", 'Да, ведь неравенство нестрогое', 'Yes, since the inequality is non-strict'), hint: L("Besh maxrajda joylashgan (x minus besh). Maxraj nol nuqtasi tengsizlikning turidan qat'i nazar hech qachon javobga kirmaydi.", 'Пять находится в знаменателе (x минус пять). Нулевая точка знаменателя не входит в ответ независимо от типа неравенства.', 'Five sits in the denominator (x minus five). The denominator\'s zero point never belongs in the answer regardless of the type of inequality.') },
         ],
-        solution: ['X = 5: maxraj nol nuqtasi', "Har doim chiqarib tashlanadi"],
+        solution: [
+          L('X = 5: maxraj nol nuqtasi', 'X = 5: нулевая точка знаменателя', 'X = 5: denominator zero point'),
+          L('Har doim chiqarib tashlanadi', 'Всегда исключается', 'Always excluded'),
+        ],
       },
       {
-        expr: '(x + 1)/(x − 3) > 0,   nuqta: x = −1',
+        expr: '(x + 1)/(x − 3) > 0,   x = −1',
         question: L('X minus birga teng nuqta javobga kiradimi?', 'Входит ли точка x равное минус одному в ответ?', 'Does the point x equal to minus one belong in the answer?'),
         ok: L("Yo'q. Minus bir suratning nol nuqtasi, lekin tengsizlik qat'iy: tenglik ruxsat etilmaydi.", 'Нет. Минус один это нулевая точка числителя, но неравенство строгое: равенство не разрешено.', 'No. Minus one is the numerator\'s zero point, but the inequality is strict: equality is not allowed.'),
         items: [
           { id: 'a', right: true, label: L("Yo'q, kirmaydi", 'Нет, не входит', 'No, it does not belong') },
           { id: 'b', label: L("Ha, chunki bu surat nuqtasi", 'Да, ведь это точка числителя', 'Yes, since this is a numerator point'), hint: L("Surat nuqtasi bo'lishi kifoya emas: tengsizlik qat'iy (musbat, teng emas), shuning uchun tenglik holati javobga kirmaydi.", 'Быть точкой числителя недостаточно: неравенство строгое (больше, а не больше или равно), поэтому случай равенства не входит в ответ.', 'Being a numerator point is not enough: the inequality is strict (greater than, not greater than or equal), so the case of equality does not belong in the answer.') },
         ],
-        solution: ["X = −1: surat nol nuqtasi", "Tengsizlik qat'iy: nuqta kirmaydi"],
+        solution: [
+          L('X = −1: surat nol nuqtasi', 'X = −1: нулевая точка числителя', 'X = −1: numerator zero point'),
+          L("Tengsizlik qat'iy: nuqta kirmaydi", 'Неравенство строгое: точка не входит', 'The inequality is strict: the point does not belong'),
+        ],
       },
     ],
   },
@@ -772,22 +790,22 @@ const S12 = {
     solutionLabel: L("TO'G'RI YECHIM", 'ВЕРНОЕ РЕШЕНИЕ', 'CORRECT SOLUTION'),
     nextLabel: L('Keyingisi', 'Дальше', 'Next'),
     doneNote: L(
-      "X ikkiga teng bo'lganda dastlabki kasrning maxraji nolga aylanadi: bu nuqta hech qachon javobga kirmaydi, Farrux uni yo'qotib qo'ygan.",
-      'При x равном двум знаменатель исходной дроби обращается в ноль: эта точка никогда не входит в ответ, Фаррух её потерял.',
-      "When x equals two the denominator of the original fraction becomes zero: this point never belongs in the answer, Farrux lost it.",
+      "Farrux nuqtani yo'qotgan: x ikkida maxraj nolga teng bo'ladi.",
+      'Фаррух потерял точку: при x равном двум знаменатель равен нулю.',
+      'Farrux lost the point: at x equal to two the denominator is zero.',
     ),
     tasks: [
       {
-        expr: '(x − 2)(x + 1)/(x − 2) ≥ 0, Farrux: javob x ≥ −1',
+        expr: '(x − 2)(x + 1)/(x − 2) ≥ 0',
         question: L(
-          "Dastlabki kasrning maxraji qanday edi? X ikkiga teng bo'lganda u nechaga aylanadi?",
-          'Каким был знаменатель исходной дроби? Во что он превращается при x равном двум?',
-          'What was the denominator of the original fraction? What does it become when x equals two?',
+          "Farrux javobni x katta yoki teng minus bir deb yozdi. Dastlabki maxraj x ikkida nechaga aylanadi?",
+          'Фаррух записал ответ как x больше или равно минус одному. Во что обращается исходный знаменатель при x равном двум?',
+          'Farrux wrote the answer as x greater than or equal to minus one. What does the original denominator become at x equal to two?',
         ),
         ok: L(
-          "To'g'ri: maxraj x minus ikki edi, x ikkiga teng bo'lganda u nolga aylanadi. Demak ikki aniqlanish sohasidan tashqarida, javobga kirmaydi: to'liq javob x katta yoki teng minus bir, LEKIN x ikkiga teng emas.",
-          'Верно: знаменатель был x минус два, при x равном двум он обращается в ноль. Значит два вне области определения, не входит в ответ: полный ответ x больше или равно минус одному, НО x не равно двум.',
-          'Correct: the denominator was x minus two, and it becomes zero when x equals two. So two is outside the domain, not in the answer: the full answer is x greater than or equal to minus one, BUT x not equal to two.',
+          "To'g'ri: x ikkida maxraj nolga aylanadi, demak ikki javobga kirmaydi.",
+          'Верно: при x равном двум знаменатель обращается в ноль, значит два не входит в ответ.',
+          'Correct: at x equal to two the denominator becomes zero, so two is not in the answer.',
         ),
         items: [
           {
@@ -801,9 +819,9 @@ const S12 = {
           },
         ],
         solution: [
-          'Maxraj: x − 2, x = 2 da nolga teng',
-          "Qisqartirilgan ifoda x + 1 ≥ 0 → x ≥ −1",
-          "To'g'ri javob: x ≥ −1, lekin x ≠ 2",
+          L('Maxraj: x − 2, x = 2 da nolga teng', 'Знаменатель: x − 2, при x = 2 равен нулю', 'Denominator: x − 2, zero at x = 2'),
+          L('Qisqartirilgan ifoda x + 1 ≥ 0 → x ≥ −1', 'Сокращённое выражение x + 1 ≥ 0 → x ≥ −1', 'Reduced expression x + 1 ≥ 0 → x ≥ −1'),
+          L("To'g'ri javob: x ≥ −1, lekin x ≠ 2", 'Верный ответ: x ≥ −1, но x ≠ 2', 'Correct answer: x ≥ −1, but x ≠ 2'),
         ],
       },
     ],

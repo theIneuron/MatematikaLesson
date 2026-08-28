@@ -873,7 +873,7 @@ const S9 = {
             hint: L("Chekka qiymatlarni hisoblang: minus uchda to'qqiz, minus ikkida to'rt. To'qqizdan to'rtga tushish, bu kamayish.", 'Посчитай крайние значения: при минус трёх девять, при минус двух четыре. Спуск с девяти до четырёх, это убывание.', 'Compute the endpoints: at minus three nine, at minus two four. Falling from nine to four is decreasing.'),
           },
         ],
-        solution: ['y(−3) = 9', 'y(−2) = 4', 'kamayadi'],
+        solution: ['y(−3) = 9', 'y(−2) = 4', L('kamayadi', 'убывает', 'decreasing')],
       },
       {
         expr: 'y = x²,  1 ≤ x ≤ 3',
@@ -888,7 +888,7 @@ const S9 = {
             hint: L("Chekka qiymatlarni hisoblang: birda bir, uchda to'qqiz. Birdan to'qqizga ko'tarilish, bu o'sish.", 'Посчитай крайние значения: при одном единица, при трёх девять. Подъём с единицы до девяти, это возрастание.', 'Compute the endpoints: at one, one; at three, nine. Rising from one to nine is increasing.') },
           { id: 'b', right: true, label: L("o'sadi", 'возрастает', 'increasing') },
         ],
-        solution: ['y(1) = 1', 'y(3) = 9', "o'sadi"],
+        solution: ['y(1) = 1', 'y(3) = 9', L("o'sadi", 'возрастает', 'increasing')],
       },
       {
         expr: 'y = x²,  −1 ≤ x ≤ 0',
@@ -903,7 +903,7 @@ const S9 = {
           { id: 'b', label: L("o'sadi", 'возрастает', 'increasing'),
             hint: L("Chekka qiymatlarni hisoblang: minus birda bir, nolda nol. Birdan nolga tushish, bu kamayish.", 'Посчитай крайние значения: при минус одном единица, при нуле нуль. Спуск с единицы до нуля, это убывание.', 'Compute the endpoints: at minus one, one; at zero, zero. Falling from one to zero is decreasing.') },
         ],
-        solution: ['y(−1) = 1', 'y(0) = 0', 'kamayadi'],
+        solution: ['y(−1) = 1', 'y(0) = 0', L('kamayadi', 'убывает', 'decreasing')],
       },
       {
         expr: 'y = x²,  0 ≤ x ≤ 2',
@@ -918,7 +918,7 @@ const S9 = {
             hint: L("Chekka qiymatlarni hisoblang: nolda nol, ikkida to'rt. Noldan to'rtga ko'tarilish, bu o'sish.", 'Посчитай крайние значения: при нуле нуль, при двух четыре. Подъём с нуля до четырёх, это возрастание.', 'Compute the endpoints: at zero, zero; at two, four. Rising from zero to four is increasing.') },
           { id: 'b', right: true, label: L("o'sadi", 'возрастает', 'increasing') },
         ],
-        solution: ['y(0) = 0', 'y(2) = 4', "o'sadi"],
+        solution: ['y(0) = 0', 'y(2) = 4', L("o'sadi", 'возрастает', 'increasing')],
       },
     ],
   },
@@ -1004,7 +1004,7 @@ const S10 = {
             hint: L("Toqlikda ishora almashishi kerak edi, bu yerda esa ishorasiz teng chiqdi.", 'При нечётности знак должен был поменяться, а здесь равенство вышло без минуса.', 'For oddness the sign should have flipped, but here the equality came out with no minus.'),
           },
         ],
-        solution: ['y(−x) = x⁴ = y(x)', 'Funksiya juft'],
+        solution: ['y(−x) = x⁴ = y(x)', L('Funksiya juft', 'Функция чётная', 'The function is even')],
       },
     ],
   },
@@ -1055,7 +1055,7 @@ const S11 = {
           { id: 'b', label: L('Toq', 'Нечётная', 'Odd') },
           { id: 'c', label: L('Na juft, na toq', 'Ни чётная, ни нечётная', 'Neither') },
         ],
-        solution: ['y(−x) = (−x)² + 1', 'y(−x) = x² + 1 = y(x)', 'Juft'],
+        solution: ['y(−x) = (−x)² + 1', 'y(−x) = x² + 1 = y(x)', L('Juft', 'Чётная', 'Even')],
       },
       {
         expr: 'y = x³ − x',
@@ -1072,7 +1072,7 @@ const S11 = {
           { id: 'c', label: L('Na juft, na toq', 'Ни чётная, ни нечётная', 'Neither'),
             hint: L("Hisoblab ko'ring: natija aynan minus y(x) chiqadi, bu esa toqlik ta'rifining o'zi.", 'Посчитай: результат получается ровно минус y(x), а это и есть определение нечётности.', 'Compute it: the result is exactly minus y(x), which is the definition of oddness.') },
         ],
-        solution: ['y(−x) = (−x)³ − (−x)', 'y(−x) = −x³ + x', 'y(−x) = −(x³ − x) = −y(x)', 'Toq'],
+        solution: ['y(−x) = (−x)³ − (−x)', 'y(−x) = −x³ + x', 'y(−x) = −(x³ − x) = −y(x)', L('Toq', 'Нечётная', 'Odd')],
       },
       {
         expr: 'y = x + 3',
@@ -1089,7 +1089,15 @@ const S11 = {
             hint: L("x nolda tekshiring: toq funksiyada y(0) doim nolga teng bo'lishi kerak, bu yerda esa u uchga teng.", 'Проверь при x, равном нулю: у нечётной функции y(0) всегда должно быть нулём, а здесь оно равно трём.', 'Check at x equal to zero: for an odd function y(0) must always be zero, but here it is three.') },
           { id: 'c', right: true, label: L('Na juft, na toq', 'Ни чётная, ни нечётная', 'Neither') },
         ],
-        solution: ['y(−x) = −x + 3', 'x + 3 ga teng emas, −(x + 3) ga ham teng emas', 'Na juft, na toq'],
+        solution: [
+          'y(−x) = −x + 3',
+          L(
+            'x + 3 ga teng emas, −(x + 3) ga ham teng emas',
+            'не равно ни x + 3, ни −(x + 3)',
+            'equals neither x + 3 nor −(x + 3)',
+          ),
+          L('Na juft, na toq', 'Ни чётная, ни нечётная', 'Neither'),
+        ],
       },
       {
         expr: 'y = 5',
@@ -1106,7 +1114,7 @@ const S11 = {
           { id: 'c', label: L('Na juft, na toq', 'Ни чётная, ни нечётная', 'Neither'),
             hint: L("y(−x) ni hisoblang: har qanday x da natija baribir besh, demak y(x) bilan bir xil.", 'Посчитай y(−x): при любом x результат всё равно пять, значит он совпадает с y(x).', "Compute y(−x): for any x the result is still five, so it matches y(x).") },
         ],
-        solution: ['y(−x) = 5 = y(x)', 'Juft'],
+        solution: ['y(−x) = 5 = y(x)', L('Juft', 'Чётная', 'Even')],
       },
     ],
   },
@@ -1175,7 +1183,11 @@ const S12 = {
         solution: [
           'y(1) = 1³ − 2·1² = −1',
           'y(−1) = (−1)³ − 2·(−1)² = −1 − 2 = −3',
-          'y(1) va y(−1) teng emas — funksiya juft emas',
+          L(
+            'y(1) va y(−1) teng emas — funksiya juft emas',
+            'y(1) и y(−1) не равны, значит функция не чётная',
+            'y(1) and y(−1) are not equal, so the function is not even',
+          ),
         ],
       },
     ],
@@ -1232,7 +1244,11 @@ const S13 = {
           { id: 'c', label: 'y = x + 1',
             hint: L("y(0) hisoblang: toq funksiyada u nolga teng bo'lishi kerak, bu yerda esa u birga teng.", 'Посчитай y(0): у нечётной функции оно должно быть нулём, а здесь оно равно единице.', 'Compute y(0): for an odd function it must be zero, but here it equals one.') },
         ],
-        solution: ['y(−x) = (−x)³ = −x³', '−x³ = −y(x)', 'y = x³ mos keladi'],
+        solution: [
+          'y(−x) = (−x)³ = −x³',
+          '−x³ = −y(x)',
+          L('y = x³ mos keladi', 'подходит y = x³', 'y = x³ fits'),
+        ],
       },
       {
         expr: 'y(−x) = y(x)',
@@ -1253,7 +1269,18 @@ const S13 = {
           { id: 'c', label: 'y = −x³',
             hint: L("Bu funksiya toq: y minus x, minus y x ga teng, ishorasi bilan, juftlik shartiga mos emas.", 'Эта функция нечётная: y от минус x равно минус y от x, со знаком минус, условию чётности не подходит.', 'This function is odd: y of minus x equals minus y of x, with a minus sign, it does not fit the condition for evenness.') },
         ],
-        solution: ['y(−x) = −(−x)² = −x² = y(x) — juft', 'x musbat tomonda katta x kichikroq y beradi — kamayadi'],
+        solution: [
+          L(
+            'y(−x) = −(−x)² = −x² = y(x) — juft',
+            'y(−x) = −(−x)² = −x² = y(x), чётная',
+            'y(−x) = −(−x)² = −x² = y(x), even',
+          ),
+          L(
+            'x musbat tomonda katta x kichikroq y beradi — kamayadi',
+            'при положительных x больший x даёт меньший y, значит убывает',
+            'for positive x a bigger x gives a smaller y, so it is decreasing',
+          ),
+        ],
       },
     ],
   },

@@ -43,14 +43,14 @@ export const META = {
 
 export const STATEMENTS = [
   L(
-    "Qo'shish usulida ikkala tenglama qo'shiladi: agar bir had qarama-qarshi ishorada bo'lsa, u yo'qoladi va yangi, soddaroq tenglama hosil bo'ladi",
-    'В способе сложения оба уравнения складываются: если одно слагаемое стоит с противоположными знаками, оно исчезает, и получается новое, более простое уравнение',
-    'In the addition method, both equations are added: if one term has opposite signs, it disappears, and a new, simpler equation is obtained',
+    "Qo'shish usulida qarama-qarshi ishorali had yo'qoladi va soddaroq tenglama qoladi",
+    'При сложении слагаемое с противоположными знаками исчезает, остаётся более простое уравнение',
+    'On adding, the term with opposite signs disappears and a simpler equation remains',
   ),
   L(
-    "Qo'shishdan keyin topilgan natija (masalan, x qo'shi y) hali yakuniy javob emas, u yana bir tenglamaga qo'yiladi",
-    'Результат, найденный после сложения (например, x плюс y), это ещё не окончательный ответ, его подставляют ещё в одно уравнение',
-    'The result found after adding (for example, x plus y) is not yet the final answer, it is substituted into one more equation',
+    "Qo'shishdan keyingi natija hali javob emas, u yana bir tenglamaga qo'yiladi",
+    'Результат сложения это ещё не ответ, его подставляют ещё в одно уравнение',
+    'The result of adding is not the answer yet, it is substituted into one more equation',
   ),
   L(
     "Kvadrat tenglamaning ikkita ildizi bo'lsa, sistemaning odatda ikkita yechimi bo'ladi, ikkalasi ham yoziladi",
@@ -637,7 +637,7 @@ const S9 = {
           { id: 'a', right: true, label: '(9; 2)  ·  (9; −2)' },
           { id: 'b', label: '(9; 2)', hint: L("Y kvadrat to'rtga teng bo'lganda y ikkita qiymat oladi: ikki va minus ikki, ikkalasi ham javobga kiradi.", 'Когда y в квадрате равен четырём, y принимает два значения: два и минус два, оба входят в ответ.', 'When y squared equals four, y takes two values: two and minus two, both belong to the answer.') },
         ],
-        solution: ['y = 2 yoki y = −2', '(9; 2), (9; −2)'],
+        solution: [L('y = 2 yoki y = −2', 'y = 2 или y = −2', 'y = 2 or y = −2'), '(9; 2), (9; −2)'],
       },
     ],
   },
@@ -681,7 +681,7 @@ const S10 = {
           { id: 'a', right: true, label: '3y' },
           { id: 'b', label: 'x²', hint: L("X kvadrat ikkala tenglamada ham bir xil ishorada, plyus: u yo'qolmaydi, qo'shiladi.", 'x в квадрате в обоих уравнениях с одним знаком, плюс: он не исчезает, а складывается.', 'x squared has the same sign, plus, in both equations: it does not disappear, it adds.') },
         ],
-        solution: ['3y va −3y qarama-qarshi', '2x² = 10'],
+        solution: [L('3y va −3y qarama-qarshi', '3y и −3y противоположны', '3y and −3y are opposite'), '2x² = 10'],
       },
       {
         expr: '5x − y² = 4,  −5x − y² = −16',
@@ -691,7 +691,7 @@ const S10 = {
           { id: 'a', right: true, label: '5x' },
           { id: 'b', label: 'y²', hint: L("Y kvadrat ikkala tenglamada ham bir xil ishorada, minus: u yo'qolmaydi.", 'y в квадрате в обоих уравнениях с одним знаком, минус: он не исчезает.', 'y squared has the same sign, minus, in both equations: it does not disappear.') },
         ],
-        solution: ['5x va −5x qarama-qarshi', '−2y² = −12'],
+        solution: [L('5x va −5x qarama-qarshi', '5x и −5x противоположны', '5x and −5x are opposite'), '−2y² = −12'],
       },
       {
         expr: 'x + 2xy = 7,  x − 2xy = −1',
@@ -701,7 +701,7 @@ const S10 = {
           { id: 'a', right: true, label: '2xy' },
           { id: 'b', label: 'x', hint: L("X ikkala tenglamada ham bir xil ishorada, plyus: u yo'qolmaydi.", 'x в обоих уравнениях с одним знаком, плюс: он не исчезает.', 'x has the same sign, plus, in both equations: it does not disappear.') },
         ],
-        solution: ['2xy va −2xy qarama-qarshi', '2x = 6'],
+        solution: [L('2xy va −2xy qarama-qarshi', '2xy и −2xy противоположны', '2xy and −2xy are opposite'), '2x = 6'],
       },
       {
         expr: '4y − x² = 9,  4y + x² = 9',
@@ -711,7 +711,7 @@ const S10 = {
           { id: 'a', right: true, label: 'x²' },
           { id: 'b', label: '4y', hint: L("To'rt y ikkala tenglamada ham bir xil ishorada, plyus: u yo'qolmaydi.", 'Четыре y в обоих уравнениях с одним знаком, плюс: он не исчезает.', 'Four y has the same sign, plus, in both equations: it does not disappear.') },
         ],
-        solution: ['−x² va x² qarama-qarshi', '8y = 18'],
+        solution: [L('−x² va x² qarama-qarshi', '−x² и x² противоположны', '−x² and x² are opposite'), '8y = 18'],
       },
     ],
   },
@@ -765,7 +765,7 @@ const S11 = {
           { id: 'a', right: true, label: '2  ·  −2' },
           { id: 'b', label: '4', hint: L("X kvadrat to'rt, x ning o'zi emas. Ildiz oling: ikki yoki minus ikki.", 'x в квадрате четыре, а не сам x. Извлеки корень: два или минус два.', 'x squared is four, not x itself. Take the root: two or minus two.') },
         ],
-        solution: ['x = 2 yoki x = −2'],
+        solution: [L('x = 2 yoki x = −2', 'x = 2 или x = −2', 'x = 2 or x = −2')],
       },
       {
         expr: 'x² + y = 6,  x = 2',
@@ -812,11 +812,11 @@ const S12 = {
     ),
     tasks: [
       {
-        expr: 'x + y + 3xy = 16,  x + y − 3xy = −2, Sarvar: x + y = 4',
+        expr: 'x + y + 3xy = 16,  x + y − 3xy = −2',
         question: L(
-          "Sarvarning javobi to'liqmi? X va y ning aniq qiymatlari ma'lummi?",
-          'Полон ли ответ Сарвара? Известны ли точные значения x и y?',
-          "Is Sarvar's answer complete? Are the exact values of x and y known?",
+          "Sarvar tenglamalarni qo'shib, x qo'shi y to'rtga teng deb topdi va shu yerda to'xtadi. Uning javobi to'liqmi? X va y ning aniq qiymatlari ma'lummi?",
+          'Сарвар сложил уравнения, получил x плюс y равно четырём, и остановился. Полон ли его ответ? Известны ли точные значения x и y?',
+          "Sarvar added the equations, got x plus y equals four, and stopped. Is his answer complete? Are the exact values of x and y known?",
         ),
         ok: L(
           "Yo'q, to'liq emas. X qo'shi y to'rt bo'lgan cheksiz ko'p juftlik bor: bir va uch, ikki va ikki va h.k. Aniq javob uchun yana bir tenglamaga qo'yish kerak.",
@@ -835,9 +835,9 @@ const S12 = {
           },
         ],
         solution: [
-          'x + y = 4 hali yakuniy emas',
-          'y = 4 − x ni ikkinchi tenglamaga qo\'yish kerak',
-          "To'liq javob uchun davom etiladi",
+          L('x + y = 4 hali yakuniy emas', 'x + y = 4 ещё не окончательный ответ', 'x + y = 4 is not final yet'),
+          L("y = 4 − x ni ikkinchi tenglamaga qo'yish kerak", 'y = 4 − x нужно подставить во второе уравнение', 'substitute y = 4 − x into the second equation'),
+          L("To'liq javob uchun davom etiladi", 'Решение продолжается до полного ответа', 'The solution continues to the full answer'),
         ],
       },
     ],
@@ -876,7 +876,7 @@ const S13 = {
     ),
     tasks: [
       {
-        expr: 'x + y = 6 bolishi kerak',
+        expr: 'x + y = 6',
         question: L(
           "Qo'shilganda x qo'shi y olti bo'lishi kerak. Qaysi juft tenglama mos keladi?",
           'При сложении x плюс y должен получиться равным шести. Какая пара уравнений подходит?',
@@ -890,7 +890,7 @@ const S13 = {
         solution: ['9 + 3 = 12', '2(x + y) = 12', 'x + y = 6'],
       },
       {
-        expr: 'x + y = 10 bolishi kerak',
+        expr: 'x + y = 10',
         question: L(
           "Qo'shilganda x qo'shi y o'n bo'lishi kerak. Qaysi juft tenglama mos keladi?",
           'При сложении x плюс y должен получиться равным десяти. Какая пара уравнений подходит?',

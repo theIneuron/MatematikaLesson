@@ -852,7 +852,7 @@ const S11 = {
           { id: 'a', label: L('Ha, kiradi', 'Да, входит', 'Yes, it does') },
           { id: 'b', right: true, label: L("Yo'q, begona ildiz", 'Нет, посторонний корень', 'No, extraneous root') },
         ],
-        solution: ['x = 5 ODZ dan tashqarida', "Begona ildiz, javob: yechim yo'q"],
+        solution: [L('x = 5 ODZ dan tashqarida', 'x = 5 вне ОДЗ', 'x = 5 is outside the domain'), L("Begona ildiz, javob: yechim yo'q", 'Посторонний корень, ответ: решений нет', 'Extraneous root, answer: no solution')],
       },
       {
         expr: 'x ≠ −2,  x = 4',
@@ -866,7 +866,7 @@ const S11 = {
           { id: 'a', right: true, label: L('Ha, kiradi', 'Да, входит', 'Yes, it does') },
           { id: 'b', label: L("Yo'q, begona ildiz", 'Нет, посторонний корень', 'No, extraneous root'), hint: L("To'rt va minus ikki har xil sonlar: ildiz taqiqlangan qiymatga teng emas.", 'Четыре и минус два, разные числа: корень не равен запрещённому значению.', 'Four and minus two are different numbers: the root does not equal the forbidden value.') },
         ],
-        solution: ['x = 4 ODZ ichida', 'Haqiqiy ildiz, javob: x = 4'],
+        solution: [L('x = 4 ODZ ichida', 'x = 4 внутри ОДЗ', 'x = 4 is inside the domain'), L('Haqiqiy ildiz, javob: x = 4', 'Настоящий корень, ответ: x = 4', 'Real root, answer: x = 4')],
       },
       {
         expr: 'x ≠ 0,  x ≠ 1,  x = 0,  x = 6',
@@ -880,7 +880,7 @@ const S11 = {
           { id: 'a', label: L('Ha, ikkalasi ham', 'Да, оба', 'Yes, both') },
           { id: 'b', right: true, label: L('Faqat olti', 'Только шесть', 'Only six') },
         ],
-        solution: ['x = 0 taqiqlangan, begona', 'x = 6 taqiqlanmagan, haqiqiy', 'Javob: x = 6'],
+        solution: [L('x = 0 taqiqlangan, begona', 'x = 0 запрещён, посторонний', 'x = 0 is forbidden, extraneous'), L('x = 6 taqiqlanmagan, haqiqiy', 'x = 6 не запрещён, настоящий', 'x = 6 is not forbidden, real'), L('Javob: x = 6', 'Ответ: x = 6', 'Answer: x = 6')],
       },
     ],
   },
@@ -917,11 +917,11 @@ const S12 = {
     ),
     tasks: [
       {
-        expr: '4 / (x − 2) = 2, Madina: x = 2',
+        expr: '4 / (x − 2) = 2',
         question: L(
-          "Madinaning javobini tekshiring: bu tenglamada qaysi x taqiqlangan edi?",
-          'Проверь ответ Мадины: какой x был запрещён в этом уравнении?',
-          "Check Madina's answer: which x was forbidden in this equation?",
+          "Madina javobni x ikki deb yozdi. Tekshiring: bu tenglamada qaysi x taqiqlangan edi?",
+          'Мадина записала ответ как x равно двум. Проверь: какой x был запрещён в этом уравнении?',
+          "Madina wrote the answer as x equals two. Check: which x was forbidden in this equation?",
         ),
         ok: L(
           "Ikki taqiqlangan edi, chunki maxraj x minus ikki. Madinaning javobi aynan shu songa teng, demak u begona ildiz, javob emas.",
@@ -940,9 +940,9 @@ const S12 = {
           },
         ],
         solution: [
-          'x − 2 = 0 → x = 2 taqiqlangan',
-          "Madinaning javobi x = 2, aynan taqiqlangan songa teng",
-          "To'g'ri javob: yechim yo'q",
+          L('x − 2 = 0 → x = 2 taqiqlangan', 'x − 2 = 0 → x = 2 запрещён', 'x − 2 = 0 → x = 2 is forbidden'),
+          L("Madinaning javobi x = 2, aynan taqiqlangan songa teng", 'Ответ Мадины x = 2, ровно равен запрещённому числу', "Madina's answer x = 2 equals exactly the forbidden number"),
+          L("To'g'ri javob: yechim yo'q", 'Верный ответ: решений нет', 'Correct answer: no solution'),
         ],
       },
     ],

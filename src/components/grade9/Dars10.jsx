@@ -695,7 +695,7 @@ const S9 = {
           { id: 'a', right: true, label: L('Bitta', 'Один', 'One') },
           { id: 'b', label: L('Ikkita', 'Два', 'Two'), hint: L("Ko'paytuvchilarga ajrating: x minus ikki butun kvadrat teng nol. Ikkala ko'paytuvchi ham bir xil, ildiz bitta.", 'Разложи на множители: x минус два в квадрате равно нулю. Оба множителя одинаковы, корень один.', 'Factor it: x minus two squared equals zero. Both factors are the same, there is one root.') },
         ],
-        solution: ['(x − 2)² = 0', 'x = 2 (bitta ildiz)'],
+        solution: ['(x − 2)² = 0', L('x = 2 (bitta ildiz)', 'x = 2 (один корень)', 'x = 2 (one root)')],
       },
       {
         expr: 'x² + 1 = 0',
@@ -705,7 +705,7 @@ const S9 = {
           { id: 'a', label: L('Ikkita', 'Два', 'Two'), hint: L("X kvadrat manfiy bo'la olmaydi, shuning uchun x kvadrat qo'shi bir doim musbat, hech qachon nolga teng emas.", 'x в квадрате не может быть отрицательным, поэтому x в квадрате плюс один всегда положительно, никогда не равно нулю.', 'x squared cannot be negative, so x squared plus one is always positive, never equal to zero.') },
           { id: 'b', right: true, label: L('Nolta', 'Ноль', 'Zero') },
         ],
-        solution: ["X kvadrat >= 0 doim", 'Demak x kvadrat qo\'shi bir > 0 doim', "Ildiz yo'q, kesishish yo'q"],
+        solution: [L('X kvadrat >= 0 doim', 'x в квадрате >= 0 всегда', 'x squared >= 0 always'), L("Demak x kvadrat qo'shi bir > 0 doim", 'Значит x в квадрате плюс один > 0 всегда', 'So x squared plus one > 0 always'), L("Ildiz yo'q, kesishish yo'q", 'Корней нет, пересечений нет', 'No roots, no intersections')],
       },
       {
         expr: '2x² − 3x = 0',
@@ -769,7 +769,7 @@ const S10 = {
           { id: 'a', right: true, label: L("Ikkita, aniq son emas", 'Два, не целые числа', 'Two, not whole numbers') },
           { id: 'b', label: L("Ikkita, aniq butun sonlar", 'Два, целые числа', 'Two, whole integers'), hint: L("Diskriminantni hisoblang: bir qo'shi o'n olti, o'n yetti, bu to'liq kvadrat emas, demak ildizlar butun son emas.", 'Посчитай дискриминант: один плюс шестнадцать, семнадцать, это не полный квадрат, значит корни не целые числа.', 'Compute the discriminant: one plus sixteen, seventeen, which is not a perfect square, so the roots are not whole numbers.') },
         ],
-        solution: ['D = 1 + 16 = 17', "Ildizlar D ildizi orqali topiladi, butun son emas"],
+        solution: ['D = 1 + 16 = 17', L("Ildizlar D ildizi orqali topiladi, butun son emas", 'Корни находятся через корень из D, не целые числа', 'The roots come from the square root of D, not whole numbers')],
       },
       {
         expr: 'x ≈ 2,56',
@@ -847,7 +847,7 @@ const S11 = {
           { id: 'a', right: true, label: L("Kesishish yo'q", 'Пересечений нет', 'No intersections') },
           { id: 'b', label: L("Ikkita kesishish bor", 'Есть два пересечения', 'There are two intersections'), hint: L("Manfiy diskriminant aksincha: haqiqiy ildiz yo'qligini bildiradi, demak kesishish ham yo'q.", 'Отрицательный дискриминант означает обратное: действительных корней нет, значит и пересечений нет.', 'A negative discriminant means the opposite: there are no real roots, so there are no intersections either.') },
         ],
-        solution: ['D < 0', "Haqiqiy ildiz yo'q, kesishish yo'q"],
+        solution: ['D < 0', L("Haqiqiy ildiz yo'q, kesishish yo'q", 'Действительных корней нет, пересечений нет', 'No real roots, no intersections')],
       },
     ],
   },
@@ -884,11 +884,11 @@ const S12 = {
     ),
     tasks: [
       {
-        expr: 'y = x + 1,  y = x² − 1, Kamila: (3; 4)',
+        expr: 'y = x + 1,  y = x² − 1',
         question: L(
-          "(uch; to'rt) nuqtasini parabolada tekshiring: y teng x kvadrat minus bir. Mos keladimi?",
-          'Проверь точку (три; четыре) на параболе: y равен x в квадрате минус один. Она подходит?',
-          'Check the point (three; four) on the parabola: y equals x squared minus one. Does it fit?',
+          "Kamila (uch; to'rt) nuqtasini kesishish deb yozdi. Uni parabolada tekshiring: y teng x kvadrat minus bir. Mos keladimi?",
+          'Камила записала точку (три; четыре) как пересечение. Проверь её на параболе: y равен x в квадрате минус один. Она подходит?',
+          'Kamila wrote the point (three; four) as the intersection. Check it on the parabola: y equals x squared minus one. Does it fit?',
         ),
         ok: L(
           "Yo'q, mos kelmaydi. Uch kvadrat minus bir sakkizga teng, to'rtga emas. Demak bu nuqta parabolada yotmaydi, u kesishish emas.",
@@ -908,8 +908,8 @@ const S12 = {
         ],
         solution: [
           'y = 3² − 1 = 8',
-          "To'rtga teng emas, (3; 4) parabolada yotmaydi",
-          "Bu nuqta kesishish emas",
+          L("To'rtga teng emas, (3; 4) parabolada yotmaydi", 'Не равно четырём, (3; 4) не лежит на параболе', 'Not equal to four, (3; 4) does not lie on the parabola'),
+          L('Bu nuqta kesishish emas', 'Эта точка не пересечение', 'This point is not an intersection'),
         ],
       },
     ],
@@ -962,7 +962,7 @@ const S13 = {
         solution: ['(x − 1)(x − 4) = 0', 'x² − 5x + 4 = 0'],
       },
       {
-        expr: 'x = −3 (bitta)',
+        expr: 'x = −3',
         question: L(
           "Yagona kesishish nuqtasining x qiymati minus uch. Bitta kesishish uchun qaysi tenglama mos keladi?",
           'x-значение единственной точки пересечения это минус три. Какое уравнение подходит для одного пересечения?',
@@ -973,7 +973,7 @@ const S13 = {
           { id: 'a', right: true, label: '(x + 3)² = 0' },
           { id: 'b', label: '(x + 3)(x − 3) = 0', hint: L("Bu tenglamaning ikkita ildizi bor: minus uch va uch, bitta emas.", 'У этого уравнения два корня: минус три и три, а не один.', 'This equation has two roots: minus three and three, not one.') },
         ],
-        solution: ['(x + 3)² = 0', 'x = −3 (bitta ildiz)'],
+        solution: ['(x + 3)² = 0', L('x = −3 (bitta ildiz)', 'x = −3 (один корень)', 'x = −3 (one root)')],
       },
     ],
   },

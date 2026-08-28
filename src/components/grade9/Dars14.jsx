@@ -644,7 +644,7 @@ const S10 = {
           { id: 'a', right: true, label: L('Bitta', 'Один', 'One') },
           { id: 'b', label: L('Ikkita', 'Два', 'Two'), hint: L("Diskriminantni hisoblang: minus sakkizning kvadrati oltmish to'rt, to'rt karra o'n olti ham oltmish to'rt, D nol chiqadi.", 'Посчитай дискриминант: квадрат минус восьми шестьдесят четыре, четыре на шестнадцать тоже шестьдесят четыре, D получается нулём.', 'Compute the discriminant: minus eight squared is sixty-four, four times sixteen is also sixty-four, D comes out zero.') },
         ],
-        solution: ['D = 64 − 64 = 0', 'Bitta ildiz'],
+        solution: ['D = 64 − 64 = 0', L('Bitta ildiz', 'Один корень', 'One root')],
       },
       {
         expr: 'x² + 2x + 5',
@@ -654,7 +654,7 @@ const S10 = {
           { id: 'a', right: true, label: L('Nolta', 'Ноль', 'Zero') },
           { id: 'b', label: L('Bitta', 'Один', 'One'), hint: L("Diskriminantni hisoblang: ikkining kvadrati to'rt, to'rt karra besh yigirma, to'rt minus yigirma manfiy chiqadi.", 'Посчитай дискриминант: квадрат двух четыре, четыре на пять двадцать, четыре минус двадцать получается отрицательным.', 'Compute the discriminant: two squared is four, four times five is twenty, four minus twenty comes out negative.') },
         ],
-        solution: ['D = 4 − 20 = −16', 'Ildiz yoq'],
+        solution: ['D = 4 − 20 = −16', L("Ildiz yo'q", 'Корней нет', 'No roots')],
       },
       {
         expr: 'x² − 5x + 6',
@@ -664,7 +664,7 @@ const S10 = {
           { id: 'a', right: true, label: L('Ikkita', 'Два', 'Two') },
           { id: 'b', label: L('Nolta', 'Ноль', 'Zero'), hint: L("Diskriminantni hisoblang: minus beshning kvadrati yigirma besh, to'rt karra olti yigirma to'rt, ayirma bir, musbat.", 'Посчитай дискриминант: квадрат минус пяти двадцать пять, четыре на шесть двадцать четыре, разность один, положительна.', 'Compute the discriminant: minus five squared is twenty-five, four times six is twenty-four, the difference one, is positive.') },
         ],
-        solution: ['D = 25 − 24 = 1', 'Ikkita ildiz'],
+        solution: ['D = 25 − 24 = 1', L('Ikkita ildiz', 'Два корня', 'Two roots')],
       },
       {
         expr: '−x² + 4x − 4',
@@ -674,7 +674,7 @@ const S10 = {
           { id: 'a', right: true, label: L('Bitta', 'Один', 'One') },
           { id: 'b', label: L('Ikkita', 'Два', 'Two'), hint: L("A minus bir, b to'rt, c minus to'rt: to'rtning kvadrati o'n olti, to'rt karra minus bir karra minus to'rt ham o'n olti, D nol chiqadi.", 'a минус один, b четыре, c минус четыре: квадрат четырёх шестнадцать, четыре на минус один на минус четыре тоже шестнадцать, D получается нулём.', 'a is minus one, b is four, c is minus four: four squared is sixteen, four times minus one times minus four is also sixteen, D comes out zero.') },
         ],
-        solution: ['D = 16 − 16 = 0', 'Bitta ildiz'],
+        solution: ['D = 16 − 16 = 0', L('Bitta ildiz', 'Один корень', 'One root')],
       },
     ],
   },
@@ -722,7 +722,10 @@ const S11 = {
           { id: 'a', right: true, label: L("Yechim yo'q", 'Решений нет', 'No solution') },
           { id: 'b', label: L('Barcha sonlar', 'Все числа', 'All numbers'), hint: L("Grafik butunlay yuqorida, hech qachon manfiy bo'lmaydi: manfiylikni so'ragan tengsizlikning yechimi yo'q.", 'График весь наверху, никогда не отрицателен: у неравенства про отрицательность решений нет.', 'The graph is entirely above, never negative: the inequality asking for negative has no solution.') },
         ],
-        solution: ["Grafik doim musbat", "Manfiylik so'ralsa: yechim yoq"],
+        solution: [
+          L('Grafik doim musbat', 'График всегда положителен', 'The graph is always positive'),
+          L("Manfiylik so'ralsa: yechim yo'q", 'Если спрошена отрицательность: решений нет', 'If negativity is asked: no solution'),
+        ],
       },
       {
         expr: 'y > 0',
@@ -736,7 +739,10 @@ const S11 = {
           { id: 'a', right: true, label: L('Barcha sonlar', 'Все числа', 'All numbers') },
           { id: 'b', label: L("Yechim yo'q", 'Решений нет', 'No solution'), hint: L("Grafik butunlay yuqorida, demak har doim musbat: musbatlikni so'ragan tengsizlikni har qanday x qanoatlantiradi.", 'График весь наверху, значит всегда положителен: неравенству про положительность удовлетворяет любой x.', 'The graph is entirely above, so it is always positive: any x satisfies the inequality asking for positive.') },
         ],
-        solution: ["Grafik doim musbat", "Musbatlik so'ralsa: barcha sonlar"],
+        solution: [
+          L('Grafik doim musbat', 'График всегда положителен', 'The graph is always positive'),
+          L("Musbatlik so'ralsa: barcha sonlar", 'Если спрошена положительность: все числа', 'If positivity is asked: all numbers'),
+        ],
       },
       {
         expr: 'y ≤ 0',
@@ -750,7 +756,10 @@ const S11 = {
           { id: 'a', right: true, label: L('Faqat urinish nuqtasining o\'zi', 'Только сама точка касания', 'Only the touching point itself') },
           { id: 'b', label: L('Barcha sonlar', 'Все числа', 'All numbers'), hint: L("Tarmoqlari pastga qaragan, demak grafik urinish nuqtasidan tashqari hamma joyda manfiy, nolga faqat bitta nuqtada teng.", 'Ветви направлены вниз, значит график везде, кроме точки касания, отрицателен, нулю равен только в одной точке.', 'The branches point down, so the graph is negative everywhere except the touching point, equal to zero only at one point.') },
         ],
-        solution: ["Tarmoqlar pastga, urinish nuqtasida nol", "Javob: faqat shu nuqta"],
+        solution: [
+          L('Tarmoqlar pastga, urinish nuqtasida nol', 'Ветви вниз, в точке касания нуль', 'Branches down, zero at the touching point'),
+          L('Javob: faqat shu nuqta', 'Ответ: только эта точка', 'Answer: only this point'),
+        ],
       },
     ],
   },
@@ -787,11 +796,11 @@ const S12 = {
     ),
     tasks: [
       {
-        expr: 'x² − 4x + 4, Bekzod: chapda minus, ongda plyus',
+        expr: 'x² − 4x + 4',
         question: L(
-          "Bu funksiyani ko'paytuvchilarga ajrating. U to'liq kvadratmi?",
-          'Разложи эту функцию на множители. Это полный квадрат?',
-          'Factor this function. Is it a complete square?',
+          "Bekzod chapda minus, o'ngda plyus deb yozdi. Bu funksiyani ko'paytuvchilarga ajrating: u to'liq kvadratmi?",
+          'Бекзод записал слева минус, справа плюс. Разложи эту функцию на множители: это полный квадрат?',
+          'Bekzod wrote minus on the left, plus on the right. Factor this function: is it a complete square?',
         ),
         ok: L(
           "Ha, to'liq kvadrat. X minus ikki butun kvadratga teng, demak ikkala tomonda ham ishora bir xil, musbat, Bekzodniki xato.",
@@ -811,8 +820,8 @@ const S12 = {
         ],
         solution: [
           'x² − 4x + 4 = (x − 2)²',
-          "Ikkala tomonda ham ishora bir xil",
-          "To'g'ri: ikkalasi ham musbat",
+          L('Ikkala tomonda ham ishora bir xil', 'Знак с обеих сторон одинаковый', 'The sign is the same on both sides'),
+          L("To'g'ri: ikkalasi ham musbat", 'Верно: оба положительны', 'Correct: both are positive'),
         ],
       },
     ],
@@ -862,7 +871,7 @@ const S13 = {
           { id: 'a', right: true, label: 'x² + x + 1 > 0' },
           { id: 'b', label: 'x² + x + 1 < 0', hint: L("Tarmoqlari yuqoriga qaragan parabola doim musbat bo'ladi, hech qachon manfiy emas: kichiklikni so'ragan tengsizlikning yechimi yo'q bo'lardi.", 'Парабола с ветвями вверх всегда положительна, никогда не отрицательна: у неравенства про меньше решений бы не было.', 'A parabola with branches up is always positive, never negative: the inequality asking for less would have no solution.') },
         ],
-        solution: ['D = 1 − 4 = −3 < 0', "Tarmoqlar yuqoriga: doim musbat"],
+        solution: ['D = 1 − 4 = −3 < 0', L('Tarmoqlar yuqoriga: doim musbat', 'Ветви вверх: всегда положителен', 'Branches up: always positive')],
       },
       {
         expr: 'y = ?',
@@ -876,7 +885,10 @@ const S13 = {
           { id: 'a', right: true, label: 'x² + x + 1 < 0' },
           { id: 'b', label: 'x² + x + 1 > 0', hint: L("Grafik doim musbat bo'lgani uchun musbatlikni so'ragan tengsizlikka har qanday x mos keladi, yechim yo'q emas.", 'Так как график всегда положителен, неравенству про положительность подходит любой x, решений не мало.', 'Since the graph is always positive, any x fits the inequality asking for positive, that is not "no solution".') },
         ],
-        solution: ['D = −3 < 0, tarmoqlar yuqoriga', 'Manfiylikka: yechim yoq'],
+        solution: [
+          L('D = −3 < 0, tarmoqlar yuqoriga', 'D = −3 < 0, ветви вверх', 'D = −3 < 0, branches up'),
+          L("Manfiylikka: yechim yo'q", 'Для отрицательности: решений нет', 'For negativity: no solution'),
+        ],
       },
     ],
   },

@@ -556,7 +556,13 @@ export function RecallMC({ intro, formula, steps, ask, items, after, cols = 1, a
                   onClick={() => tapStep(s)}
                 >
                   <span className="g9-hstep-eq" style={{ fontFamily: MATH_FONT }}>
-                    {isRevealed ? s.lines[s.lines.length - 1] : s.head + ' = ?'}
+                    {/* head T() ORQALI. Ilgari `s.head + ' = ?'` deb yozilgan edi:
+                        satrga qo'shilganda L() obyekti [object Object] bo'lib
+                        chiqardi — ekran yiqilmaydi, xato ham bermaydi, shunchaki
+                        noto'g'ri matn ko'rinadi (2026-08-27, Dars05/07/08 da 11 joy).
+                        `tr` oddiy satrni o'zgarishsiz qaytaradi, shuning uchun
+                        eski chaqiriqlar buzilmaydi. */}
+                    {isRevealed ? s.lines[s.lines.length - 1] : t(s.head) + ' = ?'}
                   </span>
                 </button>
               )
@@ -595,7 +601,7 @@ export function RecallMC({ intro, formula, steps, ask, items, after, cols = 1, a
         <>
           <Slot mh={40}>{ask ? <Ask>{t(ask)}</Ask> : null}</Slot>
 
-          <div className="g9-rmc" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
+          <div className="g9-rmc" style={{ '--rmc-cols': cols }}>
             {items.map((it, i) => (
               <button
                 key={it.id}
@@ -1447,7 +1453,7 @@ export function Gate({
             onClick={openWarmup}
           >
             <span className="g9-hstep-eq" style={{ fontFamily: MATH_FONT }}>
-              {explained ? (warmup.result || warmup.lines[warmup.lines.length - 1]) : warmup.head}
+              {explained ? (warmup.result || warmup.lines[warmup.lines.length - 1]) : t(warmup.head)}
             </span>
           </button>
           {/* 615px balandlikda joy tanqis: xato javob kartochkasi (shown)
@@ -2479,6 +2485,365 @@ export function Overlap({
 }
 
 // ============================================================
+// 12. SEQTABLE — KETMA-KETLIK JADVALI (PODXOD_9SINF.md, «Pribor 5»).
+// 7 darsda ishlatiladi (B4, 21-27). BLOK B4 NING BOSH ASBOBI.
+//
+// NEGA YANGI ASBOB KERAK BO'LDI. B3 blokining uchta darsi yangi asbobsiz
+// yig'ilgan edi va bu to'g'ri qaror edi: u yerda o'quvchining QO'L HARAKATI
+// eskisi bo'lib qolgan (o'qqa nuqta qo'yish, oraliq bo'yash, yozma
+// chiqarishni o'qish). Bu yerda harakat BOSHQA: jadvalni birma-bir
+// to'ldirish va to'ldirilgan jadvaldan qonuniyatni ko'rish. Shu sababli
+// asbob yangi.
+//
+// TO'LDIRISH CHAPDAN O'NGGA. Har katak uchun ANIQ IKKI variant: to'g'risi
+// va bitta YAQIN xato (odatda tartib raqamini formulaga noto'g'ri qo'yish
+// natijasi). Xato bosilsa katak bo'sh qoladi va izoh chiqadi — tayyor
+// javob berilmaydi. Jadval to'lgach, u o'quvchining O'Z jadvali bo'ladi:
+// keyingi ekranlarda formulani aynan undan o'qiydi.
+//
+// `rule` — jadval tepasidagi qoida (formula yoki rekurrent shart).
+// `cells[i]` — { value, wrong, hint }: hammasi ODDIY SATR bo'lishi shart
+// emas, `hint` tarjima qilinadi, `value` va `wrong` esa matematika, ular
+// uch tilda bir xil ko'rinadi.
+// ============================================================
+export function SeqTable({
+  rule, ns, cells, ask, after, onSolved, audio, onStep,
+}) {
+  const t = useT()
+  const sfx = useSfx()
+  const canAnswer = useInstructionGate(audio)
+  const [filled, setFilled] = useState([])
+  const [note, setNote] = useState(null)
+  const [wrongNow, setWrongNow] = useState(false)
+  const [done, setDone] = useState(false)
+  const stepRef = useRef(onStep)
+  useEffect(() => { stepRef.current = onStep }, [onStep])
+
+  const at = filled.length
+  const cur = at < cells.length ? cells[at] : null
+
+  // Tugmalar o'rni MOUNTDA bir marta aralashadi. `useMemo(..., [cells])`
+  // ishlatilsa, ovoz holati o'zgarganda massiv yangi bo'lib keladi va
+  // tugmalar o'rin almashadi (Dars08, RuleBuild bilan bo'lgan xato).
+  const [flip] = useState(() => cells.map(() => Math.random() < 0.5))
+
+  const pick = (val) => {
+    if (!canAnswer || done || !cur) return
+    if (val !== cur.value) {
+      setWrongNow(true)
+      setNote(cur.hint || null)
+      sfx.playWrong()
+      return
+    }
+    const next = filled.concat([val])
+    setWrongNow(false)
+    setNote(null)
+    setFilled(next)
+    sfx.playCorrect()
+    if (stepRef.current) stepRef.current('cell' + next.length)
+    if (next.length >= cells.length) {
+      setDone(true)
+      setNote(after || null)
+      if (audio && after) audio.say(t(after))
+      if (onSolved) onSolved({ correct: true, tries: 1 })
+    }
+  }
+
+  return (
+    <>
+      <Slot mh={40}>{ask ? <Ask>{t(ask)}</Ask> : null}</Slot>
+
+      {rule ? (
+        <div className="g9-seq-rule" style={{ fontFamily: MATH_FONT }}>{t(rule)}</div>
+      ) : null}
+
+      <div className="g9-seq" style={{ gridTemplateColumns: 'repeat(' + ns.length + ', 1fr)' }}>
+        {ns.map((n, i) => (
+          <div key={'h' + i} className="g9-seq-n" style={{ fontFamily: MATH_FONT }}>n = {n}</div>
+        ))}
+        {ns.map((n, i) => (
+          <div
+            key={'c' + i}
+            className={'g9-seq-cell'
+              + (i < filled.length ? ' is-set' : '')
+              + (i === at && !done ? ' is-now' : '')
+              + (i === at && wrongNow ? ' is-wrong' : '')}
+            style={{ fontFamily: MATH_FONT }}
+          >
+            {i < filled.length ? filled[i] : (i === at ? '?' : '')}
+          </div>
+        ))}
+      </div>
+
+      <Slot mh={54}>
+        {!done && cur ? (
+          <div className="g9-chips">
+            {(flip[at] ? [cur.wrong, cur.value] : [cur.value, cur.wrong]).map((v, k) => (
+              <button
+                key={'o' + k}
+                type="button"
+                className="g9-chip"
+                style={{ fontFamily: MATH_FONT }}
+                disabled={!canAnswer}
+                onClick={() => pick(v)}
+              >
+                {v}
+              </button>
+            ))}
+          </div>
+        ) : null}
+      </Slot>
+
+      <Slot mh={52}>
+        {note ? <Note kind={done ? 'ok' : 'no'}>{t(note)}</Note> : null}
+      </Slot>
+    </>
+  )
+}
+
+// ============================================================
+// 7C. SortRow — QATORNI TARTIBLASH VA O'RTASINI TOPISH.
+//
+// NEGA YANGI ASBOB. Sinfning qoidasi: yangi asbob yangi MAVZUGA emas,
+// yangi QO'L HARAKATIGA beriladi. Statistikada shunday harakat bor —
+// sonlarni o'sish tartibida terib chiqish. Uni SeqTable ham, RecallMC
+// ham bajara olmaydi: u yerda javob tanlanadi, bu yerda esa qator
+// QURILADI, va har qadamda qolganlarning eng kichigi izlanadi.
+//
+// NEGA AYNAN SHUNDAY ISHLAYDI. Mediana xatosining sababi deyarli har
+// doim bitta — qator tartiblanmagan. Asbob shu xatoni jismonan imkonsiz
+// qiladi: tartib buzilsa, son o'z joyiga tushmaydi. Qator to'lgach,
+// o'rtasi O'ZI yonib turadi (toq bo'lsa bitta katak, juft bo'lsa
+// ikkitasi) — bola medianani sanab emas, ko'rib topadi.
+//
+// Takrorlanuvchi sonlar bo'lishi mumkin (8, 2, 0, 5, −5, 4, 8): tanlov
+// QIYMAT bo'yicha tekshiriladi, qaysi nusxa bosilgani ahamiyatsiz.
+//
+// `values` — xom, tartiblanmagan massiv (sonlar).
+// `hint`   — tartib buzilganda chiqadigan izoh.
+// `after`  — qator to'lgandagi xulosa.
+// ============================================================
+export function SortRow({ values, ask, hint, after, onSolved, audio, onStep }) {
+  const t = useT()
+  const sfx = useSfx()
+  const canAnswer = useInstructionGate(audio)
+  const [placed, setPlaced] = useState([])
+  const [note, setNote] = useState(null)
+  const [wrongAt, setWrongAt] = useState(null)
+  const [done, setDone] = useState(false)
+  const stepRef = useRef(onStep)
+  useEffect(() => { stepRef.current = onStep }, [onStep])
+
+  // Manba qator MOUNTDA bir marta aralashtiriladi emas — u allaqachon
+  // tartibsiz berilgan. Lekin qaysi nusxa olinganini bilish uchun har
+  // bir elementga indeks biriktiriladi.
+  const taken = placed.map((p) => p.i)
+  const rest = values.map((v, i) => ({ v, i })).filter((o) => !taken.includes(o.i))
+  const need = rest.length ? Math.min.apply(null, rest.map((o) => o.v)) : null
+
+  const pick = (o) => {
+    if (!canAnswer || done) return
+    if (o.v !== need) {
+      setWrongAt(o.i)
+      setNote(hint || null)
+      sfx.playWrong()
+      return
+    }
+    const next = placed.concat([o])
+    setWrongAt(null)
+    setNote(null)
+    setPlaced(next)
+    sfx.playCorrect()
+    if (stepRef.current) stepRef.current('sort' + next.length)
+    if (next.length >= values.length) {
+      setDone(true)
+      setNote(after || null)
+      if (audio && after) audio.say(t(after))
+      if (onSolved) onSolved({ correct: true, tries: 1 })
+    }
+  }
+
+  // O'RTA KATAKLAR. Toq uzunlikda bitta, juftda ikkita. Faqat qator
+  // to'lgandan keyin yonadi: yarim tartiblangan qatorning o'rtasi
+  // mediana emas, va uni oldindan ko'rsatish yolg'on bo'lardi.
+  const n = values.length
+  const mid = n % 2 ? [(n - 1) / 2] : [n / 2 - 1, n / 2]
+
+  return (
+    <>
+      <Slot mh={40}>{ask ? <Ask>{t(ask)}</Ask> : null}</Slot>
+
+      <div className="g9-sort-bag">
+        {values.map((v, i) => (
+          taken.includes(i) ? (
+            <span key={'g' + i} className="g9-sort-gone" style={{ fontFamily: MATH_FONT }}>{v}</span>
+          ) : (
+            <button
+              key={'b' + i}
+              type="button"
+              className={'g9-sort-src' + (wrongAt === i ? ' is-wrong' : '')}
+              style={{ fontFamily: MATH_FONT }}
+              disabled={!canAnswer || done}
+              onClick={() => pick({ v, i })}
+            >
+              {v}
+            </button>
+          )
+        ))}
+      </div>
+
+      <div className="g9-sort-row" style={{ '--sort-cols': n }}>
+        {values.map((_, k) => (
+          <div
+            key={'s' + k}
+            className={'g9-sort-cell'
+              + (k < placed.length ? ' is-set' : '')
+              + (k === placed.length && !done ? ' is-now' : '')
+              + (done && mid.indexOf(k) >= 0 ? ' is-mid' : '')}
+            style={{ fontFamily: MATH_FONT }}
+          >
+            {k < placed.length ? placed[k].v : ''}
+          </div>
+        ))}
+      </div>
+
+      <Slot mh={52}>
+        {note ? <Note kind={done ? 'ok' : 'no'}>{t(note)}</Note> : null}
+      </Slot>
+    </>
+  )
+}
+
+// ============================================================
+// 7D. FreqRun — NISBIY CHASTOTANING BARQARORLASHUVI.
+//
+// NEGA ASBOB KERAK. Katta sonlar qonunini gapirib berish mumkin emas:
+// «tajribalar ko'paygan sari chastota barqarorlashadi» degan jumla
+// bolaga isbot emas, iltimos bo'lib qoladi. Uni KO'RSATISH kerak —
+// birinchi o'nlikda chastota sakraydi, ikki yuzinchidan keyin esa
+// chiziqqa yopishib qoladi. Shuning uchun bu yerda bola tajribani
+// O'ZI o'tkazadi: har bosishda navbatdagi partiya tashlanadi va
+// siniq chiziq o'sib boradi.
+//
+// TASODIF QAT'IY BERILGAN (mulberry32, `seed`). Sabab ikkita: bir xil
+// urinishda bir xil rasm chiqishi kerak (aks holda tushuntirish
+// «bugun shunday chiqdi» ga aylanadi), va stend har safar bir xil
+// natijani o'lchashi kerak. Generatorning YUQORI bitlari olinadi —
+// past bitlar bo'yicha qiyshiq taqsimot 7-sinfda bir marta tutilgan.
+//
+// `p`      — nazariy ehtimollik, gorizontal chiziq shu yerda turadi.
+// `batch`  — bitta bosishda nechta tajriba.
+// `maxN`   — jami tajribalar soni, shunga yetganda ekran yechilgan.
+// ============================================================
+export function FreqRun({
+  p = 0.5, plan = [10, 10, 10, 20, 50, 100, 150, 150], seed = 513,
+  ask, runLabel, axisX, axisY, targetLabel, after, onSolved, audio, onStep,
+}) {
+  const t = useT()
+  const sfx = useSfx()
+  const canAnswer = useInstructionGate(audio)
+  const [pts, setPts] = useState([])   // [{ n, w }]
+  const [hits, setHits] = useState(0)
+  const [tot, setTot] = useState(0)
+  const [note, setNote] = useState(null)
+  const [done, setDone] = useState(false)
+  const rndRef = useRef(null)
+  const stepRef = useRef(onStep)
+  useEffect(() => { stepRef.current = onStep }, [onStep])
+
+  if (!rndRef.current) {
+    let a = seed >>> 0
+    rndRef.current = () => {
+      a = (a + 0x6D2B79F5) >>> 0
+      let x = Math.imul(a ^ (a >>> 15), 1 | a)
+      x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x
+      return ((x ^ (x >>> 14)) >>> 0) / 4294967296
+    }
+  }
+
+  const maxN = plan.reduce((a, b) => a + b, 0)
+  const nextBatch = pts.length < plan.length ? plan[pts.length] : 0
+
+  const run = () => {
+    if (!canAnswer || done || !nextBatch) return
+    let h = hits
+    for (let i = 0; i < nextBatch; i += 1) { if (rndRef.current() < p) h += 1 }
+    const n = tot + nextBatch
+    setHits(h)
+    setTot(n)
+    setPts(pts.concat([{ n, w: h / n }]))
+    sfx.playCorrect()
+    if (stepRef.current) stepRef.current('run' + n)
+    if (n >= maxN) {
+      setDone(true)
+      setNote(after || null)
+      if (audio && after) audio.say(t(after))
+      if (onSolved) onSolved({ correct: true, tries: 1 })
+    }
+  }
+
+  // CHIZMA. viewBox qat'iy, o'lchov CSS bilan beriladi — telefonda
+  // ham, noutbukda ham bir xil nisbatda ko'rinadi.
+  const W = 320, H = 150, PADL = 34, PADB = 22, PADT = 8, PADR = 8
+  const x = (n) => PADL + (n / maxN) * (W - PADL - PADR)
+  const y = (w) => PADT + (1 - w) * (H - PADT - PADB)
+  const path = pts.map((o, i) => (i ? 'L' : 'M') + x(o.n).toFixed(1) + ' ' + y(o.w).toFixed(1)).join(' ')
+  const last = pts.length ? pts[pts.length - 1] : null
+
+  return (
+    <>
+      <Slot mh={40}>{ask ? <Ask>{t(ask)}</Ask> : null}</Slot>
+
+      <div className="g9-fr-wrap">
+        <svg className="g9-fr-svg" viewBox={'0 0 ' + W + ' ' + H} role="img">
+          {[0, 0.5, 1].map((v) => (
+            <g key={'g' + v}>
+              <line x1={PADL} y1={y(v)} x2={W - PADR} y2={y(v)} className="g9-fr-grid" />
+              <text x={PADL - 5} y={y(v) + 3} className="g9-fr-tick" textAnchor="end">{v}</text>
+            </g>
+          ))}
+          <line x1={PADL} y1={y(p)} x2={W - PADR} y2={y(p)} className="g9-fr-target" />
+          <text x={W - PADR} y={y(p) - 4} className="g9-fr-tlab" textAnchor="end">
+            {targetLabel ? t(targetLabel) : String(p)}
+          </text>
+          <line x1={PADL} y1={PADT} x2={PADL} y2={H - PADB} className="g9-fr-axis" />
+          <line x1={PADL} y1={H - PADB} x2={W - PADR} y2={H - PADB} className="g9-fr-axis" />
+          {path ? <path d={path} className="g9-fr-line" /> : null}
+          {last ? <circle cx={x(last.n)} cy={y(last.w)} r="3.2" className="g9-fr-dot" /> : null}
+          <text x={W - PADR} y={H - 6} className="g9-fr-ax" textAnchor="end">{axisX ? t(axisX) : ''}</text>
+          <text x={PADL - 26} y={PADT + 6} className="g9-fr-ax" textAnchor="start">{axisY ? t(axisY) : ''}</text>
+        </svg>
+
+        <div className="g9-fr-read" style={{ fontFamily: MATH_FONT }}>
+          <span>N = {tot}</span>
+          <span>M = {hits}</span>
+          <span>W = {tot ? (hits / tot).toFixed(4).replace('.', t(L(',', ',', '.'))) : '—'}</span>
+        </div>
+      </div>
+
+      <Slot mh={54}>
+        {!done ? (
+          <div className="g9-chips">
+            <button
+              type="button"
+              className="g9-chip"
+              disabled={!canAnswer}
+              onClick={run}
+            >
+              {(runLabel ? t(runLabel) + ' ' : '') + '+' + nextBatch}
+            </button>
+          </div>
+        ) : null}
+      </Slot>
+
+      <Slot mh={52}>
+        {note ? <Note kind="ok">{t(note)}</Note> : null}
+      </Slot>
+    </>
+  )
+}
+
+// ============================================================
 // 8. USLUBLAR. Prefiks g9-: umumiy qatlamning g8- klasslari bilan
 // to'qnashmaydi. Shkala va ranglar YADRODAN olinadi (T, MATH_FONT) — sinf
 // o'zining palitrasini yasamaydi, farq ASBOBDA.
@@ -2517,6 +2882,48 @@ export const G9_STYLES = `
    5-sinf Dars01.jsx (u yerda har dars faylida qayta yozilgan), shu yerda
    BIR MARTA. 9 nuqta o'rniga rangi xuddi o'sha ko'k (info qatlami bilan
    bir xil) — faqat shu darsda ishlatiladi (S9, S13, S15). */
+/* FreqRun (7D). Chizma o'lchovi CSS bilan, viewBox qat'iy. */
+.g9-fr-wrap { max-width: 620px; margin: 0 auto clamp(8px, 1.4vw, 12px); }
+.g9-fr-svg { width: 100%; height: auto; display: block; background: #FFF; border-radius: 12px;
+  box-shadow: inset 0 0 0 1px rgba(14,14,16,.12); }
+.g9-fr-grid { stroke: rgba(14,14,16,.08); stroke-width: 1; }
+.g9-fr-axis { stroke: rgba(14,14,16,.35); stroke-width: 1; }
+.g9-fr-target { stroke: #2E7D4F; stroke-width: 1.4; stroke-dasharray: 5 4; }
+.g9-fr-line { fill: none; stroke: #019ACB; stroke-width: 1.8; stroke-linejoin: round; }
+.g9-fr-dot { fill: #019ACB; }
+.g9-fr-tick, .g9-fr-ax, .g9-fr-tlab { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: rgba(14,14,16,.55); }
+.g9-fr-tlab { fill: #2E7D4F; }
+.g9-fr-read { display: flex; gap: clamp(10px, 2.4vw, 22px); justify-content: center;
+  margin-top: 8px; font-size: clamp(13px, 1.5vw, 16px); color: #0E0E10; }
+
+/* SortRow (7C). Manba sonlar tepada, tartiblangan qator pastda.
+   Kataklar soni o'zgaruvchan, shuning uchun ustunlar soni CSS
+   o'zgaruvchisi orqali beriladi: inline grid-template-columns telefonda
+   media so'rovni bosib qolardi (9-sinfda bir marta uchragan xato). */
+.g9-sort-bag { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+  margin: 0 0 clamp(10px, 1.8vw, 16px); }
+.g9-sort-src { min-width: 52px; padding: 8px 12px; border-radius: 10px;
+  border: 1px solid rgba(14,14,16,.16); background: #FFF; color: #0E0E10;
+  font-size: clamp(15px, 1.7vw, 18px); cursor: pointer; transition: transform .12s ease; }
+.g9-sort-src:hover:enabled { transform: translateY(-2px); }
+.g9-sort-src.is-wrong { border-color: #C8452F; color: #C8452F; background: #FBEDEA; }
+.g9-sort-src:disabled { opacity: .5; cursor: default; }
+.g9-sort-gone { min-width: 52px; padding: 8px 12px; border-radius: 10px;
+  border: 1px dashed rgba(14,14,16,.14); color: rgba(14,14,16,.22);
+  font-size: clamp(15px, 1.7vw, 18px); text-align: center; }
+.g9-sort-row { display: grid; grid-template-columns: repeat(var(--sort-cols, 5), 1fr);
+  gap: 6px; margin: 0 auto clamp(8px, 1.4vw, 12px); max-width: 620px; }
+.g9-sort-cell { min-height: 46px; display: flex; align-items: center; justify-content: center;
+  border-radius: 10px; background: #FFF; box-shadow: inset 0 0 0 1px rgba(14,14,16,.12);
+  font-size: clamp(15px, 1.7vw, 18px); color: #0E0E10; }
+.g9-sort-cell.is-now { box-shadow: inset 0 0 0 2px rgba(1,154,203,.55); }
+.g9-sort-cell.is-mid { background: #E8F6EC; box-shadow: inset 0 0 0 2px #2E7D4F; color: #2E7D4F; font-weight: 600; }
+@media (max-width: 640px) {
+  .g9-sort-row { gap: 4px; }
+  .g9-sort-cell { min-height: 40px; font-size: 14px; }
+  .g9-sort-src, .g9-sort-gone { min-width: 44px; padding: 7px 9px; font-size: 14px; }
+}
+
 .g9-fact { display: flex; gap: clamp(12px, 2.2vw, 18px); align-items: center;
   background: #EAF6FB; border-left: 4px solid #019ACB; border-radius: 12px;
   padding: clamp(10px, 1.8vw, 14px) clamp(12px, 2vw, 16px);
@@ -2723,6 +3130,20 @@ export const G9_STYLES = `
 .g9-tr-ask { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; }
 .g9-tr-acts { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; width: 100%; }
 
+/* ---------- SEQTABLE: KETMA-KETLIK JADVALI (Pribor 5) ---------- */
+.g9-seq-rule { font-size: clamp(17px, 2vw, 22px); color: ${T.ink}; text-align: center;
+  padding: 8px 14px; border-radius: 12px; background: ${T.paper};
+  box-shadow: inset 0 0 0 1px rgba(23,26,29,.08); }
+.g9-seq { display: grid; gap: 6px; width: 100%; max-width: 460px; margin: 2px auto 0; }
+.g9-seq-n { font-size: clamp(12px, 1.5vw, 15px); color: ${T.ink3}; text-align: center; }
+.g9-seq-cell { min-height: 44px; display: flex; align-items: center; justify-content: center;
+  font-size: clamp(16px, 2vw, 21px); color: ${T.ink}; border-radius: 10px;
+  background: ${T.paper}; box-shadow: inset 0 0 0 1px rgba(23,26,29,.10);
+  transition: box-shadow .18s ease, color .18s ease; }
+.g9-seq-cell.is-set { color: ${T.ok}; font-weight: 700; box-shadow: inset 0 0 0 1.4px ${T.ok}; }
+.g9-seq-cell.is-now { box-shadow: inset 0 0 0 2px ${T.accent}; color: ${T.accent}; }
+.g9-seq-cell.is-wrong { box-shadow: inset 0 0 0 2px ${T.tip}; color: ${T.tip}; }
+
 /* ---------- OVERLAP: TENGSIZLIKLAR TIZIMI (Pribor 1 ustiga qurilgan) ---------- */
 .g9-ov { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 460px; margin: 4px auto 0; }
 .g9-ov-row { display: flex; flex-direction: column; gap: 2px; }
@@ -2785,7 +3206,12 @@ export const G9_STYLES = `
   55%  { transform: scale(1.03); }
   100% { transform: scale(1); }
 }
-.g9-rmc { display: grid; gap: 10px; width: 100%; max-width: 560px; margin: 0 auto; }
+/* Ustunlar soni INLINE stil emas, CSS o'zgaruvchisi orqali beriladi: inline stilni
+   media so'rov perebit qila olmaydi, shuning uchun telefonda ikki ustun yonma-yon
+   qolib, yonga chiqib ketardi (2026-08-27, RU/EN da topildi: ruscha va inglizcha
+   variant matni o'zbekchadan uzunroq, 176+190 piksel 333 ga sig'maydi). */
+.g9-rmc { display: grid; gap: 10px; width: 100%; max-width: 560px; margin: 0 auto;
+  grid-template-columns: repeat(var(--rmc-cols, 1), 1fr); }
 .g9-rmc-opt { display: flex; align-items: center; gap: 14px; border: 0; cursor: pointer;
   padding: 4px; border-radius: 14px; background: ${T.paper}; text-align: left;
   box-shadow: 0 8px 20px -14px rgba(${T.shadow},.4), inset 0 0 0 1px ${T.line};
@@ -3108,6 +3534,8 @@ export const G9_STYLES = `
   .g9-gate { grid-template-columns: 1fr; }
   .g9-plane, .g9-board { max-height: 26vh; }
   .g9-mach-fig svg { max-height: 15vh; }
+  /* Variantlar telefonda DOIM bitta ustun: ikki ustunli ekranlar ham. */
+  .g9-rmc { grid-template-columns: 1fr; }
 }
 `
 

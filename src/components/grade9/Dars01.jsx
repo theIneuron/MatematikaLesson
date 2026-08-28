@@ -1356,7 +1356,10 @@ const S10 = {
             hint: L("Musbat x larda ham ildiz bor, ular ham o'tadi.", 'При положительных x корень тоже есть, они тоже проходят.', 'For positive x the root exists too, they also pass.'),
           },
         ],
-        solution: ['√x uchun x manfiy bo\'lmasligi kerak', 'x ≥ 0'],
+        solution: [
+          L("√x uchun x manfiy bo'lmasligi kerak", '√x требует, чтобы x не был отрицательным', '√x requires x to be non-negative'),
+          'x ≥ 0',
+        ],
       },
       {
         expr: <Row size="big" align="center">y = {F('√x', 'x − 4')}</Row>,
@@ -1406,7 +1409,7 @@ const S10 = {
             hint: L("Bitta shart yetmaydi, manfiy x larda ildiz ma'nosiz bo'lib qoladi.", 'Одного условия мало, при отрицательных x корень остаётся без смысла.', 'One condition is not enough, for negative x the root stays meaningless.'),
           },
         ],
-        solution: ['x ≥ 0', 'x ≠ 4', 'x ≥ 0 va x ≠ 4'],
+        solution: ['x ≥ 0', 'x ≠ 4', L('x ≥ 0 va x ≠ 4', 'x ≥ 0 и x ≠ 4', 'x ≥ 0 and x ≠ 4')],
       },
     ],
   },
@@ -1488,7 +1491,12 @@ const S11 = {
             hint: L("To'qqiz bu yerda ildiz emas. Uni qo'ysangiz, x kvadrat sakson birga teng bo'ladi.", 'Девятка здесь не корень. Подставь её, и x в квадрате даст восемьдесят один.', 'Nine is not a root here. Put it in and x squared gives eighty one.'),
           },
         ],
-        solution: ['x² − 9 = 0', 'x² = 9', 'x = 3 yoki x = −3', 'x ≠ 3 va x ≠ −3'],
+        solution: [
+          'x² − 9 = 0',
+          'x² = 9',
+          L('x = 3 yoki x = −3', 'x = 3 или x = −3', 'x = 3 or x = −3'),
+          L('x ≠ 3 va x ≠ −3', 'x ≠ 3 и x ≠ −3', 'x ≠ 3 and x ≠ −3'),
+        ],
       },
       {
         expr: <Row size="big" align="center">√(x − 4)</Row>,
@@ -1509,7 +1517,11 @@ const S11 = {
             hint: L("Ildiz ostida manfiy son bo'lmaydi, bu yerda esa kichik x larda aynan shu bo'ladi.", 'Под корнем не бывает отрицательного числа, а здесь при малых x именно оно и получается.', 'A negative number cannot stand under a root, and for small x that is exactly what happens here.'),
           },
         ],
-        solution: ['x − 4 ≥ 0 bo\'lishi kerak', 'x ≥ 4', 'x < 4 da aniqlanmagan'],
+        solution: [
+          L("x − 4 ≥ 0 bo'lishi kerak", 'Нужно, чтобы x − 4 ≥ 0', 'We need x − 4 ≥ 0'),
+          'x ≥ 4',
+          L('x < 4 da aniqlanmagan', 'При x < 4 не определено', 'Undefined for x < 4'),
+        ],
       },
       {
         expr: <Row size="big" align="center">{F('1', '√(x − 2)')}</Row>,
@@ -1530,7 +1542,15 @@ const S11 = {
             hint: L("Ikkidan kichik x lar uchun ham ildiz ostida manfiy son qoladi, ular ham aniqlanmagan.", 'При x меньше двух под корнем тоже остаётся отрицательное число, и там тоже не определено.', 'For x smaller than two a negative number is left under the root too, and it is undefined there as well.'),
           },
         ],
-        solution: ['x − 2 > 0 bo\'lishi kerak, nol ham bo\'lmaydi, chunki u maxrajda', 'x > 2', 'x ≤ 2 da aniqlanmagan'],
+        solution: [
+          L(
+            "x − 2 > 0 bo'lishi kerak, nol ham bo'lmaydi, chunki u maxrajda",
+            'Нужно, чтобы x − 2 > 0, нуль тоже не подходит, ведь это знаменатель',
+            'We need x − 2 > 0, and zero is not allowed either, since it is the denominator',
+          ),
+          'x > 2',
+          L('x ≤ 2 da aniqlanmagan', 'При x ≤ 2 не определено', 'Undefined for x ≤ 2'),
+        ],
       },
       {
         expr: <Row size="big" align="center">{F('1', 'x² + 1')}</Row>,
@@ -1552,9 +1572,17 @@ const S11 = {
           },
         ],
         solution: [
-          'x² + 1 = 0 tenglama yechimga ega emas',
-          "chunki x² hech qachon manfiy bo'lmaydi",
-          'Har qanday qiymatda aniqlangan',
+          L(
+            'x² + 1 = 0 tenglama yechimga ega emas',
+            'Уравнение x² + 1 = 0 не имеет решений',
+            'The equation x² + 1 = 0 has no solutions',
+          ),
+          L(
+            "chunki x² hech qachon manfiy bo'lmaydi",
+            'ведь x² никогда не бывает отрицательным',
+            'because x² is never negative',
+          ),
+          L('Har qanday qiymatda aniqlangan', 'Определена при любом значении', 'Defined at every value'),
         ],
       },
       // OLTINCHI MISOL: formula YO'Q, faqat GRAFIK. Beshtasi ham formuladan
@@ -1592,8 +1620,12 @@ const S11 = {
           },
         ],
         solution: [
-          "Grafikda x ikkida uzilish ko'rinadi",
-          'Funksiya shu yerda aniqlanmagan',
+          L(
+            "Grafikda x ikkida uzilish ko'rinadi",
+            'На графике при x равном двум виден разрыв',
+            'The graph shows a break at x equal to two',
+          ),
+          L('Funksiya shu yerda aniqlanmagan', 'Здесь функция не определена', 'The function is undefined here'),
         ],
       },
     ],
@@ -1661,7 +1693,11 @@ const S12 = {
             hint: L("Bu qadam ham to'g'ri: to'qqiz shunchaki o'ng tomonga o'tdi.", 'Этот шаг тоже верен: девятка просто перешла вправо.', 'This step is correct too: the nine simply moved to the right.'),
           },
         ],
-        solution: ['x² = 9', 'x = 3 yoki x = −3', 'x ≠ 3 va x ≠ −3'],
+        solution: [
+          'x² = 9',
+          L('x = 3 yoki x = −3', 'x = 3 или x = −3', 'x = 3 or x = −3'),
+          L('x ≠ 3 va x ≠ −3', 'x ≠ 3 и x ≠ −3', 'x ≠ 3 and x ≠ −3'),
+        ],
       },
       {
         expr: <Row size="big" align="center">{F('√(x − 1)', 'x − 1')}</Row>,
@@ -1687,7 +1723,11 @@ const S12 = {
           },
         ],
         solution: [
-          "x − 1 > 0 bo'lishi kerak (nol ham bo'lmaydi, chunki u maxrajda)",
+          L(
+            "x − 1 > 0 bo'lishi kerak (nol ham bo'lmaydi, chunki u maxrajda)",
+            'Нужно, чтобы x − 1 > 0 (нуль тоже не подходит, ведь это знаменатель)',
+            'We need x − 1 > 0 (zero is not allowed either, since it is the denominator)',
+          ),
           'x > 1',
         ],
       },

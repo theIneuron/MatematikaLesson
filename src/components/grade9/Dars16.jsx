@@ -55,14 +55,14 @@ export const META = {
 
 export const STATEMENTS = [
   L(
-    "Sistema yechimi — har ikkala tengsizlikni ham bir vaqtda qanoatlantiradigan sonlar, ya'ni ularning umumiy qismi",
-    'Решение системы — числа, которые удовлетворяют обоим неравенствам одновременно, то есть их общая часть',
-    'The solution of a system is the numbers that satisfy both inequalities at once, that is, their common part',
+    "Sistema yechimi umumiy qism: ikkala tengsizlikka ham birdan mos keladigan sonlar",
+    'Решение системы это общая часть: числа, подходящие обоим неравенствам сразу',
+    'The solution of a system is the common part: numbers fitting both inequalities at once',
   ),
   L(
-    "Har bir tengsizlik alohida yechiladi, keyin ikkala yechim bitta o'qqa qo'yilib, umumiy qism topiladi",
-    'Каждое неравенство решается отдельно, потом оба решения наносятся на одну ось и находится общая часть',
-    'Each inequality is solved separately, then both solutions are placed on one axis and the common part is found',
+    "Har bir tengsizlik alohida yechiladi, keyin ikkala yechim bitta o'qqa qo'yiladi",
+    'Каждое неравенство решают отдельно, затем оба решения наносят на одну ось',
+    'Each inequality is solved separately, then both solutions are placed on one axis',
   ),
   L(
     "Umumiy qism topilmasa, sistemaning yechimi yo'q, bu ham to'liq javobdir",
@@ -645,17 +645,20 @@ const S10 = {
           { id: 'a', right: true, label: L('Bir bilan besh orasi', 'Между одним и пятью', 'Between one and five') },
           { id: 'b', label: L("Ikkalasining barcha sonlari", 'Все числа обоих', 'All numbers of both'), hint: L("Umumiy qism ikkalasiga ham mos keladigan qism, hammasi emas. Beshdan katta sonlar ikkinchi shartga mos keladi, lekin birinchisiga emas.", 'Общая часть это то, что подходит обоим, а не всё. Числа больше пяти подходят второму условию, но не первому.', 'The common part is what fits both, not everything. Numbers greater than five fit the second condition, but not the first.') },
         ],
-        solution: ['x < 5 va x > 1', "Umumiy qism: 1 dan 5 gacha"],
+        solution: [L('x < 5 va x > 1', 'x < 5 и x > 1', 'x < 5 and x > 1'), L('Umumiy qism: 1 dan 5 gacha', 'Общая часть: от 1 до 5', 'Common part: from 1 to 5')],
       },
       {
-        expr: '1: x ≤ 0 yoki x ≥ 4,   2: x > 2',
+        expr: '1: x ≤ 0 ∨ x ≥ 4,   2: x > 2',
         question: L('Umumiy qism qaysi?', 'Какая общая часть?', 'What is the common part?'),
         ok: L("Ha. Birinchi shartning ikki bo'lagidan faqat x katta yoki teng to'rt bo'lagi ikkinchisiga ham mos keladi.", 'Да. Из двух частей первого условия только x больше или равно четырём подходит и второму.', 'Yes. Of the two parts of the first condition, only x greater than or equal to four also fits the second.'),
         items: [
           { id: 'a', right: true, label: L('X katta yoki teng to\'rt', 'X больше или равно четырём', 'X greater than or equal to four') },
           { id: 'b', label: L('X kichik yoki teng nol', 'X меньше или равно нулю', 'X less than or equal to zero'), hint: L("Ikkinchi shart x ikkidan katta bo'lishni talab qiladi. Nol yoki undan kichik sonlar bu shartga mos kelmaydi.", 'Второе условие требует, чтобы x было больше двух. Ноль или меньшие числа этому условию не подходят.', 'The second condition requires x greater than two. Zero or smaller numbers do not fit this condition.') },
         ],
-        solution: ["Birinchi shartning ikki bo'lagi bor", 'Faqat "to\'rtdan katta yoki teng" bo\'lagi ikkinchisiga ham mos keladi'],
+        solution: [
+          L("Birinchi shartning ikki bo'lagi bor", 'У первого условия две части', 'The first condition has two parts'),
+          L(`Faqat "to'rtdan katta yoki teng" bo'lagi ikkinchisiga ham mos keladi`, 'Второму подходит только часть "больше или равно четырём"', 'Only the "greater than or equal to four" part fits the second'),
+        ],
       },
       {
         expr: '1: x < −2,   2: x > 3',
@@ -665,7 +668,11 @@ const S10 = {
           { id: 'a', right: true, label: L("Umumiy qism yo'q", 'Общей части нет', 'There is no common part') },
           { id: 'b', label: L("Minus ikki bilan uch orasi", 'Между минус двумя и тремя', 'Between minus two and three'), hint: L("Bu oraliqdagi sonlar birinchi shartga (kichik minus ikkidan) ham, ikkinchisiga (katta uchdan) ham mos kelmaydi.", 'Числа из этого промежутка не подходят ни первому условию (меньше минус двух), ни второму (больше трёх).', 'Numbers from this interval fit neither the first condition (less than minus two) nor the second (greater than three).') },
         ],
-        solution: ["Birinchisi: kichik sonlar", 'Ikkinchisi: katta sonlar', "Umumiy qism yo'q"],
+        solution: [
+          L('Birinchisi: kichik sonlar', 'Первое: маленькие числа', 'The first: small numbers'),
+          L('Ikkinchisi: katta sonlar', 'Второе: большие числа', 'The second: large numbers'),
+          L("Umumiy qism yo'q", 'Общей части нет', 'No common part'),
+        ],
       },
     ],
   },
@@ -709,7 +716,7 @@ const S11 = {
           { id: 'a', right: true, label: L("Yo'q", 'Нет', 'No') },
           { id: 'b', label: L('Ha', 'Да', 'Yes'), hint: L("Birinchi shart faqat noldan katta sonlarni beradi, ikkinchisi esa faqat minus beshdan kichiklarini. Ular umuman uchrashmaydi.", 'Первое условие даёт только числа больше нуля, второе даёт только меньше минус пяти. Они вообще не встречаются.', 'The first condition gives only numbers greater than zero, the second only numbers less than minus five. They never meet at all.') },
         ],
-        solution: ["X > 0 va x < −5", "Umumiy qism yo'q"],
+        solution: [L('X > 0 va x < −5', 'X > 0 и x < −5', 'X > 0 and x < −5'), L("Umumiy qism yo'q", 'Общей части нет', 'No common part')],
       },
       {
         expr: '1: x ≥ −2,   2: x ≤ 6',
@@ -719,17 +726,29 @@ const S11 = {
           { id: 'a', right: true, label: L('Ha, minus ikkidan oltigacha', 'Да, от минус двух до шести', 'Yes, from minus two to six') },
           { id: 'b', label: L("Yo'q", 'Нет', 'No'), hint: L("Ikkala shart ham katta oraliqni beradi, ular ustma-ust tushadi: minus ikki katta yoki teng, olti kichik yoki teng.", 'Оба условия дают широкий промежуток, они накладываются: больше или равно минус двум, меньше или равно шести.', 'Both conditions give a wide interval, and they overlap: greater than or equal to minus two, less than or equal to six.') },
         ],
-        solution: ["X katta yoki teng minus ikki", 'X kichik yoki teng olti', 'Umumiy qism: minus ikkidan oltigacha'],
+        solution: [
+          L('X katta yoki teng minus ikki', 'X больше или равно минус двум', 'X greater than or equal to minus two'),
+          L('X kichik yoki teng olti', 'X меньше или равно шести', 'X less than or equal to six'),
+          L('Umumiy qism: minus ikkidan oltigacha', 'Общая часть: от минус двух до шести', 'Common part: from minus two to six'),
+        ],
       },
       {
-        expr: '1: x ≠ 3 (barcha son, uchdan tashqari),   2: x = 3',
-        question: L('Umumiy qism bormi?', 'Есть общая часть?', 'Is there a common part?'),
+        expr: '1: x ≠ 3,   2: x = 3',
+        question: L(
+          "Birinchi shart uchdan tashqari barcha sonlar. Umumiy qism bormi?",
+          'Первое условие это все числа кроме тройки. Есть общая часть?',
+          'The first condition is all numbers except three. Is there a common part?',
+        ),
         ok: L("Yo'q. Birinchi shart aynan uchni istisno qiladi, ikkinchisi esa faqat uchni talab qiladi: ular bir-birini butunlay rad etadi.", 'Нет. Первое условие исключает именно тройку, а второе требует именно тройку: они полностью исключают друг друга.', 'No. The first condition excludes exactly three, and the second requires exactly three: they fully rule each other out.'),
         items: [
           { id: 'a', right: true, label: L("Yo'q", 'Нет', 'No') },
           { id: 'b', label: L('Ha, x = 3 da', 'Да, при x = 3', 'Yes, at x = 3'), hint: L("Birinchi shart x uchga teng bo'lishini AYNAN taqiqlaydi. Demak, x uchga teng bo'lgan nuqta birinchi shartga mos kelmaydi.", 'Первое условие как раз ЗАПРЕЩАЕТ x быть равным трём. Значит, точка x равная трём не подходит первому условию.', 'The first condition specifically FORBIDS x from equaling three. So the point where x equals three does not fit the first condition.') },
         ],
-        solution: ["Birinchi shart uchni istisno qiladi", 'Ikkinchisi faqat uchni talab qiladi', "Bular mos kelmaydi: umumiy qism yo'q"],
+        solution: [
+          L('Birinchi shart uchni istisno qiladi', 'Первое условие исключает тройку', 'The first condition excludes three'),
+          L('Ikkinchisi faqat uchni talab qiladi', 'Второе требует только тройку', 'The second requires only three'),
+          L("Bular mos kelmaydi: umumiy qism yo'q", 'Они не совпадают: общей части нет', 'They do not match: no common part'),
+        ],
       },
     ],
   },
@@ -767,11 +786,11 @@ const S12 = {
     ),
     tasks: [
       {
-        expr: 'x² − 9 < 0 va 2x + 1 ≥ 0, Sardor: javob −3 dan 3 gacha',
+        expr: 'x² − 9 < 0  ∧  2x + 1 ≥ 0',
         question: L(
-          "Ikkinchi tengsizlik: ikki x qo'shi bir, noldan katta yoki teng. Uning yechimi qanday oraliq beradi?",
-          'Второе неравенство: два x плюс один больше или равно нулю. Какой промежуток даёт его решение?',
-          'The second inequality: two x plus one, greater than or equal to zero. What interval does its solution give?',
+          "Sardor javobni minus uchdan uchgacha deb yozdi. Ikkinchi tengsizlikning yechimi qanday oraliq beradi?",
+          'Сардор записал ответ от минус трёх до трёх. Какой промежуток даёт решение второго неравенства?',
+          'Sardor wrote the answer as from minus three to three. What interval does the solution of the second inequality give?',
         ),
         ok: L(
           "To'g'ri: x katta yoki teng minus nol butun besh. Bu birinchi oraliqning chap qismini kesib tashlaydi: to'liq javob minus nol butun beshdan uchgacha bo'ladi, Sardorniki esa to'liq emas.",
@@ -791,8 +810,8 @@ const S12 = {
         ],
         solution: [
           '2x + 1 ≥ 0  →  x ≥ −0,5',
-          "Birinchi oraliq minus uchdan uchgacha edi",
-          "To'g'ri javob: minus nol butun beshdan uchgacha",
+          L('Birinchi oraliq minus uchdan uchgacha edi', 'Первый промежуток был от минус трёх до трёх', 'The first interval was from minus three to three'),
+          L("To'g'ri javob: minus nol butun beshdan uchgacha", 'Верный ответ: от минус нуля целых пяти до трёх', 'Correct answer: from minus zero point five to three'),
         ],
       },
     ],
@@ -846,7 +865,11 @@ const S13 = {
           { id: 'a', right: true, label: L('Minus to\'rtdan minus ikkigacha', 'От минус четырёх до минус двух', 'From minus four to minus two') },
           { id: 'b', label: L("Minus to'rtdan kichik yoki minus ikkidan katta", 'Меньше минус четырёх или больше минус двух', 'Less than minus four or greater than minus two'), hint: L("Tarmoqlar pastga qaragan, demak grafik faqat ikki ildiz ORASIDA noldan yuqorida turadi, tashqarisida emas.", 'Ветви направлены вниз, значит график выше нуля только МЕЖДУ двумя корнями, а не снаружи.', 'The branches point down, so the graph is above zero only BETWEEN the two roots, not outside them.') },
         ],
-        solution: ['−x² − 6x − 8 = 0  →  x = −4, x = −2', "Tarmoqlar pastga: oraliq ichida musbat", 'Yechim: −4 dan −2 gacha'],
+        solution: [
+          '−x² − 6x − 8 = 0  →  x = −4, x = −2',
+          L('Tarmoqlar pastga: oraliq ichida musbat', 'Ветви вниз: внутри промежутка положительно', 'Branches down: positive inside the interval'),
+          L('Yechim: −4 dan −2 gacha', 'Решение: от −4 до −2', 'Solution: from −4 to −2'),
+        ],
       },
     ],
   },
@@ -995,7 +1018,7 @@ const S15 = {
       'The next lesson covers fractional-rational inequalities: a zero of the denominator never belongs in the answer.'),
   ],
   props: {
-    mark: 'x < 2, x > 3  ∩  x ≥ −4/3',
+    mark: '−4/3 ≤ x < 2,  x > 3',
     markNote: L(
       "ikki yechim, bitta umumiy qism",
       'два решения, одна общая часть',

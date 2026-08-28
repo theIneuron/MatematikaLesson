@@ -738,7 +738,11 @@ const S9 = {
           { id: 'a', right: true, label: L('Ha', 'Да', 'Yes') },
           { id: 'b', label: L("Yo'q", 'Нет', 'No'), hint: L("Yozuvda x kvadrat bor va uning oldida uch turibdi, nolga teng emas.", 'В записи есть x в квадрате, и перед ним стоит три, а не нуль.', 'The record has x squared, with three in front, not zero.') },
         ],
-        solution: ['a = 3, b = 0, c = −1', 'a nolga teng emas', "Ha, kvadrat funksiya"],
+        solution: [
+          'a = 3, b = 0, c = −1',
+          L('a nolga teng emas', 'a не равно нулю', 'a is not zero'),
+          L('Ha, kvadrat funksiya', 'Да, квадратичная функция', 'Yes, a quadratic function'),
+        ],
       },
       {
         expr: 'y = 5x + 1',
@@ -748,7 +752,14 @@ const S9 = {
           { id: 'a', label: L('Ha', 'Да', 'Yes'), hint: L("X kvadratni qidiring: bu yozuvda u yo'q, faqat x bor.", 'Поищи x в квадрате: в этой записи его нет, есть только x.', 'Look for x squared: it is not in this record, only x.') },
           { id: 'b', right: true, label: L("Yo'q", 'Нет', 'No') },
         ],
-        solution: ['Eng katta daraja bitta', "Bu chiziqli funksiya, kvadrat emas"],
+        solution: [
+          L('Eng katta daraja bitta', 'Наибольшая степень равна одному', 'The highest power is one'),
+          L(
+            'Bu chiziqli funksiya, kvadrat emas',
+            'Это линейная функция, а не квадратичная',
+            'This is a linear function, not a quadratic one',
+          ),
+        ],
       },
       {
         expr: 'y = 0 · x² + 5x + 2',
@@ -758,7 +769,15 @@ const S9 = {
           { id: 'a', label: L('Ha, x kvadrat yozilgan', 'Да, x в квадрате записан', 'Yes, x squared is written'), hint: L("Yozilgan bo'lsa ham, oldidagi son nol. Nolga ko'paytirilgan har qanday son nolning o'zi.", 'Хоть он и записан, число перед ним нуль. Что угодно, умноженное на нуль, даёт нуль.', 'Even though it is written, the number in front is zero. Anything times zero is zero.') },
           { id: 'b', right: true, label: L("Yo'q, a nolga teng", 'Нет, a равно нулю', 'No, a equals zero') },
         ],
-        solution: ['a = 0', "Ta'rifga ko'ra a nolga teng bo'lmasligi kerak", 'Kvadrat funksiya emas'],
+        solution: [
+          'a = 0',
+          L(
+            "Ta'rifga ko'ra a nolga teng bo'lmasligi kerak",
+            'По определению a не должно равняться нулю',
+            'By definition a must not equal zero',
+          ),
+          L('Kvadrat funksiya emas', 'Это не квадратичная функция', 'Not a quadratic function'),
+        ],
       },
       {
         expr: 'y = x² + x³',
@@ -768,7 +787,10 @@ const S9 = {
           { id: 'a', label: L('Ha', 'Да', 'Yes'), hint: L("X kvadrat borligi yetarli emas: yozuvda x kub ham bor, u eng kattasi.", 'Мало того, что есть x в квадрате: в записи есть и x в кубе, и это наибольшая степень.', 'It is not enough that x squared is there: the record also has x cubed, which is the highest power.') },
           { id: 'b', right: true, label: L("Yo'q", 'Нет', 'No') },
         ],
-        solution: ['Eng katta daraja uchta', 'Kvadrat funksiya emas'],
+        solution: [
+          L('Eng katta daraja uchta', 'Наибольшая степень равна трём', 'The highest power is three'),
+          L('Kvadrat funksiya emas', 'Это не квадратичная функция', 'Not a quadratic function'),
+        ],
       },
     ],
   },
@@ -833,7 +855,11 @@ const S10 = {
           { id: 'a', label: L("Ha, u ham nol", 'Да, тоже нуль', 'Yes, also zero'), hint: L("Hisoblang: minus bir kvadrat qo'shi ikki karra minus bir minus uch. Natija nolga teng emas.", 'Посчитай: минус один в квадрате плюс два, умноженное на минус один, минус три. Результат не равен нулю.', 'Compute it: minus one squared plus two times minus one, minus three. The result is not zero.') },
           { id: 'b', right: true, label: L("Yo'q, ikkita nol yetarli", 'Нет, двух нулей достаточно', 'No, two zeros are enough') },
         ],
-        solution: ['y(−1) = (−1)² + 2 · (−1) − 3', 'y(−1) = 1 − 2 − 3', 'y(−1) = −4, nol emas'],
+        solution: [
+          'y(−1) = (−1)² + 2 · (−1) − 3',
+          'y(−1) = 1 − 2 − 3',
+          L('y(−1) = −4, nol emas', 'y(−1) = −4, это не нуль', 'y(−1) = −4, not a zero'),
+        ],
       },
     ],
   },
@@ -877,7 +903,11 @@ const S11 = {
           { id: 'a', right: true, label: L('Ha', 'Да', 'Yes') },
           { id: 'b', label: L("Yo'q", 'Нет', 'No'), hint: L("Hisoblang: uch kvadrat minus to'qqiz.", 'Посчитай: три в квадрате минус девять.', 'Compute it: three squared minus nine.') },
         ],
-        solution: ['y(3) = 3² − 9', 'y(3) = 0', "Ha, x = 3 nol"],
+        solution: [
+          'y(3) = 3² − 9',
+          'y(3) = 0',
+          L('Ha, x = 3 nol', 'Да, x = 3 это нуль', 'Yes, x = 3 is a zero'),
+        ],
       },
       {
         expr: 'y = 2x² + 3',
@@ -887,7 +917,11 @@ const S11 = {
           { id: 'a', label: L('Ha', 'Да', 'Yes'), hint: L("Uchida x nol. Formulaga nolni qo'ying: ikki karra nol kvadrat qo'shi uch.", 'В вершине x равен нулю. Подставь нуль в формулу: два, умноженное на нуль в квадрате, плюс три.', 'At the vertex x is zero. Substitute zero into the formula: two times zero squared plus three.') },
           { id: 'b', right: true, label: L("Yo'q", 'Нет', 'No') },
         ],
-        solution: ['y(0) = 2 · 0² + 3', 'y(0) = 3, nolga teng emas', "Uchi Ox o'qida emas"],
+        solution: [
+          'y(0) = 2 · 0² + 3',
+          L('y(0) = 3, nolga teng emas', 'y(0) = 3, это не нуль', 'y(0) = 3, not zero'),
+          L("Uchi Ox o'qida emas", 'Вершина не лежит на оси Ox', 'The vertex does not lie on the Ox axis'),
+        ],
       },
       {
         expr: 'y = −3x²',
@@ -897,7 +931,11 @@ const S11 = {
           { id: 'a', right: true, label: L('Pastga', 'Вниз', 'Downward') },
           { id: 'b', label: L('Yuqoriga', 'Вверх', 'Upward'), hint: L("Birni qo'ying: minus uch karra bir kvadrat, natija manfiy chiqadi.", 'Подставь единицу: минус три, умноженное на единицу в квадрате, результат отрицательный.', 'Substitute one: minus three times one squared, the result is negative.') },
         ],
-        solution: ['y(1) = −3 · 1²', 'y(1) = −3, manfiy', 'Parabola pastga qaraydi'],
+        solution: [
+          'y(1) = −3 · 1²',
+          L('y(1) = −3, manfiy', 'y(1) = −3, отрицательное', 'y(1) = −3, negative'),
+          L('Parabola pastga qaraydi', 'Парабола направлена вниз', 'The parabola opens downward'),
+        ],
       },
     ],
   },
@@ -964,8 +1002,12 @@ const S12 = {
         ],
         solution: [
           'y(1) = 1² − 2 · 1 + 5',
-          'y(1) = 4, nolga teng emas',
-          'Bu uchi, nol emas — funksiyaning umuman noli yo\'q',
+          L('y(1) = 4, nolga teng emas', 'y(1) = 4, это не нуль', 'y(1) = 4, not zero'),
+          L(
+            "Bu uchi, nol emas — funksiyaning umuman noli yo'q",
+            'Это вершина, а не нуль, у функции вообще нет нулей',
+            'This is the vertex, not a zero, the function has no zeros at all',
+          ),
         ],
       },
     ],
@@ -1020,7 +1062,15 @@ const S13 = {
           { id: 'b', label: 'y = 0.5x²', hint: L("Bu yerda a nol butun besh o'ndan, birdan kichik, bu torroq emas, kengroq parabola beradi.", 'Здесь a равно нулевой целой пяти десятым, меньше единицы, это даёт не более узкую, а более широкую параболу.', 'Here a is zero point five, smaller than one, this gives a wider parabola, not a narrower one.') },
           { id: 'c', label: 'y = −3x²', hint: L("A uchga teng bo'lsa ham, ishorasi manfiy, bu parabola pastga qaraydi, yuqoriga emas.", 'Хоть a и равно трём, знак отрицательный, эта парабола направлена вниз, а не вверх.', 'Even though a equals three, the sign is negative, this parabola opens downward, not upward.') },
         ],
-        solution: ['a = 3, |3| > 1, demak torroq', 'a musbat, demak yuqoriga qaraydi', 'y = 3x² mos keladi'],
+        solution: [
+          L('a = 3, |3| > 1, demak torroq', 'a = 3, |3| > 1, значит уже', 'a = 3, |3| > 1, so narrower'),
+          L(
+            'a musbat, demak yuqoriga qaraydi',
+            'a положительное, значит направлена вверх',
+            'a is positive, so it opens upward',
+          ),
+          L('y = 3x² mos keladi', 'подходит y = 3x²', 'y = 3x² fits'),
+        ],
       },
       {
         expr: 'a < 0, |a| < 1',
@@ -1039,7 +1089,19 @@ const S13 = {
           { id: 'b', label: 'y = −5x²', hint: L("Bu yerda a manfiy, to'g'ri, lekin uning kattaligi beshta, birdan katta, bu kengroq emas, torroq parabola beradi.", 'Здесь a отрицательный, верно, но его величина пять, больше единицы, это даёт не более широкую, а более узкую параболу.', 'Here a is negative, correct, but its size is five, bigger than one, this gives a narrower parabola, not a wider one.') },
           { id: 'c', label: 'y = 0.4x²', hint: L("Kattaligi to'g'ri, birdan kichik, lekin ishorasi musbat, bu parabola yuqoriga qaraydi, pastga emas.", 'Величина верна, меньше единицы, но знак положительный, эта парабола направлена вверх, а не вниз.', 'The size is right, smaller than one, but the sign is positive, this parabola opens upward, not downward.') },
         ],
-        solution: ['a = −0.4, |−0.4| < 1, demak kengroq', 'a manfiy, demak pastga qaraydi', 'y = −0.4x² mos keladi'],
+        solution: [
+          L(
+            'a = −0.4, |−0.4| < 1, demak kengroq',
+            'a = −0.4, |−0.4| < 1, значит шире',
+            'a = −0.4, |−0.4| < 1, so wider',
+          ),
+          L(
+            'a manfiy, demak pastga qaraydi',
+            'a отрицательное, значит направлена вниз',
+            'a is negative, so it opens downward',
+          ),
+          L('y = −0.4x² mos keladi', 'подходит y = −0.4x²', 'y = −0.4x² fits'),
+        ],
       },
     ],
   },

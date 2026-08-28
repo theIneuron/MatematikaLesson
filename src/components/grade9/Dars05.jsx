@@ -665,7 +665,7 @@ const S9 = {
           { id: 'a', right: true, label: '(5; 2)' },
           { id: 'b', label: '(−5; 2)', hint: L("Qavs ichidagi son to'g'ridan-to'g'ri x0 ga teng, u ishorasini o'zgartirmaydi.", 'Число внутри скобки напрямую равно x0, знак не меняется.', 'The number inside the parentheses equals x0 directly, the sign does not flip.') },
         ],
-        solution: ['x0 = 5', 'y0 = 2', 'Uchi: (5; 2)'],
+        solution: ['x0 = 5', 'y0 = 2', L('Uchi: (5; 2)', 'Вершина: (5; 2)', 'Vertex: (5; 2)')],
       },
       {
         expr: 'y = (x + 1)² − 3',
@@ -685,7 +685,7 @@ const S9 = {
           { id: 'a', right: true, label: '(3; 0)' },
           { id: 'b', label: '(3; 3)', hint: L("Qavsdan tashqarida hech qanday son yo'q: bu y nol nolga teng degani, uchdan olingan son emas.", 'Снаружи скобки числа нет вообще: это значит y нуль равен нулю, а не взято число из тройки.', "There is no number outside the parentheses at all: that means y zero equals zero, not a number taken from the three.") },
         ],
-        solution: ['x0 = 3', 'y0 = 0', 'Uchi: (3; 0)'],
+        solution: ['x0 = 3', 'y0 = 0', L('Uchi: (3; 0)', 'Вершина: (3; 0)', 'Vertex: (3; 0)')],
       },
       {
         expr: 'y = x² + 4',
@@ -695,7 +695,7 @@ const S9 = {
           { id: 'a', right: true, label: '(0; 4)' },
           { id: 'b', label: '(4; 0)', hint: L("Bu yerda gorizontal siljish umuman yo'q: x kvadrat qavs ichida hech narsasiz turibdi.", 'Здесь горизонтального сдвига нет совсем: x в квадрате стоит без ничего внутри скобки.', 'There is no horizontal shift here at all: x squared stands with nothing inside parentheses.') },
         ],
-        solution: ['x0 = 0', 'y0 = 4', 'Uchi: (0; 4)'],
+        solution: ['x0 = 0', 'y0 = 4', L('Uchi: (0; 4)', 'Вершина: (0; 4)', 'Vertex: (0; 4)')],
       },
     ],
   },
@@ -739,7 +739,7 @@ const S10 = {
           { id: 'a', right: true, label: L('Chapga ikkiga', 'Влево на два', 'Left by two') },
           { id: 'b', label: L("O'ngga ikkiga", 'Вправо на два', 'Right by two'), hint: L("Qavs ichida plyus bor: uni x minus minus ikki deb o'qing, x nol manfiy chiqadi.", 'Внутри скобки плюс: прочитай его как x минус минус два, x нуль получится отрицательным.', 'Inside the parentheses there is a plus: read it as x minus minus two, x zero comes out negative.') },
         ],
-        solution: ['x + 2 = x − (−2)', 'x0 = −2', "Chapga ikkiga"],
+        solution: ['x + 2 = x − (−2)', 'x0 = −2', L('Chapga ikkiga', 'Влево на два', 'Left by two')],
       },
       {
         expr: 'y = 3(x + 2)² − 1',
@@ -749,7 +749,7 @@ const S10 = {
           { id: 'a', right: true, label: L('Pastga bittaga', 'Вниз на один', 'Down by one') },
           { id: 'b', label: L('Yuqoriga bittaga', 'Вверх на один', 'Up by one'), hint: L("Qavsdan tashqaridagi son to'g'ridan-to'g'ri ishlaydi: minus bir, demak pastga.", 'Число снаружи скобки работает напрямую: минус один, значит вниз.', 'The number outside the parentheses works directly: minus one means down.') },
         ],
-        solution: ['y0 = −1', 'Pastga bittaga'],
+        solution: ['y0 = −1', L('Pastga bittaga', 'Вниз на один', 'Down by one')],
       },
       {
         expr: 'y = 3(x + 2)² − 1',
@@ -759,7 +759,7 @@ const S10 = {
           { id: 'a', right: true, label: L("Yo'q, faqat shaklga", 'Нет, только на форму', 'No, only the shape') },
           { id: 'b', label: L('Ha, uchini ham siljitadi', 'Да, тоже сдвигает вершину', 'Yes, it also shifts the vertex'), hint: L("Uchining koordinatalari faqat qavs ichidagi va tashqaridagi sonlardan chiqadi, a dan emas.", 'Координаты вершины получаются только из чисел внутри и снаружи скобки, а не из a.', "The vertex's coordinates come only from the numbers inside and outside the parentheses, not from a.") },
         ],
-        solution: ['Uchi: (−2; −1)', 'a = 3 faqat shaklga ta\'sir qiladi'],
+        solution: [L('Uchi: (−2; −1)', 'Вершина: (−2; −1)', 'Vertex: (−2; −1)'), L("a = 3 faqat shaklga ta'sir qiladi", 'a = 3 влияет только на форму', 'a = 3 affects only the shape')],
       },
     ],
   },
@@ -803,7 +803,7 @@ const S11 = {
           { id: 'a', right: true, label: L("O'ngga", 'Вправо', 'Right') },
           { id: 'b', label: L('Chapga', 'Влево', 'Left'), hint: L("Qavs ichida minus turgani uchun x0 musbat chiqadi, musbat x0 esa o'ngga siljitadi.", 'Так как внутри скобки минус, x0 получается положительным, а положительный x0 сдвигает вправо.', 'Since there is a minus inside the parentheses, x0 comes out positive, and a positive x0 shifts to the right.') },
         ],
-        solution: ['x0 = 6', "O'ngga oltiga"],
+        solution: ['x0 = 6', L("O'ngga oltiga", 'Вправо на шесть', 'Right by six')],
       },
       {
         expr: 'y = (x + 5)² − 7',
@@ -813,7 +813,7 @@ const S11 = {
           { id: 'a', right: true, label: L('Pastga', 'Вниз', 'Down') },
           { id: 'b', label: L('Yuqoriga', 'Вверх', 'Up'), hint: L("Qavsdan tashqaridagi son to'g'ridan-to'g'ri ishlaydi: minus yetti, demak pastga.", 'Число снаружи скобки работает напрямую: минус семь, значит вниз.', 'The number outside the parentheses works directly: minus seven means down.') },
         ],
-        solution: ['y0 = −7', 'Pastga yettiga'],
+        solution: ['y0 = −7', L('Pastga yettiga', 'Вниз на семь', 'Down by seven')],
       },
       {
         expr: 'y = −4(x − 1)² + 3',
@@ -823,7 +823,7 @@ const S11 = {
           { id: 'a', right: true, label: L("Yo'q, faqat shaklga", 'Нет, только на форму', 'No, only the shape') },
           { id: 'b', label: L('Ha, uchini ham ko\'chiradi', 'Да, тоже переносит вершину', 'Yes, it also moves the vertex'), hint: L("Uchining koordinatalari faqat qavs ichidagi bir va qavsdan tashqaridagi uchdan chiqadi.", 'Координаты вершины получаются только из единицы внутри скобки и тройки снаружи.', "The vertex's coordinates come only from the one inside the parentheses and the three outside.") },
         ],
-        solution: ['Uchi: (1; 3)', "a = −4 faqat shaklga ta'sir qiladi"],
+        solution: [L('Uchi: (1; 3)', 'Вершина: (1; 3)', 'Vertex: (1; 3)'), L("a = −4 faqat shaklga ta'sir qiladi", 'a = −4 влияет только на форму', 'a = −4 affects only the shape')],
       },
     ],
   },
@@ -861,11 +861,11 @@ const S12 = {
     ),
     tasks: [
       {
-        expr: 'y = (x − 4)² + 6, uchi = (−4; 6)',
+        expr: 'y = (x − 4)² + 6',
         question: L(
-          "Aziz uchini minus to'rt, olti deb yozdi. Bu tanlov nega noto'g'ri?",
-          'Азиз записал вершину как минус четыре, шесть. Почему эта запись неверна?',
-          'Aziz wrote the vertex as minus four, six. Why is this wrong?',
+          "Aziz uchini (−4; 6) deb yozdi. Bu tanlov nega noto'g'ri?",
+          'Азиз записал вершину как (−4; 6). Почему эта запись неверна?',
+          'Aziz wrote the vertex as (−4; 6). Why is this wrong?',
         ),
         ok: L(
           "Ha. Qavs ichida minus to'rt turibdi, lekin bu belgi allaqachon teskari hisoblangan: x0 to'g'ridan-to'g'ri to'rtga teng, minus to'rtga emas.",
@@ -891,7 +891,7 @@ const S12 = {
         solution: [
           'y = (x − 4)² + 6',
           'y(4) = (4 − 4)² + 6 = 6',
-          "Uchi: (4; 6), Azizning minus to'rtiga tekshiruv mos kelmaydi",
+          L("Uchi: (4; 6), Azizning minus to'rtiga tekshiruv mos kelmaydi", 'Вершина: (4; 6), проверка не подтверждает минус четыре у Азиза', "Vertex: (4; 6), the check does not confirm Aziz's minus four"),
         ],
       },
     ],
@@ -941,7 +941,7 @@ const S13 = {
           { id: 'b', label: 'y = (x + 5)² − 2', hint: L("Bu yerda qavs ichida plyus besh: x0 minus beshga teng chiqadi, beshga emas.", 'Здесь внутри скобки плюс пять: x0 получится минус пять, а не пять.', 'Here inside the parentheses is plus five: x0 comes out minus five, not five.') },
           { id: 'c', label: 'y = (x − 5)² + 2', hint: L("Qavsdan tashqarida ishorani tekshiring: kerakli y0 manfiy, plyus ikki emas.", 'Проверь знак снаружи скобки: нужный y0 отрицателен, а не плюс два.', 'Check the sign outside the parentheses: the needed y0 is negative, not plus two.') },
         ],
-        solution: ['x0 = 5, y0 = −2', 'y = (x − 5)² − 2 mos keladi'],
+        solution: ['x0 = 5, y0 = −2', L('y = (x − 5)² − 2 mos keladi', 'Подходит y = (x − 5)² − 2', 'y = (x − 5)² − 2 fits')],
       },
       {
         expr: '(x0; y0) = (−3; 4)',
@@ -955,7 +955,7 @@ const S13 = {
           { id: 'a', right: true, label: 'y = (x + 3)² + 4' },
           { id: 'b', label: 'y = (x − 3)² + 4', hint: L("Bu yerda qavs ichida minus uch: x0 musbat uchga teng chiqadi, minus uchga emas.", 'Здесь внутри скобки минус три: x0 получится плюс три, а не минус три.', 'Here inside the parentheses is minus three: x0 comes out positive three, not minus three.') },
         ],
-        solution: ['x0 = −3 → x − (−3) = x + 3', 'y = (x + 3)² + 4 mos keladi'],
+        solution: ['x0 = −3 → x − (−3) = x + 3', L('y = (x + 3)² + 4 mos keladi', 'Подходит y = (x + 3)² + 4', 'y = (x + 3)² + 4 fits')],
       },
     ],
   },

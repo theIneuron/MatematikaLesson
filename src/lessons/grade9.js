@@ -225,6 +225,333 @@ export const grade9Nazariy = [
     desc: "Kasrni maxrajga ko'paytirmasdan, hammasini bitta tomonga ko'chirib, bitta kasr hosil qilish. Surat va maxrajning nollari bitta o'qda, lekin ikki xil qoida bilan: surat nuqtasi tengsizlik qat'iyligiga qarab kiradi yoki kirmaydi, maxraj nuqtasi esa hech qachon kirmaydi. Umumiy ko'paytuvchini qisqartirish teshik nuqtani yo'qotishi — darslikning o'z misolida (surat va maxraj ikkalasi ham ko'paytuvchilarga ajratilgan kasr). 15 ekran, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade9/Dars17.jsx')),
   },
+  {
+    // 2026-08-27. Bu mavzu ham alohida bobga ega emas (DARSLAR_REJASI_9SINF.md:
+    // «внутри Алг. §15, отдельного нет»). Darslikda «majmua» so'zi alohida
+    // ta'riflanmagan, lekin uning misoli bor: 8-sinf takrori, 7(3)-mashq
+    // (3-bet), |3x − 4| ≥ 2. `Overlap` (Dars16) `mode="or"` bilan BIRINCHI
+    // MARTA ishlatildi — kod o'zgarishi talab qilinmadi, asbob aynan shu
+    // ikkinchi rejim uchun oldindan tayyorlangan edi. Ikkinchi (o'z) misol:
+    // |x² − 4x − 1| ≥ 4, javob uchta alohida oraliqdan iborat; xuddi shu
+    // ikki tengsizlik sistema (va) bo'lganda kesishma bo'sh chiqishi
+    // alohida ekranda ko'rsatildi.
+    slug: 'dars18-tengsizliklar-majmuasi',
+    title: 'Dars 18. Tengsizliklar majmuasi',
+    desc: "Modulli tengsizlik ikki holatga ajraladi, har biri alohida yechilib, birlashtiriladi: kamida bitta shartga mos kelish yetarli. Sistemadan (kesishma, «va») farqi — bir xil ikki tengsizlik majmua (birlashma, «yoki») sifatida butunlay boshqa javob berishi, va chegara manfiy bo'lganda «barcha son» yoki «yechim yo'q» holatini tanish — darslikning o'z misolida (8-sinf takrori, |3x−4|≥2) va sinfning o'z kvadrat misolida. 15 ekran, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade9/Dars18.jsx')),
+  },
+  {
+    // 2026-08-27. BLOK 3 NING OXIRGI AMALIY DARSI. Darslik: II bobga
+    // mashqlar (86-87-bet). Bosh misol darslikning O'Z sonlarida —
+    // «Тестовые задания к главе II», 4-topshiriq (87-bet): perimetri 30,
+    // yuzi 56, tomonlari 7 va 8; bu dars uni TENGSIZLIK ko'rinishida
+    // oladi. TRANSFER ekrani — 207(1)-mashq (86-bet) so'zma-so'z.
+    // 208-209-mashqlar (eng katta va eng kichik qiymat) ATAYLAB
+    // olinmadi: ular 16-§ dagi o'rta arifmetik va o'rta geometrik
+    // tengsizligiga tayanadi, u esa 20-darsning mavzusi.
+    // Darsning o'z qadami: matematik javobni MA'NO bo'yicha kesish
+    // (uzunlik musbat, predmet soni butun) — 16-darsdagi kesishma
+    // g'oyasi amalda. Yangi asbob yo'q.
+    slug: 'dars19-tengsizlik-masalalari',
+    title: 'Dars 19. Tengsizlik masalalari',
+    desc: "Matndan tengsizlik tuzish va javobni oraliq ko'rinishida olish: qaysi so'z qaysi belgini beradi (kamida, oshmaydi, kam), noma'lumni qulay tanlash, va eng asosiysi — matematik javobni masalaning ma'nosi bilan kesishtirish, chunki uzunlik manfiy, predmet soni esa kasr bo'la olmaydi. Darslikning o'z sonlarida (perimetr 30, yuz kamida 56) va o'z mashqida (207-mashq, tengsizliklar sistemasi). 15 ekran, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade9/Dars19.jsx')),
+  },
+  {
+    // 2026-08-27. BLOK B3 SHU DARS BILAN YOPILADI. Darslik: 16-§
+    // (80-83-bet) UCHTA NOMLI USULNI beradi, har biri o'z masalasida:
+    // 1-masala — ta'rifga asoslanib (ayirmani kvadratga keltirish),
+    // (a+b)/2 ≥ √(ab); 2-masala — oldin isbotlangandan foydalanib;
+    // 3-masala — teskarisini faraz qilib, a + 1/a ≥ 2. 4-masala
+    // (tarozi va olma, javob «продавец в убытке») darsning XUKI bo'ldi
+    // va 7-ekranda isbotlanadi: taxmin dalilga aylanadi. Mashqlar
+    // 183(1), 184(1), 184(2) — mashq va transfer ekranlarida.
+    //
+    // YANGI ASBOB YO'Q, ATAYLAB: isbot — yozma chiqarish, sinfda bunday
+    // holat uchun qaror Dars09da qabul qilingan (RecallMC intro/steps,
+    // Track emas). Darsning yangi ko'nikmasi — qaysi usulni tanlash —
+    // Drill ga tushdi. SignAxis ishlatilmadi: javob emas, DALIL so'raladi.
+    slug: 'dars20-tengsizliklarni-isbotlash',
+    title: 'Dars 20. Tengsizliklarni isbotlash',
+    desc: "Isbot bir necha sonni tekshirish emas: dalil barcha qiymatlar uchun bir yo'la ishlashi kerak. Uchta nomli usul darslikning o'z masalalarida: ta'rifga asoslanib (ayirmani yozib, kvadratga keltirish), oldin isbotlangan tengsizlikdan foydalanib, va teskarisini faraz qilib. Dars nosoz tarozi haqidagi kutilmagan javob bilan ochiladi va o'sha javobni isbot bilan yopadi. Tuzoq mantiqiy: isbotni isbotlanishi kerak bo'lgan narsadan boshlash. 15 ekran, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade9/Dars20.jsx')),
+  },
+  {
+    // 2026-08-27. BLOK B4 SHU DARS BILAN BOSHLANADI. Darslik: IV bob,
+    // 28-§ (150-152-bet). Ta'rif, 1-masala (a_n = n(n−2), a_100 = 9800),
+    // 2-masala (a_n = 2n+3: 43 ning nomeri 20; 50 esa had EMAS, chunki
+    // n = 23,5 natural emas — darsning bosh fikri), 3-masala (rekurrent).
+    //
+    // DARSLIKDA OPECHATKA: 3-masalada formula `b_(n+2) = b_(n+1) + b_1`
+    // deb chop etilgan, lekin o'sha yerdagi yechim `+ b_n` bo'yicha
+    // hisoblaydi va b_5 = 11 beradi (bosilgan formula 6 berardi).
+    // Darsda YECHIM bo'yicha olindi, izoh Dars21.jsx shapkasida.
+    //
+    // YANGI ASBOB: `SeqTable` — sinfning beshinchi asbobi (PODXOD_9SINF.md
+    // §3, «прибор 5», B4 ning 7 darsi). B3 da uchta dars yangi asbobsiz
+    // yig'ilgan edi, chunki qo'l harakati eskisi qolgandi; bu yerda
+    // harakat boshqa — jadvalni birma-bir to'ldirish.
+    slug: 'dars21-ketma-ketliklar',
+    title: 'Dars 21. Ketma-ketliklar',
+    desc: "Nomer va had ikki xil narsa: har bir natural n ga bitta a_n mos keladi. Jadvalni birma-bir to'ldirish, formula bilan uzoq hadga bitta qadamda sakrash, had bo'yicha nomerni topish, va darsning bosh fikri — nomer faqat natural bo'ladi, shuning uchun tenglama yechilsa ham kasr nomer chiqqan son had emas. Rekurrent usulda esa sakrab bo'lmaydi. Darslikning o'z misollarida (28-§, 1-3-masalalar). 15 ekran, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade9/Dars21.jsx')),
+  },
+  {
+    // 2026-08-27. Darslik: 29-§ (153-155-bet). Kirish masalasi (kuniga
+    // 5 ta test: 5, 10, 15, 20) darsning XUKI. Ta'rif a_(n+1) = a_n + d;
+    // darslikning uchta misoli ayirma musbat, MANFIY va NOL bo'lishini
+    // ataylab ko'rsatadi. Nom sababi: har bir had ikki qo'shnisining
+    // o'rta ARIFMETIGI. Formula (1): a_n = a_1 + (n − 1)d. 2-masala
+    // (a_100 = 390), 3-masala (99 ning nomeri 49), 4-masala (a_8 va
+    // a_12 berilgan, sistema orqali formulani topish) — mashq, qog'oz
+    // va transfer ekranlarida.
+    //
+    // ASBOB: `SeqTable` (Dars21) ikkinchi marta, endi qadam bir xil
+    // bo'lgan holatda. Yangi asbob kerak emas: qo'l harakati o'sha.
+    // Darsning bosh tuzog'i — formulada (n − 1) o'rniga n olish, bu
+    // mavzuning eng keng tarqalgan xatosi, 12-ekranda ochiladi.
+    slug: 'dars22-arifmetik-progressiya',
+    title: 'Dars 22. Arifmetik progressiya',
+    desc: "Qadam bir xil bo'lgan ketma-ketlik: har bir keyingi had oldingisidan bir xil songa farq qiladi. Ayirma musbat, manfiy va nol bo'lishi, nomning sababi (har bir had qo'shnilarining o'rta arifmetigi), va n-chi had formulasi a_n = a_1 + (n − 1)d — nega aynan n minus bir, chunki birinchi hadga qadam qilinmaydi. Darslikning o'z misollarida (29-§, kirish masalasi va 2-4-masalalar). 15 ekran, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade9/Dars22.jsx')),
+  },
+  {
+    // 2026-08-27. Darslik: 30-§ (158-160-bet). 1-masala (birdan yuzgacha
+    // yig'indi, yig'indini IKKI MARTA teskari tartibda yozib qo'shish)
+    // darsning XUKI. Teorema S_n = (a_1 + a_n)/2 · n xuddi shu usul bilan
+    // isbotlanadi. 3-masala IKKI QADAMLI: avval n topiladi, keyin S.
+    // 4-masala formulaning ikkinchi ko'rinishini talab qiladi va kvadrat
+    // tenglama beradi, uning MANFIY ildizi rad etiladi — bu 19-darsdagi
+    // «javobni ma'no bilan kesish» qadamining aynan o'zi, shu sabab
+    // tuzoq ekrani shundan qurilgan.
+    //
+    // ASBOB: `SeqTable` uchinchi marta, endi jadval hadlarni emas,
+    // QISMIY YIG'INDILARNI to'ldiradi. Qo'l harakati o'sha, shuning uchun
+    // yangi asbob kerak emas, lekin jadvalning ma'nosi boshqa.
+    slug: 'dars23-arifmetik-progressiya-yigindisi',
+    title: "Dars 23. Arifmetik progressiya yig'indisi",
+    desc: "Yig'indini ikki marta, to'g'ri va teskari tartibda yozib qo'shsak, barcha juftlar bir xil bo'ladi — shundan formula chiqadi: chekka ikki hadning o'rtasi, hadlar soniga ko'paytirilgan. Formulaning ikkinchi ko'rinishi oxirgi had noma'lum bo'lganda ishlaydi. Ikki qadamli masala: avval hadlar soni, keyin yig'indi. Va hadlar soni manfiy chiqqan ildizni rad etish. Darslikning o'z misollarida (30-§, 1-4-masalalar). 15 ekran, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade9/Dars23.jsx')),
+  },
+  {
+    // Dars 24. GEOMETRIK PROGRESSIYA. Darslik 31-§ (162-165-bet).
+    //
+    // 22-DARS BILAN PARALLEL QURILDI. U yerda har qadamda d QO'SHILARDI,
+    // bu yerda q ga KO'PAYTIRILADI; u yerda had qo'shnilarining o'rta
+    // ARIFMETIGI, bu yerda o'rta GEOMETRIGI (darslik nomni aynan shundan
+    // chiqaradi, 163-bet); formulada esa ikkalasida ham (n − 1), va sababi
+    // bir xil — birinchi hadga qadam qilinmaydi. Parallel atayin: yangi
+    // mavzu eski mavzuning yonida turgani uchun tez o'zlashadi, farq esa
+    // bitta amalda jamlanadi.
+    //
+    // XUK — darslikning o'z chizmasi (162-bet): tomoni 4 sm teng tomonli
+    // uchburchak, o'rta chiziqlari bilan ichma-ich: 4, 2, 1, 1/2. Bola
+    // ayirmani izlaydi va topolmaydi — ayiriladigan son har safar boshqa.
+    //
+    // MAXRAJNING TO'RT XIL HOLI darslikdan olindi (162-163-bet): butun,
+    // kasr, MANFIY (ishoralar almashadi) va bir (o'zgarmas qator).
+    // Manfiy maxraj alohida ekranda va alohida jadvalda ishlanadi:
+    // 22-darsda bunday hol yo'q edi, ya'ni bu chinakam yangi narsa.
+    //
+    // TRANSFER — darslikning 4-masalasi (164-bet): b6 = 96, b8 = 384 dan
+    // q² = 4 chiqadi, ya'ni IKKITA javob: q = 2 (b1 = 3) va q = −2
+    // (b1 = −3). 22-darsning o'xshash masalasida javob bitta edi, farq
+    // shundaki, u yerda ayirma chiziqli, bu yerda maxraj kvadratda.
+    //
+    // ASBOB: `SeqTable` to'rtinchi marta. Qo'l harakati o'sha — katakni
+    // birma-bir to'ldirish, shuning uchun yangi asbob kerak emas.
+    slug: 'dars24-geometrik-progressiya',
+    title: 'Dars 24. Geometrik progressiya',
+    desc: "Uchburchak ichida uchburchak: 4, 2, 1, 1/2 — bu yerda qo'shilmaydi, ko'paytiriladi. Maxraj butun, kasr yoki manfiy bo'lishi mumkin, manfiy bo'lganda ishoralar navbatma-navbat almashadi. Nom sababi: musbat hadlarda har bir had qo'shnilarining o'rta geometrigiga teng. Formula b_n = b_1·q^(n−1) da yana o'sha (n − 1). Oxirida ikkita hadi berilgan masala ikkita javob beradi. Darslikning o'z misollarida (31-§, 1-4-masalalar). 15 ekran, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade9/Dars24.jsx')),
+  },
+  {
+    // Dars 25. GEOMETRIK PROGRESSIYA DASTLABKI n TA HADINING YIG'INDISI.
+    // Darslik 32-§ (167-169-bet).
+    //
+    // DARSNING BUTUN G'OYASI BITTA QADAMDA: yig'indini q ga ko'paytirib,
+    // o'zidan ayirish. Darslikning 1-masalasi (167-bet) shu qadamni
+    // SONLARDA ko'rsatadi (S = 1 + 3 + ... + 3⁵, 3S − S = 3⁶ − 1,
+    // S = 364), teorema esa AYNAN O'SHA qadamni harflarda takrorlaydi.
+    // Shuning uchun urok sonlardan boshlanadi va harflarga o'tadi, teskari
+    // emas: bola formulani yodlab emas, chiqarib oladi.
+    //
+    // 23-DARS BILAN PARALLEL VA FARQ. U yerda ham yig'indi aylanma yo'l
+    // bilan olingandi — teskari tartibda yozib qo'shish orqali. Bu yerda
+    // o'sha yo'l ISHLAMAYDI, chunki juftlar tenglashmaydi (1 + 27 = 28,
+    // lekin 3 + 9 = 12). 2-ekran shu urinishni ataylab qildiradi: yangi
+    // usul eskisining o'rniga emas, eskisi to'xtagan joyda tug'iladi.
+    //
+    // TUZOQ (12-ekran) 24-DARSDAN O'SIB CHIQADI: had formulasida daraja
+    // n − 1, yig'indi formulasida esa n. Kamron 2 + 6 + 18 + 54 uchun 3³
+    // olib, 26 chiqargan — bu S₃, ya'ni xato ANIQ bitta hadni tushirib
+    // qoldiradi. Ekran shu tekshiruvni ochiq ko'rsatadi: xato javob
+    // «tasodifiy noto'g'ri» emas, boshqa savolning javobi.
+    //
+    // q = 1 HOLI alohida ekranda (7-ekran): maxraj nolga aylanadi, bu
+    // teoremaning «q ≠ 1» sharti qayerdan kelganini tushuntiradi.
+    //
+    // TRANSFER — 403-mashq: q = −2, S₈ = 85 → b₁ = −1, b₈ = 128. Manfiy
+    // maxrajning JUFT darajasi musbat bo'lishi shu yerda hal qiladi.
+    //
+    // ASBOB: `SeqTable` beshinchi marta, 23-darsdagidek qismiy
+    // yig'indilar bilan. Yangi qo'l harakati yo'q.
+    slug: 'dars25-geometrik-progressiya-yigindisi',
+    title: "Dars 25. Geometrik progressiya yig'indisi",
+    desc: "Yig'indini q ga ko'paytirib, o'zidan ayirsak, o'rtadagi hadlar qisqaradi va faqat ikkitasi qoladi — oltita qo'shish o'rniga bitta ayirish. Shundan formula chiqadi, uning ikkinchi ko'rinishi esa hadlar soni noma'lum bo'lganda ishlaydi. q birga teng bo'lgan hol alohida: maxraj nolga aylanadi. Tuzoq had formulasining n − 1 darajasini yig'indiga olib kirishga qurilgan. Darslikning o'z misollarida (32-§, 1-5-masalalar). 15 ekran, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade9/Dars25.jsx')),
+  },
+  {
+    // Dars 26. PROGRESSIYALARGA OID MASALALAR.
+    // Darslik: IV bobga doir mashqlar (177-178-bet), 423-438.
+    // YANGI NAZARIYA YO'Q — dars butunlay TANIB OLISHGA bag'ishlangan.
+    //
+    // NEGA ALOHIDA DARS KERAK. 22-25-darslarda to'rtta formula yig'ildi:
+    // a_n va S_n arifmetikda, b_n va S_n geometrikda. Har biri o'z
+    // darsida oson ishlaydi, chunki tur oldindan ma'lum. Aralashtirilgan
+    // masalada esa birinchi qadam formulani qo'llash emas, TANLASH bo'lib
+    // qoladi — va aynan shu qadam hech qaysi darsda mashq qilinmagan.
+    //
+    // XUK ataylab yasalgan juftlik: 3, 6, 9, 12 va 3, 6, 12, 24 —
+    // BIRINCHI IKKITA HADI BIR XIL. Ikki had har doim ikkala turga ham
+    // to'g'ri keladi, chunki bitta o'tishni «uch qo'shildi» deb ham,
+    // «ikkiga ko'paytirildi» deb ham o'qish mumkin. 12-ekrandagi tuzoq
+    // shu xatoni Kamronning yechimida takrorlaydi.
+    //
+    // TRANSFER 22- va 24-DARSNI BIR JOYGA KELTIRADI (437-mashq):
+    // −10 va 5 orasiga arifmetik progressiya uchun son qo'yish mumkin
+    // (o'rta arifmetik −2,5), geometrik uchun esa mumkin emas
+    // (x² = −50). Ya'ni o'rta geometrik faqat bir xil ishorali sonlar
+    // orasida yashaydi. Darslikda bu ochiq yozilmagan, lekin 24-darsdagi
+    // «musbat hadlarda» shartidan bevosita kelib chiqadi.
+    //
+    // DARSLIK XATOSI, 433.1: «128, 64, 31, ...» chop etilgan, 31 emas
+    // 32 bo'lishi kerak (q = 1/2). 11-ekranda tuzatilgan holda olindi,
+    // S_6 = 252. Bu 9-sinf darsligida topilgan ikkinchi terish xatosi.
+    //
+    // YANGI ASBOB YO'Q: tanib olish qo'l harakati emas, savol.
+    slug: 'dars26-progressiya-masalalari',
+    title: 'Dars 26. Progressiyalarga oid masalalar',
+    desc: "3, 6, 9, 12 va 3, 6, 12, 24 bir xil boshlanadi, lekin bir xil emas — ikkita hadga qarab hukm chiqarib bo'lmaydi. Dars to'rtta tanish formuladan keraklisini tanlashga o'rgatadi: avval tur, keyin had yoki yig'indi. Yig'indi so'ralganda hadlar soni berilmagan bo'lishi mumkin, uni topish kerak. Oxirida −10 va 5 orasiga son qo'yiladi: arifmetik uchun mumkin, geometrik uchun yo'q. Darslikning IV bobga doir mashqlarida (177-178-bet). 15 ekran, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade9/Dars26.jsx')),
+  },
+  {
+    // Dars 27. CHEKSIZ KAMAYUVCHI GEOMETRIK PROGRESSIYA.
+    // Darslik 33-§ (171-174-bet). BLOK Б4 NING OXIRGI DARSI.
+    //
+    // BU YERDA 9-SINF BIRINCHI MARTA LIMIT BILAN UCHRASHADI. Darslik
+    // 173-betda lim belgisini kiritadi, lekin dars uni ATAMA sifatida
+    // olmaydi: 2- va 5-ekranda hammasi «nolga intiladi» darajasida
+    // qoladi. Sabab oddiy — limitning ta'rifi 10-11-sinf ishi, bu yerda
+    // esa u faqat formulani chiqarish uchun kerak.
+    //
+    // XUK darslikning 85-rasmi: tomoni 1 bo'lgan kvadratning yarmi,
+    // keyin qolganining yarmi shtrixlanadi. 1/2 + 1/4 + 1/8 + ... = 1
+    // ko'z bilan ko'rinadi. Bolaning eng kuchli qarshiligi shu yerda:
+    // «cheksiz ko'p qo'shsak, cheksiz chiqadi-ku». Chizma bu qarshilikni
+    // bahssiz sindiradi — bo'laklar kvadratdan chiqib keta olmaydi.
+    //
+    // TA'RIFDA MODUL MUHIM (172-bet). Darslikning (3) misoli ataylab
+    // manfiy maxrajli: 1, −1/3, 1/9, −1/27 ham cheksiz kamayuvchi.
+    // 3-ekran shu ustiga qurilgan, 9-ekranda esa uchta qatordan biri
+    // yana manfiy maxrajli.
+    //
+    // TUZOQ (12-ekran) SHARTNI TEKSHIRISHGA O'RGATADI. Kamron 1, 2, 4, 8
+    // qatoriga formulani qo'llab, S = 1/(1 − 2) = −1 chiqargan. Javob
+    // BEMA'NI: musbat sonlar yig'indisi manfiy bo'lolmaydi. Formula shart
+    // buzilganda xato aytmaydi, u shunchaki son beradi — ma'nosiz sonni
+    // ushlash o'quvchining ishi. Bu 25-darsdagi q = 1 holidan kuchliroq:
+    // u yerda nolga bo'lish darrov ko'rinardi, bu yerda esa hech narsa
+    // ko'rinmaydi.
+    //
+    // TRANSFER — darslikning 4-masalasi: 0,(15) = 15/99 = 5/33. Davriy
+    // kasr ortida cheksiz kamayuvchi progressiya turgani — mavzuning
+    // butunlay boshqa sohaga, sonlarga o'tishi.
+    //
+    // YANGI ASBOB YO'Q.
+    slug: 'dars27-cheksiz-kamayuvchi-progressiya',
+    title: 'Dars 27. Cheksiz kamayuvchi geometrik progressiya',
+    desc: "Kvadratning yarmi, keyin qolganining yarmi va shu tarzda cheksiz — bo'laklar cheksiz ko'p, lekin ular butun kvadratdan chiqmaydi, demak yig'indi chekli. Shart maxrajning o'zi haqida emas, uning MODULI haqida: manfiy maxrajli qator ham kamayuvchi bo'lishi mumkin. Formula S = b_1 : (1 − q). Tuzoq shartni tekshirmaslikka qurilgan: 1 + 2 + 4 + 8 uchun formula minus bir beradi, ya'ni bema'nilik. Oxirida davriy kasr oddiy kasrga aylanadi. Darslikning o'z misollarida (33-§, 1-4-masalalar). 15 ekran, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade9/Dars27.jsx')),
+  },
+  {
+    // Dars 28. STATISTIK XARAKTERISTIKALAR. BLOK Б5 NING BIRINCHI DARSI.
+    // Darslik 38-§ (206-208-bet), 37-§ dan tasodifiy miqdor (198-bet).
+    //
+    // MAVZU 8-SINFDAN QAYTADI, LEKIN BOSHQA SAVOL BILAN. U yerda har bir
+    // xarakteristika alohida o'rgatilgandi. Bu yerda esa asosiy savol
+    // boshqa: NEGA ULAR BIR NECHTA. Xuk shu savolni qo'yadi — 5, 5, 5,
+    // 5, 5 va 3, 4, 5, 6, 7 guruhlarining o'rtachasi bir xil, o'zlari
+    // esa butunlay boshqa. Transfer (13-ekran) shu savolni yopadi:
+    // 1, 2, 3, 4, 100 da o'rtacha uchdan yigirma ikkiga sakraydi,
+    // mediana esa uchligicha qoladi.
+    //
+    // DARSLIKDA IKKITA XATO TOPILDI, ikkalasi ham tuzatib olindi:
+    //   1) 1-masala 1) (207-bet): 8, 2, 0, 5, −5, 4, 8 tanlanmasi
+    //      «−5, 0, 2, 5, 4, 8, 8» deb tartiblangan (5 va 4 o'rin
+    //      almashgan) va mediana 5 deb berilgan. To'g'ri tartibda
+    //      o'rtada 4 turadi. Bu terish emas, MATEMATIK xato, va u
+    //      aynan shu darsning asosiy xatosidan — tartiblamaslikdan —
+    //      kelib chiqqan.
+    //   2) Kenglik misoli (208-bet): 190, 187, 198, 189, 195, 190 uchun
+    //      eng kichik qiymat 186 deb olingan va R = 12 chiqarilgan.
+    //      Qatorda 186 yo'q, eng kichigi 187, demak R = 11.
+    //
+    // YANGI ASBOB: `SortRow` (asboblar.jsx, 7C) — qatorni o'sish
+    // tartibida terib chiqish. Sinf qoidasi bo'yicha asbob yangi
+    // MAVZUGA emas, yangi QO'L HARAKATIGA beriladi, va bu yerda shunday
+    // harakat bor. Asbob tartib buzilishini jismonan imkonsiz qiladi:
+    // ya'ni u aynan darslik xato qilgan joyni himoya qiladi. Qator
+    // to'lgach o'rtasi o'zi yonadi — mediana sanab emas, ko'rib topiladi.
+    //
+    // 12-EKRANDAGI TUZOQ darslikning o'z xatosini takrorlaydi: Kamron
+    // 10, 3, 8, 1, 6 qatorining o'rtasidan 8 ni olgan.
+    slug: 'dars28-statistik-xarakteristikalar',
+    title: 'Dars 28. Statistik xarakteristikalar',
+    desc: "Ikki guruhning o'rtacha bahosi bir xil, guruhlar esa butunlay boshqa — bitta son hammasini aytmaydi. Dars yana uchtasini beradi: moda eng ko'p uchraydigan qiymat (ikkita bo'lishi yoki umuman bo'lmasligi mumkin), mediana tartiblangan qatorning o'rtasi, kenglik esa tarqoqlik o'lchovi. Chastotalar jadvali bo'yicha o'rtacha alohida ishlanadi. Oxirida bitta chetlashgan son o'rtachani uchdan yigirma ikkiga sudraydi, mediana esa joyida qoladi. Darslikning o'z misollarida (38-§). 15 ekran, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade9/Dars28.jsx')),
+  },
+  {
+    // Dars 29. TASODIFIY HODISANING NISBIY CHASTOTASI.
+    // Darslik 36-§ (194-196-bet).
+    //
+    // REJA §36 NI §34-35 DAN OLDIN QO'YADI, ya'ni darslikning tartibiga
+    // teskari: klassik ta'rif 30-darsda keladi. Bu tartib SAQLANDI va
+    // u ataylab yaxshi. Darslik 36-§ ni «klassik ta'rif har doim
+    // ishlamaydi» degan e'tirozdan boshlaydi, lekin bu e'tiroz hali
+    // klassik ta'rifni ko'rmagan bolaga hech narsa demaydi. Teskari
+    // tartibda tabiiy chiqadi: avval TAJRIBA (chastotani sanash uchun
+    // nazariya kerak emas), keyin savol «nega u aynan yarim atrofida
+    // turibdi» — va 30-dars shu savolga javob bo'ladi.
+    //
+    // YANGI ASBOB: `FreqRun` (asboblar.jsx, 7D). Katta sonlar qonunini
+    // gapirib berish mumkin emas: «tajribalar ko'paygan sari chastota
+    // barqarorlashadi» degan jumla isbot emas, iltimos bo'lib qoladi.
+    // Asbobda bola tajribani O'ZI o'tkazadi, siniq chiziq o'sib boradi:
+    // 10 tashlashda W = 1 (o'ntasi ham gerb), 20 da 0,7, 50 da 0,6,
+    // 100 da 0,54, 200 da 0,495, 500 da 0,504. Tasodif qat'iy berilgan
+    // (mulberry32, seed 513) — rasm har safar bir xil, aks holda
+    // tushuntirish «bugun shunday chiqdi» ga aylanardi.
+    //
+    // XUK shu traektoriyaning boshiga tayanadi: 10 tashlashdan 7 marta
+    // gerb hech narsani isbotlamaydi. 4-ekranda bola buni o'z ko'zi
+    // bilan ko'radi — asbobning birinchi o'nligi undan ham keskin.
+    //
+    // TUZOQ (12-ekran): Kamron 30 dan 6 tasini 6 : 24 deb hisoblagan,
+    // ya'ni butunga emas QOLDIQQA bo'lgan. Xato xavfli, chunki javob
+    // to'g'riga yaqin chiqadi (0,25 va 0,2) va o'zini bildirmaydi.
+    // Ekran uni chegaraviy hol bilan yiqitadi: hamma besh baho olsa,
+    // Kamronning maxraji nolga aylanadi.
+    //
+    // TRANSFER (13-ekran) darslikda yo'q: 200 lampochkadan 6 tasi
+    // yaroqsiz bo'lsa, 5000 talik partiyada taxminan 150 ta. Chastota
+    // shu yerda o'lchovdan BASHORATGA aylanadi — statistikaning butun
+    // amaliy ma'nosi shunda.
+    slug: 'dars29-chastota-va-ehtimollik',
+    title: 'Dars 29. Nisbiy chastota va ehtimollik',
+    desc: "O'n tashlashdan yettitasi gerb — bu tanga haqida deyarli hech narsa demaydi. Dars nisbiy chastotani kiritadi va uni bolaning o'z tajribasida ko'rsatadi: asbobda tashlashlar soni ortib boradi va siniq chiziq birdan yarimga tushib, unga yopishib qoladi. Byuffon va Pirsonning haqiqiy tajribalari shu xulosani tasdiqlaydi. Tuzoq maxrajga butun o'rniga qoldiq qo'yishga qurilgan. Oxirida chastota o'lchovdan bashoratga aylanadi. Darslikning o'z misollarida (36-§). 15 ekran, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade9/Dars29.jsx')),
+  },
 ]
 
 // 9-sinf AMALIYOTI. Metodist qarori 2026-08-26: 52 dars x 10 topshiriq,

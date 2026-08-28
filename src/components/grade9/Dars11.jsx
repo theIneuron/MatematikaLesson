@@ -629,7 +629,7 @@ const S9 = {
     ),
     tasks: [
       {
-        expr: 'x + y² = 10, y² ni ifodalang',
+        expr: 'x + y² = 10',
         question: L('Y kvadrat qanday ifodalanadi?', 'Как выражается y в квадрате?', 'How is y squared expressed?'),
         ok: L("Ha. X narigi tomonga o'tganda minus x bo'ladi.", 'Да. x при переносе на другую сторону становится минус x.', 'Yes. x becomes minus x when moved to the other side.'),
         items: [
@@ -639,7 +639,7 @@ const S9 = {
         solution: ['x + y² = 10', 'y² = 10 − x'],
       },
       {
-        expr: '2x − y = 5, y ni ifodalang',
+        expr: '2x − y = 5',
         question: L('Y qanday ifodalanadi?', 'Как выражается y?', 'How is y expressed?'),
         ok: L("Ha. Minus y ko'chirilsa plyus y, besh esa minus besh bo'ladi, keyin ishora almashtiriladi.", 'Да. Минус y при переносе даёт плюс y, а пять становится минус пять, потом знак меняется.', 'Yes. Minus y when moved gives plus y, and five becomes minus five, then the sign is flipped.'),
         items: [
@@ -649,7 +649,7 @@ const S9 = {
         solution: ['2x − y = 5', '−y = 5 − 2x', 'y = 2x − 5'],
       },
       {
-        expr: 'x² − 3y = 7, x² ni ifodalang',
+        expr: 'x² − 3y = 7',
         question: L('X kvadrat qanday ifodalanadi?', 'Как выражается x в квадрате?', 'How is x squared expressed?'),
         ok: L("Ha. Minus uch y narigi tomonga o'tganda plyus uch y bo'ladi.", 'Да. Минус три y при переносе становится плюс три y.', 'Yes. Minus three y becomes plus three y when moved.'),
         items: [
@@ -659,7 +659,7 @@ const S9 = {
         solution: ['x² − 3y = 7', 'x² = 7 + 3y'],
       },
       {
-        expr: '5 − y² = x, y² ni ifodalang',
+        expr: '5 − y² = x',
         question: L('Y kvadrat qanday ifodalanadi?', 'Как выражается y в квадрате?', 'How is y squared expressed?'),
         ok: L("Ha. Ikkala hadni ham ko'chiring: besh o'ng tomonga, x chap tomonga, keyin ishorani tozalang.", 'Да. Перенеси оба слагаемых: пять направо, x налево, потом убери общий минус.', 'Yes. Transpose both terms: five to the right, x to the left, then clear the overall minus.'),
         items: [
@@ -703,7 +703,7 @@ const S10 = {
     ),
     tasks: [
       {
-        expr: 'y − x² = −5,  xy = 6',
+        expr: 'y − x² = −5,  xy = 12',
         question: L('Y qanday ifodalanadi?', 'Как выражается y?', 'How is y expressed?'),
         ok: L("Ha. Minus x kvadrat ko'chirilganda plyus x kvadrat bo'ladi.", 'Да. Минус x в квадрате при переносе становится плюс x в квадрате.', 'Yes. Minus x squared becomes plus x squared when moved.'),
         items: [
@@ -713,24 +713,24 @@ const S10 = {
         solution: ['y − x² = −5', 'y = x² − 5'],
       },
       {
-        expr: 'x(x² − 5) = 6',
+        expr: 'x(x² − 5) = 12',
         question: L('Qavs ochilgach qaysi tenglama hosil bo\'ladi?', 'Какое уравнение получается после раскрытия скобки?', 'Which equation is obtained after opening the bracket?'),
         ok: L("Ha. X karra x kvadrat, x kub. X karra minus besh, minus besh x.", 'Да. x на x в квадрате, x в кубе. x на минус пять, минус пять x.', 'Yes. x times x squared is x cubed. x times minus five is minus five x.'),
         items: [
-          { id: 'a', right: true, label: 'x³ − 5x − 6 = 0' },
-          { id: 'b', label: 'x³ − 5x + 6 = 0', hint: L("O'ng tomondagi oltini ko'chiring: u minus oltiga aylanadi, plyus oltiga emas.", 'Перенеси шестёрку справа: она станет минус шесть, а не плюс шесть.', 'Transpose the six on the right: it becomes minus six, not plus six.') },
+          { id: 'a', right: true, label: 'x³ − 5x − 12 = 0' },
+          { id: 'b', label: 'x³ − 5x + 12 = 0', hint: L("O'ng tomondagi o'n ikkini ko'chiring: u minus o'n ikkiga aylanadi, plyus o'n ikkiga emas.", 'Перенеси двенадцать справа: оно станет минус двенадцать, а не плюс двенадцать.', 'Transpose the twelve on the right: it becomes minus twelve, not plus twelve.') },
         ],
-        solution: ['x(x² − 5) = 6', 'x³ − 5x − 6 = 0'],
+        solution: ['x(x² − 5) = 12', 'x³ − 5x − 12 = 0'],
       },
       {
-        expr: 'x³ − 5x − 6 = 0, x = 3 sinab ko\'ring',
+        expr: 'x³ − 5x − 12 = 0,  x = 3',
         question: L('X uch bo\'lsa, tenglama to\'g\'ri chiqadimi?', 'Если x равен трём, уравнение верно?', 'If x equals three, does the equation hold?'),
-        ok: L("Ha. Yigirma yetti minus o'n besh minus olti, nolga teng.", 'Да. Двадцать семь минус пятнадцать минус шесть, равно нулю.', 'Yes. Twenty-seven minus fifteen minus six, equals zero.'),
+        ok: L("Ha. Yigirma yetti minus o'n besh minus o'n ikki, nolga teng.", 'Да. Двадцать семь минус пятнадцать минус двенадцать, равно нулю.', 'Yes. Twenty-seven minus fifteen minus twelve, equals zero.'),
         items: [
           { id: 'a', right: true, label: L("Ha, to'g'ri", 'Да, верно', 'Yes, it holds') },
-          { id: 'b', label: L("Yo'q, to'g'ri emas", 'Нет, неверно', 'No, it does not'), hint: L("Qo'yib hisoblang: uch kub yigirma yetti, besh karra uch o'n besh. Yigirma yetti minus o'n besh minus olti, nol.", 'Подставь и посчитай: три в кубе двадцать семь, пять на три пятнадцать. Двадцать семь минус пятнадцать минус шесть, ноль.', 'Substitute and compute: three cubed is twenty-seven, five times three is fifteen. Twenty-seven minus fifteen minus six is zero.') },
+          { id: 'b', label: L("Yo'q, to'g'ri emas", 'Нет, неверно', 'No, it does not'), hint: L("Qo'yib hisoblang: uch kub yigirma yetti, besh karra uch o'n besh. Yigirma yetti minus o'n besh minus o'n ikki, nol.", 'Подставь и посчитай: три в кубе двадцать семь, пять на три пятнадцать. Двадцать семь минус пятнадцать минус двенадцать, ноль.', 'Substitute and compute: three cubed is twenty-seven, five times three is fifteen. Twenty-seven minus fifteen minus twelve is zero.') },
         ],
-        solution: ['3³ − 5 · 3 − 6', '27 − 15 − 6 = 6', "qayta hisoblang: to'g'ri javob 0"],
+        solution: ['3³ − 5 · 3 − 12', '27 − 15 − 12 = 0', L("Demak x = 3 ildiz, y = 4", 'Значит x = 3 корень, y = 4', 'So x = 3 is a root, y = 4')],
       },
     ],
   },
@@ -774,7 +774,7 @@ const S11 = {
           { id: 'a', right: true, label: L("To'qqiz, y bor", 'Девять, y есть', 'Nine, y exists') },
           { id: 'b', label: L("Minus to'qqiz, y yo'q", 'Минус девять, y нет', 'Minus nine, no y'), hint: L("Qo'yib hisoblang: o'n ikki minus uch, bu musbat to'qqiz beradi, minus emas.", 'Подставь и посчитай: двенадцать минус три, это даёт положительное девять, а не минус.', 'Substitute and compute: twelve minus three gives a positive nine, not minus.') },
         ],
-        solution: ['y² = 12 − 3 = 9', 'Musbat, y = 3 yoki y = −3'],
+        solution: ['y² = 12 − 3 = 9', L('Musbat, y = 3 yoki y = −3', 'Положительно, y = 3 или y = −3', 'Positive, y = 3 or y = −3')],
       },
       {
         expr: 'y² = x − 3,  x = 1',
@@ -784,7 +784,7 @@ const S11 = {
           { id: 'a', label: L('Minus ikki, y bor', 'Минус два, y есть', 'Minus two, y exists'), hint: L("Y kvadrat manfiy chiqdi: hech qanday haqiqiy sonning kvadrati manfiy bo'lmaydi.", 'y в квадрате получился отрицательным: квадрат никакого действительного числа не бывает отрицательным.', 'y squared came out negative: the square of no real number is negative.') },
           { id: 'b', right: true, label: L("Minus ikki, y yo'q", 'Минус два, y нет', 'Minus two, no y') },
         ],
-        solution: ['y² = 1 − 3 = −2', "Manfiy, haqiqiy y yo'q"],
+        solution: ['y² = 1 − 3 = −2', L("Manfiy, haqiqiy y yo'q", 'Отрицательно, действительного y нет', 'Negative, no real y')],
       },
       {
         expr: 'y = 2x² − 5,  x = 2',
@@ -855,8 +855,8 @@ const S12 = {
         ],
         solution: [
           'y² = −7 − 6 = −13',
-          "Manfiy, haqiqiy y yo'q",
-          "To'g'ri javob: faqat x = 1 dan chiqqan juftliklar",
+          L("Manfiy, haqiqiy y yo'q", 'Отрицательно, действительного y нет', 'Negative, no real y'),
+          L("To'g'ri javob: faqat x = 1 dan chiqqan juftliklar", 'Верный ответ: только пары, полученные при x = 1', 'Correct answer: only the pairs coming from x = 1'),
         ],
       },
     ],
@@ -895,7 +895,7 @@ const S13 = {
     ),
     tasks: [
       {
-        expr: 'x = 9, y² = 4 bolishi kerak',
+        expr: 'x = 9, y² = 4',
         question: L(
           "X to'qqiz bo'lganda y kvadrat to'rtga teng bo'lishi kerak. Qaysi tenglama mos keladi?",
           'При x равном девяти y в квадрате должен быть равен четырём. Какое уравнение подходит?',
@@ -909,7 +909,7 @@ const S13 = {
         solution: ['y² = 9 − 5 = 4'],
       },
       {
-        expr: 'x = 2, y² = manfiy bolishi kerak (yechim yoq)',
+        expr: 'x = 2, y² < 0',
         question: L(
           "X ikki bo'lganda y kvadrat manfiy bo'lishi, ya'ni yechim bo'lmasligi kerak. Qaysi tenglama mos keladi?",
           'При x равном двум y в квадрате должен быть отрицательным, то есть решения быть не должно. Какое уравнение подходит?',
@@ -920,7 +920,7 @@ const S13 = {
           { id: 'a', right: true, label: 'y² = x − 10' },
           { id: 'b', label: 'y² = x + 10', hint: L("Bu tenglamani sinab ko'ring: ikki qo'shi o'n o'n ikki beradi, bu musbat, yechim bor bo'lib qoladi.", 'Проверь это уравнение: два плюс десять даёт двенадцать, это положительно, решение останется.', 'Check this equation: two plus ten gives twelve, this is positive, a solution would remain.') },
         ],
-        solution: ['y² = 2 − 10 = −8', "Manfiy, yechim yo'q"],
+        solution: ['y² = 2 − 10 = −8', L("Manfiy, yechim yo'q", 'Отрицательно, решений нет', 'Negative, no solution')],
       },
     ],
   },
