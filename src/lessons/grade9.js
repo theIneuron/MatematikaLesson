@@ -294,4 +294,48 @@ export const grade9Amaliy = [
     desc: "10 topshiriq, 10 xil mexanika: kesishish nuqtasining ma'nosi, umumiy nuqtalar soni haqida uchta hukm, chiziq jadvalining bo'sh kataklari, tenglashtirishdan chiqqan abssissalar, nuqtalarni chiziq va parabola bo'yicha guruhlash, katta abssissani o'qda belgilash, ikkala grafik chizilgan tekislikda kesishishlarni qo'yish, grafik usul qadamlarining tartibi, qoidadagi so'zlar, ishorasi tushib qolgan xato qator. UZ/RU/EN, ovozsiz.",
     Component: lazy(() => import('../components/grade9/practice/dars10/Dars10Practice.jsx')),
   },
+  {
+    // 2026-08-28. Skelet: src/books/grade9/DARS11_17_AMALIYOT_SKELET.md.
+    // Raskladka skriptdan: scripts/grade9-practice-layout.mjs (11-dars).
+    slug: 'dars11-amaliyot',
+    title: "Dars 11 amaliyoti — o'rniga qo'yish usuli (10 topshiriq)",
+    desc: "10 topshiriq, 10 xil mexanika: ifodalangan igrek jadvalda ikki tomonga, ifoda qaysi tenglamaga qo'yiladi, o'z tenglamasiga qaytarish nega hech nima bermaydi, kvadrat tenglamaning kichik ildizi o'qda, ikki kasrni yig'indi-ko'paytmaga birlashtirish, ikkala yechimni tekislikka qo'yish, kvadrat manfiy chiqqan holatni guruhlash, ishorasi tushib qolgan xato qator, qoidadagi so'zlar, usulning qadamlari tartibi. UZ/RU/EN, ovozsiz.",
+    Component: lazy(() => import('../components/grade9/practice/dars11/Dars11Practice.jsx')),
+  },
+  {
+    slug: 'dars12-amaliyot',
+    title: "Dars 12 amaliyoti — qo'shish usuli (10 topshiriq)",
+    desc: "10 topshiriq, 10 xil mexanika: qaysi had qo'shganda yo'qoladi, yig'indi shartining jadvali, yo'qotishning ikkita sharti, qo'shishdan keyin igrekni ham topish, iksda to'xtab qolmaslik, iks kvadratdan ikkita ildiz, ikkinchi tenglamalarni yo'qolish turi bo'yicha guruhlash, qoidadagi so'zlar, koeffitsienti tushib qolgan xato qator, usul qadamlarining tartibi. UZ/RU/EN, ovozsiz.",
+    Component: lazy(() => import('../components/grade9/practice/dars12/Dars12Practice.jsx')),
+  },
+  {
+    slug: 'dars13-amaliyot',
+    title: 'Dars 13 amaliyoti — masalalar (10 topshiriq)',
+    desc: "10 topshiriq, 10 xil mexanika: ishni nimadan boshlash, bitta shart sonni aniqlamasligi, «marta katta» va «ga katta» farqi, natural sonlar sharti, o'nlar bilan birlar raqamining o'rni, iborani amalga o'tkazish, nolga teng ildizni rad etish, masala javobini son tilida yozish, shartdagi ayirmani son deb olgan xato qator, qoidadagi so'zlar. UZ/RU/EN, ovozsiz.",
+    Component: lazy(() => import('../components/grade9/practice/dars13/Dars13Practice.jsx')),
+  },
+  {
+    slug: 'dars14-amaliyot',
+    title: 'Dars 14 amaliyoti — ikkinchi darajali tengsizliklar (10 topshiriq)',
+    desc: "10 topshiriq, 10 xil mexanika: takroriy ildiz jadvalda, nol diskriminantda parabola o'q bilan qanday joylashishi, manfiy diskriminant haqida uchta hukm, yagona nuqtali javob o'qda, urinish nuqtasini grafikda belgilash, bitta ildizni yozish, diskriminant ishorasi bo'yicha guruhlash, «ildiz yo'q» dan «yechim yo'q» chiqargan xato qator, takroriy ildizli tengsizlikning qadamlari, qoidadagi iboralar. UZ/RU/EN, ovozsiz.",
+    Component: lazy(() => import('../components/grade9/practice/dars14/Dars14Practice.jsx')),
+  },
+  {
+    slug: 'dars15-amaliyot',
+    title: 'Dars 15 amaliyoti — oraliqlar usuli (10 topshiriq)',
+    desc: "10 topshiriq, 10 xil mexanika: takroriy ko'paytuvchi haqida uchta hukm, nega ikki marta almashish bekor bo'lishi, uchta ildizning ishoralar ketma-ketligi jadvalda, grafik Ox ni kesgan barcha nuqtalar, umumiy ko'paytuvchini chiqarish (nol ildiz tushib qolmasin), ko'paytuvchilarni ishora xossasi bo'yicha guruhlash, javobning chegaralangan qismi o'qda, qoidadagi so'zlar, usulning qadamlari, takroriy ildizda ishora almashadi degan xato qator. UZ/RU/EN, ovozsiz.",
+    Component: lazy(() => import('../components/grade9/practice/dars15/Dars15Practice.jsx')),
+  },
+  {
+    slug: 'dars16-amaliyot',
+    title: 'Dars 16 amaliyoti — tengsizliklar sistemasi (10 topshiriq)',
+    desc: "10 topshiriq, 10 xil mexanika: sistemaning yechimi ta'rifi, har xil turdagi ikki chegara, bitta tengsizlikning chegarasi jadvalda, sonlarni «ikkalasi / faqat birinchisi / faqat ikkinchisi» bo'yicha guruhlash, oraliqdagi butun sonlar, aralash chegarali javob o'qda, ikki grafikning Ox bilan kesishishlari, yechish qadamlarining tartibi, qoidadagi iboralar, kesishma o'rniga birlashma yozgan xato qator. UZ/RU/EN, ovozsiz.",
+    Component: lazy(() => import('../components/grade9/practice/dars16/Dars16Practice.jsx')),
+  },
+  {
+    slug: 'dars17-amaliyot',
+    title: 'Dars 17 amaliyoti — kasr-ratsional tengsizliklar (10 topshiriq)',
+    desc: "10 topshiriq, 10 xil mexanika: kasrning ikki xil maxsus nuqtasi jadvalda, surat va maxraj nollari haqida uchta hukm, nega maxrajga ko'paytirib bo'lmasligi, barcha nol nuqtalarni yozish, aralash chegarali javob o'qda (biri yopiq, biri ochiq), grafik Ox ni kesgan nuqta, sonlarni surat yoki maxraj noli bo'yicha guruhlash, qisqartirishda teshik nuqtani yo'qotgan xato qator, qoidadagi iboralar, yechish qadamlarining tartibi. UZ/RU/EN, ovozsiz.",
+    Component: lazy(() => import('../components/grade9/practice/dars17/Dars17Practice.jsx')),
+  },
 ]

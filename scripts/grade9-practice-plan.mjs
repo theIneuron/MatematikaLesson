@@ -390,6 +390,275 @@ const PLAN_10 = [
     no: [tap('[data-row="r4"]')] },                   // oxirgi qator xato deb o'yladi
 ];
 
+// ============================================================ 11-DARS
+// O'rniga qo'yish usuli. Mexanikalar tartibi (layout.mjs, n = 11):
+//   jadval · ha-yo'q · test · o'q · qiymatlar ·
+//   belgilash · guruhlar · xato qator · so'zlar · tartib
+const PLAN_11 = [
+  { id: '01', tag: 'ozgaruvchini-ifodalash-xatosi',
+    ok: [{ fill: ['c2', '3'] }, { fill: ['c3', '4'] }],
+    no: [{ fill: ['c2', '7'] }, { fill: ['c3', '4'] }] },   // besh minus ikki o'rniga qo'shildi
+  { id: '02', tag: 'notogri-orniga-qoyish',
+    ok: ['s1:yes', 's2:no', 's3:yes'].map((x) => tap(`[data-tf="${x}"]`)),
+    no: ['s1:yes', 's2:yes', 's3:yes'].map((x) => tap(`[data-tf="${x}"]`)) }, // o'z tenglamasiga qaytarish ishlaydi deb o'yladi
+  { id: '03', tag: 'notogri-orniga-qoyish',
+    ok: [tap('[data-opt="0"]')],
+    no: [tap('[data-opt="1"]')] },                    // sabab ifodada deb o'yladi
+  { id: '04', tag: 'notogri-orniga-qoyish',
+    ok: [tap('[data-tick="-4"]'), tap('[data-ctl="closed"]')],
+    no: [tap('[data-tick="2"]'), tap('[data-ctl="closed"]')] }, // kattasi tanlandi
+  { id: '05', tag: 'kasr-birlashtirish-xatosi',
+    ok: [{ fill: ['set', '3; 4'] }],
+    no: [{ fill: ['set', '12'] }] },                  // ko'paytmaning o'zi javob deb olindi
+  { id: '06', tag: 'notogri-orniga-qoyish',
+    ok: [node(2, 3), node(-3, -2)],
+    no: [node(3, 2), node(-3, -2)] },                 // koordinatalar o'rin almashdi
+  { id: '07', tag: 'manfiy-kvadrat-holati',
+    ok: ['i1:a', 'i2:a', 'i3:b', 'i4:b', 'i5:c', 'i6:c'].map((x) => zone(...x.split(':'))),
+    no: ['i1:a', 'i2:a', 'i3:b', 'i4:b', 'i5:a', 'i6:c'].map((x) => zone(...x.split(':'))) }, // manfiy kvadratdan ildiz qidirildi
+  { id: '08', tag: 'ozgaruvchini-ifodalash-xatosi',
+    ok: [tap('[data-row="r3"]')],
+    no: [tap('[data-row="r4"]')] },                   // tekshiruv qatori xato deb o'yladi
+  { id: '09', tag: 'manfiy-kvadrat-holati',
+    ok: [cloze('w1', 0), cloze('w2', 1), cloze('w3', 2)],
+    no: [cloze('w4', 0), cloze('w2', 1), cloze('w3', 2)] },  // «ozod hadi» ifodalanadi deb olindi
+  { id: '10', tag: 'ozgaruvchini-ifodalash-xatosi',
+    ok: ['c1', 'c2', 'c3', 'c4', 'c5'].map((x) => tap(`[data-card="${x}"]`)),
+    no: ['c2', 'c1', 'c3', 'c4', 'c5'].map((x) => tap(`[data-card="${x}"]`)) }, // qo'yish ifodalashdan oldin
+];
+
+// ============================================================ 12-DARS
+// Qo'shish usuli. Mexanikalar tartibi (layout.mjs, n = 12):
+//   ha-yo'q · jadval · test · belgilash · o'q ·
+//   qiymatlar · guruhlar · so'zlar · xato qator · tartib
+const PLAN_12 = [
+  { id: '01', tag: 'qoshish-orqali-yoqotish-notogri',
+    ok: ['s1:yes', 's2:no', 's3:yes'].map((x) => tap(`[data-tf="${x}"]`)),
+    no: ['s1:yes', 's2:yes', 's3:yes'].map((x) => tap(`[data-tf="${x}"]`)) }, // bir xil ishorada ham yo'qoladi deb o'yladi
+  { id: '02', tag: 'yigindini-yakuniy-javob-deb-olish',
+    ok: [{ fill: ['c2', '4'] }, { fill: ['c3', '5'] }],
+    no: [{ fill: ['c2', '8'] }, { fill: ['c3', '5'] }] },   // oltiga qo'shildi, ayirilmadi
+  { id: '03', tag: 'qoshish-orqali-yoqotish-notogri',
+    ok: [tap('[data-opt="1"]')],
+    no: [tap('[data-opt="0"]')] },                    // bir xil ishora shart deb olindi
+  { id: '04', tag: 'orniga-qoyishni-unutish',
+    ok: [node(3, -2)],
+    no: [node(-2, 3)] },                              // koordinatalar o'rin almashdi
+  { id: '05', tag: 'orniga-qoyishni-unutish',
+    ok: [tap('[data-tick="2"]'), tap('[data-ctl="closed"]')],
+    no: [tap('[data-tick="5"]'), tap('[data-ctl="closed"]')] }, // iksda to'xtab qoldi
+  { id: '06', tag: 'faqat-bitta-yechim-yozish',
+    ok: [{ fill: ['set', '−2; 2'] }],
+    no: [{ fill: ['set', '2'] }] },                   // ikkinchi ildiz tushib qoldi
+  { id: '07', tag: 'qoshish-orqali-yoqotish-notogri',
+    ok: ['i1:a', 'i2:a', 'i3:b', 'i4:b', 'i5:c', 'i6:c'].map((x) => zone(...x.split(':'))),
+    no: ['i1:a', 'i2:a', 'i3:a', 'i4:b', 'i5:c', 'i6:c'].map((x) => zone(...x.split(':'))) }, // iks yo'qolishi igrek deb olindi
+  { id: '08', tag: 'yigindini-yakuniy-javob-deb-olish',
+    ok: [cloze('w1', 0), cloze('w2', 1), cloze('w3', 2)],
+    no: [cloze('w4', 0), cloze('w2', 1), cloze('w3', 2)] },  // «ikkilanadi» — yo'qotish qoidasi buzildi
+  { id: '09', tag: 'orniga-qoyishni-unutish',
+    ok: [tap('[data-row="r3"]')],
+    no: [tap('[data-row="r4"]')] },                   // oxirgi qator tanlandi, birinchi xato emas
+  { id: '10', tag: 'faqat-bitta-yechim-yozish',
+    ok: ['c1', 'c2', 'c3', 'c4', 'c5'].map((x) => tap(`[data-card="${x}"]`)),
+    no: ['c1', 'c2', 'c3', 'c5', 'c4'].map((x) => tap(`[data-card="${x}"]`)) }, // javob igreklardan oldin
+];
+
+// ============================================================ 13-DARS
+// Masalalar. Mexanikalar tartibi (layout.mjs, n = 13):
+//   test · jadval · ha-yo'q · sonlar · belgilash ·
+//   guruhlar · o'q · tartib · xato qator · so'zlar
+const PLAN_13 = [
+  { id: '01', tag: 'ozgaruvchi-notogri-tanlash',
+    ok: [tap('[data-opt="0"]')],
+    no: [tap('[data-opt="1"]')] },                    // darhol tenglama yozishdan boshladi
+  { id: '02', tag: 'shartni-notogri-tenglamaga-otkazish',
+    ok: [{ fill: ['c2', '8'] }, { fill: ['c3', '6'] }],
+    no: [{ fill: ['c2', '14'] }, { fill: ['c3', '6'] }] },  // o'n bir qo'shildi, ayirilmadi
+  { id: '03', tag: 'shartni-notogri-tenglamaga-otkazish',
+    ok: ['s1:yes', 's2:no', 's3:yes'].map((x) => tap(`[data-tf="${x}"]`)),
+    no: ['s1:yes', 's2:yes', 's3:yes'].map((x) => tap(`[data-tf="${x}"]`)) }, // «marta katta» = «ga katta» deb o'yladi
+  { id: '04', tag: 'nomuvofiq-yechimni-qabul-qilish',
+    ok: [{ fill: ['set', '5; 9'] }],
+    no: [{ fill: ['set', '−9; −5'] }] },              // shartga zid manfiy juftlik qabul qilindi
+  { id: '05', tag: 'ozgaruvchi-notogri-tanlash',
+    ok: [node(6, 3)],
+    no: [node(3, 6)] },                               // raqamlar o'rin almashdi
+  { id: '06', tag: 'shartni-notogri-tenglamaga-otkazish',
+    ok: ['i1:a', 'i2:a', 'i3:b', 'i4:b', 'i5:c', 'i6:c'].map((x) => zone(...x.split(':'))),
+    no: ['i1:a', 'i2:a', 'i3:a', 'i4:b', 'i5:c', 'i6:c'].map((x) => zone(...x.split(':'))) }, // qo'shish ko'paytirish deb olindi
+  { id: '07', tag: 'nomuvofiq-yechimni-qabul-qilish',
+    ok: [tap('[data-tick="7"]'), tap('[data-ctl="closed"]')],
+    no: [tap('[data-tick="0"]'), tap('[data-ctl="closed"]')] }, // nol ildizi qabul qilindi
+  { id: '08', tag: 'javobni-masala-tiliga-qaytarmaslik',
+    ok: ['c1', 'c2', 'c3', 'c4', 'c5'].map((x) => tap(`[data-card="${x}"]`)),
+    no: ['c1', 'c2', 'c3', 'c5', 'c4'].map((x) => tap(`[data-card="${x}"]`)) }, // javob tekshiruvdan oldin
+  { id: '09', tag: 'shartni-notogri-tenglamaga-otkazish',
+    ok: [tap('[data-row="r3"]')],
+    no: [tap('[data-row="r4"]')] },                   // tekshiruv qatori xato deb o'yladi
+  { id: '10', tag: 'javobni-masala-tiliga-qaytarmaslik',
+    ok: [cloze('w1', 0), cloze('w2', 1), cloze('w3', 2)],
+    no: [cloze('w4', 0), cloze('w2', 1), cloze('w3', 2)] },  // «taxmin qilinadi» — birinchi qadam buzildi
+];
+
+// ============================================================ 14-DARS
+// Ikkinchi darajali tengsizliklar (D = 0, D < 0). Tartib (layout.mjs, n = 14):
+//   jadval · test · ha-yo'q · o'q · belgilash ·
+//   ildizlar · guruhlar · xato qator · tartib · so'zlar
+const PLAN_14 = [
+  { id: '01', tag: 'urinish-notogri-oqish',
+    ok: [{ fill: ['c3', '5'] }, { fill: ['c4', '4'] }],
+    no: [{ fill: ['c3', '−5'] }, { fill: ['c4', '4'] }] },  // qavs ichidagi ishora teskari o'qildi
+  { id: '02', tag: 'ikkita-ildiz-deb-oylash',
+    ok: [tap('[data-opt="0"]')],
+    no: [tap('[data-opt="1"]')] },                    // nol diskriminantda ikkita nuqta deb o'yladi
+  { id: '03', tag: 'diskriminant-manfiy-holati',
+    ok: ['s1:yes', 's2:no', 's3:no'].map((x) => tap(`[data-tf="${x}"]`)),
+    no: ['s1:yes', 's2:no', 's3:yes'].map((x) => tap(`[data-tf="${x}"]`)) }, // manfiy D da ham urinish bor deb o'yladi
+  { id: '04', tag: 'urinish-notogri-oqish',
+    ok: [tap('[data-tick="6"]'), tap('[data-ctl="closed"]')],
+    no: [tap('[data-tick="6"]'), tap('[data-ctl="open"]')] }, // qat'iy emas belgi hisobga olinmadi
+  { id: '05', tag: 'urinish-notogri-oqish',
+    ok: [node(-3, 0)],
+    no: [node(3, 0)] },                               // qavsdagi ishora teskari o'qildi
+  { id: '06', tag: 'ikkita-ildiz-deb-oylash',
+    ok: [{ fill: ['set', '−7'] }],
+    no: [{ fill: ['set', '−7; 7'] }] },               // «kvadrat tenglamada doim ikkita ildiz»
+  { id: '07', tag: 'ikkita-ildiz-deb-oylash',
+    ok: ['i1:a', 'i2:a', 'i3:b', 'i4:b', 'i5:c', 'i6:c'].map((x) => zone(...x.split(':'))),
+    no: ['i1:a', 'i2:a', 'i3:a', 'i4:b', 'i5:c', 'i6:c'].map((x) => zone(...x.split(':'))) }, // to'liq kvadratda ikkita ildiz deb o'yladi
+  { id: '08', tag: 'yechim-yoq-yoki-hamma-son',
+    ok: [tap('[data-row="r3"]')],
+    no: [tap('[data-row="r4"]')] },                   // oxirgi qator tanlandi, birinchi xato emas
+  { id: '09', tag: 'urinish-notogri-oqish',
+    ok: ['c1', 'c2', 'c3', 'c4', 'c5'].map((x) => tap(`[data-card="${x}"]`)),
+    no: ['c1', 'c2', 'c3', 'c5', 'c4'].map((x) => tap(`[data-card="${x}"]`)) }, // javob chegara qaroridan oldin
+  { id: '10', tag: 'diskriminant-manfiy-holati',
+    ok: [cloze('w1', 0), cloze('w2', 1), cloze('w3', 2)],
+    no: [cloze('w4', 0), cloze('w2', 1), cloze('w3', 2)] },  // «Ox ni kesadi» — urinish kesish deb olindi
+];
+
+// ============================================================ 15-DARS
+// Oraliqlar usuli. Tartib (layout.mjs, n = 15):
+//   ha-yo'q · test · jadval · belgilash · ildizlar ·
+//   guruhlar · o'q · so'zlar · tartib · xato qator
+//
+// 07 — `interval` rejimi: IKKI chegara, ikkalasi ham bo'yalgan. Bosish
+// tartibi: avval ikkala bo'linma, keyin har birining turi (`closed:−3`,
+// `closed:0`) — `need > 1` bo'lganda tugma nomiga chegara soni qo'shiladi.
+const PLAN_15 = [
+  { id: '01', tag: 'har-safar-almashadi-deb-oylash',
+    ok: ['s1:yes', 's2:no', 's3:no'].map((x) => tap(`[data-tf="${x}"]`)),
+    no: ['s1:no', 's2:no', 's3:no'].map((x) => tap(`[data-tf="${x}"]`)) }, // takroriy ildizda ham almashadi deb o'yladi
+  { id: '02', tag: 'har-safar-almashadi-deb-oylash',
+    ok: [tap('[data-opt="0"]')],
+    no: [tap('[data-opt="2"]')] },                    // «kvadrat musbat» sababini oldi
+  { id: '03', tag: 'nechta-oraliq-notogri-hisoblash',
+    ok: [{ fill: ['c2', '3'] }, { fill: ['c4', '3'] }],
+    no: [{ fill: ['c2', '−3'] }, { fill: ['c4', '3'] }] },  // ikkita manfiy ko'paytuvchi musbat berishini o'tkazib yubordi
+  { id: '04', tag: 'toliq-korpaytirmaslik',
+    ok: [node(-1, 0), node(0, 0), node(3, 0)],
+    no: [node(-1, 0), node(1, 0), node(3, 0)] },      // nol o'rniga bir qo'yildi (iksga qisqartirish)
+  { id: '05', tag: 'toliq-korpaytirmaslik',
+    ok: [{ fill: ['set', '0; 1; 3'] }],
+    no: [{ fill: ['set', '1; 3'] }] },                // ifoda iksga bo'lib yuborildi
+  { id: '06', tag: 'har-safar-almashadi-deb-oylash',
+    ok: ['i1:a', 'i2:a', 'i3:b', 'i4:b', 'i5:c', 'i6:c'].map((x) => zone(...x.split(':'))),
+    no: ['i1:a', 'i2:a', 'i3:a', 'i4:b', 'i5:c', 'i6:c'].map((x) => zone(...x.split(':'))) }, // kvadratda ham almashadi deb olindi
+  { id: '07', tag: 'qatiy-tengsizlikda-ildizni-qoshish',
+    ok: [tap('[data-tick="-3"]'), tap('[data-tick="0"]'),
+      tap('[data-ctl="closed:-3"]'), tap('[data-ctl="closed:0"]')],
+    no: [tap('[data-tick="-3"]'), tap('[data-tick="0"]'),
+      tap('[data-ctl="open:-3"]'), tap('[data-ctl="open:0"]')] }, // qat'iy emas belgi hisobga olinmadi
+  { id: '08', tag: 'toliq-korpaytirmaslik',
+    ok: [cloze('w1', 0), cloze('w2', 1), cloze('w3', 2)],
+    no: [cloze('w4', 0), cloze('w2', 1), cloze('w3', 2)] },  // «hadlarga» ajratish
+  { id: '09', tag: 'nechta-oraliq-notogri-hisoblash',
+    ok: ['c1', 'c2', 'c3', 'c4', 'c5'].map((x) => tap(`[data-card="${x}"]`)),
+    no: ['c1', 'c2', 'c4', 'c3', 'c5'].map((x) => tap(`[data-card="${x}"]`)) }, // almashtirish boshlang'ich ishoradan oldin
+  { id: '10', tag: 'har-safar-almashadi-deb-oylash',
+    ok: [tap('[data-row="r3"]')],
+    no: [tap('[data-row="r4"]')] },                   // oxirgi qator tanlandi, birinchi xato emas
+];
+
+// ============================================================ 16-DARS
+// Tengsizliklar sistemasi. Tartib (layout.mjs, n = 16):
+//   test · ha-yo'q · jadval · guruhlar · butun sonlar ·
+//   o'q · belgilash · tartib · so'zlar · xato qator
+const PLAN_16 = [
+  { id: '01', tag: 'kesishma-emas-birlashma-deb-oylash',
+    ok: [tap('[data-opt="0"]')],
+    no: [tap('[data-opt="1"]')] },                    // «va» ni «yoki» deb o'qidi
+  { id: '02', tag: 'chegara-turini-notogri-kochirish',
+    ok: ['s1:yes', 's2:yes', 's3:no'].map((x) => tap(`[data-tf="${x}"]`)),
+    no: ['s1:yes', 's2:no', 's3:no'].map((x) => tap(`[data-tf="${x}"]`)) }, // qat'iy emas chegara chiqarib tashlandi
+  { id: '03', tag: 'faqat-bitta-tengsizlikni-tekshirish',
+    ok: [{ fill: ['c3', '3'] }, { fill: ['c4', '4'] }],
+    no: [{ fill: ['c3', '6'] }, { fill: ['c4', '4'] }] },   // ikkiga bo'lish qadami tashlab ketildi
+  { id: '04', tag: 'faqat-bitta-tengsizlikni-tekshirish',
+    ok: ['i1:a', 'i2:a', 'i3:b', 'i4:b', 'i5:c', 'i6:c'].map((x) => zone(...x.split(':'))),
+    no: ['i1:a', 'i2:a', 'i3:a', 'i4:b', 'i5:c', 'i6:c'].map((x) => zone(...x.split(':'))) }, // qat'iy chegara yechim deb olindi
+  { id: '05', tag: 'faqat-bitta-tengsizlikni-tekshirish',
+    ok: [{ fill: ['set', '2; 3'] }],
+    no: [{ fill: ['set', '2; 3; 4'] }] },             // qat'iy chegara javobga kiritildi
+  { id: '06', tag: 'chegara-turini-notogri-kochirish',
+    ok: [tap('[data-tick="1"]'), tap('[data-tick="7"]'),
+      tap('[data-ctl="closed:1"]'), tap('[data-ctl="open:7"]')],
+    no: [tap('[data-tick="1"]'), tap('[data-tick="7"]'),
+      tap('[data-ctl="open:1"]'), tap('[data-ctl="open:7"]')] }, // ikkala chegara bir xil qilib qo'yildi
+  { id: '07', tag: 'faqat-bitta-tengsizlikni-tekshirish',
+    ok: [node(-2, 0), node(2, 0), node(-1, 0)],
+    no: [node(-2, 0), node(2, 0), node(1, 0)] },      // chiziqning chegarasi tushib qoldi
+  { id: '08', tag: 'kesishma-emas-birlashma-deb-oylash',
+    ok: ['c1', 'c2', 'c3', 'c4', 'c5'].map((x) => tap(`[data-card="${x}"]`)),
+    no: ['c1', 'c2', 'c4', 'c3', 'c5'].map((x) => tap(`[data-card="${x}"]`)) }, // umumiy qism ikkinchi yechimdan oldin
+  { id: '09', tag: 'kesishma-emas-birlashma-deb-oylash',
+    ok: [cloze('w1', 0), cloze('w2', 1), cloze('w3', 2)],
+    no: [cloze('w4', 0), cloze('w2', 1), cloze('w3', 2)] },  // «hech bo'lmasa bittasi» — «yoki» ta'rifi
+  { id: '10', tag: 'kesishma-yoq-holatni-tanimaslik',
+    ok: [tap('[data-row="r3"]')],
+    no: [tap('[data-row="r4"]')] },                   // oxirgi qator tanlandi, birinchi xato emas
+];
+
+// ============================================================ 17-DARS
+// Kasr-ratsional tengsizliklar. Tartib (layout.mjs, n = 17):
+//   jadval · ha-yo'q · test · nol nuqtalar · o'q ·
+//   belgilash · guruhlar · xato qator · so'zlar · tartib
+const PLAN_17 = [
+  { id: '01', tag: 'nollarni-toliq-belgilamaslik',
+    ok: [{ fill: ['c3', '3'] }, { fill: ['c4', '2'] }],
+    no: [{ fill: ['c3', '1'] }, { fill: ['c4', '2'] }] },   // maxraj noli qiymat beradi deb o'yladi
+  { id: '02', tag: 'maxraj-nolini-javobga-kiritish',
+    ok: ['s1:yes', 's2:no', 's3:no'].map((x) => tap(`[data-tf="${x}"]`)),
+    no: ['s1:yes', 's2:yes', 's3:no'].map((x) => tap(`[data-tf="${x}"]`)) }, // maxraj noli javobga kiritildi
+  { id: '03', tag: 'maxrajga-korpaytirib-yechish',
+    ok: [tap('[data-opt="0"]')],
+    no: [tap('[data-opt="2"]')] },                    // to'g'ri, lekin savolga javob bermaydigan sabab
+  { id: '04', tag: 'nollarni-toliq-belgilamaslik',
+    ok: [{ fill: ['set', '−1; 1; 6'] }],
+    no: [{ fill: ['set', '−1; 1'] }] },               // maxraj noli sanalmadi
+  { id: '05', tag: 'maxraj-nolini-javobga-kiritish',
+    ok: [tap('[data-tick="-1"]'), tap('[data-tick="4"]'),
+      tap('[data-ctl="closed:-1"]'), tap('[data-ctl="open:4"]')],
+    no: [tap('[data-tick="-1"]'), tap('[data-tick="4"]'),
+      tap('[data-ctl="closed:-1"]'), tap('[data-ctl="closed:4"]')] }, // maxraj noli bo'yalgan
+  { id: '06', tag: 'maxraj-nolini-javobga-kiritish',
+    ok: [node(3, 0)],
+    no: [node(-1, 0)] },                              // maxraj nolida nuqta bor deb o'yladi
+  { id: '07', tag: 'nollarni-toliq-belgilamaslik',
+    ok: ['i1:a', 'i2:a', 'i3:b', 'i4:b', 'i5:c', 'i6:c'].map((x) => zone(...x.split(':'))),
+    no: ['i1:a', 'i2:a', 'i3:a', 'i4:b', 'i5:c', 'i6:c'].map((x) => zone(...x.split(':'))) }, // maxraj noli surat noli deb olindi
+  { id: '08', tag: 'surat-maxrajni-qisqartirib-yoqotish',
+    ok: [tap('[data-row="r3"]')],
+    no: [tap('[data-row="r4"]')] },                   // tekshiruv qatori xato deb o'yladi
+  { id: '09', tag: 'maxraj-nolini-javobga-kiritish',
+    ok: [cloze('w1', 0), cloze('w2', 1), cloze('w3', 2)],
+    no: [cloze('w4', 0), cloze('w2', 1), cloze('w3', 2)] },  // «ikkala tomonga» ko'chirish
+  { id: '10', tag: 'maxrajga-korpaytirib-yechish',
+    ok: ['c1', 'c2', 'c3', 'c4', 'c5'].map((x) => tap(`[data-card="${x}"]`)),
+    no: ['c1', 'c2', 'c4', 'c3', 'c5'].map((x) => tap(`[data-card="${x}"]`)) }, // almashtirish boshlang'ich ishoradan oldin
+];
+
 export const LESSONS = [
   { id: 'dars01', route: '/9-sinf/matematika/amaliy/dars01-amaliyot', plan: PLAN_01 },
   { id: 'dars02', route: '/9-sinf/matematika/amaliy/dars02-amaliyot', plan: PLAN_02 },
@@ -401,6 +670,13 @@ export const LESSONS = [
   { id: 'dars08', route: '/9-sinf/matematika/amaliy/dars08-amaliyot', plan: PLAN_08 },
   { id: 'dars09', route: '/9-sinf/matematika/amaliy/dars09-amaliyot', plan: PLAN_09 },
   { id: 'dars10', route: '/9-sinf/matematika/amaliy/dars10-amaliyot', plan: PLAN_10 },
+  { id: 'dars11', route: '/9-sinf/matematika/amaliy/dars11-amaliyot', plan: PLAN_11 },
+  { id: 'dars12', route: '/9-sinf/matematika/amaliy/dars12-amaliyot', plan: PLAN_12 },
+  { id: 'dars13', route: '/9-sinf/matematika/amaliy/dars13-amaliyot', plan: PLAN_13 },
+  { id: 'dars14', route: '/9-sinf/matematika/amaliy/dars14-amaliyot', plan: PLAN_14 },
+  { id: 'dars15', route: '/9-sinf/matematika/amaliy/dars15-amaliyot', plan: PLAN_15 },
+  { id: 'dars16', route: '/9-sinf/matematika/amaliy/dars16-amaliyot', plan: PLAN_16 },
+  { id: 'dars17', route: '/9-sinf/matematika/amaliy/dars17-amaliyot', plan: PLAN_17 },
 ];
 
 export const VIEWPORTS = [

@@ -2,7 +2,8 @@
 // Mavzu: TENGLAMALAR SISTEMASI.
 //
 // Raskladka skriptdan: `scripts/grade9-practice-layout.mjs` (9-dars).
-// Skelet:  src/books/grade9/DARS09_13_AMALIYOT_SKELET.md
+// Skelet:  YOZILMAGAN — 9 va 10-dars skeletsiz yig'ilgan.
+//          Sabab va qaror: DARS11_17_AMALIYOT_SKELET.md §0.
 // Kontent: `node scripts/grade9-practice-kontent.mjs 09`
 //
 // Bu dars B blokini ochadi. Uchta 🟢 ketma-ket kelgani uchun boshlanish
