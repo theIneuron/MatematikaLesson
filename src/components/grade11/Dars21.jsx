@@ -242,7 +242,7 @@ const S4 = {
       { n: 20, tone: 'accent', label: L('faqat nemis', 'только нем.', 'German only') },
       { n: 20, tone: 'dim', label: L('hech qaysi', 'ни один', 'neither') },
     ],
-    caption: L('40 + 20 + 20 = 80', '40 + 20 + 20 = 80', '40 + 20 + 20 = 80'),
+    caption: '40 + 20 + 20 = 80',
     height: 98,
   },
   cellSteps: 3,

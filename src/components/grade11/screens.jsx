@@ -81,6 +81,7 @@ import {
   RuleGate,
   SignFill,
   SolutionLine,
+  PlaneBoard,
   SecantBoard,
   SpaceFrame,
   SupportCards,
@@ -251,6 +252,14 @@ export const TAG_NAMES = {
   stationary_not_extremum: L('statsionar nuqta va ekstremum', 'стационарная точка и экстремум', 'a stationary point and an extremum'),
   endpoint_value: L('kesma uchlari', 'концы отрезка', 'the endpoints of the interval'),
   root_modulus: L('juft darajali ildiz va modul', 'корень чётной степени и модуль', 'an even root and the modulus'),
+  // B7 bloki (51-56). Geometriyani takrorlash.
+  pyth_check: L('kvadratlar sinovi', 'проверка квадратов', 'the square test'),
+  height_vs_median: L('balandlik va mediana', 'высота и медиана', 'the height and the median'),
+  mid_line: L("o'rta chiziq", 'средняя линия', 'the middle line'),
+  inscribed_angle: L('ichki va markaziy burchak', 'вписанный и центральный угол', 'inscribed and central angle'),
+  similar_area: L("o'xshashlikda yuza", 'площадь при подобии', 'area under similarity'),
+  tangent_radius: L('urinma va radius', 'касательная и радиус', 'a tangent and the radius'),
+  circle_len_vs_area: L('uzunlik va yuza', 'длина и площадь', 'length and area'),
 }
 
 // ============================================================
@@ -587,7 +596,12 @@ export function GraphBody({ data, phase, audio, solve, t }) {
               45-darsda ikkita nuqta bir vaqtda chiqib qolsa, ovoz
               birinchisini aytayotganda ikkinchisi allaqachon ekranda
               turgan bo'lardi. */}
-          {data.secant
+          {/* B7 bloki: `graph` roli TEKIS chizmani chizadi -- uchburchak,
+              aylana, o'xshashlik. Rol o'zgarmaydi, MA'LUMOT o'zgaradi.
+              Elementlar `showAt` bilan ochiladi. */}
+          {data.plane
+            ? <PlaneBoard {...data.plane} phase={graphPhase} />
+            : data.secant
             ? (
               <SecantBoard
                 {...data.secant}
