@@ -189,6 +189,10 @@ export function PlacePoint({ data, lang = 'uz', mode = 'answer', initialAnswer =
   }, [pts, data, lang, playCorrect, playWrong, onSubmit]);
   useRegister(check, registerCheck);
 
+  // Bitta egri chiziq `curve`, bir nechtasi `curves`. Ikkinchisi
+  // 10-darsda kerak bo'ldi: grafik usulda IKKALA grafik ham chiziladi.
+  const curves = (data.curves || (data.curve ? [data.curve] : []))
+    .map((c) => (typeof c === 'function' ? { f: c } : c));
   const nodes = [];
   for (let x = x0; x <= x1; x += 1) for (let y = y0; y <= y1; y += 1) nodes.push([x, y]);
   const dotCol = A.checked ? (A.fb?.correct ? C.ok : C.no) : C.hot;
@@ -202,6 +206,7 @@ export function PlacePoint({ data, lang = 'uz', mode = 'answer', initialAnswer =
           topshiriq 1366x615 kadridan 18px chiqib ketardi. Telefonda ham
           sig'adi: jadval 164px, tekislik 186px, o'rami 390px. */}
       <div style={{ display: 'flex', gap: phone ? 6 : 14, alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' }}>
+      {(data.expr || data.table) ? (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
       {data.expr ? (
         <div style={{ textAlign: 'center' }}>
@@ -209,7 +214,9 @@ export function PlacePoint({ data, lang = 'uz', mode = 'answer', initialAnswer =
         </div>
       ) : null}
       {/* JADVAL GORIZONTAL: yuqori qator — argument, pastki qator — qiymat.
-          Bo'sh katak savol belgisi bilan turadi. */}
+          Bo'sh katak savol belgisi bilan turadi. Jadval IXTIYORIY: 2 va
+          4-darsda tekislikda parabola turadi, jadval esa kerak emas. */}
+      {data.table ? (
       <div style={{ display: 'flex', justifyContent: 'center', overflowX: 'auto' }}>
         <div style={{ display: 'flex', flexDirection: 'column', border: '1.5px solid ' + C.pale, borderRadius: 9, overflow: 'hidden' }}>
           <div style={{ display: 'flex' }}>
@@ -226,10 +233,15 @@ export function PlacePoint({ data, lang = 'uz', mode = 'answer', initialAnswer =
           </div>
         </div>
       </div>
+      ) : null}
       </div>
+      ) : null}
 
         <div style={{ position: 'relative', width: W + 26, height: Hh + 22 }}>
           <svg width={W + 26} height={Hh + 22} style={{ position: 'absolute', left: 0, top: 0 }}>
+            <defs>
+              <clipPath id="g9pp-clip"><rect x="0" y="0" width={W} height={Hh} /></clipPath>
+            </defs>
             <g transform="translate(20,2)">
               {/* to'r */}
               {Array.from({ length: x1 - x0 + 1 }, (_, i) => (
@@ -254,9 +266,30 @@ export function PlacePoint({ data, lang = 'uz', mode = 'answer', initialAnswer =
               {Array.from({ length: y1 - y0 + 1 }, (_, i) => y0 + i).filter((v) => v !== 0).map((v) => (
                 <text key={'ty' + v} x={px(0) - 5} y={py(v) + 3.5} textAnchor="end" style={{ ...S.mono, fontSize: 9.5, fill: C.mute }}>{v}</text>
               ))}
+              {/* EGRI CHIZIQ — masalan parabola. `curve` matematikaning o'zi,
+                  ya'ni ma'lumotda turadi va til blokidan tashqarida. */}
+              {curves.map((c, ci) => (
+                <polyline key={'cv' + ci}
+                  points={Array.from({ length: 97 }, (_, i) => {
+                    const x = x0 + ((x1 - x0) * i) / 96;
+                    return px(x) + ',' + py(c.f(x));
+                  }).join(' ')}
+                  fill="none" stroke={c.color || C.hot} strokeWidth="2.4" strokeLinecap="round"
+                  strokeLinejoin="round" opacity=".85"
+                  strokeDasharray={c.dash || undefined} clipPath="url(#g9pp-clip)" />
+              ))}
               {/* tugunlar ko'rinib turadi */}
               {nodes.map(([x, y]) => (
                 <circle key={x + ':' + y} cx={px(x)} cy={py(y)} r="1.6" fill="#cfd6e0" />
+              ))}
+              {/* OLDINDAN BELGILANGAN nuqtalar: javobga kirmaydi, lekin
+                  ularsiz «bunga simmetrik nuqtani qo'ying» degan topshiriqni
+                  umuman qo'yib bo'lmaydi — nimaga nisbatan ekani ko'rinmaydi. */}
+              {(data.marks || []).map((m) => (
+                <g key={'m' + m[0] + ':' + m[1]}>
+                  <circle cx={px(m[0])} cy={py(m[1])} r="5" fill={C.ink} />
+                  <text x={px(m[0]) + 9} y={py(m[1]) - 7} style={{ ...S.mono, fontSize: 10.5, fill: C.soft }}>{'(' + fmt(m[0]) + '; ' + fmt(m[1]) + ')'}</text>
+                </g>
               ))}
               {/* QO'YILGAN NUQTA O'Z KOORDINATASI BILAN TURADI: o'quvchi nimani
                   qo'yganini KO'RADI, sanab chiqishi shart emas. Yozuv nuqtadan
@@ -412,58 +445,129 @@ export function TypeSet({ data, lang = 'uz', mode = 'answer', initialAnswer = nu
 }
 
 // ============================================================ 4. DOMAINAXIS
-// Aniqlanish sohasi sonlar o'qida. UCHTA narsa so'raladi va uchalasi ham
-// tekshiriladi: chegara qayerda, u sohaga kiradimi (bo'yalgan yoki bo'sh
-// nuqta) va soha qaysi tomonga ketadi.
+// Javobni SONLAR O'QIDA ko'rsatish. Uchta rejim bor, `data.mode` bilan:
 //
-// `NumberLine` (umumiy qatlam) bularning faqat birinchisini biladi: u
-// bo'linmalarni belgilaydi, xolos. `x ≥ 5` bilan `x > 5` esa boshqa javob,
-// va razbor NUQTA haqida gapirishi kerak — shuning uchun o'z mexanikasi.
+//   ray       chegara + nuqta turi + yo'nalish  — `x ≥ 3`, aniqlanish sohasi,
+//             o'sish oralig'i, musbat qiymatlar nuri. STANDART rejim.
+//   interval  IKKI chegara, har birining O'Z nuqta turi bilan — `−1 ≤ x ≤ 5`.
+//   point     bitta nuqta + turi, yo'nalishsiz — tenglamaning ildizi,
+//             ODZ dan chiqarib tashlangan son.
+//
+// NEGA UCHTA (2026-08-27). 1-4-darslarda javob har doim NUR edi va bitta
+// chegara yetardi. 6-darsda javob oraliq, 7-darsda bitta nuqta, 8-darsda
+// chiqarib tashlangan nuqta — ya'ni bitta chegara endi yetmaydi. Rejimsiz
+// yozilgan `data` avvalgidek `ray` bo'lib qolaveradi, shuning uchun
+// 1-4-darslar tegilmaydi.
+//
+// NUQTA TURI HAR REJIMDA SO'RALADI (`TIPLAR §2.1` p. 5): `x ≤ 5` bilan
+// `x < 5` boshqa javob, va razbor NUQTA haqida gapiradi. `interval` da
+// ikki chegara har xil turda bo'lishi mumkin — 17-darsda surat noli
+// javobga kiradi, maxraj noli esa hech qachon.
+//
+// `NumberLine` (umumiy qatlam) bularning hech birini bilmaydi: u faqat
+// bo'linmalarni belgilaydi.
 export function DomainAxis({ data, lang = 'uz', mode = 'answer', initialAnswer = null, playCorrect, playWrong, onReady, registerCheck, onSubmit }) {
   const phone = useIsPhone();
-  const [at, setAt] = useState(null);
-  const [closed, setClosed] = useState(null);
+  const kind = data.mode || 'ray';
+  const need = kind === 'interval' ? 2 : 1;
+  const wantsDir = kind === 'ray';
+  // `marks` — tanlangan chegaralar: { at, closed }. Tartib `at` bo'yicha.
+  const [marks, setMarks] = useState([]);
   const [dir, setDir] = useState(null);
-  const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa) { setAt(sa.at ?? null); setClosed(sa.closed ?? null); setDir(sa.dir ?? null); } } });
-  const ready = at !== null && closed !== null && dir !== null;
+  const A = useAnswer({ mode, initialAnswer, restore: (sa) => { if (sa) { setMarks(sa.marks || []); setDir(sa.dir ?? null); } } });
+  const full = marks.length === need && marks.every((m) => m.closed !== null);
+  const ready = full && (!wantsDir || dir !== null);
   useEffect(() => { onReady?.(ready && !A.checked); }, [ready, A.checked, onReady]);
 
   const { from, to } = data.axis;
   const st = phone ? 25 : 30;
   const W = (to - from) * st;
   const px = (x) => (x - from) * st;
+  const fmtN = (v) => (v < 0 ? '−' + Math.abs(v) : String(v));
+
+  const tapTick = (v) => {
+    if (A.locked) return;
+    setMarks((s) => {
+      const i = s.findIndex((m) => m.at === v);
+      if (i !== -1) return s.filter((_, j) => j !== i);
+      // TO'LGANDA ORTIQCHA BOSISH HECH NIMANI O'CHIRMAYDI (1-dars 04-topshirig'i
+      // bilan bir xil qoida): chegarani olib tashlash uchun uning o'zini bosish.
+      if (s.length >= need) return s;
+      return s.concat([{ at: v, closed: null }]).sort((a, b) => a.at - b.at);
+    });
+  };
+  const setType = (at, closed) => {
+    if (A.locked) return;
+    setMarks((s) => s.map((m) => (m.at === at ? { ...m, closed } : m)));
+  };
 
   const check = useCallback(() => {
     const a = data.answer;
-    const atOk = at === a.at;
-    const closedOk = closed === a.closed;
-    const dirOk = dir === a.dir;
+    const mine = marks.slice().sort((p, q) => p.at - q.at);
+    let want;
+    if (kind === 'interval') want = [a.a, a.b].slice().sort((p, q) => p.at - q.at);
+    else want = [{ at: a.at, closed: a.closed }];
+    const atOk = mine.length === want.length && mine.every((m, i) => m.at === want[i].at);
+    const closedOk = atOk && mine.every((m, i) => m.closed === want[i].closed);
+    const dirOk = !wantsDir || dir === a.dir;
     const correct = atOk && closedOk && dirOk;
-    A.setFb({ correct, why: correct ? null : pickWhy(data, { at, closed, dir, atOk, closedOk, dirOk }, lang) });
+    // RAZBOR SHARTLARI 1-darsdagi nomlar bilan qoladi (`at`, `closed`, `dir`),
+    // aks holda 1-4-darslarning `wrongs` lari ishlamay qolardi.
+    const st0 = {
+      marks: mine, at: mine[0] ? mine[0].at : null, closed: mine[0] ? mine[0].closed : null,
+      a: mine[0] || null, b: mine[1] || null, dir, atOk, closedOk, dirOk,
+      has: (v) => mine.some((m) => m.at === v),
+    };
+    A.setFb({ correct, why: correct ? null : pickWhy(data, st0, lang) });
     A.setChecked(true);
     correct ? playCorrect?.() : playWrong?.();
     onSubmit?.(submitPayload(data, {
-      questionText: tr(data.ask, lang), studentAnswer: { at, closed, dir },
-      correctAnswer: { at: a.at, closed: a.closed, dir: a.dir }, correct,
+      questionText: tr(data.ask, lang), studentAnswer: { marks: mine, dir },
+      correctAnswer: { marks: want, dir: a.dir ?? null }, correct,
     }));
-  }, [at, closed, dir, data, lang, playCorrect, playWrong, onSubmit]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [marks, dir, data, lang, playCorrect, playWrong, onSubmit]);
   useRegister(check, registerCheck);
 
   const col = A.checked ? (A.fb?.correct ? C.ok : C.no) : C.hot;
   const ticks = Array.from({ length: to - from + 1 }, (_, i) => from + i);
+  const shade = (() => {
+    if (kind === 'interval' && marks.length === 2) return { x1: px(marks[0].at), x2: px(marks[1].at) };
+    if (kind === 'ray' && marks.length === 1 && dir) {
+      return dir === 'right' ? { x1: px(marks[0].at), x2: W } : { x1: 0, x2: px(marks[0].at) };
+    }
+    return null;
+  })();
 
   const ctl = (on, onClick, label, key) => (
     <button key={key} type="button" data-ctl={key} disabled={A.locked} onClick={onClick}
       style={{
-        padding: phone ? '5px 9px' : '6px 12px', borderRadius: 10, fontSize: phone ? 12.5 : 13.5, fontWeight: 700,
+        padding: phone ? '4px 8px' : '5px 11px', borderRadius: 10, fontSize: phone ? 12 : 13, fontWeight: 700,
         border: '2px solid ' + (on ? C.hot : '#d6dae3'), background: on ? C.hotBg : '#fff',
         color: on ? C.ink : C.soft, cursor: A.locked ? 'default' : 'pointer', fontFamily: 'inherit',
       }}>{label}</button>
   );
 
+  // Nuqta turining tugmalari: BITTA chegarada belgisiz (`closed` / `open`),
+  // ikkitasida esa chegara soni bilan (`closed:−1`). Shu bilan 1-4-darslarning
+  // tekshiruv rejasi tegilmaydi.
+  const typeRow = (m) => {
+    const sfx = need === 1 ? '' : ':' + m.at;
+    return (
+      <div key={'t' + m.at} style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+        {need > 1 ? <span style={{ ...S.mono, fontSize: 12.5, color: C.soft }}>{fmtN(m.at)}</span> : null}
+        {ctl(m.closed === true, () => setType(m.at, true), tr(data.closedLabel, lang), 'closed' + sfx)}
+        {ctl(m.closed === false, () => setType(m.at, false), tr(data.openLabel, lang), 'open' + sfx)}
+      </div>
+    );
+  };
+
   return (
     <div style={S.wrap}>
       <Head data={data} lang={lang} done={A.checked} />
+      {/* `Given` — grafik uchun (2-darsda o'sish oralig'i grafikdan o'qiladi).
+          1-dars `fig` bermaydi, demak u yerda hech nima o'zgarmaydi. */}
+      <Given data={data} lang={lang} />
       {data.expr ? (
         <div style={{ textAlign: 'center', margin: '2px 0 6px' }}>
           <Row tokens={data.expr} size={data.exprSize || (phone ? 24 : 28)} />
@@ -472,21 +576,20 @@ export function DomainAxis({ data, lang = 'uz', mode = 'answer', initialAnswer =
       <div style={{ overflowX: 'auto' }}>
         <svg width={W + 24} height="56" style={{ display: 'block', margin: '0 auto' }}>
           <g transform="translate(12,0)">
-            {/* SOHA chegaradan tanlangan tomonga ketadi */}
-            {at !== null && dir ? (
-              <line x1={dir === 'right' ? px(at) : 0} y1="24" x2={dir === 'right' ? W : px(at)} y2="24"
+            {shade ? (
+              <line x1={shade.x1} y1="24" x2={shade.x2} y2="24"
                 stroke={col} strokeWidth="5" strokeLinecap="round" opacity=".35" />
             ) : null}
             <line x1="0" y1="24" x2={W} y2="24" stroke={C.line} strokeWidth="1.8" />
             {ticks.map((v) => (
               <g key={v}>
                 <line x1={px(v)} y1="19" x2={px(v)} y2="29" stroke={C.line} strokeWidth="1.4" />
-                <text x={px(v)} y="44" textAnchor="middle" style={{ ...S.mono, fontSize: 10, fill: v === at ? C.hot : C.mute }}>{v}</text>
+                <text x={px(v)} y="44" textAnchor="middle" style={{ ...S.mono, fontSize: 10, fill: marks.some((m) => m.at === v) ? C.hot : C.mute }}>{v}</text>
               </g>
             ))}
-            {at !== null ? (
-              <circle cx={px(at)} cy="24" r="6.5" fill={closed ? col : '#fff'} stroke={col} strokeWidth="3" />
-            ) : null}
+            {marks.map((m) => (
+              <circle key={'c' + m.at} cx={px(m.at)} cy="24" r="6.5" fill={m.closed ? col : '#fff'} stroke={col} strokeWidth="3" />
+            ))}
           </g>
         </svg>
         <div style={{ position: 'relative', height: 0 }} />
@@ -495,7 +598,7 @@ export function DomainAxis({ data, lang = 'uz', mode = 'answer', initialAnswer =
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: -56, height: 34, overflowX: 'auto' }}>
         <div style={{ position: 'relative', width: W + 24 }}>
           {ticks.map((v) => (
-            <button key={v} type="button" data-tick={v} disabled={A.locked} onClick={() => setAt(v)}
+            <button key={v} type="button" data-tick={v} disabled={A.locked} onClick={() => tapTick(v)}
               style={{
                 position: 'absolute', left: 12 + px(v) - st / 2, top: 0, width: st, height: 34,
                 border: 0, background: 'transparent', padding: 0, cursor: A.locked ? 'default' : 'pointer',
@@ -504,11 +607,14 @@ export function DomainAxis({ data, lang = 'uz', mode = 'answer', initialAnswer =
         </div>
       </div>
       <div style={{ height: 24 }} />
-      <div style={{ display: 'flex', gap: 6, justifyContent: 'center', flexWrap: 'wrap', marginTop: 2 }}>
-        {ctl(closed === true, () => !A.locked && setClosed(true), tr(data.closedLabel, lang), 'closed')}
-        {ctl(closed === false, () => !A.locked && setClosed(false), tr(data.openLabel, lang), 'open')}
-        {ctl(dir === 'left', () => !A.locked && setDir('left'), '←', 'left')}
-        {ctl(dir === 'right', () => !A.locked && setDir('right'), '→', 'right')}
+      <div style={{ display: 'flex', gap: phone ? 8 : 14, justifyContent: 'center', flexWrap: 'wrap', marginTop: 2 }}>
+        {marks.map(typeRow)}
+        {wantsDir ? (
+          <div style={{ display: 'flex', gap: 5 }}>
+            {ctl(dir === 'left', () => !A.locked && setDir('left'), '←', 'left')}
+            {ctl(dir === 'right', () => !A.locked && setDir('right'), '→', 'right')}
+          </div>
+        ) : null}
       </div>
       {!A.locked ? <div style={{ ...S.note, marginTop: 7, textAlign: 'center' }}>{tr(data.ask, lang)}</div> : null}
       {A.fb && <HFB ok={A.fb.correct} text={A.fb.correct ? tr(data.correctText, lang) : A.fb.why} />}
