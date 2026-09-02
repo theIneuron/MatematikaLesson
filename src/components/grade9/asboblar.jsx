@@ -493,8 +493,20 @@ export function CheckReveal({ ask, items, done, card, graph, audio, onSolved, on
 // qolipidan OLINGAN KOD emas, xuddi shu TASHQI KO'RINISH, 9-sinfning o'z
 // uslubida qayta yozilgan.
 // ============================================================
-export function RecallMC({ intro, formula, steps, ask, items, after, cols = 1, audio, onSolved, onStep }) {
+// 2026-08-28: `figure` qo'shildi — 35-darsdan boshlanadigan GEOMETRIYA
+// bloki uchun. U yerda savol chizmasiz ma'nosiz bo'ladi, lekin qo'l
+// harakati o'sha-o'sha: variantni tanlash. Ya'ni yangi asbob yasash
+// noto'g'ri bo'lardi (sinf qoidasi: asbob yangi HARAKATGA beriladi),
+// to'g'risi — mavjud asbobga chizma slotini ochish. Berilmasa, hech
+// narsa o'zgarmaydi.
+// `steps[].lines` ARALASH KONTRAKT: oddiy satr XOM ko'rsatiladi (matematika
+// uchun), L() esa tarjima qilinadi. Ilgari bu yerda faqat xom satr chiqarilardi
+// va uchta darsda o'zbekcha so'z («umumiy», «yoki», «gipotenuza») uchala tilda
+// ham o'zbekcha ko'rinardi (topildi 2026-08-28). Gate pribori allaqachon
+// shunday ishlaydi, endi RecallMC ham.
+export function RecallMC({ intro, formula, steps, ask, items, after, figure, cols = 1, audio, onSolved, onStep }) {
   const t = useT()
+  const tLine = (l) => (typeof l === 'string' ? l : t(l))
   const sfx = useSfx()
   const canAnswer = useInstructionGate(audio)
   const [revealed, setRevealed] = useState([])
@@ -538,6 +550,7 @@ export function RecallMC({ intro, formula, steps, ask, items, after, cols = 1, a
 
   return (
     <>
+      {figure ? <div className="g9-figslot">{figure}</div> : null}
       {steps && steps.length ? (
         <div className={'g9-scatter' + (note ? ' is-compact' : '')}>
           {intro && !note ? <div className="g9-theory-line is-note">{t(intro)}</div> : null}
@@ -562,7 +575,7 @@ export function RecallMC({ intro, formula, steps, ask, items, after, cols = 1, a
                         noto'g'ri matn ko'rinadi (2026-08-27, Dars05/07/08 da 11 joy).
                         `tr` oddiy satrni o'zgarishsiz qaytaradi, shuning uchun
                         eski chaqiriqlar buzilmaydi. */}
-                    {isRevealed ? s.lines[s.lines.length - 1] : t(s.head) + ' = ?'}
+                    {isRevealed ? tLine(s.lines[s.lines.length - 1]) : t(s.head) + ' = ?'}
                   </span>
                 </button>
               )
@@ -583,7 +596,7 @@ export function RecallMC({ intro, formula, steps, ask, items, after, cols = 1, a
                     className="g9-hderiv-line"
                     style={{ fontFamily: MATH_FONT, animationDelay: (i * 200) + 'ms' }}
                   >
-                    {line}
+                    {tLine(line)}
                   </div>
                 ))}
               </div>
@@ -1375,8 +1388,15 @@ export function RuleBuild({ steps, card, after, onSolved, onStep, audio }) {
 // Oxirida javob o'quvchining AJRATISHIDAN yig'iladi: to'silgan sonlar shartga
 // aylanadi. Tayyor variantlardan tanlash yo'q.
 // ============================================================
+// 2026-08-28: Gate 30-darsda EHTIMOLLIK uchun kerak bo'ldi — u yerda
+// ham navbat kelib, ikkita savatga ajratiladi, lekin savatlar «o'tadi /
+// qiymati yo'q» emas, «qulay / qulay emas». Asbobni nusxalash o'rniga
+// UCH DONA yozuv parametrga chiqarildi: `capYes`, `capNo`, `varLabel`.
+// Berilmasa — eski matn, ya'ni 14-17-darslar o'zgarmaydi. Sabab
+// yozilgan grabli: umumiy mexanika begona chizmani sudrab keladi.
 export function Gate({
-  formula, f, queue, ask, answer, after, calcOf, warmup, chart, fact, onSolved, audio, onStep,
+  formula, f, queue, ask, answer, after, calcOf, warmup, chart, fact,
+  capYes, capNo, varLabel, onSolved, audio, onStep,
 }) {
   const t = useT()
   const sfx = useSfx()
@@ -1438,7 +1458,11 @@ export function Gate({
 
   return (
     <>
-      <div className="g9-gate-head" style={{ fontFamily: MATH_FONT }}>{formula}</div>
+      {/* 2026-08-28: `formula` XOM chiqarilardi va L() berilganda ekran
+          yiqilardi (30-dars, Playwright tutdi). t() qo'shildi: oddiy
+          satrni u o'zgartirmasdan qaytaradi, shuning uchun 14-17-darslar
+          tegilmagan. Bu sinfdagi to'rtinchi shunday joy. */}
+      <div className="g9-gate-head" style={{ fontFamily: MATH_FONT }}>{t(formula)}</div>
 
       {/* 2026-08-24: metodist «javobdan keyin bu qisqarsin, o'rniga grafik
           va jadval chiqsin» — tushuntirish kartochkasi hal bo'lgach ENDI
@@ -1479,13 +1503,13 @@ export function Gate({
         <>
           <div className="g9-gate">
             <div className="g9-bin">
-              <span className="g9-bin-cap">{t(TXT.passes)}</span>
+              <span className="g9-bin-cap">{t(capYes || TXT.passes)}</span>
               <span className="g9-bin-row" style={{ fontFamily: MATH_FONT }}>
                 {passed.map((v) => <b key={'p' + v} className="g9-pair">{fmt(v)}</b>)}
               </span>
             </div>
             <div className="g9-bin is-no">
-              <span className="g9-bin-cap">{t(TXT.blocked)}</span>
+              <span className="g9-bin-cap">{t(capNo || TXT.blocked)}</span>
               <span className="g9-bin-row" style={{ fontFamily: MATH_FONT }}>
                 {blocked.map((v) => <b key={'b' + v} className="g9-pair">{fmt(v)}</b>)}
               </span>
@@ -1498,12 +1522,12 @@ export function Gate({
                 <Ask>{t(ask)}</Ask>
                 <div className="g9-queue-row">
                   <span className="g9-queue-num" style={{ fontFamily: MATH_FONT }}>
-                    x = {fmt(cur.v)}
+                    {(varLabel ? t(varLabel) + ' ' : 'x = ') + fmt(cur.v)}
                   </span>
                   <button type="button" className="g9-go is-ok" disabled={!canAnswer}
-                    onClick={() => send(true)}>{t(TXT.passes)}</button>
+                    onClick={() => send(true)}>{t(capYes || TXT.passes)}</button>
                   <button type="button" className="g9-go is-no" disabled={!canAnswer}
-                    onClick={() => send(false)}>{t(TXT.blocked)}</button>
+                    onClick={() => send(false)}>{t(capNo || TXT.blocked)}</button>
                 </div>
               </div>
             ) : chart ? null : (
@@ -2844,6 +2868,761 @@ export function FreqRun({
 }
 
 // ============================================================
+// 7E. TreeBranch — VARIANTLAR DARAXTI.
+//
+// NEGA ASBOB KERAK. Ko'paytirish qoidasini aytib berish mumkin, lekin
+// «nega ko'paytiriladi, qo'shilmaydi» degan savolga so'z javob bermaydi.
+// Javob CHIZMADA: birinchi tanlovning har bir shoxidan ikkinchi
+// tanlovning HAMMA shoxlari chiqadi, shuning uchun yo'llar soni
+// ko'payadi. Bola darajalarni birma-bir ochadi va shoxlar ko'payishini
+// o'z ko'zi bilan ko'radi, pastdagi hisoblagich esa har qadamda
+// ko'paytmani yozib boradi.
+//
+// `levels` — [{ cap, items: [...] }], har bir daraja bitta tanlov.
+// Ikkitadan ko'p daraja bermaslik kerak: uchinchi darajada barglar
+// telefonga sig'may qoladi.
+// ============================================================
+export function TreeBranch({ levels, ask, openLabel, after, onSolved, audio, onStep }) {
+  const t = useT()
+  const sfx = useSfx()
+  const canAnswer = useInstructionGate(audio)
+  const [open, setOpen] = useState(0)
+  const [note, setNote] = useState(null)
+  const [done, setDone] = useState(false)
+  const stepRef = useRef(onStep)
+  useEffect(() => { stepRef.current = onStep }, [onStep])
+
+  const openNext = () => {
+    if (!canAnswer || done) return
+    const n = open + 1
+    setOpen(n)
+    sfx.playCorrect()
+    if (stepRef.current) stepRef.current('lvl' + n)
+    if (n >= levels.length) {
+      setDone(true)
+      setNote(after || null)
+      if (audio && after) audio.say(t(after))
+      if (onSolved) onSolved({ correct: true, tries: 1 })
+    }
+  }
+
+  const counts = levels.map((lv) => lv.items.length)
+  const paths = counts.slice(0, open).reduce((a, b) => a * b, 1)
+
+  // GEOMETRIYA. Ildiz chapda, darajalar o'ngga qarab ochiladi —
+  // vertikal daraxt telefonda tor bo'lib qoladi, gorizontali esa
+  // barglarni ustma-ust qo'ymaydi.
+  const W = 330, H = 168, X0 = 18
+  const colX = (i) => X0 + 46 + i * 118
+  const leaves = counts.slice(0, Math.max(open, 1)).reduce((a, b) => a * b, 1)
+  const rowY = (k, total) => (H / (total + 1)) * (k + 1)
+
+  const nodes = []          // [{ x, y, label, px, py }]
+  let prev = [{ x: X0, y: H / 2 }]
+  for (let li = 0; li < open; li += 1) {
+    const items = levels[li].items
+    const next = []
+    const total = prev.length * items.length
+    let k = 0
+    prev.forEach((par) => {
+      items.forEach((it) => {
+        const y = rowY(k, total)
+        const x = colX(li)
+        nodes.push({ x, y, label: it, px: par.x, py: par.y, li })
+        next.push({ x, y })
+        k += 1
+      })
+    })
+    prev = next
+  }
+
+  return (
+    <>
+      <Slot mh={40}>{ask ? <Ask>{t(ask)}</Ask> : null}</Slot>
+
+      <div className="g9-tree-wrap">
+        <svg className="g9-tree-svg" viewBox={'0 0 ' + W + ' ' + H} role="img">
+          <circle cx={X0} cy={H / 2} r="5" className="g9-tree-root" />
+          {nodes.map((nd, i) => (
+            <line key={'e' + i} x1={nd.px} y1={nd.py} x2={nd.x - 2} y2={nd.y} className="g9-tree-edge" />
+          ))}
+          {nodes.map((nd, i) => (
+            <g key={'n' + i}>
+              <circle cx={nd.x} cy={nd.y} r="3.4" className="g9-tree-dot" />
+              <text x={nd.x + 6} y={nd.y + 3.4} className="g9-tree-lab">{t(nd.label)}</text>
+            </g>
+          ))}
+          {levels.map((lv, i) => (
+            i < open ? (
+              <text key={'c' + i} x={colX(i)} y="10" className="g9-tree-cap">{t(lv.cap)}</text>
+            ) : null
+          ))}
+        </svg>
+
+        <div className="g9-tree-read" style={{ fontFamily: MATH_FONT }}>
+          {open === 0 ? '?' : counts.slice(0, open).join(' · ') + ' = ' + paths}
+        </div>
+      </div>
+
+      <Slot mh={54}>
+        {!done ? (
+          <div className="g9-chips">
+            <button type="button" className="g9-chip" disabled={!canAnswer} onClick={openNext}>
+              {openLabel ? t(openLabel) : '+'}
+            </button>
+          </div>
+        ) : null}
+      </Slot>
+
+      <Slot mh={52}>
+        {note ? <Note kind="ok">{t(note)}</Note> : null}
+      </Slot>
+    </>
+  )
+}
+
+// ============================================================
+// 7F. UnitCircle — BIRLIK AYLANA VA NUQTANI BURISH.
+//
+// NEGA ASBOB KERAK. Trigonometriyaning butun ta'rifi bitta harakatda:
+// (1; 0) nuqtani burchakka BURISH va hosil bo'lgan nuqtaning
+// koordinatalarini o'qish. Kosinus — abssissa, sinus — ordinata.
+// Bu ta'rifni gapirib berish mumkin, lekin u faqat harakat ko'rilganda
+// ta'rifga aylanadi: bola burchakni tanlaydi, nuqta aylana bo'ylab
+// SILJIYDI (CSS transition, 0,6 s), proyeksiyalar esa u bilan birga
+// qisqaradi va o'sadi.
+//
+// BURISH MUSBAT YO'NALISHDA, ya'ni soat strelkasiga TESKARI — shuning
+// uchun SVG da burchak manfiy ishora bilan beriladi (ekran o'qi pastga
+// qaragan).
+//
+// `marks` — [{ deg, label, x, y }], aylanadagi tanlanadigan burchaklar.
+//     x va y — aniq qiymatlar YOZUVI (satr), hisob emas: 1/2 ni 0,5 deb
+//     ko'rsatish bu darsda noto'g'ri bo'lardi.
+// `tasks` — [{ ask, right, hint }], `right` — marks ichidagi indeks.
+// ============================================================
+export function UnitCircle({ marks, tasks, after, showCoords = true, onSolved, audio, onStep }) {
+  const t = useT()
+  const sfx = useSfx()
+  const canAnswer = useInstructionGate(audio)
+  const [at, setAt] = useState(0)
+  const [sel, setSel] = useState(0)
+  const [note, setNote] = useState(null)
+  const [wrong, setWrong] = useState(null)
+  const [done, setDone] = useState(false)
+  const stepRef = useRef(onStep)
+  useEffect(() => { stepRef.current = onStep }, [onStep])
+
+  const cur = tasks[Math.min(at, tasks.length - 1)]
+  const m = marks[sel]
+
+  const pick = (i) => {
+    if (!canAnswer || done) return
+    setSel(i)
+    if (i !== cur.right) {
+      setWrong(i)
+      setNote(cur.hint || null)
+      sfx.playWrong()
+      return
+    }
+    setWrong(null)
+    setNote(null)
+    sfx.playCorrect()
+    const next = at + 1
+    if (stepRef.current) stepRef.current('turn' + next)
+    if (next >= tasks.length) {
+      setDone(true)
+      setNote(after || null)
+      if (audio && after) audio.say(t(after))
+      if (onSolved) onSolved({ correct: true, tries: 1 })
+    } else {
+      setAt(next)
+    }
+  }
+
+  const W = 300, H = 200, CX = 150, CY = 100, R = 74
+  const deg = m ? m.deg : 0
+  const rad = (deg * Math.PI) / 180
+  const px = CX + R * Math.cos(rad)
+  const py = CY - R * Math.sin(rad)
+  const big = deg > 180 ? 1 : 0
+  const arc = 'M ' + (CX + R * 0.34) + ' ' + CY
+    + ' A ' + (R * 0.34) + ' ' + (R * 0.34) + ' 0 ' + big + ' 0 '
+    + (CX + R * 0.34 * Math.cos(rad)) + ' ' + (CY - R * 0.34 * Math.sin(rad))
+
+  return (
+    <>
+      <Slot mh={40}>{cur && !done ? <Ask>{t(cur.ask)}</Ask> : null}</Slot>
+
+      <div className="g9-uc-wrap">
+        <svg className="g9-uc-svg" viewBox={'0 0 ' + W + ' ' + H} role="img">
+          <line x1={CX - R - 18} y1={CY} x2={CX + R + 18} y2={CY} className="g9-uc-axis" />
+          <line x1={CX} y1={CY - R - 16} x2={CX} y2={CY + R + 16} className="g9-uc-axis" />
+          <text x={CX + R + 22} y={CY + 3} className="g9-uc-ax">x</text>
+          <text x={CX - 4} y={CY - R - 20} className="g9-uc-ax" textAnchor="end">y</text>
+          <circle cx={CX} cy={CY} r={R} className="g9-uc-circle" />
+          {deg !== 0 ? <path d={arc} className="g9-uc-arc" /> : null}
+
+          {/* proyeksiyalar: kosinus gorizontal, sinus vertikal */}
+          <line x1={px} y1={py} x2={px} y2={CY} className="g9-uc-proj" style={{ transition: 'all .6s ease' }} />
+          <line x1={px} y1={py} x2={CX} y2={py} className="g9-uc-proj" style={{ transition: 'all .6s ease' }} />
+          <line x1={CX} y1={CY} x2={px} y2={py} className="g9-uc-rad" style={{ transition: 'all .6s ease' }} />
+          <circle cx={px} cy={py} r="4.4" className="g9-uc-dot" style={{ transition: 'all .6s ease' }} />
+          <circle cx={CX + R} cy={CY} r="3" className="g9-uc-start" />
+        </svg>
+
+        {showCoords && m ? (
+          <div className="g9-uc-read" style={{ fontFamily: MATH_FONT }}>
+            <span>cos = {m.x}</span>
+            <span>sin = {m.y}</span>
+          </div>
+        ) : null}
+      </div>
+
+      <Slot mh={62}>
+        {!done ? (
+          <div className="g9-chips">
+            {marks.map((mk, i) => (
+              <button
+                key={'m' + i}
+                type="button"
+                className={'g9-chip' + (wrong === i ? ' is-wrong' : '') + (sel === i ? ' is-on' : '')}
+                style={{ fontFamily: MATH_FONT }}
+                disabled={!canAnswer}
+                onClick={() => pick(i)}
+              >
+                {mk.label}
+              </button>
+            ))}
+          </div>
+        ) : null}
+      </Slot>
+
+      <Slot mh={52}>
+        {note ? <Note kind={done ? 'ok' : 'no'}>{t(note)}</Note> : null}
+      </Slot>
+    </>
+  )
+}
+
+// ============================================================
+// 7G. PolyPair — IKKITA KO'PBURCHAK YONMA-YON.
+//
+// Bu ASBOB EMAS, CHIZMA. Geometriya blokida (35-52-darslar) savollarning
+// ko'pi ikkita figurani solishtirishga quriladi, va ularni so'z bilan
+// tasvirlash mumkin emas: «tomoni 1 bo'lgan kvadrat va tomonlari 2 va 1
+// bo'lgan to'rtburchak» — bola buni ko'rmaguncha taqqoslay olmaydi.
+// Shuning uchun `RecallMC` ga `figure` sloti ochildi, bu esa o'sha
+// slotga tushadigan chizma.
+//
+// Har bir figura O'Z YARMIDA alohida masshtablanadi: kichik figura
+// ko'rinmay qolmasligi kerak, lekin masshtab TENG BO'LMAGANI ataylab —
+// gap o'lchamda emas, SHAKLDA. Agar o'lchamlarni solishtirish kerak
+// bo'lsa, `sameScale` beriladi.
+//
+// `a`, `b` — { pts: [[x, y], ...], cap, sides: ['1', '2', ...] }.
+//     `sides[i]` — i-tomonning (pts[i] dan pts[i+1] gacha) yozuvi.
+// ============================================================
+// 2026-08-28: `axis` qo'shildi (36-dars, simmetriyalar). Simmetriyada
+// ikkita figurani ko'rsatishning o'zi yetmaydi — ular ORASIDAGI o'q
+// yoki markaz ko'rinishi kerak, aks holda chizma «shunchaki ikkita
+// figura» bo'lib qoladi. 'v' — vertikal o'q, 'c' — markaz nuqtasi.
+export function PolyPair({ a, b, sameScale = false, marks, axis }) {
+  const t = useT()
+  const W = 320, H = 130, PAD = 16
+
+  const box = (pts) => {
+    const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1])
+    return { x0: Math.min.apply(null, xs), x1: Math.max.apply(null, xs),
+      y0: Math.min.apply(null, ys), y1: Math.max.apply(null, ys) }
+  }
+  const shared = sameScale ? box(a.pts.concat(b.pts)) : null
+
+  const place = (fig, ox) => {
+    const bx = shared || box(fig.pts)
+    const w = Math.max(bx.x1 - bx.x0, 0.001), h = Math.max(bx.y1 - bx.y0, 0.001)
+    const half = W / 2 - PAD * 1.5
+    const k = Math.min(half / w, (H - PAD * 2.4) / h)
+    const dx = ox + (half - w * k) / 2
+    const dy = PAD + 8 + ((H - PAD * 2.4) - h * k) / 2
+    return fig.pts.map((pt) => [dx + (pt[0] - bx.x0) * k, dy + (bx.y1 - pt[1]) * k])
+  }
+
+  const draw = (fig, ox, cls) => {
+    const P = place(fig, ox)
+    const d = P.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ') + ' Z'
+    const mid = (i) => {
+      const q = P[(i + 1) % P.length]
+      return [(P[i][0] + q[0]) / 2, (P[i][1] + q[1]) / 2]
+    }
+    const cx = P.reduce((acc, p) => acc + p[0], 0) / P.length
+    const cy = P.reduce((acc, p) => acc + p[1], 0) / P.length
+    return (
+      <g>
+        <path d={d} className={'g9-pp-poly ' + cls} />
+        {(fig.sides || []).map((lab, i) => {
+          if (!lab) return null
+          const m = mid(i)
+          // yozuv figuradan TASHQARIGA suriladi, aks holda chiziq ustiga tushadi
+          const ux = m[0] - cx, uy = m[1] - cy
+          const len = Math.sqrt(ux * ux + uy * uy) || 1
+          return (
+            <text
+              key={'s' + i}
+              x={m[0] + (ux / len) * 9}
+              y={m[1] + (uy / len) * 9 + 3}
+              className="g9-pp-lab"
+              textAnchor="middle"
+            >
+              {lab}
+            </text>
+          )
+        })}
+        {fig.cap ? <text x={cx} y={H - 4} className="g9-pp-cap" textAnchor="middle">{t(fig.cap)}</text> : null}
+      </g>
+    )
+  }
+
+  return (
+    <div className="g9-pp-wrap">
+      <svg className="g9-pp-svg" viewBox={'0 0 ' + W + ' ' + H} role="img">
+        {axis === 'v' ? (
+          <line x1={W / 2} y1={10} x2={W / 2} y2={H - 12} className="g9-pp-axis" />
+        ) : null}
+        {axis === 'c' ? (
+          <circle cx={W / 2} cy={H / 2 - 4} r="3.2" className="g9-pp-center" />
+        ) : null}
+        {draw(a, PAD / 2, 'is-a')}
+        {draw(b, W / 2 + PAD / 2, 'is-b')}
+        {marks ? <text x={W / 2} y={14} className="g9-pp-cap" textAnchor="middle">{t(marks)}</text> : null}
+      </svg>
+    </div>
+  )
+}
+
+// ============================================================
+// 7H. CircleFig — AYLANA, VATARLAR, YOY VA BURCHAKLAR.
+//
+// Yana ASBOB EMAS, CHIZMA (`RecallMC` ning `figure` slotiga tushadi).
+// 37-39 va 44-darslar butunlay aylana ustida: ichki chizilgan burchak,
+// urinma, ichki va tashqi chizilgan ko'pburchaklar. Ularning barchasida
+// bir xil chizma kerak — aylana, undagi bir nechta nuqta, vatarlar va
+// belgilangan yoy.
+//
+// Nuqtalar GRADUSDA beriladi (0° — o'ngda, musbat yo'nalish soat
+// strelkasiga teskari), chunki masalalar ham gradusda gapiradi va
+// koordinata hisoblash kerak emas.
+//
+// `pts`    — [{ deg, label }].
+// `chords` — [[i, j], ...] nuqtalar indekslari bo'yicha.
+// `arc`    — [i, j] yoyni ajratib ko'rsatadi (musbat yo'nalishda).
+// `radii`  — [i, ...] markazdan shu nuqtalarga radius chiziladi.
+// ============================================================
+export function CircleFig({ pts = [], chords = [], arc, radii = [], showCenter = false, cap }) {
+  const t = useT()
+  const W = 300, H = 150, CX = 150, CY = 76, R = 58
+  const P = pts.map((p) => {
+    const a = (p.deg * Math.PI) / 180
+    return { x: CX + R * Math.cos(a), y: CY - R * Math.sin(a), label: p.label, deg: p.deg }
+  })
+
+  let arcPath = null
+  if (arc) {
+    const [i, j] = arc
+    let sweep = pts[j].deg - pts[i].deg
+    while (sweep < 0) sweep += 360
+    const big = sweep > 180 ? 1 : 0
+    arcPath = 'M ' + P[i].x.toFixed(1) + ' ' + P[i].y.toFixed(1)
+      + ' A ' + R + ' ' + R + ' 0 ' + big + ' 0 ' + P[j].x.toFixed(1) + ' ' + P[j].y.toFixed(1)
+  }
+
+  return (
+    <div className="g9-cf-wrap">
+      <svg className="g9-cf-svg" viewBox={'0 0 ' + W + ' ' + H} role="img">
+        <circle cx={CX} cy={CY} r={R} className="g9-cf-circle" />
+        {arcPath ? <path d={arcPath} className="g9-cf-arc" /> : null}
+        {radii.map((i) => (
+          <line key={'r' + i} x1={CX} y1={CY} x2={P[i].x} y2={P[i].y} className="g9-cf-radius" />
+        ))}
+        {chords.map((c, k) => (
+          <line key={'c' + k} x1={P[c[0]].x} y1={P[c[0]].y} x2={P[c[1]].x} y2={P[c[1]].y} className="g9-cf-chord" />
+        ))}
+        {showCenter ? <circle cx={CX} cy={CY} r="2.6" className="g9-cf-dot" /> : null}
+        {showCenter ? <text x={CX + 5} y={CY - 4} className="g9-cf-lab">O</text> : null}
+        {P.map((p, i) => {
+          // yozuv aylanadan TASHQARIGA suriladi
+          const a = (pts[i].deg * Math.PI) / 180
+          return (
+            <g key={'p' + i}>
+              <circle cx={p.x} cy={p.y} r="2.8" className="g9-cf-dot" />
+              <text
+                x={CX + (R + 11) * Math.cos(a)}
+                y={CY - (R + 11) * Math.sin(a) + 3}
+                className="g9-cf-lab"
+                textAnchor="middle"
+              >
+                {p.label}
+              </text>
+            </g>
+          )
+        })}
+        {cap ? <text x={CX} y={H - 4} className="g9-cf-cap" textAnchor="middle">{t(cap)}</text> : null}
+      </svg>
+    </div>
+  )
+}
+
+
+// ------------------------------------------------------------
+// 7I. POWERFIG — nuqtaning aylanaga nisbatan darajasi.
+//
+// Bu ASBOB EMAS, CHIZMA: qo'l bilan qiladigan yangi harakat yo'q,
+// shuning uchun yangi asbob yasalmadi (7G `PolyPair` bilan bir xil
+// mantiq). Ikkita rejimi bor va ikkalasi ham 42-darsning bitta
+// g'oyasini ko'rsatadi: nuqtadan chiqqan ikki chiziqning kesmalari
+// ko'paytmasi o'zgarmaydi.
+//
+//   mode='chords'  — ichkarida kesishgan ikkita vatar. `degs` to'rtta
+//                    burchak beradi: A, B (birinchi vatar), C, D
+//                    (ikkinchi vatar). Kesishish nuqtasi K hisoblab
+//                    topiladi. `labels` — AK, KB, CK, KD yozuvlari.
+//   mode='tangent' — tashqi P nuqtadan urinma va kesuvchi. `degs` da
+//                    bitta burchak: kesuvchining UZOQ nuqtasi C.
+//                    Urinish nuqtasi A va yaqin nuqta B hisoblanadi.
+//                    `labels` — PA, PB, PC yozuvlari.
+//
+// Yozuvlar kesmaning o'rtasiga qo'yiladi va markazdan TASHQARIGA
+// yetti piksel suriladi — shunda ular chiziqning ustiga tushmaydi.
+// ------------------------------------------------------------
+export function PowerFig({ mode = 'chords', degs = [], labels = [], cap }) {
+  const t = useT()
+  const W = 300, H = 150
+  const CX = mode === 'tangent' ? 104 : 150
+  const CY = 74
+  const R = mode === 'tangent' ? 50 : 56
+
+  const on = (deg) => {
+    const a = (deg * Math.PI) / 180
+    return { x: CX + R * Math.cos(a), y: CY - R * Math.sin(a) }
+  }
+  // yozuv kesmaning O'RTASIDAN, unga PERPENDIKULYAR suriladi. Radial
+  // surish bu yerda ishlamaydi: u kesmaning yo'nalishiga deyarli mos
+  // tushadi va yozuv chiziqning ustida qolib ketadi. Perpendikulyarning
+  // ishorasi markazdan uzoqlashadigan tomonga qarab tanlanadi.
+  // f = 0.32 yozuvni kesmaning TASHQI uchiga suradi. O'rtaga qo'yilsa,
+  // ikkita kalta bo'lakning yozuvlari K atrofida ustma-ust tushadi:
+  // o'lchov bo'yicha eng yaqin ikkita yozuv orasi 10,6 pikseldan
+  // 17 pikselgacha ko'tarildi.
+  const segLab = (p, q, f = 0.32) => {
+    const mx = p.x + f * (q.x - p.x), my = p.y + f * (q.y - p.y)
+    const vx = q.x - p.x, vy = q.y - p.y
+    const vlen = Math.hypot(vx, vy) || 1
+    let nx = -vy / vlen, ny = vx / vlen
+    if (nx * (mx - CX) + ny * (my - CY) < 0) { nx = -nx; ny = -ny }
+    return { x: mx + nx * 8, y: my + ny * 8 + 3 }
+  }
+  const ptLab = (p, away = 11) => {
+    const dx = p.x - CX, dy = p.y - CY
+    const len = Math.hypot(dx, dy) || 1
+    return { x: p.x + (dx / len) * away, y: p.y + (dy / len) * away + 3 }
+  }
+
+  const lines = []
+  const dots = []
+  const texts = []
+
+  if (mode === 'tangent') {
+    const P = { x: 268, y: 96 }
+    const d = Math.hypot(P.x - CX, P.y - CY)
+    const phi = Math.atan2(P.y - CY, P.x - CX)
+    const beta = Math.acos(Math.min(1, R / d))
+    // ikkita urinish nuqtasidan PASTKISI olinadi
+    const cand = [phi + beta, phi - beta].map((a) => ({ x: CX + R * Math.cos(a), y: CY + R * Math.sin(a) }))
+    const A = cand[0].y > cand[1].y ? cand[0] : cand[1]
+    const C = on(degs[0] == null ? 128 : degs[0])
+    // PC to'g'ri chizig'ining aylana bilan ikkinchi kesishishi
+    const ux = C.x - P.x, uy = C.y - P.y
+    const fx = P.x - CX, fy = P.y - CY
+    const qa = ux * ux + uy * uy
+    const qb = 2 * (fx * ux + fy * uy)
+    const qc = fx * fx + fy * fy - R * R
+    const disc = Math.max(0, qb * qb - 4 * qa * qc)
+    const tNear = (-qb - Math.sqrt(disc)) / (2 * qa)
+    const B = { x: P.x + tNear * ux, y: P.y + tNear * uy }
+
+    lines.push({ a: P, b: A, cls: 'g9-cf-chord' })
+    lines.push({ a: P, b: C, cls: 'g9-cf-chord' })
+    dots.push({ p: A, label: 'A' }, { p: B, label: 'B' }, { p: C, label: 'C' })
+    texts.push({ ...ptLab(P, 9), s: 'P', anchor: 'start' })
+    dots.push({ p: P, label: null })
+    if (labels[0]) texts.push({ ...segLab(P, A, 0.5), s: labels[0], anchor: 'middle' })
+    if (labels[1]) texts.push({ ...segLab(P, B, 0.5), s: labels[1], anchor: 'middle' })
+    if (labels[2]) texts.push({ ...segLab(B, C, 0.5), s: labels[2], anchor: 'middle' })
+  } else {
+    const [dA, dB, dC, dD] = degs.length === 4 ? degs : [165, 345, 65, 255]
+    const A = on(dA), B = on(dB), C = on(dC), D = on(dD)
+    const den = (B.x - A.x) * (D.y - C.y) - (B.y - A.y) * (D.x - C.x)
+    const tt = den === 0 ? 0.5 : ((C.x - A.x) * (D.y - C.y) - (C.y - A.y) * (D.x - C.x)) / den
+    const K = { x: A.x + tt * (B.x - A.x), y: A.y + tt * (B.y - A.y) }
+
+    lines.push({ a: A, b: B, cls: 'g9-cf-chord' })
+    lines.push({ a: C, b: D, cls: 'g9-cf-chord' })
+    dots.push({ p: A, label: 'A' }, { p: B, label: 'B' }, { p: C, label: 'C' }, { p: D, label: 'D' })
+    dots.push({ p: K, label: null })
+    texts.push({ x: K.x + 5, y: K.y - 4, s: 'K', anchor: 'start' })
+    // har bir yozuv o'z bo'lagining TASHQI uchidan hisoblanadi, shuning
+    // uchun juftlikda birinchi bo'lib aylanadagi nuqta turadi
+    const pairs = [A, B, C, D]
+    pairs.forEach((pt, i) => {
+      if (labels[i]) texts.push({ ...segLab(pt, K), s: labels[i], anchor: 'middle' })
+    })
+  }
+
+  return (
+    <div className="g9-cf-wrap">
+      <svg className="g9-cf-svg" viewBox={'0 0 ' + W + ' ' + H} role="img">
+        <circle cx={CX} cy={CY} r={R} className="g9-cf-circle" />
+        {lines.map((l, i) => (
+          <line key={'l' + i} x1={l.a.x} y1={l.a.y} x2={l.b.x} y2={l.b.y} className={l.cls} />
+        ))}
+        {dots.map((d, i) => (
+          <g key={'d' + i}>
+            <circle cx={d.p.x} cy={d.p.y} r="2.8" className="g9-cf-dot" />
+            {d.label ? (
+              <text {...ptLab(d.p)} className="g9-cf-lab" textAnchor="middle">{d.label}</text>
+            ) : null}
+          </g>
+        ))}
+        {texts.map((x, i) => (
+          <text key={'t' + i} x={x.x} y={x.y} className="g9-pf-seg" textAnchor={x.anchor}>{x.s}</text>
+        ))}
+        {cap ? <text x={W / 2} y={H - 4} className="g9-cf-cap" textAnchor="middle">{t(cap)}</text> : null}
+      </svg>
+    </div>
+  )
+}
+
+
+// ------------------------------------------------------------
+// 7J. ANGLEFIG — bitta nuqtadan chiqqan ikkita vektor.
+//
+// Bu ham ASBOB EMAS, CHIZMA (7G va 7I bilan bir xil mantiq): qo'l
+// hech narsa qilmaydi, chizma faqat ko'rsatadi. 43-darsda ikkita
+// ish qiladi — koordinatalarda berilgan vektorlarni va ular
+// orasidagi burchakni ko'rsatadi.
+//
+//   vecs   — [{ x, y, label }] ikkita vektor, KOORDINATALARDA.
+//            Masshtab avtomatik: eng katta koordinata maydonga
+//            sig'diriladi, shuning uchun a(1;2) ham, a(-5;6) ham
+//            bir xil chiroyli chiqadi.
+//   axes   — koordinata o'qlarini chizish.
+//   arc    — vektorlar orasidagi burchak yoyi.
+//   arcLab — yoyning yozuvi, masalan burchakning nomi.
+// ------------------------------------------------------------
+export function AngleFig({ vecs = [], axes = false, arc = false, arcLab, cap }) {
+  const t = useT()
+  const W = 300, H = 150
+  const OX = 150, OY = 78
+  const span = Math.max(1, ...vecs.map((v) => Math.max(Math.abs(v.x), Math.abs(v.y))))
+  const k = 56 / span
+  const to = (v) => ({ x: OX + v.x * k, y: OY - v.y * k })
+
+  const arrow = (p) => {
+    const len = Math.hypot(p.x - OX, p.y - OY) || 1
+    const ux = (p.x - OX) / len, uy = (p.y - OY) / len
+    const ax = p.x - ux * 8, ay = p.y - uy * 8
+    const px = -uy, py = ux
+    return [p.x, p.y, ax + px * 3.4, ay + py * 3.4, ax - px * 3.4, ay - py * 3.4]
+      .map((n) => n.toFixed(1)).join(' ').replace(/(\S+) (\S+) /g, '$1,$2 ')
+  }
+
+  let arcPath = null
+  if (arc && vecs.length === 2) {
+    const a0 = Math.atan2(vecs[0].y, vecs[0].x)
+    const a1 = Math.atan2(vecs[1].y, vecs[1].x)
+    let diff = a1 - a0
+    while (diff > Math.PI) diff -= 2 * Math.PI
+    while (diff < -Math.PI) diff += 2 * Math.PI
+    const r = 22
+    const p0 = { x: OX + r * Math.cos(a0), y: OY - r * Math.sin(a0) }
+    const p1 = { x: OX + r * Math.cos(a1), y: OY - r * Math.sin(a1) }
+    arcPath = {
+      d: 'M ' + p0.x.toFixed(1) + ' ' + p0.y.toFixed(1) + ' A ' + r + ' ' + r + ' 0 0 '
+        + (diff > 0 ? 0 : 1) + ' ' + p1.x.toFixed(1) + ' ' + p1.y.toFixed(1),
+      lx: OX + (r + 11) * Math.cos(a0 + diff / 2),
+      ly: OY - (r + 11) * Math.sin(a0 + diff / 2) + 3,
+    }
+  }
+
+  return (
+    <div className="g9-cf-wrap">
+      <svg className="g9-cf-svg" viewBox={'0 0 ' + W + ' ' + H} role="img">
+        {axes ? (
+          <g>
+            <line x1={OX - 74} y1={OY} x2={OX + 74} y2={OY} className="g9-af-axis" />
+            <line x1={OX} y1={OY - 66} x2={OX} y2={OY + 66} className="g9-af-axis" />
+          </g>
+        ) : null}
+        {arcPath ? <path d={arcPath.d} className="g9-af-arc" /> : null}
+        {vecs.map((v, i) => {
+          const p = to(v)
+          return (
+            <g key={'v' + i}>
+              <line x1={OX} y1={OY} x2={p.x} y2={p.y} className="g9-af-vec" />
+              <polygon points={arrow(p)} className="g9-af-head" />
+              {v.label ? (
+                <text
+                  x={p.x + (p.x - OX) * 0.12 + (p.x >= OX ? 9 : -9)}
+                  y={p.y + (p.y - OY) * 0.12 + (p.y >= OY ? 10 : -4)}
+                  className="g9-cf-lab"
+                  textAnchor="middle"
+                >
+                  {v.label}
+                </text>
+              ) : null}
+            </g>
+          )
+        })}
+        <circle cx={OX} cy={OY} r="2.6" className="g9-cf-dot" />
+        <text x={OX - 8} y={OY + 11} className="g9-cf-lab">O</text>
+        {arcPath && arcLab ? (
+          <text x={arcPath.lx} y={arcPath.ly} className="g9-pf-seg" textAnchor="middle">{arcLab}</text>
+        ) : null}
+        {cap ? <text x={W / 2} y={H - 4} className="g9-cf-cap" textAnchor="middle">{t(cap)}</text> : null}
+      </svg>
+    </div>
+  )
+}
+
+
+// ------------------------------------------------------------
+// 7K. TRIFIG — uchburchak, ixtiyoriy balandlik bilan.
+//
+// Yana ASBOB EMAS, CHIZMA. 45-49-darslarning hammasida uchburchak
+// kerak bo'ladi (proporsional kesmalar, sinus va kosinus, sinuslar
+// va kosinuslar teoremasi), shuning uchun bu chizma umumiy qatlamga
+// chiqarildi — 44-darsning `PiStrip` idan farqi shu.
+//
+//   sides    — [a, b, c] uzunliklar: a = BC, b = AC, c = AB.
+//              Uchlar shu uzunliklardan hisoblanadi, qo'lda emas.
+//   names    — uchlarning nomlari, sukut bo'yicha A, B, C.
+//   edges    — { a, b, c } tomonlarning yozuvlari.
+//   altitude — C uchidan AB ga tushirilgan balandlikni chizish.
+//   altLab   — balandlikning yozuvi, footLab — asos nuqtasining nomi.
+//   segs     — { left, right } balandlik ajratgan bo'laklar yozuvi.
+//   right    — to'g'ri burchak belgisi: 'C' yoki 'D' (balandlik asosi).
+// ------------------------------------------------------------
+export function TriFig({
+  sides = [3, 4, 5], names = ['A', 'B', 'C'], edges = {},
+  altitude = false, altLab, footLab = 'D', segs = {}, right, angles = {}, cap,
+}) {
+  const t = useT()
+  const W = 300, H = 150
+  const [a, b, c] = sides
+  // A = (0,0), B = (c,0), C — uchta uzunlikdan
+  const cx = (b * b + c * c - a * a) / (2 * c)
+  const cy = Math.sqrt(Math.max(0.0001, b * b - cx * cx))
+  const raw = [{ x: 0, y: 0 }, { x: c, y: 0 }, { x: cx, y: cy }]
+  const minX = Math.min(...raw.map((p) => p.x)), maxX = Math.max(...raw.map((p) => p.x))
+  const maxY = Math.max(...raw.map((p) => p.y))
+  const k = Math.min(232 / (maxX - minX), 92 / maxY)
+  const ox = (W - (maxX - minX) * k) / 2 - minX * k
+  const oy = 122
+  const to = (p) => ({ x: ox + p.x * k, y: oy - p.y * k })
+  const A = to(raw[0]), B = to(raw[1]), C = to(raw[2])
+  const D = to({ x: cx, y: 0 })
+  const G = { x: (A.x + B.x + C.x) / 3, y: (A.y + B.y + C.y) / 3 }
+
+  const out = (p, d = 11) => {
+    const dx = p.x - G.x, dy = p.y - G.y
+    const l = Math.hypot(dx, dy) || 1
+    return { x: p.x + (dx / l) * d, y: p.y + (dy / l) * d + 3 }
+  }
+  const mid = (p, q, d = 10) => {
+    const mx = (p.x + q.x) / 2, my = (p.y + q.y) / 2
+    const dx = mx - G.x, dy = my - G.y
+    const l = Math.hypot(dx, dy) || 1
+    return { x: mx + (dx / l) * d, y: my + (dy / l) * d + 3 }
+  }
+  // to'g'ri burchak belgisi: uchidan ikkita tomon bo'ylab kvadratcha
+  const rightMark = (v, p1, p2, s = 9.5) => {
+    const u1 = { x: (p1.x - v.x), y: (p1.y - v.y) }
+    const u2 = { x: (p2.x - v.x), y: (p2.y - v.y) }
+    const n1 = Math.hypot(u1.x, u1.y) || 1, n2 = Math.hypot(u2.x, u2.y) || 1
+    const q1 = { x: v.x + (u1.x / n1) * s, y: v.y + (u1.y / n1) * s }
+    const q2 = { x: v.x + (u2.x / n2) * s, y: v.y + (u2.y / n2) * s }
+    const q3 = { x: q1.x + q2.x - v.x, y: q1.y + q2.y - v.y }
+    return [q1, q3, q2].map((p) => p.x.toFixed(1) + ',' + p.y.toFixed(1)).join(' ')
+  }
+
+  return (
+    <div className="g9-cf-wrap">
+      <svg className="g9-cf-svg" viewBox={'0 0 ' + W + ' ' + H} role="img">
+        <polygon
+          points={[A, B, C].map((p) => p.x.toFixed(1) + ',' + p.y.toFixed(1)).join(' ')}
+          className="g9-tf-body"
+        />
+        {altitude ? <line x1={C.x} y1={C.y} x2={D.x} y2={D.y} className="g9-tf-alt" /> : null}
+        {right === 'C' ? <polyline points={rightMark(C, A, B)} className="g9-tf-right" /> : null}
+        {altitude && right !== 'C' ? <polyline points={rightMark(D, C, B)} className="g9-tf-right" /> : null}
+        {[[A, names[0]], [B, names[1]], [C, names[2]]].map(([p, n], i) => (
+          <g key={'v' + i}>
+            <circle cx={p.x} cy={p.y} r="2.6" className="g9-cf-dot" />
+            <text {...out(p)} className="g9-cf-lab" textAnchor="middle">{n}</text>
+          </g>
+        ))}
+        {altitude ? (
+          <g>
+            <circle cx={D.x} cy={D.y} r="2.4" className="g9-cf-dot" />
+            <text x={D.x} y={D.y + 13} className="g9-cf-lab" textAnchor="middle">{footLab}</text>
+            {altLab ? (
+              <text x={(C.x + D.x) / 2 + 9} y={(C.y + D.y) / 2 + 3} className="g9-pf-seg">{altLab}</text>
+            ) : null}
+            {segs.left ? (
+              <text x={(A.x + D.x) / 2} y={D.y + 13} className="g9-pf-seg" textAnchor="middle">{segs.left}</text>
+            ) : null}
+            {segs.right ? (
+              <text x={(D.x + B.x) / 2} y={D.y + 13} className="g9-pf-seg" textAnchor="middle">{segs.right}</text>
+            ) : null}
+          </g>
+        ) : null}
+        {/* burchak yoyi: uchdan ikkita tomonga qarab kichik yoy va yozuv.
+            45-darsda kerak bo'lmagandi, 46-darsda burchakning nomini
+            chizmada ko'rsatish shart bo'lib qoldi. */}
+        {[['A', A, B, C], ['B', B, C, A], ['C', C, A, B]].map(([key, v, p1, p2]) => {
+          if (!angles[key]) return null
+          const a1 = Math.atan2(p1.y - v.y, p1.x - v.x)
+          const a2 = Math.atan2(p2.y - v.y, p2.x - v.x)
+          let dd = a2 - a1
+          while (dd > Math.PI) dd -= 2 * Math.PI
+          while (dd < -Math.PI) dd += 2 * Math.PI
+          const rr = 15
+          const q1 = { x: v.x + rr * Math.cos(a1), y: v.y + rr * Math.sin(a1) }
+          const q2 = { x: v.x + rr * Math.cos(a2), y: v.y + rr * Math.sin(a2) }
+          const d = 'M ' + q1.x.toFixed(1) + ' ' + q1.y.toFixed(1) + ' A ' + rr + ' ' + rr
+            + ' 0 0 ' + (dd > 0 ? 1 : 0) + ' ' + q2.x.toFixed(1) + ' ' + q2.y.toFixed(1)
+          // uzun yozuv («90°−α») qisqasidan ko'ra uzoqroqqa suriladi,
+          // aks holda u uchburchakning ichiga tushib, tomonni yopadi
+          const off = rr + 10 + Math.max(0, String(angles[key]).length - 3) * 3.2
+          const lx = v.x + off * Math.cos(a1 + dd / 2)
+          const ly = v.y + off * Math.sin(a1 + dd / 2) + 3
+          return (
+            <g key={'ang' + key}>
+              <path d={d} className="g9-af-arc" />
+              <text x={lx} y={ly} className="g9-pf-seg" textAnchor="middle">{angles[key]}</text>
+            </g>
+          )
+        })}
+        {edges.c ? <text {...mid(A, B)} className="g9-pf-seg" textAnchor="middle">{edges.c}</text> : null}
+        {edges.b ? <text {...mid(A, C)} className="g9-pf-seg" textAnchor="middle">{edges.b}</text> : null}
+        {edges.a ? <text {...mid(B, C)} className="g9-pf-seg" textAnchor="middle">{edges.a}</text> : null}
+        {cap ? <text x={W / 2} y={H - 4} className="g9-cf-cap" textAnchor="middle">{t(cap)}</text> : null}
+      </svg>
+    </div>
+  )
+}
+
+// ============================================================
 // 8. USLUBLAR. Prefiks g9-: umumiy qatlamning g8- klasslari bilan
 // to'qnashmaydi. Shkala va ranglar YADRODAN olinadi (T, MATH_FONT) — sinf
 // o'zining palitrasini yasamaydi, farq ASBOBDA.
@@ -2882,6 +3661,74 @@ export const G9_STYLES = `
    5-sinf Dars01.jsx (u yerda har dars faylida qayta yozilgan), shu yerda
    BIR MARTA. 9 nuqta o'rniga rangi xuddi o'sha ko'k (info qatlami bilan
    bir xil) — faqat shu darsda ishlatiladi (S9, S13, S15). */
+/* CircleFig (7H). Balandligi PolyPair kabi chegaralangan. */
+.g9-cf-wrap { max-width: 520px; margin: 0 auto; display: flex; justify-content: center; }
+.g9-cf-svg { width: 100%; height: auto; max-height: 150px; display: block; background: #FFF;
+  border-radius: 12px; box-shadow: inset 0 0 0 1px rgba(14,14,16,.12); }
+@media (max-height: 720px) { .g9-cf-svg { max-height: 106px; } }
+@media (max-width: 640px) { .g9-cf-svg { max-height: 134px; } }
+.g9-cf-circle { fill: none; stroke: rgba(14,14,16,.4); stroke-width: 1.3; }
+.g9-cf-arc { fill: none; stroke: #C8452F; stroke-width: 2.6; }
+.g9-cf-chord { stroke: #019ACB; stroke-width: 1.6; }
+.g9-cf-radius { stroke: #2E7D4F; stroke-width: 1.4; stroke-dasharray: 4 3; }
+.g9-cf-dot { fill: #0E0E10; }
+.g9-cf-lab { font-family: 'JetBrains Mono', monospace; font-size: 9px; fill: #0E0E10; }
+.g9-cf-cap { font-family: 'JetBrains Mono', monospace; font-size: 9px; fill: rgba(14,14,16,.55); }
+.g9-pf-seg { font-family: 'JetBrains Mono', monospace; font-size: 8.5px; fill: #01607F; }
+.g9-af-axis { stroke: rgba(14,14,16,.28); stroke-width: 1; }
+.g9-af-vec { stroke: #019ACB; stroke-width: 1.8; }
+.g9-af-head { fill: #019ACB; }
+.g9-af-arc { fill: none; stroke: #C8452F; stroke-width: 1.6; }
+.g9-tf-body { fill: rgba(1,154,203,.10); stroke: #01607F; stroke-width: 1.6; }
+.g9-tf-alt { stroke: #C8452F; stroke-width: 1.5; stroke-dasharray: 4 3; }
+.g9-tf-right { fill: none; stroke: rgba(14,14,16,.62); stroke-width: 1.4; }
+
+/* PolyPair (7G) va RecallMC chizma sloti. */
+.g9-figslot { margin: 0 0 clamp(6px, 1.2vw, 10px); }
+/* Chizma balandligi CHEGARALANADI: 615px balandlikdagi noutbukda savol
+   va variantlar bilan birga sig'ishi kerak (36-darsda 34px chiqib
+   ketgandi). preserveAspectRatio sukut bo'yicha meet, shuning uchun
+   max-height SVG ni ichkariga sig'diradi. */
+.g9-pp-wrap { max-width: 560px; margin: 0 auto; display: flex; justify-content: center; }
+.g9-pp-svg { width: 100%; height: auto; max-height: 150px; display: block; background: #FFF;
+  border-radius: 12px; box-shadow: inset 0 0 0 1px rgba(14,14,16,.12); }
+@media (max-height: 720px) { .g9-pp-svg { max-height: 104px; } }
+@media (max-width: 640px) { .g9-pp-svg { max-height: 132px; } }
+.g9-pp-poly { fill: rgba(1,154,203,.14); stroke: #019ACB; stroke-width: 1.6; stroke-linejoin: round; }
+.g9-pp-poly.is-b { fill: rgba(46,125,79,.14); stroke: #2E7D4F; }
+.g9-pp-lab { font-family: 'JetBrains Mono', monospace; font-size: 9px; fill: #0E0E10; }
+.g9-pp-cap { font-family: 'JetBrains Mono', monospace; font-size: 9px; fill: rgba(14,14,16,.55); }
+.g9-pp-axis { stroke: #C8452F; stroke-width: 1.4; stroke-dasharray: 5 4; }
+.g9-pp-center { fill: #C8452F; }
+
+/* UnitCircle (7F). Burish CSS transition bilan, 0,6 s. */
+.g9-uc-wrap { max-width: 560px; margin: 0 auto clamp(6px, 1.2vw, 10px); }
+.g9-uc-svg { width: 100%; height: auto; display: block; background: #FFF; border-radius: 12px;
+  box-shadow: inset 0 0 0 1px rgba(14,14,16,.12); }
+.g9-uc-axis { stroke: rgba(14,14,16,.35); stroke-width: 1; }
+.g9-uc-ax { font-family: 'JetBrains Mono', monospace; font-size: 9px; fill: rgba(14,14,16,.55); }
+.g9-uc-circle { fill: none; stroke: rgba(1,154,203,.55); stroke-width: 1.6; }
+.g9-uc-arc { fill: none; stroke: #2E7D4F; stroke-width: 2; }
+.g9-uc-rad { stroke: #019ACB; stroke-width: 1.6; }
+.g9-uc-proj { stroke: rgba(200,69,47,.75); stroke-width: 1.3; stroke-dasharray: 4 3; }
+.g9-uc-dot { fill: #019ACB; }
+.g9-uc-start { fill: rgba(14,14,16,.4); }
+.g9-uc-read { display: flex; gap: clamp(14px, 3vw, 28px); justify-content: center; margin-top: 8px;
+  font-size: clamp(14px, 1.6vw, 17px); color: #0E0E10; }
+.g9-chip.is-on { box-shadow: inset 0 0 0 2px #019ACB; }
+
+/* TreeBranch (7E). Ildiz chapda, darajalar o'ngga ochiladi. */
+.g9-tree-wrap { max-width: 620px; margin: 0 auto clamp(8px, 1.4vw, 12px); }
+.g9-tree-svg { width: 100%; height: auto; display: block; background: #FFF; border-radius: 12px;
+  box-shadow: inset 0 0 0 1px rgba(14,14,16,.12); }
+.g9-tree-root { fill: #0E0E10; }
+.g9-tree-edge { stroke: rgba(1,154,203,.55); stroke-width: 1.2; }
+.g9-tree-dot { fill: #019ACB; }
+.g9-tree-lab { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: #0E0E10; }
+.g9-tree-cap { font-family: 'JetBrains Mono', monospace; font-size: 8px; fill: rgba(14,14,16,.5);
+  letter-spacing: .04em; text-transform: uppercase; }
+.g9-tree-read { text-align: center; margin-top: 8px; font-size: clamp(15px, 1.8vw, 19px); color: #0E0E10; }
+
 /* FreqRun (7D). Chizma o'lchovi CSS bilan, viewBox qat'iy. */
 .g9-fr-wrap { max-width: 620px; margin: 0 auto clamp(8px, 1.4vw, 12px); }
 .g9-fr-svg { width: 100%; height: auto; display: block; background: #FFF; border-radius: 12px;

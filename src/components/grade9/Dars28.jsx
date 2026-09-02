@@ -303,7 +303,7 @@ const S4 = {
     <RecallMC
       intro={L('2, 3, 4, 5, 7, 8', '2, 3, 4, 5, 7, 8', '2, 3, 4, 5, 7, 8')}
       steps={[
-        { id: 'a', head: L('Ortadagi ikkitasi', 'Два средних', 'The two middle ones'), lines: ['4  va  5'] },
+        { id: 'a', head: L('Ortadagi ikkitasi', 'Два средних', 'The two middle ones'), lines: [L('4  va  5', '4  и  5', '4  and  5')] },
       ]}
       ask={L(
         "Mediana nechaga teng?",

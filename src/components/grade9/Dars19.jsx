@@ -248,7 +248,7 @@ const S3 = {
     <RecallMC
       intro={L('P = 30,  S ≥ 56', 'P = 30,  S ≥ 56', 'P = 30,  S ≥ 56')}
       steps={[
-        { id: 'a', head: '1', lines: ['x + (2-tomon) = 15'] },
+        { id: 'a', head: '1', lines: [L('x + (2-tomon) = 15', 'x + (2-я сторона) = 15', 'x + (2nd side) = 15')] },
         { id: 'b', head: '2', lines: ['S = x(15 − x) ≥ 56'] },
       ]}
       ask={L(

@@ -409,7 +409,7 @@ const S6 = {
     <RecallMC
       intro={L('x = 7,  y² = 4', 'x = 7,  y² = 4', 'x = 7,  y² = 4')}
       steps={[
-        { id: 'y', head: 'y', lines: ['y = 2  yoki  y = −2'] },
+        { id: 'y', head: 'y', lines: [L('y = 2  yoki  y = −2', 'y = 2  или  y = −2', 'y = 2  or  y = −2')] },
       ]}
       ask={L(
         "Y kvadrat to'rtga teng bo'lganda y nechta qiymat oladi?",
