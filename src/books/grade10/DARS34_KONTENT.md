@@ -1,21 +1,21 @@
-# Урок 34 — Преобразование логарифмических выражений · КОНТЕНТ (этап 2)
+# Урок 42 — Угол между прямой и плоскостью · КОНТЕНТ (этап 2)
 
-**Читается и правится методистом.** Формат тот же, что в `DARS26_KONTENT.md`.
+**Читается и правится методистом.** Формат тот же, что в `DARS41_KONTENT.md`.
 
-Скелет: `DARS32_36_SKELET.md` §9. Опора в учебнике: алгебра 2022, стр. 109–112, параграф
-`LOGARIFMIK IFODALARNI AYNIY ALMASHTIRISH`.
+Скелет: в переписке 2026-08-20. Опора: учебник геометрии 2022, §19, стр. 138 — определение
+проекции прямой и определение угла между прямой и плоскостью, оба дословно.
 
-**Главное решение урока.** Чертежа здесь нет, и это осознанно. Тема — преобразование записи, а
-свидетель темы — счёт одного и того же числа двумя путями: `log₂ 8³` считается напрямую и по
-свойству, оба раза выходит девять, а `(log₂ 8)³` даёт двадцать семь и не совпадает ни с чем.
-Такой свидетель живёт в записи. Логарифмическая кривая на этих экранах была бы иллюстрацией без
-дидактической роли — `DINAMIKA_VA_ILLUSTRATSIYA.md` §1 такие кадры велит убирать.
+**Главное решение урока.** Угол между прямой и плоскостью — это угол с **проекцией**, и ни с
+какой другой прямой плоскости. Ошибка живая: ученик берёт ту прямую, которая удобно лежит на
+чертеже, и получает угол меньше настоящего. Показать это можно только поворотом: на неподвижном
+чертеже удобная прямая выглядит убедительнее проекции.
 
-**Работают приборы 2 и 3** — переписывание по шагам и числовой свидетель.
+**Дуга угла показывает, ГДЕ угол, а не его величину.** Проекция искажает углы, поэтому все
+числа в уроке считаются, а не читаются с картинки. Это то же правило, что «измерил не значит
+доказал» из урока 38.
 
-**Задания экранов 5 и 6 взяты из учебника** — стр. 109, 1-misol и стр. 110, 2-misol.
-
-**Терминология UZ — draft, требует валидации узбекским методистом математики.**
+**Терминология UZ — draft, требует валидации узбекским методистом математики.** Термины
+`proyeksiya`, `og'ma`, `to'g'ri chiziq va tekislik orasidagi burchak` взяты из учебника, стр. 138.
 
 ---
 
@@ -25,28 +25,28 @@
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | ВЫРАЖЕНИЕ | IFODA | THE EXPRESSION |
-| `title` | Девять или двадцать семь | To'qqizmi yoki yigirma yetti | Nine or twenty seven |
-| `row.a.name` | возвели сам логарифм | logarifmning o'zini ko'tardik | raised the logarithm itself |
-| `row.b.name` | показатель вышел множителем | ko'rsatkich ko'paytuvchi bo'lib chiqdi | the exponent came out as a factor |
+| `eyebrow` | УГОЛ | BURCHAK | THE ANGLE |
+| `title` | С чем берут угол | Burchak nima bilan olinadi | What the angle is taken with |
+| `row.a.name` | с прямой плоскости | tekislik chizig'i bilan | with a line of the plane |
+| `row.b.name` | с проекцией | proyeksiya bilan | with the projection |
 | `probe.question` | Какая запись верна? | Qaysi yozuv to'g'ri? | Which reading is correct? |
 | `probe.a` | первая | birinchi | the first |
 | `probe.b` [верно] | вторая | ikkinchi | the second |
 | `probe.both` | обе | ikkisi ham | both |
 | `probe.none` | ни одна | hech qaysi | neither |
-| `probe.after` | Твой ответ записан. Сейчас посчитаем напрямую и сверим. | Javobingiz yozib olindi. Endi to'g'ridan hisoblab solishtiramiz. | Your answer is saved. Now we will compute it directly and compare. |
-| `audio.mount` | Логарифм восьми в кубе по основанию два. Показатель стоит под знаком логарифма, и с ним надо что-то сделать. | Sakkiz kubning ikki asosga ko'ra logarifmi. Ko'rsatkich logarifm belgisi ostida turibdi, va u bilan biror ish qilish kerak. | The logarithm of eight cubed to base two. The exponent stands under the logarithm sign, and something has to be done with it. |
-| `audio.r1` | Первая запись возводит в куб сам логарифм: логарифм восьми это три, три в кубе двадцать семь. | Birinchi yozuv logarifmning o'zini kubga ko'taradi: sakkizning logarifmi uch, uch kubi yigirma yetti. | The first reading cubes the logarithm itself: the logarithm of eight is three, and three cubed is twenty seven. |
-| `audio.r2` | Вторая выносит показатель множителем вперёд: три умножить на логарифм восьми, это три на три, девять. | Ikkinchisi ko'rsatkichni oldinga ko'paytuvchi qilib chiqaradi: uch kerra sakkizning logarifmi, bu uch kerra uch, to'qqiz. | The second brings the exponent out in front as a factor: three times the logarithm of eight, that is three times three, nine. |
-| `audio.ask` | Как думаешь, какая верная? Пока просто предположи. | Sizningcha qaysi biri to'g'ri? Hozircha shunchaki taxmin qiling. | Which one do you think is right? Just make a guess for now. |
+| `probe.after` | Твой ответ записан. Сейчас повернём сцену. | Javobingiz yozib olindi. Endi sahnani buramiz. | Your answer is recorded. Now we rotate the scene. |
+| `audio.mount` | Прямая пересекает плоскость и не перпендикулярна ей. Угол между ними ещё не отмечен. | To'g'ri chiziq tekislikni kesib o'tadi va unga perpendikulyar emas. Ular orasidagi burchak hali belgilanmagan. | A line crosses the plane and is not perpendicular to it. The angle between them is not marked yet. |
+| `audio.r1` | Первая запись говорит так. Берём в плоскости любую прямую через точку пересечения и мерим угол с ней. | Birinchi yozuv shunday deydi. Tekislikda kesishish nuqtasi orqali istalgan to'g'ri chiziqni olamiz va u bilan burchakni o'lchaymiz. | The first reading says this. Take any line of the plane through the crossing point and measure the angle with it. |
+| `audio.r2` | Вторая берёт не любую прямую, а проекцию. | Ikkinchisi istalgan chiziqni emas, proyeksiyani oladi. | The second takes not any line but the projection. |
+| `audio.ask` | Прямых в плоскости бесконечно много, и углы с ними разные. Как думаешь, какая запись верная? | Tekislikda to'g'ri chiziqlar cheksiz ko'p, va ular bilan burchaklar boshqa-boshqa. Sizningcha qaysi yozuv to'g'ri? | There are infinitely many lines in the plane and the angles with them differ. Which reading do you think is correct? |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `expr` | `log₂ 8³` |
-| `row.a.value` | `27` |
-| `row.b.value` | `9` |
+| `expr` | `a ∩ α = A` |
+| `row.a.value` | `∠(a; α) = ∠(a; b),   b ⊂ α` |
+| `row.b.value` | `∠(a; α) = ∠(a; a₁)` |
 
 ---
 
@@ -57,298 +57,283 @@
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ОПОРА | TAYANCH | WHAT YOU KNOW |
-| `title` | Три вопроса перед выражением | Ifodadan oldin uch savol | Three questions before the expression |
-| `q1.prompt` | Чему равен логарифм восьми по основанию два? | Sakkizning ikki asosga ko'ra logarifmi nechaga teng? | What is the logarithm of eight to base two? |
-| `q1.a` [верно] | три | uch | three |
-| `q1.b` | четыре | to'rt | four |
-| `q1.b.hint` | Четыре вышло бы делением, а логарифм это показатель. | To'rt bo'lish bilan chiqardi, logarifm esa ko'rsatkich. | Four would come from dividing, and a logarithm is an exponent. |
-| `q1.c` | восемь | sakkiz | eight |
-| `q1.c.hint` | Восемь стоит под знаком, а спросили про показатель. | Sakkiz belgi ostida turadi, savol esa ko'rsatkich haqida. | Eight stands under the sign, and the question was about the exponent. |
-| `q1.d` | одна треть | bir uchdan | one third |
-| `q1.d.hint` | Одна треть выходит при обратном порядке основания и числа. | Bir uchdan asos va son teskari tartibda bo'lganda chiqadi. | One third comes when the base and the number are in the other order. |
-| `q2.prompt` | Чему равна сумма логарифмов с одним основанием? | Bir asosli logarifmlar yig'indisi nechaga teng? | What does a sum of logarithms with the same base equal? |
-| `q2.a` [верно] | логарифму произведения | ko'paytmaning logarifmiga | the logarithm of the product |
-| `q2.b` | логарифму суммы | yig'indining logarifmiga | the logarithm of the sum |
-| `q2.b.hint` | Логарифм суммы не раскрывается вовсе. | Yig'indining logarifmi umuman ochilmaydi. | The logarithm of a sum does not open at all. |
-| `q2.c` | произведению логарифмов | logarifmlar ko'paytmasiga | the product of the logarithms |
-| `q2.c.hint` | Проверь на четырёх и восьми: выйдет шесть вместо пяти. | To'rt va sakkizda tekshiring: besh o'rniga olti chiqadi. | Check on four and eight: you get six instead of five. |
-| `q2.d` | ничему из этого | bularning hech biriga | none of these |
-| `q2.d.hint` | Правило есть, и оно выводится из свойства степени. | Qoida bor, va u daraja xossasidan chiqariladi. | The rule exists and comes from a property of powers. |
-| `q3.prompt` | Чему равен логарифм единицы? | Birning logarifmi nechaga teng? | What is the logarithm of one? |
-| `q3.a` [верно] | нулю при любом основании | har qanday asosda nolga | zero for any base |
-| `q3.b` | единице | birga | one |
-| `q3.b.hint` | Единице равен логарифм самого основания, а не единицы. | Birga asosning o'z logarifmi teng, birniki emas. | One is the logarithm of the base itself, not of one. |
-| `q3.c` | самому основанию | asosning o'ziga | the base itself |
-| `q3.c.hint` | Логарифм это показатель, а не основание. | Logarifm ko'rsatkich, asos emas. | A logarithm is an exponent, not a base. |
-| `q3.d` | не существует | mavjud emas | it does not exist |
-| `q3.d.hint` | Не существует логарифм нуля, а не единицы. | Nolning logarifmi mavjud emas, birniki emas. | It is the logarithm of zero that does not exist, not of one. |
-| `audio.mount` | Три коротких вопроса. Все три понадобятся через минуту. | Uch qisqa savol. Uchalasi ham bir daqiqadan keyin kerak bo'ladi. | Three short questions. All three will be needed in a minute. |
+| `title` | Три вопроса из прошлого урока | O'tgan darsdan uch savol | Three questions from the last lesson |
+| `q1.prompt` | Что такое проекция наклонной? | Og'maning proyeksiyasi nima? | What is the projection of an oblique? |
+| `q1.a` [верно] | отрезок между основаниями | asoslar orasidagi kesma | the segment between the feet |
+| `q1.b` | сама наклонная | og'maning o'zi | the oblique itself |
+| `q1.b.hint` | Наклонная в плоскости не лежит, а проекция лежит. | Og'ma tekislikda yotmaydi, proyeksiya esa yotadi. | An oblique does not lie in the plane, a projection does. |
+| `q1.c` | перпендикуляр | perpendikulyar | the perpendicular |
+| `q1.c.hint` | Перпендикуляр только приходит в плоскость, а не идёт по ней. | Perpendikulyar tekislikka faqat keladi, unda bormaydi. | A perpendicular only arrives at the plane, it does not run along it. |
+| `q1.d` | вся плоскость | butun tekislik | the whole plane |
+| `q1.d.hint` | Проекция отрезка это отрезок. | Kesmaning proyeksiyasi kesma bo'ladi. | The projection of a segment is a segment. |
+| `q2.prompt` | Что короче из одной точки? | Bitta nuqtadan nima qisqaroq? | Which is shorter from one point? |
+| `q2.a` [верно] | перпендикуляр | perpendikulyar | the perpendicular |
+| `q2.b` | наклонная | og'ma | the oblique |
+| `q2.b.hint` | Наклонная гипотенуза в том же треугольнике. | Og'ma o'sha uchburchakda gipotenuza. | The oblique is the hypotenuse in that triangle. |
+| `q2.c` | они равны | ular teng | they are equal |
+| `q2.c.hint` | Равны они были бы только при нулевой проекции. | Ular faqat proyeksiya nol bo'lganda teng bo'lardi. | They would be equal only with a zero projection. |
+| `q2.d` | зависит от плоскости | tekislikka bog'liq | it depends on the plane |
+| `q2.d.hint` | Треугольник прямоугольный при любой плоскости. | Uchburchak har qanday tekislikda to'g'ri burchakli. | The triangle is right-angled for any plane. |
+| `q3.prompt` | Что даёт теорема о трёх перпендикулярах? | Uch perpendikulyar haqidagi teorema nima beradi? | What does the theorem of three perpendiculars give? |
+| `q3.a` [верно] | переносит перпендикулярность с проекции на наклонную | perpendikulyarlikni proyeksiyadan og'maga o'tkazadi | it carries perpendicularity from the projection to the oblique |
+| `q3.b` | сравнивает длины | uzunliklarni solishtiradi | it compares lengths |
+| `q3.b.hint` | Про длины там речи нет вовсе. | Unda uzunliklar haqida gap yo'q. | It says nothing about lengths at all. |
+| `q3.c` | строит перпендикуляр | perpendikulyar quradi | it builds a perpendicular |
+| `q3.c.hint` | Перпендикуляр в ней уже дан. | Perpendikulyar unda allaqachon berilgan. | The perpendicular is already given in it. |
+| `q3.d` | измеряет угол | burchakni o'lchaydi | it measures the angle |
+| `q3.d.hint` | Углы она не считает, она их переносит. | U burchaklarni hisoblamaydi, ularni o'tkazadi. | It does not compute angles, it carries them over. |
+| `audio.mount` | Три вопроса про прошлый урок. Проекция понадобится сразу. | O'tgan dars haqida uch savol. Proyeksiya darhol kerak bo'ladi. | Three questions about the last lesson. The projection will be needed at once. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `q1.done` | `log₂ 8 = 3` |
-| `q2.done` | `logₐ b + logₐ c = logₐ (b·c)` |
-| `q3.done` | `logₐ 1 = 0` |
+| `q1.done` | `BC ⊂ α` |
+| `q2.done` | `AB < AC` |
+| `q3.done` | `c ⊥ BC ⇔ c ⊥ AC` |
 
 ---
 
-## Экран 3 · `explain1` · ответ `number` · тег `stepen-vnutri-logarifma`
+## Экран 3 · `explain1` · ответ `number` · тег `kartinka-kak-dokazatelstvo`
 
-Считаем напрямую, без всяких свойств.
+Проекция прямой строится на глазах.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
-| `title` | Посчитаем без правил | Qoidalarsiz hisoblaymiz | Let us compute without any rules |
-| `show.1.1` | под знаком стоит восемь в кубе | belgi ostida sakkiz kubi turibdi | eight cubed stands under the sign |
-| `show.1.2` | восемь в кубе это пятьсот двенадцать | sakkiz kubi bu besh yuz o'n ikki | eight cubed is five hundred twelve |
-| `show.1.3` | значит это логарифм пятисот двенадцати | demak bu besh yuz o'n ikkining logarifmi | so this is the logarithm of five hundred twelve |
-| `show.2.1` | ищем показатель двойки | ikkining ko'rsatkichini izlaymiz | we look for the exponent of two |
-| `show.2.2` | два в девятой это пятьсот двенадцать | ikkining to'qqizinchi darajasi besh yuz o'n ikki | two to the ninth is five hundred twelve |
-| `show.2.3` | ответ девять, и он получен счётом | javob to'qqiz, va u hisob bilan olingan | the answer is nine, and it came from counting |
-| `audio.mount` | Никаких свойств пока не берём. Посчитаем это выражение прямо, как считали бы в шестом классе. | Hozircha hech qanday xossa olmaymiz. Bu ifodani oltinchi sinfda hisoblagandek to'g'ridan hisoblaymiz. | We will not use any properties yet. Let us compute this expression directly. |
-| `audio.plain*` | Под знаком логарифма стоит восемь в кубе. Восемь в кубе это восемь на восемь на восемь, то есть пятьсот двенадцать. Значит перед нами логарифм пятисот двенадцати по основанию два, и вопрос простой: в какой степени надо взять двойку, чтобы вышло пятьсот двенадцать. Идём по степеням двойки: два, четыре, восемь, шестнадцать, тридцать два, шестьдесят четыре, сто двадцать восемь, двести пятьдесят шесть, пятьсот двенадцать. Это девятая степень. Ответ девять. Мы не применили ни одного свойства, мы просто посчитали. | Logarifm belgisi ostida sakkiz kubi turibdi. Sakkiz kubi bu sakkiz kerra sakkiz kerra sakkiz, ya'ni besh yuz o'n ikki. Demak oldimizda besh yuz o'n ikkining ikki asosga ko'ra logarifmi, savol esa oddiy: besh yuz o'n ikki chiqishi uchun ikkini qaysi darajaga ko'tarish kerak. Ikkining darajalari bo'ylab yuramiz: ikki, to'rt, sakkiz, o'n olti, o'ttiz ikki, oltmish to'rt, bir yuz yigirma sakkiz, ikki yuz ellik olti, besh yuz o'n ikki. Bu to'qqizinchi daraja. Javob to'qqiz. Biz birorta xossa qo'llamadik, shunchaki hisobladik. | Eight cubed stands under the logarithm sign. Eight cubed is eight times eight times eight, that is five hundred twelve. So what we have is the logarithm of five hundred twelve to base two, and the question is simple: to what power must two be raised to give five hundred twelve. Let us walk the powers of two: two, four, eight, sixteen, thirty two, sixty four, one hundred twenty eight, two hundred fifty six, five hundred twelve. That is the ninth power. The answer is nine. We applied no property at all, we just counted. |
-| `audio.work` | Посчитай сам. Чему равно это выражение? | O'zingiz hisoblang. Bu ifoda nechaga teng? | Work it out yourself. What does this expression equal? |
-| `work.prompt` | Чему равно выражение? | Ifoda nechaga teng? | What does the expression equal? |
-| `work.ok` | Девять. Двойка в девятой степени даёт пятьсот двенадцать. | To'qqiz. Ikkining to'qqizinchi darajasi besh yuz o'n ikki beradi. | Nine. Two to the ninth gives five hundred twelve. |
-| `work.hint.1` | Сначала посчитай восемь в кубе. | Avval sakkiz kubini hisoblang. | First compute eight cubed. |
-| `work.hint.2` | Пятьсот двенадцать это степень двойки. Какая? | Besh yuz o'n ikki ikkining darajasi. Qaysi biri? | Five hundred twelve is a power of two. Which one? |
-| `work.hint.3` | Девять. | To'qqiz. | Nine. |
+| `title` | Основания перпендикуляров дают прямую | Perpendikulyar asoslari to'g'ri chiziq beradi | The feet of the perpendiculars give a line |
+| `show.1.1` | из точек прямой падают перпендикуляры | to'g'ri chiziq nuqtalaridan perpendikulyarlar tushadi | perpendiculars drop from the points of the line |
+| `show.1.2` | их основания ложатся в плоскость | ularning asoslari tekislikka tushadi | their feet land in the plane |
+| `show.2.1` | основания легли на одну прямую | asoslar bitta to'g'ri chiziqqa tushdi | the feet fell on one line |
+| `show.2.2` | это проекция прямой на плоскость | bu to'g'ri chiziqning tekislikdagi proyeksiyasi | this is the projection of the line on the plane |
+| `audio.mount` | Возьмём на прямой несколько точек и из каждой опустим перпендикуляр на плоскость. | To'g'ri chiziqda bir necha nuqta olamiz va har biridan tekislikka perpendikulyar tushiramiz. | Take several points on the line and drop a perpendicular from each onto the plane. |
+| `audio.move*` | Смотри, куда попадают основания. Они не разбросаны, они выстроились в одну прямую, и эта прямая называется проекцией нашей прямой на плоскость. Так и написано в учебнике на странице сто тридцать восемь. Поверни сцену и следи за проекцией. Она остаётся в плоскости при любом положении сцены, потому что построена из точек плоскости. Наклонная прямая при повороте уходит из плоскости, а её проекция нет. | Asoslar qayerga tushishiga qarang. Ular sochilib ketmadi, bitta to'g'ri chiziqqa tizildi, va bu chiziq bizning to'g'ri chizig'imizning tekislikdagi proyeksiyasi deb ataladi. Darslikda bir yuz o'ttiz sakkizinchi betda ham shunday yozilgan. Sahnani buring va proyeksiyaga qarang. U sahnaning har qanday holatida tekislikda qoladi, chunki tekislik nuqtalaridan qurilgan. Og'ma chiziq burilishda tekislikdan chiqadi, uning proyeksiyasi esa yo'q. | Look at where the feet land. They are not scattered, they line up on one line, and that line is called the projection of our line on the plane. That is exactly what the textbook says on page one hundred thirty eight. Rotate the scene and watch the projection. It stays in the plane at any position of the scene, because it is built from points of the plane. Under rotation the slanted line leaves the plane, its projection does not. |
+| `audio.work` | Посчитай сам. Сколько прямых получается из оснований этих перпендикуляров? | O'zingiz hisoblang. Bu perpendikulyarlarning asoslaridan nechta to'g'ri chiziq chiqadi? | Work it out yourself. How many lines come out of the feet of these perpendiculars? |
+| `work.prompt` | Сколько прямых дают основания? | Asoslar nechta to'g'ri chiziq beradi? | How many lines do the feet give? |
+| `work.ok` | Одна. Основания всех перпендикуляров лежат на одной прямой, и это проекция. | Bitta. Barcha perpendikulyarlarning asoslari bitta to'g'ri chiziqda yotadi, va bu proyeksiya. | One. The feet of all the perpendiculars lie on one line, and that is the projection. |
+| `work.hint.1` | Посмотри, разбросаны основания или выстроены. | Asoslar sochilganmi yoki tizilganmi, qarang. | See whether the feet are scattered or lined up. |
+| `work.hint.2` | Через две точки проходит ровно одна прямая. | Ikki nuqta orqali roppa-rosa bitta to'g'ri chiziq o'tadi. | Exactly one line passes through two points. |
+| `work.hint.3` | Одна. | Bitta. | One. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `frameA` | `log₂ 8³ = log₂ 512` |
-| `frameB` | `2⁹ = 512` |
-| `work.expr` | `log₂ 8³` |
-| `work.answer` | `9` |
+| `expr` | `a₁ ⊂ α` |
+| `work.answer` | `1` |
 
 ---
 
-## Экран 4 · `explain2` · ответ `order` · тег `stepen-vnutri-logarifma`
+## Экран 4 · `explain2` · ответ `number` · тег `ugol-ne-s-proekciey`
 
-Разграничение: показатель под знаком и показатель у логарифма.
+Разграничение: проекция даёт наименьший угол.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | РАЗГРАНИЧЕНИЕ | FARQLASH | TELLING THEM APART |
-| `title` | Две записи, которые легко спутать | Chalkashtirish oson bo'lgan ikki yozuv | Two writings easy to confuse |
-| `show.1.1` | слева куб стоит под знаком | chapda kub belgi ostida turadi | on the left the cube is under the sign |
-| `show.1.2` | справа в куб возведён сам логарифм | o'ngda logarifmning o'zi kubga ko'tarilgan | on the right the logarithm itself is cubed |
-| `show.1.3` | скобки стоят в разных местах | qavslar har xil joyda turibdi | the brackets stand in different places |
-| `show.2.1` | слева выходит девять | chapda to'qqiz chiqadi | the left gives nine |
-| `show.2.2` | справа выходит двадцать семь | o'ngda yigirma yetti chiqadi | the right gives twenty seven |
-| `show.2.3` | значит это разные выражения | demak bular har xil ifodalar | so these are different expressions |
-| `audio.mount` | Две записи стоят рядом. Отличаются они только местом скобок. | Ikki yozuv yonma-yon turibdi. Ular faqat qavs joyi bilan farq qiladi. | Two writings stand side by side. They differ only in where the brackets are. |
-| `audio.two*` | Слева куб стоит под знаком логарифма: сначала восемь возводят в куб, потом берут логарифм. Мы уже посчитали это, вышло девять. Справа в куб возводят сам логарифм: сначала берут логарифм восьми, это три, и уже три возводят в куб, выходит двадцать семь. Девять и двадцать семь разные числа, значит и записи разные. Отсюда и правило: показатель из-под знака выходит наружу множителем, а не остаётся показателем. Три умножить на логарифм восьми, это три на три, снова девять. Счёт напрямую и правило сошлись, и это проверка правила, а не его повторение. | Chapda kub logarifm belgisi ostida turadi: avval sakkiz kubga ko'tariladi, keyin logarifm olinadi. Buni biz hisoblab bo'ldik, to'qqiz chiqdi. O'ngda logarifmning o'zi kubga ko'tariladi: avval sakkizning logarifmi olinadi, bu uch, va uchning o'zi kubga ko'tariladi, yigirma yetti chiqadi. To'qqiz va yigirma yetti har xil sonlar, demak yozuvlar ham har xil. Qoida shundan: belgi ostidagi ko'rsatkich tashqariga ko'paytuvchi bo'lib chiqadi, ko'rsatkich bo'lib qolmaydi. Uch kerra sakkizning logarifmi, bu uch kerra uch, yana to'qqiz. To'g'ridan hisob va qoida to'g'ri keldi, va bu qoidaning tekshiruvi, uni takrorlash emas. | On the left the cube is under the logarithm sign: first eight is cubed, then the logarithm is taken. We have already computed that, it gave nine. On the right the logarithm itself is cubed: first the logarithm of eight is taken, that is three, and then three is cubed, giving twenty seven. Nine and twenty seven are different numbers, so the writings are different too. Hence the rule: the exponent from under the sign comes out as a factor, it does not stay an exponent. Three times the logarithm of eight is three times three, nine again. The direct count and the rule agree, and that is a test of the rule, not a repetition of it. |
-| `audio.work` | Расставь шаги в том порядке, в котором мы считали левую запись. | Chap yozuvni hisoblagan tartibimizda qadamlarni joylashtiring. | Put the steps in the order in which we computed the left writing. |
-| `order.prompt` | Расставь шаги по порядку | Qadamlarni tartib bilan joylashtiring | Put the steps in order |
-| `order.s1` | восемь в кубе | sakkiz kubi | eight cubed |
-| `order.s2` | это пятьсот двенадцать | bu besh yuz o'n ikki | that is five hundred twelve |
-| `order.s3` | это два в девятой | bu ikkining to'qqizinchisi | that is two to the ninth |
-| `order.s4` | логарифм равен девяти | logarifm to'qqizga teng | the logarithm equals nine |
-| `order.ok` | Верно. Показатель вышел множителем, и счёт это подтвердил. | To'g'ri. Ko'rsatkich ko'paytuvchi bo'lib chiqdi, hisob buni tasdiqladi. | Correct. The exponent came out as a factor, and the count confirmed it. |
-| `order.bad` | Начни с того, что стоит под знаком, а не с логарифма. | Logarifmdan emas, belgi ostidagidan boshlang. | Start with what is under the sign, not with the logarithm. |
+| `title` | Две дуги, и они разные | Ikki duga, va ular boshqa-boshqa | Two arcs, and they differ |
+| `show.1.1` | одна дуга между прямой и проекцией | biri to'g'ri chiziq va proyeksiya orasida | one arc between the line and the projection |
+| `show.1.2` | другая между прямой и второй прямой плоскости | ikkinchisi to'g'ri chiziq va tekislikning boshqa chizig'i orasida | the other between the line and a second line of the plane |
+| `show.2.1` | поверни сцену и сравни дуги | sahnani buring va dugalarni solishtiring | rotate the scene and compare the arcs |
+| `show.2.2` | с проекцией угол наименьший | proyeksiya bilan burchak eng kichik | with the projection the angle is the smallest |
+| `audio.mount` | В плоскости взята вторая прямая через ту же точку, и угол с ней тоже отмечен дугой. | Tekislikda o'sha nuqta orqali ikkinchi to'g'ri chiziq olingan, va u bilan burchak ham duga bilan belgilangan. | A second line of the plane is taken through the same point, and the angle with it is also marked by an arc. |
+| `audio.move*` | На неподвижном чертеже вторая дуга кажется меньше, и рука сама тянется взять её. Поверни сцену и посмотри снова. Дуга с проекцией остаётся самой узкой при любом положении, а вторая то растёт, то сжимается, потому что мы видим её под разными ракурсами. Углом между прямой и плоскостью считают именно наименьший, и он достигается на проекции. Все остальные прямые плоскости дают углы больше. | Qimirlamas chizmada ikkinchi duga kichikroq ko'rinadi, va qo'l o'zi uni olishga cho'ziladi. Sahnani buring va yana qarang. Proyeksiya bilan duga har qanday holatda eng tor qoladi, ikkinchisi esa goh o'sadi, goh qisqaradi, chunki biz uni turli rakursdan ko'ramiz. To'g'ri chiziq va tekislik orasidagi burchak deb aynan eng kichigi olinadi, va u proyeksiyada erishiladi. Tekislikning qolgan barcha chiziqlari kattaroq burchak beradi. | On a still drawing the second arc seems smaller, and the hand reaches for it by itself. Rotate the scene and look again. The arc with the projection stays the narrowest at any position, while the second one grows and shrinks, because we see it from different views. The angle between a line and a plane is taken to be the smallest one, and it is reached on the projection. All the other lines of the plane give bigger angles. |
+| `audio.work` | Посчитай сам. Сколько прямых плоскости дают наименьший угол с нашей прямой? | O'zingiz hisoblang. Tekislikning nechta chizig'i bizning chizig'imiz bilan eng kichik burchak beradi? | Work it out yourself. How many lines of the plane give the smallest angle with our line? |
+| `work.prompt` | Сколько таких прямых? | Shunday chiziq nechta? | How many such lines? |
+| `work.ok` | Одна, и это проекция. Остальные дают углы больше. | Bitta, va bu proyeksiya. Qolganlari kattaroq burchak beradi. | One, and it is the projection. The rest give bigger angles. |
+| `work.hint.1` | Поверни сцену и посмотри, какая дуга остаётся узкой всегда. | Sahnani buring va qaysi duga doim tor qolishini ko'ring. | Rotate the scene and see which arc always stays narrow. |
+| `work.hint.2` | Проекция у прямой одна. | To'g'ri chiziqning proyeksiyasi bitta. | A line has one projection. |
+| `work.hint.3` | Одна. | Bitta. | One. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `frameA` | `log₂ 8³ = 9` |
-| `frameB` | `(log₂ 8)³ = 27` |
-| `order.mark` | `log₂ b^p = p·log₂ b` |
+| `expr` | `∠(a; a₁) < ∠(a; b)` |
+| `work.answer` | `1` |
 
 ---
 
-## Экран 5 · `explain3` · ответ `number` · тег `log-summy`
+## Экран 5 · `explain3` · ответ `number` · тег `ugol-ne-s-proekciey`
 
-Задание учебника: свернуть сумму в один логарифм.
+Крайние случаи со стр. 138.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
-| `title` | Сумма сворачивается в один знак | Yig'indi bitta belgiga yig'iladi | A sum folds into a single sign |
-| `show.1.1` | два логарифма с одним основанием | bir asosli ikki logarifm | two logarithms with the same base |
-| `show.1.2` | по отдельности они не считаются | alohida ular hisoblanmaydi | separately neither of them computes |
-| `show.1.3` | сумма это логарифм произведения | yig'indi ko'paytmaning logarifmi | a sum is the logarithm of the product |
-| `show.2.1` | восемнадцать умножить на одну пятьдесят четвёртую | o'n sakkizni bir ellik to'rtdanga ko'paytirish | eighteen times one fifty fourth |
-| `show.2.2` | под знаком остаётся одна третья | belgi ostida bir uchdan qoladi | one third remains under the sign |
-| `show.2.3` | значит ответ минус один | demak javob minus bir | so the answer is minus one |
-| `audio.mount` | Задание из учебника. Ни один из двух логарифмов по отдельности не считается. | Darslikdagi topshiriq. Ikki logarifmning bittasi ham alohida hisoblanmaydi. | A task from the textbook. Neither of the two logarithms computes on its own. |
-| `audio.fold*` | Логарифм восемнадцати по основанию три не целое число, и логарифм одной пятьдесят четвёртой тоже. Но основания у них одинаковые, а значит сумму можно свернуть в один логарифм произведения. Восемнадцать умножить на одну пятьдесят четвёртую это восемнадцать делить на пятьдесят четыре, то есть одна третья. Остаётся логарифм одной третьей по основанию три. В какой степени надо взять тройку, чтобы вышла одна третья? В минус первой. Ответ минус один. Обрати внимание, каждый кусок по отдельности был неудобным, а вместе они дали целое число. Так бывает часто, и именно поэтому сначала сворачивают, а потом считают. | O'n sakkizning uch asosga ko'ra logarifmi butun son emas, bir ellik to'rtdanniki ham. Lekin ularning asoslari bir xil, demak yig'indini ko'paytmaning bitta logarifmiga yig'ish mumkin. O'n sakkizni bir ellik to'rtdanga ko'paytirish bu o'n sakkizni ellik to'rtga bo'lish, ya'ni bir uchdan. Bir uchdanning uch asosga ko'ra logarifmi qoladi. Bir uchdan chiqishi uchun uchni qaysi darajaga ko'tarish kerak? Minus birinchiga. Javob minus bir. E'tibor bering, har bir bo'lak alohida noqulay edi, birga esa ular butun son berdi. Bu tez-tez uchraydi, aynan shuning uchun avval yig'iladi, keyin hisoblanadi. | The logarithm of eighteen to base three is not a whole number, and neither is the logarithm of one fifty fourth. But their bases are the same, so the sum can be folded into a single logarithm of the product. Eighteen times one fifty fourth is eighteen divided by fifty four, that is one third. What remains is the logarithm of one third to base three. To what power must three be raised to give one third? To minus one. The answer is minus one. Notice that each piece on its own was awkward, while together they gave a whole number. That happens often, and it is exactly why you fold first and compute afterwards. |
-| `audio.work` | Посчитай сам. Чему равна эта сумма? | O'zingiz hisoblang. Bu yig'indi nechaga teng? | Work it out yourself. What does this sum equal? |
-| `work.prompt` | Чему равна сумма? | Yig'indi nechaga teng? | What does the sum equal? |
-| `work.ok` | Минус один. Под знаком осталась одна третья, а это тройка в минус первой. | Minus bir. Belgi ostida bir uchdan qoldi, bu esa uchning minus birinchi darajasi. | Minus one. One third is left under the sign, and that is three to the minus one. |
-| `work.hint.1` | Сверни сумму в один логарифм произведения. | Yig'indini ko'paytmaning bitta logarifmiga yig'ing. | Fold the sum into a single logarithm of a product. |
-| `work.hint.2` | Восемнадцать делить на пятьдесят четыре это одна третья. | O'n sakkizni ellik to'rtga bo'lish bir uchdan. | Eighteen divided by fifty four is one third. |
-| `work.hint.3` | Минус один. | Minus bir. | Minus one. |
+| `eyebrow` | КРАЙНИЕ СЛУЧАИ | CHEGARA HOLLAR | THE EXTREME CASES |
+| `title` | Девяносто и ноль | To'qson va nol | Ninety and zero |
+| `show.1.1` | прямая встала перпендикулярно плоскости | to'g'ri chiziq tekislikka perpendikulyar bo'ldi | the line stood perpendicular to the plane |
+| `show.1.2` | её проекция сжалась в точку | uning proyeksiyasi nuqtaga siqildi | its projection shrank to a point |
+| `show.2.1` | теперь прямая параллельна плоскости | endi to'g'ri chiziq tekislikka parallel | now the line is parallel to the plane |
+| `show.2.2` | проекция идёт рядом с ней | proyeksiya uning yonidan boradi | the projection runs beside it |
+| `audio.mount` | Два случая, которые определением не покрываются, и учебник задаёт их отдельно. | Ta'rif qamramaydigan ikki hol, va darslik ularni alohida beradi. | Two cases the definition does not cover, and the textbook sets them separately. |
+| `audio.move*` | Сначала прямая перпендикулярна плоскости. Её проекция сжалась в точку, и угол с проекцией уже не построить. Для этого случая угол считают равным девяноста градусам. Теперь прямая параллельна плоскости. Проекция идёт рядом с ней и никогда её не встретит, и угол в этом случае считают равным нулю. Оба соглашения записаны в учебнике на странице сто тридцать восемь, и оба согласованы с остальными углами. | Avval to'g'ri chiziq tekislikka perpendikulyar. Uning proyeksiyasi nuqtaga siqildi, va proyeksiya bilan burchakni qurib bo'lmaydi. Bu hol uchun burchak to'qson darajaga teng deb olinadi. Endi to'g'ri chiziq tekislikka parallel. Proyeksiya uning yonidan boradi va uni hech qachon uchratmaydi, va bu holda burchak nolga teng deb olinadi. Ikkala kelishuv ham darslikning bir yuz o'ttiz sakkizinchi betida yozilgan, va ikkalasi ham qolgan burchaklar bilan mos. | First the line is perpendicular to the plane. Its projection shrank to a point and the angle with the projection can no longer be built. For that case the angle is taken to be ninety degrees. Now the line is parallel to the plane. The projection runs beside it and will never meet it, and in that case the angle is taken to be zero. Both conventions are written in the textbook on page one hundred thirty eight, and both agree with the other angles. |
+| `audio.work` | Посчитай сам. Сколько градусов в угле между плоскостью и перпендикулярной ей прямой? | O'zingiz hisoblang. Tekislik va unga perpendikulyar to'g'ri chiziq orasidagi burchak necha daraja? | Work it out yourself. How many degrees are in the angle between a plane and a line perpendicular to it? |
+| `work.prompt` | Сколько градусов? | Necha daraja? | How many degrees? |
+| `work.ok` | Девяносто. Проекция сжалась в точку, и это соглашение из учебника. | To'qson. Proyeksiya nuqtaga siqildi, va bu darslikdagi kelishuv. | Ninety. The projection shrank to a point, and this is the convention from the textbook. |
+| `work.hint.1` | Посмотри, во что превратилась проекция. | Proyeksiya nimaga aylanganini ko'ring. | See what the projection has turned into. |
+| `work.hint.2` | Перпендикуляр даёт прямой угол с каждой прямой плоскости. | Perpendikulyar tekislikning har bir chizig'i bilan to'g'ri burchak beradi. | A perpendicular gives a right angle with every line of the plane. |
+| `work.hint.3` | Девяносто. | To'qson. | Ninety. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `frameA` | `log₃ 18 + log₃ (1/54)` |
-| `frameB` | `log₃ (1/3) = −1` |
-| `work.expr` | `log₃ 18 + log₃ (1/54)` |
-| `work.answer` | `−1` |
+| `expr` | `a ⊥ α   →   ∠(a; α) = 90°` |
+| `work.answer` | `90` |
 
 ---
 
-## Экран 6 · `explain4` · ответ `number` · тег `stepen-vnutri-logarifma`
+## Экран 6 · `explain4` · ответ `number` · тег `ugol-ne-s-proekciey`
 
-Сам: задание учебника с двумя множителями.
+Сам: диагональ грани куба и плоскость основания.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | САМ | O'ZINGIZ | ON YOUR OWN |
-| `title` | Два логарифма и два множителя | Ikki logarifm va ikki ko'paytuvchi | Two logarithms and two factors |
-| `show.1.1` | основания разные, свернуть нельзя | asoslar har xil, yig'ib bo'lmaydi | the bases differ, folding is impossible |
-| `show.1.2` | зато каждый считается отдельно | buning evaziga har biri alohida hisoblanadi | but each of them computes separately |
-| `show.1.3` | логарифм восьми равен трём | sakkizning logarifmi uchga teng | the logarithm of eight equals three |
-| `show.2.1` | логарифм девяти равен двум | to'qqizning logarifmi ikkiga teng | the logarithm of nine equals two |
-| `show.2.2` | три на три минус два на два | uch kerra uch minus ikki kerra ikki | three times three minus two times two |
-| `show.2.3` | девять минус четыре | to'qqiz minus to'rt | nine minus four |
-| `audio.mount` | Ещё одно задание из учебника. Здесь основания разные, и это меняет ход. | Darslikdagi yana bir topshiriq. Bu yerda asoslar har xil, va bu yo'lni o'zgartiradi. | One more task from the textbook. Here the bases differ, and that changes the route. |
-| `audio.calc*` | Основания разные, два и три, поэтому сворачивать нечего: правило суммы работает только при одинаковых основаниях. Зато каждый логарифм считается сам по себе. Логарифм восьми по основанию два равен трём, значит первое слагаемое это три умножить на три. Логарифм девяти по основанию три равен двум, значит второе это два умножить на два. Остаётся вычесть. Смотри, что здесь важно: множитель впереди не убирают и не заносят обратно под знак, его просто применяют в конце. | Asoslar har xil, ikki va uch, shuning uchun yig'adigan narsa yo'q: yig'indi qoidasi faqat bir xil asoslarda ishlaydi. Buning evaziga har bir logarifm o'zicha hisoblanadi. Sakkizning ikki asosga ko'ra logarifmi uchga teng, demak birinchi qo'shiluvchi uch kerra uch. To'qqizning uch asosga ko'ra logarifmi ikkiga teng, demak ikkinchisi ikki kerra ikki. Ayirish qoladi. Qarang, bu yerda nima muhim: oldindagi ko'paytuvchi olib tashlanmaydi va qaytadan belgi ostiga kiritilmaydi, u oxirida qo'llaniladi xolos. | The bases differ, two and three, so there is nothing to fold: the sum rule works only for equal bases. But each logarithm computes on its own. The logarithm of eight to base two equals three, so the first term is three times three. The logarithm of nine to base three equals two, so the second is two times two. Subtraction is what remains. Notice what matters here: the factor in front is not removed and not pushed back under the sign, it is simply applied at the end. |
-| `audio.work` | Посчитай сам. Чему равно это выражение? | O'zingiz hisoblang. Bu ifoda nechaga teng? | Work it out yourself. What does this expression equal? |
-| `work.prompt` | Чему равно выражение? | Ifoda nechaga teng? | What does the expression equal? |
-| `work.ok` | Пять. Девять минус четыре. | Besh. To'qqiz minus to'rt. | Five. Nine minus four. |
-| `work.hint.1` | Посчитай каждый логарифм отдельно. | Har bir logarifmni alohida hisoblang. | Compute each logarithm separately. |
-| `work.hint.2` | Три на три это девять, два на два это четыре. | Uch kerra uch to'qqiz, ikki kerra ikki to'rt. | Three times three is nine, two times two is four. |
-| `work.hint.3` | Пять. | Besh. | Five. |
+| `title` | Диагональ грани и основание | Yoq diagonali va asos | A face diagonal and the base |
+| `show.1.1` | в кубе взята диагональ боковой грани | kubda yon yoqning diagonali olingan | a diagonal of a side face is taken in the cube |
+| `show.1.2` | её проекция это ребро основания | uning proyeksiyasi asos qirrasi | its projection is an edge of the base |
+| `show.2.1` | поверни куб и посмотри на треугольник | kubni buring va uchburchakka qarang | rotate the cube and look at the triangle |
+| `show.2.2` | два его катета равны | uning ikki kateti teng | its two legs are equal |
+| `audio.mount` | Куб, и в нём диагональ боковой грани. Её проекция на плоскость основания это ребро. | Kub, va unda yon yoqning diagonali. Uning asos tekisligidagi proyeksiyasi qirra. | A cube, and in it a diagonal of a side face. Its projection on the plane of the base is an edge. |
+| `audio.move*` | Диагональ, её проекция и боковое ребро дают прямоугольный треугольник. Прямой угол стоит там, где боковое ребро приходит в основание, и мы уже знаем почему. У куба все рёбра равны, значит два катета этого треугольника равны, а такой прямоугольный треугольник равнобедренный. Углы при его гипотенузе по сорок пять градусов. Поверни куб и убедись, что треугольник не разваливается ни при каком повороте. Угол посчитан, а не измерен с картинки. | Diagonal, uning proyeksiyasi va yon qirra to'g'ri burchakli uchburchak beradi. To'g'ri burchak yon qirra asosga kelgan joyda turadi, va nima uchun ekanini biz allaqachon bilamiz. Kubning barcha qirralari teng, demak bu uchburchakning ikki kateti teng, bunday to'g'ri burchakli uchburchak esa teng yonli. Uning gipotenuzasidagi burchaklar qirq besh daraja. Kubni buring va uchburchak hech qanday burilishda buzilmasligiga ishonch hosil qiling. Burchak hisoblangan, rasmdan o'lchanmagan. | The diagonal, its projection and the side edge give a right triangle. The right angle stands where the side edge arrives at the base, and we already know why. All edges of a cube are equal, so the two legs of that triangle are equal, and such a right triangle is isosceles. The angles at its hypotenuse are forty five degrees each. Rotate the cube and make sure the triangle does not fall apart at any rotation. The angle is computed, not measured off the picture. |
+| `audio.work` | Посчитай сам. Сколько градусов между диагональю грани и плоскостью основания? | O'zingiz hisoblang. Yoq diagonali va asos tekisligi orasida necha daraja? | Work it out yourself. How many degrees are between the face diagonal and the plane of the base? |
+| `work.prompt` | Сколько градусов? | Necha daraja? | How many degrees? |
+| `work.ok` | Сорок пять. Катеты равны, треугольник равнобедренный. | Qirq besh. Katetlar teng, uchburchak teng yonli. | Forty five. The legs are equal, the triangle is isosceles. |
+| `work.hint.1` | Найди прямоугольный треугольник с этой диагональю в гипотенузе. | Gipotenuzasida shu diagonal bo'lgan to'g'ri burchakli uchburchakni toping. | Find the right triangle with this diagonal as the hypotenuse. |
+| `work.hint.2` | Боковое ребро и ребро основания у куба равны. | Kubning yon qirrasi va asos qirrasi teng. | The side edge and the base edge of a cube are equal. |
+| `work.hint.3` | В равнобедренном прямоугольном треугольнике острые углы по сорок пять. | Teng yonli to'g'ri burchakli uchburchakda o'tkir burchaklar qirq beshtadan. | In an isosceles right triangle the acute angles are forty five each. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `frameA` | `3log₂ 8 − 2log₃ 9` |
-| `frameB` | `3·3 − 2·2` |
-| `work.expr` | `3log₂ 8 − 2log₃ 9` |
-| `work.answer` | `5` |
+| `expr` | `AB₁ ⊥̸ ABCD,   AB = BB₁` |
+| `work.answer` | `45` |
 
 ---
 
-## Экран 7 · `explain5` · ответ `number` · тег `perehod-perevernuli`
+## Экран 7 · `explain5` · ответ `number` · тег `odnoy-pryamoy-hvatit`
 
-Граничный: основания не совпадают и не считаются.
+Граница: проекция сжалась в точку.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | ГРАНИЧНЫЙ СЛУЧАЙ | CHEGARAVIY HOL | THE EDGE CASE |
-| `title` | Когда основание неудобное | Asos noqulay bo'lganda | When the base is inconvenient |
-| `show.1.1` | основание девять, число восемьдесят один | asos to'qqiz, son sakson bir | the base is nine, the number is eighty one |
-| `show.1.2` | оба они степени тройки | ikkalasi ham uchning darajasi | both are powers of three |
-| `show.1.3` | переходим к основанию три | uch asosga o'tamiz | we move to base three |
-| `show.2.1` | сверху логарифм числа | yuqorida sonning logarifmi | the logarithm of the number goes on top |
-| `show.2.2` | снизу логарифм основания | pastda asosning logarifmi | the logarithm of the base goes below |
-| `show.2.3` | четыре делить на два | to'rtni ikkiga bo'lish | four divided by two |
-| `audio.mount` | Последний инструмент урока. Он нужен, когда основания разные, а свести их надо. | Darsning oxirgi asbobi. U asoslar har xil bo'lgan va ularni birlashtirish kerak bo'lganda kerak. | The last tool of the lesson. It is needed when the bases differ and have to be brought together. |
-| `audio.base*` | Логарифм восемьдесят одного по основанию девять. Обе цифры это степени тройки, поэтому удобно перейти к основанию три. Формула перехода такая: сверху логарифм числа, снизу логарифм основания, оба по новому основанию. Сверху логарифм восемьдесят одного по основанию три, это четыре. Снизу логарифм девяти по основанию три, это два. Четыре делить на два, ответ два. Проверим: девять в квадрате равно восемьдесят одному, всё сходится. А теперь посмотри, что бывает при перевёрнутой дроби. Два делить на четыре это одна вторая. Проверим: девять в степени одна вторая это три, а не восемьдесят один. Не сходится. Запомнить порядок помогает то же слово, что и в самом логарифме: сверху всегда число, снизу всегда основание. | Sakson birning to'qqiz asosga ko'ra logarifmi. Ikkala raqam ham uchning darajasi, shuning uchun uch asosga o'tish qulay. O'tish formulasi shunday: yuqorida sonning logarifmi, pastda asosning logarifmi, ikkalasi ham yangi asosda. Yuqorida sakson birning uch asosga ko'ra logarifmi, bu to'rt. Pastda to'qqizning uch asosga ko'ra logarifmi, bu ikki. To'rtni ikkiga bo'lish, javob ikki. Tekshiramiz: to'qqiz kvadrati sakson birga teng, hammasi to'g'ri keladi. Endi kasr ag'darilsa nima bo'lishiga qarang. Ikkini to'rtga bo'lish bir ikkidan. Tekshiramiz: to'qqizning bir ikkidan darajasi uch, sakson bir emas. To'g'ri kelmadi. Tartibni eslashga logarifmning o'zidagi so'z yordam beradi: yuqorida doim son, pastda doim asos. | The logarithm of eighty one to base nine. Both figures are powers of three, so it is convenient to move to base three. The change of base formula goes like this: the logarithm of the number on top, the logarithm of the base below, both to the new base. On top, the logarithm of eighty one to base three, that is four. Below, the logarithm of nine to base three, that is two. Four divided by two, the answer is two. Let us check: nine squared equals eighty one, everything agrees. Now look at what happens with the fraction upside down. Two divided by four is one half. Let us check: nine to the power one half is three, not eighty one. It does not agree. What helps to remember the order is the same word as in the logarithm itself: the number is always on top, the base always below. |
-| `audio.work` | Посчитай сам. Чему равен этот логарифм? | O'zingiz hisoblang. Bu logarifm nechaga teng? | Work it out yourself. What does this logarithm equal? |
-| `work.prompt` | Чему равен логарифм? | Logarifm nechaga teng? | What does the logarithm equal? |
-| `work.ok` | Два. Четыре делить на два. Проверка: девять в квадрате равно восемьдесят одному. | Ikki. To'rtni ikkiga bo'lish. Tekshiruv: to'qqiz kvadrati sakson birga teng. | Two. Four divided by two. Check: nine squared equals eighty one. |
-| `work.hint.1` | Перейди к основанию три: и девять, и восемьдесят один это степени тройки. | Uch asosga o'ting: to'qqiz ham, sakson bir ham uchning darajasi. | Move to base three: both nine and eighty one are powers of three. |
-| `work.hint.2` | Сверху четыре, снизу два. | Yuqorida to'rt, pastda ikki. | Four on top, two below. |
-| `work.hint.3` | Два. | Ikki. | Two. |
+| `eyebrow` | ГРАНИЦА | CHEGARA | THE BOUNDARY |
+| `title` | Когда проекция это точка | Proyeksiya nuqta bo'lganda | When the projection is a point |
+| `show.1.1` | прямая наклонена, проекция это отрезок | chiziq og'gan, proyeksiya kesma | the line is slanted, the projection is a segment |
+| `show.1.2` | наклон уменьшается, проекция короче | og'ish kamayadi, proyeksiya qisqaradi | the slant decreases, the projection gets shorter |
+| `show.2.1` | прямая встала вертикально | chiziq tik turdi | the line stood upright |
+| `show.2.2` | проекция стала точкой | proyeksiya nuqtaga aylandi | the projection became a point |
+| `audio.mount` | Прямая наклонена, и её проекция это отрезок в плоскости. | Chiziq og'gan, va uning proyeksiyasi tekislikdagi kesma. | The line is slanted, and its projection is a segment in the plane. |
+| `audio.move*` | Проекция становится всё короче, и в момент, когда прямая перпендикулярна плоскости, она стягивается в одну точку. Это удобная проверка, и она работает в обе стороны. Если проекция прямой это точка, то прямая перпендикулярна плоскости. Если проекция это отрезок, то прямая наклонена, и угол с плоскостью меньше девяноста градусов. Заметь, что проверять углы со всеми прямыми плоскости не нужно, достаточно посмотреть на проекцию. | Proyeksiya tobora qisqaradi, va chiziq tekislikka perpendikulyar bo'lgan paytda u bitta nuqtaga yig'iladi. Bu qulay tekshiruv, va u ikki tomonga ishlaydi. Agar chiziqning proyeksiyasi nuqta bo'lsa, chiziq tekislikka perpendikulyar. Agar proyeksiya kesma bo'lsa, chiziq og'gan, va tekislik bilan burchak to'qson darajadan kichik. E'tibor bering, tekislikning barcha chiziqlari bilan burchakni tekshirish kerak emas, proyeksiyaga qarash yetarli. | The projection gets shorter and shorter, and at the moment the line is perpendicular to the plane it collapses into a single point. This is a handy check and it works both ways. If the projection of a line is a point, the line is perpendicular to the plane. If the projection is a segment, the line is slanted and the angle with the plane is less than ninety degrees. Note that there is no need to check the angles with all the lines of the plane, it is enough to look at the projection. |
+| `audio.work` | Посчитай сам. Сколько точек в проекции прямой, перпендикулярной плоскости? | O'zingiz hisoblang. Tekislikka perpendikulyar to'g'ri chiziqning proyeksiyasida nechta nuqta bor? | Work it out yourself. How many points are in the projection of a line perpendicular to the plane? |
+| `work.prompt` | Сколько точек в проекции? | Proyeksiyada nechta nuqta? | How many points are in the projection? |
+| `work.ok` | Одна. Все перпендикуляры из точек прямой приходят в одну точку. | Bitta. Chiziq nuqtalaridan chiqqan barcha perpendikulyarlar bitta nuqtaga keladi. | One. All the perpendiculars from the points of the line arrive at one point. |
+| `work.hint.1` | Посмотри, куда падают перпендикуляры из разных точек прямой. | Chiziqning turli nuqtalaridan perpendikulyarlar qayerga tushishini ko'ring. | See where the perpendiculars from different points of the line land. |
+| `work.hint.2` | Сама прямая и есть перпендикуляр для каждой своей точки. | Chiziqning o'zi har bir nuqtasi uchun perpendikulyar. | The line itself is the perpendicular for each of its points. |
+| `work.hint.3` | Одна. | Bitta. | One. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `frameA` | `log₉ 81 = log₃ 81 / log₃ 9` |
-| `frameB` | `4/2 = 2` |
-| `work.expr` | `log₉ 81` |
-| `work.answer` | `2` |
+| `expr` | `a ⊥ α   →   a₁ = A` |
+| `work.answer` | `1` |
 
 ---
 
-## Экран 8 · `rule` · ответ `pick2` · тег `log-summy`
+## Экран 8 · `rule` · ответ `pick2` · тег `ugol-ne-s-proekciey`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ПРАВИЛО | QOIDA | THE RULE |
-| `title` | Четыре свойства | To'rt xossa | Four properties |
-| `probe.question` | Куда уходит показатель из-под знака логарифма? | Logarifm belgisi ostidagi ko'rsatkich qayerga ketadi? | Where does the exponent from under the logarithm sign go? |
-| `probe.a` [верно] | вперёд множителем | oldinga ko'paytuvchi bo'lib | out in front as a factor |
-| `probe.b` | остаётся показателем у логарифма | logarifmning ko'rsatkichi bo'lib qoladi | it stays as an exponent on the logarithm |
-| `probe.b.hint` | Тогда вышло бы двадцать семь, а счётом получилось девять. | U holda yigirma yetti chiqardi, hisob bilan esa to'qqiz chiqdi. | Then it would give twenty seven, while counting gave nine. |
-| `rule.lawLabel` | ЧЕТЫРЕ СВОЙСТВА | TO'RT XOSSA | THE FOUR PROPERTIES |
-| `rule.lines.1` | логарифм произведения это сумма логарифмов | ko'paytmaning logarifmi logarifmlar yig'indisi | the logarithm of a product is the sum of the logarithms |
-| `rule.lines.2` | логарифм частного это разность | bo'linmaning logarifmi ayirma | the logarithm of a quotient is the difference |
-| `rule.lines.3` | показатель выходит множителем, основание меняют дробью | ko'rsatkich ko'paytuvchi bo'lib chiqadi, asos kasr bilan almashtiriladi | the exponent comes out as a factor, the base is changed with a fraction |
-| `audio.mount` | Соберём правило. Свойств четыре, и все четыре мы уже проверили счётом. | Qoidani yig'amiz. Xossa to'rtta, va to'rtalasini ham hisob bilan tekshirdik. | Let us put the rule together. There are four properties, and all four we have already checked by counting. |
-| `audio.rule*` | Первое: логарифм произведения равен сумме логарифмов множителей. Второе: логарифм частного равен разности логарифмов делимого и делителя. Третье: логарифм степени равен произведению показателя на логарифм основания степени, то есть показатель выходит вперёд множителем. Четвёртое: перейти к новому основанию можно дробью, где сверху логарифм числа, а снизу логарифм старого основания, оба по новому. Все четыре работают только тогда, когда логарифмы вообще существуют, то есть под знаком стоит положительное число. И ни одно из них не раскрывает логарифм суммы: для суммы правила нет вовсе. | Birinchi: ko'paytmaning logarifmi ko'paytuvchilar logarifmlari yig'indisiga teng. Ikkinchi: bo'linmaning logarifmi bo'linuvchi va bo'luvchi logarifmlari ayirmasiga teng. Uchinchi: darajaning logarifmi ko'rsatkich bilan daraja asosi logarifmi ko'paytmasiga teng, ya'ni ko'rsatkich oldinga ko'paytuvchi bo'lib chiqadi. To'rtinchi: yangi asosga kasr bilan o'tish mumkin, unda yuqorida sonning logarifmi, pastda eski asosning logarifmi, ikkalasi ham yangisida. To'rtalasi ham faqat logarifmlar umuman mavjud bo'lganda, ya'ni belgi ostida musbat son turganda ishlaydi. Va ularning hech biri yig'indining logarifmini ochmaydi: yig'indi uchun qoida umuman yo'q. | First: the logarithm of a product equals the sum of the logarithms of the factors. Second: the logarithm of a quotient equals the difference of the logarithms of the dividend and the divisor. Third: the logarithm of a power equals the exponent times the logarithm of the base of that power, that is, the exponent comes out in front as a factor. Fourth: you may move to a new base with a fraction where the logarithm of the number is on top and the logarithm of the old base is below, both to the new base. All four work only when the logarithms exist at all, that is, when a positive number stands under the sign. And none of them opens the logarithm of a sum: for a sum there is no rule whatsoever. |
+| `title` | Определение и два соглашения | Ta'rif va ikki kelishuv | The definition and two conventions |
+| `probe.question` | С какой прямой плоскости берут угол? | Tekislikning qaysi chizig'i bilan burchak olinadi? | With which line of the plane is the angle taken? |
+| `probe.a` [верно] | с проекцией | proyeksiya bilan | with the projection |
+| `probe.b` | с любой прямой через точку пересечения | kesishish nuqtasi orqali o'tuvchi istalgan chiziq bilan | with any line through the crossing point |
+| `probe.b.hint` | Таких прямых бесконечно много, и углы у них разные. | Bunday chiziqlar cheksiz ko'p, va ularning burchaklari boshqa-boshqa. | There are infinitely many such lines and their angles differ. |
+| `rule.lawLabel` | Угол прямой и плоскости | Chiziq va tekislik burchagi | The angle of a line and a plane |
+| `rule.lines.1` | это угол между прямой и её проекцией на эту плоскость | bu chiziq va uning shu tekislikdagi proyeksiyasi orasidagi burchak | it is the angle between the line and its projection on that plane |
+| `rule.lines.2` | если прямая перпендикулярна плоскости, угол считают равным девяноста градусам | agar chiziq tekislikka perpendikulyar bo'lsa, burchak to'qson daraja deb olinadi | if the line is perpendicular to the plane, the angle is taken as ninety degrees |
+| `rule.lines.3` | если прямая параллельна плоскости, угол считают равным нулю | agar chiziq tekislikka parallel bo'lsa, burchak nol deb olinadi | if the line is parallel to the plane, the angle is taken as zero |
+| `audio.mount` | Один вопрос на различение, потом карточка. | Farqlashga bitta savol, keyin kartochka. | One question to tell them apart, then the card. |
+| `audio.rule*` | Определение короткое, и вся его сила в слове проекция. Проекция у прямой одна, поэтому и угол один. Возьми любую другую прямую плоскости, и угол получится больше, а значит это будет угол с прямой, а не с плоскостью. Два крайних случая дописаны отдельно, потому что в них проекции в обычном смысле нет. Перпендикулярная прямая даёт девяносто, параллельная ноль. | Ta'rif qisqa, va uning butun kuchi proyeksiya so'zida. Chiziqning proyeksiyasi bitta, shuning uchun burchak ham bitta. Tekislikning boshqa istalgan chizig'ini olsangiz, burchak kattaroq chiqadi, ya'ni bu chiziq bilan burchak bo'ladi, tekislik bilan emas. Ikki chegara hol alohida yozilgan, chunki ularda oddiy ma'nodagi proyeksiya yo'q. Perpendikulyar chiziq to'qson beradi, parallel esa nol. | The definition is short and all its force is in the word projection. A line has one projection, so the angle is one too. Take any other line of the plane and the angle comes out bigger, which means it is an angle with a line and not with the plane. The two extreme cases are written separately, because in them there is no projection in the usual sense. A perpendicular line gives ninety, a parallel one gives zero. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `rule.law` | `logₐ b^p = p·logₐ b,   logₐ b = log_c b / log_c a` |
+| `rule.law` | `∠(a; α) = ∠(a; a₁)` |
 
 ---
 
-## Экран 9 · `drill` · ответ `match` · формат `match` · тег `stepen-vnutri-logarifma`
+## Экран 9 · `drill` · ответ `match` · формат `match` · тег `ugol-ne-s-proekciey`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | ТРЕНИРОВКА | MASHQ | PRACTICE |
-| `title` | Соедини выражение со значением | Ifodani qiymati bilan ulang | Match each expression with its value |
-| `match.prompt` | Все четыре считаются в уме | To'rtalasi ham xayolda hisoblanadi | All four compute in your head |
-| `match.ok` | Верно. Свойства нужны не для красоты: без них половина этих выражений не считается. | To'g'ri. Xossalar chiroy uchun emas: ularsiz bu ifodalarning yarmi hisoblanmaydi. | Correct. The properties are not decoration: without them half of these do not compute. |
-| `audio.mount` | Четыре выражения и четыре числа. Сначала сворачивай, потом считай. | To'rt ifoda va to'rt son. Avval yig'ing, keyin hisoblang. | Four expressions and four numbers. Fold first, compute afterwards. |
+| `eyebrow` | ПРАКТИКА | AMALIYOT | PRACTICE |
+| `title` | Прямые куба и основание | Kub chiziqlari va asos | Lines of the cube and the base |
+| `match.prompt` | Соедини прямую с её углом к основанию | Chiziqni asosga burchagi bilan birlashtiring | Match the line with its angle to the base |
+| `match.ok` | Все четыре на месте. Углы посчитаны, а не измерены. | To'rttasi ham joyida. Burchaklar hisoblangan, o'lchanmagan. | All four in place. The angles are computed, not measured. |
+| `audio.mount` | Четыре прямые куба и четыре угла. Соедини их. | Kubning to'rt chizig'i va to'rt burchak. Ularni birlashtiring. | Four lines of the cube and four angles. Match them. |
+| `match.a` | ноль градусов | nol daraja | zero degrees |
+| `match.b` | девяносто градусов | to'qson daraja | ninety degrees |
+| `match.c` | сорок пять градусов | qirq besh daraja | forty five degrees |
+| `match.d` | меньше сорока пяти | qirq beshdan kichik | less than forty five |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `match.left` | `log₂ 32` · `log₃ 9 + log₃ 3` · `log₅ 125 − log₅ 25` · `log₂ 4³` |
-| `match.a` | `5` |
-| `match.b` | `3` |
-| `match.c` | `1` |
-| `match.d` | `6` |
+| `match.left` | `AB` · `AA₁` · `AB₁` · `AC₁` |
 
 ---
 
-## Экран 10 · `guided` · ответ `order` · формат `order-steps` · тег `log-summy`
+## Экран 10 · `guided` · ответ `order` · формат `proof` · тег `ugol-ne-s-proekciey`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ПО ШАГАМ | QADAMMA-QADAM | STEP BY STEP |
-| `title` | Сверни выражение целиком | Ifodani to'liq yig'ing | Fold the whole expression |
-| `order.prompt` | Расставь шаги по порядку | Qadamlarni tartib bilan joylashtiring | Put the steps in order |
-| `order.s1` | сумма в произведение | yig'indi ko'paytmaga | sum into a product |
-| `order.s2` | разность в частное | ayirma bo'linmaga | difference into a quotient |
-| `order.s3` | считаем под знаком | belgi ostini hisoblash | compute under the sign |
-| `order.s4` | логарифм восьми | sakkizning logarifmi | the logarithm of eight |
-| `order.ok` | Верно. Три логарифма стали одним, и он посчитался в уме. | To'g'ri. Uch logarifm bittaga aylandi, va u xayolda hisoblandi. | Correct. Three logarithms became one, and it computed in the head. |
-| `order.bad` | Сначала сворачивают запись, и только потом считают число. | Avval yozuv yig'iladi, faqat keyin son hisoblanadi. | You fold the writing first, and only then compute the number. |
-| `audio.mount` | Теперь всё выражение целиком. Три логарифма, четыре шага. | Endi butun ifoda. Uch logarifm, to'rt qadam. | Now the whole expression. Three logarithms, four steps. |
+| `title` | Найди проекцию диагонали | Diagonalning proyeksiyasini toping | Find the projection of the diagonal |
+| `proof.given` | диагональ куба и плоскость основания | kub diagonali va asos tekisligi | a diagonal of a cube and the plane of the base |
+| `proof.goal` | её проекция это диагональ основания | uning proyeksiyasi asos diagonali | its projection is a diagonal of the base |
+| `proof.r1` | боковое ребро перпендикулярно основанию | yon qirra asosga perpendikulyar | the side edge is perpendicular to the base |
+| `proof.r2` | значит основание перпендикуляра это вершина основания | demak perpendikulyarning asosi asos uchi | so the foot of the perpendicular is a vertex of the base |
+| `proof.r3` | проекция отрезка это отрезок между проекциями концов | kesmaning proyeksiyasi uchlari proyeksiyalari orasidagi kesma | the projection of a segment is the segment between the projections of its ends |
+| `proof.ok` | Доказано. Проекция диагонали куба это диагональ основания. | Isbotlandi. Kub diagonalining proyeksiyasi asos diagonali. | Proved. The projection of the cube diagonal is a diagonal of the base. |
+| `proof.e1` | Определение проекции идёт дальше. Откуда взят прямой угол. | Proyeksiya ta'rifi keyin keladi. To'g'ri burchak qayerdan olingan. | The definition of projection comes later. Where does the right angle come from. |
+| `proof.e2` | Прямой угол уже есть. Речь о точке, куда он приходит. | To'g'ri burchak bor. Gap u kelgan nuqta haqida. | The right angle is already there. This is about the point it arrives at. |
+| `proof.e3` | Про концы сказано. Теперь про весь отрезок. | Uchlari haqida aytildi. Endi butun kesma haqida. | The ends are done. Now about the whole segment. |
+| `reason.s1` | по построению куба | kub yasalishiga ko'ra | by the construction of the cube |
+| `reason.s2` | определение проекции | proyeksiya ta'rifi | the definition of projection |
+| `reason.s3` | проекция отрезка | kesmaning proyeksiyasi | the projection of a segment |
+| `reason.pic` | видно на чертеже | chizmada ko'rinadi | it is visible on the drawing |
+| `reason.pic.missing` | Чертёж не обоснование. Он показывает один ракурс из многих. | Chizma asoslash emas. U ko'p rakursdan bittasini ko'rsatadi. | A drawing is not a justification. It shows one view out of many. |
+| `audio.mount` | Три строки, и у каждой своё обоснование из списка. | Uch qator, va har birining ro'yxatdan o'z asoslashi bor. | Three lines, and each has its own justification from the list. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `expr` | `log₂ 12 + log₂ 6 − log₂ 9` |
-| `order.mark` | `log₂ 8 = 3` |
+| `expr` | `AC₁ → AC` |
 
 ---
 
@@ -358,27 +343,27 @@
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | НА БУМАГЕ | QOG'OZDA | ON PAPER |
-| `title` | Посчитай разность | Ayirmani hisoblang | Compute the difference |
-| `task.ok` | Один. Сто двадцать пять делить на двадцать пять это пять, а логарифм пяти по основанию пять равен единице. | Bir. Bir yuz yigirma beshni yigirma beshga bo'lish besh, beshning besh asosga ko'ra logarifmi esa birga teng. | One. One hundred twenty five divided by twenty five is five, and the logarithm of five to base five equals one. |
-| `task.hint.1` | Разность логарифмов это логарифм частного. | Logarifmlar ayirmasi bo'linmaning logarifmi. | A difference of logarithms is the logarithm of a quotient. |
-| `task.hint.2` | Под знаком останется пятёрка. | Belgi ostida beshlik qoladi. | A five will be left under the sign. |
-| `task.hint.3` | Один. | Bir. | One. |
-| `order.prompt` | Расставь выражения по возрастанию значения | Ifodalarni qiymati o'sishi bo'yicha joylashtiring | Put the expressions in order of increasing value |
-| `order.title` | от меньшего значения к большему | kichik qiymatdan kattasiga | from the smallest value to the largest |
-| `order.ok` | Верно. Основание и число сами по себе ничего не говорят о величине логарифма. | To'g'ri. Asos va sonning o'zi logarifm kattaligi haqida hech nima demaydi. | Correct. The base and the number by themselves say nothing about the size of the logarithm. |
-| `order.bad` | Считай каждый логарифм, а не смотри, где число под знаком больше. | Belgi ostidagi son qayerda kattaroq ekaniga qaramay, har bir logarifmni hisoblang. | Compute each logarithm instead of looking at which number under the sign is bigger. |
-| `audio.mount` | Прибора нет. Считай на бумаге, потом сверься. | Asbob yo'q. Qog'ozda hisoblang, keyin solishtiring. | No instrument here. Work it out on paper, then compare. |
-| `audio.next` | Дальше запись с ошибкой. Найди строку, где она появилась. | Keyin xatoli yozuv. Xato paydo bo'lgan qatorni toping. | Next comes a written solution with a mistake. Find the line where it appeared. |
+| `eyebrow` | БЕЗ ПРИБОРА | ASBOBSIZ | NO TOOL |
+| `title` | Счёт и порядок | Hisob va tartib | Counting and order |
+| `task.ok` | Сорок пять. Перпендикуляр и проекция равны, треугольник равнобедренный. | Qirq besh. Perpendikulyar va proyeksiya teng, uchburchak teng yonli. | Forty five. The perpendicular and the projection are equal, the triangle is isosceles. |
+| `task.hint.1` | Нарисуй прямоугольный треугольник и подпиши катеты. | To'g'ri burchakli uchburchak chizing va katetlarni imzolang. | Draw a right triangle and label the legs. |
+| `task.hint.2` | Тангенс угла это перпендикуляр, делённый на проекцию. | Burchak tangensi perpendikulyarning proyeksiyaga bo'lingani. | The tangent of the angle is the perpendicular divided by the projection. |
+| `task.hint.3` | Тангенс равен единице, значит угол сорок пять. | Tangens birga teng, demak burchak qirq besh. | The tangent is one, so the angle is forty five. |
+| `order.prompt` | Расставь записи в том порядке, в каком их получают | Yozuvlarni olinish tartibida joylashtiring | Arrange the readings in the order they are obtained |
+| `order.title` | Порядок работы | Ish tartibi | The order of work |
+| `order.ok` | Порядок верный. Проекция строится до угла, а не после. | Tartib to'g'ri. Proyeksiya burchakdan oldin quriladi, keyin emas. | The order is right. The projection is built before the angle, not after. |
+| `order.bad` | Не в этом порядке. Что нужно знать раньше. | Bu tartibda emas. Avval nimani bilish kerak. | Not in this order. What has to be known first. |
+| `audio.mount` | Прибор убран. Здесь считают на бумаге. | Asbob olib qo'yildi. Bu yerda qog'ozda hisoblanadi. | The tool is put away. Here you count on paper. |
+| `audio.next` | Теперь порядок записей. Расставь их так, как их получают. | Endi yozuvlar tartibi. Ularni qanday olinsa, shunday joylashtiring. | Now the order of the readings. Arrange them the way they are obtained. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `task.prompt` | `log₅ 125 − log₅ 25` |
-| `task.answer` | `1` |
-| `order.items` | `log₂ 8` · `log₃ 81` · `log₅ 25` · `log₇ 7` |
-| `order.answer` | `log₇ 7  log₅ 25  log₂ 8  log₃ 81` |
+| `task.prompt` | `AB = 7,   BC = 7,   ∠(AC; α) = ?` |
+| `task.answer` | `45` |
+| `order.items` | `∠(a; α)` · `a ∩ α = A` · `a₁ ⊂ α` · `∠(a; a₁)` |
+| `order.answer` | `a ∩ α = A  a₁ ⊂ α  ∠(a; a₁)  ∠(a; α)` |
 
 ---
 
@@ -389,29 +374,29 @@
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ЛОВУШКА | TUZOQ | THE TRAP |
-| `title` | Найди строку с ошибкой | Xatoli qatorni toping | Find the line with the mistake |
-| `hint.r1` | Исходное выражение, здесь ошибки быть не может. | Dastlabki ifoda, bu yerda xato bo'lishi mumkin emas. | The original expression, no mistake can live here. |
-| `hint.r2` | Под знаком стояла сумма. Спроси себя, есть ли для суммы правило. | Belgi ostida yig'indi turgan edi. O'zingizdan so'rang: yig'indi uchun qoida bormi? | A sum stood under the sign. Ask yourself whether there is a rule for a sum. |
-| `hint.r3` | Из предыдущей строки это следует верно, но сама она уже неверна. | Oldingi qatordan bu to'g'ri kelib chiqadi, lekin qatorning o'zi noto'g'ri. | This follows correctly from the previous line, but that line is already wrong. |
-| `proof` | Посчитай первую строку прямо: восемь плюс восемь это шестнадцать. | Birinchi qatorni to'g'ridan hisoblang: sakkiz qo'shuv sakkiz o'n olti. | Compute the first line directly: eight plus eight is sixteen. |
-| `entry.prompt` | Чему равно первое выражение на самом деле? | Birinchi ifoda haqiqatda nechaga teng? | What does the first expression really equal? |
-| `entry.ok` | Четыре. Под знаком шестнадцать, а два в четвёртой степени это шестнадцать. | To'rt. Belgi ostida o'n olti, ikkining to'rtinchi darajasi esa o'n olti. | Four. Sixteen under the sign, and two to the fourth is sixteen. |
-| `entry.hint.1` | Сначала посчитай, что стоит под знаком. | Avval belgi ostidagini hisoblang. | First compute what stands under the sign. |
-| `entry.hint.2` | Шестнадцать это степень двойки. Какая? | O'n olti ikkining darajasi. Qaysi biri? | Sixteen is a power of two. Which one? |
-| `entry.hint.3` | Четыре. | To'rt. | Four. |
-| `audio.mount` | Четыре строки. Ошибка появилась во второй, и дальше её никто не заметил. | To'rt qator. Xato ikkinchisida paydo bo'ldi, keyin uni hech kim sezmadi. | Four lines. The mistake appeared in the second one, and after that nobody noticed it. |
-| `audio.next` | Дальше обратная задача: по ответу восстанови число под знаком. | Keyin teskari masala: javobga qarab belgi ostidagi sonni tiklang. | Next comes the reverse task: rebuild the number under the sign from the answer. |
+| `title` | Найди строку с ошибкой | Xato qatorni toping | Find the line with the mistake |
+| `hint.r1` | Условие переписано верно. | Shart to'g'ri ko'chirilgan. | The condition is copied correctly. |
+| `hint.r2` | Прямая в плоскости взята, и это пока не ошибка. | Tekislikda chiziq olingan, va bu hozircha xato emas. | A line in the plane is taken, and that is not a mistake yet. |
+| `hint.r4` | Вывод получен из неверной строки выше. | Xulosa yuqoridagi xato qatordan olingan. | The conclusion comes from the wrong line above. |
+| `proof` | Поверни сцену: дуга с этой прямой то растёт, то сжимается, а с проекцией нет. | Sahnani buring: bu chiziq bilan duga goh o'sadi, goh qisqaradi, proyeksiya bilan esa yo'q. | Rotate the scene: the arc with this line grows and shrinks, the one with the projection does not. |
+| `entry.prompt` | Номер строки с ошибкой | Xato qator raqami | The number of the line with the mistake |
+| `entry.ok` | Третья. Углом с плоскостью назвали угол с прямой этой плоскости. | Uchinchi. Tekislik bilan burchak deb shu tekislik chizig'i bilan burchak aytilgan. | The third. The angle with a line of the plane was called the angle with the plane. |
+| `entry.hint.1` | Проверь, с чем берут угол в каждой строке. | Har qatorda burchak nima bilan olinayotganini tekshiring. | Check what the angle is taken with in each line. |
+| `entry.hint.2` | Проекция в этом доказательстве не появилась ни разу. | Bu isbotda proyeksiya biror marta ham paydo bo'lmadi. | The projection never appeared in this proof. |
+| `entry.hint.3` | Ошибка в третьей строке. | Xato uchinchi qatorda. | The mistake is in the third line. |
+| `audio.mount` | Четыре строки, и одна из них подменяет угол. | To'rt qator, va ulardan biri burchakni almashtiradi. | Four lines, and one of them substitutes the angle. |
+| `audio.next` | Теперь напиши номер строки, в которой ошибка. | Endi xato bo'lgan qator raqamini yozing. | Now write the number of the line with the mistake. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `row.r1` | `log₂ (8 + 8)` |
-| `row.r2` | `log₂ 8 + log₂ 8` |
-| `row.r3` | `3 + 3` |
-| `row.r4` | `6` |
-| `answerId` | `r2` |
-| `entry.answer` | `4` |
+| `row.r1` | `a ∩ α = A` |
+| `row.r2` | `b ⊂ α,   A ∈ b` |
+| `row.r3` | `∠(a; α) = ∠(a; b)` |
+| `row.r4` | `∠(a; α) = 30°` |
+| `answerId` | `r3` |
+| `entry.answer` | `3` |
 
 ---
 
@@ -422,34 +407,33 @@
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ПЕРЕНОС | KO'CHIRISH | TRANSFER |
-| `title` | Обратный ход | Teskari yo'l | The other direction |
-| `entry.prompt` | Сумма справа свёрнута в один логарифм. Какое число стоит под знаком? | O'ngdagi yig'indi bitta logarifmga yig'ilgan. Belgi ostida qaysi son turadi? | The sum on the right is folded into one logarithm. Which number stands under the sign? |
-| `entry.ok` | Двадцать. Четыре умножить на пять: сумма логарифмов даёт логарифм произведения. | Yigirma. To'rtni beshga ko'paytirish: logarifmlar yig'indisi ko'paytmaning logarifmini beradi. | Twenty. Four times five: a sum of logarithms gives the logarithm of the product. |
-| `entry.hint.1` | Сумма логарифмов это логарифм произведения. | Logarifmlar yig'indisi ko'paytmaning logarifmi. | A sum of logarithms is the logarithm of a product. |
-| `entry.hint.2` | Перемножь четыре и пять. | To'rt bilan beshni ko'paytiring. | Multiply four and five. |
-| `entry.hint.3` | Двадцать. | Yigirma. | Twenty. |
-| `multi.prompt` | Отметь все верные равенства | Barcha to'g'ri tengliklarni belgilang | Mark every correct identity |
-| `multi.title` | их ровно два | ular aynan ikkita | there are exactly two |
-| `multi.c.hint` | Для логарифма суммы правила нет вовсе. | Yig'indining logarifmi uchun qoida umuman yo'q. | For the logarithm of a sum there is no rule at all. |
-| `multi.d.hint` | Логарифм частного это разность, а не частное логарифмов. | Bo'linmaning logarifmi ayirma, logarifmlar bo'linmasi emas. | The logarithm of a quotient is a difference, not a quotient of logarithms. |
-| `multi.ok` | Верно. Работают произведение, частное и степень, а сумма и деление логарифмов не работают. | To'g'ri. Ko'paytma, bo'linma va daraja ishlaydi, yig'indi va logarifmlarni bo'lish esa ishlamaydi. | Correct. Product, quotient and power work, a sum and a division of logarithms do not. |
-| `audio.mount` | Теперь наоборот. По готовой сумме назови число под знаком. | Endi teskarisiga. Tayyor yig'indiga qarab belgi ostidagi sonni ayting. | Now the other way round. From the given sum, name the number under the sign. |
-| `audio.work` | Потом отметь все равенства, которые верны. | Keyin to'g'ri bo'lgan barcha tengliklarni belgilang. | Then mark every identity that is correct. |
+| `title` | В обратную сторону | Teskari tomonga | The other way round |
+| `place.prompt` | Угол между прямой и плоскостью равен нулю. Сколько общих точек у них? | To'g'ri chiziq va tekislik orasidagi burchak nolga teng. Ularning nechta umumiy nuqtasi bor? | The angle between a line and a plane is zero. How many common points do they have? |
+| `place.ok` | Ни одной. Нулевой угол это параллельность, а параллельная прямая плоскость не встречает. | Bitta ham yo'q. Nol burchak parallellik, parallel chiziq esa tekislikni uchratmaydi. | None. A zero angle means parallel, and a parallel line does not meet the plane. |
+| `place.wrong` | Посмотри на второе соглашение в карточке. | Kartochkadagi ikkinchi kelishuvga qarang. | Look at the second convention on the card. |
+| `multi.prompt` | Отметь все верные записи | Barcha to'g'ri yozuvlarni belgilang | Mark all the correct readings |
+| `multi.title` | Что верно всегда | Nima doim to'g'ri | What is always true |
+| `multi.d.hint` | Это угол с прямой плоскости, а не с плоскостью. | Bu tekislik chizig'i bilan burchak, tekislik bilan emas. | That is an angle with a line of the plane, not with the plane. |
+| `multi.e.hint` | Угол с плоскостью не бывает больше девяноста градусов. | Tekislik bilan burchak to'qson darajadan katta bo'lmaydi. | An angle with a plane is never more than ninety degrees. |
+| `multi.ok` | Три записи из пяти. Две оставшиеся ломаются на слове проекция. | Beshtadan uch yozuv. Qolgan ikkitasi proyeksiya so'zida sinadi. | Three readings out of five. The other two break at the word projection. |
+| `audio.mount` | Прочитаем определение справа налево. По углу назовём положение прямой. | Ta'rifni o'ngdan chapga o'qiymiz. Burchak bo'yicha chiziqning holatini aytamiz. | Let us read the definition from right to left. From the angle we name the position of the line. |
+| `audio.work` | Отметь все записи, которые верны всегда. Их больше одной. | Doim to'g'ri bo'lgan barcha yozuvlarni belgilang. Ular bittadan ko'p. | Mark all the readings that are always true. There is more than one. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `entry.expr` | `log₃ x = log₃ 4 + log₃ 5` |
-| `entry.answer` | `20` |
-| `multi.a` [верно] | `logₐ (b·c) = logₐ b + logₐ c` |
-| `multi.b` [верно] | `logₐ b^p = p·logₐ b` |
-| `multi.c` | `logₐ (b + c) = logₐ b + logₐ c` |
-| `multi.d` | `logₐ (b/c) = logₐ b / logₐ c` |
+| `place.target` | `0` |
+| `place.step` | `∠(a; α) = 0°   →   a ∥ α` |
+| `multi.a` [верно] | `∠(a; α) ≤ 90°` |
+| `multi.b` [верно] | `∠(a; α) = ∠(a; a₁)` |
+| `multi.c` [верно] | `a ⊥ α   →   ∠(a; α) = 90°` |
+| `multi.d` | `∠(a; α) = ∠(a; b)` |
+| `multi.e` | `∠(a; α) = 120°` |
 
 ---
 
-## Экран 14 · `blitz` · ответ `mixed` · формат `chain` · тег `perehod-perevernuli`
+## Экран 14 · `blitz` · ответ `mixed` · формат `chain` · тег `ugol-ne-s-proekciey`
 
 **Текст**
 
@@ -457,49 +441,49 @@
 |---|---|---|---|
 | `eyebrow` | БЛИЦ | BLITS | QUICK ROUND |
 | `title` | Четыре вопроса подряд | Ketma-ket to'rt savol | Four questions in a row |
-| `q1.prompt` | Чему равен логарифм пяти по основанию пять? | Beshning besh asosga ko'ra logarifmi nechaga teng? | What is the logarithm of five to base five? |
-| `q1.a` [верно] | единице | birga | one |
-| `q1.b` | нулю | nolga | zero |
-| `q1.b.hint` | Нулю равен логарифм единицы, а не самого основания. | Nolga birning logarifmi teng, asosning o'zi emas. | Zero is the logarithm of one, not of the base itself. |
-| `q1.c` | пяти | beshga | five |
-| `q1.c.hint` | Логарифм это показатель, а показатель здесь первый. | Logarifm ko'rsatkich, ko'rsatkich esa bu yerda birinchi. | A logarithm is an exponent, and the exponent here is one. |
-| `q1.d` | двадцати пяти | yigirma beshga | twenty five |
-| `q1.d.hint` | Двадцать пять вышло бы из квадрата, а не из первой степени. | Yigirma besh kvadratdan chiqardi, birinchi darajadan emas. | Twenty five would come from a square, not from the first power. |
-| `q2.prompt` | Куда уходит показатель из-под знака? | Belgi ostidagi ko'rsatkich qayerga ketadi? | Where does the exponent from under the sign go? |
-| `q2.a` [верно] | вперёд множителем | oldinga ko'paytuvchi bo'lib | out in front as a factor |
-| `q2.b` | в основание | asosga | into the base |
-| `q2.b.hint` | Основание при этом не трогают вовсе. | Bunda asosga umuman tegilmaydi. | The base is not touched at all here. |
-| `q2.c` | остаётся показателем у логарифма | logarifmning ko'rsatkichi bo'lib qoladi | it stays as an exponent on the logarithm |
-| `q2.c.hint` | Тогда вышло бы двадцать семь вместо девяти. | U holda to'qqiz o'rniga yigirma yetti chiqardi. | Then it would give twenty seven instead of nine. |
-| `q2.d` | исчезает | yo'qoladi | it disappears |
-| `q2.d.hint` | Исчезнуть он не может, от него зависит значение. | U yo'qola olmaydi, qiymat unga bog'liq. | It cannot disappear, the value depends on it. |
-| `q3.prompt` | Чему равна эта сумма? | Bu yig'indi nechaga teng? | What does this sum equal? |
-| `q3.a` [верно] | четыре | to'rt | four |
-| `q3.a.ok` | Четыре. Под знаком осталось шестнадцать. | To'rt. Belgi ostida o'n olti qoldi. | Four. Sixteen was left under the sign. |
-| `q3.b` | шесть | olti | six |
-| `q3.b.hint` | Шесть вышло бы, если перемножить сами логарифмы. | Olti logarifmlarning o'zini ko'paytirganda chiqardi. | Six would come from multiplying the logarithms themselves. |
-| `q3.c` | десять | o'n | ten |
-| `q3.c.hint` | Десять это сумма чисел под знаками, а не ответ. | O'n belgilar ostidagi sonlar yig'indisi, javob emas. | Ten is the sum of the numbers under the signs, not the answer. |
-| `q3.d` | три | uch | three |
-| `q3.d.hint` | Три это только первое слагаемое. | Uch faqat birinchi qo'shiluvchi. | Three is only the first term. |
-| `q4.prompt` | Что стоит сверху в формуле перехода? | O'tish formulasida yuqorida nima turadi? | What stands on top in the change of base formula? |
-| `q4.a` [верно] | логарифм числа | sonning logarifmi | the logarithm of the number |
-| `q4.b` | логарифм основания | asosning logarifmi | the logarithm of the base |
-| `q4.b.hint` | Тогда логарифм восемьдесят одного по основанию девять дал бы одну вторую. | U holda sakson birning to'qqiz asosga ko'ra logarifmi bir ikkidan berardi. | Then the logarithm of eighty one to base nine would give one half. |
-| `q4.c` | новое основание | yangi asos | the new base |
-| `q4.c.hint` | Новое основание стоит у обоих логарифмов, а не отдельно. | Yangi asos ikkala logarifmda ham turadi, alohida emas. | The new base sits on both logarithms, not on its own. |
-| `q4.d` | единица | bir | one |
-| `q4.d.hint` | Единица сверху бывает в другой формуле, где меняют местами число и основание. | Yuqoridagi bir boshqa formulada bo'ladi, unda son va asos o'rin almashadi. | A one on top appears in a different formula, where the number and the base swap places. |
-| `audio.mount` | Четыре вопроса подряд. Считается первая попытка. | Ketma-ket to'rt savol. Birinchi urinish hisobga olinadi. | Four questions in a row. The first attempt counts. |
+| `q1.prompt` | С чем берут угол? | Burchak nima bilan olinadi? | What is the angle taken with? |
+| `q1.a` [верно] | с проекцией | proyeksiya bilan | with the projection |
+| `q1.b` | с перпендикуляром | perpendikulyar bilan | with the perpendicular |
+| `q1.b.hint` | С перпендикуляром угол всегда прямой, и он ничего не различает. | Perpendikulyar bilan burchak doim to'g'ri, va u hech narsani ajratmaydi. | With the perpendicular the angle is always right and tells nothing apart. |
+| `q1.c` | с любой прямой плоскости | tekislikning istalgan chizig'i bilan | with any line of the plane |
+| `q1.c.hint` | Таких прямых бесконечно много, и углы разные. | Bunday chiziqlar cheksiz ko'p, va burchaklar boshqa-boshqa. | There are infinitely many such lines and the angles differ. |
+| `q1.d` | с ребром основания | asos qirrasi bilan | with the edge of the base |
+| `q1.d.hint` | Ребро это одна из прямых плоскости, не более. | Qirra tekislik chiziqlaridan biri, boshqa emas. | An edge is one of the lines of the plane, no more. |
+| `q2.prompt` | Прямая перпендикулярна плоскости. Угол? | Chiziq tekislikka perpendikulyar. Burchak? | The line is perpendicular to the plane. The angle? |
+| `q2.a` [верно] | девяносто | to'qson | ninety |
+| `q2.b` | ноль | nol | zero |
+| `q2.b.hint` | Ноль у параллельной. | Nol parallelda. | Zero belongs to a parallel line. |
+| `q2.c` | сорок пять | qirq besh | forty five |
+| `q2.c.hint` | Это число ниоткуда не следует. | Bu son hech qayerdan chiqmaydi. | That number follows from nothing. |
+| `q2.d` | угол не определён | burchak aniqlanmagan | the angle is undefined |
+| `q2.d.hint` | Для этого случая учебник даёт отдельное соглашение. | Bu hol uchun darslik alohida kelishuv beradi. | For this case the textbook gives a separate convention. |
+| `q3.prompt` | Проекция прямой это точка. Что с прямой? | Chiziqning proyeksiyasi nuqta. Chiziq qanday? | The projection of a line is a point. What about the line? |
+| `q3.a` [верно] | перпендикулярна плоскости | tekislikka perpendikulyar | perpendicular to the plane |
+| `q3.b` | параллельна плоскости | tekislikka parallel | parallel to the plane |
+| `q3.b.hint` | У параллельной проекция это прямая, а не точка. | Parallelda proyeksiya chiziq, nuqta emas. | For a parallel line the projection is a line, not a point. |
+| `q3.c` | лежит в плоскости | tekislikda yotadi | lies in the plane |
+| `q3.c.hint` | Тогда проекция совпала бы с самой прямой. | Unda proyeksiya chiziqning o'zi bilan ustma-ust tushardi. | Then the projection would coincide with the line itself. |
+| `q3.d` | наклонена под сорок пять | qirq besh ostida og'gan | slanted at forty five |
+| `q3.d.hint` | У наклонной проекция это отрезок. | Og'mada proyeksiya kesma. | For a slanted line the projection is a segment. |
+| `q4.prompt` | Диагональ грани куба и основание. Угол? | Kub yoqining diagonali va asos. Burchak? | A face diagonal of a cube and the base. The angle? |
+| `q4.a` [верно] | сорок пять | qirq besh | forty five |
+| `q4.b` | тридцать | o'ttiz | thirty |
+| `q4.b.hint` | Тридцать вышло бы при катетах один и два. | O'ttiz katetlar bir va ikki bo'lganda chiqardi. | Thirty would come from legs one and two. |
+| `q4.c` | шестьдесят | oltmish | sixty |
+| `q4.c.hint` | Шестьдесят это угол при другом отношении катетов. | Oltmish katetlarning boshqa nisbatidagi burchak. | Sixty belongs to a different ratio of legs. |
+| `q4.d` | девяносто | to'qson | ninety |
+| `q4.d.hint` | Девяносто было бы у бокового ребра. | To'qson yon qirrada bo'lardi. | Ninety would belong to the side edge. |
+| `audio.mount` | Четыре вопроса подряд. Отвечай без остановки. | Ketma-ket to'rt savol. To'xtamasdan javob bering. | Four questions in a row. Answer without stopping. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `q1.done` | `log₅ 5 = 1` |
-| `q2.done` | `logₐ b^p = p·logₐ b` |
-| `q3.done` | `log₂ 8 + log₂ 2 = 4` |
-| `q4.done` | `logₐ b = log_c b / log_c a` |
+| `q1.done` | `∠(a; a₁)` |
+| `q2.done` | `90°` |
+| `q3.done` | `a₁ = A` |
+| `q4.done` | `45°` |
+| `angles` | `AB` · `AA₁` · `AB₁` · `AC₁` |
 
 ---
 
@@ -510,31 +494,31 @@
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ИТОГ | YAKUN | SUMMARY |
-| `title` | Что теперь умеешь | Endi nima qila olasiz | What you can do now |
-| `can.1` | Вывожу показатель из-под знака множителем | Ko'rsatkichni belgi ostidan ko'paytuvchi qilib chiqaraman | I bring the exponent out as a factor |
-| `can.2` | Сворачиваю сумму и разность в один логарифм | Yig'indi va ayirmani bitta logarifmga yig'aman | I fold a sum and a difference into one logarithm |
-| `can.3` | Перехожу к новому основанию и не путаю дробь | Yangi asosga o'taman va kasrni chalkashtirmayman | I change the base and do not flip the fraction |
-| `can.4` | Знаю, что логарифм суммы не раскрывается | Yig'indining logarifmi ochilmasligini bilaman | I know the logarithm of a sum does not open |
-| `levels.full` | Этот тип задач закрыт. | Bu turdagi masalalar yopildi. | This type of problem is closed. |
-| `levels.gap` | Одно место требует повтора: переход к новому основанию. | Bir joy takrorlashni talab qiladi: yangi asosga o'tish. | One spot needs a second look: the change of base. |
-| `levels.back` | Вернись к правилу и к экрану 7. | Qoidaga va yettinchi ekranga qayting. | Go back to the rule and to screen seven. |
-| `bridge` | Дальше неравенства с логарифмами: сворачивать придётся до того, как искать ответ. | Keyin logarifmli tengsizliklar: javobni izlashdan oldin yig'ishga to'g'ri keladi. | Next come inequalities with logarithms: folding will have to happen before looking for the answer. |
-| `lifehack` | Прежде чем считать, посмотри на основания. Одинаковые сворачиваются, разные требуют перехода. | Hisoblashdan oldin asoslarga qarang. Bir xillari yig'iladi, har xillari o'tishni talab qiladi. | Before computing, look at the bases. Equal ones fold, different ones call for a change of base. |
-| `sheetTitle` | Преобразование логарифмов · шпаргалка | Logarifmlarni almashtirish · shpargalka | Transforming logarithms · cheat sheet |
-| `sheetSrc` | 10 класс · урок 34 | 10-sinf · 34-dars | Grade 10 · lesson 34 |
-| `audio.mount` | Прогноз был про девять и двадцать семь. Посмотрим, что вышло. | Taxmin to'qqiz va yigirma yetti haqida edi. Nima chiqqanini ko'ramiz. | The guess was about nine and twenty seven. Let us see how it turned out. |
-| `audio.next` | Девять. Показатель вышел множителем, и прямой счёт это подтвердил. | To'qqiz. Ko'rsatkich ko'paytuvchi bo'lib chiqdi, to'g'ridan hisob buni tasdiqladi. | Nine. The exponent came out as a factor, and the direct count confirmed it. |
+| `title` | Что теперь умеешь | Endi nimani bilasiz | What you can do now |
+| `can.1` | Строю проекцию прямой на плоскость | Chiziqning tekislikdagi proyeksiyasini quraman | I build the projection of a line on a plane |
+| `can.2` | Беру угол с проекцией, а не с удобной прямой | Burchakni proyeksiya bilan olaman, qulay chiziq bilan emas | I take the angle with the projection, not with a convenient line |
+| `can.3` | Знаю два крайних случая | Ikki chegara holni bilaman | I know the two extreme cases |
+| `can.4` | Считаю угол, а не измеряю с картинки | Burchakni hisoblayman, rasmdan o'lchamayman | I compute the angle instead of measuring it off the picture |
+| `levels.full` | Все четыре | To'rttasi ham | All four |
+| `levels.gap` | Три из четырёх | To'rttadan uchtasi | Three out of four |
+| `levels.back` | Меньше трёх | Uchtadan kam | Fewer than three |
+| `bridge` | Дальше два угла между плоскостями — двугранный угол и его линейный угол | Bundan keyin tekisliklar orasidagi burchak, ikki yoqli burchak va uning chiziqli burchagi | Next comes the angle between planes, the dihedral angle and its linear angle |
+| `lifehack` | Не знаешь, с чем мерить угол — строй проекцию | Burchakni nima bilan o'lchashni bilmasangiz, proyeksiya quring | If you do not know what to measure the angle with, build the projection |
+| `sheetTitle` | Шпаргалка | Shpargalka | Cheat sheet |
+| `sheetSrc` | Геометрия, страница сто тридцать восемь | Geometriya, bir yuz o'ttiz sakkizinchi bet | Geometry, page one hundred thirty eight |
+| `audio.mount` | Урок начался с двух записей. В первой угол брали с любой прямой плоскости. | Dars ikki yozuv bilan boshlandi. Birinchisida burchak tekislikning istalgan chizig'i bilan olingan edi. | The lesson began with two readings. In the first the angle was taken with any line of the plane. |
+| `audio.next` | Таких прямых бесконечно много, и каждая давала бы свой угол, значит определение было бы пустым. Проекция у прямой одна, и угол с ней наименьший. Поэтому именно она стоит в определении. Дальше нам понадобится угол между двумя плоскостями, и там мерить будем не прямые, а полуплоскости. | Bunday chiziqlar cheksiz ko'p, va har biri o'z burchagini berardi, ya'ni ta'rif bo'sh bo'lardi. Chiziqning proyeksiyasi bitta, va u bilan burchak eng kichik. Shuning uchun ta'rifda aynan u turadi. Keyin bizga ikki tekislik orasidagi burchak kerak bo'ladi, va u yerda chiziqlarni emas, yarimtekisliklarni o'lchaymiz. | There are infinitely many such lines and each would give its own angle, which means the definition would be empty. A line has one projection and the angle with it is the smallest. That is why it stands in the definition. Next we will need the angle between two planes, and there we will measure half-planes instead of lines. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `hook.a` | `27` |
-| `hook.b` | `9` |
-| `proved` | `9` |
-| `law` | `logₐ b^p = p·logₐ b` |
-| `sheet.1` | `logₐ (b·c) = logₐ b + logₐ c` |
-| `sheet.2` | `logₐ (b/c) = logₐ b − logₐ c` |
-| `sheet.3` | `logₐ b^p = p·logₐ b` |
-| `sheet.4` | `logₐ b = log_c b / log_c a` |
-| `sheet.5` | `log₂ 8³ = 9;   (log₂ 8)³ = 27` |
+| `hook.a` | `∠(a; b),   b ⊂ α` |
+| `hook.b` | `∠(a; a₁)` |
+| `proved` | `∠(a; α) = ∠(a; a₁)` |
+| `law` | `a ∩ α = A,   a₁ ⊂ α` |
+| `sheet.1` | `a₁ ⊂ α` |
+| `sheet.2` | `∠(a; α) = ∠(a; a₁)` |
+| `sheet.3` | `∠(a; a₁) < ∠(a; b)` |
+| `sheet.4` | `a ⊥ α   →   90°` |
+| `sheet.5` | `a ∥ α   →   0°` |

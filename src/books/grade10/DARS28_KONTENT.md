@@ -1,23 +1,18 @@
-# Урок 28 — Показат. уравнения · КОНТЕНТ (этап 2)
+# Урок 38 — Аксиомы стереометрии · КОНТЕНТ (этап 2)
 
 **Читается и правится методистом.** Формат тот же, что в `DARS26_KONTENT.md`.
 
-Скелет: `DARS26_28_SKELET.md` §9. Опора в учебнике: алгебра 2022, стр. 99–101, параграф
-`KO'RSATKICHLI TENGLAMALAR`.
+Скелет: `DARS38_40_SKELET.md` §7. Опора: учебник геометрии 2022, §4
+`Stereometriyaning asosiy tushunchalari`, стр. 32–38.
 
-**Главное решение урока.** Приведение к одному основанию — это переписывание из урока 26, но у
-него появилась цель: сделать показатели сравнимыми. Право сравнить их даёт монотонность из урока
-27, а не «основание сократилось». Поэтому свидетель урока — горизонталь: сколько встреч с кривой,
-столько корней. У положительного уровня встреча одна, у нулевого и отрицательного встреч нет
-вовсе, и это видно до вычислений.
+**Главное решение урока.** Свидетелем становится **поворот**. Три точки, не лежащие на одной
+прямой, задают плоскость однозначно: сколько сцену ни крути, плоскость стоит на месте. Три
+точки на одной прямой не задают ничего: плоскость крутится вокруг этой прямой, и каждое её
+положение годится. Это видно только в движении, и потому это первый урок прибора 6A.
 
-**Связка с блоком 2 названа прямо.** У тригонометрического уравнения корней бесконечно много,
-потому что функция периодическая. Здесь корень один, потому что функция монотонная. Одна и та же
-причина, прочитанная в двух направлениях, и на экране 2 она произносится.
+**Три аксиомы взяты со стр. 34 дословно.** Следствие экрана 10 — тоже книжное (1-natija).
 
-**Прибор ОДЗ не нужен.** План ставит уроку «прибор 2 плюс прибор 5», но у показательного
-уравнения области допустимых значений нет: степень определена при любом показателе. Полоса ОДЗ
-появляется с урока 31.
+**Терминология UZ — draft, требует валидации узбекским методистом математики.**
 
 ---
 
@@ -27,28 +22,28 @@
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | УРАВНЕНИЕ | TENGLAMA | THE EQUATION |
-| `title` | Как найти показатель | Ko'rsatkichni qanday topish | How to find the exponent |
-| `row.a.name` | делим восемь на два | sakkizni ikkiga bo'lamiz | we divide eight by two |
-| `row.b.name` | пишем восемь степенью двойки | sakkizni ikkining darajasi qilib yozamiz | we write eight as a power of two |
+| `eyebrow` | ПРОСТРАНСТВО | FAZO | SPACE |
+| `title` | Одна плоскость или сколько угодно | Bitta tekislikmi yoki istalgancha | One plane or any number |
+| `row.a.name` | через любые три точки одна | istalgan uch nuqta orqali bitta | one through any three points |
+| `row.b.name` | одна не всегда | bitta har doim ham emas | not always one |
 | `probe.question` | Какая запись верна? | Qaysi yozuv to'g'ri? | Which reading is correct? |
 | `probe.a` | первая | birinchi | the first |
 | `probe.b` [верно] | вторая | ikkinchi | the second |
 | `probe.both` | обе | ikkisi ham | both |
 | `probe.none` | ни одна | hech qaysi | neither |
-| `probe.after` | Твой ответ записан. Сейчас проведём горизонталь и посмотрим, где она встретит кривую. | Javobingiz yozib olindi. Endi gorizontal o'tkazamiz va uni egri chiziqni qayerda uchratishini ko'ramiz. | Your answer is saved. Now we will draw a horizontal and see where it meets the curve. |
-| `audio.mount` | Кривая знакомая, с прошлого урока. Теперь у неё спрашивают: при каком икс значение равно восьми. | Egri chiziq tanish, o'tgan darsdan. Endi undan so'raladi: qaysi iksda qiymat sakkizga teng. | The curve is familiar from the previous lesson. Now it is asked: at which x is the value eight. |
-| `audio.r1` | Первая запись говорит, что показатель находят делением правой части на основание. | Birinchi yozuv ko'rsatkich o'ng qismni asosga bo'lish bilan topiladi deydi. | The first reading says the exponent is found by dividing the right side by the base. |
-| `audio.r2` | Вторая говорит, что правую часть надо записать степенью того же основания. | Ikkinchisi o'ng qismni o'sha asosning darajasi qilib yozish kerak deydi. | The second says the right side must be written as a power of the same base. |
+| `probe.after` | Твой ответ записан. Сейчас повернём сцену и посмотрим. | Javobingiz yozib olindi. Endi sahnani burib ko'ramiz. | Your answer is saved. Now we will rotate the scene and look. |
+| `audio.mount` | В пространстве плоскостей бесконечно много. Вопрос в том, чем плоскость задаётся однозначно. | Fazoda tekisliklar cheksiz ko'p. Savol shundaki, tekislik nima bilan yagona qilib beriladi. | In space there are infinitely many planes. The question is what fixes a plane uniquely. |
+| `audio.r1` | Первая запись говорит: возьми три точки, и плоскость через них ровно одна, всегда. | Birinchi yozuv shunday deydi: uch nuqta oling, ular orqali tekislik roppa-rosa bitta, doim. | The first reading says: take three points and there is exactly one plane through them, always. |
+| `audio.r2` | Вторая говорит, что так бывает не всегда, и есть случай, когда плоскостей бесконечно много. | Ikkinchisi bunday har doim ham bo'lmasligini va tekisliklar cheksiz ko'p bo'ladigan hol borligini aytadi. | The second says this does not always hold and there is a case with infinitely many planes. |
 | `audio.ask` | Как думаешь, какая верная? Пока просто предположи. | Sizningcha qaysi biri to'g'ri? Hozircha shunchaki taxmin qiling. | Which one do you think is right? Just make a guess for now. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `expr` | `2^x = 8` |
-| `row.a.value` | `x = 4` |
-| `row.b.value` | `x = 3` |
+| `expr` | `A, B, C   →   α` |
+| `row.a.value` | `1` |
+| `row.b.value` | `∞` |
 
 ---
 
@@ -59,281 +54,296 @@
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ОПОРА | TAYANCH | WHAT YOU KNOW |
-| `title` | Три вопроса перед уравнением | Tenglamadan oldin uch savol | Three questions before the equation |
-| `q1.prompt` | Как записать восемь степенью двойки? | Sakkizni ikkining darajasi qilib qanday yozish kerak? | How is eight written as a power of two? |
-| `q1.a` [верно] | два в третьей | ikki uchinchi darajada | two to the third |
-| `q1.b` | два в четвёртой | ikki to'rtinchi darajada | two to the fourth |
-| `q1.b.hint` | Два в четвёртой это шестнадцать. Посчитай множители. | Ikki to'rtinchi darajada bu o'n olti. Ko'paytuvchilarni sanang. | Two to the fourth is sixteen. Count the factors. |
-| `q1.c` | три во второй | uch ikkinchi darajada | three to the second |
-| `q1.c.hint` | Три во второй это девять, и основание здесь другое. | Uch ikkinchi darajada bu to'qqiz, va asos bu yerda boshqa. | Three to the second is nine, and the base here is different. |
-| `q1.d` | четыре во второй | to'rt ikkinchi darajada | four to the second |
-| `q1.d.hint` | Четыре во второй это шестнадцать, и основание не двойка. | To'rt ikkinchi darajada bu o'n olti, va asos ikki emas. | Four to the second is sixteen, and the base is not two. |
-| `q2.prompt` | Может ли два в степени икс быть отрицательным? | Ikki iks darajada manfiy bo'lishi mumkinmi? | Can two to the x be negative? |
-| `q2.a` [верно] | нет, никогда | yo'q, hech qachon | no, never |
-| `q2.b` | да, при отрицательном показателе | ha, manfiy ko'rsatkichda | yes, with a negative exponent |
-| `q2.b.hint` | Отрицательный показатель даёт маленькое положительное число, а не отрицательное. | Manfiy ko'rsatkich manfiy emas, kichik musbat son beradi. | A negative exponent gives a small positive number, not a negative one. |
-| `q2.c` | да, при дробном | ha, kasr ko'rsatkichda | yes, with a fractional one |
-| `q2.c.hint` | Дробный показатель это корень, и он тоже положителен. | Kasr ko'rsatkich bu ildiz, u ham musbat. | A fractional exponent is a root, and it is positive too. |
-| `q2.d` | да, при нулевом | ha, nol ko'rsatkichda | yes, with a zero one |
-| `q2.d.hint` | Нулевой показатель даёт единицу. | Nol ko'rsatkich bir beradi. | A zero exponent gives one. |
-| `q3.prompt` | Куда идёт кривая при основании два? | Asos ikki bo'lganda egri chiziq qayoqqa ketadi? | Which way does the curve go with base two? |
-| `q3.a` [верно] | вверх и не возвращается | yuqoriga va qaytmaydi | up, and it does not come back |
-| `q3.b` | вверх, потом вниз | yuqoriga, keyin pastga | up, then down |
-| `q3.b.hint` | Это была бы волна. У показательной кривой поворота нет. | Bu to'lqin bo'lardi. Ko'rsatkichli egri chiziqda burilish yo'q. | That would be a wave. An exponential curve has no turn. |
-| `q3.c` | вниз | pastga | down |
-| `q3.c.hint` | Вниз идёт кривая при основании меньше единицы. | Asos birdan kichik bo'lganda egri chiziq pastga ketadi. | The curve goes down when the base is less than one. |
-| `q3.d` | по прямой | to'g'ri chiziq bo'yicha | along a straight line |
-| `q3.d.hint` | Прямая получается только при основании, равном единице. | To'g'ri chiziq faqat asos birga teng bo'lganda chiqadi. | A straight line comes only from a base equal to one. |
+| `title` | Три вопроса перед пространством | Fazodan oldin uch savol | Three questions before space |
+| `q1.prompt` | Чем стереометрия отличается от планиметрии? | Stereometriya planimetriyadan nimasi bilan farq qiladi? | How does stereometry differ from planimetry? |
+| `q1.a` [верно] | изучает пространственные фигуры | fazoviy shakllarni o'rganadi | it studies spatial figures |
+| `q1.b` | изучает только многогранники | faqat ko'pyoqlarni o'rganadi | it studies only polyhedra |
+| `q1.b.hint` | Многогранники это часть предмета, а не весь предмет. | Ko'pyoqlar fanning bir qismi, butun fani emas. | Polyhedra are a part of the subject, not the whole of it. |
+| `q1.c` | это другое название планиметрии | bu planimetriyaning boshqa nomi | it is another name for planimetry |
+| `q1.c.hint` | Планиметрия живёт на одной плоскости, стереометрия во всём пространстве. | Planimetriya bitta tekislikda yashaydi, stereometriya butun fazoda. | Planimetry lives on one plane, stereometry in the whole of space. |
+| `q1.d` | в ней нет аксиом | unda aksiomalar yo'q | it has no axioms |
+| `q1.d.hint` | Аксиомы есть, и с них начинают. | Aksiomalar bor, va ulardan boshlanadi. | There are axioms and they come first. |
+| `q2.prompt` | Что такое основные понятия? | Asosiy tushunchalar nima? | What are the basic notions? |
+| `q2.a` [верно] | те, которым не дают определения | ta'rif berilmaydiganlari | the ones that are not defined |
+| `q2.b` | самые важные теоремы | eng muhim teoremalar | the most important theorems |
+| `q2.b.hint` | Теорема это утверждение, а понятие это предмет разговора. | Teorema bu tasdiq, tushuncha esa suhbat mavzusi. | A theorem is a statement, a notion is what you speak about. |
+| `q2.c` | те, которые проходят первыми | birinchi o'tiladiganlari | the ones taught first |
+| `q2.c.hint` | Порядок тут ни при чём, дело в определении. | Tartibning bunga aloqasi yo'q, gap ta'rifda. | Order is not the point, definition is. |
+| `q2.d` | те, которые доказывают | isbotlanadiganlari | the ones that are proved |
+| `q2.d.hint` | Доказывают утверждения, а не понятия. | Tasdiqlar isbotlanadi, tushunchalar emas. | Statements are proved, not notions. |
+| `q3.prompt` | Как обозначают плоскость? | Tekislik qanday belgilanadi? | How is a plane denoted? |
+| `q3.a` [верно] | греческой буквой | yunon harfi bilan | by a Greek letter |
+| `q3.b` | большой латинской | katta lotin harfi bilan | by a capital Latin letter |
+| `q3.b.hint` | Большими латинскими обозначают точки. | Katta lotin harflari bilan nuqtalar belgilanadi. | Capital Latin letters denote points. |
+| `q3.c` | маленькой латинской | kichik lotin harfi bilan | by a small Latin letter |
+| `q3.c.hint` | Маленькими латинскими обозначают прямые. | Kichik lotin harflari bilan to'g'ri chiziqlar belgilanadi. | Small Latin letters denote lines. |
+| `q3.d` | цифрой | raqam bilan | by a digit |
+| `q3.d.hint` | Цифрами в геометрии обозначают величины, а не фигуры. | Geometriyada raqamlar bilan kattaliklar belgilanadi, shakllar emas. | Digits denote magnitudes in geometry, not figures. |
 | `audio.mount` | Три коротких вопроса. Все три понадобятся через минуту. | Uch qisqa savol. Uchalasi ham bir daqiqadan keyin kerak bo'ladi. | Three short questions. All three will be needed in a minute. |
-| `audio.link` | И одно наблюдение. В блоке про тригонометрию корней было бесконечно много, потому что функция периодическая. Здесь корень будет один, потому что функция монотонная. Причина одна и та же, прочитанная в разные стороны. | Va bitta kuzatish. Trigonometriya blokida ildizlar cheksiz ko'p edi, chunki funksiya davriy. Bu yerda ildiz bitta bo'ladi, chunki funksiya monoton. Sabab bir xil, faqat har xil tomondan o'qilgan. | And one observation. In the trigonometry block there were infinitely many roots because the function is periodic. Here there will be one root because the function is monotone. The same reason read in opposite directions. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `q1.done` | `8 = 2³` |
-| `q2.done` | `2^x > 0` |
-| `q3.done` | `a > 1   →   ↑` |
+| `q1.done` | `A ∈ α,   a ⊂ α` |
+| `q2.done` | `A,   a,   α` |
+| `q3.done` | `α,  β,  γ` |
 
 ---
 
-## Экран 3 · `explain1` · ответ `lead` · тег `delyat-vmesto-osnovaniya`
+## Экран 3 · `explain1` · ответ `number` · тег `tri-tochki-na-pryamoy`
 
-Свидетель урока: горизонталь встречает кривую ровно один раз.
+Три точки не на прямой. Ученик крутит сцену сам.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
-| `title` | Корней столько, сколько встреч | Ildizlar soni uchrashuvlar soniga teng | As many roots as meetings |
-| `show.1.1` | проводим горизонталь на уровне восьми | sakkiz darajasida gorizontal o'tkazamiz | we draw a horizontal at the level eight |
-| `show.1.2` | она встречает кривую один раз | u egri chiziqni bir marta uchratadi | it meets the curve once |
-| `show.2.1` | кривая идёт вверх и не возвращается | egri chiziq yuqoriga ketadi va qaytmaydi | the curve goes up and does not come back |
-| `show.2.2` | значит корень один | demak ildiz bitta | so there is one root |
-| `audio.mount` | Решить уравнение значит найти икс, при котором значение равно восьми. | Tenglamani yechish bu qiymati sakkizga teng bo'lgan iksni topish. | To solve the equation means to find the x at which the value is eight. |
-| `audio.meet*` | Проведём горизонталь на уровне восьми. Она встречает кривую ровно один раз, и встреча приходится на икс, равный трём. Один раз, а не два, потому что кривая монотонна: она идёт вверх и не возвращается ни разу. Значит у показательного уравнения корень один, и это следствие прошлого урока, а не новое правило. | Sakkiz darajasida gorizontal o'tkazamiz. U egri chiziqni aynan bir marta uchratadi, va uchrashuv iks uchga teng joyga tushadi. Bir marta, ikki emas, chunki egri chiziq monoton: u yuqoriga ketadi va bir marta ham qaytmaydi. Demak ko'rsatkichli tenglamada ildiz bitta, va bu yangi qoida emas, o'tgan darsning natijasi. | Let us draw a horizontal at the level eight. It meets the curve exactly once, and the meeting falls at x equal to three. Once, not twice, because the curve is monotone: it goes up and never comes back. So an exponential equation has one root, and that follows from the previous lesson rather than being a new rule. |
-| `audio.work` | Посчитай сам. Сколько раз горизонталь встретила кривую? | O'zingiz hisoblang. Gorizontal egri chiziqni necha marta uchratdi? | Work it out yourself. How many times did the horizontal meet the curve? |
-| `work.prompt` | Сколько раз горизонталь встретила кривую? | Gorizontal egri chiziqni necha marta uchratdi? | How many times did the horizontal meet the curve? |
-| `work.ok` | Один. Кривая идёт вверх и не возвращается, поэтому второй встречи быть не может. | Bir. Egri chiziq yuqoriga ketadi va qaytmaydi, shuning uchun ikkinchi uchrashuv bo'lishi mumkin emas. | Once. The curve goes up and does not come back, so a second meeting is impossible. |
-| `work.hint.1` | Посчитай точки, где горизонталь пересекла кривую. | Gorizontal egri chiziqni kesgan nuqtalarni sanang. | Count the points where the horizontal crossed the curve. |
-| `work.hint.2` | Кривая ни разу не поворачивает назад. | Egri chiziq bir marta ham orqaga burilmaydi. | The curve never turns back. |
-| `work.hint.3` | Один. | Bir. | Once. |
+| `title` | Поверни сцену и посмотри | Sahnani burib ko'ring | Rotate the scene and look |
+| `show.1.1` | три точки не лежат на одной прямой | uch nuqta bir to'g'ri chiziqda yotmaydi | the three points are not on one line |
+| `show.1.2` | через них проведена плоскость | ular orqali tekislik o'tkazilgan | a plane is drawn through them |
+| `show.1.3` | поверни сцену и следи за ней | sahnani buring va unga qarang | rotate the scene and watch it |
+| `show.2.1` | плоскость осталась на месте | tekislik joyida qoldi | the plane stayed where it was |
+| `show.2.2` | другого положения для неё нет | uning uchun boshqa holat yo'q | there is no other position for it |
+| `show.2.3` | значит она единственная | demak u yagona | so it is unique |
+| `audio.mount` | Три точки в пространстве и плоскость через них. Дальше работает не картинка, а поворот. | Fazoda uch nuqta va ular orqali tekislik. Keyin rasm emas, burilish ishlaydi. | Three points in space and a plane through them. From here it is the rotation that works, not the picture. |
+| `audio.spin*` | Возьми сцену и поверни её. Точки поехали, плоскость поехала вместе с ними, но относительно точек она не сдвинулась ни на сколько. Другого положения у неё нет. Третья точка не лежит на прямой через первые две, и она держит плоскость. Именно это говорит первая аксиома. Обрати внимание на слово в ней: точки не должны лежать на одной прямой. Если условие убрать, аксиома перестанет быть верной, и на следующем экране мы это увидим. | Sahnani olib buring. Nuqtalar siljidi, tekislik ular bilan birga siljidi, lekin nuqtalarga nisbatan u zarracha ham qimirlamadi. Uning uchun boshqa holat yo'q. Uchinchi nuqta birinchi ikkitasi orqali o'tgan to'g'ri chiziqda yotmaydi, va u tekislikni ushlab turadi. Birinchi aksioma aynan shuni aytadi. Undagi so'zga e'tibor bering: nuqtalar bir to'g'ri chiziqda yotmasligi kerak. Shart olib tashlansa, aksioma to'g'ri bo'lmay qoladi, va buni keyingi ekranda ko'ramiz. | Take the scene and rotate it. The points moved, the plane moved with them, but relative to the points it did not shift at all. It has no other position. The third point does not lie on the line through the first two, and it holds the plane. That is exactly what the first axiom says. Notice the words in it: the points must not lie on one line. Remove that condition and the axiom stops being true, and we will see that on the next screen. |
+| `audio.work` | Посчитай сам. Сколько плоскостей проходит через эти три точки? | O'zingiz hisoblang. Bu uch nuqta orqali nechta tekislik o'tadi? | Work it out yourself. How many planes pass through these three points? |
+| `work.prompt` | Сколько плоскостей проходит через них? | Ular orqali nechta tekislik o'tadi? | How many planes pass through them? |
+| `work.ok` | Одна. Сколько сцену ни крути, другого положения не находится. | Bitta. Sahnani qancha burmang, boshqa holat topilmaydi. | One. However much you rotate the scene, no other position turns up. |
+| `work.hint.1` | Поверни сцену и посмотри, меняется ли положение плоскости. | Sahnani buring va tekislik holati o'zgaradimi, qarang. | Rotate the scene and see whether the plane changes position. |
+| `work.hint.2` | Третья точка не на прямой, и она держит плоскость. | Uchinchi nuqta to'g'ri chiziqda emas, va u tekislikni ushlab turadi. | The third point is off the line and it holds the plane. |
+| `work.hint.3` | Одна. | Bitta. | One. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `show.1.3` | `2^x = 8` |
-| `show.2.3` | `x = 3` |
 | `work.answer` | `1` |
 
 ---
 
-## Экран 4 · `explain2` · ответ `order` · тег `delyat-vmesto-osnovaniya`
+## Экран 4 · `explain2` · ответ `lead` · тег `tri-tochki-na-pryamoy`
 
-Разграничение: делить нельзя, приводить можно.
+Разграничение: те же три точки на одной прямой.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
-| `title` | Делить нельзя, приводить можно | Bo'lish mumkin emas, keltirish mumkin | Dividing is out, reducing is in |
-| `show.1.1` | делением получилось бы четыре | bo'lish bilan to'rt chiqardi | dividing would give four |
-| `show.1.2` | подставим четвёрку и проверим | to'rtni qo'yib tekshiramiz | let us substitute four and check |
-| `show.2.1` | вышло шестнадцать, а нужно восемь | o'n olti chiqdi, sakkiz kerak edi | sixteen came out, and eight was needed |
-| `show.2.2` | значит правую часть переписывают | demak o'ng qism qaytadan yoziladi | so the right side gets rewritten |
-| `audio.mount` | Проверим первую запись с начала урока. Восемь разделить на два это четыре. | Dars boshidagi birinchi yozuvni tekshiramiz. Sakkiz ikkiga bo'linsa to'rt bo'ladi. | Let us check the first reading from the start of the lesson. Eight divided by two is four. |
-| `audio.check*` | Подставим четвёрку в показатель. Два в четвёртой степени это шестнадцать, а нужно было восемь. Значит деление тут не работает совсем: показатель это не множитель, и делением его не получают. Работает другое. Восемь само записывается степенью двойки, и тогда слева и справа стоит одно основание. | To'rtni ko'rsatkichga qo'yamiz. Ikki to'rtinchi darajada bu o'n olti, sakkiz kerak edi. Demak bo'lish bu yerda umuman ishlamaydi: ko'rsatkich ko'paytuvchi emas, va u bo'lish bilan olinmaydi. Boshqa narsa ishlaydi. Sakkizning o'zi ikkining darajasi qilib yoziladi, va shunda chapda ham o'ngda ham bitta asos turadi. | Let us substitute four into the exponent. Two to the fourth is sixteen, and eight was needed. So dividing does not work here at all: the exponent is not a factor and is not obtained by division. Something else works. Eight itself can be written as a power of two, and then the same base stands on both sides. |
-| `audio.work` | Расставь шаги, как решается такое уравнение. | Bunday tenglama qanday yechilsa, qadamlarni shunday joylashtiring. | Put the steps in the order such an equation is solved. |
-| `order.prompt` | Расставь шаги по порядку. | Qadamlarni tartib bilan joylashtiring. | Put the steps in order. |
-| `order.s1` | правую часть пишем степенью того же основания | o'ng qismni o'sha asosning darajasi qilib yozamiz | write the right side as a power of the same base |
-| `order.s2` | слева и справа одно основание | chapda va o'ngda bitta asos | the same base on both sides |
-| `order.s3` | сравниваем показатели | ko'rsatkichlarni solishtiramiz | compare the exponents |
-| `order.s4` | получаем корень | ildizni olamiz | get the root |
-| `order.ok` | Порядок такой всегда. Деления в нём нет ни на одном шаге. | Tartib doim shunday. Unda bo'lish birorta qadamda ham yo'q. | The order is always this. There is no division at any step. |
-| `order.bad` | Сначала переписать правую часть, потом сравнить показатели. | Avval o'ng qismni qaytadan yozish, keyin ko'rsatkichlarni solishtirish. | First rewrite the right side, then compare the exponents. |
+| `eyebrow` | РАЗГРАНИЧЕНИЕ | FARQLASH | TELLING THEM APART |
+| `title` | Точки сдвинули на одну прямую | Nuqtalar bir to'g'ri chiziqqa surildi | The points were moved onto one line |
+| `show.1.1` | теперь все три на одной прямой | endi uchalasi ham bir to'g'ri chiziqda | now all three are on one line |
+| `show.1.2` | плоскость через них по-прежнему проходит | tekislik ular orqali baribir o'tadi | a plane still passes through them |
+| `show.1.3` | но она больше не одна | lekin u endi yagona emas | but it is no longer alone |
+| `show.2.1` | плоскость крутится вокруг прямой | tekislik to'g'ri chiziq atrofida aylanadi | the plane spins around the line |
+| `show.2.2` | каждое её положение годится | uning har bir holati yaraydi | every position of it works |
+| `show.2.3` | ни одно не выделено | birortasi ajratilmagan | none of them is singled out |
+| `audio.mount` | Те же три точки, и все они на одной прямой. | O'sha uch nuqta, va ularning hammasi bir to'g'ri chiziqda. | The same three points, and all of them on one line. |
+| `audio.turn*` | Смотри, что стало с плоскостью. Она проходит через все три точки, как и раньше, но теперь её можно крутить вокруг прямой, и она всё равно будет проходить через них. Одно положение, второе, третье, годятся все. Плоскостей через три такие точки бесконечно много, и ни одна не лучше остальных. Вот почему в аксиоме стоит условие про прямую. Без него утверждение неверно, и убедились мы в этом не рассуждением, а поворотом. | Tekislikka nima bo'lganiga qarang. U avvalgidek uchala nuqta orqali o'tadi, lekin endi uni to'g'ri chiziq atrofida burish mumkin, va u baribir ular orqali o'tadi. Bir holat, ikkinchi, uchinchi, hammasi yaraydi. Bunday uch nuqta orqali tekisliklar cheksiz ko'p, va birortasi qolganidan yaxshi emas. Aksiomada to'g'ri chiziq haqidagi shart shuning uchun turadi. Usiz tasdiq noto'g'ri, va bunga biz mulohaza bilan emas, burilish bilan ishonch hosil qildik. | Look at what happened to the plane. It passes through all three points as before, but now it can be spun around the line and it will still pass through them. One position, a second, a third, all of them work. There are infinitely many planes through three such points, and none is better than the others. That is why the axiom carries the condition about the line. Without it the statement is false, and we became sure of that not by reasoning but by rotating. |
+| `audio.work` | Поверни сцену и ответь: сколько таких плоскостей? | Sahnani buring va javob bering: bunday tekisliklar nechta? | Rotate the scene and answer: how many such planes are there? |
+| `pick.prompt` | Сколько плоскостей проходит через три точки одной прямой? | Bir to'g'ri chiziqdagi uch nuqta orqali nechta tekislik o'tadi? | How many planes pass through three points of one line? |
+| `pick.a` | ровно одна | roppa-rosa bitta | exactly one |
+| `pick.a.hint` | Ты только что покрутил её и нашёл другие положения. | Siz uni hozirgina burib, boshqa holatlarni topdingiz. | You have just rotated it and found other positions. |
+| `pick.b` [верно] | бесконечно много | cheksiz ko'p | infinitely many |
+| `pick.c` | ни одной | bitta ham yo'q | none |
+| `pick.c.hint` | Хотя бы одна есть: ты её видишь на экране. | Hech bo'lmaganda bittasi bor: siz uni ekranda ko'rib turibsiz. | At least one exists: you can see it on the screen. |
+| `pick.ok` | Бесконечно много. Три точки на одной прямой плоскость не задают. | Cheksiz ko'p. Bir to'g'ri chiziqdagi uch nuqta tekislikni belgilamaydi. | Infinitely many. Three points on one line do not fix a plane. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `show.1.3` | `8 : 2 = 4` |
-| `show.2.3` | `2⁴ = 16` |
-| `order.mark` | `x = 3` |
+| `mark` | `A, B, C ∈ a   →   α ⊃ a` |
 
 ---
 
-## Экран 5 · `explain3` · ответ `order` · тег `delyat-vmesto-osnovaniya`
+## Экран 5 · `explain3` · ответ `number` · тег `kartinka-kak-dokazatelstvo`
+
+Вторая аксиома: две точки прямой в плоскости.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
-| `title` | Одно основание, потом показатели | Bitta asos, keyin ko'rsatkichlar | One base first, then the exponents |
-| `show.1.1` | основания разные, но связаны | asoslar har xil, lekin bog'liq | the bases differ but are related |
-| `show.1.2` | четвёрка это два в квадрате | to'rt bu ikki kvadratda | four is two squared |
-| `show.2.1` | основания стали одинаковыми | asoslar bir xil bo'ldi | the bases became the same |
-| `show.2.2` | остаётся сравнить показатели | ko'rsatkichlarni solishtirish qoladi | comparing the exponents is what is left |
-| `audio.mount` | Теперь основания разные. Слева четыре, справа два. | Endi asoslar har xil. Chapda to'rt, o'ngda ikki. | Now the bases differ. Four on the left, two on the right. |
-| `audio.same*` | Четвёрка это два в квадрате, значит слева получается два в степени два икс. Основания стали одинаковыми, и остаётся сравнить показатели. Право сравнить их даёт монотонность: у одного значения только один показатель, потому что кривая проходит через каждый уровень ровно один раз. Два икс равно икс плюс один, отсюда икс равен единице. | To'rt bu ikki kvadratda, demak chapda ikki ikki iks darajada chiqadi. Asoslar bir xil bo'ldi, va ko'rsatkichlarni solishtirish qoladi. Solishtirish huquqini monotonlik beradi: bitta qiymatga faqat bitta ko'rsatkich mos, chunki egri chiziq har darajadan aynan bir marta o'tadi. Ikki iks iks qo'shuv birga teng, shundan iks birga teng. | Four is two squared, so on the left we get two to the two x. The bases became the same, and comparing the exponents is what is left. The right to compare them comes from monotonicity: one value has only one exponent, because the curve passes each level exactly once. Two x equals x plus one, so x equals one. |
-| `audio.work` | Расставь шаги, как решается уравнение с разными основаниями. | Har xil asosli tenglama qanday yechilsa, qadamlarni shunday joylashtiring. | Put the steps in the order an equation with different bases is solved. |
-| `order.prompt` | Расставь шаги по порядку. | Qadamlarni tartib bilan joylashtiring. | Put the steps in order. |
-| `order.s1` | оба основания сводим к двойке | ikkala asosni ikkiga keltiramiz | reduce both bases to two |
-| `order.s2` | показатели приравниваем | ko'rsatkichlarni tenglashtiramiz | set the exponents equal |
-| `order.s3` | решаем обычное уравнение | oddiy tenglamani yechamiz | solve the ordinary equation |
-| `order.s4` | корень один | ildiz bitta | one root |
-| `order.ok` | Основания приводят к одному, и дальше уравнение обычное. Монотонность разрешает сравнить показатели. | Asoslar bittaga keltiriladi, keyin tenglama oddiy bo'ladi. Monotonlik ko'rsatkichlarni solishtirishga ruxsat beradi. | The bases are reduced to one, and then the equation is an ordinary one. Monotonicity allows comparing the exponents. |
-| `order.bad` | Сначала одно основание, потом показатели, потом решение. | Avval bitta asos, keyin ko'rsatkichlar, keyin yechim. | First one base, then the exponents, then the solution. |
+| `title` | Две точки тянут за собой всю прямую | Ikki nuqta butun to'g'ri chiziqni ergashtiradi | Two points drag the whole line along |
+| `show.1.1` | две точки прямой лежат в плоскости | to'g'ri chiziqning ikki nuqtasi tekislikda yotadi | two points of the line lie in the plane |
+| `show.1.2` | про остальные пока ничего не сказано | qolganlari haqida hozircha hech nima aytilmagan | nothing is said about the rest yet |
+| `show.1.3` | поверни и посмотри на прямую | buring va to'g'ri chiziqqa qarang | rotate and look at the line |
+| `show.2.1` | прямая целиком лежит в плоскости | to'g'ri chiziq butunlay tekislikda yotadi | the whole line lies in the plane |
+| `show.2.2` | она не выходит из неё ни в одной точке | u undan birorta nuqtada ham chiqmaydi | it does not leave it at any point |
+| `show.2.3` | это вторая аксиома | bu ikkinchi aksioma | this is the second axiom |
+| `audio.mount` | Вторая аксиома. Она короткая, а работать будет весь курс. | Ikkinchi aksioma. U qisqa, lekin butun kurs davomida ishlaydi. | The second axiom. It is short, and it will work for the whole course. |
+| `audio.lie*` | Возьмём прямую и отметим на ней две точки, которые лежат в плоскости. Больше про эту прямую ничего не известно. Кажется, что она могла бы проткнуть плоскость и уйти в сторону, но нет. Аксиома говорит: если две точки прямой лежат в плоскости, то все её точки лежат в этой плоскости. Поверни сцену и убедись, что прямая не выходит из плоскости нигде. Отсюда, кстати, следует привычный приём: чтобы проверить, лежит ли прямая в плоскости, хватит двух точек. Не всей прямой, а двух точек. | To'g'ri chiziqni olamiz va unda tekislikda yotgan ikki nuqtani belgilaymiz. Bu to'g'ri chiziq haqida boshqa hech nima ma'lum emas. U tekislikni teshib chetga ketishi mumkindek tuyuladi, lekin yo'q. Aksioma shunday deydi: agar to'g'ri chiziqning ikki nuqtasi tekislikda yotsa, uning barcha nuqtalari shu tekislikda yotadi. Sahnani buring va to'g'ri chiziq tekislikdan hech qayerda chiqmasligiga ishonch hosil qiling. Aytgancha, bundan tanish usul kelib chiqadi: to'g'ri chiziq tekislikda yotganini tekshirish uchun ikki nuqta yetadi. Butun to'g'ri chiziq emas, ikki nuqta. | Take a line and mark two of its points that lie in the plane. Nothing else is known about this line. It seems it could pierce the plane and go off to the side, but no. The axiom says: if two points of a line lie in a plane, then all its points lie in that plane. Rotate the scene and see that the line does not leave the plane anywhere. From this, by the way, follows the familiar move: to check whether a line lies in a plane, two points are enough. Not the whole line, two points. |
+| `audio.work` | Посчитай сам. Сколько точек прямой надо проверить? | O'zingiz hisoblang. To'g'ri chiziqning nechta nuqtasini tekshirish kerak? | Work it out yourself. How many points of the line must be checked? |
+| `work.prompt` | Сколько точек прямой надо проверить? | To'g'ri chiziqning nechta nuqtasini tekshirish kerak? | How many points of the line must be checked? |
+| `work.ok` | Две. Остальные придут сами по второй аксиоме. | Ikkita. Qolganlari ikkinchi aksioma bo'yicha o'zi keladi. | Two. The rest follow by the second axiom. |
+| `work.hint.1` | Прочитай вторую аксиому ещё раз. | Ikkinchi aksiomani yana bir bor o'qing. | Read the second axiom once more. |
+| `work.hint.2` | В ней сказано про две точки. | Unda ikki nuqta haqida aytilgan. | It speaks about two points. |
+| `work.hint.3` | Две. | Ikki. | Two. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `show.1.3` | `4^x = 2^{x+1}` |
-| `show.2.3` | `2^{2x} = 2^{x+1}` |
-| `order.mark` | `x = 1` |
+| `work.expr` | `A, B ∈ α,  A, B ∈ a   →   a ⊂ α` |
+| `work.answer` | `2` |
 
 ---
 
-## Экран 6 · `explain4` · ответ `number` · тег `net-resheniy`
+## Экран 6 · `explain4` · ответ `number` · тег `kartinka-kak-dokazatelstvo`
+
+Сам: третья аксиома.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
-| `title` | Замена сводит к квадратному | Almashtirish kvadratga keltiradi | A substitution reduces it to a quadratic |
-| `show.1.1` | в уравнении две степени | tenglamada ikki daraja | the equation has two powers |
-| `show.1.2` | одна из них квадрат другой | biri ikkinchisining kvadrati | one of them is the square of the other |
-| `show.2.1` | замена даёт квадратное уравнение | almashtirish kvadrat tenglama beradi | the substitution gives a quadratic |
-| `show.2.2` | отрицательное значение отбрасывают | manfiy qiymat tashlanadi | the negative value is dropped |
-| `audio.mount` | Возьмём уравнение, где степеней две. Четыре в степени икс и два в степени икс. | Ikki daraja bo'lgan tenglamani olamiz. To'rt iks darajada va ikki iks darajada. | Take an equation with two powers. Four to the x and two to the x. |
-| `audio.sub*` | Четыре в степени икс это квадрат двух в степени икс. Обозначим два в степени икс буквой тэ, и получится обычное квадратное уравнение. Его корни четыре и минус один. Минус один отбрасываем: два в степени икс положительно при любом икс, отрицательным оно не бывает никогда. Остаётся четвёрка, и из неё икс равен двум. | To'rt iks darajada bu ikki iks darajaning kvadrati. Ikki iks darajani te harfi bilan belgilaymiz, va oddiy kvadrat tenglama chiqadi. Uning ildizlari to'rt va minus bir. Minus birni tashlaymiz: ikki iks darajada har qanday iksda musbat, u hech qachon manfiy bo'lmaydi. To'rt qoladi, va undan iks ikkiga teng. | Four to the x is the square of two to the x. Let us call two to the x by the letter t, and an ordinary quadratic appears. Its roots are four and minus one. We drop minus one: two to the x is positive for every x and is never negative. Four is left, and from it x equals two. |
-| `audio.work` | Посчитай сам. Сколько корней замены годится? | O'zingiz hisoblang. Almashtirishning nechta ildizi yaraydi? | Work it out yourself. How many roots of the substitution fit? |
-| `work.prompt` | Сколько корней замены годится? | Almashtirishning nechta ildizi yaraydi? | How many roots of the substitution fit? |
-| `work.ok` | Один. Минус единица не годится: степень двойки отрицательной не бывает. | Bitta. Minus bir yaramaydi: ikkining darajasi manfiy bo'lmaydi. | One. Minus one does not fit: a power of two is never negative. |
-| `work.hint.1` | Проверь каждый корень замены на знак. | Almashtirishning har ildizini ishorasi bo'yicha tekshiring. | Check the sign of each root of the substitution. |
-| `work.hint.2` | Значение замены это степень двойки, а она положительна. | Almashtirish qiymati bu ikkining darajasi, u esa musbat. | The substituted value is a power of two, and that is positive. |
-| `work.hint.3` | Один. | Bitta. | One. |
+| `eyebrow` | САМ | O'ZINGIZ | ON YOUR OWN |
+| `title` | Две плоскости с общей точкой | Umumiy nuqtali ikki tekislik | Two planes with a common point |
+| `show.1.1` | две плоскости, у них есть общая точка | ikki tekislik, ularning umumiy nuqtasi bor | two planes with a common point |
+| `show.1.2` | одной точкой дело не кончается | ish bitta nuqta bilan tugamaydi | one point is not the end of it |
+| `show.1.3` | поверни сцену и посмотри | sahnani buring va qarang | rotate the scene and look |
+| `show.2.1` | у них есть общая прямая | ularning umumiy to'g'ri chizig'i bor | they have a common line |
+| `show.2.2` | она проходит через эту точку | u shu nuqtadan o'tadi | it passes through that point |
+| `show.2.3` | и такая прямая одна | va bunday to'g'ri chiziq bitta | and there is one such line |
+| `audio.mount` | Третья аксиома. Здесь считать придётся самому. | Uchinchi aksioma. Bu yerda o'zingiz hisoblashingizga to'g'ri keladi. | The third axiom. Here you will have to count for yourself. |
+| `audio.cut*` | Две плоскости имеют общую точку. Аксиома утверждает, что тогда у них есть и общая прямая, проходящая через эту точку. То есть двух плоскостей, которые касались бы друг друга ровно в одной точке, в пространстве не бывает: либо у них нет общих точек вовсе, либо есть целая прямая. Поверни сцену и найди эту прямую. Она видна как линия, по которой одна плоскость входит в другую. Посчитай, сколько таких общих прямых у двух пересекающихся плоскостей. | Ikki tekislikning umumiy nuqtasi bor. Aksioma shuni tasdiqlaydiki, u holda ularning shu nuqtadan o'tuvchi umumiy to'g'ri chizig'i ham bor. Ya'ni bir-biriga roppa-rosa bitta nuqtada tegadigan ikki tekislik fazoda bo'lmaydi: yo ularning umumiy nuqtasi umuman yo'q, yo butun bir to'g'ri chiziq bor. Sahnani buring va shu to'g'ri chiziqni toping. U bir tekislik ikkinchisiga kiradigan chiziq ko'rinishida ko'rinadi. Kesishuvchi ikki tekislikning bunday umumiy to'g'ri chizig'i nechta ekanini sanang. | Two planes have a common point. The axiom claims that then they also have a common line through that point. That is, two planes that touch each other at exactly one point do not exist in space: either they have no common points at all, or they have a whole line. Rotate the scene and find that line. It shows as the line along which one plane enters the other. Count how many such common lines two intersecting planes have. |
+| `audio.work` | Посчитай сам. Сколько общих прямых у двух пересекающихся плоскостей? | O'zingiz hisoblang. Kesishuvchi ikki tekislikning nechta umumiy to'g'ri chizig'i bor? | Work it out yourself. How many common lines do two intersecting planes have? |
+| `work.prompt` | Сколько у них общих прямых? | Ularning nechta umumiy to'g'ri chizig'i bor? | How many common lines do they have? |
+| `work.ok` | Одна. Две плоскости пересекаются по одной прямой, и по одной точке не пересекаются никогда. | Bitta. Ikki tekislik bitta to'g'ri chiziq bo'ylab kesishadi, bitta nuqta bo'yicha esa hech qachon kesishmaydi. | One. Two planes meet along one line, and never at a single point. |
+| `work.hint.1` | Поверни сцену и найди линию, по которой они входят друг в друга. | Sahnani buring va ular bir-biriga kiradigan chiziqni toping. | Rotate the scene and find the line along which they enter each other. |
+| `work.hint.2` | Если бы таких прямых было две, плоскости совпали бы. | Bunday to'g'ri chiziq ikkita bo'lganda, tekisliklar ustma-ust tushardi. | If there were two such lines, the planes would coincide. |
+| `work.hint.3` | Одна. | Bitta. | One. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `show.1.3` | `4^x − 3·2^x − 4 = 0` |
-| `show.2.3` | `t² − 3t − 4 = 0` |
+| `work.expr` | `α ∩ β = a` |
 | `work.answer` | `1` |
 
 ---
 
-## Экран 7 · `explain5` · ответ `number` · тег `net-resheniy`
+## Экран 7 · `explain5` · ответ `number` · тег `izmeril-znachit-dokazal`
+
+Граничный: измерение не доказательство.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
-| `title` | Когда встреч не бывает | Uchrashuv bo'lmaydigan hol | When there are no meetings |
-| `show.1.1` | опускаем горизонталь под ось | gorizontalni o'q ostiga tushiramiz | we lower the horizontal below the axis |
-| `show.1.2` | она проходит ниже кривой | u egri chiziqdan pastda o'tadi | it passes below the curve |
-| `show.2.1` | встреч нет ни одной | birorta uchrashuv yo'q | there is not a single meeting |
-| `show.2.2` | значит корней нет | demak ildiz yo'q | so there are no roots |
-| `audio.mount` | Опустим горизонталь под ось, на уровень минус четыре. | Gorizontalni o'q ostiga, minus to'rt darajasiga tushiramiz. | Let us lower the horizontal below the axis, to the level minus four. |
-| `audio.none*` | Она проходит ниже кривой и не встречает её нигде. Значит корней нет, и это видно до всяких вычислений. Поднимем горизонталь ровно на ноль. Она совпадает с асимптотой и тоже не встречает кривую. Поэтому уравнения, где справа ноль или отрицательное число, решений не имеют, и правая часть проверяется первой. | U egri chiziqdan pastda o'tadi va uni hech qayerda uchratmaydi. Demak ildiz yo'q, va bu har qanday hisobdan oldin ko'rinadi. Gorizontalni aynan nolga ko'taramiz. U asimptota bilan ustma-ust tushadi va u ham egri chiziqni uchratmaydi. Shuning uchun o'ng qismida nol yoki manfiy son bo'lgan tenglamalarning yechimi yo'q, va o'ng qism birinchi tekshiriladi. | It passes below the curve and meets it nowhere. So there are no roots, and this is visible before any computation. Let us raise the horizontal to exactly zero. It coincides with the asymptote and does not meet the curve either. So equations with zero or a negative number on the right have no solutions, and the right side is what gets checked first. |
-| `audio.work` | Посчитай сам. Сколько корней у этого уравнения? | O'zingiz hisoblang. Bu tenglamada nechta ildiz bor? | Work it out yourself. How many roots does this equation have? |
-| `work.prompt` | Сколько корней у этого уравнения? | Bu tenglamada nechta ildiz bor? | How many roots does this equation have? |
-| `work.ok` | Ни одного. Множество значений это положительные числа, а справа стоит отрицательное. | Birortasi ham. Qiymatlar to'plami musbat sonlar, o'ngda esa manfiy son turadi. | None. The range is the positive numbers, and a negative one stands on the right. |
-| `work.hint.1` | Посмотри, встречает ли горизонталь кривую хоть где-нибудь. | Gorizontal egri chiziqni biror joyda uchratadimi, qarang. | Look whether the horizontal meets the curve anywhere at all. |
-| `work.hint.2` | Кривая целиком выше оси, а горизонталь ниже. | Egri chiziq butunlay o'qdan yuqorida, gorizontal esa pastda. | The curve lies entirely above the axis, and the horizontal below. |
-| `work.hint.3` | Ни одного. | Birortasi ham. | None. |
+| `eyebrow` | ГРАНИЧНЫЙ СЛУЧАЙ | CHEGARAVIY HOL | THE EDGE CASE |
+| `title` | Измерил — ещё не доказал | O'lchadi — hali isbotlamadi | Measured is not proved |
+| `show.1.1` | на чертеже два отрезка кажутся равными | chizmada ikki kesma teng ko'rinadi | on the drawing two segments look equal |
+| `show.1.2` | линейка показывает одно и то же число | chizg'ich bir xil sonni ko'rsatadi | the ruler shows the same number |
+| `show.1.3` | это результат измерения | bu o'lchash natijasi | this is the result of a measurement |
+| `show.2.1` | поверни сцену | sahnani buring | rotate the scene |
+| `show.2.2` | числа разошлись | sonlar farq qildi | the numbers came apart |
+| `show.2.3` | значит мерили не длину, а проекцию | demak uzunlikni emas, proyeksiyani o'lchadik | so it was the projection that was measured, not the length |
+| `audio.mount` | Один приём из седьмого класса переносится сюда и становится строже. | Yettinchi sinfdagi bir usul bu yerga ko'chadi va qattiqroq bo'ladi. | One move from grade seven carries over here and gets stricter. |
+| `audio.rule*` | В планиметрии мы уже договаривались: результат измерения линейкой подписывается словом предположение и в доказательство не берётся. В пространстве это правило становится жёстче. На плоском чертеже мы видим не сам отрезок, а его проекцию, а проекция искажает и длины, и углы. Поверни сцену: два отрезка, которые казались равными, разъехались. Ни один из этих замеров ничего не доказывает, оба они только повод присмотреться. Доказывают по аксиомам и по уже доказанным утверждениям, а не по картинке. | Planimetriyada biz allaqachon kelishgan edik: chizg'ich bilan o'lchash natijasi taxmin so'zi bilan imzolanadi va isbotga olinmaydi. Fazoda bu qoida qattiqroq bo'ladi. Yassi chizmada biz kesmaning o'zini emas, uning proyeksiyasini ko'ramiz, proyeksiya esa uzunlikni ham, burchakni ham buzadi. Sahnani buring: teng ko'ringan ikki kesma ajralib ketdi. Bu o'lchovlarning birortasi hech nimani isbotlamaydi, ikkalasi ham faqat diqqat bilan qarashga sabab. Isbot aksiomalar va allaqachon isbotlangan tasdiqlar bo'yicha qilinadi, rasm bo'yicha emas. | In planimetry we already agreed: the result of measuring with a ruler is labelled a guess and is not taken into a proof. In space this rule gets harder. On a flat drawing we do not see the segment itself but its projection, and a projection distorts both lengths and angles. Rotate the scene: two segments that looked equal have come apart. Neither of these measurements proves anything, both are only a reason to look closer. Proofs go by axioms and by statements already proved, not by the picture. |
+| `audio.work` | Посчитай сам. Сколько из двух замеров годится в доказательство? | O'zingiz hisoblang. Ikki o'lchovdan nechtasi isbotga yaraydi? | Work it out yourself. How many of the two measurements can go into a proof? |
+| `work.prompt` | Сколько замеров годится в доказательство? | Nechta o'lchov isbotga yaraydi? | How many measurements can go into a proof? |
+| `work.ok` | Ни одного. Измерение по проекции не доказывает ничего. | Bitta ham yo'q. Proyeksiya bo'yicha o'lchash hech nimani isbotlamaydi. | None. A measurement taken from a projection proves nothing. |
+| `work.hint.1` | Вспомни, чем подписывался результат линейки в седьмом классе. | Yettinchi sinfda chizg'ich natijasi nima bilan imzolanganini eslang. | Recall how a ruler result was labelled in grade seven. |
+| `work.hint.2` | На чертеже видна проекция, а не сам отрезок. | Chizmada proyeksiya ko'rinadi, kesmaning o'zi emas. | The drawing shows the projection, not the segment itself. |
+| `work.hint.3` | Ноль. | Nol. | Zero. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `show.1.3` | `2^x = −4` |
-| `show.2.3` | `∅` |
 | `work.answer` | `0` |
 
 ---
 
-## Экран 8 · `rule` · ответ `pick2` · тег `delyat-vmesto-osnovaniya`
+## Экран 8 · `rule` · ответ `pick2` · тег `tri-tochki-na-pryamoy`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | ПРАВИЛО | QOIDA | RULE |
-| `title` | Показательное уравнение | Ko'rsatkichli tenglama | The exponential equation |
-| `probe.question` | Почему из равенства степеней можно приравнять показатели? | Nega darajalarning tengligidan ko'rsatkichlarni tenglashtirish mumkin? | Why may the exponents be set equal when the powers are equal? |
-| `probe.a` [верно] | функция монотонна: одному значению один показатель | funksiya monoton: bitta qiymatga bitta ko'rsatkich | the function is monotone: one value, one exponent |
-| `probe.b` | основание сокращается | asos qisqaradi | the base cancels out |
-| `probe.b.hint` | Основание не сокращают: это не множитель. Право сравнить даёт монотонность кривой. | Asos qisqartirilmaydi: u ko'paytuvchi emas. Solishtirish huquqini egri chiziqning monotonligi beradi. | The base is not cancelled: it is not a factor. The right to compare comes from the monotonicity of the curve. |
-| `rule.lawLabel` | Правило | Qoida | The rule |
-| `rule.lines.1` | Уравнение, в показателе которого стоит неизвестное, называют показательным. | Ko'rsatkichida noma'lum turgan tenglama ko'rsatkichli tenglama deyiladi. | An equation whose exponent holds the unknown is called exponential. |
-| `rule.lines.2` | Если основание положительно и не равно единице, показатели равны. | Asos musbat va birga teng bo'lmasa, ko'rsatkichlar teng bo'ladi. | If the base is positive and not one, the exponents are equal. |
-| `rule.lines.3` | Если справа ноль или отрицательное число, корней нет. | O'ngda nol yoki manfiy son bo'lsa, ildiz yo'q. | If the right side is zero or negative, there are no roots. |
-| `audio.mount` | Объяснение закончилось. Перед правилом один вопрос. | Tushuntirish tugadi. Qoidadan oldin bitta savol. | The explanation is over. One question before the rule. |
-| `audio.rule*` | Горизонталь остаётся на экране, и правило открывается рядом. Показатели приравнивают не потому, что основание куда-то ушло, а потому, что кривая проходит через каждое значение ровно один раз. | Gorizontal ekranda qoladi, va qoida yonida ochiladi. Ko'rsatkichlar asos qayoqqadir ketgani uchun emas, egri chiziq har qiymatdan aynan bir marta o'tgani uchun tenglashtiriladi. | The horizontal stays on the screen and the rule opens beside it. The exponents are set equal not because the base went away but because the curve passes each value exactly once. |
+| `eyebrow` | ПРАВИЛО | QOIDA | THE RULE |
+| `title` | Три аксиомы | Uch aksioma | Three axioms |
+| `probe.question` | Какое условие в первой аксиоме отбрасывать нельзя? | Birinchi aksiomadagi qaysi shartni tashlab bo'lmaydi? | Which condition in the first axiom cannot be dropped? |
+| `probe.a` [верно] | точки не лежат на одной прямой | nuqtalar bir to'g'ri chiziqda yotmaydi | the points do not lie on one line |
+| `probe.b` | точек ровно три | nuqtalar roppa-rosa uchta | there are exactly three points |
+| `probe.b.hint` | Три их и есть. Дело не в числе, а в том, как они расположены. | Ular uchta ham. Gap sonda emas, joylashuvida. | There are three of them indeed. The point is not their number but their arrangement. |
+| `rule.lawLabel` | ТРИ АКСИОМЫ | UCH AKSIOMA | THE THREE AXIOMS |
+| `rule.lines.1` | через три точки не на одной прямой проходит единственная плоскость | bir to'g'ri chiziqda yotmagan uch nuqta orqali yagona tekislik o'tadi | through three points not on one line passes a unique plane |
+| `rule.lines.2` | если две точки прямой в плоскости, то вся прямая в ней | to'g'ri chiziqning ikki nuqtasi tekislikda bo'lsa, butun chiziq unda | if two points of a line are in a plane, the whole line is in it |
+| `rule.lines.3` | если у двух плоскостей есть общая точка, есть и общая прямая | ikki tekislikning umumiy nuqtasi bo'lsa, umumiy to'g'ri chizig'i ham bor | if two planes share a point, they share a line |
+| `audio.mount` | Соберём правило. Аксиом три, и все три мы уже видели в движении. | Qoidani yig'amiz. Aksioma uchta, uchalasini ham harakatda ko'rdik. | Let us put the rule together. There are three axioms and we have seen all three in motion. |
+| `audio.rule*` | Первая: если три точки не лежат на одной прямой, через них можно провести единственную плоскость. Слова про прямую здесь главные, без них утверждение неверно. Вторая: если две точки прямой лежат в плоскости, то все её точки лежат в этой плоскости. Отсюда правило проверки: хватает двух точек. Третья: если у двух плоскостей есть общая точка, то есть и общая прямая, проходящая через неё. Значит по одной точке плоскости не пересекаются никогда. Вместе с аксиомами планиметрии эти три составляют основу стереометрии, и дальше всё доказывается из них. | Birinchi: agar uch nuqta bir to'g'ri chiziqda yotmasa, ular orqali yagona tekislik o'tkazish mumkin. To'g'ri chiziq haqidagi so'zlar bu yerda asosiy, ularsiz tasdiq noto'g'ri. Ikkinchi: agar to'g'ri chiziqning ikki nuqtasi tekislikda yotsa, uning barcha nuqtalari shu tekislikda yotadi. Bundan tekshirish qoidasi: ikki nuqta yetadi. Uchinchi: agar ikki tekislikning umumiy nuqtasi bo'lsa, undan o'tuvchi umumiy to'g'ri chiziq ham bor. Demak tekisliklar bitta nuqta bo'yicha hech qachon kesishmaydi. Planimetriya aksiomalari bilan birga bu uchtasi stereometriyaning asosini tashkil qiladi, va keyin hammasi ulardan isbotlanadi. | First: if three points do not lie on one line, a unique plane can be drawn through them. The words about the line are the main part here, without them the statement is false. Second: if two points of a line lie in a plane, then all its points lie in that plane. Hence the checking rule: two points are enough. Third: if two planes have a common point, they also have a common line through it. So planes never meet at a single point. Together with the axioms of planimetry these three form the basis of stereometry, and everything further is proved from them. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `rule.law` | `a^{f(x)} = a^{g(x)}   →   f(x) = g(x)` |
+| `rule.law` | `S₁: A, B, C ∉ a   →   α` |
 
 ---
 
-## Экран 9 · `drill` · ответ `match` · формат `match` · тег `delyat-vmesto-osnovaniya`
+## Экран 9 · `drill` · ответ `match` · формат `match` · тег `tri-tochki-na-pryamoy`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | ПРАКТИКА | MASHQ | PRACTICE |
-| `title` | Уравнение и его корень | Tenglama va uning ildizi | An equation and its root |
-| `match.prompt` | Соедини уравнение с его корнем. | Tenglamani ildizi bilan birlashtiring. | Match each equation with its root. |
-| `match.ok` | Каждое уравнение сводится к одному основанию, и дальше сравниваются показатели. Корень бывает и дробным, и отрицательным, и нулём. | Har tenglama bitta asosga keltiriladi, keyin ko'rsatkichlar solishtiriladi. Ildiz kasr ham, manfiy ham, nol ham bo'ladi. | Every equation reduces to one base, and then the exponents are compared. A root can be fractional, negative, or zero. |
-| `audio.mount` | Четыре уравнения и четыре корня. Соедини их. | To'rt tenglama va to'rt ildiz. Ularni birlashtiring. | Four equations and four roots. Match them. |
+| `eyebrow` | ТРЕНИРОВКА | MASHQ | PRACTICE |
+| `title` | Соедини условие с числом плоскостей | Shartni tekisliklar soni bilan ulang | Match each condition with the number of planes |
+| `match.prompt` | Сколько разных плоскостей отвечает записи | Yozuvga nechta har xil tekislik mos keladi | How many distinct planes each writing gives |
+| `match.ok` | Верно. Из четырёх точек тройку выбирают четырьмя способами, а грани куба лежат в шести плоскостях. | To'g'ri. To'rt nuqtadan uchlik to'rt xil tanlanadi, kubning yoqlari esa olti tekislikda yotadi. | Correct. A triple is chosen from four points in four ways, and the faces of a cube lie in six planes. |
+| `audio.mount` | Четыре записи и четыре ответа. Считай, не рисуя. Последняя запись это куб: считай плоскости его граней. | To'rt yozuv va to'rt javob. Chizmasdan hisoblang. Oxirgi yozuv bu kub: uning yoqlari tekisliklarini sanang. | Four writings and four answers. Count without drawing. The last writing is a cube: count the planes of its faces. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `match.left` | `2^x = 32` · `3^x = 1/3` · `5^x = 1` · `4^x = 2` |
-| `match.a` | `5` |
-| `match.b` | `−1` |
-| `match.c` | `0` |
-| `match.d` | `1/2` |
+| `match.left` | `A, B, C ∉ a` · `A, B, C ∈ a` · `A, B, C, D` · `ABCDA₁B₁C₁D₁` |
+| `match.a` | `1` |
+| `match.b` | `∞` |
+| `match.c` | `4` |
+| `match.d` | `6` |
 
 ---
 
-## Экран 10 · `guided` · ответ `order` · формат `order-steps` · тег `delyat-vmesto-osnovaniya`
+## Экран 10 · `guided` · ответ `order` · формат `proof` · тег `kartinka-kak-dokazatelstvo`
+
+Доказательство 1-natija из учебника, стр. 34.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | ПРАКТИКА | MASHQ | PRACTICE |
-| `title` | Реши по шагам | Qadam bilan yeching | Solve it step by step |
-| `order.prompt` | Расставь шаги по порядку. | Qadamlarni tartib bilan joylashtiring. | Put the steps in order. |
-| `order.s1` | девять это три в квадрате | to'qqiz bu uch kvadratda | nine is three squared |
-| `order.s2` | раскрыть показатель | ko'rsatkichni ochish | expand the exponent |
-| `order.s3` | приравнять показатели | ko'rsatkichlarni tenglashtirish | set the exponents equal |
-| `order.s4` | получить корень | ildizni olish | get the root |
-| `order.ok` | Оба основания сведены к тройке, и дальше уравнение обычное. Корень равен трём. | Ikkala asos uchga keltirildi, keyin tenglama oddiy. Ildiz uchga teng. | Both bases are reduced to three, and then the equation is an ordinary one. The root is three. |
-| `order.bad` | Сначала одно основание, потом раскрыть показатель, потом приравнять. | Avval bitta asos, keyin ko'rsatkichni ochish, keyin tenglashtirish. | First one base, then expand the exponent, then set them equal. |
-| `audio.mount` | Четыре шага. Порядок ставишь ты. | To'rtta qadam. Tartibini o'zingiz qo'yasiz. | Four steps. You put them in order. |
+| `eyebrow` | ПО ШАГАМ | QADAMMA-QADAM | STEP BY STEP |
+| `title` | Докажи следствие | Natijani isbotlang | Prove the corollary |
+| `proof.given` | прямая и точка вне её | to'g'ri chiziq va undan tashqaridagi nuqta | a line and a point outside it |
+| `proof.goal` | через них проходит ровно одна плоскость | ular orqali roppa-rosa bitta tekislik o'tadi | exactly one plane passes through them |
+| `proof.r1` | берём на прямой две точки | to'g'ri chiziqda ikki nuqta olamiz | take two points on the line |
+| `proof.r2` | три точки не на одной прямой, проводим плоскость | uch nuqta bir chiziqda emas, tekislik o'tkazamiz | three points not on one line, draw the plane |
+| `proof.r3` | две точки прямой в плоскости, значит вся прямая в ней | chiziqning ikki nuqtasi tekislikda, demak butun chiziq unda | two points of the line are in the plane, so the whole line is |
+| `proof.e1` | Аксиома тут ещё не работает. Этот шаг мы делаем сами. | Aksioma bu yerda hali ishlamaydi. Bu qadamni o'zimiz qilamiz. | No axiom works here yet. We make this step ourselves. |
+| `proof.e2` | Плоскости пока нет. Её ещё надо получить. | Tekislik hali yo'q. Uni olish kerak. | There is no plane yet. It still has to be obtained. |
+| `proof.e3` | Плоскость уже есть. Речь о том, что в неё попадает целая прямая. | Tekislik bor. Gap unga tushadigan to'g'ri chiziq haqida. | The plane is there. This is about the line that falls into it. |
+| `proof.ok` | Доказано. Обе аксиомы понадобились: первая дала плоскость, вторая втянула в неё прямую. | Isbotlandi. Ikkala aksioma ham kerak bo'ldi: birinchisi tekislik berdi, ikkinchisi unga chiziqni tortdi. | Proved. Both axioms were needed: the first gave the plane, the second pulled the line into it. |
+| `reason.s1` | первая аксиома | birinchi aksioma | the first axiom |
+| `reason.s2` | вторая аксиома | ikkinchi aksioma | the second axiom |
+| `reason.s3` | по построению | yasashga ko'ra | by construction |
+| `reason.pic` | видно на чертеже | chizmada ko'rinadi | it is visible on the drawing |
+| `reason.pic.missing` | Чертёж не обоснование: он показывает одно положение из многих. | Chizma asoslash emas: u ko'p holatdan bittasini ko'rsatadi. | A drawing is not a justification: it shows one position out of many. |
+| `reason.measure` | измерено линейкой | chizg'ich bilan o'lchangan | measured with a ruler |
+| `reason.measure.missing` | Измерение это предположение, а не довод. | O'lchash taxmin, dalil emas. | A measurement is a guess, not an argument. |
+| `audio.mount` | Теперь докажем следствие из аксиом. Обоснование каждой строки выбирается из списка. | Endi aksiomalardan chiqadigan natijani isbotlaymiz. Har qatorning asoslashi ro'yxatdan tanlanadi. | Now let us prove a corollary of the axioms. The justification of each line is chosen from the list. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `expr` | `9^{x−1} = 3^{x+1}` |
-| `order.mark` | `x = 3` |
+| `expr` | `a, C ∉ a   →   α` |
 
 ---
 
@@ -343,27 +353,27 @@
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | БЕЗ ПРИБОРА | ASBOBSIZ | NO INSTRUMENT |
-| `title` | Реши без чертежа | Chizmasiz yeching | Solve it without a drawing |
-| `task.ok` | Минус три. Одна вторая это два в минус первой, значит слева стоит два в степени минус икс. | Minus uch. Bir ikkidan bu ikki minus birinchi darajada, demak chapda ikki minus iks darajada turadi. | Minus three. One half is two to the minus first, so on the left stands two to the minus x. |
-| `task.hint.1` | Запиши одну вторую степенью двойки. | Bir ikkidanni ikkining darajasi qilib yozing. | Write one half as a power of two. |
-| `task.hint.2` | Слева получится два в степени минус икс. | Chapda ikki minus iks darajada chiqadi. | On the left you get two to the minus x. |
-| `task.hint.3` | Минус три. | Minus uch. | Minus three. |
-| `order.prompt` | Расставь уравнения по возрастанию корня. | Tenglamalarni ildizining o'sishi bo'yicha joylashtiring. | Arrange the equations by increasing root. |
-| `order.title` | У какого уравнения корень меньше? | Qaysi tenglamaning ildizi kichikroq? | Which equation has the smaller root? |
-| `order.ok` | Основание больше единицы, поэтому чем больше правая часть, тем больше корень. | Asos birdan katta, shuning uchun o'ng qism qancha katta bo'lsa, ildiz ham shuncha katta. | The base is greater than one, so the bigger the right side the bigger the root. |
-| `order.bad` | Найди корень каждого уравнения, потом сравнивай. | Har tenglamaning ildizini toping, keyin solishtiring. | Find the root of each equation, then compare. |
-| `audio.mount` | На этом экране чертежа нет. На экзамене его тоже не будет. | Bu ekranda chizma yo'q. Imtihonda ham bo'lmaydi. | There is no drawing on this screen. There will be none at the exam either. |
-| `audio.next` | Ответ запиши сам. | Javobni o'zingiz yozing. | Type the answer yourself. |
+| `eyebrow` | НА БУМАГЕ | QOG'OZDA | ON PAPER |
+| `title` | Четыре точки, никакие три не на прямой | To'rt nuqta, hech qaysi uchtasi bir chiziqda emas | Four points, no three on one line |
+| `task.ok` | Четыре. Каждая тройка задаёт свою плоскость, а троек из четырёх точек четыре. | To'rtta. Har uchlik o'z tekisligini belgilaydi, to'rt nuqtadan uchliklar esa to'rtta. | Four. Each triple fixes its own plane, and there are four triples of four points. |
+| `task.hint.1` | Считай тройки точек, а не сами точки. | Nuqtalarni emas, uchliklarni sanang. | Count the triples of points, not the points. |
+| `task.hint.2` | Из четырёх точек тройку можно выбрать четырьмя способами. | To'rt nuqtadan uchlikni to'rt xil tanlash mumkin. | A triple can be chosen from four points in four ways. |
+| `task.hint.3` | Четыре. | To'rt. | Four. |
+| `order.prompt` | Расставь условия по возрастанию числа плоскостей | Shartlarni tekisliklar soni o'sishi bo'yicha joylashtiring | Put the conditions in order of increasing number of planes |
+| `order.title` | от меньшего числа к большему | kichik sondan kattasiga | from fewer planes to more |
+| `order.ok` | Верно. Три точки не на прямой дают одну плоскость, четыре точки четыре, куб шесть, а три точки на прямой бесконечно много. | To'g'ri. Chiziqda yotmagan uch nuqta bitta tekislik beradi, to'rt nuqta to'rtta, kub oltita, chiziqdagi uch nuqta esa cheksiz ko'p. | Correct. Three points off a line give one plane, four points give four, a cube six, and three points on a line infinitely many. |
+| `order.bad` | Смотри, что известно о расположении точек, а не сколько их. | Nuqtalar nechtaligiga emas, joylashuvi haqida nima ma'lumligiga qarang. | Look at what is known about the arrangement, not at how many points there are. |
+| `audio.mount` | Прибора нет. Считай на бумаге, потом сверься. | Asbob yo'q. Qog'ozda hisoblang, keyin solishtiring. | No instrument here. Work it out on paper, then compare. |
+| `audio.next` | Дальше запись с ошибкой. Найди строку, где она появилась. | Keyin xatoli yozuv. Xato paydo bo'lgan qatorni toping. | Next comes a written solution with a mistake. Find the line where it appeared. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `task.prompt` | `(1/2)^x = 8   →   x = ?` |
-| `task.answer` | `−3` |
-| `order.items` | `2^x = 1/4` · `2^x = 1` · `2^x = 2` · `2^x = 8` |
-| `order.answer` | `2^x = 1/4  2^x = 1  2^x = 2  2^x = 8` |
+| `task.prompt` | `A, B, C, D   →   ?` |
+| `task.answer` | `4` |
+| `order.items` | `A, B, C ∈ a` · `A, B, C ∉ a` · `ABCDA₁B₁C₁D₁` · `A, B, C, D` |
+| `order.answer` | `A, B, C ∉ a  A, B, C, D  ABCDA₁B₁C₁D₁  A, B, C ∈ a` |
 
 ---
 
@@ -374,29 +384,29 @@
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ЛОВУШКА | TUZOQ | THE TRAP |
-| `title` | Ответ неполный. Где? | Javob to'liq emas. Qayerda? | The answer is incomplete. Where? |
-| `hint.r1` | Эта строка просто переписывает условие. | Bu qator shartni shunchaki qaytadan yozadi. | This line just rewrites the task. |
-| `hint.r2` | Четыре это два в квадрате, строка верна. | To'rt bu ikki kvadratda, qator to'g'ri. | Four is two squared, the line is right. |
-| `hint.r3` | Показатели приравнены верно. | Ko'rsatkichlar to'g'ri tenglashtirilgan. | The exponents are set equal correctly. |
-| `proof` | Здесь обе части поделили на икс, и корень ноль исчез. | Bu yerda ikkala qism iksga bo'lindi, va nol ildiz yo'qoldi. | Here both sides were divided by x, and the root zero vanished. |
-| `entry.prompt` | Какой корень потерян? | Qaysi ildiz yo'qolgan? | Which root is lost? |
-| `entry.ok` | Ноль. При нуле обе части равны единице, значит это тоже корень. | Nol. Nolda ikkala qism birga teng, demak bu ham ildiz. | Zero. At zero both sides equal one, so it is a root too. |
-| `entry.hint.1` | Реши последнее уравнение, не деля на икс. | Oxirgi tenglamani iksga bo'lmasdan yeching. | Solve the last equation without dividing by x. |
-| `entry.hint.2` | Вынеси икс за скобку и приравняй каждый множитель нулю. | Iksni qavsdan chiqaring va har ko'paytuvchini nolga tenglashtiring. | Factor x out and set each factor to zero. |
-| `entry.hint.3` | Ноль. | Nol. | Zero. |
-| `audio.mount` | Задача. Решить уравнение, где показатель слева это икс в квадрате. | Masala. Chapda ko'rsatkich iks kvadratda bo'lgan tenglamani yechish. | A task. Solve an equation where the exponent on the left is x squared. |
-| `audio.next` | Четыре строки, все выглядят верными. Ищи первую неверную. | To'rt qator, hammasi to'g'ri ko'rinadi. Birinchi xato qatorni qidiring. | Four lines, all look right. Look for the first wrong one. |
+| `title` | Найди строку с ошибкой | Xatoli qatorni toping | Find the line with the mistake |
+| `hint.r1` | Условие переписано верно. | Shart to'g'ri ko'chirilgan. | The condition is copied correctly. |
+| `hint.r2` | Такая плоскость и правда есть. | Bunday tekislik haqiqatan ham bor. | Such a plane does exist. |
+| `hint.r3` | Спроси себя, откуда это взято: из аксиомы или с рисунка. | O'zingizdan so'rang: bu qayerdan olingan, aksiomadanmi yoki rasmdanmi? | Ask yourself where this comes from: an axiom or the picture. |
+| `proof` | Поверни сцену: точка, которая казалась на плоскости, оказалась над ней. | Sahnani buring: tekislikda ko'ringan nuqta uning ustida chiqdi. | Rotate the scene: the point that seemed to be on the plane turned out to be above it. |
+| `entry.prompt` | Сколько точек прямой надо было проверить? | To'g'ri chiziqning nechta nuqtasini tekshirish kerak edi? | How many points of the line had to be checked? |
+| `entry.ok` | Две. Одной точки для второй аксиомы мало, а картинка вместо второй точки не годится. | Ikkita. Ikkinchi aksioma uchun bitta nuqta kam, rasm esa ikkinchi nuqta o'rniga yaramaydi. | Two. One point is not enough for the second axiom, and a picture is no substitute for the second one. |
+| `entry.hint.1` | Перечитай вторую аксиому. | Ikkinchi aksiomani qayta o'qing. | Read the second axiom again. |
+| `entry.hint.2` | В ней сказано про две точки, а в записи взята одна. | Unda ikki nuqta haqida aytilgan, yozuvda esa bittasi olingan. | It speaks of two points, and the writing takes one. |
+| `entry.hint.3` | Две. | Ikki. | Two. |
+| `audio.mount` | Четыре строки. Ошибка не в счёте: одна строка опирается на рисунок. | To'rt qator. Xato hisobda emas: bir qator rasmga tayanadi. | Four lines. The mistake is not in the counting: one line leans on the picture. |
+| `audio.next` | Дальше обратная задача: по числу плоскостей восстанови условие. | Keyin teskari masala: tekisliklar soniga qarab shartni tiklang. | Next comes the reverse task: rebuild the condition from the number of planes. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `row.r1` | `2^{x²} = 4^x` |
-| `row.r2` | `2^{x²} = 2^{2x}` |
-| `row.r3` | `x² = 2x` |
-| `row.r4` | `x = 2` |
-| `answerId` | `r4` |
-| `entry.answer` | `0` |
+| `row.r1` | `a,  B ∉ a` |
+| `row.r2` | `α ⊃ a,  B ∈ α` |
+| `row.r3` | `C ∈ a,  C ∈ α` |
+| `row.r4` | `a ⊂ α` |
+| `answerId` | `r3` |
+| `entry.answer` | `2` |
 
 ---
 
@@ -407,83 +417,84 @@
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ПЕРЕНОС | KO'CHIRISH | TRANSFER |
-| `title` | По корню собери уравнение | Ildiz bo'yicha tenglama yasang | From a root back to the equation |
-| `entry.prompt` | Основание пять, корень три. Чему равна правая часть? | Asos besh, ildiz uch. O'ng qism nechaga teng? | The base is five, the root is three. What is the right side? |
-| `entry.ok` | Сто двадцать пять. Это пять в кубе, и другого корня у такого уравнения нет. | Bir yuz yigirma besh. Bu besh kubda, va bunday tenglamada boshqa ildiz yo'q. | One hundred twenty five. That is five cubed, and such an equation has no other root. |
-| `entry.hint.1` | Подставь тройку в показатель. | Ko'rsatkichga uchni qo'ying. | Substitute three into the exponent. |
-| `entry.hint.2` | Пять в кубе. | Besh kubda. | Five cubed. |
-| `entry.hint.3` | Сто двадцать пять. | Bir yuz yigirma besh. | One hundred twenty five. |
-| `multi.prompt` | Отметь все уравнения, у которых корень равен двум. | Ildizi ikkiga teng hamma tenglamani belgilang. | Mark every equation whose root is two. |
-| `multi.title` | У каких уравнений корень равен двум? | Qaysi tenglamalarning ildizi ikkiga teng? | Which equations have the root two? |
-| `multi.c.hint` | Восемь это два в кубе, значит корень равен трём. | Sakkiz bu ikki kubda, demak ildiz uchga teng. | Eight is two cubed, so the root is three. |
-| `multi.d.hint` | Основание меньше единицы, и корень получается отрицательным. | Asos birdan kichik, va ildiz manfiy chiqadi. | The base is less than one, and the root comes out negative. |
-| `multi.ok` | Две из четырёх. Одно и то же число бывает корнем разных уравнений. | To'rttadan ikkitasi. Bir xil son har xil tenglamalarning ildizi bo'ladi. | Two out of four. The same number can be the root of different equations. |
-| `audio.mount` | Теперь обратная задача. Корень известен, собрать надо уравнение. | Endi teskari masala. Ildiz ma'lum, tenglamani yasash kerak. | Now the inverse task. The root is known, and the equation must be built. |
-| `audio.work` | Сначала запиши правую часть, потом отметишь все уравнения с корнем два. | Avval o'ng qismni yozing, keyin ildizi ikki bo'lgan hamma tenglamani belgilaysiz. | First type the right side, then you will mark every equation with root two. |
+| `title` | Обратный ход | Teskari yo'l | The other direction |
+| `entry.prompt` | Точек три, плоскость через них одна. Сколько из них лежит на одной прямой? | Nuqta uchta, ular orqali tekislik bitta. Ulardan nechtasi bir to'g'ri chiziqda yotadi? | Three points, one plane through them. How many of them lie on one line? |
+| `entry.ok` | Две. Три на одной прямой дали бы бесконечно много плоскостей. | Ikkita. Uchtasi bir chiziqda bo'lsa, cheksiz ko'p tekislik chiqardi. | Two. Three on one line would give infinitely many planes. |
+| `entry.hint.1` | Если бы все три лежали на прямой, плоскость была бы не одна. | Uchalasi ham chiziqda yotganda, tekislik yagona bo'lmasdi. | If all three were on a line, the plane would not be unique. |
+| `entry.hint.2` | Через любые две точки прямая проходит всегда. | Istalgan ikki nuqta orqali to'g'ri chiziq doim o'tadi. | A line always passes through any two points. |
+| `entry.hint.3` | Две. | Ikki. | Two. |
+| `multi.prompt` | Отметь все записи, которые задают плоскость однозначно | Tekislikni yagona qilib beradigan barcha yozuvlarni belgilang | Mark every writing that fixes a plane uniquely |
+| `multi.title` | их ровно два | ular aynan ikkita | there are exactly two |
+| `multi.c.hint` | Две точки задают прямую, а плоскостей через неё бесконечно много. | Ikki nuqta to'g'ri chiziqni beradi, u orqali tekisliklar esa cheksiz ko'p. | Two points fix a line, and there are infinitely many planes through it. |
+| `multi.d.hint` | Три точки на одной прямой ведут себя как одна прямая. | Bir chiziqdagi uch nuqta bitta to'g'ri chiziqdek ish tutadi. | Three points on one line behave like a single line. |
+| `multi.ok` | Верно. Нужна точка вне прямой: она и держит плоскость. | To'g'ri. Chiziqdan tashqaridagi nuqta kerak: tekislikni u ushlab turadi. | Correct. A point off the line is needed: it is what holds the plane. |
+| `audio.mount` | Теперь наоборот. По числу плоскостей назови, как расположены точки. | Endi teskarisiga. Tekisliklar soniga qarab nuqtalar qanday joylashganini ayting. | Now the other way round. From the number of planes, say how the points are arranged. |
+| `audio.work` | Потом отметь все записи, которые задают плоскость однозначно. | Keyin tekislikni yagona qilib beradigan barcha yozuvlarni belgilang. | Then mark every writing that fixes a plane uniquely. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `entry.answer` | `125` |
-| `multi.a` [верно] | `2^x = 4` |
-| `multi.b` [верно] | `9^x = 81` |
-| `multi.c` | `2^x = 8` |
-| `multi.d` | `(1/2)^x = 4` |
+| `entry.expr` | `A, B, C   →   α` |
+| `entry.answer` | `2` |
+| `multi.a` [верно] | `A, B, C ∉ a` |
+| `multi.b` [верно] | `a, C ∉ a` |
+| `multi.c` | `A, B` |
+| `multi.d` | `A, B, C ∈ a` |
 
 ---
 
-## Экран 14 · `blitz` · ответ `mixed` · формат `chain` · тег `delyat-vmesto-osnovaniya`
+## Экран 14 · `blitz` · ответ `mixed` · формат `chain` · тег `tri-tochki-na-pryamoy`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | БЛИЦ | BLITS | BLITZ |
-| `title` | Четыре вопроса · идут в результат | To'rt savol · natijaga kiradi | Four questions · they count |
-| `q1.prompt` | Как решают уравнение, где слева и справа одно основание? | Chapda va o'ngda bitta asos bo'lgan tenglama qanday yechiladi? | How is an equation with the same base on both sides solved? |
-| `q1.a` [верно] | приравнивают показатели | ko'rsatkichlarni tenglashtiradilar | the exponents are set equal |
-| `q1.b` | делят правую часть на основание | o'ng qismni asosga bo'ladilar | the right side is divided by the base |
-| `q1.b.hint` | Проверь подстановкой: восемь на два это четыре, а два в четвёртой шестнадцать. | Qo'yib tekshiring: sakkiz ikkiga bo'linsa to'rt, ikki to'rtinchi darajada esa o'n olti. | Check by substitution: eight over two is four, and two to the fourth is sixteen. |
-| `q1.c` | вычитают основания | asoslarni ayiradilar | the bases are subtracted |
-| `q1.c.hint` | Основания одинаковые, вычитать нечего. | Asoslar bir xil, ayiradigan narsa yo'q. | The bases are the same, there is nothing to subtract. |
-| `q1.d` | возводят обе части в квадрат | ikkala qismni kvadratga ko'taradilar | both sides are squared |
-| `q1.d.hint` | Квадрат ничего не упростит: показатели просто удвоятся. | Kvadrat hech narsani soddalashtirmaydi: ko'rsatkichlar shunchaki ikkilanadi. | Squaring simplifies nothing: the exponents just double. |
-| `q2.prompt` | Сколько корней у уравнения два в степени икс равно восьми? | Ikki iks darajada sakkizga teng tenglamada nechta ildiz bor? | How many roots does two to the x equals eight have? |
-| `q2.a` [верно] | один | bitta | one |
-| `q2.b` | два | ikkita | two |
-| `q2.b.hint` | Два было бы у волны. Показательная кривая назад не поворачивает. | Ikkita to'lqinda bo'lardi. Ko'rsatkichli egri chiziq orqaga burilmaydi. | Two would happen for a wave. An exponential curve never turns back. |
-| `q2.c` | ни одного | birortasi ham | none |
-| `q2.c.hint` | Восемь положительно, значит горизонталь кривую встречает. | Sakkiz musbat, demak gorizontal egri chiziqni uchratadi. | Eight is positive, so the horizontal does meet the curve. |
-| `q2.d` | бесконечно много | cheksiz ko'p | infinitely many |
-| `q2.d.hint` | Бесконечно много бывает у периодической функции, а эта монотонна. | Cheksiz ko'p davriy funksiyada bo'ladi, bu esa monoton. | Infinitely many happens for a periodic function, and this one is monotone. |
-| `q3.prompt` | Сколько корней у уравнения два в степени икс равно минус четырём? | Ikki iks darajada minus to'rtga teng tenglamada nechta ildiz bor? | How many roots does two to the x equals minus four have? |
-| `q3.a` [верно] | ни одного | birortasi ham | none |
-| `q3.a.ok` | Да. Горизонталь ниже кривой, и встреч у них нет. | Ha. Gorizontal egri chiziqdan pastda, va uchrashuvlari yo'q. | Yes. The horizontal is below the curve, and they have no meetings. |
-| `q3.b` | один | bitta | one |
-| `q3.b.hint` | Для одного корня правая часть должна быть положительной. | Bitta ildiz uchun o'ng qism musbat bo'lishi kerak. | For one root the right side must be positive. |
-| `q3.c` | два | ikkita | two |
-| `q3.c.hint` | Кривая целиком выше оси, а горизонталь ниже. | Egri chiziq butunlay o'qdan yuqorida, gorizontal esa pastda. | The curve lies entirely above the axis, and the horizontal below. |
-| `q3.d` | минус два | minus ikki | minus two |
-| `q3.d.hint` | Спросили число корней, а не их значение. | Savol ildizlar soni haqida, qiymati haqida emas. | The question was the number of roots, not their value. |
-| `q4.prompt` | Что проверяют после замены? | Almashtirishdan keyin nima tekshiriladi? | What is checked after a substitution? |
-| `q4.a` [верно] | что значение замены положительно | almashtirish qiymati musbatligini | that the substituted value is positive |
-| `q4.b` | ничего | hech narsa | nothing |
-| `q4.b.hint` | Тогда в ответ попадёт значение, которого степень не даёт. | Unda javobga daraja bermaydigan qiymat tushadi. | Then a value that no power gives will get into the answer. |
-| `q4.c` | что оно целое | butunligini | that it is a whole number |
-| `q4.c.hint` | Дробное значение замены годится, лишь бы положительное. | Almashtirishning kasr qiymati ham yaraydi, faqat musbat bo'lsa. | A fractional substituted value is fine, as long as it is positive. |
-| `q4.d` | что оно меньше единицы | birdan kichikligini | that it is less than one |
-| `q4.d.hint` | Значение бывает и больше единицы: четвёрка на экране подошла. | Qiymat birdan katta ham bo'ladi: ekrandagi to'rt yaradi. | The value can exceed one: the four on the screen fitted. |
-| `audio.mount` | Четыре коротких вопроса. Только этот экран идёт в результат. | To'rtta qisqa savol. Faqat shu ekran natijaga kiradi. | Four short questions. Only this screen counts. |
+| `eyebrow` | БЛИЦ | BLITS | QUICK ROUND |
+| `title` | Четыре вопроса подряд | Ketma-ket to'rt savol | Four questions in a row |
+| `q1.prompt` | Сколько плоскостей проходит через три точки одной прямой? | Bir to'g'ri chiziqdagi uch nuqta orqali nechta tekislik o'tadi? | How many planes pass through three points of one line? |
+| `q1.a` [верно] | бесконечно много | cheksiz ko'p | infinitely many |
+| `q1.b` | одна | bitta | one |
+| `q1.b.hint` | Одна выходит, когда третья точка сходит с прямой. | Bitta uchinchi nuqta chiziqdan chiqqanda bo'ladi. | One comes when the third point leaves the line. |
+| `q1.c` | ни одной | bitta ham yo'q | none |
+| `q1.c.hint` | Хотя бы одна есть всегда. | Hech bo'lmaganda bittasi doim bor. | At least one always exists. |
+| `q1.d` | три | uchta | three |
+| `q1.d.hint` | Число плоскостей не связано с числом точек напрямую. | Tekisliklar soni nuqtalar soniga to'g'ridan bog'liq emas. | The number of planes is not tied to the number of points directly. |
+| `q2.prompt` | Две точки прямой лежат в плоскости. Где остальные? | To'g'ri chiziqning ikki nuqtasi tekislikda yotadi. Qolganlari qayerda? | Two points of a line lie in a plane. Where are the rest? |
+| `q2.a` [верно] | тоже в этой плоскости | ular ham shu tekislikda | in that plane too |
+| `q2.b` | часть в ней, часть вне | bir qismi unda, bir qismi tashqarida | some in it, some outside |
+| `q2.b.hint` | Тогда прямая ломалась бы, а она прямая. | U holda chiziq siniq bo'lardi, u esa to'g'ri. | Then the line would bend, and it is straight. |
+| `q2.c` | этого узнать нельзя | buni bilib bo'lmaydi | it cannot be known |
+| `q2.c.hint` | Вторая аксиома отвечает на этот вопрос точно. | Ikkinchi aksioma bu savolga aniq javob beradi. | The second axiom answers this exactly. |
+| `q2.d` | вне плоскости | tekislikdan tashqarida | outside the plane |
+| `q2.d.hint` | Тогда две отмеченные точки оказались бы особенными. | U holda belgilangan ikki nuqta alohida bo'lib qolardi. | Then the two marked points would be special. |
+| `q3.prompt` | Сколько общих прямых у двух пересекающихся плоскостей? | Kesishuvchi ikki tekislikning nechta umumiy to'g'ri chizig'i bor? | How many common lines do two intersecting planes have? |
+| `q3.a` [верно] | одна | bitta | one |
+| `q3.a.ok` | Одна. По одной точке плоскости не пересекаются никогда. | Bitta. Tekisliklar bitta nuqta bo'yicha hech qachon kesishmaydi. | One. Planes never meet at a single point. |
+| `q3.b` | ни одной | bitta ham yo'q | none |
+| `q3.b.hint` | Ни одной у плоскостей, которые не пересекаются вовсе. | Kesishmaydigan tekisliklarda bitta ham yo'q. | None belongs to planes that do not meet at all. |
+| `q3.c` | две | ikkita | two |
+| `q3.c.hint` | Две общие прямые означали бы, что плоскости совпали. | Ikki umumiy chiziq tekisliklar ustma-ust tushganini bildirardi. | Two common lines would mean the planes coincide. |
+| `q3.d` | бесконечно много | cheksiz ko'p | infinitely many |
+| `q3.d.hint` | Бесконечно много было бы у совпавших плоскостей. | Cheksiz ko'p ustma-ust tushgan tekisliklarda bo'lardi. | Infinitely many would belong to coinciding planes. |
+| `q4.prompt` | Что нельзя брать в доказательство? | Isbotga nimani olib bo'lmaydi? | What must not go into a proof? |
+| `q4.a` [верно] | то, что видно на чертеже | chizmada ko'ringanini | what is visible on the drawing |
+| `q4.b` | аксиому | aksiomani | an axiom |
+| `q4.b.hint` | Аксиома как раз и есть законное основание. | Aksioma aynan qonuniy asos. | An axiom is exactly a lawful ground. |
+| `q4.c` | доказанное раньше утверждение | oldin isbotlangan tasdiqni | a statement proved earlier |
+| `q4.c.hint` | Раз доказано, брать можно. | Isbotlangan ekan, olish mumkin. | Once proved, it may be used. |
+| `q4.d` | условие задачи | masalaning shartini | the condition of the problem |
+| `q4.d.hint` | С условия доказательство и начинается. | Isbot shartdan boshlanadi. | A proof begins with the condition. |
+| `audio.mount` | Четыре вопроса подряд. Считается первая попытка. | Ketma-ket to'rt savol. Birinchi urinish hisobga olinadi. | Four questions in a row. The first attempt counts. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `q1.done` | `f(x) = g(x)` |
-| `q2.done` | `x = 3` |
-| `q3.done` | `∅` |
-| `q4.done` | `t > 0` |
+| `q1.done` | `A, B, C ∈ a` |
+| `q2.done` | `a ⊂ α` |
+| `q3.done` | `α ∩ β = a` |
+| `q4.done` | `S₁,  S₂,  S₃` |
 
 ---
 
@@ -494,31 +505,31 @@
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ИТОГ | YAKUN | SUMMARY |
-| `title` | Что осталось | Nima qoldi | What you take away |
-| `can.1` | Привожу уравнение к одному основанию | Tenglamani bitta asosga keltiraman | I reduce an equation to one base |
-| `can.2` | Знаю, почему можно приравнять показатели | Ko'rsatkichlarni nega tenglashtirish mumkinligini bilaman | I know why the exponents may be set equal |
-| `can.3` | Вижу по горизонтали, сколько будет корней | Gorizontal bo'yicha nechta ildiz bo'lishini ko'raman | I see from the horizontal how many roots there will be |
-| `can.4` | Проверяю значение замены на положительность | Almashtirish qiymatini musbatligiga tekshiraman | I check the substituted value for positivity |
-| `levels.full` | Этот тип задач закрыт. | Bu turdagi masalalar yopildi. | This type of task is closed. |
-| `levels.gap` | Одно место требует повтора: замена и её проверка. | Bitta joy takrorlashni talab qiladi: almashtirish va uni tekshirish. | One place needs review: the substitution and its check. |
-| `levels.back` | Вернись к правилу и к экрану 6. | Qoidaga va 6-ekranga qayting. | Go back to the rule and to screen 6. |
-| `bridge` | Дальше неизвестным станет само основание, и появится логарифм. | Keyin noma'lum asosning o'zi bo'ladi, va logarifm paydo bo'ladi. | Next the base itself becomes the unknown, and the logarithm appears. |
-| `lifehack` | Прежде чем решать, посмотри на правую часть. Ноль или отрицательное число означает, что корней нет. | Yechishdan oldin o'ng qismga qarang. Nol yoki manfiy son ildiz yo'qligini bildiradi. | Before solving, look at the right side. Zero or a negative number means there are no roots. |
-| `sheetTitle` | Показательные уравнения · шпаргалка | Ko'rsatkichli tenglamalar · shpargalka | Exponential equations · cheat sheet |
-| `sheetSrc` | 10 класс · урок 28 | 10-sinf · 28-dars | Grade 10 · lesson 28 |
-| `audio.mount` | В начале урока нужно было выбрать одну из двух записей. Вот результат. | Dars boshida ikki yozuvdan birini tanlash kerak edi. Mana natija. | At the start you had to choose one of two readings. Here is the result. |
-| `audio.next` | Показатель делением не находят. Правую часть записывают степенью того же основания, и тогда показатели сравнивают напрямую. | Ko'rsatkich bo'lish bilan topilmaydi. O'ng qism o'sha asosning darajasi qilib yoziladi, va shunda ko'rsatkichlar to'g'ridan to'g'ri solishtiriladi. | The exponent is not found by dividing. The right side is written as a power of the same base, and then the exponents are compared directly. |
+| `title` | Что теперь умеешь | Endi nima qila olasiz | What you can do now |
+| `can.1` | Знаю, чем плоскость задаётся однозначно | Tekislik nima bilan yagona berilishini bilaman | I know what fixes a plane uniquely |
+| `can.2` | Проверяю прямую в плоскости по двум точкам | Chiziq tekislikda ekanini ikki nuqta bo'yicha tekshiraman | I check a line in a plane by two points |
+| `can.3` | Знаю, что две плоскости пересекаются по прямой | Ikki tekislik chiziq bo'ylab kesishishini bilaman | I know two planes meet along a line |
+| `can.4` | Не беру в доказательство то, что видно на картинке | Rasmda ko'ringanini isbotga olmayman | I do not take what the picture shows into a proof |
+| `levels.full` | Этот тип задач закрыт. | Bu turdagi masalalar yopildi. | This type of problem is closed. |
+| `levels.gap` | Одно место требует повтора: условие первой аксиомы. | Bir joy takrorlashni talab qiladi: birinchi aksioma sharti. | One spot needs a second look: the condition of the first axiom. |
+| `levels.back` | Вернись к правилу и к экрану 4. | Qoidaga va to'rtinchi ekranga qayting. | Go back to the rule and to screen four. |
+| `bridge` | Дальше прямые в пространстве: там картинка соврёт ещё сильнее. | Keyin fazodagi to'g'ri chiziqlar: u yerda rasm yanada ko'proq aldaydi. | Next come lines in space: there the picture lies even harder. |
+| `lifehack` | Не уверен в чертеже — поверни сцену. Всё, что от поворота меняется, доказательством не было. | Chizmaga ishonchingiz komil bo'lmasa, sahnani buring. Burilishdan o'zgargan hamma narsa isbot bo'lmagan. | If you are unsure of the drawing, rotate the scene. Whatever changes with the rotation was never a proof. |
+| `sheetTitle` | Аксиомы · шпаргалка | Aksiomalar · shpargalka | Axioms · cheat sheet |
+| `sheetSrc` | 10 класс · урок 38 | 10-sinf · 38-dars | Grade 10 · lesson 38 |
+| `audio.mount` | Прогноз был про одну плоскость и про сколько угодно. Посмотрим, что вышло. | Taxmin bitta tekislik va istalgancha haqida edi. Nima chiqqanini ko'ramiz. | The guess was about one plane and about any number. Let us see how it turned out. |
+| `audio.next` | Одна не всегда. Всё решает условие: лежат ли три точки на одной прямой. | Bitta har doim ham emas. Hammasini shart hal qiladi: uch nuqta bir chiziqda yotadimi. | Not always one. Everything is decided by the condition: whether the three points lie on one line. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `hook.a` | `x = 4` |
-| `hook.b` | `x = 3` |
-| `proved` | `x = 3` |
-| `law` | `a^{f(x)} = a^{g(x)}   →   f(x) = g(x)` |
-| `sheet.1` | `2^x = 8   →   2^x = 2³` |
-| `sheet.2` | `f(x) = g(x)` |
-| `sheet.3` | `t = a^x,   t > 0` |
-| `sheet.4` | `a^x = 0   →   ∅` |
-| `sheet.5` | `a^x < 0   →   ∅` |
+| `hook.a` | `1` |
+| `hook.b` | `∞` |
+| `proved` | `∞` |
+| `law` | `S₁: A, B, C ∉ a   →   α` |
+| `sheet.1` | `A, B, C ∉ a   →   α` |
+| `sheet.2` | `A, B ∈ α   →   a ⊂ α` |
+| `sheet.3` | `α ∩ β = a` |
+| `sheet.4` | `a, C ∉ a   →   α` |
+| `sheet.5` | `A, B, C ∈ a   →   ∞` |

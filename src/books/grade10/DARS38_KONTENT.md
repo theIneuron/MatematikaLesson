@@ -1,18 +1,22 @@
-# Урок 38 — Аксиомы стереометрии · КОНТЕНТ (этап 2)
+# Урок 45 — Параллелепипед · КОНТЕНТ (этап 2)
 
-**Читается и правится методистом.** Формат тот же, что в `DARS26_KONTENT.md`.
+**Читается и правится методистом.** Формат тот же, что в `DARS44_KONTENT.md`.
 
-Скелет: `DARS38_40_SKELET.md` §7. Опора: учебник геометрии 2022, §4
-`Stereometriyaning asosiy tushunchalari`, стр. 32–38.
+Скелет: в переписке 2026-08-20. Опора: учебник геометрии 2022, стр. 45 — параллелепипед,
+прямой параллелепипед, прямоугольный параллелепипед, три измерения, куб. Определения взяты
+дословно.
 
-**Главное решение урока.** Свидетелем становится **поворот**. Три точки, не лежащие на одной
-прямой, задают плоскость однозначно: сколько сцену ни крути, плоскость стоит на месте. Три
-точки на одной прямой не задают ничего: плоскость крутится вокруг этой прямой, и каждое её
-положение годится. Это видно только в движении, и потому это первый урок прибора 6A.
+**Главное решение урока.** Ошибка года здесь про две диагонали. Из одной вершины выходят
+диагональ грани и диагональ тела, на чертеже они почти сливаются, и ученик считает диагональ
+по двум измерениям вместо трёх. Свидетель: поворот разводит их, и видно, что одна лежит в
+грани, а вторая уходит внутрь тела.
 
-**Три аксиомы взяты со стр. 34 дословно.** Следствие экрана 10 — тоже книжное (1-natija).
+**Формулу диагонали выводим, а не даём.** Два раза теорема Пифагора, и второй раз опирается на
+перпендикулярность бокового ребра — то есть на урок 40. Это и есть проверка, что блок 6 работает.
 
-**Терминология UZ — draft, требует валидации узбекским методистом математики.**
+**Терминология UZ — draft, требует валидации узбекским методистом математики.** Термины
+`parallelepiped`, `to'g'ri parallelepiped`, `to'g'ri burchakli parallelepiped`, `o'lchamlar`,
+`kub` взяты из учебника, стр. 45.
 
 ---
 
@@ -22,28 +26,28 @@
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | ПРОСТРАНСТВО | FAZO | SPACE |
-| `title` | Одна плоскость или сколько угодно | Bitta tekislikmi yoki istalgancha | One plane or any number |
-| `row.a.name` | через любые три точки одна | istalgan uch nuqta orqali bitta | one through any three points |
-| `row.b.name` | одна не всегда | bitta har doim ham emas | not always one |
+| `eyebrow` | ДИАГОНАЛЬ | DIAGONAL | THE DIAGONAL |
+| `title` | Два измерения или три | Ikki o'lcham yoki uch | Two dimensions or three |
+| `row.a.name` | два | ikki | two |
+| `row.b.name` | три | uch | three |
 | `probe.question` | Какая запись верна? | Qaysi yozuv to'g'ri? | Which reading is correct? |
 | `probe.a` | первая | birinchi | the first |
 | `probe.b` [верно] | вторая | ikkinchi | the second |
 | `probe.both` | обе | ikkisi ham | both |
 | `probe.none` | ни одна | hech qaysi | neither |
-| `probe.after` | Твой ответ записан. Сейчас повернём сцену и посмотрим. | Javobingiz yozib olindi. Endi sahnani burib ko'ramiz. | Your answer is saved. Now we will rotate the scene and look. |
-| `audio.mount` | В пространстве плоскостей бесконечно много. Вопрос в том, чем плоскость задаётся однозначно. | Fazoda tekisliklar cheksiz ko'p. Savol shundaki, tekislik nima bilan yagona qilib beriladi. | In space there are infinitely many planes. The question is what fixes a plane uniquely. |
-| `audio.r1` | Первая запись говорит: возьми три точки, и плоскость через них ровно одна, всегда. | Birinchi yozuv shunday deydi: uch nuqta oling, ular orqali tekislik roppa-rosa bitta, doim. | The first reading says: take three points and there is exactly one plane through them, always. |
-| `audio.r2` | Вторая говорит, что так бывает не всегда, и есть случай, когда плоскостей бесконечно много. | Ikkinchisi bunday har doim ham bo'lmasligini va tekisliklar cheksiz ko'p bo'ladigan hol borligini aytadi. | The second says this does not always hold and there is a case with infinitely many planes. |
-| `audio.ask` | Как думаешь, какая верная? Пока просто предположи. | Sizningcha qaysi biri to'g'ri? Hozircha shunchaki taxmin qiling. | Which one do you think is right? Just make a guess for now. |
+| `probe.after` | Твой ответ записан. Сейчас повернём тело. | Javobingiz yozib olindi. Endi jismni buramiz. | Your answer is recorded. Now we rotate the body. |
+| `audio.mount` | Прямоугольный параллелепипед. Из одной вершины проведена диагональ в противоположную вершину. | To'g'ri burchakli parallelepiped. Bir uchdan qarama-qarshi uchga diagonal o'tkazilgan. | A rectangular box. From one vertex a diagonal is drawn to the opposite vertex. |
+| `audio.r1` | Первая запись берёт два измерения. | Birinchi yozuv ikki o'lchamni oladi. | The first reading takes two dimensions. |
+| `audio.r2` | Вторая берёт три. | Ikkinchisi uchtasini oladi. | The second takes three. |
+| `audio.ask` | На чертеже диагональ похожа на диагональ грани. Как думаешь, какая запись верная? | Chizmada diagonal yoq diagonaliga o'xshaydi. Sizningcha qaysi yozuv to'g'ri? | On the drawing the diagonal looks like a face diagonal. Which reading do you think is right? |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `expr` | `A, B, C   →   α` |
-| `row.a.value` | `1` |
-| `row.b.value` | `∞` |
+| `expr` | `AC₁` |
+| `row.a.value` | `d² = a² + b²` |
+| `row.b.value` | `d² = a² + b² + c²` |
 
 ---
 
@@ -54,296 +58,283 @@
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ОПОРА | TAYANCH | WHAT YOU KNOW |
-| `title` | Три вопроса перед пространством | Fazodan oldin uch savol | Three questions before space |
-| `q1.prompt` | Чем стереометрия отличается от планиметрии? | Stereometriya planimetriyadan nimasi bilan farq qiladi? | How does stereometry differ from planimetry? |
-| `q1.a` [верно] | изучает пространственные фигуры | fazoviy shakllarni o'rganadi | it studies spatial figures |
-| `q1.b` | изучает только многогранники | faqat ko'pyoqlarni o'rganadi | it studies only polyhedra |
-| `q1.b.hint` | Многогранники это часть предмета, а не весь предмет. | Ko'pyoqlar fanning bir qismi, butun fani emas. | Polyhedra are a part of the subject, not the whole of it. |
-| `q1.c` | это другое название планиметрии | bu planimetriyaning boshqa nomi | it is another name for planimetry |
-| `q1.c.hint` | Планиметрия живёт на одной плоскости, стереометрия во всём пространстве. | Planimetriya bitta tekislikda yashaydi, stereometriya butun fazoda. | Planimetry lives on one plane, stereometry in the whole of space. |
-| `q1.d` | в ней нет аксиом | unda aksiomalar yo'q | it has no axioms |
-| `q1.d.hint` | Аксиомы есть, и с них начинают. | Aksiomalar bor, va ulardan boshlanadi. | There are axioms and they come first. |
-| `q2.prompt` | Что такое основные понятия? | Asosiy tushunchalar nima? | What are the basic notions? |
-| `q2.a` [верно] | те, которым не дают определения | ta'rif berilmaydiganlari | the ones that are not defined |
-| `q2.b` | самые важные теоремы | eng muhim teoremalar | the most important theorems |
-| `q2.b.hint` | Теорема это утверждение, а понятие это предмет разговора. | Teorema bu tasdiq, tushuncha esa suhbat mavzusi. | A theorem is a statement, a notion is what you speak about. |
-| `q2.c` | те, которые проходят первыми | birinchi o'tiladiganlari | the ones taught first |
-| `q2.c.hint` | Порядок тут ни при чём, дело в определении. | Tartibning bunga aloqasi yo'q, gap ta'rifda. | Order is not the point, definition is. |
-| `q2.d` | те, которые доказывают | isbotlanadiganlari | the ones that are proved |
-| `q2.d.hint` | Доказывают утверждения, а не понятия. | Tasdiqlar isbotlanadi, tushunchalar emas. | Statements are proved, not notions. |
-| `q3.prompt` | Как обозначают плоскость? | Tekislik qanday belgilanadi? | How is a plane denoted? |
-| `q3.a` [верно] | греческой буквой | yunon harfi bilan | by a Greek letter |
-| `q3.b` | большой латинской | katta lotin harfi bilan | by a capital Latin letter |
-| `q3.b.hint` | Большими латинскими обозначают точки. | Katta lotin harflari bilan nuqtalar belgilanadi. | Capital Latin letters denote points. |
-| `q3.c` | маленькой латинской | kichik lotin harfi bilan | by a small Latin letter |
-| `q3.c.hint` | Маленькими латинскими обозначают прямые. | Kichik lotin harflari bilan to'g'ri chiziqlar belgilanadi. | Small Latin letters denote lines. |
-| `q3.d` | цифрой | raqam bilan | by a digit |
-| `q3.d.hint` | Цифрами в геометрии обозначают величины, а не фигуры. | Geometriyada raqamlar bilan kattaliklar belgilanadi, shakllar emas. | Digits denote magnitudes in geometry, not figures. |
-| `audio.mount` | Три коротких вопроса. Все три понадобятся через минуту. | Uch qisqa savol. Uchalasi ham bir daqiqadan keyin kerak bo'ladi. | Three short questions. All three will be needed in a minute. |
+| `title` | Три вопроса из прошлого урока | O'tgan darsdan uch savol | Three questions from the last lesson |
+| `q1.prompt` | Что такое основания призмы? | Prizmaning asoslari nima? | What are the bases of a prism? |
+| `q1.a` [верно] | две равные грани | ikki teng yoq | two equal faces |
+| `q1.b` | две нижние грани | ikki pastdagi yoq | the two lower faces |
+| `q1.b.hint` | Низ зависит от чертежа, а основания нет. | Past chizmaga bog'liq, asoslar esa yo'q. | The bottom depends on the drawing, the bases do not. |
+| `q1.c` | все параллелограммы | barcha parallelogrammlar | all the parallelograms |
+| `q1.c.hint` | Параллелограммы это боковые грани. | Parallelogrammlar yon yoqlar. | The parallelograms are the lateral faces. |
+| `q1.d` | самые большие грани | eng katta yoqlar | the biggest faces |
+| `q1.d.hint` | Размер тут ничего не решает. | O'lcham bu yerda hech narsani hal qilmaydi. | Size decides nothing here. |
+| `q2.prompt` | Сколько граней сходится в одном ребре? | Bitta qirrada nechta yoq tutashadi? | How many faces meet at one edge? |
+| `q2.a` [верно] | две | ikkita | two |
+| `q2.b` | одна | bitta | one |
+| `q2.b.hint` | Одна грань дала бы просто сторону. | Bitta yoq shunchaki tomon berardi. | One face would give just a side. |
+| `q2.c` | три | uchta | three |
+| `q2.c.hint` | Три сходятся в вершине. | Uchtasi uchda tutashadi. | Three meet at a vertex. |
+| `q2.d` | четыре | to'rtta | four |
+| `q2.d.hint` | Четыре не сходятся ни в ребре, ни в вершине куба. | To'rtta na qirrada, na kubning uchida tutashadi. | Four meet neither at an edge nor at a vertex of a cube. |
+| `q3.prompt` | Когда призма прямая? | Prizma qachon to'g'ri? | When is a prism right? |
+| `q3.a` [верно] | боковое ребро перпендикулярно основанию | yon qirra asosga perpendikulyar | the lateral edge is perpendicular to the base |
+| `q3.b` | основание правильное | asos muntazam | the base is regular |
+| `q3.b.hint` | Это условие правильной призмы. | Bu muntazam prizmaning sharti. | That is the condition of a regular prism. |
+| `q3.c` | все рёбра равны | barcha qirralar teng | all edges are equal |
+| `q3.c.hint` | Это даже у куба не всегда так. | Bu kubda ham doim shunday emas. | Even for a box that is not always so. |
+| `q3.d` | стоит на основании | asosda turadi | it stands on its base |
+| `q3.d.hint` | Как стоит на чертеже, к делу не относится. | Chizmada qanday turgani ishga aloqasi yo'q. | How it stands on the drawing is irrelevant. |
+| `audio.mount` | Три вопроса про призму. Параллелепипед это её частный случай. | Prizma haqida uch savol. Parallelepiped uning xususiy holi. | Three questions about the prism. A parallelepiped is its special case. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `q1.done` | `A ∈ α,   a ⊂ α` |
-| `q2.done` | `A,   a,   α` |
-| `q3.done` | `α,  β,  γ` |
+| `q1.done` | `ABC = A₁B₁C₁` |
+| `q2.done` | `2` |
+| `q3.done` | `AA₁ ⊥ ABCD` |
 
 ---
 
-## Экран 3 · `explain1` · ответ `number` · тег `tri-tochki-na-pryamoy`
+## Экран 3 · `explain1` · ответ `number` · тег `kartinka-kak-dokazatelstvo`
 
-Три точки не на прямой. Ученик крутит сцену сам.
+Параллелепипед: призма с параллелограммом в основании.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
-| `title` | Поверни сцену и посмотри | Sahnani burib ko'ring | Rotate the scene and look |
-| `show.1.1` | три точки не лежат на одной прямой | uch nuqta bir to'g'ri chiziqda yotmaydi | the three points are not on one line |
-| `show.1.2` | через них проведена плоскость | ular orqali tekislik o'tkazilgan | a plane is drawn through them |
-| `show.1.3` | поверни сцену и следи за ней | sahnani buring va unga qarang | rotate the scene and watch it |
-| `show.2.1` | плоскость осталась на месте | tekislik joyida qoldi | the plane stayed where it was |
-| `show.2.2` | другого положения для неё нет | uning uchun boshqa holat yo'q | there is no other position for it |
-| `show.2.3` | значит она единственная | demak u yagona | so it is unique |
-| `audio.mount` | Три точки в пространстве и плоскость через них. Дальше работает не картинка, а поворот. | Fazoda uch nuqta va ular orqali tekislik. Keyin rasm emas, burilish ishlaydi. | Three points in space and a plane through them. From here it is the rotation that works, not the picture. |
-| `audio.spin*` | Возьми сцену и поверни её. Точки поехали, плоскость поехала вместе с ними, но относительно точек она не сдвинулась ни на сколько. Другого положения у неё нет. Третья точка не лежит на прямой через первые две, и она держит плоскость. Именно это говорит первая аксиома. Обрати внимание на слово в ней: точки не должны лежать на одной прямой. Если условие убрать, аксиома перестанет быть верной, и на следующем экране мы это увидим. | Sahnani olib buring. Nuqtalar siljidi, tekislik ular bilan birga siljidi, lekin nuqtalarga nisbatan u zarracha ham qimirlamadi. Uning uchun boshqa holat yo'q. Uchinchi nuqta birinchi ikkitasi orqali o'tgan to'g'ri chiziqda yotmaydi, va u tekislikni ushlab turadi. Birinchi aksioma aynan shuni aytadi. Undagi so'zga e'tibor bering: nuqtalar bir to'g'ri chiziqda yotmasligi kerak. Shart olib tashlansa, aksioma to'g'ri bo'lmay qoladi, va buni keyingi ekranda ko'ramiz. | Take the scene and rotate it. The points moved, the plane moved with them, but relative to the points it did not shift at all. It has no other position. The third point does not lie on the line through the first two, and it holds the plane. That is exactly what the first axiom says. Notice the words in it: the points must not lie on one line. Remove that condition and the axiom stops being true, and we will see that on the next screen. |
-| `audio.work` | Посчитай сам. Сколько плоскостей проходит через эти три точки? | O'zingiz hisoblang. Bu uch nuqta orqali nechta tekislik o'tadi? | Work it out yourself. How many planes pass through these three points? |
-| `work.prompt` | Сколько плоскостей проходит через них? | Ular orqali nechta tekislik o'tadi? | How many planes pass through them? |
-| `work.ok` | Одна. Сколько сцену ни крути, другого положения не находится. | Bitta. Sahnani qancha burmang, boshqa holat topilmaydi. | One. However much you rotate the scene, no other position turns up. |
-| `work.hint.1` | Поверни сцену и посмотри, меняется ли положение плоскости. | Sahnani buring va tekislik holati o'zgaradimi, qarang. | Rotate the scene and see whether the plane changes position. |
-| `work.hint.2` | Третья точка не на прямой, и она держит плоскость. | Uchinchi nuqta to'g'ri chiziqda emas, va u tekislikni ushlab turadi. | The third point is off the line and it holds the plane. |
-| `work.hint.3` | Одна. | Bitta. | One. |
+| `title` | Все шесть граней параллелограммы | Barcha olti yoq parallelogramm | All six faces are parallelograms |
+| `show.1.1` | в основании параллелограмм | asosda parallelogramm | there is a parallelogram in the base |
+| `show.1.2` | это призма, значит боковые тоже | bu prizma, demak yonlari ham | this is a prism, so the lateral ones too |
+| `show.2.1` | поверни и посмотри на грани | buring va yoqlarga qarang | rotate it and look at the faces |
+| `show.2.2` | параллелограмм в каждой | har birida parallelogramm | a parallelogram in each of them |
+| `audio.mount` | Возьмём призму, у которой основание не любой многоугольник, а параллелограмм. | Asosi istalgan ko'pburchak emas, parallelogramm bo'lgan prizmani olamiz. | Take a prism whose base is not any polygon but a parallelogram. |
+| `audio.move*` | Такая призма называется параллелепипедом. Так на странице сорок пять. Смотри, что из этого следует. Основания параллелограммы по условию, боковые грани параллелограммы потому что это призма. Значит все шесть граней параллелограммы, и особых граней у параллелепипеда нет. Поверни тело и проверь. Любая пара противоположных граней годится на роль основания, и тело от этого не меняется. У обычной призмы так не выходило, потому что основания там особые. | Bunday prizma parallelepiped deb nomlanadi. Qirq beshinchi betda shunday. Bundan nima kelib chiqishiga qarang. Asoslar shartga ko'ra parallelogramm, yon yoqlar esa prizma bo'lgani uchun parallelogramm. Demak barcha olti yoq parallelogramm, va parallelepipedda alohida yoq yo'q. Jismni buring va tekshiring. Qarama-qarshi yoqlarning har juftligi asos bo'lishga yaraydi, va jism bundan o'zgarmaydi. Oddiy prizmada bunday chiqmagan edi, chunki u yerda asoslar alohida. | Such a prism is called a parallelepiped. So it is on page forty five. See what follows. The bases are parallelograms by the condition, the lateral faces are parallelograms because this is a prism. So all six faces are parallelograms and a parallelepiped has no special faces. Rotate the body and check. Any pair of opposite faces will do as the bases, and the body does not change. For an ordinary prism that did not work, because there the bases are special. |
+| `audio.work` | Посчитай сам. Сколько граней у параллелепипеда? | O'zingiz hisoblang. Parallelepipedning nechta yog'i bor? | Work it out yourself. How many faces does a parallelepiped have? |
+| `work.prompt` | Сколько граней? | Nechta yoq? | How many faces? |
+| `work.ok` | Шесть. Основание четырёхугольник, значит граней четыре плюс два. | Oltita. Asos to'rtburchak, demak yoqlar to'rt qo'shuv ikki. | Six. The base is a quadrilateral, so the faces are four plus two. |
+| `work.hint.1` | Вспомни правило из прошлого урока про n плюс два. | O'tgan darsdagi n qo'shuv ikki qoidasini eslang. | Recall the rule from the last lesson about n plus two. |
+| `work.hint.2` | У основания четыре стороны. | Asosda to'rt tomon. | The base has four sides. |
+| `work.hint.3` | Четыре плюс два. | To'rt qo'shuv ikki. | Four plus two. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `work.answer` | `1` |
+| `expr` | `4 + 2 = 6` |
+| `work.answer` | `6` |
 
 ---
 
-## Экран 4 · `explain2` · ответ `lead` · тег `tri-tochki-na-pryamoy`
+## Экран 4 · `explain2` · ответ `number` · тег `svoystvo-vmesto-priznaka`
 
-Разграничение: те же три точки на одной прямой.
+Прямой и прямоугольный.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | РАЗГРАНИЧЕНИЕ | FARQLASH | TELLING THEM APART |
-| `title` | Точки сдвинули на одну прямую | Nuqtalar bir to'g'ri chiziqqa surildi | The points were moved onto one line |
-| `show.1.1` | теперь все три на одной прямой | endi uchalasi ham bir to'g'ri chiziqda | now all three are on one line |
-| `show.1.2` | плоскость через них по-прежнему проходит | tekislik ular orqali baribir o'tadi | a plane still passes through them |
-| `show.1.3` | но она больше не одна | lekin u endi yagona emas | but it is no longer alone |
-| `show.2.1` | плоскость крутится вокруг прямой | tekislik to'g'ri chiziq atrofida aylanadi | the plane spins around the line |
-| `show.2.2` | каждое её положение годится | uning har bir holati yaraydi | every position of it works |
-| `show.2.3` | ни одно не выделено | birortasi ajratilmagan | none of them is singled out |
-| `audio.mount` | Те же три точки, и все они на одной прямой. | O'sha uch nuqta, va ularning hammasi bir to'g'ri chiziqda. | The same three points, and all of them on one line. |
-| `audio.turn*` | Смотри, что стало с плоскостью. Она проходит через все три точки, как и раньше, но теперь её можно крутить вокруг прямой, и она всё равно будет проходить через них. Одно положение, второе, третье, годятся все. Плоскостей через три такие точки бесконечно много, и ни одна не лучше остальных. Вот почему в аксиоме стоит условие про прямую. Без него утверждение неверно, и убедились мы в этом не рассуждением, а поворотом. | Tekislikka nima bo'lganiga qarang. U avvalgidek uchala nuqta orqali o'tadi, lekin endi uni to'g'ri chiziq atrofida burish mumkin, va u baribir ular orqali o'tadi. Bir holat, ikkinchi, uchinchi, hammasi yaraydi. Bunday uch nuqta orqali tekisliklar cheksiz ko'p, va birortasi qolganidan yaxshi emas. Aksiomada to'g'ri chiziq haqidagi shart shuning uchun turadi. Usiz tasdiq noto'g'ri, va bunga biz mulohaza bilan emas, burilish bilan ishonch hosil qildik. | Look at what happened to the plane. It passes through all three points as before, but now it can be spun around the line and it will still pass through them. One position, a second, a third, all of them work. There are infinitely many planes through three such points, and none is better than the others. That is why the axiom carries the condition about the line. Without it the statement is false, and we became sure of that not by reasoning but by rotating. |
-| `audio.work` | Поверни сцену и ответь: сколько таких плоскостей? | Sahnani buring va javob bering: bunday tekisliklar nechta? | Rotate the scene and answer: how many such planes are there? |
-| `pick.prompt` | Сколько плоскостей проходит через три точки одной прямой? | Bir to'g'ri chiziqdagi uch nuqta orqali nechta tekislik o'tadi? | How many planes pass through three points of one line? |
-| `pick.a` | ровно одна | roppa-rosa bitta | exactly one |
-| `pick.a.hint` | Ты только что покрутил её и нашёл другие положения. | Siz uni hozirgina burib, boshqa holatlarni topdingiz. | You have just rotated it and found other positions. |
-| `pick.b` [верно] | бесконечно много | cheksiz ko'p | infinitely many |
-| `pick.c` | ни одной | bitta ham yo'q | none |
-| `pick.c.hint` | Хотя бы одна есть: ты её видишь на экране. | Hech bo'lmaganda bittasi bor: siz uni ekranda ko'rib turibsiz. | At least one exists: you can see it on the screen. |
-| `pick.ok` | Бесконечно много. Три точки на одной прямой плоскость не задают. | Cheksiz ko'p. Bir to'g'ri chiziqdagi uch nuqta tekislikni belgilamaydi. | Infinitely many. Three points on one line do not fix a plane. |
+| `title` | Прямой и прямоугольный | To'g'ri va to'g'ri burchakli | Right and rectangular |
+| `show.1.1` | боковое ребро встало перпендикулярно | yon qirra perpendikulyar bo'ldi | the lateral edge stood perpendicular |
+| `show.1.2` | боковые грани стали прямоугольниками | yon yoqlar to'g'ri to'rtburchak bo'ldi | the lateral faces became rectangles |
+| `show.2.1` | основание тоже стало прямоугольником | asos ham to'g'ri to'rtburchak bo'ldi | the base became a rectangle too |
+| `show.2.2` | теперь все шесть прямоугольники | endi oltitasi ham to'g'ri to'rtburchak | now all six are rectangles |
+| `audio.mount` | Поставим боковое ребро перпендикулярно основанию. Такой параллелепипед называется прямым. | Yon qirrani asosga perpendikulyar qo'yamiz. Bunday parallelepiped to'g'ri deb ataladi. | Let us set the lateral edge perpendicular to the base. Such a parallelepiped is called right. |
+| `audio.move*` | У прямого параллелепипеда боковые грани прямоугольники, а вот основание остаётся каким было, то есть параллелограммом. Теперь сделаем прямоугольником и основание. Такой параллелепипед называется прямоугольным, и у него прямоугольники все шесть граней. Разница между прямым и прямоугольным ровно в основании, и это то же различение, что было у призмы между прямой и правильной. Условие про ребро и условие про основание независимы, и проверять надо оба. | To'g'ri parallelepipedning yon yoqlari to'g'ri to'rtburchak, asos esa qanday bo'lsa shunday qoladi, ya'ni parallelogramm. Endi asosni ham to'g'ri to'rtburchak qilamiz. Bunday parallelepiped to'g'ri burchakli deb ataladi, va unda oltita yoqning hammasi to'g'ri to'rtburchak. To'g'ri va to'g'ri burchakli orasidagi farq aynan asosda, va bu prizmadagi to'g'ri va muntazam farqining o'zi. Qirra haqidagi shart va asos haqidagi shart mustaqil, va ikkalasini ham tekshirish kerak. | In a right parallelepiped the lateral faces are rectangles, while the base stays what it was, a parallelogram. Now let us make the base a rectangle as well. Such a parallelepiped is called rectangular, and all six of its faces are rectangles. The difference between right and rectangular is exactly in the base, and that is the same distinction the prism had between right and regular. The condition about the edge and the condition about the base are independent and both have to be checked. |
+| `audio.work` | Посчитай сам. Сколько прямоугольников среди граней прямоугольного параллелепипеда? | O'zingiz hisoblang. To'g'ri burchakli parallelepiped yoqlari orasida nechta to'g'ri to'rtburchak bor? | Work it out yourself. How many rectangles are among the faces of a rectangular box? |
+| `work.prompt` | Сколько прямоугольников? | Nechta to'g'ri to'rtburchak? | How many rectangles? |
+| `work.ok` | Шесть. И основания, и боковые грани. | Oltita. Asoslar ham, yon yoqlar ham. | Six. Both the bases and the lateral faces. |
+| `work.hint.1` | Посчитай отдельно основания и боковые. | Asoslarni va yonlarni alohida sanang. | Count the bases and the lateral faces separately. |
+| `work.hint.2` | Оснований два, боковых четыре. | Asoslar ikkita, yonlari to'rtta. | Two bases, four lateral faces. |
+| `work.hint.3` | Два плюс четыре. | Ikki qo'shuv to'rt. | Two plus four. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `mark` | `A, B, C ∈ a   →   α ⊃ a` |
+| `expr` | `AA₁ ⊥ ABCD,   ABCD = ▭` |
+| `work.answer` | `6` |
 
 ---
 
-## Экран 5 · `explain3` · ответ `number` · тег `kartinka-kak-dokazatelstvo`
+## Экран 5 · `explain3` · ответ `number` · тег `svoystvo-vmesto-priznaka`
 
-Вторая аксиома: две точки прямой в плоскости.
+Куб как частный случай.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
-| `title` | Две точки тянут за собой всю прямую | Ikki nuqta butun to'g'ri chiziqni ergashtiradi | Two points drag the whole line along |
-| `show.1.1` | две точки прямой лежат в плоскости | to'g'ri chiziqning ikki nuqtasi tekislikda yotadi | two points of the line lie in the plane |
-| `show.1.2` | про остальные пока ничего не сказано | qolganlari haqida hozircha hech nima aytilmagan | nothing is said about the rest yet |
-| `show.1.3` | поверни и посмотри на прямую | buring va to'g'ri chiziqqa qarang | rotate and look at the line |
-| `show.2.1` | прямая целиком лежит в плоскости | to'g'ri chiziq butunlay tekislikda yotadi | the whole line lies in the plane |
-| `show.2.2` | она не выходит из неё ни в одной точке | u undan birorta nuqtada ham chiqmaydi | it does not leave it at any point |
-| `show.2.3` | это вторая аксиома | bu ikkinchi aksioma | this is the second axiom |
-| `audio.mount` | Вторая аксиома. Она короткая, а работать будет весь курс. | Ikkinchi aksioma. U qisqa, lekin butun kurs davomida ishlaydi. | The second axiom. It is short, and it will work for the whole course. |
-| `audio.lie*` | Возьмём прямую и отметим на ней две точки, которые лежат в плоскости. Больше про эту прямую ничего не известно. Кажется, что она могла бы проткнуть плоскость и уйти в сторону, но нет. Аксиома говорит: если две точки прямой лежат в плоскости, то все её точки лежат в этой плоскости. Поверни сцену и убедись, что прямая не выходит из плоскости нигде. Отсюда, кстати, следует привычный приём: чтобы проверить, лежит ли прямая в плоскости, хватит двух точек. Не всей прямой, а двух точек. | To'g'ri chiziqni olamiz va unda tekislikda yotgan ikki nuqtani belgilaymiz. Bu to'g'ri chiziq haqida boshqa hech nima ma'lum emas. U tekislikni teshib chetga ketishi mumkindek tuyuladi, lekin yo'q. Aksioma shunday deydi: agar to'g'ri chiziqning ikki nuqtasi tekislikda yotsa, uning barcha nuqtalari shu tekislikda yotadi. Sahnani buring va to'g'ri chiziq tekislikdan hech qayerda chiqmasligiga ishonch hosil qiling. Aytgancha, bundan tanish usul kelib chiqadi: to'g'ri chiziq tekislikda yotganini tekshirish uchun ikki nuqta yetadi. Butun to'g'ri chiziq emas, ikki nuqta. | Take a line and mark two of its points that lie in the plane. Nothing else is known about this line. It seems it could pierce the plane and go off to the side, but no. The axiom says: if two points of a line lie in a plane, then all its points lie in that plane. Rotate the scene and see that the line does not leave the plane anywhere. From this, by the way, follows the familiar move: to check whether a line lies in a plane, two points are enough. Not the whole line, two points. |
-| `audio.work` | Посчитай сам. Сколько точек прямой надо проверить? | O'zingiz hisoblang. To'g'ri chiziqning nechta nuqtasini tekshirish kerak? | Work it out yourself. How many points of the line must be checked? |
-| `work.prompt` | Сколько точек прямой надо проверить? | To'g'ri chiziqning nechta nuqtasini tekshirish kerak? | How many points of the line must be checked? |
-| `work.ok` | Две. Остальные придут сами по второй аксиоме. | Ikkita. Qolganlari ikkinchi aksioma bo'yicha o'zi keladi. | Two. The rest follow by the second axiom. |
-| `work.hint.1` | Прочитай вторую аксиому ещё раз. | Ikkinchi aksiomani yana bir bor o'qing. | Read the second axiom once more. |
-| `work.hint.2` | В ней сказано про две точки. | Unda ikki nuqta haqida aytilgan. | It speaks about two points. |
-| `work.hint.3` | Две. | Ikki. | Two. |
+| `title` | Три измерения и куб | Uch o'lcham va kub | Three dimensions and the cube |
+| `show.1.1` | из одной вершины выходят три ребра | bir uchdan uch qirra chiqadi | three edges leave one vertex |
+| `show.1.2` | их длины это измерения | ularning uzunliklari o'lchamlar | their lengths are the dimensions |
+| `show.2.1` | измерения сделали равными | o'lchamlar teng qilindi | the dimensions were made equal |
+| `show.2.2` | получился куб | kub chiqdi | a cube came out |
+| `audio.mount` | В прямоугольном параллелепипеде из каждой вершины выходят три ребра. Их длины называются измерениями. | To'g'ri burchakli parallelepipedda har uchdan uch qirra chiqadi. Ularning uzunliklari o'lchamlar deb ataladi. | In a rectangular box three edges leave each vertex. Their lengths are called the dimensions. |
+| `audio.move*` | Измерений ровно три, и они задают тело целиком. Так на странице сорок пять. Сделаем все три равными. Получится тело, у которого все рёбра равны и все грани квадраты, и оно называется кубом. Куб это прямоугольный параллелепипед с равными измерениями, то есть частный случай, а не отдельная фигура. Поверни куб и убедись, что из любой вершины картина одна и та же. Именно поэтому куб такой удобный пример, и мы им пользовались весь блок про плоскости. | O'lchamlar roppa-rosa uchta, va ular jismni butunlay belgilaydi. Qirq beshinchi betda shunday. Uchalasini teng qilamiz. Barcha qirralari teng va barcha yoqlari kvadrat bo'lgan jism chiqadi, va u kub deb nomlanadi. Kub o'lchamlari teng bo'lgan to'g'ri burchakli parallelepiped, ya'ni xususiy hol, alohida shakl emas. Kubni buring va har qanday uchdan manzara bir xil ekaniga ishonch hosil qiling. Aynan shuning uchun kub bunday qulay misol, va biz undan tekisliklar bloki bo'ylab foydalandik. | There are exactly three dimensions and they fix the whole body. So it is on page forty five. Let us make all three equal. We get a body with all edges equal and all faces squares, and it is called a cube. A cube is a rectangular box with equal dimensions, that is a special case rather than a separate figure. Rotate the cube and see that the picture is the same from any vertex. That is exactly why a cube is such a convenient example, and we used it throughout the block about planes. |
+| `audio.work` | Посчитай сам. Сколько разных измерений у куба? | O'zingiz hisoblang. Kubning nechta xil o'lchami bor? | Work it out yourself. How many different dimensions does a cube have? |
+| `work.prompt` | Сколько разных измерений? | Nechta xil o'lcham? | How many different dimensions? |
+| `work.ok` | Одно. Все три измерения равны между собой. | Bitta. Uchala o'lcham o'zaro teng. | One. All three dimensions are equal to each other. |
+| `work.hint.1` | Посмотри на три ребра из одной вершины. | Bir uchdan chiqqan uch qirraga qarang. | Look at the three edges from one vertex. |
+| `work.hint.2` | У куба они равны. | Kubda ular teng. | In a cube they are equal. |
+| `work.hint.3` | Одно. | Bitta. | One. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `work.expr` | `A, B ∈ α,  A, B ∈ a   →   a ⊂ α` |
-| `work.answer` | `2` |
+| `expr` | `a = b = c` |
+| `work.answer` | `1` |
 
 ---
 
-## Экран 6 · `explain4` · ответ `number` · тег `kartinka-kak-dokazatelstvo`
+## Экран 6 · `explain4` · ответ `number` · тег `diagonal-grani-i-tela`
 
-Сам: третья аксиома.
+Сам: диагональ через три измерения.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | САМ | O'ZINGIZ | ON YOUR OWN |
-| `title` | Две плоскости с общей точкой | Umumiy nuqtali ikki tekislik | Two planes with a common point |
-| `show.1.1` | две плоскости, у них есть общая точка | ikki tekislik, ularning umumiy nuqtasi bor | two planes with a common point |
-| `show.1.2` | одной точкой дело не кончается | ish bitta nuqta bilan tugamaydi | one point is not the end of it |
-| `show.1.3` | поверни сцену и посмотри | sahnani buring va qarang | rotate the scene and look |
-| `show.2.1` | у них есть общая прямая | ularning umumiy to'g'ri chizig'i bor | they have a common line |
-| `show.2.2` | она проходит через эту точку | u shu nuqtadan o'tadi | it passes through that point |
-| `show.2.3` | и такая прямая одна | va bunday to'g'ri chiziq bitta | and there is one such line |
-| `audio.mount` | Третья аксиома. Здесь считать придётся самому. | Uchinchi aksioma. Bu yerda o'zingiz hisoblashingizga to'g'ri keladi. | The third axiom. Here you will have to count for yourself. |
-| `audio.cut*` | Две плоскости имеют общую точку. Аксиома утверждает, что тогда у них есть и общая прямая, проходящая через эту точку. То есть двух плоскостей, которые касались бы друг друга ровно в одной точке, в пространстве не бывает: либо у них нет общих точек вовсе, либо есть целая прямая. Поверни сцену и найди эту прямую. Она видна как линия, по которой одна плоскость входит в другую. Посчитай, сколько таких общих прямых у двух пересекающихся плоскостей. | Ikki tekislikning umumiy nuqtasi bor. Aksioma shuni tasdiqlaydiki, u holda ularning shu nuqtadan o'tuvchi umumiy to'g'ri chizig'i ham bor. Ya'ni bir-biriga roppa-rosa bitta nuqtada tegadigan ikki tekislik fazoda bo'lmaydi: yo ularning umumiy nuqtasi umuman yo'q, yo butun bir to'g'ri chiziq bor. Sahnani buring va shu to'g'ri chiziqni toping. U bir tekislik ikkinchisiga kiradigan chiziq ko'rinishida ko'rinadi. Kesishuvchi ikki tekislikning bunday umumiy to'g'ri chizig'i nechta ekanini sanang. | Two planes have a common point. The axiom claims that then they also have a common line through that point. That is, two planes that touch each other at exactly one point do not exist in space: either they have no common points at all, or they have a whole line. Rotate the scene and find that line. It shows as the line along which one plane enters the other. Count how many such common lines two intersecting planes have. |
-| `audio.work` | Посчитай сам. Сколько общих прямых у двух пересекающихся плоскостей? | O'zingiz hisoblang. Kesishuvchi ikki tekislikning nechta umumiy to'g'ri chizig'i bor? | Work it out yourself. How many common lines do two intersecting planes have? |
-| `work.prompt` | Сколько у них общих прямых? | Ularning nechta umumiy to'g'ri chizig'i bor? | How many common lines do they have? |
-| `work.ok` | Одна. Две плоскости пересекаются по одной прямой, и по одной точке не пересекаются никогда. | Bitta. Ikki tekislik bitta to'g'ri chiziq bo'ylab kesishadi, bitta nuqta bo'yicha esa hech qachon kesishmaydi. | One. Two planes meet along one line, and never at a single point. |
-| `work.hint.1` | Поверни сцену и найди линию, по которой они входят друг в друга. | Sahnani buring va ular bir-biriga kiradigan chiziqni toping. | Rotate the scene and find the line along which they enter each other. |
-| `work.hint.2` | Если бы таких прямых было две, плоскости совпали бы. | Bunday to'g'ri chiziq ikkita bo'lganda, tekisliklar ustma-ust tushardi. | If there were two such lines, the planes would coincide. |
-| `work.hint.3` | Одна. | Bitta. | One. |
+| `title` | Диагональ по трём измерениям | Diagonal uch o'lcham bo'yicha | The diagonal from three dimensions |
+| `show.1.1` | сначала диагональ основания | avval asos diagonali | first the base diagonal |
+| `show.1.2` | это Пифагор по двум измерениям | bu ikki o'lcham bo'yicha Pifagor | that is Pythagoras on two dimensions |
+| `show.2.1` | потом диагональ тела | keyin jism diagonali | then the body diagonal |
+| `show.2.2` | это Пифагор ещё раз | bu yana Pifagor | that is Pythagoras once more |
+| `audio.mount` | Измерения три, четыре и двенадцать. Найдём диагональ тела. | O'lchamlar uch, to'rt va o'n ikki. Jism diagonalini topamiz. | The dimensions are three, four and twelve. Let us find the body diagonal. |
+| `audio.move*` | Сначала диагональ основания. В основании прямоугольник с измерениями три и четыре, значит его диагональ пять. Теперь смотри на треугольник, у которого один катет это диагональ основания, а второй боковое ребро. Угол между ними прямой, потому что боковое ребро перпендикулярно плоскости основания, а диагональ лежит в этой плоскости. Значит снова Пифагор. Пять и двенадцать дают тринадцать. Поверни тело и посмотри, где лежит этот треугольник, он проходит внутри параллелепипеда. | Avval asos diagonali. Asosda o'lchamlari uch va to'rt bo'lgan to'g'ri to'rtburchak, demak uning diagonali besh. Endi bir kateti asos diagonali, ikkinchisi yon qirra bo'lgan uchburchakka qarang. Ular orasidagi burchak to'g'ri, chunki yon qirra asos tekisligiga perpendikulyar, diagonal esa shu tekislikda yotadi. Demak yana Pifagor. Besh va o'n ikki o'n uchni beradi. Jismni buring va bu uchburchak qayerda yotganini ko'ring, u parallelepipedning ichidan o'tadi. | First the base diagonal. The base is a rectangle with dimensions three and four, so its diagonal is five. Now look at the triangle whose one leg is the base diagonal and the other is the lateral edge. The angle between them is right, because the lateral edge is perpendicular to the plane of the base while the diagonal lies in that plane. So Pythagoras again. Five and twelve give thirteen. Rotate the body and see where that triangle lies, it goes inside the parallelepiped. |
+| `audio.work` | Посчитай сам. Измерения три, четыре и двенадцать. Какова диагональ тела? | O'zingiz hisoblang. O'lchamlar uch, to'rt va o'n ikki. Jism diagonali qancha? | Work it out yourself. The dimensions are three, four and twelve. What is the body diagonal? |
+| `work.prompt` | Найди диагональ тела | Jism diagonalini toping | Find the body diagonal |
+| `work.ok` | Тринадцать. Пять в основании, потом пять и двенадцать. | O'n uch. Asosda besh, keyin besh va o'n ikki. | Thirteen. Five in the base, then five and twelve. |
+| `work.hint.1` | Сначала найди диагональ основания. | Avval asos diagonalini toping. | First find the base diagonal. |
+| `work.hint.2` | Три и четыре дают пять. | Uch va to'rt beshni beradi. | Three and four give five. |
+| `work.hint.3` | Пять и двенадцать дают тринадцать. | Besh va o'n ikki o'n uchni beradi. | Five and twelve give thirteen. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `work.expr` | `α ∩ β = a` |
-| `work.answer` | `1` |
+| `expr` | `3, 4, 12   →   d = ?` |
+| `work.answer` | `13` |
 
 ---
 
-## Экран 7 · `explain5` · ответ `number` · тег `izmeril-znachit-dokazal`
+## Экран 7 · `explain5` · ответ `number` · тег `diagonal-grani-i-tela`
 
-Граничный: измерение не доказательство.
+Граница: диагональ грани и диагональ тела.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | ГРАНИЧНЫЙ СЛУЧАЙ | CHEGARAVIY HOL | THE EDGE CASE |
-| `title` | Измерил — ещё не доказал | O'lchadi — hali isbotlamadi | Measured is not proved |
-| `show.1.1` | на чертеже два отрезка кажутся равными | chizmada ikki kesma teng ko'rinadi | on the drawing two segments look equal |
-| `show.1.2` | линейка показывает одно и то же число | chizg'ich bir xil sonni ko'rsatadi | the ruler shows the same number |
-| `show.1.3` | это результат измерения | bu o'lchash natijasi | this is the result of a measurement |
-| `show.2.1` | поверни сцену | sahnani buring | rotate the scene |
-| `show.2.2` | числа разошлись | sonlar farq qildi | the numbers came apart |
-| `show.2.3` | значит мерили не длину, а проекцию | demak uzunlikni emas, proyeksiyani o'lchadik | so it was the projection that was measured, not the length |
-| `audio.mount` | Один приём из седьмого класса переносится сюда и становится строже. | Yettinchi sinfdagi bir usul bu yerga ko'chadi va qattiqroq bo'ladi. | One move from grade seven carries over here and gets stricter. |
-| `audio.rule*` | В планиметрии мы уже договаривались: результат измерения линейкой подписывается словом предположение и в доказательство не берётся. В пространстве это правило становится жёстче. На плоском чертеже мы видим не сам отрезок, а его проекцию, а проекция искажает и длины, и углы. Поверни сцену: два отрезка, которые казались равными, разъехались. Ни один из этих замеров ничего не доказывает, оба они только повод присмотреться. Доказывают по аксиомам и по уже доказанным утверждениям, а не по картинке. | Planimetriyada biz allaqachon kelishgan edik: chizg'ich bilan o'lchash natijasi taxmin so'zi bilan imzolanadi va isbotga olinmaydi. Fazoda bu qoida qattiqroq bo'ladi. Yassi chizmada biz kesmaning o'zini emas, uning proyeksiyasini ko'ramiz, proyeksiya esa uzunlikni ham, burchakni ham buzadi. Sahnani buring: teng ko'ringan ikki kesma ajralib ketdi. Bu o'lchovlarning birortasi hech nimani isbotlamaydi, ikkalasi ham faqat diqqat bilan qarashga sabab. Isbot aksiomalar va allaqachon isbotlangan tasdiqlar bo'yicha qilinadi, rasm bo'yicha emas. | In planimetry we already agreed: the result of measuring with a ruler is labelled a guess and is not taken into a proof. In space this rule gets harder. On a flat drawing we do not see the segment itself but its projection, and a projection distorts both lengths and angles. Rotate the scene: two segments that looked equal have come apart. Neither of these measurements proves anything, both are only a reason to look closer. Proofs go by axioms and by statements already proved, not by the picture. |
-| `audio.work` | Посчитай сам. Сколько из двух замеров годится в доказательство? | O'zingiz hisoblang. Ikki o'lchovdan nechtasi isbotga yaraydi? | Work it out yourself. How many of the two measurements can go into a proof? |
-| `work.prompt` | Сколько замеров годится в доказательство? | Nechta o'lchov isbotga yaraydi? | How many measurements can go into a proof? |
-| `work.ok` | Ни одного. Измерение по проекции не доказывает ничего. | Bitta ham yo'q. Proyeksiya bo'yicha o'lchash hech nimani isbotlamaydi. | None. A measurement taken from a projection proves nothing. |
-| `work.hint.1` | Вспомни, чем подписывался результат линейки в седьмом классе. | Yettinchi sinfda chizg'ich natijasi nima bilan imzolanganini eslang. | Recall how a ruler result was labelled in grade seven. |
-| `work.hint.2` | На чертеже видна проекция, а не сам отрезок. | Chizmada proyeksiya ko'rinadi, kesmaning o'zi emas. | The drawing shows the projection, not the segment itself. |
-| `work.hint.3` | Ноль. | Nol. | Zero. |
+| `eyebrow` | ГРАНИЦА | CHEGARA | THE BOUNDARY |
+| `title` | Две диагонали из одной вершины | Bir uchdan ikki diagonal | Two diagonals from one vertex |
+| `show.1.1` | одна диагональ лежит в грани | bir diagonal yoqda yotadi | one diagonal lies in a face |
+| `show.1.2` | другая уходит внутрь тела | ikkinchisi jism ichiga ketadi | the other goes inside the body |
+| `show.2.1` | поверни и следи за ними | buring va ularga qarang | rotate and watch them |
+| `show.2.2` | они разошлись, это разные отрезки | ular ajraldi, bu boshqa kesmalar | they came apart, these are different segments |
+| `audio.mount` | Из одной вершины проведены два отрезка. Один в противоположную вершину грани, второй в противоположную вершину тела. | Bir uchdan ikki kesma o'tkazilgan. Biri yoqning qarama-qarshi uchiga, ikkinchisi jismning qarama-qarshi uchiga. | Two segments are drawn from one vertex. One to the opposite vertex of a face, the other to the opposite vertex of the body. |
+| `audio.move*` | На неподвижном чертеже они идут почти рядом, и именно поэтому их путают. Поверни тело. Диагональ грани остаётся в грани при любом повороте, а диагональ тела нигде в грани не лежит, она идёт внутри. Отсюда и разница в счёте. В диагональ грани входят два измерения, в диагональ тела три. Если взять два вместо трёх, ответ получится меньше настоящего, и ошибку эту заметить трудно, потому что число выглядит правдоподобно. | Qimirlamas chizmada ular deyarli yonma-yon boradi, va aynan shuning uchun ularni aralashtirib yuboradilar. Jismni buring. Yoq diagonali har qanday burilishda yoqda qoladi, jism diagonali esa hech qayerda yoqda yotmaydi, u ichdan boradi. Sanoqdagi farq ham shundan. Yoq diagonaliga ikki o'lcham kiradi, jism diagonaliga uchta. Uchta o'rniga ikkitasini olsangiz, javob haqiqiysidan kichik chiqadi, va bu xatoni sezish qiyin, chunki son ishonarli ko'rinadi. | On a still drawing they run almost side by side, and that is exactly why they get confused. Rotate the body. The face diagonal stays in its face at any rotation, while the body diagonal lies in no face at all, it goes inside. Hence the difference in counting. Two dimensions go into a face diagonal, three into a body diagonal. If you take two instead of three, the answer comes out smaller than the true one, and that mistake is hard to notice because the number looks plausible. |
+| `audio.work` | Посчитай сам. Сколько измерений входит в диагональ грани? | O'zingiz hisoblang. Yoq diagonaliga nechta o'lcham kiradi? | Work it out yourself. How many dimensions go into a face diagonal? |
+| `work.prompt` | Сколько измерений в диагонали грани? | Yoq diagonalida nechta o'lcham? | How many dimensions are in a face diagonal? |
+| `work.ok` | Два. Грань плоская, третье измерение в неё не попадает. | Ikkita. Yoq yassi, uchinchi o'lcham unga tushmaydi. | Two. A face is flat, the third dimension does not enter it. |
+| `work.hint.1` | Посмотри, в какой грани лежит эта диагональ. | Bu diagonal qaysi yoqda yotganini ko'ring. | See which face this diagonal lies in. |
+| `work.hint.2` | У грани есть длина и ширина, и всё. | Yoqning uzunligi va kengligi bor, tamom. | A face has a length and a width, and that is all. |
+| `work.hint.3` | Два. | Ikkita. | Two. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `work.answer` | `0` |
+| `expr` | `AC² = a² + b²` |
+| `work.answer` | `2` |
 
 ---
 
-## Экран 8 · `rule` · ответ `pick2` · тег `tri-tochki-na-pryamoy`
+## Экран 8 · `rule` · ответ `pick2` · тег `diagonal-grani-i-tela`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ПРАВИЛО | QOIDA | THE RULE |
-| `title` | Три аксиомы | Uch aksioma | Three axioms |
-| `probe.question` | Какое условие в первой аксиоме отбрасывать нельзя? | Birinchi aksiomadagi qaysi shartni tashlab bo'lmaydi? | Which condition in the first axiom cannot be dropped? |
-| `probe.a` [верно] | точки не лежат на одной прямой | nuqtalar bir to'g'ri chiziqda yotmaydi | the points do not lie on one line |
-| `probe.b` | точек ровно три | nuqtalar roppa-rosa uchta | there are exactly three points |
-| `probe.b.hint` | Три их и есть. Дело не в числе, а в том, как они расположены. | Ular uchta ham. Gap sonda emas, joylashuvida. | There are three of them indeed. The point is not their number but their arrangement. |
-| `rule.lawLabel` | ТРИ АКСИОМЫ | UCH AKSIOMA | THE THREE AXIOMS |
-| `rule.lines.1` | через три точки не на одной прямой проходит единственная плоскость | bir to'g'ri chiziqda yotmagan uch nuqta orqali yagona tekislik o'tadi | through three points not on one line passes a unique plane |
-| `rule.lines.2` | если две точки прямой в плоскости, то вся прямая в ней | to'g'ri chiziqning ikki nuqtasi tekislikda bo'lsa, butun chiziq unda | if two points of a line are in a plane, the whole line is in it |
-| `rule.lines.3` | если у двух плоскостей есть общая точка, есть и общая прямая | ikki tekislikning umumiy nuqtasi bo'lsa, umumiy to'g'ri chizig'i ham bor | if two planes share a point, they share a line |
-| `audio.mount` | Соберём правило. Аксиом три, и все три мы уже видели в движении. | Qoidani yig'amiz. Aksioma uchta, uchalasini ham harakatda ko'rdik. | Let us put the rule together. There are three axioms and we have seen all three in motion. |
-| `audio.rule*` | Первая: если три точки не лежат на одной прямой, через них можно провести единственную плоскость. Слова про прямую здесь главные, без них утверждение неверно. Вторая: если две точки прямой лежат в плоскости, то все её точки лежат в этой плоскости. Отсюда правило проверки: хватает двух точек. Третья: если у двух плоскостей есть общая точка, то есть и общая прямая, проходящая через неё. Значит по одной точке плоскости не пересекаются никогда. Вместе с аксиомами планиметрии эти три составляют основу стереометрии, и дальше всё доказывается из них. | Birinchi: agar uch nuqta bir to'g'ri chiziqda yotmasa, ular orqali yagona tekislik o'tkazish mumkin. To'g'ri chiziq haqidagi so'zlar bu yerda asosiy, ularsiz tasdiq noto'g'ri. Ikkinchi: agar to'g'ri chiziqning ikki nuqtasi tekislikda yotsa, uning barcha nuqtalari shu tekislikda yotadi. Bundan tekshirish qoidasi: ikki nuqta yetadi. Uchinchi: agar ikki tekislikning umumiy nuqtasi bo'lsa, undan o'tuvchi umumiy to'g'ri chiziq ham bor. Demak tekisliklar bitta nuqta bo'yicha hech qachon kesishmaydi. Planimetriya aksiomalari bilan birga bu uchtasi stereometriyaning asosini tashkil qiladi, va keyin hammasi ulardan isbotlanadi. | First: if three points do not lie on one line, a unique plane can be drawn through them. The words about the line are the main part here, without them the statement is false. Second: if two points of a line lie in a plane, then all its points lie in that plane. Hence the checking rule: two points are enough. Third: if two planes have a common point, they also have a common line through it. So planes never meet at a single point. Together with the axioms of planimetry these three form the basis of stereometry, and everything further is proved from them. |
+| `title` | Три измерения в диагонали | Diagonalda uch o'lcham | Three dimensions in the diagonal |
+| `probe.question` | Сколько измерений входит в диагональ тела? | Jism diagonaliga nechta o'lcham kiradi? | How many dimensions go into a body diagonal? |
+| `probe.a` [верно] | три | uchta | three |
+| `probe.b` | два | ikkita | two |
+| `probe.b.hint` | Два дают диагональ грани, а не тела. | Ikkitasi yoq diagonalini beradi, jismning emas. | Two give a face diagonal, not a body one. |
+| `rule.lawLabel` | Диагональ тела | Jism diagonali | The body diagonal |
+| `rule.lines.1` | параллелепипед это призма с параллелограммом в основании | parallelepiped asosi parallelogramm bo'lgan prizma | a parallelepiped is a prism with a parallelogram base |
+| `rule.lines.2` | прямоугольный параллелепипед задан тремя измерениями | to'g'ri burchakli parallelepiped uch o'lcham bilan berilgan | a rectangular box is given by three dimensions |
+| `rule.lines.3` | квадрат диагонали это сумма квадратов трёх измерений | diagonal kvadrati uch o'lcham kvadratlari yig'indisi | the square of the diagonal is the sum of the squares of the three dimensions |
+| `audio.mount` | Один вопрос на различение, потом карточка. | Farqlashga bitta savol, keyin kartochka. | One question to tell them apart, then the card. |
+| `audio.rule*` | Формула выводится двумя шагами, и второй шаг опирается на перпендикулярность бокового ребра. Поэтому её нельзя применять к наклонному параллелепипеду. Проверь себя простым способом. В кубе с ребром один диагональ грани это корень из двух, а диагональ тела корень из трёх. Числа разные, и разница ровно в третьем измерении. | Formula ikki qadamda chiqariladi, va ikkinchi qadam yon qirraning perpendikulyarligiga tayanadi. Shuning uchun uni og'ma parallelepipedga qo'llash mumkin emas. O'zingizni oddiy usulda tekshiring. Qirrasi bir bo'lgan kubda yoq diagonali ikkidan ildiz, jism diagonali esa uchdan ildiz. Sonlar boshqa, va farq aynan uchinchi o'lchamda. | The formula is derived in two steps, and the second step rests on the perpendicularity of the lateral edge. That is why it cannot be applied to a slanted parallelepiped. Check yourself in a simple way. In a cube with edge one the face diagonal is the root of two and the body diagonal is the root of three. The numbers differ, and the difference is exactly the third dimension. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `rule.law` | `S₁: A, B, C ∉ a   →   α` |
+| `rule.law` | `d² = a² + b² + c²` |
 
 ---
 
-## Экран 9 · `drill` · ответ `match` · формат `match` · тег `tri-tochki-na-pryamoy`
+## Экран 9 · `drill` · ответ `match` · формат `match` · тег `diagonal-grani-i-tela`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | ТРЕНИРОВКА | MASHQ | PRACTICE |
-| `title` | Соедини условие с числом плоскостей | Shartni tekisliklar soni bilan ulang | Match each condition with the number of planes |
-| `match.prompt` | Сколько разных плоскостей отвечает записи | Yozuvga nechta har xil tekislik mos keladi | How many distinct planes each writing gives |
-| `match.ok` | Верно. Из четырёх точек тройку выбирают четырьмя способами, а грани куба лежат в шести плоскостях. | To'g'ri. To'rt nuqtadan uchlik to'rt xil tanlanadi, kubning yoqlari esa olti tekislikda yotadi. | Correct. A triple is chosen from four points in four ways, and the faces of a cube lie in six planes. |
-| `audio.mount` | Четыре записи и четыре ответа. Считай, не рисуя. Последняя запись это куб: считай плоскости его граней. | To'rt yozuv va to'rt javob. Chizmasdan hisoblang. Oxirgi yozuv bu kub: uning yoqlari tekisliklarini sanang. | Four writings and four answers. Count without drawing. The last writing is a cube: count the planes of its faces. |
+| `eyebrow` | ПРАКТИКА | AMALIYOT | PRACTICE |
+| `title` | Назови каждый отрезок | Har bir kesmani nomlang | Name each segment |
+| `match.prompt` | Соедини запись с названием | Yozuvni nomi bilan birlashtiring | Match the reading with the name |
+| `match.ok` | Все четыре на месте. Диагонали больше не путаются. | To'rttasi ham joyida. Diagonallar endi aralashmaydi. | All four in place. The diagonals no longer get mixed up. |
+| `audio.mount` | Четыре записи и четыре названия. Соедини их. | To'rt yozuv va to'rt nom. Ularni birlashtiring. | Four readings and four names. Match them. |
+| `match.a` | ребро основания | asos qirrasi | a base edge |
+| `match.b` | боковое ребро | yon qirra | a lateral edge |
+| `match.c` | диагональ основания | asos diagonali | a base diagonal |
+| `match.d` | диагональ тела | jism diagonali | the body diagonal |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `match.left` | `A, B, C ∉ a` · `A, B, C ∈ a` · `A, B, C, D` · `ABCDA₁B₁C₁D₁` |
-| `match.a` | `1` |
-| `match.b` | `∞` |
-| `match.c` | `4` |
-| `match.d` | `6` |
+| `match.left` | `AB` · `AA₁` · `AC` · `AC₁` |
 
 ---
 
-## Экран 10 · `guided` · ответ `order` · формат `proof` · тег `kartinka-kak-dokazatelstvo`
-
-Доказательство 1-natija из учебника, стр. 34.
+## Экран 10 · `guided` · ответ `order` · формат `proof` · тег `diagonal-grani-i-tela`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ПО ШАГАМ | QADAMMA-QADAM | STEP BY STEP |
-| `title` | Докажи следствие | Natijani isbotlang | Prove the corollary |
-| `proof.given` | прямая и точка вне её | to'g'ri chiziq va undan tashqaridagi nuqta | a line and a point outside it |
-| `proof.goal` | через них проходит ровно одна плоскость | ular orqali roppa-rosa bitta tekislik o'tadi | exactly one plane passes through them |
-| `proof.r1` | берём на прямой две точки | to'g'ri chiziqda ikki nuqta olamiz | take two points on the line |
-| `proof.r2` | три точки не на одной прямой, проводим плоскость | uch nuqta bir chiziqda emas, tekislik o'tkazamiz | three points not on one line, draw the plane |
-| `proof.r3` | две точки прямой в плоскости, значит вся прямая в ней | chiziqning ikki nuqtasi tekislikda, demak butun chiziq unda | two points of the line are in the plane, so the whole line is |
-| `proof.e1` | Аксиома тут ещё не работает. Этот шаг мы делаем сами. | Aksioma bu yerda hali ishlamaydi. Bu qadamni o'zimiz qilamiz. | No axiom works here yet. We make this step ourselves. |
-| `proof.e2` | Плоскости пока нет. Её ещё надо получить. | Tekislik hali yo'q. Uni olish kerak. | There is no plane yet. It still has to be obtained. |
-| `proof.e3` | Плоскость уже есть. Речь о том, что в неё попадает целая прямая. | Tekislik bor. Gap unga tushadigan to'g'ri chiziq haqida. | The plane is there. This is about the line that falls into it. |
-| `proof.ok` | Доказано. Обе аксиомы понадобились: первая дала плоскость, вторая втянула в неё прямую. | Isbotlandi. Ikkala aksioma ham kerak bo'ldi: birinchisi tekislik berdi, ikkinchisi unga chiziqni tortdi. | Proved. Both axioms were needed: the first gave the plane, the second pulled the line into it. |
-| `reason.s1` | первая аксиома | birinchi aksioma | the first axiom |
-| `reason.s2` | вторая аксиома | ikkinchi aksioma | the second axiom |
-| `reason.s3` | по построению | yasashga ko'ra | by construction |
+| `title` | Выведи формулу диагонали | Diagonal formulasini chiqaring | Derive the diagonal formula |
+| `proof.given` | прямоугольный параллелепипед | to'g'ri burchakli parallelepiped | a rectangular box |
+| `proof.goal` | диагональ через три измерения | diagonal uch o'lcham bo'yicha | the diagonal from three dimensions |
+| `proof.r1` | диагональ основания по двум измерениям | asos diagonali ikki o'lcham bo'yicha | the base diagonal from two dimensions |
+| `proof.r2` | ребро перпендикулярно этой диагонали | qirra shu diagonalga perpendikulyar | the edge is perpendicular to that diagonal |
+| `proof.r3` | значит снова работает Пифагор | demak yana Pifagor ishlaydi | so Pythagoras works again |
+| `proof.ok` | Доказано. Два шага Пифагора дают три измерения. | Isbotlandi. Ikki qadam Pifagor uch o'lcham beradi. | Proved. Two steps of Pythagoras give three dimensions. |
+| `proof.e1` | Перпендикулярность идёт дальше. Сначала про основание. | Perpendikulyarlik keyin keladi. Avval asos haqida. | Perpendicularity comes later. First about the base. |
+| `proof.e2` | В основании уже посчитано. Откуда прямой угол во втором треугольнике. | Asosda hisoblandi. Ikkinchi uchburchakda to'g'ri burchak qayerdan. | The base is done. Where does the right angle in the second triangle come from. |
+| `proof.e3` | Прямой угол есть. Теперь считай гипотенузу. | To'g'ri burchak bor. Endi gipotenuzani hisoblang. | The right angle is there. Now compute the hypotenuse. |
+| `reason.s1` | теорема Пифагора | Pifagor teoremasi | the Pythagorean theorem |
+| `reason.s2` | перпендикуляр даёт прямой угол со всеми прямыми плоскости | perpendikulyar tekislikning barcha chiziqlari bilan to'g'ri burchak beradi | a perpendicular gives a right angle with all lines of the plane |
+| `reason.s3` | свойство параллелограмма | parallelogramm xossasi | a property of a parallelogram |
 | `reason.pic` | видно на чертеже | chizmada ko'rinadi | it is visible on the drawing |
-| `reason.pic.missing` | Чертёж не обоснование: он показывает одно положение из многих. | Chizma asoslash emas: u ko'p holatdan bittasini ko'rsatadi. | A drawing is not a justification: it shows one position out of many. |
-| `reason.measure` | измерено линейкой | chizg'ich bilan o'lchangan | measured with a ruler |
-| `reason.measure.missing` | Измерение это предположение, а не довод. | O'lchash taxmin, dalil emas. | A measurement is a guess, not an argument. |
-| `audio.mount` | Теперь докажем следствие из аксиом. Обоснование каждой строки выбирается из списка. | Endi aksiomalardan chiqadigan natijani isbotlaymiz. Har qatorning asoslashi ro'yxatdan tanlanadi. | Now let us prove a corollary of the axioms. The justification of each line is chosen from the list. |
+| `reason.pic.missing` | Чертёж не обоснование. Он показывает один ракурс из многих. | Chizma asoslash emas. U ko'p rakursdan bittasini ko'rsatadi. | A drawing is not a justification. It shows one view out of many. |
+| `audio.mount` | Три строки, и у каждой своё обоснование из списка. | Uch qator, va har birining ro'yxatdan o'z asoslashi bor. | Three lines, each with its own justification from the list. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `expr` | `a, C ∉ a   →   α` |
+| `expr` | `AC₁² = AC² + CC₁²` |
 
 ---
 
@@ -353,27 +344,27 @@
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | НА БУМАГЕ | QOG'OZDA | ON PAPER |
-| `title` | Четыре точки, никакие три не на прямой | To'rt nuqta, hech qaysi uchtasi bir chiziqda emas | Four points, no three on one line |
-| `task.ok` | Четыре. Каждая тройка задаёт свою плоскость, а троек из четырёх точек четыре. | To'rtta. Har uchlik o'z tekisligini belgilaydi, to'rt nuqtadan uchliklar esa to'rtta. | Four. Each triple fixes its own plane, and there are four triples of four points. |
-| `task.hint.1` | Считай тройки точек, а не сами точки. | Nuqtalarni emas, uchliklarni sanang. | Count the triples of points, not the points. |
-| `task.hint.2` | Из четырёх точек тройку можно выбрать четырьмя способами. | To'rt nuqtadan uchlikni to'rt xil tanlash mumkin. | A triple can be chosen from four points in four ways. |
-| `task.hint.3` | Четыре. | To'rt. | Four. |
-| `order.prompt` | Расставь условия по возрастанию числа плоскостей | Shartlarni tekisliklar soni o'sishi bo'yicha joylashtiring | Put the conditions in order of increasing number of planes |
-| `order.title` | от меньшего числа к большему | kichik sondan kattasiga | from fewer planes to more |
-| `order.ok` | Верно. Три точки не на прямой дают одну плоскость, четыре точки четыре, куб шесть, а три точки на прямой бесконечно много. | To'g'ri. Chiziqda yotmagan uch nuqta bitta tekislik beradi, to'rt nuqta to'rtta, kub oltita, chiziqdagi uch nuqta esa cheksiz ko'p. | Correct. Three points off a line give one plane, four points give four, a cube six, and three points on a line infinitely many. |
-| `order.bad` | Смотри, что известно о расположении точек, а не сколько их. | Nuqtalar nechtaligiga emas, joylashuvi haqida nima ma'lumligiga qarang. | Look at what is known about the arrangement, not at how many points there are. |
-| `audio.mount` | Прибора нет. Считай на бумаге, потом сверься. | Asbob yo'q. Qog'ozda hisoblang, keyin solishtiring. | No instrument here. Work it out on paper, then compare. |
-| `audio.next` | Дальше запись с ошибкой. Найди строку, где она появилась. | Keyin xatoli yozuv. Xato paydo bo'lgan qatorni toping. | Next comes a written solution with a mistake. Find the line where it appeared. |
+| `eyebrow` | БЕЗ ПРИБОРА | ASBOBSIZ | NO TOOL |
+| `title` | Счёт и порядок | Hisob va tartib | Counting and order |
+| `task.ok` | Двадцать шесть. Тридцать шесть плюс шестьдесят четыре плюс пятьсот семьдесят шесть. | Yigirma olti. O'ttiz olti qo'shuv oltmish to'rt qo'shuv besh yuz yetmish olti. | Twenty six. Thirty six plus sixty four plus five hundred seventy six. |
+| `task.hint.1` | Возведи в квадрат каждое измерение. | Har o'lchamni kvadratga ko'taring. | Square each dimension. |
+| `task.hint.2` | Сложи три квадрата и извлеки корень. | Uch kvadratni qo'shing va ildiz chiqaring. | Add the three squares and take the root. |
+| `task.hint.3` | Шестьсот семьдесят шесть это двадцать шесть в квадрате. | Olti yuz yetmish olti yigirma oltining kvadrati. | Six hundred seventy six is twenty six squared. |
+| `order.prompt` | Расставь записи в том порядке, в каком считают | Yozuvlarni hisoblash tartibida joylashtiring | Arrange the readings in the order they are computed |
+| `order.title` | Порядок счёта | Hisob tartibi | The order of computing |
+| `order.ok` | Порядок верный. Сначала основание, потом тело. | Tartib to'g'ri. Avval asos, keyin jism. | The order is right. First the base, then the body. |
+| `order.bad` | Не в этом порядке. Что нужно раньше. | Bu tartibda emas. Avval nima kerak. | Not in this order. What is needed first. |
+| `audio.mount` | Прибор убран. Считаем на бумаге. | Asbob olib qo'yildi. Qog'ozda hisoblaymiz. | The tool is put away. We count on paper. |
+| `audio.next` | Теперь порядок записей. Расставь их так, как считают. | Endi yozuvlar tartibi. Ularni qanday hisoblansa, shunday joylashtiring. | Now the order of the readings. Arrange them the way they are computed. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `task.prompt` | `A, B, C, D   →   ?` |
-| `task.answer` | `4` |
-| `order.items` | `A, B, C ∈ a` · `A, B, C ∉ a` · `ABCDA₁B₁C₁D₁` · `A, B, C, D` |
-| `order.answer` | `A, B, C ∉ a  A, B, C, D  ABCDA₁B₁C₁D₁  A, B, C ∈ a` |
+| `task.prompt` | `6, 8, 24   →   d = ?` |
+| `task.answer` | `26` |
+| `order.items` | `AC₁` · `a, b, c` · `AC` · `AC₁²` |
+| `order.answer` | `a, b, c  AC  AC₁²  AC₁` |
 
 ---
 
@@ -384,29 +375,29 @@
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ЛОВУШКА | TUZOQ | THE TRAP |
-| `title` | Найди строку с ошибкой | Xatoli qatorni toping | Find the line with the mistake |
-| `hint.r1` | Условие переписано верно. | Shart to'g'ri ko'chirilgan. | The condition is copied correctly. |
-| `hint.r2` | Такая плоскость и правда есть. | Bunday tekislik haqiqatan ham bor. | Such a plane does exist. |
-| `hint.r3` | Спроси себя, откуда это взято: из аксиомы или с рисунка. | O'zingizdan so'rang: bu qayerdan olingan, aksiomadanmi yoki rasmdanmi? | Ask yourself where this comes from: an axiom or the picture. |
-| `proof` | Поверни сцену: точка, которая казалась на плоскости, оказалась над ней. | Sahnani buring: tekislikda ko'ringan nuqta uning ustida chiqdi. | Rotate the scene: the point that seemed to be on the plane turned out to be above it. |
-| `entry.prompt` | Сколько точек прямой надо было проверить? | To'g'ri chiziqning nechta nuqtasini tekshirish kerak edi? | How many points of the line had to be checked? |
-| `entry.ok` | Две. Одной точки для второй аксиомы мало, а картинка вместо второй точки не годится. | Ikkita. Ikkinchi aksioma uchun bitta nuqta kam, rasm esa ikkinchi nuqta o'rniga yaramaydi. | Two. One point is not enough for the second axiom, and a picture is no substitute for the second one. |
-| `entry.hint.1` | Перечитай вторую аксиому. | Ikkinchi aksiomani qayta o'qing. | Read the second axiom again. |
-| `entry.hint.2` | В ней сказано про две точки, а в записи взята одна. | Unda ikki nuqta haqida aytilgan, yozuvda esa bittasi olingan. | It speaks of two points, and the writing takes one. |
-| `entry.hint.3` | Две. | Ikki. | Two. |
-| `audio.mount` | Четыре строки. Ошибка не в счёте: одна строка опирается на рисунок. | To'rt qator. Xato hisobda emas: bir qator rasmga tayanadi. | Four lines. The mistake is not in the counting: one line leans on the picture. |
-| `audio.next` | Дальше обратная задача: по числу плоскостей восстанови условие. | Keyin teskari masala: tekisliklar soniga qarab shartni tiklang. | Next comes the reverse task: rebuild the condition from the number of planes. |
+| `title` | Найди строку с ошибкой | Xato qatorni toping | Find the line with the mistake |
+| `hint.r1` | Измерения выписаны верно. | O'lchamlar to'g'ri yozilgan. | The dimensions are written correctly. |
+| `hint.r2` | Диагональ основания посчитана верно. | Asos diagonali to'g'ri hisoblangan. | The base diagonal is computed correctly. |
+| `hint.r4` | Ответ получен из неверной строки выше. | Javob yuqoridagi xato qatordan olingan. | The answer comes from the wrong line above. |
+| `proof` | Поверни тело: этот отрезок остался в грани, значит он не диагональ тела. | Jismni buring: bu kesma yoqda qoldi, demak u jism diagonali emas. | Rotate the body: this segment stayed in a face, so it is not the body diagonal. |
+| `entry.prompt` | Номер строки с ошибкой | Xato qator raqami | The number of the line with the mistake |
+| `entry.ok` | Третья. Диагональю тела назвали диагональ основания. | Uchinchi. Jism diagonali deb asos diagonali aytilgan. | The third. The base diagonal was called the body diagonal. |
+| `entry.hint.1` | Проверь, какой отрезок назван в каждой строке. | Har qatorda qaysi kesma aytilganini tekshiring. | Check which segment is named in each line. |
+| `entry.hint.2` | Третье измерение в решении не появилось ни разу. | Uchinchi o'lcham yechimda biror marta ham paydo bo'lmadi. | The third dimension never appeared in the solution. |
+| `entry.hint.3` | Ошибка в третьей строке. | Xato uchinchi qatorda. | The mistake is in the third line. |
+| `audio.mount` | Четыре строки, и одна из них подменяет диагональ. | To'rt qator, va ulardan biri diagonalni almashtiradi. | Four lines, and one of them substitutes the diagonal. |
+| `audio.next` | Теперь напиши номер строки, в которой ошибка. | Endi xato bo'lgan qator raqamini yozing. | Now write the number of the line with the mistake. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `row.r1` | `a,  B ∉ a` |
-| `row.r2` | `α ⊃ a,  B ∈ α` |
-| `row.r3` | `C ∈ a,  C ∈ α` |
-| `row.r4` | `a ⊂ α` |
+| `row.r1` | `a = 3,   b = 4,   c = 12` |
+| `row.r2` | `AC² = 9 + 16` |
+| `row.r3` | `AC₁ = AC = 5` |
+| `row.r4` | `d = 5` |
 | `answerId` | `r3` |
-| `entry.answer` | `2` |
+| `entry.answer` | `3` |
 
 ---
 
@@ -417,34 +408,33 @@
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ПЕРЕНОС | KO'CHIRISH | TRANSFER |
-| `title` | Обратный ход | Teskari yo'l | The other direction |
-| `entry.prompt` | Точек три, плоскость через них одна. Сколько из них лежит на одной прямой? | Nuqta uchta, ular orqali tekislik bitta. Ulardan nechtasi bir to'g'ri chiziqda yotadi? | Three points, one plane through them. How many of them lie on one line? |
-| `entry.ok` | Две. Три на одной прямой дали бы бесконечно много плоскостей. | Ikkita. Uchtasi bir chiziqda bo'lsa, cheksiz ko'p tekislik chiqardi. | Two. Three on one line would give infinitely many planes. |
-| `entry.hint.1` | Если бы все три лежали на прямой, плоскость была бы не одна. | Uchalasi ham chiziqda yotganda, tekislik yagona bo'lmasdi. | If all three were on a line, the plane would not be unique. |
-| `entry.hint.2` | Через любые две точки прямая проходит всегда. | Istalgan ikki nuqta orqali to'g'ri chiziq doim o'tadi. | A line always passes through any two points. |
-| `entry.hint.3` | Две. | Ikki. | Two. |
-| `multi.prompt` | Отметь все записи, которые задают плоскость однозначно | Tekislikni yagona qilib beradigan barcha yozuvlarni belgilang | Mark every writing that fixes a plane uniquely |
-| `multi.title` | их ровно два | ular aynan ikkita | there are exactly two |
-| `multi.c.hint` | Две точки задают прямую, а плоскостей через неё бесконечно много. | Ikki nuqta to'g'ri chiziqni beradi, u orqali tekisliklar esa cheksiz ko'p. | Two points fix a line, and there are infinitely many planes through it. |
-| `multi.d.hint` | Три точки на одной прямой ведут себя как одна прямая. | Bir chiziqdagi uch nuqta bitta to'g'ri chiziqdek ish tutadi. | Three points on one line behave like a single line. |
-| `multi.ok` | Верно. Нужна точка вне прямой: она и держит плоскость. | To'g'ri. Chiziqdan tashqaridagi nuqta kerak: tekislikni u ushlab turadi. | Correct. A point off the line is needed: it is what holds the plane. |
-| `audio.mount` | Теперь наоборот. По числу плоскостей назови, как расположены точки. | Endi teskarisiga. Tekisliklar soniga qarab nuqtalar qanday joylashganini ayting. | Now the other way round. From the number of planes, say how the points are arranged. |
-| `audio.work` | Потом отметь все записи, которые задают плоскость однозначно. | Keyin tekislikni yagona qilib beradigan barcha yozuvlarni belgilang. | Then mark every writing that fixes a plane uniquely. |
+| `title` | В обратную сторону | Teskari tomonga | The other way round |
+| `place.prompt` | Измерения два, три и шесть. Найди диагональ тела. | O'lchamlar ikki, uch va olti. Jism diagonalini toping. | The dimensions are two, three and six. Find the body diagonal. |
+| `place.ok` | Семь. Четыре плюс девять плюс тридцать шесть это сорок девять. | Yetti. To'rt qo'shuv to'qqiz qo'shuv o'ttiz olti bu qirq to'qqiz. | Seven. Four plus nine plus thirty six is forty nine. |
+| `place.wrong` | Сложи квадраты всех трёх измерений. | Uchala o'lcham kvadratlarini qo'shing. | Add the squares of all three dimensions. |
+| `multi.prompt` | Отметь все верные записи | Barcha to'g'ri yozuvlarni belgilang | Mark all the correct readings |
+| `multi.title` | Что верно всегда | Nima doim to'g'ri | What is always true |
+| `multi.d.hint` | Это диагональ грани, а не тела. | Bu yoq diagonali, jismning emas. | That is a face diagonal, not a body one. |
+| `multi.e.hint` | Диагональ это не сумма измерений, а корень из суммы квадратов. | Diagonal o'lchamlar yig'indisi emas, kvadratlar yig'indisidan ildiz. | A diagonal is not the sum of the dimensions but the root of the sum of squares. |
+| `multi.ok` | Три записи из пяти. Одна берёт два измерения, другая складывает вместо квадратов. | Beshtadan uch yozuv. Biri ikki o'lchamni oladi, ikkinchisi kvadratlar o'rniga qo'shadi. | Three readings out of five. One takes two dimensions, the other adds instead of squaring. |
+| `audio.mount` | Прочитаем формулу справа налево. По измерениям назовём диагональ. | Formulani o'ngdan chapga o'qiymiz. O'lchamlar bo'yicha diagonalni aytamiz. | Let us read the formula from right to left. From the dimensions we name the diagonal. |
+| `audio.work` | Отметь все записи, которые верны всегда. Их больше одной. | Doim to'g'ri bo'lgan barcha yozuvlarni belgilang. Ular bittadan ko'p. | Mark all the readings that are always true. There is more than one. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `entry.expr` | `A, B, C   →   α` |
-| `entry.answer` | `2` |
-| `multi.a` [верно] | `A, B, C ∉ a` |
-| `multi.b` [верно] | `a, C ∉ a` |
-| `multi.c` | `A, B` |
-| `multi.d` | `A, B, C ∈ a` |
+| `place.target` | `7` |
+| `place.step` | `4 + 9 + 36 = 49` |
+| `multi.a` [верно] | `d² = a² + b² + c²` |
+| `multi.b` [верно] | `AC² = a² + b²` |
+| `multi.c` [верно] | `a = b = c` |
+| `multi.d` | `d² = a² + b²` |
+| `multi.e` | `d = a + b + c` |
 
 ---
 
-## Экран 14 · `blitz` · ответ `mixed` · формат `chain` · тег `tri-tochki-na-pryamoy`
+## Экран 14 · `blitz` · ответ `mixed` · формат `chain` · тег `diagonal-grani-i-tela`
 
 **Текст**
 
@@ -452,49 +442,49 @@
 |---|---|---|---|
 | `eyebrow` | БЛИЦ | BLITS | QUICK ROUND |
 | `title` | Четыре вопроса подряд | Ketma-ket to'rt savol | Four questions in a row |
-| `q1.prompt` | Сколько плоскостей проходит через три точки одной прямой? | Bir to'g'ri chiziqdagi uch nuqta orqali nechta tekislik o'tadi? | How many planes pass through three points of one line? |
-| `q1.a` [верно] | бесконечно много | cheksiz ko'p | infinitely many |
-| `q1.b` | одна | bitta | one |
-| `q1.b.hint` | Одна выходит, когда третья точка сходит с прямой. | Bitta uchinchi nuqta chiziqdan chiqqanda bo'ladi. | One comes when the third point leaves the line. |
-| `q1.c` | ни одной | bitta ham yo'q | none |
-| `q1.c.hint` | Хотя бы одна есть всегда. | Hech bo'lmaganda bittasi doim bor. | At least one always exists. |
-| `q1.d` | три | uchta | three |
-| `q1.d.hint` | Число плоскостей не связано с числом точек напрямую. | Tekisliklar soni nuqtalar soniga to'g'ridan bog'liq emas. | The number of planes is not tied to the number of points directly. |
-| `q2.prompt` | Две точки прямой лежат в плоскости. Где остальные? | To'g'ri chiziqning ikki nuqtasi tekislikda yotadi. Qolganlari qayerda? | Two points of a line lie in a plane. Where are the rest? |
-| `q2.a` [верно] | тоже в этой плоскости | ular ham shu tekislikda | in that plane too |
-| `q2.b` | часть в ней, часть вне | bir qismi unda, bir qismi tashqarida | some in it, some outside |
-| `q2.b.hint` | Тогда прямая ломалась бы, а она прямая. | U holda chiziq siniq bo'lardi, u esa to'g'ri. | Then the line would bend, and it is straight. |
-| `q2.c` | этого узнать нельзя | buni bilib bo'lmaydi | it cannot be known |
-| `q2.c.hint` | Вторая аксиома отвечает на этот вопрос точно. | Ikkinchi aksioma bu savolga aniq javob beradi. | The second axiom answers this exactly. |
-| `q2.d` | вне плоскости | tekislikdan tashqarida | outside the plane |
-| `q2.d.hint` | Тогда две отмеченные точки оказались бы особенными. | U holda belgilangan ikki nuqta alohida bo'lib qolardi. | Then the two marked points would be special. |
-| `q3.prompt` | Сколько общих прямых у двух пересекающихся плоскостей? | Kesishuvchi ikki tekislikning nechta umumiy to'g'ri chizig'i bor? | How many common lines do two intersecting planes have? |
-| `q3.a` [верно] | одна | bitta | one |
-| `q3.a.ok` | Одна. По одной точке плоскости не пересекаются никогда. | Bitta. Tekisliklar bitta nuqta bo'yicha hech qachon kesishmaydi. | One. Planes never meet at a single point. |
-| `q3.b` | ни одной | bitta ham yo'q | none |
-| `q3.b.hint` | Ни одной у плоскостей, которые не пересекаются вовсе. | Kesishmaydigan tekisliklarda bitta ham yo'q. | None belongs to planes that do not meet at all. |
-| `q3.c` | две | ikkita | two |
-| `q3.c.hint` | Две общие прямые означали бы, что плоскости совпали. | Ikki umumiy chiziq tekisliklar ustma-ust tushganini bildirardi. | Two common lines would mean the planes coincide. |
-| `q3.d` | бесконечно много | cheksiz ko'p | infinitely many |
-| `q3.d.hint` | Бесконечно много было бы у совпавших плоскостей. | Cheksiz ko'p ustma-ust tushgan tekisliklarda bo'lardi. | Infinitely many would belong to coinciding planes. |
-| `q4.prompt` | Что нельзя брать в доказательство? | Isbotga nimani olib bo'lmaydi? | What must not go into a proof? |
-| `q4.a` [верно] | то, что видно на чертеже | chizmada ko'ringanini | what is visible on the drawing |
-| `q4.b` | аксиому | aksiomani | an axiom |
-| `q4.b.hint` | Аксиома как раз и есть законное основание. | Aksioma aynan qonuniy asos. | An axiom is exactly a lawful ground. |
-| `q4.c` | доказанное раньше утверждение | oldin isbotlangan tasdiqni | a statement proved earlier |
-| `q4.c.hint` | Раз доказано, брать можно. | Isbotlangan ekan, olish mumkin. | Once proved, it may be used. |
-| `q4.d` | условие задачи | masalaning shartini | the condition of the problem |
-| `q4.d.hint` | С условия доказательство и начинается. | Isbot shartdan boshlanadi. | A proof begins with the condition. |
-| `audio.mount` | Четыре вопроса подряд. Считается первая попытка. | Ketma-ket to'rt savol. Birinchi urinish hisobga olinadi. | Four questions in a row. The first attempt counts. |
+| `q1.prompt` | Что в основании параллелепипеда? | Parallelepipedning asosida nima? | What is in the base of a parallelepiped? |
+| `q1.a` [верно] | параллелограмм | parallelogramm | a parallelogram |
+| `q1.b` | любой многоугольник | istalgan ko'pburchak | any polygon |
+| `q1.b.hint` | Любой многоугольник это призма вообще. | Istalgan ko'pburchak umuman prizma. | Any polygon is a prism in general. |
+| `q1.c` | прямоугольник | to'g'ri to'rtburchak | a rectangle |
+| `q1.c.hint` | Прямоугольник только у прямоугольного. | To'g'ri to'rtburchak faqat to'g'ri burchaklida. | A rectangle only in the rectangular one. |
+| `q1.d` | квадрат | kvadrat | a square |
+| `q1.d.hint` | Квадрат бывает у куба. | Kvadrat kubda bo'ladi. | A square happens in a cube. |
+| `q2.prompt` | Сколько измерений у прямоугольного параллелепипеда? | To'g'ri burchakli parallelepipedning nechta o'lchami bor? | How many dimensions does a rectangular box have? |
+| `q2.a` [верно] | три | uchta | three |
+| `q2.b` | два | ikkita | two |
+| `q2.b.hint` | Два измерения у плоской фигуры. | Ikki o'lcham yassi shaklda. | Two dimensions belong to a flat figure. |
+| `q2.c` | шесть | oltita | six |
+| `q2.c.hint` | Шесть это число граней. | Olti yoqlar soni. | Six is the number of faces. |
+| `q2.d` | двенадцать | o'n ikkita | twelve |
+| `q2.d.hint` | Двенадцать это число рёбер. | O'n ikki qirralar soni. | Twelve is the number of edges. |
+| `q3.prompt` | В кубе с ребром один диагональ тела? | Qirrasi bir bo'lgan kubda jism diagonali? | In a cube with edge one, the body diagonal? |
+| `q3.a` [верно] | корень из трёх | uchdan ildiz | the root of three |
+| `q3.b` | корень из двух | ikkidan ildiz | the root of two |
+| `q3.b.hint` | Корень из двух это диагональ грани. | Ikkidan ildiz yoq diagonali. | The root of two is the face diagonal. |
+| `q3.c` | один | bir | one |
+| `q3.c.hint` | Один это ребро. | Bir qirra. | One is the edge. |
+| `q3.d` | три | uch | three |
+| `q3.d.hint` | Три это сумма квадратов, а не диагональ. | Uch kvadratlar yig'indisi, diagonal emas. | Three is the sum of squares, not the diagonal. |
+| `q4.prompt` | Куб это что? | Kub nima? | What is a cube? |
+| `q4.a` [верно] | прямоугольный параллелепипед с равными измерениями | o'lchamlari teng to'g'ri burchakli parallelepiped | a rectangular box with equal dimensions |
+| `q4.b` | отдельная фигура | alohida shakl | a separate figure |
+| `q4.b.hint` | Куб частный случай, а не новая фигура. | Kub xususiy hol, yangi shakl emas. | A cube is a special case, not a new figure. |
+| `q4.c` | любой параллелепипед | istalgan parallelepiped | any parallelepiped |
+| `q4.c.hint` | У любого нет ни прямых углов, ни равных рёбер. | Istalganida na to'g'ri burchak, na teng qirra bor. | Any one has neither right angles nor equal edges. |
+| `q4.d` | правильная призма | muntazam prizma | a regular prism |
+| `q4.d.hint` | Правильная призма может быть и шестиугольной. | Muntazam prizma oltiburchakli ham bo'ladi. | A regular prism can be hexagonal too. |
+| `audio.mount` | Четыре вопроса подряд. Отвечай без остановки. | Ketma-ket to'rt savol. To'xtamasdan javob bering. | Four questions in a row. Answer without stopping. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `q1.done` | `A, B, C ∈ a` |
-| `q2.done` | `a ⊂ α` |
-| `q3.done` | `α ∩ β = a` |
-| `q4.done` | `S₁,  S₂,  S₃` |
+| `q1.done` | `ABCD = ▱` |
+| `q2.done` | `a, b, c` |
+| `q3.done` | `d = √3` |
+| `q4.done` | `a = b = c` |
+| `angles` | `AB` · `AA₁` · `AC` · `AC₁` |
 
 ---
 
@@ -505,31 +495,31 @@
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ИТОГ | YAKUN | SUMMARY |
-| `title` | Что теперь умеешь | Endi nima qila olasiz | What you can do now |
-| `can.1` | Знаю, чем плоскость задаётся однозначно | Tekislik nima bilan yagona berilishini bilaman | I know what fixes a plane uniquely |
-| `can.2` | Проверяю прямую в плоскости по двум точкам | Chiziq tekislikda ekanini ikki nuqta bo'yicha tekshiraman | I check a line in a plane by two points |
-| `can.3` | Знаю, что две плоскости пересекаются по прямой | Ikki tekislik chiziq bo'ylab kesishishini bilaman | I know two planes meet along a line |
-| `can.4` | Не беру в доказательство то, что видно на картинке | Rasmda ko'ringanini isbotga olmayman | I do not take what the picture shows into a proof |
-| `levels.full` | Этот тип задач закрыт. | Bu turdagi masalalar yopildi. | This type of problem is closed. |
-| `levels.gap` | Одно место требует повтора: условие первой аксиомы. | Bir joy takrorlashni talab qiladi: birinchi aksioma sharti. | One spot needs a second look: the condition of the first axiom. |
-| `levels.back` | Вернись к правилу и к экрану 4. | Qoidaga va to'rtinchi ekranga qayting. | Go back to the rule and to screen four. |
-| `bridge` | Дальше прямые в пространстве: там картинка соврёт ещё сильнее. | Keyin fazodagi to'g'ri chiziqlar: u yerda rasm yanada ko'proq aldaydi. | Next come lines in space: there the picture lies even harder. |
-| `lifehack` | Не уверен в чертеже — поверни сцену. Всё, что от поворота меняется, доказательством не было. | Chizmaga ishonchingiz komil bo'lmasa, sahnani buring. Burilishdan o'zgargan hamma narsa isbot bo'lmagan. | If you are unsure of the drawing, rotate the scene. Whatever changes with the rotation was never a proof. |
-| `sheetTitle` | Аксиомы · шпаргалка | Aksiomalar · shpargalka | Axioms · cheat sheet |
-| `sheetSrc` | 10 класс · урок 38 | 10-sinf · 38-dars | Grade 10 · lesson 38 |
-| `audio.mount` | Прогноз был про одну плоскость и про сколько угодно. Посмотрим, что вышло. | Taxmin bitta tekislik va istalgancha haqida edi. Nima chiqqanini ko'ramiz. | The guess was about one plane and about any number. Let us see how it turned out. |
-| `audio.next` | Одна не всегда. Всё решает условие: лежат ли три точки на одной прямой. | Bitta har doim ham emas. Hammasini shart hal qiladi: uch nuqta bir chiziqda yotadimi. | Not always one. Everything is decided by the condition: whether the three points lie on one line. |
+| `title` | Что теперь умеешь | Endi nimani bilasiz | What you can do now |
+| `can.1` | Знаю, что параллелепипед это призма с параллелограммом в основании | Parallelepiped asosi parallelogramm bo'lgan prizma ekanini bilaman | I know a parallelepiped is a prism with a parallelogram base |
+| `can.2` | Отличаю прямой от прямоугольного | To'g'rini to'g'ri burchaklidan ajrataman | I tell a right one from a rectangular one |
+| `can.3` | Отличаю диагональ грани от диагонали тела | Yoq diagonalini jism diagonalidan ajrataman | I tell a face diagonal from a body diagonal |
+| `can.4` | Считаю диагональ по трём измерениям | Diagonalni uch o'lcham bo'yicha hisoblayman | I compute the diagonal from three dimensions |
+| `levels.full` | Все четыре | To'rttasi ham | All four |
+| `levels.gap` | Три из четырёх | To'rttadan uchtasi | Three out of four |
+| `levels.back` | Меньше трёх | Uchtadan kam | Fewer than three |
+| `bridge` | Дальше пирамида — тело, у которого все боковые грани сходятся в одной вершине | Bundan keyin piramida, barcha yon yoqlari bitta uchda tutashadigan jism | Next comes the pyramid, a body whose lateral faces all meet at one vertex |
+| `lifehack` | Считаешь диагональ — сначала спроси, в грани она или внутри тела | Diagonalni hisoblayotgan bo'lsangiz, avval u yoqdami yoki jism ichida ekanini so'rang | Computing a diagonal, first ask whether it is in a face or inside the body |
+| `sheetTitle` | Шпаргалка | Shpargalka | Cheat sheet |
+| `sheetSrc` | Геометрия, страница сорок пять | Geometriya, qirq beshinchi bet | Geometry, page forty five |
+| `audio.mount` | Урок начался с двух записей про диагональ. В первой было два измерения. | Dars diagonal haqida ikki yozuv bilan boshlandi. Birinchisida ikki o'lcham bor edi. | The lesson began with two readings about the diagonal. The first had two dimensions. |
+| `audio.next` | Два измерения дают диагональ грани, и она действительно есть на чертеже, просто это другой отрезок. Диагональ тела не лежит ни в одной грани, поэтому в неё входят все три измерения. Формула выведена двумя шагами Пифагора, и второй шаг работает только потому, что боковое ребро перпендикулярно основанию. Дальше пирамида, и там боковые грани сходятся в одной вершине. | Ikki o'lcham yoq diagonalini beradi, va u chizmada haqiqatan bor, shunchaki bu boshqa kesma. Jism diagonali birorta yoqda yotmaydi, shuning uchun unga uchala o'lcham kiradi. Formula ikki qadam Pifagor bilan chiqarilgan, va ikkinchi qadam faqat yon qirra asosga perpendikulyar bo'lgani uchun ishlaydi. Keyin piramida, va u yerda yon yoqlar bitta uchda tutashadi. | Two dimensions give a face diagonal, and it really is on the drawing, it is just a different segment. The body diagonal lies in no face, so all three dimensions enter it. The formula is derived in two steps of Pythagoras, and the second step works only because the lateral edge is perpendicular to the base. Next comes the pyramid, where the lateral faces meet at one vertex. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `hook.a` | `1` |
-| `hook.b` | `∞` |
-| `proved` | `∞` |
-| `law` | `S₁: A, B, C ∉ a   →   α` |
-| `sheet.1` | `A, B, C ∉ a   →   α` |
-| `sheet.2` | `A, B ∈ α   →   a ⊂ α` |
-| `sheet.3` | `α ∩ β = a` |
-| `sheet.4` | `a, C ∉ a   →   α` |
-| `sheet.5` | `A, B, C ∈ a   →   ∞` |
+| `hook.a` | `d² = a² + b²` |
+| `hook.b` | `d² = a² + b² + c²` |
+| `proved` | `d² = a² + b² + c²` |
+| `law` | `AA₁ ⊥ ABCD` |
+| `sheet.1` | `ABCD = ▱` |
+| `sheet.2` | `AA₁ ⊥ ABCD` |
+| `sheet.3` | `AC² = a² + b²` |
+| `sheet.4` | `d² = a² + b² + c²` |
+| `sheet.5` | `a = b = c` |

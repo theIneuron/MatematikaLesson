@@ -3,9 +3,9 @@
 //
 // Bu fayl `scripts/grade10-kontent-build.mjs` bilan yasalgan:
 //   manba:  src/books/grade10/DARS31_KONTENT.md
-// Ma'lumot (ovoz, kadrlar, variantlar, razborlar, qoida, yakun) tayyor.
-// EKRAN TANALARI esa `TODO` bo'lib qoldi: asbob va figurani tanlash --
-// matematik qaror, va u avtomatlashtirilmaydi (etalon §5.3).
+// Ma'lumot sborshchik bilan yig'ilgan, EKRAN TANALARI qo'lda (etalon 5.3).
+// Asbob 6A -- `Space`, tekisliklar kubning yoqlari bilan olinadi, burilishni
+// o'quvchi qiladi (`SpinScene`).
 //
 // Tartib: tanalarni to'ldirish, keyin `grade10-lesson-audit.mjs`, keyin
 // tez yarus (2 o'lcham), keyin to'liq prognon. Har yangi figura oldin
@@ -34,36 +34,36 @@ import {
   OrderRow,
   ProbeChain,
   Scene,
+  SpinScene,
 } from './tools.jsx'
-
-import { DomainBand, Plane } from './figures.jsx'
+import { Space } from './figures.jsx'
 
 // Метка урока: `lesson_id` = grade10-<номер>, `lesson_name` = номер + тема
 // ИЗ ПЛАНА дословно.
 const LESSON_NO = 31
 const LESSON_ID = `grade10-${String(LESSON_NO).padStart(2, '0')}`
 const LESSON_TITLE = L(
-  `${LESSON_NO}-dars. Logarifmik tenglamalar`,
-  `Урок ${LESSON_NO}. Логарифм. уравнения`,
-  `Lesson ${LESSON_NO}. Logarithmic equations`,
+  `${LESSON_NO}-dars. Tekisliklarning parallelligi`,
+  `Урок ${LESSON_NO}. Параллельность двух плоскостей`,
+  `Lesson ${LESSON_NO}. Two parallel planes`,
 )
 
-const BLOCK = { label: 'B5', from: 26, to: 37, current: 31 }
+const BLOCK = { label: 'B1', from: 1, to: 7, current: 31 }
 
 const S1 = {
   role: 'hook',
   answer: 'pick4',
-  eyebrow: L('TENGLAMA', 'УРАВНЕНИЕ', 'THE EQUATION'),
-  title: L('Haqiqatda nechta ildiz', 'Сколько корней на самом деле', 'How many roots there really are'),
+  eyebrow: L('IKKI TEKISLIK', 'ДВЕ ПЛОСКОСТИ', 'TWO PLANES'),
+  title: L("Kesishadi yoki yo'q", 'Пересекутся или нет', 'They will meet, or they will not'),
   audio: [
-    A('mount', "Ikki logarifmli tenglama. Yechim ikki son beradi, to'rt va minus ikki.", 'Уравнение с двумя логарифмами. Решение даёт два числа, четыре и минус два.', 'An equation with two logarithms. Solving it gives two numbers, four and minus two.'),
-    A('r1', "Birinchi yozuv ikkala son ham ildiz deydi, chunki ikkalasi ham to'g'ri almashtirishlar bilan olingan.", 'Первая запись говорит, что оба числа корни, ведь оба получены верными преобразованиями.', 'The first reading says both numbers are roots, since both came from correct steps.'),
-    A('r2', 'Ikkinchisi ildiz faqat bitta, ikkinchi son esa javobga yaramaydi deydi.', 'Вторая говорит, что корень только один, а второе число в ответ не годится.', 'The second says there is only one root, and the second number does not belong in the answer.'),
+    A('mount', "Kubning ikki bo'yalgan yog'i. Bu bizning savolimizning ikki tekisligi.", 'Две закрашенные грани куба. Это две плоскости нашего вопроса.', 'Two shaded faces of the cube. These are the two planes of our question.'),
+    A('r1', "Birinchi yozuv ularning umumiy chizig'i bor deydi: chizmada yoqlarning chetlari birlashadi.", 'Первая запись говорит, что общая прямая у них есть: на чертеже края граней сходятся.', 'The first reading says they do have a common line: on the drawing the edges of the faces come together.'),
+    A('r2', "Ikkinchisi umumiy nuqta umuman yo'q deydi, va hech qanday davom ettirish bermaydi.", 'Вторая говорит, что общих точек нет вовсе, и никакое продолжение их не даст.', 'The second says there are no common points at all, and no extension will give any.'),
     A('ask', "Sizningcha qaysi biri to'g'ri? Hozircha shunchaki taxmin qiling.", 'Как думаешь, какая верная? Пока просто предположи.', 'Which one do you think is right? Just make a guess for now.'),
   ],
   probe: {
     question: L("Qaysi yozuv to'g'ri?", 'Какая запись верна?', 'Which reading is correct?'),
-    afterPredict: L("Javobingiz yozib olindi. Endi polosa o'tkazamiz va bu sonlar qayerga tushishini ko'ramiz.", 'Твой ответ записан. Сейчас проведём полосу и посмотрим, куда падают эти числа.', 'Your answer is saved. Now we will draw the band and see where these numbers land.'),
+    afterPredict: L('Javobingiz yozib olindi. Endi sahnani buramiz.', 'Твой ответ записан. Сейчас повернём сцену.', 'Your answer is saved. Now we will turn the scene.'),
     items: [
       { id: 'a', label: L('birinchi', 'первая', 'the first') },
       { id: 'b', label: L('ikkinchi', 'вторая', 'the second'), correct: true },
@@ -73,61 +73,61 @@ const S1 = {
   },
   row: {
     a: {
-      name: L('ikkala son ham yaraydi', 'оба числа подходят', 'both numbers fit'),
-      value: '4;  −2',
+      name: L("to'g'ri chiziq bo'ylab kesishadi", 'пересекутся по прямой', 'they meet along a line'),
+      value: '1',
     },
     b: {
-      name: L('faqat bittasi yaraydi', 'подходит только одно', 'only one of them fits'),
-      value: '4',
+      name: L('hech qachon kesishmaydi', 'не пересекутся никогда', 'they never meet'),
+      value: '0',
     },
   },
-  expr: 'log₂ x + log₂ (x − 2) = 3',
+  expr: ['ABCD', 'A₁B₁C₁D₁'],
 }
 
 const S2 = {
   role: 'support',
   answer: 'pick4',
-  eyebrow: L('TAYANCH', 'ОПОРА', 'WHAT YOU KNOW'),
-  title: L('Tenglamadan oldin uch savol', 'Три вопроса перед уравнением', 'Three questions before the equation'),
+  eyebrow: L('TAYANCH', 'ОПОРА', 'THE BASICS'),
+  title: L('Boshlashdan oldin uchta qisqa savol', 'Три коротких перед началом', 'Three short ones before we start'),
   tag: 'support',
   audio: [
-    A('mount', "Uch qisqa savol. Uchalasi ham bir daqiqadan keyin kerak bo'ladi.", 'Три коротких вопроса. Все три понадобятся через минуту.', 'Three short questions. All three will be needed in a minute.'),
+    A('mount', "Bo'lib o'tgan narsalar uchun uchta savol. Uchalasi alomatda ishlaydi.", 'Три вопроса на то, что уже было. Все три работают в признаке.', 'Three questions on what has already been. All three work in the criterion.'),
   ],
   items: [
     {
       id: 'q1',
       ask: true,
-      prompt: L("Bir asosli logarifmlar yig'indisi nechaga teng?", 'Чему равна сумма логарифмов с одним основанием?', 'What does a sum of logarithms with the same base equal?'),
-      done: 'logₐ b + logₐ c = logₐ (b·c)',
+      prompt: L("Ikki tekislikning umumiy nuqtasi bor. Aksioma bo'yicha ularda yana nima bor?", 'Две плоскости имеют общую точку. Что у них есть ещё по аксиоме?', 'Two planes have a common point. What else do they have by the axiom?'),
+      done: L('Umumiy nuqta butun chiziqni ergashtiradi.', 'Общая точка тянет за собой целую прямую.', 'A common point drags a whole line behind it.'),
       items: [
-        { id: 'a', label: L("ko'paytmaning logarifmiga", 'логарифму произведения', 'the logarithm of the product'), correct: true },
-        { id: 'b', label: L("yig'indining logarifmiga", 'логарифму суммы', 'the logarithm of the sum'), hint: L("Yig'indining logarifmi umuman ochilmaydi, bu logarifm haqidagi darsda tekshirilgan.", 'Логарифм суммы не раскрывается вовсе, это проверено на уроке про логарифм.', 'The logarithm of a sum does not open at all, that was checked in the lesson on logarithms.') },
-        { id: 'c', label: L("logarifmlar ko'paytmasiga", 'произведению логарифмов', 'the product of the logarithms'), hint: L("To'rt va sakkizda tekshiring: besh o'rniga olti chiqadi.", 'Проверь на четырёх и восьми: выйдет шесть вместо пяти.', 'Check on four and eight: you get six instead of five.') },
-        { id: 'd', label: L('bularning hech biriga', 'ничему из этого', 'none of these'), hint: L('Qoida bor, va u daraja xossasidan chiqariladi.', 'Правило есть, и оно выводится из свойства степени.', 'The rule exists and comes from a property of powers.') },
+        { id: 'a', label: L("umumiy to'g'ri chiziq", 'общая прямая', 'a common line'), correct: true },
+        { id: 'b', label: L('faqat shu nuqta', 'только эта точка', 'only that point'), hint: L("Aksioma butun chiziq beradi: tekisliklarning bitta umumiy nuqtasi bo'lmaydi.", 'Аксиома даёт целую прямую: у плоскостей одна общая точка не бывает.', 'The axiom gives a whole line: planes never share just one point.') },
+        { id: 'c', label: L('umumiy tekislik', 'общая плоскость', 'a common plane'), hint: L("Umumiy tekislik ular ustma-ust tushgani bo'lardi.", 'Общая плоскость означала бы, что они совпали.', 'A common plane would mean they coincide.') },
+        { id: 'd', label: L('hech narsa', 'ничего', 'nothing'), hint: L('Nuqta bor, demak «hech narsa» chiqib ketadi.', 'Точка уже есть, значит «ничего» отпадает.', 'A point is already there, so nothing is not an option.') },
       ],
     },
     {
       id: 'q2',
       ask: true,
-      prompt: L('Logarifm belgisi ostida qanday son turishi mumkin?', 'Какое число может стоять под знаком логарифма?', 'Which number can stand under a logarithm sign?'),
-      done: 'x > 0',
+      prompt: L('Kubning AB va AD chiziqlari: ular kesishadimi?', 'Прямые AB и AD куба: они пересекаются?', 'The lines AB and AD of the cube: do they meet?'),
+      done: L("Kesishuvchi chiziqlar alomatda kerak bo'ladi.", 'Пересекающиеся прямые понадобятся в признаке.', 'Intersecting lines will be needed in the criterion.'),
       items: [
-        { id: 'a', label: L('faqat musbat', 'только положительное', 'only a positive one'), correct: true },
-        { id: 'b', label: L('har qanday', 'любое', 'any'), hint: L("Egri chiziq noldan chapda umuman o'tmaydi.", 'Кривая слева от нуля не проходит вовсе.', 'The curve does not pass to the left of zero at all.') },
-        { id: 'c', label: L('noldan boshqa har qanday', 'любое, кроме нуля', 'any except zero'), hint: L('Manfiylar ham tushib qoladi, faqat nol emas.', 'Отрицательные тоже выпадают, а не только ноль.', 'The negatives drop out too, not only zero.') },
-        { id: 'd', label: L('faqat butun', 'только целое', 'only a whole number'), hint: L("Kasr yaraydi, faqat musbat bo'lsa.", 'Дробное годится, лишь бы положительное.', 'A fractional one works, as long as it is positive.') },
+        { id: 'a', label: L('ha, A uchida', 'да, в вершине A', 'yes, at the vertex A'), correct: true },
+        { id: 'b', label: L("yo'q, ular parallel", 'нет, они параллельны', 'no, they are parallel'), hint: L("Parallellarning umumiy nuqtasi yo'q, bularning umumiy uchi bor.", 'Параллельные не имеют общих точек, а у этих общая вершина.', 'Parallel lines share no point, and these share a vertex.') },
+        { id: 'c', label: L("yo'q, ular ayqash", 'нет, они скрещиваются', 'no, they are skew'), hint: L('Ayqashlar bir tekislikda yotmaydi, bu ikkisi esa asosda.', 'Скрещивающиеся не лежат в одной плоскости, а эти две в основании.', 'Skew lines lie in no common plane, and these two are in the base.') },
+        { id: 'd', label: L("chizmaga bog'liq", 'зависит от чертежа', 'it depends on the drawing'), hint: L('Umumiy uch har qanday chizmada bor.', 'Общая вершина есть на любом чертеже.', 'The common vertex is there on any drawing.') },
       ],
     },
     {
       id: 'q3',
       ask: true,
-      prompt: L("Sakkizning ikki asosga ko'ra logarifmi nechaga teng?", 'Чему равен логарифм восьми по основанию два?', 'What is the logarithm of eight to base two?'),
-      done: 'log₂ 8 = 3',
+      prompt: L('Chiziq tekislikka parallel. Ularning nechta umumiy nuqtasi bor?', 'Прямая параллельна плоскости. Сколько у них общих точек?', 'A line is parallel to a plane. How many common points have they?'),
+      done: L("Bu esa o'tgan dars, u ham ishga tushadi.", 'А это прошлый урок, и он тоже пойдёт в дело.', 'And that was the last lesson, it will also come into play.'),
       items: [
-        { id: 'a', label: L('uch', 'три', 'three'), correct: true },
-        { id: 'b', label: L("to'rt", 'четыре', 'four'), hint: L("To'rt bo'lish bilan chiqardi, logarifm esa ko'rsatkich.", 'Четыре вышло бы делением, а логарифм это показатель.', 'Four would come from dividing, and a logarithm is an exponent.') },
-        { id: 'c', label: L('sakkiz', 'восемь', 'eight'), hint: L("Sakkiz belgi ostida turadi, savol esa ko'rsatkich haqida.", 'Восемь стоит под знаком, а спросили про показатель.', 'Eight stands under the sign, and the question was about the exponent.') },
-        { id: 'd', label: L('bir uchdan', 'одна треть', 'one third'), hint: L("Bir uchdan asos va son teskari tartibda bo'lganda chiqadi.", 'Одна треть выходит при обратном порядке основания и числа.', 'One third comes when the base and the number are in the other order.') },
+        { id: 'a', label: L("birorta ham yo'q", 'ни одной', 'none'), correct: true },
+        { id: 'b', label: L('bitta', 'одна', 'one'), hint: L('Bitta umumiy nuqta bu kesishish.', 'Одна общая точка это пересечение.', 'One common point is an intersection.') },
+        { id: 'c', label: L('ikkita', 'две', 'two'), hint: L('Ikki nuqta orqali chiziq tekislikka yotib qolardi.', 'Через две точки прямая легла бы в плоскость.', 'Through two points the line would lie in the plane.') },
+        { id: 'd', label: L("cheksiz ko'p", 'бесконечно много', 'infinitely many'), hint: L("Cheksiz ko'p yotgan chiziqda, bu o'tgan dars.", 'Бесконечно много у лежащей прямой, это прошлый урок.', 'Infinitely many belongs to a lying line, that was the last lesson.') },
       ],
     },
   ],
@@ -136,209 +136,208 @@ const S2 = {
 const S3 = {
   role: 'explain1',
   answer: 'number',
-  eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L('Polosa yechimdan oldin chiziladi', 'Полоса чертится до решения', 'The band is drawn before solving'),
-  tag: 'odz-logarifma',
+  eyebrow: L('SAHNANI BURING', 'ПОВЕРНИ СЦЕНУ', 'TURN THE SCENE'),
+  title: L('Chizmada yoqlarning chetlari birlashadi', 'Края граней на чертеже сходятся', 'On the drawing the edges of the faces come together'),
+  tag: 'ploskost-po-chertezhu',
   show: [
     [
-      L("birinchi logarifm iks noldan katta bo'lishini talab qiladi", 'первый логарифм требует икс больше нуля', 'the first logarithm needs x greater than zero'),
-      L("ikkinchisi iks ikkidan katta bo'lishini talab qiladi", 'второй требует икс больше двух', 'the second needs x greater than two'),
-      'x > 0,   x − 2 > 0',
+      L('Bu rakursda ikki yoqning chetlari deyarli mos tushdi', 'На этом ракурсе края двух граней почти совпали', 'At this angle the edges of the two faces nearly coincide'),
+      L("tekisliklarning umumiy chizig'i bordek ko'rinadi", 'кажется, что у плоскостей есть общая прямая', 'it looks as if the planes have a common line'),
+      L('lekin bu yana ekranga proyeksiya', 'но это снова проекция на экран', 'but this is again the projection onto the screen'),
     ],
     [
-      L("ikkalasi ham to'g'ri bo'lgan joy bo'yalgan", 'закрашено там, где верно и то и другое', 'the shading is where both hold'),
-      L("polosa ikkidan o'ngda boshlanadi", 'полоса начинается справа от двойки', 'the band starts to the right of two'),
-      'x > 2',
+      L('Sahna burildi', 'Сцена повернулась', 'The scene has turned'),
+      L("yoqlar orasida kubning balandligi ko'rinadi", 'между гранями видна высота куба', 'between the faces the height of the cube is visible'),
+      L("va u hech qanday burilishda yo'qolmaydi", 'и она не пропадает ни при каком повороте', 'and it does not vanish at any turn'),
     ],
   ],
-  motion: ['band'],
+  motion: ['spin'],
   audio: [
-    A('mount', "Tenglama tagida polosa paydo bo'ldi. U qaysi iksda ikkala yozuv umuman ma'noga ega ekanini ko'rsatadi.", 'Под уравнением появилась полоса. Она показывает, при каких икс обе записи вообще имеют смысл.', 'A band appeared under the equation. It shows for which x both readings make sense at all.'),
-    A('band', "Birinchi logarifm ostida iks turadi, demak iks noldan katta. Ikkinchisida iks minus ikki, demak iks ikkidan katta. Ikkala shart bir vaqtda bajarilishi kerak, shuning uchun faqat ikkidan o'ngdagi bo'yaladi. Ikkining o'zi ochiq qoldirilgan: unda ikkinchi logarifm nolning logarifmiga aylanadi, bunday son esa yo'q. Polosa birinchi almashtirishdan oldin chizilgan, va bu muhim: keyin kech bo'ladi.", 'Под первым логарифмом стоит икс, значит икс больше нуля. Под вторым икс минус два, значит икс больше двух. Оба условия должны выполняться сразу, поэтому закрашивается только то, что правее двойки. Сама двойка выколота: при ней второй логарифм превращается в логарифм нуля, а такого числа нет. Полоса начерчена до первого преобразования, и это важно: потом будет поздно.', 'Under the first logarithm stands x, so x is greater than zero. Under the second stands x minus two, so x is greater than two. Both conditions must hold at once, so only what is to the right of two gets shaded. Two itself is punched out: there the second logarithm becomes the logarithm of zero, and no such number exists. The band was drawn before the first step, and that matters: afterwards it is too late.'),
-    A('work', "O'zingiz hisoblang. Bo'yalgan polosa qaysi sondan boshlanadi?", 'Посчитай сам. С какого числа начинается закрашенная полоса?', 'Work it out yourself. From which number does the shaded band start?'),
+    A('mount', 'Kubning ikki asosi. Sahnani pastdagi tugmalar bilan buring.', 'Два основания куба. Поверни сцену кнопками ниже.', 'The two bases of the cube. Turn the scene with the buttons below.'),
+    A('spin', "Yoqlar orasidagi oraliqni kuzatib turing. Ularning umumiy chizig'i birorta rakursda yo'q.", 'Смотри на просвет между гранями. Общей прямой у них нет ни на одном ракурсе.', 'Watch the gap between the faces. They have no common line at any angle.'),
+    A('work', 'Darslik qisqa aytadi: kesishmaydigan tekisliklar parallel deb ataladi.', 'Учебник говорит коротко: не пересекающиеся плоскости называются параллельными.', 'The textbook puts it briefly: planes that do not intersect are called parallel.'),
   ],
   work: {
-    prompt: L('Polosa qaysi sondan boshlanadi?', 'С какого числа начинается полоса?', 'From which number does the band start?'),
-    ok: L('Ikkidan. Iks ikkidan katta sharti iks noldan katta shartidan qattiqroq, shuning uchun u yutadi.', 'С двойки. Условие икс больше двух строже, чем икс больше нуля, поэтому побеждает оно.', 'From two. The condition x greater than two is stricter than x greater than zero, so it wins.'),
+    prompt: L('Kubning ikki asosining nechta umumiy nuqtasi bor?', 'Сколько общих точек у двух основаниий куба?', 'How many common points have the two bases of the cube?'),
+    ok: L("To'g'ri. Birorta ham yo'q, va bu tekisliklar parallelligining ta'rifi.", 'Верно. Ни одной, и это определение параллельности плоскостей.', 'Correct. None, and that is the definition of parallel planes.'),
     hint: [
-      L('Har logarifm uchun shartni alohida yozing.', 'Выпиши условие для каждого логарифма отдельно.', 'Write the condition for each logarithm separately.'),
-      L("Ikkala shart bir vaqtda bajarilishi kerak, demak qattiqrog'i olinadi.", 'Оба условия должны выполняться сразу, значит берут более строгое.', 'Both must hold at once, so the stricter one is taken.'),
-      L('Ikki.', 'Два.', 'Two.'),
+      L('Sahnani buring va umumiy nuqtani izlang.', 'Поверни сцену и поищи общую точку.', 'Turn the scene and look for a common point.'),
+      L('Yoqlar orasida doim kubning balandligi turadi.', 'Между гранями всё время стоит высота куба.', 'The height of the cube stands between the faces all the time.'),
+      L('Demak umumiy nuqta nol.', 'Значит общих точек ноль.', 'So the common points are zero.'),
     ],
-    answer: '2',
+    answer: '0',
   },
 }
 
 const S4 = {
   role: 'explain2',
-  answer: 'order',
-  eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L('Har tenglama polosani toraytirmaydi', 'Не всякое уравнение сужает полосу', 'Not every equation narrows the band'),
-  tag: 'odz-logarifma',
+  answer: 'number',
+  eyebrow: L('BIR JUFTLIK KAM', 'ОДНОЙ ПАРЫ МАЛО', 'ONE PAIR IS NOT ENOUGH'),
+  title: L('Juftlik bor, tekisliklar esa kesishadi', 'Пара есть, а плоскости пересекаются', 'The pair is there, and the planes still meet'),
+  tag: 'odna-para-dostatochno',
   show: [
     [
-      L('sodda tenglamada bitta shart', 'у простого уравнения одно условие', 'a simple equation has one condition'),
-      L('polosa noldan boshlanadi', 'полоса начинается от нуля', 'the band starts from zero'),
-      'log₂ x = 3   →   x > 0',
+      L('Asos va yon yoq', 'Основание и боковая грань', 'The base and a side face'),
+      L('ularda parallel juftlik bor: AD va B₁C₁ parallel', 'в них есть пара параллельных прямых: AD и B₁C₁ параллельны', 'they do have a parallel pair: AD and B₁C₁ are parallel'),
+      L('alomatga bir juftlik yetmaydi', 'одной пары признаку не хватает', 'one pair is not enough for the criterion'),
     ],
     [
-      L("yig'indida shartlar ikkita", 'у суммы условий два', 'a sum has two conditions'),
-      L('va polosa qisqaradi', 'и полоса становится короче', 'and the band gets shorter'),
-      'log₂ x + log₂ (x − 2) = 3   →   x > 2',
+      L("Bu ikki yoq BC qirrasi bo'ylab kesishadi", 'Эти две грани пересекаются по ребру BC', 'These two faces meet along the edge BC'),
+      L('demak ular parallel emas', 'значит параллельными они не являются', 'so they are not parallel'),
+      L('alomat IKKI kesishuvchi chiziqni talab qiladi', 'признак требует ДВЕ пересекающиеся прямые', 'the criterion requires TWO intersecting lines'),
     ],
   ],
-  motion: ['two'],
+  motion: ['edge'],
   audio: [
-    A('mount', 'Ikki tenglamani solishtiramiz. Birinchisida bitta logarifm, ikkinchisida ikkita.', 'Сравним два уравнения. В первом один логарифм, во втором два.', 'Let us compare two equations. The first has one logarithm, the second two.'),
-    A('two', "Birinchi tenglamada belgi ostida oddiy iks turadi, demak shart bitta va polosa darrov noldan boshlanadi. Ikkinchisida ikkinchi belgi ostida iks minus ikki turadi, va bu ikkinchi shartni qo'shadi. Polosa o'ngga suriladi va qisqaradi. Logarifm qancha ko'p bo'lsa, polosa shuncha qisqa, va har birini tekshirish kerak.", 'У первого уравнения под знаком стоит просто икс, значит условие одно и полоса начинается сразу от нуля. У второго под вторым знаком стоит икс минус два, и это добавляет второе условие. Полоса сдвигается вправо и становится короче. Чем больше логарифмов, тем короче полоса, и проверять надо каждый.', 'In the first equation plain x stands under the sign, so there is one condition and the band starts right at zero. In the second, x minus two stands under the second sign, and that adds a second condition. The band shifts right and gets shorter. The more logarithms, the shorter the band, and each one must be checked.'),
-    A('work', 'Polosa qanday tartibda chizilsa, qadamlarni shunday joylashtiring.', 'Расставь шаги, в каком порядке чертят полосу.', 'Put the steps in the order the band is drawn.'),
+    A('mount', 'Asos va yon yoqni olamiz. Ularda bir juft parallel chiziq topiladi.', 'Возьмём основание и боковую грань. Одна пара параллельных прямых в них найдётся.', 'Take the base and a side face. One pair of parallel lines will be found in them.'),
+    A('edge', "Bu yoqlar birlashadigan qirraga qarang. Ularning umumiy chizig'i bor.", 'Смотри на ребро, по которому эти грани сходятся. Общая прямая у них есть.', 'Look at the edge where these faces come together. They do have a common line.'),
+    A('work', 'Bir juftlik kam. Alomat ikki chiziqni ataydi, va ular kesishishi kerak.', 'Одной пары мало. Признак называет две прямые, и они должны пересекаться.', 'One pair is not enough. The criterion names two lines, and they must intersect.'),
   ],
-  order: {
-    prompt: L('Qadamlarni tartib bilan joylashtiring.', 'Расставь шаги по порядку.', 'Put the steps in order.'),
-    s1: L('har biri uchun shart', 'условие для каждого', 'a condition for each'),
-    s2: L("qattiqrog'ini olish", 'взять более строгое', 'take the stricter one'),
-    s3: L("polosani bo'yash", 'закрасить полосу', 'shade the band'),
-    s4: L('keyin yechish', 'потом решать', 'then solve'),
-    ok: L('Polosa birinchi chiziladi. Yechimdan boshlansa, ildizlarni tekshiradigan narsa qolmaydi.', 'Полоса чертится первой. Если начать с решения, проверять корни будет нечем.', 'The band is drawn first. Starting with the solution leaves nothing to check the roots against.'),
-    bad: L('Avval shartlar, keyin polosa, va faqat keyin yechim.', 'Сначала условия, потом полоса, и только потом решение.', 'First the conditions, then the band, and only then the solution.'),
-    mark: 'x > 2',
+  work: {
+    prompt: L('ABCD va BCC₁B₁ yoqlarining nechta umumiy qirrasi bor?', 'Сколько общих рёбер у граней ABCD и BCC₁B₁?', 'How many edges do the faces ABCD and BCC₁B₁ share?'),
+    ok: L("To'g'ri. Bitta -- BC qirrasi. Umumiy qirra umumiy chiziq degani, parallel tekisliklarning esa umumiy nuqtasi yo'q.", 'Верно. Одно, это ребро BC. Общее ребро значит общая прямая, а параллельные плоскости общих точек не имеют.', 'Correct. One: the edge BC. A shared edge means a shared line, and parallel planes have no common points.'),
+    hint: [
+      L('Ikkala yoqqa ham tegishli qirrani toping.', 'Найди ребро, которое принадлежит обеим граням.', 'Find the edge belonging to both faces.'),
+      L("Ikkala yoq ham B va C uchlarini o'z ichiga oladi.", 'Обе грани содержат вершины B и C.', 'Both faces contain the vertices B and C.'),
+      L('Demak umumiy qirra bitta, bu BC.', 'Значит общее ребро одно, это BC.', 'So there is one shared edge, and it is BC.'),
+    ],
+    answer: '1',
   },
 }
 
 const S5 = {
   role: 'explain3',
-  answer: 'order',
-  eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L('Logarifm belgilari olinadi', 'Знаки логарифма снимаются', 'The logarithm signs come off'),
-  tag: 'postoronniy-koren',
+  answer: 'number',
+  eyebrow: L('IKKI KESISHUVCHI', 'ДВЕ ПЕРЕСЕКАЮЩИЕСЯ', 'TWO INTERSECTING'),
+  title: L('Chiziqlar kesishishi kerak', 'Прямые должны пересекаться', 'The lines have to intersect'),
+  tag: 'pryamye-ne-peresekayutsya',
   show: [
     [
-      L("yig'indi bitta logarifmga yig'iladi", 'сумма сворачивается в один логарифм', 'the sum folds into one logarithm'),
-      L("o'ngdagi uch ham logarifm", 'справа тройка это тоже логарифм', 'the three on the right is a logarithm too'),
-      'log₂ (x·(x − 2)) = 3',
+      L('Asosda AB va AD ni olamiz', 'В основании берём AB и AD', 'In the base we take AB and AD'),
+      L('ular A uchida kesishadi', 'они пересекаются в вершине A', 'they intersect at the vertex A'),
+      L("va ikki xil yo'nalish beradi", 'и задают два разных направления', 'and they set two different directions'),
     ],
     [
-      L('asoslar bir xil, belgilar olinadi', 'основания одинаковы, знаки снимаются', 'the bases match, the signs come off'),
-      L('oddiy tenglama qoladi', 'остаётся обычное уравнение', 'an ordinary equation is left'),
-      'x·(x − 2) = 8',
+      L('Yuqori yoqda ularga A₁B₁ va A₁D₁ mos keladi', 'В верхней грани им отвечают A₁B₁ и A₁D₁', 'in the top face A₁B₁ and A₁D₁ answer to them'),
+      L("har biri o'ziga mos bo'lganiga parallel", 'каждая параллельна своей', 'each is parallel to its own'),
+      L("alomat bo'yicha tekisliklar parallel", 'по признаку плоскости параллельны', 'by the criterion the planes are parallel'),
     ],
   ],
-  motion: ['drop'],
+  motion: ['pair'],
   audio: [
-    A('mount', "Chap qismni yig'amiz. Logarifmlar yig'indisi ko'paytmaning logarifmi.", 'Свернём левую часть. Сумма логарифмов это логарифм произведения.', 'Let us fold the left side. A sum of logarithms is the logarithm of the product.'),
-    A('drop', "Chapda bitta logarifm chiqdi. O'ngda uch, va uni ham o'sha asosga ko'ra sakkizning logarifmi qilib yozish mumkin. Endi chapda ham o'ngda ham asosi bir xil logarifm turadi, logarifmik funksiya esa monoton, demak bitta qiymatga bitta argument mos keladi. Shuning uchun belgilar olinadi va oddiy tenglama qoladi. Lekin ularni faqat polosa ichida olish mumkin: undan tashqarida logarifmlar umuman yo'q.", 'Слева получился один логарифм. Справа тройка, и её тоже можно записать логарифмом восьми по тому же основанию. Теперь слева и справа стоит логарифм с одинаковым основанием, а логарифмическая функция монотонна, значит одному значению отвечает один аргумент. Поэтому знаки снимаются и остаётся обычное уравнение. Но снимать их можно только внутри полосы: за её пределами логарифмов просто нет.', 'On the left one logarithm came out. On the right is three, and it can be written as the logarithm of eight to the same base. Now a logarithm with the same base stands on both sides, and the logarithmic function is monotone, so one value matches one argument. That is why the signs come off and an ordinary equation is left. But they may come off only inside the band: outside it there are no logarithms at all.'),
-    A('work', 'Belgilar qanday olinsa, qadamlarni shunday joylashtiring.', 'Расставь шаги, как снимаются знаки.', 'Put the steps in the order the signs come off.'),
+    A('mount', 'Endi alomat butunlay. Bir tekislikda ikki kesishuvchi chiziq.', 'Теперь признак целиком. В одной плоскости две пересекающиеся прямые.', 'Now the whole criterion. Two intersecting lines in one plane.'),
+    A('pair', "Juftliklar qanday bo'yalishini kuzatib turing. Pastdagi har chiziqqa tepada o'zining mosi bor.", 'Смотри, как подсвечиваются пары. Каждой прямой снизу отвечает своя сверху.', 'Watch how the pairs light up. Each line below has its own counterpart above.'),
+    A('work', "Ikki parallel chiziq kam bo'lardi: ular bitta yo'nalish beradi.", 'Двух параллельных прямых было бы мало: они задают одно направление.', 'Two parallel lines would not be enough: they set only one direction.'),
   ],
-  order: {
-    prompt: L('Qadamlarni tartib bilan joylashtiring.', 'Расставь шаги по порядку.', 'Put the steps in order.'),
-    s1: L("yig'indini yig'ish", 'свернуть сумму', 'fold the sum'),
-    s2: L("o'ngda ham logarifm", 'справа тоже логарифм', 'a logarithm on the right too'),
-    s3: L('belgilarni olish', 'снять знаки', 'take the signs off'),
-    s4: L('oddiyni yechish', 'решить обычное', 'solve the ordinary one'),
-    ok: L("Belgilar olinadi, chunki asoslar bir xil bo'ldi, funksiya esa monoton.", 'Знаки снимаются, потому что основания совпали, а функция монотонна.', 'The signs come off because the bases matched and the function is monotone.'),
-    bad: L("Avval yig'ish, keyin o'ng qismni keltirish, keyin belgilarni olish.", 'Сначала свернуть, потом привести правую часть, потом снять знаки.', 'First fold, then bring the right side, then take the signs off.'),
-    mark: 'x² − 2x − 8 = 0',
+  work: {
+    prompt: L('Alomatga nechta juft parallel chiziq kerak?', 'Сколько пар параллельных прямых нужно признаку?', 'How many pairs of parallel lines does the criterion need?'),
+    ok: L("To'g'ri. Ikkita, va tekislik ichidagi chiziqlar kesishishi kerak.", 'Верно. Две, и прямые внутри плоскости должны пересекаться.', 'Correct. Two, and the lines inside the plane must intersect.'),
+    hint: [
+      L("Bo'yalishga qarang: nechta juftlik bo'yalgan?", 'Посмотри на подсветку: сколько пар подсвечено?', 'Look at the highlighting: how many pairs are lit?'),
+      L("Bir juftlik o'tgan ekranda bo'ldi va yordam bermadi.", 'Одна пара уже была на прошлом экране и не помогла.', 'One pair was on the previous screen and did not help.'),
+      L('Alomat ikki juftlikni ataydi.', 'Признак называет две пары.', 'The criterion names two pairs.'),
+    ],
+    answer: '2',
   },
 }
 
 const S6 = {
   role: 'explain4',
   answer: 'number',
-  eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L('Almashtirish kvadratga keltiradi', 'Замена сводит к квадратному', 'A substitution reduces it to a quadratic'),
-  tag: 'net-resheniy',
+  eyebrow: L("O'ZINGIZ", 'САМ', 'ON YOUR OWN'),
+  title: L('Yangi holatda alomat', 'Признак на новом случае', 'The criterion on a new case'),
+  tag: 'odna-para-dostatochno',
   show: [
     [
-      L('tenglamada logarifm va uning kvadrati', 'в уравнении логарифм и его квадрат', 'the equation has a logarithm and its square'),
-      L('logarifmni harf bilan belgilaymiz', 'обозначим логарифм буквой', 'let us name the logarithm by a letter'),
-      'log₂² x − 3 log₂ x + 2 = 0',
+      L("Kubning oltita yog'i bor", 'У куба шесть граней', 'A cube has six faces'),
+      L("yoqlar uchta qarama-qarshi juftlikka bo'linadi", 'грани разбиваются на три пары противоположных', 'the faces split into three pairs of opposite ones'),
+      L('juftlik ichida tekisliklar parallel', 'внутри пары плоскости параллельны', 'inside a pair the planes are parallel'),
     ],
     [
-      L('kvadrat tenglama chiqdi', 'получилось квадратное уравнение', 'a quadratic equation came out'),
-      L('ikkala qiymat ham yaraydi', 'оба значения годятся', 'both values fit'),
-      't² − 3t + 2 = 0',
+      L('Turli juftlikdagi har qanday ikki yoq', 'Любые две грани из разных пар', 'any two faces from different pairs'),
+      L('umumiy qirraga ega va kesishadi', 'имеют общее ребро и пересекаются', 'share an edge and intersect'),
+      L('darslikdagi parallelepipedda alomat shunday ishlaydi', 'так работает признак на параллелепипеде из учебника', 'that is how the criterion works on the textbook parallelepiped'),
     ],
   ],
-  motion: ['sub'],
+  motion: ['faces'],
   audio: [
-    A('mount', 'Boshqa tenglama. Unda logarifm birinchi darajada ham, kvadratda ham turadi.', 'Другое уравнение. В нём логарифм стоит и в первой степени, и в квадрате.', 'Another equation. In it the logarithm stands both in the first power and squared.'),
-    A('sub', "Iksning logarifmini te harfi bilan belgilaymiz. Oddiy kvadrat tenglama chiqdi, uning ildizlari bir va ikki. Bu yerda ko'rsatkichli tenglamadan muhim farq bor: u yerda almashtirish qiymati daraja edi va musbat bo'lishi shart edi, logarifm esa har qanday qiymatni oladi. Shuning uchun ikkala ildiz ham yaraydi, va har biri o'zgaruvchiga alohida qaytadi.", 'Обозначим логарифм икс буквой тэ. Получилось обычное квадратное уравнение, его корни один и два. Здесь важное отличие от показательного уравнения: там значение замены было степенью и обязано было быть положительным, а логарифм принимает любые значения. Поэтому оба корня годятся, и каждый возвращается к переменной отдельно.', 'Let us call the logarithm of x by the letter t. An ordinary quadratic came out, its roots are one and two. Here is an important difference from the exponential equation: there the substituted value was a power and had to be positive, while a logarithm takes any value. So both roots fit, and each returns to the variable separately.'),
-    A('work', "O'zingiz hisoblang. Almashtirishning nechta ildizi yaraydi?", 'Посчитай сам. Сколько корней замены годится?', 'Work it out yourself. How many roots of the substitution fit?'),
+    A('mount', "Endi o'zingiz. Alomat o'sha, hol yangi.", 'Теперь сам. Признак тот же, случай новый.', 'Now on your own. The same criterion, a new case.'),
+    A('faces', "Yoqlar juftlab ko'rib chiqiladi. Umumiy qirra qayerda borligini kuzatib turing.", 'Грани перебираются парами. Смотри, где есть общее ребро.', 'The faces are gone through in pairs. Watch where a common edge appears.'),
+    A('work', "Umumiy nuqtasi umuman yo'q yoq juftliklarini sanang.", 'Считай пары граней, у которых общих точек нет вовсе.', 'Count the pairs of faces with no common point at all.'),
   ],
   work: {
-    prompt: L('Almashtirishning nechta ildizi yaraydi?', 'Сколько корней замены годится?', 'How many roots of the substitution fit?'),
-    ok: L("Ikkita. Logarifm har qanday qiymatni oladi, shuning uchun tashlaydigan narsa yo'q, ko'rsatkichli tenglamadan farqli.", 'Два. Логарифм принимает любые значения, поэтому отбрасывать нечего, в отличие от показательного уравнения.', 'Two. A logarithm takes any value, so there is nothing to drop, unlike in an exponential equation.'),
+    prompt: L("Kubning nechta juft parallel yog'i bor?", 'Сколько пар параллельных граней у куба?', 'How many pairs of parallel faces has a cube?'),
+    ok: L("To'g'ri. Uch juftlik: pol va shift, va ikki juft qarama-qarshi devor.", 'Верно. Три пары: пол и потолок, и две пары противоположных стен.', 'Correct. Three pairs: the floor and the ceiling, and two pairs of opposite walls.'),
     hint: [
-      L('Logarifmda taqiqlangan qiymatlar bormi, tekshiring.', 'Проверь, есть ли у логарифма запретные значения.', 'Check whether a logarithm has forbidden values.'),
-      L("Logarifmik funksiyaning qiymatlar to'plami hamma son.", 'Множество значений логарифмической функции это все числа.', 'The range of a logarithmic function is all numbers.'),
-      L('Ikkita.', 'Два.', 'Two.'),
+      L("Bir yoqni oling va u bilan umumiy qirrasi yo'q yoqni toping.", 'Возьми грань и найди ту, что не имеет с ней общего ребра.', 'Take a face and find the one with no common edge with it.'),
+      L('Har yoqda bunday yoq aynan bitta.', 'У каждой грани такая ровно одна.', 'Each face has exactly one such face.'),
+      L("Oltita yoq juftlikka bo'linadi: ular uchta.", 'Шесть граней делятся на пары: их три.', 'Six faces split into pairs: there are three.'),
     ],
-    answer: '2',
+    answer: '3',
   },
 }
 
 const S7 = {
   role: 'explain5',
   answer: 'number',
-  eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L('Ildiz polosaga tushadi', 'Корень падает на полосу', 'The root lands on the band'),
-  tag: 'postoronniy-koren',
+  eyebrow: L('CHEGARA', 'ГРАНИЦА', 'THE EDGE'),
+  title: L('Tekisliklar parallel, chiziqlar shart emas', 'Плоскости параллельны — прямые не обязательно', 'The planes are parallel, the lines need not be'),
+  tag: 'ploskosti-parallelny-vsem',
   show: [
     [
-      L('kvadrat ikki son berdi', 'квадратное дало два числа', 'the quadratic gave two numbers'),
-      L("to'rt va minus ikki", 'четыре и минус два', 'four and minus two'),
-      'x² − 2x − 8 = 0   →   4;  −2',
+      L('Asoslar parallel, bu isbotlangan', 'Основания параллельны, это уже доказано', 'The bases are parallel, that is already proved'),
+      L('ularda ikki chiziq olingan: pastda AB, tepada A₁D₁', 'в них взяты две прямые: AB снизу и A₁D₁ сверху', 'two lines are taken in them: AB below and A₁D₁ above'),
+      L('ular bir-biriga parallelmi', 'параллельны ли они друг другу', 'are they parallel to each other'),
     ],
     [
-      L("to'rt bo'yalganga tushdi", 'четвёрка попала в закрашенное', 'four landed in the shading'),
-      L("minus ikki tashqarida qoldi va so'ndi", 'минус два остался снаружи и погас', 'minus two stayed outside and faded'),
-      'x = 4',
+      L("Bu juftlikning umumiy tekisligi yo'q", 'Общей плоскости у этой пары нет', 'this pair has no common plane'),
+      L('demak ular ayqash, parallel emas', 'значит они скрещиваются, а не параллельны', 'so they are skew, not parallel'),
+      L('tekisliklar parallelligi buni taqiqlamaydi', 'параллельность плоскостей этого не запрещает', 'the parallelism of the planes does not forbid it'),
     ],
   ],
-  motion: ['fall'],
+  motion: ['skew'],
   audio: [
-    A('mount', "Dars boshidagi tenglamaga qaytamiz. Kvadrat ikki son berdi, to'rt va minus ikki.", 'Вернёмся к уравнению с начала урока. Квадратное дало два числа, четыре и минус два.', 'Back to the equation from the start of the lesson. The quadratic gave two numbers, four and minus two.'),
-    A('fall', "Ikkala sonni polosaga tushiramiz. To'rt bo'yalganga tushadi, demak bu ildiz. Minus ikki chapda uzoqda, polosadan tashqarida tushadi va so'nadi. E'tibor bering: u kvadrat tenglamaning yechimi bo'lishdan to'xtamadi. U dastlabki tenglamaning yechimi hech qachon bo'lmagan, chunki unda logarifm umuman yo'q. Polosa nega yechimdan oldin chizilishi shundan.", 'Опустим оба числа на полосу. Четвёрка попадает в закрашенное, значит это корень. Минус два падает далеко слева, вне полосы, и гаснет. Обрати внимание: он не перестал быть решением квадратного уравнения. Он никогда и не был решением исходного, потому что при нём логарифма просто нет. Вот почему полосу чертят до решения, а не после.', 'Let us drop both numbers onto the band. Four lands in the shading, so it is a root. Minus two lands far to the left, outside the band, and fades. Note: it did not stop being a solution of the quadratic. It never was a solution of the original equation, because there the logarithm does not exist at all. That is why the band is drawn before solving, not after.'),
-    A('work', "O'zingiz hisoblang. Ikki sondan nechtasi polosaga tushdi?", 'Посчитай сам. Сколько чисел из двух попало в полосу?', 'Work it out yourself. How many of the two numbers landed in the band?'),
+    A('mount', "Tekisliklar parallel. Bu birining har chizig'i ikkinchisining har chizig'iga parallel degani emas.", 'Плоскости параллельны. Это не значит, что любая прямая одной параллельна любой прямой другой.', 'The planes are parallel. That does not mean any line of one is parallel to any line of the other.'),
+    A('skew', "Bo'yalgan juftlikka qarang. Ular uchun umumiy tekislik o'tkazilmaydi.", 'Смотри на подсвеченную пару. Общая плоскость для них не проводится.', 'Look at the highlighted pair. No common plane can be drawn for them.'),
+    A('work', "Yuqori yoqning nechta chizig'i pastdagi AB qirrasiga parallel ekanini hisoblang.", 'Посчитай, сколько прямых верхней грани параллельны нижнему ребру AB.', 'Count how many lines of the top face are parallel to the bottom edge AB.'),
   ],
   work: {
-    prompt: L('Nechta son polosaga tushdi?', 'Сколько чисел попало в полосу?', 'How many numbers landed in the band?'),
-    ok: L("Bitta. Minus ikki ikkidan chapda yotadi, u yerda logarifm yo'q, demak u ildiz bo'la olmasdi.", 'Одно. Минус два лежит левее двойки, а там логарифма нет, значит корнем он быть не мог.', 'One. Minus two lies to the left of two, and there is no logarithm there, so it could not be a root.'),
+    prompt: L('Yuqori yoqning nechta qirrasi AB qirrasiga parallel?', 'Сколько рёбер верхней грани параллельны ребру AB?', 'How many edges of the top face are parallel to the edge AB?'),
+    ok: L("To'g'ri. Ikkita: A₁B₁ va D₁C₁. Qolgan ikkitasi u bilan ayqash.", 'Верно. Два: A₁B₁ и D₁C₁. Другие два с ним скрещиваются.', 'Correct. Two: A₁B₁ and D₁C₁. The other two are skew to it.'),
     hint: [
-      L("Bo'yalgan joy qayerdan boshlanishini ko'ring.", 'Посмотри, где начинается закрашенное.', 'Look where the shading begins.'),
-      L("Polosa ikkidan o'ngda boshlanadi.", 'Полоса начинается справа от двойки.', 'The band starts to the right of two.'),
-      L('Bitta.', 'Одно.', 'One.'),
+      L("Yuqori yoqning o'sha yo'nalishdagi qirralarini toping.", 'Найди рёбра верхней грани того же направления.', 'Find the top edges of the same direction.'),
+      L("Ikki qirra bo'ylab, ikkitasi ko'ndalang.", 'Два ребра идут вдоль, два поперёк.', 'Two edges run along, two across.'),
+      L("Bo'ylab A₁B₁ va D₁C₁ boradi.", 'Вдоль идут A₁B₁ и D₁C₁.', 'Along run A₁B₁ and D₁C₁.'),
     ],
-    answer: '1',
+    answer: '2',
   },
 }
 
 const S8 = {
   role: 'rule',
   answer: 'pick2',
-  eyebrow: L('QOIDA', 'ПРАВИЛО', 'RULE'),
-  title: L('Logarifmik tenglama', 'Логарифмическое уравнение', 'The logarithmic equation'),
-  tag: 'odz-logarifma',
+  title: L("Ta'rif va alomat", 'Определение и признак', 'The definition and the criterion'),
+  tag: 'pryamye-ne-peresekayutsya',
   motion: ['rule'],
   audio: [
-    A('mount', 'Tushuntirish tugadi. Qoidadan oldin bitta savol.', 'Объяснение закончилось. Перед правилом один вопрос.', 'The explanation is over. One question before the rule.'),
-    A('rule', "Polosa ekranda qoladi, va qoida yonida ochiladi. Begona ildiz hisob xatosi emas, boshidanoq joiz qiymatlar sohasida bo'lmagan son.", 'Полоса остаётся на экране, и правило открывается рядом. Посторонний корень это не ошибка вычислений, а число, которого не было в области допустимых значений с самого начала.', 'The band stays on the screen and the rule opens beside it. An extraneous root is not a computation error but a number that was not in the admissible set from the very start.'),
+    A('mount', 'Kartochkani ochishdan oldin bitta savolga javob bering.', 'Прежде чем открыть карточку, ответь на один вопрос.', 'Before the card opens, answer one question.'),
+    A('rule', "Kartochka darslik so'zlari bilan gapiradi. Alomatda ikki talab bor, ikkinchisi kesishish haqida.", 'Карточка говорит словами учебника. В признаке два требования, и второе про пересечение.', 'The card speaks in the words of the textbook. The criterion has two demands, and the second is about intersecting.'),
   ],
   probe: {
-    question: L("Begona ildiz nega paydo bo'ladi?", 'Почему посторонний корень появляется?', 'Why does an extraneous root appear?'),
+    question: L("Tekislikdagi ikki chiziq qanday bo'lishi kerak?", 'Какими должны быть две прямые в плоскости?', 'What must the two lines in the plane be?'),
     items: [
-      { id: 'a', label: L('u boshidanoq joiz emas edi', 'он не был допустимым с самого начала', 'it was not admissible from the start'), correct: true },
-      { id: 'b', label: L('yechishda xato qilingan', 'при решении сделали ошибку', 'a mistake was made while solving'), hint: L("Xato yo'q: hamma qadam to'g'ri. Son shunchaki polosaga kirmaydi.", 'Ошибки нет: все шаги верны. Число просто не входит в полосу.', 'There is no mistake: every step is correct. The number simply is not in the band.') },
+      { id: 'a', label: L('kesishuvchi', 'пересекающимися', 'intersecting'), correct: true },
+      { id: 'b', label: L('parallel', 'параллельными', 'parallel'), hint: L("Ikki parallel bitta yo'nalish beradi, va tekislik uning atrofida hali buriladi.", 'Две параллельные задают одно направление, и плоскость вокруг него ещё поворачивается.', 'Two parallel lines set one direction, and the plane still turns around it.') },
     ],
   },
   rule: {
-    lawLabel: L('Qoida', 'Правило', 'The rule'),
+    lawLabel: L('Ikki tekislik', 'Две плоскости', 'Two planes'),
     lines: [
-      L("Noma'lum logarifmosti ifodada yoki logarifm asosida qatnashgan tenglama logarifmik tenglama deyiladi.", 'Уравнение, где неизвестное стоит под знаком логарифма или в его основании, называют логарифмическим.', 'An equation with the unknown under the logarithm sign or in its base is called logarithmic.'),
-      L('Joiz qiymatlar polosasi birinchi almashtirishdan oldin chiziladi.', 'Полосу допустимых значений чертят до первого преобразования.', 'The band of admissible values is drawn before the first step.'),
-      L('Topilgan ildiz faqat polosaga tushsa qabul qilinadi.', 'Найденный корень принимают, только если он попал в полосу.', 'A found root is accepted only if it landed in the band.'),
+      L('103-bet. Kesishmaydigan tekisliklar parallel tekisliklar deb ataladi.', 'Стр. 103. Не пересекающиеся плоскости называются параллельными.', 'Page 103. Planes that do not intersect are called parallel.'),
+      L("103-bet, 3.7-teorema. Bir tekislikdagi kesishuvchi ikki chiziq ikkinchisidagi ikki chiziqqa parallel bo'lsa, tekisliklar parallel.", 'Стр. 103, теорема 3.7. Две пересекающиеся прямые одной плоскости параллельны двум прямым другой — плоскости параллельны.', 'Page 103, theorem 3.7. Two intersecting lines of one plane parallel to two lines of the other make the planes parallel.'),
+      L('103-bet. Xonaning poli va shifti, qarama-qarshi devorlar -- darslik misollari.', 'Стр. 103. Пол и потолок комнаты, противоположные стены — примеры учебника.', 'Page 103. The floor and ceiling of a room, opposite walls: the textbook examples.'),
     ],
-    law: 'logₐ f(x) = logₐ g(x)   →   f(x) = g(x),   f(x) > 0',
+    law: 'a ∩ b = A,   a ∥ a₁,   b ∥ b₁   ⇒   α ∥ β',
   },
 }
 
@@ -346,20 +345,20 @@ const S9 = {
   role: 'drill',
   answer: 'match',
   format: 'match',
-  eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
-  title: L('Tenglama va uning ildizi', 'Уравнение и его корень', 'An equation and its root'),
-  tag: 'postoronniy-koren',
+  eyebrow: L("TO'RT JUFTLIK", 'ЧЕТЫРЕ ПАРЫ', 'FOUR PAIRS'),
+  title: L("Yoq juftligini o'z holi bilan biriktiring", 'Соедини пару граней с её случаем', 'Match each pair of faces with its case'),
+  tag: 'ploskost-po-chertezhu',
   audio: [
-    A('mount', "To'rt tenglama va to'rt ildiz. Ularni birlashtiring.", 'Четыре уравнения и четыре корня. Соедини их.', 'Four equations and four roots. Match them.'),
+    A('mount', "Bitta kubning to'rt juft yog'i. Umumiy qirrani izlang.", 'Четыре пары граней одного куба. Ищи общее ребро.', 'Four pairs of faces of one cube. Look for a common edge.'),
   ],
   match: {
-    prompt: L('Tenglamani ildizi bilan birlashtiring.', 'Соедини уравнение с его корнем.', 'Match each equation with its root.'),
-    ok: L("Har ildiz o'z polosasi ichida yotadi. Polosalarning chegaralari har xil, va belgi ostida turganiga qarash kerak.", 'Каждый корень лежит внутри своей полосы. Границы у полос разные, и смотреть надо на то, что стоит под знаком.', 'Every root lies inside its own band. The bands have different edges, and what matters is what stands under the sign.'),
-    left: ['log₂ x = 3', 'log₂ (x − 5) = 1', 'lg (2x − 2) = lg (x + 2)', 'log₃ x = 0'],
-    a: '8',
-    b: '7',
-    c: '4',
-    d: '1',
+    prompt: L('Bitta kubning yoq juftliklari', 'Пары граней одного куба', 'Pairs of faces of one cube'),
+    a: L('parallel', 'параллельны', 'parallel'),
+    b: L("BC bo'ylab kesishadi", 'пересекаются по BC', 'meet along BC'),
+    c: L("AA₁ bo'ylab kesishadi", 'пересекаются по AA₁', 'meet along AA₁'),
+    d: L('bu bir xil tekislik', 'это одна и та же плоскость', 'this is one and the same plane'),
+    ok: L("To'rttasi ham to'g'ri. Umumiy qirra savolga darrov javob beradi.", 'Все четыре верно. Общее ребро сразу отвечает на вопрос.', 'All four correct. A shared edge answers the question at once.'),
+    left: ['ABCD, A₁B₁C₁D₁', 'ABCD, BCC₁B₁', 'ABB₁A₁, ADD₁A₁', 'ABCD, ABC'],
   },
 }
 
@@ -367,23 +366,22 @@ const S10 = {
   role: 'guided',
   answer: 'order',
   format: 'order-steps',
-  eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
-  title: L('Qadam bilan yeching', 'Реши по шагам', 'Solve it step by step'),
-  tag: 'odz-logarifma',
+  eyebrow: L('QADAMLAB', 'ПО ШАГАМ', 'STEP BY STEP'),
+  title: L("Alomat bo'yicha isbotlang", 'Докажи по признаку', 'Prove it by the criterion'),
+  tag: 'pryamye-ne-peresekayutsya',
   audio: [
-    A('mount', "To'rtta qadam. Tartibini o'zingiz qo'yasiz.", 'Четыре шага. Порядок ставишь ты.', 'Four steps. You put them in order.'),
+    A('mount', 'Kubning asoslari parallel ekanini isbotlaymiz. Alomat ikki kesishuvchi chiziqni ataydi.', 'Докажем, что основания куба параллельны. Признак называет две пересекающиеся прямые.', 'Let us prove the bases of the cube are parallel. The criterion names two intersecting lines.'),
   ],
   order: {
-    prompt: L('Qadamlarni tartib bilan joylashtiring.', 'Расставь шаги по порядку.', 'Put the steps in order.'),
-    s1: L('polosani chizish', 'начертить полосу', 'draw the band'),
-    s2: L('belgilarni olish', 'снять знаки', 'take the signs off'),
-    s3: L('oddiyni yechish', 'решить обычное', 'solve the ordinary one'),
-    s4: L("polosa bo'yicha tekshirish", 'проверить по полосе', 'check against the band'),
-    ok: L("Polosa birdan boshlanadi, ildiz esa to'rtga teng, demak u yaraydi.", 'Полоса начинается с единицы, а корень равен четырём, значит он подходит.', 'The band starts at one, and the root is four, so it fits.'),
-    bad: L('Avval polosa, keyin belgilar, keyin yechim, oxirida tekshirish.', 'Сначала полоса, потом знаки, потом решение, и проверка в конце.', 'First the band, then the signs, then the solution, and the check at the end.'),
-    mark: 'x = 4',
+    prompt: L('Tartib bilan joylashtiring', 'Расставь по порядку', 'Put them in order'),
+    s1: L('asosda ikki kesishuvchi chiziq olamiz', 'в основании берём две пересекающиеся прямые', 'in the base we take two intersecting lines'),
+    s2: L('har biriga yuqori yoqda parallel topamiz', 'каждой находим параллельную в верхней грани', 'for each we find a parallel one in the top face'),
+    s3: L("alomat bo'yicha tekisliklar parallel", 'по признаку плоскости параллельны', 'by the criterion the planes are parallel'),
+    ok: L("To'g'ri. Avval kesishuvchi chiziqlar, keyin juftliklari, keyin xulosa.", 'Верно. Сначала пересекающиеся прямые, потом их пары, и только потом вывод.', 'Correct. First the intersecting lines, then their pairs, and only then the conclusion.'),
+    bad: L('Tartib boshqacha. Juftliklar chiziqlar tanlangandan keyin izlanadi.', 'Порядок другой. Пары ищутся уже после того, как выбраны прямые.', 'The order is different. The pairs are looked for after the lines are chosen.'),
+    mark: 'ABCD ∥ A₁B₁C₁D₁',
   },
-  expr: 'lg (2x − 2) = lg (x + 2)',
+  expr: ['ABCD', 'A₁B₁C₁D₁'],
 }
 
 const S11 = {
@@ -391,30 +389,30 @@ const S11 = {
   answer: 'number',
   format: 'number+order',
   noTool: true,
-  eyebrow: L('ASBOBSIZ', 'БЕЗ ПРИБОРА', 'NO INSTRUMENT'),
-  title: L('Polosasiz yeching', 'Реши без полосы', 'Solve it without the band'),
+  eyebrow: L("QOG'OZDA", 'НА БУМАГЕ', 'ON PAPER'),
+  title: L('Asbobsiz', 'Без прибора', 'No instrument'),
   tag: 'bumaga',
   audio: [
-    A('mount', "Bu ekranda polosa yo'q. Imtihonda ham bo'lmaydi.", 'На этом экране полосы нет. На экзамене её тоже не будет.', 'There is no band on this screen. There will be none at the exam either.'),
-    A('next', "Javobni o'zingiz yozing.", 'Ответ запиши сам.', 'Type the answer yourself.'),
+    A('mount', "Bu yerda asbob yo'q. Avval yozuvlar tartibi, keyin javob.", 'Прибора здесь нет. Сначала порядок записей, потом ответ.', 'There is no instrument here. First the order of the lines, then the answer.'),
+    A('next', "Endi masalaning o'zi. Sonni yozing.", 'Теперь сама задача. Пиши число.', 'Now the task itself. Write the number.'),
   ],
-  task: {
-    ok: L("To'qqiz. Logarifm uchga teng, demak iks minus bir sakkizga teng.", 'Девять. Логарифм равен трём, значит икс минус один равно восьми.', 'Nine. The logarithm is three, so x minus one equals eight.'),
-    hint: [
-      L('Logarifm uchga teng, demak belgi ostida ikki kubda turadi.', 'Логарифм равен трём, значит под знаком стоит два в кубе.', 'The logarithm is three, so two cubed stands under the sign.'),
-      L('Iks minus bir sakkizga teng.', 'Икс минус один равно восьми.', 'X minus one equals eight.'),
-      L("To'qqiz.", 'Девять.', 'Nine.'),
-    ],
-    prompt: 'log₂ (x − 1) = 3   →   x = ?',
-    answer: '9',
-  },
   order: {
-    prompt: L("Polosaning chap chegarasi o'sishi bo'yicha joylashtiring.", 'Расставь по возрастанию левой границы полосы.', 'Arrange by increasing left edge of the band.'),
-    title: L('Qaysi tenglamaning polosasi oldinroq boshlanadi?', 'У какого уравнения полоса начинается раньше?', 'Which equation has the band starting earlier?'),
-    ok: L("Belgi ostida qancha ko'p ayirilsa, polosa shuncha o'ngroqda boshlanadi.", 'Чем больше вычитают под знаком, тем правее начинается полоса.', 'The more is subtracted under the sign, the further right the band starts.'),
-    bad: L('Har biri uchun shartni yozing va chegaralarni solishtiring.', 'Выпиши условие для каждого и сравни границы.', 'Write the condition for each and compare the edges.'),
-    items: ['log₂ x', 'log₂ (x − 1)', 'log₂ (x − 5)', 'log₂ (x − 9)'],
-    answer: 'log₂ x  log₂ (x − 1)  log₂ (x − 5)  log₂ (x − 9)',
+    prompt: L("Yozuvlarni isbotda paydo bo'lish tartibida joylashtiring", 'Расставь записи в том порядке, в каком они появляются в доказательстве', 'Put the lines in the order they appear in the proof'),
+    title: L('Yozuvlar tartibi', 'Порядок записей', 'The order of the lines'),
+    ok: L("To'g'ri. Shartlar tepada, xulosa pastda.", 'Верно. Условия сверху, вывод внизу.', 'Correct. The conditions on top, the conclusion below.'),
+    bad: L("Tartib to'g'ri emas. Xulosa oxirida yoziladi.", 'Не тот порядок. Вывод пишется последним.', 'Wrong order. The conclusion is written last.'),
+    items: ['AB ∩ AD = A', 'AB ∥ A₁B₁', 'AD ∥ A₁D₁', 'ABCD ∥ A₁B₁C₁D₁'],
+    answer: 'AB ∩ AD = A  AB ∥ A₁B₁  AD ∥ A₁D₁  ABCD ∥ A₁B₁C₁D₁',
+  },
+  task: {
+    prompt: L("Kubning nechta yog'i ABCD tekisligini kesib o'tadi?", 'Сколько граней куба пересекают плоскость ABCD?', 'How many faces of the cube meet the plane ABCD?'),
+    ok: L("To'g'ri. To'rt yon yoq, har biri asosning o'z qirrasi bo'ylab.", 'Верно. Четыре боковых грани, каждая по своему ребру основания.', 'Correct. The four side faces, each along its own base edge.'),
+    hint: [
+      L("Asosning o'zini sanamaymiz: bu o'sha tekislik.", 'Само основание не считаем: это та же плоскость.', 'We do not count the base itself: it is the same plane.'),
+      L('Yuqori yoq asosga parallel.', 'Верхняя грань основанию параллельна.', 'The top face is parallel to the base.'),
+      L("Yon yoqlar qoladi, ular to'rtta.", 'Остаются боковые, их четыре.', 'The side faces remain, and there are four.'),
+    ],
+    answer: '4',
   },
 }
 
@@ -423,33 +421,33 @@ const S12 = {
   answer: 'number',
   format: 'audit',
   eyebrow: L('TUZOQ', 'ЛОВУШКА', 'THE TRAP'),
-  title: L('Javobda ortiqchasi bor. Qayerda?', 'Ответ лишний. Где?', 'The answer has an extra. Where?'),
+  title: L("Hamma qadam to'g'ri, xulosa noto'g'ri", 'Все шаги верны, вывод неверен', 'Every step is right, the conclusion is wrong'),
   tag: 'check',
   audio: [
-    A('mount', 'Masala. Ikki logarifmli tenglamani yechish.', 'Задача. Решить уравнение с двумя логарифмами.', 'A task. Solve an equation with two logarithms.'),
-    A('next', "To'rt qator, hammasi to'g'ri ko'rinadi. Birinchi xato qatorni qidiring.", 'Четыре строки, все выглядят верными. Ищи первую неверную.', 'Four lines, all look right. Look for the first wrong one.'),
+    A('mount', "Isbot to'rt satrda yozilgan. Xato paydo bo'lgan satrni toping.", 'Доказательство выписано в четыре строки. Найди ту, где появилась ошибка.', 'The proof is written in four lines. Find the one where the mistake appeared.'),
+    A('next', 'Endi alomat talab qilgan sonni yozing.', 'Теперь запиши число, которое требует признак.', 'Now write the number the criterion requires.'),
   ],
   hint: {
-    r1: L('Bu qator shartni shunchaki qaytadan yozadi.', 'Эта строка просто переписывает условие.', 'This line just rewrites the task.'),
-    r2: L("Yig'indini yig'ish to'g'ri bajarilgan.", 'Свёртка суммы сделана верно.', 'The sum was folded correctly.'),
-    r3: L("Kvadrat tenglama to'g'ri yechilgan.", 'Квадратное уравнение решено верно.', 'The quadratic was solved correctly.'),
+    r1: L("To'g'ri: bu ikki qirra haqiqatan parallel.", 'Верно: эти два ребра действительно параллельны.', 'Correct: these two edges really are parallel.'),
+    r2: L("To'g'ri: har biri o'z yog'ida yotadi.", 'Верно: каждое лежит в своей грани.', 'Correct: each lies in its own face.'),
+    r3: L("Bu ham to'g'ri, juftlik halol topilgan.", 'Тоже верно, пара найдена честно.', 'Also correct, the pair was found honestly.'),
   },
-  proof: L('Bu yerda javobga ikkala son yozilgan, ulardan biri esa polosadan tashqarida.', 'Здесь в ответ записали оба числа, а одно из них лежит вне полосы.', 'Here both numbers went into the answer, and one of them lies outside the band.'),
+  proof: L('Xato oxirgi satrda. Alomatga IKKI kesishuvchi chiziq kerak, topilgani esa bir juftlik.', 'Ошибка в последней строке. Признаку нужны ДВЕ пересекающиеся прямые, а найдена одна пара.', 'The mistake is in the last line. The criterion needs TWO intersecting lines, and only one pair was found.'),
   entry: {
-    prompt: L('Javobdagi qaysi son ortiqcha?', 'Какое число в ответе лишнее?', 'Which number in the answer is the extra one?'),
-    ok: L("Minus uch. Unda logarifm belgisi ostida manfiy son turadi, bunday logarifm esa yo'q.", 'Минус три. При нём под знаком логарифма стоит отрицательное число, а такого логарифма нет.', 'Minus three. There a negative number stands under the logarithm sign, and no such logarithm exists.'),
+    prompt: L('Alomat nechta juft parallel chiziqni talab qiladi?', 'Сколько пар параллельных прямых требует признак?', 'How many pairs of parallel lines does the criterion require?'),
+    ok: L("To'g'ri. Ikkita, va tekislik ichidagi chiziqlar kesishishi kerak.", 'Верно. Две, и прямые внутри плоскости должны пересекаться.', 'Correct. Two, and the lines inside the plane must intersect.'),
     hint: [
-      L("Har sonni logarifm belgisi ostiga qo'ying.", 'Подставь каждое число под знак логарифма.', 'Substitute each number under the logarithm sign.'),
-      L('Ulardan biri manfiy ifoda beradi.', 'Одно из них даёт отрицательное выражение.', 'One of them gives a negative expression.'),
-      L('Minus uch.', 'Минус три.', 'Minus three.'),
+      L('Qoida kartochkasiga qarang.', 'Посмотри на карточку правила.', 'Look at the rule card.'),
+      L("Bir juftlik kam: bu to'rtinchi ekranda bo'ldi.", 'Одной пары мало: это было на экране четыре.', 'One pair is not enough: that was on screen four.'),
+      L('Alomat har tekislikda ikki chiziqni ataydi.', 'Признак называет две прямые в каждой плоскости.', 'The criterion names two lines in each plane.'),
     ],
-    answer: '−3',
+    answer: '2',
   },
   row: {
-    r1: 'log₃ x + log₃ (x + 2) = 1',
-    r2: 'log₃ (x·(x + 2)) = 1',
-    r3: 'x² + 2x − 3 = 0',
-    r4: 'x = 1;  x = −3',
+    r1: 'AD ∥ B₁C₁',
+    r2: 'AD ⊂ ABCD,   B₁C₁ ⊂ BCC₁B₁',
+    r3: 'AD ∥ B₁C₁ — ✔',
+    r4: 'ABCD ∥ BCC₁B₁',
   },
   answerId: 'r4',
 }
@@ -458,33 +456,34 @@ const S13 = {
   role: 'transfer',
   answer: 'number',
   format: 'number+multi',
-  eyebrow: L("KO'CHIRISH", 'ПЕРЕНОС', 'TRANSFER'),
-  title: L("Yozuv bo'yicha chegarani toping", 'По записи найди границу', 'From the reading back to the edge'),
+  eyebrow: L('TESKARI MASALA', 'ОБРАТНАЯ ЗАДАЧА', 'THE REVERSE TASK'),
+  title: L('Endi siz izlaysiz', 'Теперь ищешь ты', 'Now you do the searching'),
   tag: 'obratnoe',
   audio: [
-    A('mount', 'Endi teskari masala. Yozuv berilgan, polosaning chegarasini topish kerak.', 'Теперь обратная задача. Дана запись, найти надо границу полосы.', 'Now the inverse task. A reading is given, and the edge of the band must be found.'),
-    A('work', 'Avval chegarani yozing, keyin polosadan tashqaridagi sonlarni belgilaysiz.', 'Сначала запиши границу, потом отметишь числа вне полосы.', 'First type the edge, then you will mark the numbers outside the band.'),
+    A('mount', "Bungacha juftliklarni sizga berardilar. Endi yoqlarni o'zingiz ko'rib chiqasiz.", 'До этого пары давали тебе. Теперь перебираешь грани сам.', 'Until now the pairs were given to you. Now you go through the faces yourself.'),
+    A('work', "E'tibor bering: oltita yoqda aynan uch parallel juftlik bor, va bu yig'indi bilan tekshiruv.", 'Обрати внимание: у шести граней ровно три параллельных пары, и это проверка суммой.', 'Notice: six faces give exactly three parallel pairs, and that is a check by the sum.'),
   ],
   multi: {
-    prompt: L('Bu polosaga tushmaydigan hamma sonni belgilang.', 'Отметь все числа, которые в эту полосу не попадают.', 'Mark every number that does not land in this band.'),
-    title: L('Qaysi sonlar polosaga tushmaydi?', 'Какие числа в полосу не попадают?', 'Which numbers do not land in the band?'),
-    ok: L("To'rttadan ikkitasi. Chegara ochiq, shuning uchun beshning o'zi ham yaramaydi.", 'Две из четырёх. Граница выколота, поэтому сама пятёрка тоже не годится.', 'Two out of four. The edge is punched out, so five itself does not fit either.'),
+    prompt: L("Parallel bo'lgan hamma yoq juftligini belgilang", 'Отметь все пары граней, которые параллельны', 'Mark every pair of faces that are parallel'),
+    title: L("To'rttadan ikkitasi", 'Две из четырёх', 'Two out of four'),
+    ok: L("To'g'ri. Umumiy qirrasi yo'q juftliklar parallel.", 'Верно. Параллельны те пары, у которых общего ребра нет.', 'Correct. Parallel are the pairs with no common edge.'),
     items: [
-      { id: 'c', label: '6', hint: L('Olti beshdan katta, demak tushadi.', 'Шесть больше пяти, значит попадает.', 'Six is greater than five, so it lands inside.') },
-      { id: 'd', label: '10', hint: L("O'n beshdan katta, demak tushadi.", 'Десять больше пяти, значит попадает.', 'Ten is greater than five, so it lands inside.') },
-      { id: 'a', label: '5', ok: true },
-      { id: 'b', label: '0', ok: true },
+      { id: 'c', label: 'ABCD, BCC₁B₁', hint: L('Bu yoqlarning umumiy BC qirrasi bor, demak ular kesishadi.', 'У этих граней общее ребро BC, значит они пересекаются.', 'These faces share the edge BC, so they intersect.') },
+      { id: 'd', label: 'ABB₁A₁, ADD₁A₁', hint: L('Bularning umumiy AA₁ qirrasi bor.', 'У этих общее ребро AA₁.', 'These share the edge AA₁.') },
+      { id: 'a', label: 'ABCD, A₁B₁C₁D₁', ok: true },
+      { id: 'b', label: 'ABB₁A₁, DCC₁D₁', ok: true },
     ],
   },
   entry: {
-    prompt: L('Iks minus beshning logarifmida polosa qaysi sondan boshlanadi?', 'С какого числа начинается полоса у логарифма от икс минус пять?', 'From which number does the band start for the logarithm of x minus five?'),
-    ok: L('Beshdan. Belgi ostida musbat turishi kerak, demak iks beshdan katta.', 'С пятёрки. Под знаком должно стоять положительное, значит икс больше пяти.', 'From five. A positive number must stand under the sign, so x is greater than five.'),
+    prompt: L("Kubning nechta yog'i ABCD yog'iga parallel?", 'Сколько граней куба параллельны грани ABCD?', 'How many faces of the cube are parallel to the face ABCD?'),
+    ok: L("To'g'ri. Bitta: har yoqda parallel yoq aynan bitta.", 'Верно. Одна: у каждой грани параллельная ровно одна.', 'Correct. One: each face has exactly one parallel face.'),
     hint: [
-      L('Belgi ostidagi ifodani nolga tenglashtiring.', 'Приравняй выражение под знаком нулю.', 'Set the expression under the sign to zero.'),
-      L('Iks minus besh nolga teng.', 'Икс минус пять равно нулю.', 'X minus five equals zero.'),
-      L('Besh.', 'Пять.', 'Five.'),
+      L("Parallel yoqning berilgani bilan umumiy qirrasi yo'q.", 'Параллельная грань не имеет с данной общего ребра.', 'A parallel face has no common edge with the given one.'),
+      L("To'rt yon yoqning umumiy qirrasi bor.", 'Четыре боковых грани общее ребро имеют.', 'The four side faces do have a common edge.'),
+      L('Yuqori yoq qoladi, u bitta.', 'Остаётся верхняя грань, она одна.', 'The top face remains, and it is the only one.'),
     ],
-    answer: '5',
+    expr: 'ABCD',
+    answer: '1',
   },
 }
 
@@ -492,59 +491,59 @@ const S14 = {
   role: 'blitz',
   answer: 'mixed',
   format: 'chain',
-  eyebrow: L('BLITS', 'БЛИЦ', 'BLITZ'),
-  title: L("To'rt savol · natijaga kiradi", 'Четыре вопроса · идут в результат', 'Four questions · they count'),
-  tag: 'odz-logarifma',
+  eyebrow: L('BLITS', 'БЛИЦ', 'THE BLITZ'),
+  title: L("Ketma-ket to'rtta savol", 'Четыре вопроса подряд', 'Four questions in a row'),
+  tag: 'odna-para-dostatochno',
   audio: [
-    A('mount', "To'rtta qisqa savol. Faqat shu ekran natijaga kiradi.", 'Четыре коротких вопроса. Только этот экран идёт в результат.', 'Four short questions. Only this screen counts.'),
+    A('mount', "To'rtta savol, va ular baholanadi.", 'Четыре вопроса, и они идут в оценку.', 'Four questions, and they count towards the score.'),
   ],
   items: [
     {
       id: 'q1',
       ask: true,
-      prompt: L('Joiz qiymatlar polosasi qachon chiziladi?', 'Когда чертят полосу допустимых значений?', 'When is the band of admissible values drawn?'),
-      done: 'x > 0',
+      prompt: L('Ikki tekislik parallel. Ularning nechta umumiy nuqtasi bor?', 'Две плоскости параллельны. Сколько у них общих точек?', 'Two planes are parallel. How many common points have they?'),
+      done: L("Birorta ham yo'q. Bu ta'rif.", 'Ни одной. Это определение.', 'None. That is the definition.'),
       items: [
-        { id: 'a', label: L('birinchi almashtirishdan oldin', 'до первого преобразования', 'before the first step'), correct: true },
-        { id: 'b', label: L('ildizlar topilgandan keyin', 'после того, как нашли корни', 'after the roots are found'), hint: L('Unda tekshirish marosimga aylanadi. Polosa tekshirish emas, shart sifatida kerak.', 'Тогда проверка превращается в обряд. Полоса нужна как условие, а не как проверка.', 'Then the check becomes a ritual. The band is needed as a condition, not as a check.') },
-        { id: 'c', label: L("faqat javob g'alati bo'lsa", 'только если ответ странный', 'only if the answer looks odd'), hint: L("Solishtiradigan narsa bo'lmasa, g'alati javobni sezib bo'lmaydi.", 'Странный ответ заметить нельзя, если не с чем сравнивать.', 'An odd answer cannot be spotted with nothing to compare it to.') },
-        { id: 'd', label: L('hech qachon', 'никогда', 'never'), hint: L('Usiz begona ildiz javobga tushadi.', 'Без неё посторонний корень попадает в ответ.', 'Without it an extraneous root gets into the answer.') },
+        { id: 'a', label: L("birorta ham yo'q", 'ни одной', 'none'), correct: true },
+        { id: 'b', label: L('bitta', 'одна', 'one'), hint: L('Bitta umumiy nuqta butun chiziqni ergashtiradi, bu aksioma.', 'Одна общая точка тянет за собой целую прямую, это аксиома.', 'One common point drags a whole line behind it; that is the axiom.') },
+        { id: 'c', label: L("cheksiz ko'p", 'бесконечно много', 'infinitely many'), hint: L("Cheksiz ko'p kesishuvchilarda: ularning umumiy chizig'i bor.", 'Бесконечно много у пересекающихся: у них общая прямая.', 'Infinitely many belongs to intersecting ones: they share a line.') },
+        { id: 'd', label: L("rakursga bog'liq", 'зависит от ракурса', 'it depends on the angle'), hint: L("Rakurs chizmani o'zgartiradi, sahnani emas.", 'Ракурс меняет чертёж, а не сцену.', 'The angle changes the drawing, not the scene.') },
       ],
     },
     {
       id: 'q2',
       ask: true,
-      prompt: L("Begona ildiz nega paydo bo'ladi?", 'Почему появляется посторонний корень?', 'Why does an extraneous root appear?'),
-      done: 'x = −2',
+      prompt: L("Alomatga kerak bo'lgan chiziqlar...", 'Признаку нужны прямые…', 'The criterion needs lines that are...'),
+      done: L("Ikki kesishuvchi, va bu alomatning asosiy so'zi.", 'Две пересекающиеся, и это главное слово признака.', 'Two intersecting, and that is the key word of the criterion.'),
       items: [
-        { id: 'a', label: L('u boshidanoq joiz emas edi', 'он не был допустимым с самого начала', 'it was not admissible from the start'), correct: true },
-        { id: 'b', label: L('hisobdagi xato tufayli', 'из-за ошибки в вычислениях', 'because of a computation error'), hint: L("Hamma qadam to'g'ri edi, va bu qatorlardan ko'rinadi.", 'Все шаги были верны, и это видно по строкам.', 'Every step was correct, and the lines show it.') },
-        { id: 'c', label: L('logarifm shunday tuzilgan', 'логарифм так устроен', 'that is how a logarithm works'), hint: L('Gap logarifmda emas, sonning polosadan tashqarida ekanida.', 'Дело не в логарифме, а в том, что число вне полосы.', 'It is not about the logarithm but about the number being outside the band.') },
-        { id: 'd', label: L('ildiz doim ikkita', 'корней всегда два', 'there are always two roots'), hint: L("Ular bitta ham, birorta ham bo'lmasligi mumkin.", 'Их бывает и один, и ни одного.', 'There can be one, or none.') },
+        { id: 'a', label: L('har tekislikda ikki kesishuvchi', 'две пересекающиеся в каждой плоскости', 'two intersecting in each plane'), correct: true },
+        { id: 'b', label: L('har tekislikda bitta', 'одна в каждой плоскости', 'one in each plane'), hint: L("Bir juftlik kam: to'rtinchi ekranda tekisliklar kesishardi.", 'Одной пары мало: на экране четыре плоскости пересекались.', 'One pair is not enough: on screen four the planes did intersect.') },
+        { id: 'c', label: L('har birida ikki parallel', 'две параллельные в каждой', 'two parallel in each'), hint: L("Ikki parallel bitta yo'nalish beradi, ikkinchisi yo'q.", 'Две параллельные дают одно направление, второго нет.', 'Two parallel lines give one direction, the second is missing.') },
+        { id: 'd', label: L("tekislikning hamma chizig'i", 'все прямые плоскости', 'all lines of the plane'), hint: L('Bunchasini tekshirish shart emas: ikki kesishuvchi yetadi.', 'Столько проверять не надо: двух пересекающихся достаточно.', 'There is no need to check that many: two intersecting ones suffice.') },
       ],
     },
     {
       id: 'q3',
       ask: true,
-      prompt: L('Iks minus ikkining logarifmi nima beradi?', 'Что даёт логарифм от икс минус два?', 'What does the logarithm of x minus two give?'),
-      done: 'x > 2',
+      prompt: L("Tekisliklar parallel. Birining chizig'i va ikkinchisining chizig'i...", 'Плоскости параллельны. Прямая одной и прямая другой…', 'The planes are parallel. A line of one and a line of the other...'),
+      done: L("Ayqash bo'lishi mumkin. Tekisliklar parallel, chiziqlar emas.", 'Могут скрещиваться. Плоскости параллельны, прямые нет.', 'They may be skew. The planes are parallel, the lines are not.'),
       items: [
-        { id: 'a', label: L('iks ikkidan katta shartini', 'условие икс больше двух', 'the condition x greater than two'), correct: true, ok: L('Ha. Belgi ostida musbat son turishi kerak.', 'Да. Под знаком должно стоять положительное число.', 'Yes. A positive number must stand under the sign.') },
-        { id: 'b', label: L('iks noldan katta shartini', 'условие икс больше нуля', 'the condition x greater than zero'), hint: L('Belgi ostida oddiy iks tursa nol yarardi.', 'Ноль подошёл бы, если бы под знаком стоял просто икс.', 'Zero would fit if plain x stood under the sign.') },
-        { id: 'c', label: L('iks ikkidan kichik shartini', 'условие икс меньше двух', 'the condition x less than two'), hint: L("Unda belgi ostidagi ifoda manfiy bo'lardi.", 'Тогда выражение под знаком было бы отрицательным.', 'Then the expression under the sign would be negative.') },
-        { id: 'd', label: L('hech qanday shart', 'никакого условия', 'no condition at all'), hint: L('Har logarifmning sharti bor.', 'Условие есть у каждого логарифма.', 'Every logarithm has a condition.') },
+        { id: 'a', label: L("ayqash bo'lishi mumkin", 'могут скрещиваться', 'may be skew'), correct: true, ok: L('Ha: tekisliklar parallelligi tekisliklar haqida, har juft chiziq haqida emas.', 'Да: параллельность плоскостей про плоскости, а не про каждую пару прямых.', 'Yes: parallel planes are about the planes, not about every pair of lines.') },
+        { id: 'b', label: L('doim parallel', 'всегда параллельны', 'are always parallel'), hint: L('Kubda tekshiring: AB va A₁D₁ ayqash.', 'Проверь на кубе: AB и A₁D₁ скрещиваются.', 'Check on the cube: AB and A₁D₁ are skew.') },
+        { id: 'c', label: L('doim kesishadi', 'всегда пересекаются', 'always intersect'), hint: L("Ular kesishishi mumkin emas: tekisliklarning umumiy nuqtasi yo'q.", 'Пересечься они не могут: плоскости общих точек не имеют.', 'They cannot intersect: the planes share no point.') },
+        { id: 'd', label: L('doim perpendikulyar', 'всегда перпендикулярны', 'are always perpendicular'), hint: L("Perpendikulyarlikning bunga aloqasi yo'q.", 'Перпендикулярность тут ни при чём.', 'Perpendicularity has nothing to do with it.') },
       ],
     },
     {
       id: 'q4',
       ask: true,
-      prompt: L('Logarifm belgilarini olish mumkinmi?', 'Можно ли снимать знаки логарифма?', 'May the logarithm signs be taken off?'),
-      done: 'f(x) = g(x)',
+      prompt: L("Kubning nechta juft parallel yog'i bor?", 'Сколько пар параллельных граней у куба?', 'How many pairs of parallel faces has a cube?'),
+      done: L("Uch juftlik: oltita yoq teng bo'linadi.", 'Три пары: шесть граней делятся пополам.', 'Three pairs: six faces split in half.'),
       items: [
-        { id: 'a', label: L("ha, asoslar bir xil bo'lsa va polosa ichida bo'lsak", 'да, если основания совпали и мы внутри полосы', 'yes, if the bases match and we are inside the band'), correct: true },
-        { id: 'b', label: L('ha, doim', 'да, всегда', 'yes, always'), hint: L("Polosadan tashqarida logarifmlar umuman yo'q, oladigan narsa yo'q.", 'Вне полосы логарифмов просто нет, снимать нечего.', 'Outside the band there are no logarithms at all, nothing to take off.') },
-        { id: 'c', label: L("yo'q, hech qachon", 'нет, никогда', 'no, never'), hint: L('Mumkin: funksiya monoton, va bitta qiymatga bitta argument mos keladi.', 'Можно: функция монотонна, и одному значению отвечает один аргумент.', 'It is allowed: the function is monotone, and one value matches one argument.') },
-        { id: 'd', label: L("faqat asos o'nga teng bo'lsa", 'только если основание равно десяти', 'only if the base is ten'), hint: L("Asos har qanday bo'lishi mumkin, faqat chapda va o'ngda bir xil bo'lsa.", 'Основание может быть любым, лишь бы одинаковым слева и справа.', 'The base can be anything, as long as it is the same on both sides.') },
+        { id: 'a', label: L('uchta', 'три', 'three'), correct: true },
+        { id: 'b', label: L('oltita', 'шесть', 'six'), hint: L('Olti bu yoqlar soni, juftliklar esa ikki barobar kam.', 'Шесть это число граней, а пар вдвое меньше.', 'Six is the number of faces, and pairs are half that.') },
+        { id: 'c', label: L('ikkita', 'две', 'two'), hint: L('Pol bilan shift va ikki juft devor: allaqachon uchta.', 'Пол с потолком и две пары стен: уже три.', 'The floor with the ceiling and two pairs of walls: already three.') },
+        { id: 'd', label: L("o'n ikkita", 'двенадцать', 'twelve'), hint: L("O'n ikki bu qirralar, yoq juftliklari emas.", 'Двенадцать это рёбра, а не пары граней.', 'Twelve is the edges, not the pairs of faces.') },
       ],
     },
   ],
@@ -553,89 +552,77 @@ const S14 = {
 const S15 = {
   role: 'summary',
   answer: 'none',
-  eyebrow: L('YAKUN', 'ИТОГ', 'SUMMARY'),
-  title: L('Nima qoldi', 'Что осталось', 'What you take away'),
+  eyebrow: L('XULOSA', 'ИТОГ', 'THE SUMMARY'),
+  title: L('Ikki kesishuvchi chiziq -- va tekisliklar parallel', 'Две пересекающиеся прямые — и плоскости параллельны', 'Two intersecting lines, and the planes are parallel'),
   audio: [
-    A('mount', 'Dars boshida ikki yozuvdan birini tanlash kerak edi. Mana natija.', 'В начале урока нужно было выбрать одну из двух записей. Вот результат.', 'At the start you had to choose one of two readings. Here is the result.'),
-    A('next', "Ildiz bitta. Ikkinchi son yechimdan keyin begona bo'lib qolgani yo'q, u hech qachon joiz bo'lmagan.", 'Корень один. Второе число не стало посторонним после решения, оно никогда и не было допустимым.', 'There is one root. The second number did not become extraneous after solving, it never was admissible.'),
+    A('mount', 'Birinchi ekrandagi taxmin va natija yonma-yon turadi.', 'Прогноз с первого экрана и результат стоят рядом.', 'The guess from screen one and the result stand side by side.'),
+    A('next', "Shpargalka darslik bo'yicha yig'ilgan. Pastda nimani bilishingiz ko'rinadi.", 'Шпаргалка собрана по учебнику. Ниже видно, что умеешь.', 'The sheet is put together from the textbook. Below you can see what you can do.'),
   ],
   can: [
-    L('Joiz qiymatlar polosasini yechimdan oldin chizaman', 'Черчу полосу допустимых значений до решения', 'I draw the band of admissible values before solving'),
-    L("Logarifmlar yig'indisini bittaga keltiraman", 'Свожу сумму логарифмов к одному', 'I fold a sum of logarithms into one'),
-    L("Asoslar bir xil bo'lganda belgilarni olaman", 'Снимаю знаки, когда основания совпали', 'I take the signs off when the bases match'),
-    L("Ildizlarni omadga emas, polosa bo'yicha tekshiraman", 'Проверяю корни по полосе, а не на удачу', 'I check roots against the band, not by luck'),
+    L('Kesishuvchi va parallel tekisliklarni ajrataman', 'Различаю пересекающиеся и параллельные плоскости', 'I tell intersecting planes from parallel ones'),
+    L("Alomatni qo'llaman va aynan kesishuvchi chiziqlarni olaman", 'Применяю признак и беру именно пересекающиеся прямые', 'I apply the criterion and take intersecting lines'),
+    L('Bir juft parallel chiziq kam ekanini bilaman', 'Знаю, что одной пары параллельных прямых мало', 'I know one pair of parallel lines is not enough'),
+    L('Tekisliklar parallelligini ularning chiziqlari parallelligi bilan chalkashtirmayman', 'Не путаю параллельность плоскостей с параллельностью их прямых', 'I do not confuse parallel planes with parallel lines in them'),
   ],
   levels: {
-    full: L('Bu turdagi masalalar yopildi.', 'Этот тип задач закрыт.', 'This type of task is closed.'),
-    gap: L('Bitta joy takrorlashni talab qiladi: joiz qiymatlar polosasi.', 'Одно место требует повтора: полоса допустимых значений.', 'One place needs review: the band of admissible values.'),
-    back: L('Qoidaga va 3-ekranga qayting.', 'Вернись к правилу и к экрану 3.', 'Go back to the rule and to screen 3.'),
+    full: L("Hammasidan o'tdingiz va tuzoqni ochdingiz", 'Прошёл всё и разобрал ловушку', 'Everything done, the trap taken apart'),
+    gap: L('Alomat ishlaydi, ayqash juftliklar hali chalkashadi', 'Признак работает, скрещивающиеся пары ещё путаются', 'The criterion works, skew pairs still get mixed up'),
+    back: L("To'rtinchi ekranga qaytish kerak: bir juftlik kam", 'Стоит вернуться к экрану четыре: одной пары мало', 'Worth going back to screen four: one pair is not enough'),
   },
-  bridge: L("Keyin blokni takrorlash praktikumi: daraja, ko'rsatkichli va logarifmik birga.", 'Дальше практикум повторения блока: степень, показательная и логарифмическая вместе.', 'Next comes the block review practicum: powers, exponentials and logarithms together.'),
-  lifehack: L("Noma'lumli logarifmni ko'rdingizmi, darrov polosa chizing. Keyin vaqt ham, ma'no ham qolmaydi.", 'Увидел логарифм с неизвестным, сразу черти полосу. Потом будет некогда и незачем.', 'Spotted a logarithm with the unknown, draw the band at once. Later there will be neither time nor point.'),
-  sheetTitle: L('Logarifmik tenglamalar · shpargalka', 'Логарифмические уравнения · шпаргалка', 'Logarithmic equations · cheat sheet'),
-  sheetSrc: L('10-sinf · 31-dars', '10 класс · урок 31', 'Grade 10 · lesson 31'),
+  bridge: L("Keyingisi parallel proyeksiyalash: unda chizmada parallellar nega parallel qolib, to'g'ri burchak nega qolmasligini ko'rasiz.", 'Дальше параллельное проецирование: там видно, почему на чертеже параллельные остаются параллельными, а прямой угол нет.', 'Next comes parallel projection: there you see why parallel lines stay parallel on a drawing and a right angle does not.'),
+  lifehack: L("Yoq juftliklarini umumiy qirra bo'yicha tekshirish qulay: umumiy qirra bor -- kesishadi, yo'q -- parallel. Kubning olti yog'ida aynan uch parallel juftlik bor.", 'Проверять пары граней удобно по общему ребру: есть общее ребро — пересекаются, нет — параллельны. У шести граней куба ровно три параллельных пары.', 'Checking pairs of faces by the shared edge is handy: a shared edge means they intersect, no edge means parallel. Six faces of a cube give exactly three parallel pairs.'),
+  sheetTitle: L('Dars shpargalkasi', 'Шпаргалка урока', 'The lesson sheet'),
+  sheetSrc: L('geometriya 2022, 103-bet', 'геометрия 2022, стр. 103', 'geometry 2022, page 103'),
   hook: {
-    a: '4;  −2',
-    b: '4',
+    a: '1',
+    b: '0',
   },
-  proved: '4',
-  law: 'logₐ f(x) = logₐ g(x)   →   f(x) = g(x),   f(x) > 0',
+  proved: '0',
+  law: 'a ∩ b = A,   a ∥ a₁,   b ∥ b₁   ⇒   α ∥ β',
   sheet: [
-    'f(x) > 0',
-    'logₐ b + logₐ c = logₐ (b·c)',
-    'logₐ f = logₐ g   →   f = g',
-    't = logₐ x,   t ∈ R',
-    '4 ∈ (2; +∞),   −2 ∉ (2; +∞)',
+    'α ∩ β = ∅   ⇒   α ∥ β',
+    'AB ∩ AD = A',
+    'AB ∥ A₁B₁,   AD ∥ A₁D₁',
+    'ABCD ∥ A₁B₁C₁D₁',
+    '6 = 3 + 3',
   ],
 }
 
 // ======== QOLDA YOZILGAN QISM: bundan pastdagisi saqlanadi ========
 
-const num = (s) => {
-  const t = String(s).replace(/−/g, '-').replace(',', '.')
-  if (t.indexOf('/') !== -1) {
-    const p = t.split('/')
-    return parseFloat(p[0]) / parseFloat(p[1])
-  }
-  return parseFloat(t)
-}
+const num = (s) => parseFloat(String(s).replace(/−/g, '-'))
 
-// ПОЛОСА ОДНА НА ВЕСЬ УРОК. Границы окна не меняются от экрана к экрану:
-// иначе двойка на одном экране и двойка на другом окажутся в разных местах,
-// и «корень попал в полосу» перестанет читаться.
-const BAND = { lo: -4, hi: 9, ticks: [-2, 0, 2, 4, 6, 8] }
-const ROOTS = [{ v: 4, ok: true }, { v: -2, ok: false }]
-
-// ЗАПИСЬ РАСТЁТ ВНИЗ -- прибор 2.
-const Tape = ({ show, phase }) => {
-  const at = Math.min(phase, show.length - 1)
-  const rows = []
-  for (let i = 0; i <= at; i += 1) {
-    show[i].forEach((x) => { if (typeof x === 'string') rows.push(x) })
-  }
-  const lines = show[at].filter((x) => typeof x !== 'string')
-  return (
-    <Cols l={1} r={1}>
-      <Col>
-        <Panel tone="paper">
-          <NoteList items={rows.map((r, i) => (i === rows.length - 1 ? { ok: true, v: r } : r))} />
-        </Panel>
-      </Col>
-      <Col><NoteList items={lines} /></Col>
-    </Cols>
-  )
-}
+// SAHNA BITTA -- kub. Tekisliklar YOQLAR bilan olinadi: ikki asos parallel,
+// asos va yon yoq esa BC qirrasi bo'ylab kesishadi. Aldov proyeksiyada:
+// yoqlarning chetlari ekranda mos tushib, umumiy chiziq bordek ko'rinadi.
+// IKKI TEKISLIK -- KUBNING YOQLARI. Parallel juftlik: ikki asos. Kesishuvchi
+// juftlik: asos va yon yoq, ular BC qirrasi bo'ylab kesishadi.
+const TWO_BASES = [
+  { by: ['A', 'B', 'C'], dim: true },
+  { by: ['A1', 'B1', 'C1'], dim: true },
+]
+const CROSS_FACES = [
+  { by: ['A', 'B', 'C'], dim: true },
+  { by: ['B', 'C', 'C1'], dim: true },
+]
+// Alomatning ikki juftligi: pastda kesishuvchi AB va AD, tepada ularga mos
+// A1B1 va A1D1.
+const CRIT_PAIRS = ['AB', 'AD', 'A1B1', 'A1D1']
+// Bir juftlik: AD va B1C1 parallel, lekin tekisliklar kesishadi.
+const ONE_PAIR = ['AD', 'B1C1']
+// Parallel tekisliklardagi AYQASH juftlik.
+const SKEW_PAIR = ['AB', 'A1D1']
 
 const PAIR_IDS = ['p0', 'p1', 'p2', 'p3']
-const EQ_LEFT = S9.match.left.map((label, i) => ({ id: PAIR_IDS[i], label }))
-const EQ_RIGHT = ['a', 'b', 'c', 'd'].map((k, i) => {
+const CASE_LEFT = S9.match.left.map((label, i) => ({ id: PAIR_IDS[i], label }))
+const CASE_RIGHT = ['a', 'b', 'c', 'd'].map((k, i) => {
   const v = S9.match[k]
   return { id: PAIR_IDS[i], label: v && v.label ? v.label : v, hint: v && v.hint ? v.hint : undefined }
 })
 
-const ORD4 = ['s1', 's2', 's3', 's4'].map((id) => ({ id, label: S4.order[id] }))
-const ORD5 = ['s1', 's2', 's3', 's4'].map((id) => ({ id, label: S5.order[id] }))
-const ORD10 = ['s1', 's2', 's3', 's4'].map((id) => ({ id, label: S10.order[id] }))
+// UCHTA QADAM: to'rtta slot noutbukning 615 px iga sig'maydi (25 va 8-darsda
+// o'lchangan). Alomatning ikki sharti va xulosa -- uchtasi yetadi.
+const ORD10 = ['s1', 's2', 's3'].map((id) => ({ id, label: S10.order[id] }))
 const ORD11 = S11.order.items.map((label, i) => ({ id: 'o' + i, label }))
 const ORD11_ANS = String(S11.order.answer).split(/\s{2,}/)
   .map((lbl) => (ORD11.find((x) => x.label === lbl.trim()) || {}).id)
@@ -648,9 +635,11 @@ const Screen1 = (p) => (
       <HookBody
         {...s}
         data={{ ...S1, rows: [{ id: 'a', ...S1.row.a }, { id: 'b', ...S1.row.b }] }}
-        // Полоса ПУСТАЯ: она есть, но ещё не закрашена. Прогноз делается до
-        // того, как стало видно, куда падают числа.
-        fig={() => <Scene fig={<DomainBand step={0} from={2} {...BAND} />} max={172} h={172} />}
+        // Rakurs SINFNING odatdagisi, va aynan unda chiziq bo'yalgan yoqning
+        // ustidan o'tgandek ko'rinadi: prognoz shu aldov ustida qilinadi.
+        fig={() => (
+          <Scene fig={<Space step={1} yaw={0.4} cube planes={TWO_BASES} />} max={172} h={172} />
+        )}
       />
     )}
   </Screen>
@@ -659,9 +648,10 @@ const Screen1 = (p) => (
 const Screen2 = (p) => (
   <Screen data={S2} {...p}>
     {({ audio, solve }) => (
-      <Cols l={1} r={1.1}>
+      <Cols l={1} r={1.2}>
         <Col>
-          <Scene fig={<Plane step={1} curve="log" show="none" mark={[1, 0]} />} max={300} />
+          {/* Telefonda ustunlar bir-birining ostiga tushadi: balandlik qat'iy. */}
+          <Scene fig={<Space step={1} yaw={0.4} cube planes={TWO_BASES} />} max={240} h={158} />
         </Col>
         <Col>
           <ProbeChain items={S2.items} cols={2} audio={audio} onSolved={solve} />
@@ -674,24 +664,53 @@ const Screen2 = (p) => (
 const Screen3 = (p) => (
   <Screen data={S3} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S3.show.length && !solved ? (
-      /* ПРИБОР 5 в полной работе: полоса закрашивается ДО первого
-         преобразования, левая граница выколота. */
       <Scene
-        fig={<DomainBand step={phase} from={2} {...BAND} />}
+        fig={<Space step={1} cube planes={TWO_BASES} yaw={phase === 0 ? 0.4 : 1.6} />}
         note={<NoteList items={S3.show[phase]} />}
       />
     ) : (
+      /* DARSNING SHOHIDI. Buradigan o'quvchi: u burmaguncha «yoq ustidan
+         o'tadi» va «yoqdan baland o'tadi» ekranda bir xil ko'rinadi. */
+      <SpinScene
+        yaw0={0.4}
+        stepYaw={0.6}
+        scene={<Space step={1} cube planes={TWO_BASES} />}
+        prompt={S3.work.prompt}
+        answer={num(S3.work.answer)}
+        okText={S3.work.ok}
+        hints={S3.work.hint}
+        audio={audio}
+        onSolved={solve}
+      />
+    ))}
+  </Screen>
+)
+
+const Screen4 = (p) => (
+  <Screen data={S4} {...p}>
+    {({ audio, phase, solved, solve }) => (phase < S4.show.length && !solved ? (
+      /* 1-kadr: alomat TO'G'RI ishlagan holat. 2-kadr: O'SHA mantiq asos
+         chizig'iga qo'llanadi va yolg'on xulosa beradi. */
+      <Scene
+        fig={(
+          <Space
+            step={1} yaw={0.4} cube
+            hi={ONE_PAIR}
+            planes={phase === 0 ? CROSS_FACES : CROSS_FACES}
+          />
+        )}
+        note={<NoteList items={S4.show[phase]} />}
+      />
+    ) : (
       <Cols l={1} r={1}>
-        <Col>
-          <Scene fig={<DomainBand step={1} from={2} {...BAND} />} max={300} />
-        </Col>
+        <Col><Scene fig={<Space step={1} yaw={0.4} cube hi={ONE_PAIR} planes={CROSS_FACES} />} max={280} /></Col>
         <Col>
           <NumberEntry
             compact
-            prompt={S3.work.prompt}
-            answer={num(S3.work.answer)}
-            okText={S3.work.ok}
-            hints={S3.work.hint}
+            prompt={S4.work.prompt}
+            answer={num(S4.work.answer)}
+            okText={S4.work.ok}
+            hints={S4.work.hint}
             audio={audio}
             onSolved={solve}
           />
@@ -701,40 +720,30 @@ const Screen3 = (p) => (
   </Screen>
 )
 
-const Screen4 = (p) => (
-  <Screen data={S4} {...p}>
-    {({ audio, phase, solved, solve }) => (phase < S4.show.length && !solved ? (
-      /* Разграничение видно ПОЛОСОЙ: у простого уравнения она начинается от
-         нуля, у суммы двух логарифмов -- от двойки. */
-      <Scene
-        fig={<DomainBand step={1} from={phase === 0 ? 0 : 2} {...BAND} />}
-        note={<NoteList items={S4.show[phase]} />}
-      />
-    ) : (
-      <OrderRow
-        prompt={S4.order.prompt}
-        items={ORD4}
-        answer={['s1', 's2', 's3', 's4']}
-        okText={S4.order.ok}
-        badText={S4.order.bad}
-        audio={audio}
-        onSolved={solve}
-      />
-    ))}
-  </Screen>
-)
-
 const Screen5 = (p) => (
   <Screen data={S5} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S5.show.length && !solved ? (
-      <Tape show={S5.show} phase={phase} />
+      /* 1-kadr: parallel juftlik. 2-kadr: AYQASH juftlik -- o'sha chiziq va
+         o'sha tekislik, lekin boshqa chiziq tanlangan. */
+      <Scene
+        fig={(
+          <Space
+            step={1} yaw={0.4} cube
+            hi={phase === 0 ? ['AB', 'AD'] : CRIT_PAIRS}
+            planes={TWO_BASES}
+          />
+        )}
+        note={<NoteList items={S5.show[phase]} />}
+      />
     ) : (
-      <OrderRow
-        prompt={S5.order.prompt}
-        items={ORD5}
-        answer={['s1', 's2', 's3', 's4']}
-        okText={S5.order.ok}
-        badText={S5.order.bad}
+      <SpinScene
+        yaw0={0.4}
+        stepYaw={0.6}
+        scene={<Space step={1} cube hi={CRIT_PAIRS} planes={TWO_BASES} />}
+        prompt={S5.work.prompt}
+        answer={num(S5.work.answer)}
+        okText={S5.work.ok}
+        hints={S5.work.hint}
         audio={audio}
         onSolved={solve}
       />
@@ -745,14 +754,20 @@ const Screen5 = (p) => (
 const Screen6 = (p) => (
   <Screen data={S6} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S6.show.length && !solved ? (
-      <Tape show={S6.show} phase={phase} />
+      /* Yoqlar navbat bilan: 1-kadr -- chiziqni O'Z ICHIGA OLGAN yoq,
+         2-kadr -- uni KESIB O'TADIGAN yoq. Alomat ikkalasida ham ishlamaydi. */
+      <Scene
+        fig={(
+          <Space
+            step={1} yaw={0.4} cube
+            planes={phase === 0 ? TWO_BASES : CROSS_FACES}
+          />
+        )}
+        note={<NoteList items={S6.show[phase]} />}
+      />
     ) : (
       <Cols l={1} r={1}>
-        <Col>
-          <Panel tone="paper">
-            <NoteList items={[S6.show[0][2], { ok: true, v: S6.show[1][2] }]} />
-          </Panel>
-        </Col>
+        <Col><Scene fig={<Space step={1} yaw={0.4} cube planes={TWO_BASES} />} max={280} /></Col>
         <Col>
           <NumberEntry
             compact
@@ -772,18 +787,21 @@ const Screen6 = (p) => (
 const Screen7 = (p) => (
   <Screen data={S7} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S7.show.length && !solved ? (
-      /* СВИДЕТЕЛЬ УРОКА. Оба числа падают на полосу: четвёрка попадает в
-         закрашенное и остаётся яркой, минус два падает снаружи и гаснет --
-         но не исчезает, он был найден и это надо видеть. */
+      /* Uch hol ketma-ket: kesib o'tuvchi chiziq, keyin yotgan va parallel
+         yonma-yon. Farq bitta sonda -- umumiy nuqtalar sonida. */
       <Scene
-        fig={<DomainBand step={phase + 1} from={2} roots={ROOTS} {...BAND} />}
+        fig={(
+          <Space
+            step={1} yaw={0.4} cube
+            hi={phase === 0 ? ['AB', 'A1B1'] : SKEW_PAIR}
+            planes={TWO_BASES}
+          />
+        )}
         note={<NoteList items={S7.show[phase]} />}
       />
     ) : (
       <Cols l={1} r={1}>
-        <Col>
-          <Scene fig={<DomainBand step={2} from={2} roots={ROOTS} {...BAND} />} max={300} />
-        </Col>
+        <Col><Scene fig={<Space step={1} yaw={0.4} cube planes={TWO_BASES} />} max={280} /></Col>
         <Col>
           <NumberEntry
             compact
@@ -806,10 +824,13 @@ const Screen8 = (p) => (
       <RuleBody
         {...s}
         data={S8}
-        // Корни падают в момент ответа: правило открывается рядом с тем
-        // движением, которое его и породило.
+        // Parallel juftlik javob paytida ochiladi: qoida uni tug'dirgan
+        // harakat yonida turadi.
         fig={(solved) => (
-          <Scene fig={<DomainBand step={solved ? 2 : 1} from={2} roots={ROOTS} {...BAND} />} max={330} />
+          <Scene
+            fig={<Space step={1} yaw={0.4} cube hi={solved ? CRIT_PAIRS : []} planes={TWO_BASES} />}
+            max={330}
+          />
         )}
       />
     )}
@@ -821,8 +842,8 @@ const Screen9 = (p) => (
     {({ audio, solve }) => (
       <MatchPairs
         prompt={S9.match.prompt}
-        left={EQ_LEFT}
-        right={EQ_RIGHT}
+        left={CASE_LEFT}
+        right={CASE_RIGHT}
         okText={S9.match.ok}
         audio={audio}
         onSolved={solve}
@@ -835,11 +856,12 @@ const Screen10 = (p) => (
   <Screen data={S10} {...p}>
     {({ audio, solve }) => (
       <>
-        <Expr size="mid" style={{ marginBottom: 6 }}>{S10.expr}</Expr>
+        {/* Yozuv KICHIK yarusda: ustida uchta slot va tugma turadi. */}
+        <Expr size="sm" style={{ marginBottom: 2 }}>{S10.expr[0] + '  ∥  ' + S10.expr[1]}</Expr>
         <OrderRow
           prompt={S10.order.prompt}
           items={ORD10}
-          answer={['s1', 's2', 's3', 's4']}
+          answer={['s1', 's2', 's3']}
           okText={S10.order.ok}
           badText={S10.order.bad}
           audio={audio}
@@ -863,22 +885,14 @@ const Screen11 = (p) => (
         onSolved={solve}
       />
     ) : (
-      <Cols l={1} r={1}>
-        <Col>
-          <Panel tone="paper">
-            <Expr size="big" style={{ textAlign: 'left' }}>{S11.task.prompt}</Expr>
-          </Panel>
-        </Col>
-        <Col>
-          <NumberEntry
-            answer={num(S11.task.answer)}
-            okText={S11.task.ok}
-            hints={S11.task.hint}
-            audio={audio}
-            onSolved={() => setTimeout(() => { setTitle(S11.order.title); setStage(1) }, 1400)}
-          />
-        </Col>
-      </Cols>
+      <NumberEntry
+        prompt={S11.task.prompt}
+        answer={num(S11.task.answer)}
+        okText={S11.task.ok}
+        hints={S11.task.hint}
+        audio={audio}
+        onSolved={() => setTimeout(() => { setTitle(S11.order.title); setStage(1) }, 1400)}
+      />
     ))}
   </Screen>
 )
@@ -931,8 +945,7 @@ const Screen13 = (p) => (
     ) : (
       <Cols l={1} r={1}>
         <Col>
-          {/* Полоса другая: граница пятёрка, а не двойка. */}
-          <Scene fig={<DomainBand step={1} from={5} {...BAND} />} max={300} />
+          <Scene fig={<Space step={1} yaw={0.4} cube planes={TWO_BASES} />} max={260} h={190} />
         </Col>
         <Col>
           <NumberEntry
@@ -958,7 +971,7 @@ const Screen14 = (p) => (
         data={S14}
         fig={(round) => (
           <Scene
-            fig={<DomainBand step={round >= 1 ? 2 : 1} from={2} roots={round >= 1 ? ROOTS : []} {...BAND} />}
+            fig={<Space step={1} yaw={0.4} cube hi={round >= 2 ? SKEW_PAIR : CRIT_PAIRS} planes={TWO_BASES} />}
             max={260}
             h={168}
           />

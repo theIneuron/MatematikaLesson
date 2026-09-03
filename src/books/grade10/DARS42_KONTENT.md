@@ -1,21 +1,38 @@
-# Урок 42 — Угол между прямой и плоскостью · КОНТЕНТ (этап 2)
+# Урок 49 — Построение сечений многогранников · КОНТЕНТ (этап 2)
 
-**Читается и правится методистом.** Формат тот же, что в `DARS41_KONTENT.md`.
+**Читается и правится методистом.** Формат тот же, что в `DARS48_KONTENT.md`.
 
-Скелет: в переписке 2026-08-20. Опора: учебник геометрии 2022, §19, стр. 138 — определение
-проекции прямой и определение угла между прямой и плоскостью, оба дословно.
+Скелет: в переписке 2026-08-21. Опора: учебник геометрии 2022, §8 стр. 64–69. Определение
+сечения — стр. 64 дословно: «сечением многогранника называется геометрическая фигура из точек
+многогранника, принадлежащих секущей плоскости». Правила метода следов — стр. 68 дословно:
+вершины сечения лежат только на рёбрах; стороны сечения лежат только в гранях; если секущая
+плоскость и грань пересекаются, линия их пересечения — единственная прямая. Метод параллельного
+переноса — стр. 68, задача 5. Граница «число сторон сечения не больше числа граней» — стр. 64,
+там же вопрос «почему восьмиугольник невозможен» для пятиугольной призмы.
 
-**Главное решение урока.** Угол между прямой и плоскостью — это угол с **проекцией**, и ни с
-какой другой прямой плоскости. Ошибка живая: ученик берёт ту прямую, которая удобно лежит на
-чертеже, и получает угол меньше настоящего. Показать это можно только поворотом: на неподвижном
-чертеже удобная прямая выглядит убедительнее проекции.
+**Главное решение урока.** Ошибка года из эталона: «сечение», вершины которого не в одной
+плоскости. Ученик отмечает точки и соединяет их в многоугольник, не проверяя ни принадлежность
+одной грани, ни компланарность. Свидетель эталона — поворот разваливает многоугольник.
 
-**Дуга угла показывает, ГДЕ угол, а не его величину.** Проекция искажает углы, поэтому все
-числа в уроке считаются, а не читаются с картинки. Это то же правило, что «измерил не значит
-доказал» из урока 38.
+**Вся геометрия урока посчитана, а не нарисована на глаз.** Куб `ABCDA₁B₁C₁D₁`, точки
+`M` — середина `A₁B₁`, `N` — середина `B₁C₁`, `K` на `DD₁` на четверти от `D`. Секущая плоскость
+режет ровно пять рёбер, и два оставшихся пересечения приходятся на `AA₁` и `CC₁` на три четверти
+от `A` и от `C`. Сечение `KPMNH` — пятиугольник, отклонение всех пяти точек от одной плоскости
+равно нулю, пар параллельных сторон ровно две. Обманка экрана 3: четвёртая точка `G` берётся на
+ребре `AB`, которого секущая плоскость не касается вовсе; её отклонение от плоскости `MNK` — семь
+десятых ребра, и при начальном ракурсе это невидимо. Ракурс и шаг поворота подобраны счётом:
+четырёхугольник `MNGK` цел при повороте ноль целых семь десятых и пересекает сам себя при
+повороте на одну целую две десятых в ЛЮБУЮ сторону, причём ни одно из трёх положений не
+вырождает куб в плоскую картинку. Пирамида экрана 5: `K` — середина `AB`,
+`L` на `AS` на восьми десятых, `M` на `CS` на пятидесяти пяти сотых; при этих долях точка `X`
+попадает на продолжение `AC` в одной целой сорока четырёх сотых от `A`, то есть за `C` и внутри
+кадра, точка `N` — на ребре `BC` в семидесяти семи сотых, а ни одна пара подписей на чертеже не
+ближе шестнадцати сотых. Наибольшие сечения экрана 7 тоже посчитаны: у куба это правильный
+шестиугольник через середины шести рёбер, у правильной пятиугольной призмы — семиугольник,
+и азимут наклона плоскости выбран так, чтобы при камере класса она не встала к нам ребром.
 
-**Терминология UZ — draft, требует валидации узбекским методистом математики.** Термины
-`proyeksiya`, `og'ma`, `to'g'ri chiziq va tekislik orasidagi burchak` взяты из учебника, стр. 138.
+**Терминология UZ — draft, требует валидации узбекским методистом математики.** Термины `kesim`,
+`kesuvchi tekislik`, `iz`, `izlar usuli`, `parallel ko'chirish usuli` взяты из учебника, стр. 64–68.
 
 ---
 
@@ -25,28 +42,28 @@
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | УГОЛ | BURCHAK | THE ANGLE |
-| `title` | С чем берут угол | Burchak nima bilan olinadi | What the angle is taken with |
-| `row.a.name` | с прямой плоскости | tekislik chizig'i bilan | with a line of the plane |
-| `row.b.name` | с проекцией | proyeksiya bilan | with the projection |
+| `eyebrow` | СЕЧЕНИЕ | KESIM | THE SECTION |
+| `title` | Три точки, сколько сторон | Uch nuqta, nechta tomon | Three points, how many sides |
+| `row.a.name` | треугольник | uchburchak | a triangle |
+| `row.b.name` | пятиугольник | beshburchak | a pentagon |
 | `probe.question` | Какая запись верна? | Qaysi yozuv to'g'ri? | Which reading is correct? |
 | `probe.a` | первая | birinchi | the first |
 | `probe.b` [верно] | вторая | ikkinchi | the second |
 | `probe.both` | обе | ikkisi ham | both |
 | `probe.none` | ни одна | hech qaysi | neither |
-| `probe.after` | Твой ответ записан. Сейчас повернём сцену. | Javobingiz yozib olindi. Endi sahnani buramiz. | Your answer is recorded. Now we rotate the scene. |
-| `audio.mount` | Прямая пересекает плоскость и не перпендикулярна ей. Угол между ними ещё не отмечен. | To'g'ri chiziq tekislikni kesib o'tadi va unga perpendikulyar emas. Ular orasidagi burchak hali belgilanmagan. | A line crosses the plane and is not perpendicular to it. The angle between them is not marked yet. |
-| `audio.r1` | Первая запись говорит так. Берём в плоскости любую прямую через точку пересечения и мерим угол с ней. | Birinchi yozuv shunday deydi. Tekislikda kesishish nuqtasi orqali istalgan to'g'ri chiziqni olamiz va u bilan burchakni o'lchaymiz. | The first reading says this. Take any line of the plane through the crossing point and measure the angle with it. |
-| `audio.r2` | Вторая берёт не любую прямую, а проекцию. | Ikkinchisi istalgan chiziqni emas, proyeksiyani oladi. | The second takes not any line but the projection. |
-| `audio.ask` | Прямых в плоскости бесконечно много, и углы с ними разные. Как думаешь, какая запись верная? | Tekislikda to'g'ri chiziqlar cheksiz ko'p, va ular bilan burchaklar boshqa-boshqa. Sizningcha qaysi yozuv to'g'ri? | There are infinitely many lines in the plane and the angles with them differ. Which reading do you think is correct? |
+| `probe.after` | Твой ответ записан. Сейчас построим сечение. | Javobingiz yozib olindi. Endi kesimni yasaymiz. | Your answer is recorded. Now we build the section. |
+| `audio.mount` | Куб, и на трёх его рёбрах отмечены точки. Через них проходит секущая плоскость. | Kub, va uning uch qirrasida nuqtalar belgilangan. Ular orqali kesuvchi tekislik o'tadi. | A cube, and points are marked on three of its edges. A cutting plane passes through them. |
+| `audio.r1` | Первая запись говорит, что сторон три: точки соединили между собой и получили треугольник. | Birinchi yozuv tomonlar uchta deydi: nuqtalar bir biriga ulanib uchburchak chiqdi. | The first reading says there are three sides: the points were joined to each other and a triangle came out. |
+| `audio.r2` | Вторая говорит, что сторон пять. | Ikkinchisi tomonlar beshta deydi. | The second says there are five sides. |
+| `audio.ask` | Точек три, значит и сторон три, так кажется. Как думаешь, какая запись верная? | Nuqta uchta, demak tomon ham uchta, shunday ko'rinadi. Sizningcha qaysi yozuv to'g'ri? | There are three points, so three sides, it seems. Which reading do you think is right? |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `expr` | `a ∩ α = A` |
-| `row.a.value` | `∠(a; α) = ∠(a; b),   b ⊂ α` |
-| `row.b.value` | `∠(a; α) = ∠(a; a₁)` |
+| `expr` | `ABCDA₁B₁C₁D₁` |
+| `row.a.value` | `3` |
+| `row.b.value` | `5` |
 
 ---
 
@@ -57,283 +74,283 @@
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ОПОРА | TAYANCH | WHAT YOU KNOW |
-| `title` | Три вопроса из прошлого урока | O'tgan darsdan uch savol | Three questions from the last lesson |
-| `q1.prompt` | Что такое проекция наклонной? | Og'maning proyeksiyasi nima? | What is the projection of an oblique? |
-| `q1.a` [верно] | отрезок между основаниями | asoslar orasidagi kesma | the segment between the feet |
-| `q1.b` | сама наклонная | og'maning o'zi | the oblique itself |
-| `q1.b.hint` | Наклонная в плоскости не лежит, а проекция лежит. | Og'ma tekislikda yotmaydi, proyeksiya esa yotadi. | An oblique does not lie in the plane, a projection does. |
-| `q1.c` | перпендикуляр | perpendikulyar | the perpendicular |
-| `q1.c.hint` | Перпендикуляр только приходит в плоскость, а не идёт по ней. | Perpendikulyar tekislikka faqat keladi, unda bormaydi. | A perpendicular only arrives at the plane, it does not run along it. |
-| `q1.d` | вся плоскость | butun tekislik | the whole plane |
-| `q1.d.hint` | Проекция отрезка это отрезок. | Kesmaning proyeksiyasi kesma bo'ladi. | The projection of a segment is a segment. |
-| `q2.prompt` | Что короче из одной точки? | Bitta nuqtadan nima qisqaroq? | Which is shorter from one point? |
-| `q2.a` [верно] | перпендикуляр | perpendikulyar | the perpendicular |
-| `q2.b` | наклонная | og'ma | the oblique |
-| `q2.b.hint` | Наклонная гипотенуза в том же треугольнике. | Og'ma o'sha uchburchakda gipotenuza. | The oblique is the hypotenuse in that triangle. |
-| `q2.c` | они равны | ular teng | they are equal |
-| `q2.c.hint` | Равны они были бы только при нулевой проекции. | Ular faqat proyeksiya nol bo'lganda teng bo'lardi. | They would be equal only with a zero projection. |
-| `q2.d` | зависит от плоскости | tekislikka bog'liq | it depends on the plane |
-| `q2.d.hint` | Треугольник прямоугольный при любой плоскости. | Uchburchak har qanday tekislikda to'g'ri burchakli. | The triangle is right-angled for any plane. |
-| `q3.prompt` | Что даёт теорема о трёх перпендикулярах? | Uch perpendikulyar haqidagi teorema nima beradi? | What does the theorem of three perpendiculars give? |
-| `q3.a` [верно] | переносит перпендикулярность с проекции на наклонную | perpendikulyarlikni proyeksiyadan og'maga o'tkazadi | it carries perpendicularity from the projection to the oblique |
-| `q3.b` | сравнивает длины | uzunliklarni solishtiradi | it compares lengths |
-| `q3.b.hint` | Про длины там речи нет вовсе. | Unda uzunliklar haqida gap yo'q. | It says nothing about lengths at all. |
-| `q3.c` | строит перпендикуляр | perpendikulyar quradi | it builds a perpendicular |
-| `q3.c.hint` | Перпендикуляр в ней уже дан. | Perpendikulyar unda allaqachon berilgan. | The perpendicular is already given in it. |
-| `q3.d` | измеряет угол | burchakni o'lchaydi | it measures the angle |
-| `q3.d.hint` | Углы она не считает, она их переносит. | U burchaklarni hisoblamaydi, ularni o'tkazadi. | It does not compute angles, it carries them over. |
-| `audio.mount` | Три вопроса про прошлый урок. Проекция понадобится сразу. | O'tgan dars haqida uch savol. Proyeksiya darhol kerak bo'ladi. | Three questions about the last lesson. The projection will be needed at once. |
+| `title` | Три вопроса из блока | Blokdan uch savol | Three questions from the block |
+| `q1.prompt` | Что такое сечение тела? | Jismning kesimi nima? | What is a section of a body? |
+| `q1.a` [верно] | фигура из точек тела, лежащих в секущей плоскости | kesuvchi tekislikda yotgan jism nuqtalaridan iborat shakl | the figure of the points of the body lying in the cutting plane |
+| `q1.b` | плоскость, которая режет тело | jismni kesadigan tekislik | the plane that cuts the body |
+| `q1.b.hint` | Плоскость режет, а сечение это то, что получилось. | Tekislik kesadi, kesim esa chiqqan narsa. | The plane cuts, and the section is what came out. |
+| `q1.c` | линия пересечения двух граней | ikki yoqning kesishish chizig'i | the line where two faces meet |
+| `q1.c.hint` | Линия пересечения двух граней это ребро. | Ikki yoqning kesishish chizig'i qirra. | The line where two faces meet is an edge. |
+| `q1.d` | площадь разреза | kesim yuzasi | the area of the cut |
+| `q1.d.hint` | Площадь считают после того, как фигура найдена. | Yuza shakl topilgandan keyin hisoblanadi. | The area is computed after the figure is found. |
+| `q2.prompt` | Где лежат вершины сечения? | Kesim uchlari qayerda yotadi? | Where do the vertices of a section lie? |
+| `q2.a` [верно] | только на рёбрах | faqat qirralarda | only on the edges |
+| `q2.b` | внутри граней | yoqlarning ichida | inside the faces |
+| `q2.b.hint` | Внутри грани лежат стороны, а не вершины. | Yoq ichida tomonlar yotadi, uchlar emas. | The sides lie inside a face, not the vertices. |
+| `q2.c` | в вершинах тела | jism uchlarida | at the vertices of the body |
+| `q2.c.hint` | Иногда совпадают, но по правилу не обязаны. | Ba'zan mos tushadi, lekin qoida bo'yicha shart emas. | Sometimes they coincide, but the rule does not require it. |
+| `q2.d` | в любом месте секущей плоскости | kesuvchi tekislikning har qanday joyida | anywhere in the cutting plane |
+| `q2.d.hint` | Точка вне тела в сечение не входит. | Jismdan tashqaridagi nuqta kesimga kirmaydi. | A point outside the body is not in the section. |
+| `q3.prompt` | Сколько граней у куба? | Kubning nechta yog'i bor? | How many faces does a cube have? |
+| `q3.a` [верно] | шесть | oltita | six |
+| `q3.b` | восемь | sakkizta | eight |
+| `q3.b.hint` | Восемь это число вершин. | Sakkiz uchlar soni. | Eight is the number of vertices. |
+| `q3.c` | двенадцать | o'n ikkita | twelve |
+| `q3.c.hint` | Двенадцать это число рёбер. | O'n ikki qirralar soni. | Twelve is the number of edges. |
+| `q3.d` | четыре | to'rtta | four |
+| `q3.d.hint` | Четыре грани у треугольной пирамиды. | To'rt yoq uchburchakli piramidada. | Four faces belong to a triangular pyramid. |
+| `audio.mount` | Три вопроса. Правило урока соберётся из первых двух. | Uchta savol. Darsning qoidasi birinchi ikkitasidan yig'iladi. | Three questions. The rule of the lesson will be assembled from the first two. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `q1.done` | `BC ⊂ α` |
-| `q2.done` | `AB < AC` |
-| `q3.done` | `c ⊥ BC ⇔ c ⊥ AC` |
+| `q1.done` | `KPMNH` |
+| `q2.done` | `M ∈ A₁B₁` |
+| `q3.done` | `6` |
 
 ---
 
-## Экран 3 · `explain1` · ответ `number` · тег `kartinka-kak-dokazatelstvo`
+## Экран 3 · `explain1` · ответ `number` · тег `secheniye-ne-ploskoe`
 
-Проекция прямой строится на глазах.
+Свидетель урока: четвёртая точка не свободна.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
-| `title` | Основания перпендикуляров дают прямую | Perpendikulyar asoslari to'g'ri chiziq beradi | The feet of the perpendiculars give a line |
-| `show.1.1` | из точек прямой падают перпендикуляры | to'g'ri chiziq nuqtalaridan perpendikulyarlar tushadi | perpendiculars drop from the points of the line |
-| `show.1.2` | их основания ложатся в плоскость | ularning asoslari tekislikka tushadi | their feet land in the plane |
-| `show.2.1` | основания легли на одну прямую | asoslar bitta to'g'ri chiziqqa tushdi | the feet fell on one line |
-| `show.2.2` | это проекция прямой на плоскость | bu to'g'ri chiziqning tekislikdagi proyeksiyasi | this is the projection of the line on the plane |
-| `audio.mount` | Возьмём на прямой несколько точек и из каждой опустим перпендикуляр на плоскость. | To'g'ri chiziqda bir necha nuqta olamiz va har biridan tekislikka perpendikulyar tushiramiz. | Take several points on the line and drop a perpendicular from each onto the plane. |
-| `audio.move*` | Смотри, куда попадают основания. Они не разбросаны, они выстроились в одну прямую, и эта прямая называется проекцией нашей прямой на плоскость. Так и написано в учебнике на странице сто тридцать восемь. Поверни сцену и следи за проекцией. Она остаётся в плоскости при любом положении сцены, потому что построена из точек плоскости. Наклонная прямая при повороте уходит из плоскости, а её проекция нет. | Asoslar qayerga tushishiga qarang. Ular sochilib ketmadi, bitta to'g'ri chiziqqa tizildi, va bu chiziq bizning to'g'ri chizig'imizning tekislikdagi proyeksiyasi deb ataladi. Darslikda bir yuz o'ttiz sakkizinchi betda ham shunday yozilgan. Sahnani buring va proyeksiyaga qarang. U sahnaning har qanday holatida tekislikda qoladi, chunki tekislik nuqtalaridan qurilgan. Og'ma chiziq burilishda tekislikdan chiqadi, uning proyeksiyasi esa yo'q. | Look at where the feet land. They are not scattered, they line up on one line, and that line is called the projection of our line on the plane. That is exactly what the textbook says on page one hundred thirty eight. Rotate the scene and watch the projection. It stays in the plane at any position of the scene, because it is built from points of the plane. Under rotation the slanted line leaves the plane, its projection does not. |
-| `audio.work` | Посчитай сам. Сколько прямых получается из оснований этих перпендикуляров? | O'zingiz hisoblang. Bu perpendikulyarlarning asoslaridan nechta to'g'ri chiziq chiqadi? | Work it out yourself. How many lines come out of the feet of these perpendiculars? |
-| `work.prompt` | Сколько прямых дают основания? | Asoslar nechta to'g'ri chiziq beradi? | How many lines do the feet give? |
-| `work.ok` | Одна. Основания всех перпендикуляров лежат на одной прямой, и это проекция. | Bitta. Barcha perpendikulyarlarning asoslari bitta to'g'ri chiziqda yotadi, va bu proyeksiya. | One. The feet of all the perpendiculars lie on one line, and that is the projection. |
-| `work.hint.1` | Посмотри, разбросаны основания или выстроены. | Asoslar sochilganmi yoki tizilganmi, qarang. | See whether the feet are scattered or lined up. |
-| `work.hint.2` | Через две точки проходит ровно одна прямая. | Ikki nuqta orqali roppa-rosa bitta to'g'ri chiziq o'tadi. | Exactly one line passes through two points. |
+| `title` | Четвёртая точка не свободна | To'rtinchi nuqta erkin emas | The fourth point is not free |
+| `show.1.1` | четыре точки на рёбрах | qirralarda to'rt nuqta | four points on the edges |
+| `show.1.2` | и всё выглядит плоским | va hammasi yassi ko'rinadi | and everything looks flat |
+| `show.2.1` | один поворот | bitta burilish | one turn |
+| `show.2.2` | и четырёхугольник сломался | va to'rtburchak buzildi | and the quadrilateral broke |
+| `audio.mount` | На трёх рёбрах точки, и к ним добавлена четвёртая. Соединим все четыре по кругу. | Uch qirrada nuqtalar, va ularga to'rtinchisi qo'shildi. To'rttasini aylana bo'ylab ulaymiz. | There are points on three edges, and a fourth is added to them. Let us join all four in a cycle. |
+| `audio.move*` | С этого ракурса четырёхугольник выглядит совершенно обычным, плоским. Поворачиваю сцену в любую сторону, и он пересекает сам себя. Так плоская фигура вести себя не может, значит фигура не плоская. Причина простая и она из первого блока: плоскость задают три точки. Первые три точки её уже задали, а дальше выбор кончился: плоскость сама решает, какие рёбра она режет. Четвёртая точка взята на ребре, которого эта плоскость вообще не касается, и от плоскости она отстоит на семь десятых ребра. На первом ракурсе такая ошибка не видна совсем. | Bu rakursdan to'rtburchak butunlay oddiy, yassi ko'rinadi. Sahnani ixtiyoriy tomonga buraman, va u o'zini o'zi kesadi. Yassi shakl bunday tutolmaydi, demak shakl yassi emas. Sabab oddiy va u birinchi blokdan: tekislikni uch nuqta aniqlaydi. Birinchi uch nuqta uni allaqachon aniqlagan, keyin esa tanlov tugadi: qaysi qirralarni kesishini tekislikning o'zi hal qiladi. To'rtinchi nuqta bu tekislik umuman tegmaydigan qirrada olingan, va tekislikdan u qirraning yetti o'ndan qismi masofada turadi. Birinchi rakursda bunday xato umuman ko'rinmaydi. | From this view the quadrilateral looks perfectly ordinary and flat. I rotate the scene either way and it crosses itself. A flat figure cannot behave like that, so the figure is not flat. The reason is simple and it comes from the first block: three points determine a plane. The first three points have already determined it, and after that the choosing is over: the plane itself decides which edges it cuts. The fourth point is taken on an edge that this plane does not touch at all, and it stands seven tenths of an edge away from the plane. At the first view such an error cannot be seen at all. |
+| `audio.work` | Посчитай сам. Сколько точек задают плоскость? | O'zingiz hisoblang. Nechta nuqta tekislikni aniqlaydi? | Work it out yourself. How many points determine a plane? |
+| `work.prompt` | Сколько точек задают плоскость? | Nechta nuqta tekislikni aniqlaydi? | How many points determine a plane? |
+| `work.ok` | Три. Четвёртая уже вычисляется, а не выбирается. | Uchta. To'rtinchisi tanlanmaydi, hisoblanadi. | Three. The fourth one is computed, not chosen. |
+| `work.hint.1` | Вспомни первый блок про плоскость. | Tekislik haqidagi birinchi blokni eslang. | Recall the first block about the plane. |
+| `work.hint.2` | Двух точек мало, они дают прямую. | Ikki nuqta kam, ular to'g'ri chiziq beradi. | Two points are not enough, they give a line. |
+| `work.hint.3` | Три. | Uchta. | Three. |
+
+**Формулы**
+
+| Ключ | Значение |
+|---|---|
+| `expr` | `MNGK` |
+| `work.answer` | `3` |
+
+---
+
+## Экран 4 · `explain2` · ответ `number` · тег `gran-ne-storona`
+
+Сторона сечения лежит в грани.
+
+**Текст**
+
+| Ключ | RU | UZ | EN |
+|---|---|---|---|
+| `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
+| `title` | Сторона лежит в грани | Tomon yoqda yotadi | A side lies in a face |
+| `show.1.1` | точки M и N на рёбрах верхней грани | M va N nuqtalari ustki yoqning qirralarida | the points M and N are on the edges of the top face |
+| `show.1.2` | отрезок между ними лежит в ней | ular orasidagi kesma unda yotadi | the segment between them lies in it |
+| `show.2.1` | у M и K общей грани нет | M va K da umumiy yoq yo'q | M and K have no common face |
+| `show.2.2` | отрезок пошёл сквозь тело | kesma jism ichidan o'tdi | the segment went through the body |
+| `audio.mount` | Верхняя грань закрашена. Обе точки, M и N, лежат на её рёбрах. | Ustki yoq bo'yalgan. Ikki nuqta ham, M va N, uning qirralarida yotadi. | The top face is filled. Both points, M and N, lie on its edges. |
+| `audio.move*` | Отрезок между ними целиком в закрашенной грани, и поворот его оттуда не выпускает. Это и есть сторона сечения: секущая плоскость встречается с гранью по прямой, и внутри грани от этой прямой остаётся отрезок. Теперь попробую соединить M и K. Ищу грань, в которой лежат обе. Точка M лежит в верхней грани и в передней, точка K в левой и в задней. Общей грани нет ни одной, и отрезок уходит внутрь тела. Стороной сечения он быть не может, потому что сечение состоит из точек поверхности, а не из точек внутри. | Ular orasidagi kesma butunlay bo'yalgan yoqda, va burilish uni undan chiqarmaydi. Bu kesimning tomoni: kesuvchi tekislik yoq bilan to'g'ri chiziq bo'ylab uchrashadi, va yoq ichida shu chiziqdan kesma qoladi. Endi M va K ni ulashga harakat qilaman. Ikkisi yotgan yoqni qidiraman. M nuqta ustki va oldingi yoqda yotadi, K nuqta chap va orqa yoqda. Umumiy yoq bitta ham yo'q, va kesma jism ichiga ketadi. U kesimning tomoni bo'lolmaydi, chunki kesim sirt nuqtalaridan iborat, ichki nuqtalardan emas. | The segment between them lies entirely in the filled face, and rotation never lets it out. That is what a side of a section is: the cutting plane meets a face along a line, and inside the face a segment of that line remains. Now let me try to join M and K. I look for a face in which both of them lie. The point M lies in the top face and in the front one, the point K in the left and in the back one. There is no common face at all, and the segment goes inside the body. It cannot be a side of the section, because a section consists of points of the surface, not of points inside. |
+| `audio.work` | Посчитай сам. Сколько сторон можно провести сразу по трём отмеченным точкам? | O'zingiz hisoblang. Uch belgilangan nuqta bo'yicha darrov nechta tomon o'tkazish mumkin? | Work it out yourself. How many sides can be drawn straight away through the three marked points? |
+| `work.prompt` | Сколько сторон сразу? | Darrov nechta tomon? | How many sides straight away? |
+| `work.ok` | Одна. Общая грань есть только у M и N. | Bitta. Umumiy yoq faqat M va N da bor. | One. Only M and N have a common face. |
+| `work.hint.1` | Проверь все три пары точек. | Uch juft nuqtani tekshiring. | Check all three pairs of points. |
+| `work.hint.2` | Для каждой пары ищи грань, где лежат обе. | Har juft uchun ikkisi yotgan yoqni qidiring. | For each pair look for a face where both lie. |
 | `work.hint.3` | Одна. | Bitta. | One. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `expr` | `a₁ ⊂ α` |
+| `expr` | `MN ⊂ A₁B₁C₁D₁` |
 | `work.answer` | `1` |
 
 ---
 
-## Экран 4 · `explain2` · ответ `number` · тег `ugol-ne-s-proekciey`
+## Экран 5 · `explain3` · ответ `number` · тег `secheniye-ne-ploskoe`
 
-Разграничение: проекция даёт наименьший угол.
-
-**Текст**
-
-| Ключ | RU | UZ | EN |
-|---|---|---|---|
-| `eyebrow` | РАЗГРАНИЧЕНИЕ | FARQLASH | TELLING THEM APART |
-| `title` | Две дуги, и они разные | Ikki duga, va ular boshqa-boshqa | Two arcs, and they differ |
-| `show.1.1` | одна дуга между прямой и проекцией | biri to'g'ri chiziq va proyeksiya orasida | one arc between the line and the projection |
-| `show.1.2` | другая между прямой и второй прямой плоскости | ikkinchisi to'g'ri chiziq va tekislikning boshqa chizig'i orasida | the other between the line and a second line of the plane |
-| `show.2.1` | поверни сцену и сравни дуги | sahnani buring va dugalarni solishtiring | rotate the scene and compare the arcs |
-| `show.2.2` | с проекцией угол наименьший | proyeksiya bilan burchak eng kichik | with the projection the angle is the smallest |
-| `audio.mount` | В плоскости взята вторая прямая через ту же точку, и угол с ней тоже отмечен дугой. | Tekislikda o'sha nuqta orqali ikkinchi to'g'ri chiziq olingan, va u bilan burchak ham duga bilan belgilangan. | A second line of the plane is taken through the same point, and the angle with it is also marked by an arc. |
-| `audio.move*` | На неподвижном чертеже вторая дуга кажется меньше, и рука сама тянется взять её. Поверни сцену и посмотри снова. Дуга с проекцией остаётся самой узкой при любом положении, а вторая то растёт, то сжимается, потому что мы видим её под разными ракурсами. Углом между прямой и плоскостью считают именно наименьший, и он достигается на проекции. Все остальные прямые плоскости дают углы больше. | Qimirlamas chizmada ikkinchi duga kichikroq ko'rinadi, va qo'l o'zi uni olishga cho'ziladi. Sahnani buring va yana qarang. Proyeksiya bilan duga har qanday holatda eng tor qoladi, ikkinchisi esa goh o'sadi, goh qisqaradi, chunki biz uni turli rakursdan ko'ramiz. To'g'ri chiziq va tekislik orasidagi burchak deb aynan eng kichigi olinadi, va u proyeksiyada erishiladi. Tekislikning qolgan barcha chiziqlari kattaroq burchak beradi. | On a still drawing the second arc seems smaller, and the hand reaches for it by itself. Rotate the scene and look again. The arc with the projection stays the narrowest at any position, while the second one grows and shrinks, because we see it from different views. The angle between a line and a plane is taken to be the smallest one, and it is reached on the projection. All the other lines of the plane give bigger angles. |
-| `audio.work` | Посчитай сам. Сколько прямых плоскости дают наименьший угол с нашей прямой? | O'zingiz hisoblang. Tekislikning nechta chizig'i bizning chizig'imiz bilan eng kichik burchak beradi? | Work it out yourself. How many lines of the plane give the smallest angle with our line? |
-| `work.prompt` | Сколько таких прямых? | Shunday chiziq nechta? | How many such lines? |
-| `work.ok` | Одна, и это проекция. Остальные дают углы больше. | Bitta, va bu proyeksiya. Qolganlari kattaroq burchak beradi. | One, and it is the projection. The rest give bigger angles. |
-| `work.hint.1` | Поверни сцену и посмотри, какая дуга остаётся узкой всегда. | Sahnani buring va qaysi duga doim tor qolishini ko'ring. | Rotate the scene and see which arc always stays narrow. |
-| `work.hint.2` | Проекция у прямой одна. | To'g'ri chiziqning proyeksiyasi bitta. | A line has one projection. |
-| `work.hint.3` | Одна. | Bitta. | One. |
-
-**Формулы**
-
-| Ключ | Значение |
-|---|---|
-| `expr` | `∠(a; a₁) < ∠(a; b)` |
-| `work.answer` | `1` |
-
----
-
-## Экран 5 · `explain3` · ответ `number` · тег `ugol-ne-s-proekciey`
-
-Крайние случаи со стр. 138.
+Метод следов: выход за тело даёт точку на ребре.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | КРАЙНИЕ СЛУЧАИ | CHEGARA HOLLAR | THE EXTREME CASES |
-| `title` | Девяносто и ноль | To'qson va nol | Ninety and zero |
-| `show.1.1` | прямая встала перпендикулярно плоскости | to'g'ri chiziq tekislikka perpendikulyar bo'ldi | the line stood perpendicular to the plane |
-| `show.1.2` | её проекция сжалась в точку | uning proyeksiyasi nuqtaga siqildi | its projection shrank to a point |
-| `show.2.1` | теперь прямая параллельна плоскости | endi to'g'ri chiziq tekislikka parallel | now the line is parallel to the plane |
-| `show.2.2` | проекция идёт рядом с ней | proyeksiya uning yonidan boradi | the projection runs beside it |
-| `audio.mount` | Два случая, которые определением не покрываются, и учебник задаёт их отдельно. | Ta'rif qamramaydigan ikki hol, va darslik ularni alohida beradi. | Two cases the definition does not cover, and the textbook sets them separately. |
-| `audio.move*` | Сначала прямая перпендикулярна плоскости. Её проекция сжалась в точку, и угол с проекцией уже не построить. Для этого случая угол считают равным девяноста градусам. Теперь прямая параллельна плоскости. Проекция идёт рядом с ней и никогда её не встретит, и угол в этом случае считают равным нулю. Оба соглашения записаны в учебнике на странице сто тридцать восемь, и оба согласованы с остальными углами. | Avval to'g'ri chiziq tekislikka perpendikulyar. Uning proyeksiyasi nuqtaga siqildi, va proyeksiya bilan burchakni qurib bo'lmaydi. Bu hol uchun burchak to'qson darajaga teng deb olinadi. Endi to'g'ri chiziq tekislikka parallel. Proyeksiya uning yonidan boradi va uni hech qachon uchratmaydi, va bu holda burchak nolga teng deb olinadi. Ikkala kelishuv ham darslikning bir yuz o'ttiz sakkizinchi betida yozilgan, va ikkalasi ham qolgan burchaklar bilan mos. | First the line is perpendicular to the plane. Its projection shrank to a point and the angle with the projection can no longer be built. For that case the angle is taken to be ninety degrees. Now the line is parallel to the plane. The projection runs beside it and will never meet it, and in that case the angle is taken to be zero. Both conventions are written in the textbook on page one hundred thirty eight, and both agree with the other angles. |
-| `audio.work` | Посчитай сам. Сколько градусов в угле между плоскостью и перпендикулярной ей прямой? | O'zingiz hisoblang. Tekislik va unga perpendikulyar to'g'ri chiziq orasidagi burchak necha daraja? | Work it out yourself. How many degrees are in the angle between a plane and a line perpendicular to it? |
-| `work.prompt` | Сколько градусов? | Necha daraja? | How many degrees? |
-| `work.ok` | Девяносто. Проекция сжалась в точку, и это соглашение из учебника. | To'qson. Proyeksiya nuqtaga siqildi, va bu darslikdagi kelishuv. | Ninety. The projection shrank to a point, and this is the convention from the textbook. |
-| `work.hint.1` | Посмотри, во что превратилась проекция. | Proyeksiya nimaga aylanganini ko'ring. | See what the projection has turned into. |
-| `work.hint.2` | Перпендикуляр даёт прямой угол с каждой прямой плоскости. | Perpendikulyar tekislikning har bir chizig'i bilan to'g'ri burchak beradi. | A perpendicular gives a right angle with every line of the plane. |
-| `work.hint.3` | Девяносто. | To'qson. | Ninety. |
+| `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
+| `title` | След выводит за тело | Iz jismdan tashqariga olib chiqadi | The trace leads outside the body |
+| `show.1.1` | K и L в одной грани, это сторона | K va L bir yoqda, bu tomon | K and L are in one face, this is a side |
+| `show.1.2` | L и M в другой, это вторая | L va M boshqasida, bu ikkinchisi | L and M are in another, this is the second |
+| `show.2.1` | продлили LM и AC до точки X | LM va AC ni X nuqtaga qadar davom ettirdik | LM and AC were extended to the point X |
+| `show.2.2` | прямая KX дала точку N на ребре | KX to'g'ri chizig'i qirrada N nuqtani berdi | the line KX gave the point N on an edge |
+| `audio.mount` | Пирамида, и на трёх её рёбрах отмечены точки K, L и M. Две стороны находятся сразу. | Piramida, va uning uch qirrasida K, L va M nuqtalari belgilangan. Ikki tomon darrov topiladi. | A pyramid, and points K, L and M are marked on three of its edges. Two sides are found straight away. |
+| `audio.move*` | Дальше пары с общей гранью кончились, и метод следов делает шаг за тело. Точки L и M лежат в одной боковой грани, а эта грань бесконечно продолжается плоскостью. Продлеваю прямую через L и M, продлеваю сторону основания, и они встречаются в точке X. Эта точка принадлежит и секущей плоскости, и плоскости основания сразу. Значит через неё проходит след, то есть линия пересечения секущей плоскости с плоскостью основания. Точка K тоже лежит в основании, поэтому след это прямая через K и X. Там, где она пересекает ребро основания, стоит четвёртая вершина сечения. | Keyin umumiy yoqli juftlar tugadi, va izlar usuli jismdan tashqariga qadam tashlaydi. L va M nuqtalari bir yon yoqda yotadi, va bu yoq tekislik bilan cheksiz davom etadi. L va M orqali to'g'ri chiziqni davom ettiraman, asos tomonini davom ettiraman, va ular X nuqtada uchrashadi. Bu nuqta kesuvchi tekislikka ham, asos tekisligiga ham tegishli. Demak u orqali iz o'tadi, ya'ni kesuvchi tekislikning asos tekisligi bilan kesishish chizig'i. K nuqta ham asosda yotadi, shuning uchun iz K va X orqali o'tgan to'g'ri chiziq. U asos qirrasini kesgan joyda kesimning to'rtinchi uchi turadi. | Then the pairs with a common face ran out, and the trace method takes a step outside the body. The points L and M lie in one lateral face, and that face continues without end as a plane. I extend the line through L and M, I extend the side of the base, and they meet at the point X. This point belongs both to the cutting plane and to the plane of the base. So the trace passes through it, that is the line where the cutting plane meets the plane of the base. The point K lies in the base too, so the trace is the line through K and X. Where it crosses an edge of the base stands the fourth vertex of the section. |
+| `audio.work` | Посчитай сам. Сколько сторон у полученного сечения? | O'zingiz hisoblang. Chiqqan kesimning nechta tomoni bor? | Work it out yourself. How many sides does the section we got have? |
+| `work.prompt` | Сколько сторон у сечения? | Kesimning nechta tomoni? | How many sides does the section have? |
+| `work.ok` | Четыре. Каждая сторона в своей грани, и грани все четыре. | To'rtta. Har tomon o'z yog'ida, va yoqlar to'rttasi ham. | Four. Each side in its own face, and all four faces are used. |
+| `work.hint.1` | Посчитай вершины: их столько же, сколько сторон. | Uchlarni sanang: ular tomonlar soniga teng. | Count the vertices: there are as many as sides. |
+| `work.hint.2` | Точка X вершиной не является, она вне тела. | X nuqta uch emas, u jismdan tashqarida. | The point X is not a vertex, it is outside the body. |
+| `work.hint.3` | Четыре. | To'rtta. | Four. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `expr` | `a ⊥ α   →   ∠(a; α) = 90°` |
-| `work.answer` | `90` |
+| `expr` | `X = LM ∩ AC` |
+| `work.answer` | `4` |
 
 ---
 
-## Экран 6 · `explain4` · ответ `number` · тег `ugol-ne-s-proekciey`
+## Экран 6 · `explain4` · ответ `number` · тег `secheniye-ne-ploskoe`
 
-Сам: диагональ грани куба и плоскость основания.
+Параллельные грани дают параллельные стороны.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | САМ | O'ZINGIZ | ON YOUR OWN |
-| `title` | Диагональ грани и основание | Yoq diagonali va asos | A face diagonal and the base |
-| `show.1.1` | в кубе взята диагональ боковой грани | kubda yon yoqning diagonali olingan | a diagonal of a side face is taken in the cube |
-| `show.1.2` | её проекция это ребро основания | uning proyeksiyasi asos qirrasi | its projection is an edge of the base |
-| `show.2.1` | поверни куб и посмотри на треугольник | kubni buring va uchburchakka qarang | rotate the cube and look at the triangle |
-| `show.2.2` | два его катета равны | uning ikki kateti teng | its two legs are equal |
-| `audio.mount` | Куб, и в нём диагональ боковой грани. Её проекция на плоскость основания это ребро. | Kub, va unda yon yoqning diagonali. Uning asos tekisligidagi proyeksiyasi qirra. | A cube, and in it a diagonal of a side face. Its projection on the plane of the base is an edge. |
-| `audio.move*` | Диагональ, её проекция и боковое ребро дают прямоугольный треугольник. Прямой угол стоит там, где боковое ребро приходит в основание, и мы уже знаем почему. У куба все рёбра равны, значит два катета этого треугольника равны, а такой прямоугольный треугольник равнобедренный. Углы при его гипотенузе по сорок пять градусов. Поверни куб и убедись, что треугольник не разваливается ни при каком повороте. Угол посчитан, а не измерен с картинки. | Diagonal, uning proyeksiyasi va yon qirra to'g'ri burchakli uchburchak beradi. To'g'ri burchak yon qirra asosga kelgan joyda turadi, va nima uchun ekanini biz allaqachon bilamiz. Kubning barcha qirralari teng, demak bu uchburchakning ikki kateti teng, bunday to'g'ri burchakli uchburchak esa teng yonli. Uning gipotenuzasidagi burchaklar qirq besh daraja. Kubni buring va uchburchak hech qanday burilishda buzilmasligiga ishonch hosil qiling. Burchak hisoblangan, rasmdan o'lchanmagan. | The diagonal, its projection and the side edge give a right triangle. The right angle stands where the side edge arrives at the base, and we already know why. All edges of a cube are equal, so the two legs of that triangle are equal, and such a right triangle is isosceles. The angles at its hypotenuse are forty five degrees each. Rotate the cube and make sure the triangle does not fall apart at any rotation. The angle is computed, not measured off the picture. |
-| `audio.work` | Посчитай сам. Сколько градусов между диагональю грани и плоскостью основания? | O'zingiz hisoblang. Yoq diagonali va asos tekisligi orasida necha daraja? | Work it out yourself. How many degrees are between the face diagonal and the plane of the base? |
-| `work.prompt` | Сколько градусов? | Necha daraja? | How many degrees? |
-| `work.ok` | Сорок пять. Катеты равны, треугольник равнобедренный. | Qirq besh. Katetlar teng, uchburchak teng yonli. | Forty five. The legs are equal, the triangle is isosceles. |
-| `work.hint.1` | Найди прямоугольный треугольник с этой диагональю в гипотенузе. | Gipotenuzasida shu diagonal bo'lgan to'g'ri burchakli uchburchakni toping. | Find the right triangle with this diagonal as the hypotenuse. |
-| `work.hint.2` | Боковое ребро и ребро основания у куба равны. | Kubning yon qirrasi va asos qirrasi teng. | The side edge and the base edge of a cube are equal. |
-| `work.hint.3` | В равнобедренном прямоугольном треугольнике острые углы по сорок пять. | Teng yonli to'g'ri burchakli uchburchakda o'tkir burchaklar qirq beshtadan. | In an isosceles right triangle the acute angles are forty five each. |
+| `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
+| `title` | Параллельные грани, параллельные стороны | Parallel yoqlar, parallel tomonlar | Parallel faces, parallel sides |
+| `show.1.1` | пятиугольник, пять сторон в пяти гранях | beshburchak, besh yoqda besh tomon | a pentagon, five sides in five faces |
+| `show.1.2` | передняя и задняя грани параллельны | oldingi va orqa yoqlar parallel | the front and back faces are parallel |
+| `show.2.1` | значит и стороны в них параллельны | demak ulardagi tomonlar ham parallel | so the sides in them are parallel too |
+| `show.2.2` | вторая пара работает так же | ikkinchi juft ham shunday ishlaydi | the second pair works the same way |
+| `audio.mount` | Вот то самое сечение из начала урока. Сторон в нём пять, и каждая лежит в своей грани. | Mana darsning boshidagi o'sha kesim. Unda tomonlar beshta, va har biri o'z yog'ida yotadi. | Here is that very section from the start of the lesson. It has five sides, and each lies in its own face. |
+| `audio.move*` | Передняя и задняя грани куба параллельны, а секущая плоскость одна. Плоскость режет две параллельные плоскости по параллельным прямым, это теорема из блока про параллельность. Значит сторона в передней грани параллельна стороне в задней, и проверять тут нечего, это следствие. Вторая пара граней даёт вторую пару сторон. Отсюда второй способ построения, он в учебнике называется методом параллельного переноса: если сторона в одной грани уже есть, в параллельной грани её направление известно заранее. Пятая сторона осталась без пары, потому что нижнее основание плоскость не задела. | Kubning oldingi va orqa yoqlari parallel, kesuvchi tekislik esa bitta. Tekislik ikki parallel tekislikni parallel to'g'ri chiziqlar bo'ylab kesadi, bu parallellik blokidagi teorema. Demak oldingi yoqdagi tomon orqa yoqdagi tomonga parallel, va bu yerda tekshirishga hech narsa yo'q, bu natija. Ikkinchi yoqlar jufti ikkinchi tomonlar juftini beradi. Shundan ikkinchi yasash usuli, u darslikda parallel ko'chirish usuli deb ataladi: agar bir yoqda tomon allaqachon bo'lsa, parallel yoqda uning yo'nalishi oldindan ma'lum. Beshinchi tomon juftsiz qoldi, chunki tekislik pastki asosga tegmadi. | The front and the back faces of the cube are parallel, and the cutting plane is one. A plane cuts two parallel planes along parallel lines, that is a theorem from the block on parallelism. So the side in the front face is parallel to the side in the back one, and there is nothing to check here, it is a consequence. The second pair of faces gives the second pair of sides. Hence the second way of building, called in the textbook the method of parallel transfer: if a side in one face is already there, in the parallel face its direction is known in advance. The fifth side was left without a pair, because the plane did not touch the lower base. |
+| `audio.work` | Посчитай сам. Сколько пар параллельных сторон в этом пятиугольнике? | O'zingiz hisoblang. Bu beshburchakda nechta juft parallel tomon bor? | Work it out yourself. How many pairs of parallel sides are in this pentagon? |
+| `work.prompt` | Сколько пар параллельных сторон? | Nechta juft parallel tomon? | How many pairs of parallel sides? |
+| `work.ok` | Две. Столько же, сколько пар параллельных граней задето. | Ikkita. Tegilgan parallel yoq juftlari soni qancha bo'lsa, shuncha. | Two. As many as the pairs of parallel faces the plane touched. |
+| `work.hint.1` | Считай пары параллельных граней, которые плоскость задела. | Tekislik tegilgan parallel yoq juftlarini sanang. | Count the pairs of parallel faces that the plane touched. |
+| `work.hint.2` | Основания не задеты, там пары нет. | Asoslarga tegilmagan, u yerda juft yo'q. | The bases are not touched, there is no pair there. |
+| `work.hint.3` | Две. | Ikkita. | Two. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `expr` | `AB₁ ⊥̸ ABCD,   AB = BB₁` |
-| `work.answer` | `45` |
+| `expr` | `PM ∥ KH` |
+| `work.answer` | `2` |
 
 ---
 
-## Экран 7 · `explain5` · ответ `number` · тег `odnoy-pryamoy-hvatit`
+## Экран 7 · `explain5` · ответ `number` · тег `secheniye-ne-ploskoe`
 
-Граница: проекция сжалась в точку.
+ГРАНИЦА: сторон не больше, чем граней.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | ГРАНИЦА | CHEGARA | THE BOUNDARY |
-| `title` | Когда проекция это точка | Proyeksiya nuqta bo'lganda | When the projection is a point |
-| `show.1.1` | прямая наклонена, проекция это отрезок | chiziq og'gan, proyeksiya kesma | the line is slanted, the projection is a segment |
-| `show.1.2` | наклон уменьшается, проекция короче | og'ish kamayadi, proyeksiya qisqaradi | the slant decreases, the projection gets shorter |
-| `show.2.1` | прямая встала вертикально | chiziq tik turdi | the line stood upright |
-| `show.2.2` | проекция стала точкой | proyeksiya nuqtaga aylandi | the projection became a point |
-| `audio.mount` | Прямая наклонена, и её проекция это отрезок в плоскости. | Chiziq og'gan, va uning proyeksiyasi tekislikdagi kesma. | The line is slanted, and its projection is a segment in the plane. |
-| `audio.move*` | Проекция становится всё короче, и в момент, когда прямая перпендикулярна плоскости, она стягивается в одну точку. Это удобная проверка, и она работает в обе стороны. Если проекция прямой это точка, то прямая перпендикулярна плоскости. Если проекция это отрезок, то прямая наклонена, и угол с плоскостью меньше девяноста градусов. Заметь, что проверять углы со всеми прямыми плоскости не нужно, достаточно посмотреть на проекцию. | Proyeksiya tobora qisqaradi, va chiziq tekislikka perpendikulyar bo'lgan paytda u bitta nuqtaga yig'iladi. Bu qulay tekshiruv, va u ikki tomonga ishlaydi. Agar chiziqning proyeksiyasi nuqta bo'lsa, chiziq tekislikka perpendikulyar. Agar proyeksiya kesma bo'lsa, chiziq og'gan, va tekislik bilan burchak to'qson darajadan kichik. E'tibor bering, tekislikning barcha chiziqlari bilan burchakni tekshirish kerak emas, proyeksiyaga qarash yetarli. | The projection gets shorter and shorter, and at the moment the line is perpendicular to the plane it collapses into a single point. This is a handy check and it works both ways. If the projection of a line is a point, the line is perpendicular to the plane. If the projection is a segment, the line is slanted and the angle with the plane is less than ninety degrees. Note that there is no need to check the angles with all the lines of the plane, it is enough to look at the projection. |
-| `audio.work` | Посчитай сам. Сколько точек в проекции прямой, перпендикулярной плоскости? | O'zingiz hisoblang. Tekislikka perpendikulyar to'g'ri chiziqning proyeksiyasida nechta nuqta bor? | Work it out yourself. How many points are in the projection of a line perpendicular to the plane? |
-| `work.prompt` | Сколько точек в проекции? | Proyeksiyada nechta nuqta? | How many points are in the projection? |
-| `work.ok` | Одна. Все перпендикуляры из точек прямой приходят в одну точку. | Bitta. Chiziq nuqtalaridan chiqqan barcha perpendikulyarlar bitta nuqtaga keladi. | One. All the perpendiculars from the points of the line arrive at one point. |
-| `work.hint.1` | Посмотри, куда падают перпендикуляры из разных точек прямой. | Chiziqning turli nuqtalaridan perpendikulyarlar qayerga tushishini ko'ring. | See where the perpendiculars from different points of the line land. |
-| `work.hint.2` | Сама прямая и есть перпендикуляр для каждой своей точки. | Chiziqning o'zi har bir nuqtasi uchun perpendikulyar. | The line itself is the perpendicular for each of its points. |
-| `work.hint.3` | Одна. | Bitta. | One. |
+| `eyebrow` | ГРАНИЦА | CHEGARA | THE EDGE CASE |
+| `title` | Больше, чем граней, не бывает | Yoqlardan ko'p bo'lmaydi | There cannot be more than faces |
+| `show.1.1` | у куба граней шесть | kubda yoqlar oltita | a cube has six faces |
+| `show.1.2` | и наибольшее сечение шестиугольник | va eng katta kesim oltiburchak | and the largest section is a hexagon |
+| `show.2.1` | у пятиугольной призмы граней семь | beshburchakli prizmada yoqlar yettita | a pentagonal prism has seven faces |
+| `show.2.2` | и сечение бывает семиугольником | va kesim yettiburchak bo'ladi | and the section can be a heptagon |
+| `audio.mount` | У куба шесть граней, и вот сечение через середины шести рёбер. Сторон в нём шесть. | Kubda olti yoq, va mana olti qirraning o'rtalari orqali kesim. Unda tomonlar oltita. | A cube has six faces, and here is the section through the midpoints of six edges. It has six sides. |
+| `audio.move*` | Больше шести у куба не получится ни при каком наклоне плоскости, и причина не в переборе. Каждая сторона сечения лежит в своей грани, а в одной грани секущая плоскость даёт только одну прямую. Значит сторон не больше, чем граней, и это готовая проверка ответа. У пятиугольной призмы граней семь: пять боковых и два основания. Плоскость можно наклонить так, чтобы она задела все семь, и тогда в сечении семиугольник. А восьмиугольника у неё нет, и искать его бессмысленно: восьмой грани просто нет. | Kubda oltidan ko'pi tekislikning hech qanday og'ishida chiqmaydi, va sabab sanab ko'rishda emas. Kesimning har tomoni o'z yog'ida yotadi, bitta yoqda esa kesuvchi tekislik faqat bitta to'g'ri chiziq beradi. Demak tomonlar yoqlardan ko'p emas, va bu javobning tayyor tekshiruvi. Beshburchakli prizmada yoqlar yettita: besh yon va ikki asos. Tekislikni yettitasiga ham tegadigan qilib og'dirish mumkin, va u holda kesimda yettiburchak. Sakkizburchak esa unda yo'q, va uni qidirish ma'nosizdir: sakkizinchi yoq shunchaki yo'q. | More than six will not come out of a cube at any tilt of the plane, and the reason is not a search through cases. Every side of a section lies in its own face, and in one face the cutting plane gives only one line. So there are no more sides than faces, and that is a ready check of an answer. A pentagonal prism has seven faces: five lateral and two bases. The plane can be tilted so that it touches all seven, and then the section is a heptagon. But it has no octagon, and looking for one is pointless: there simply is no eighth face. |
+| `audio.work` | Посчитай сам. Сколько сторон самое большее у сечения пятиугольной призмы? | O'zingiz hisoblang. Beshburchakli prizma kesimida eng ko'pi bilan nechta tomon bo'ladi? | Work it out yourself. What is the largest number of sides for a section of a pentagonal prism? |
+| `work.prompt` | Сколько сторон самое большее? | Eng ko'pi bilan nechta tomon? | The largest number of sides? |
+| `work.ok` | Семь. Столько же, сколько граней. | Yettita. Yoqlar soni qancha bo'lsa, shuncha. | Seven. As many as there are faces. |
+| `work.hint.1` | Посчитай грани: боковые и основания. | Yoqlarni sanang: yon yoqlar va asoslar. | Count the faces: the lateral ones and the bases. |
+| `work.hint.2` | Пять боковых и два основания. | Besh yon va ikki asos. | Five lateral and two bases. |
+| `work.hint.3` | Семь. | Yettita. | Seven. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `expr` | `a ⊥ α   →   a₁ = A` |
-| `work.answer` | `1` |
+| `expr` | `ABCDEA₁B₁C₁D₁E₁` |
+| `work.answer` | `7` |
 
 ---
 
-## Экран 8 · `rule` · ответ `pick2` · тег `ugol-ne-s-proekciey`
+## Экран 8 · `rule` · ответ `pick2` · тег `gran-ne-storona`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ПРАВИЛО | QOIDA | THE RULE |
-| `title` | Определение и два соглашения | Ta'rif va ikki kelishuv | The definition and two conventions |
-| `probe.question` | С какой прямой плоскости берут угол? | Tekislikning qaysi chizig'i bilan burchak olinadi? | With which line of the plane is the angle taken? |
-| `probe.a` [верно] | с проекцией | proyeksiya bilan | with the projection |
-| `probe.b` | с любой прямой через точку пересечения | kesishish nuqtasi orqali o'tuvchi istalgan chiziq bilan | with any line through the crossing point |
-| `probe.b.hint` | Таких прямых бесконечно много, и углы у них разные. | Bunday chiziqlar cheksiz ko'p, va ularning burchaklari boshqa-boshqa. | There are infinitely many such lines and their angles differ. |
-| `rule.lawLabel` | Угол прямой и плоскости | Chiziq va tekislik burchagi | The angle of a line and a plane |
-| `rule.lines.1` | это угол между прямой и её проекцией на эту плоскость | bu chiziq va uning shu tekislikdagi proyeksiyasi orasidagi burchak | it is the angle between the line and its projection on that plane |
-| `rule.lines.2` | если прямая перпендикулярна плоскости, угол считают равным девяноста градусам | agar chiziq tekislikka perpendikulyar bo'lsa, burchak to'qson daraja deb olinadi | if the line is perpendicular to the plane, the angle is taken as ninety degrees |
-| `rule.lines.3` | если прямая параллельна плоскости, угол считают равным нулю | agar chiziq tekislikka parallel bo'lsa, burchak nol deb olinadi | if the line is parallel to the plane, the angle is taken as zero |
+| `title` | Правила метода следов | Izlar usulining qoidalari | The rules of the trace method |
+| `probe.question` | Когда две отмеченные точки можно соединить? | Ikki belgilangan nuqtani qachon ulash mumkin? | When may two marked points be joined? |
+| `probe.a` [верно] | когда они лежат в одной грани | ular bir yoqda yotganda | when they lie in one face |
+| `probe.b` | когда они рядом на чертеже | chizmada yonma-yon bo'lganda | when they are next to each other on the drawing |
+| `probe.b.hint` | Соседство на чертеже зависит от ракурса, а не от тела. | Chizmadagi yonma-yonlik rakursga bog'liq, jismga emas. | Being next to each other on the drawing depends on the view, not on the body. |
+| `rule.lawLabel` | Метод следов | Izlar usuli | The trace method |
+| `rule.lines.1` | вершины сечения лежат только на рёбрах | kesim uchlari faqat qirralarda yotadi | the vertices of a section lie only on the edges |
+| `rule.lines.2` | стороны сечения лежат только в гранях | kesim tomonlari faqat yoqlarda yotadi | the sides of a section lie only in the faces |
+| `rule.lines.3` | плоскость и грань пересекаются по одной прямой | tekislik va yoq bitta to'g'ri chiziq bo'ylab kesishadi | a plane and a face meet along a single line |
 | `audio.mount` | Один вопрос на различение, потом карточка. | Farqlashga bitta savol, keyin kartochka. | One question to tell them apart, then the card. |
-| `audio.rule*` | Определение короткое, и вся его сила в слове проекция. Проекция у прямой одна, поэтому и угол один. Возьми любую другую прямую плоскости, и угол получится больше, а значит это будет угол с прямой, а не с плоскостью. Два крайних случая дописаны отдельно, потому что в них проекции в обычном смысле нет. Перпендикулярная прямая даёт девяносто, параллельная ноль. | Ta'rif qisqa, va uning butun kuchi proyeksiya so'zida. Chiziqning proyeksiyasi bitta, shuning uchun burchak ham bitta. Tekislikning boshqa istalgan chizig'ini olsangiz, burchak kattaroq chiqadi, ya'ni bu chiziq bilan burchak bo'ladi, tekislik bilan emas. Ikki chegara hol alohida yozilgan, chunki ularda oddiy ma'nodagi proyeksiya yo'q. Perpendikulyar chiziq to'qson beradi, parallel esa nol. | The definition is short and all its force is in the word projection. A line has one projection, so the angle is one too. Take any other line of the plane and the angle comes out bigger, which means it is an angle with a line and not with the plane. The two extreme cases are written separately, because in them there is no projection in the usual sense. A perpendicular line gives ninety, a parallel one gives zero. |
+| `audio.rule*` | Все три строки со страницы шестьдесят восемь, и все три про одно: сечение живёт на поверхности тела. Первая строка говорит, где брать вершины. Вторая говорит, что соединять можно не любые две. Третья запрещает вторую прямую в той же грани, и именно она делает построение однозначным. Из этих строк выходит и порядок работы: находим пары с общей гранью, проводим их стороны, а когда пары кончились, идём за тело через след и получаем новую точку на ребре. И там же лежит проверка: сторон не больше, чем граней. | Uchta satr ham oltmish sakkizinchi betdan, va uchtasi ham bir narsa haqida: kesim jism sirtida yashaydi. Birinchi satr uchlarni qayerdan olishni aytadi. Ikkinchisi har qanday ikkitasini ulash mumkin emasligini aytadi. Uchinchisi o'sha yoqda ikkinchi to'g'ri chiziqni taqiqlaydi, va aynan u yasashni yakkaqiymatli qiladi. Bu satrlardan ish tartibi ham chiqadi: umumiy yoqli juftlarni topamiz, ularning tomonlarini o'tkazamiz, juftlar tugagach esa iz orqali jismdan tashqariga chiqib qirrada yangi nuqta olamiz. Va shu yerda tekshiruv ham bor: tomonlar yoqlardan ko'p emas. | All three lines come from page sixty eight, and all three are about one thing: a section lives on the surface of the body. The first line says where to take the vertices. The second says that not any two may be joined. The third forbids a second line in the same face, and it is exactly what makes the construction unique. The order of work follows from these lines as well: we find the pairs with a common face, we draw their sides, and when the pairs run out we go outside the body through the trace and get a new point on an edge. And the check lives there too: no more sides than faces. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `rule.law` | `∠(a; α) = ∠(a; a₁)` |
+| `rule.law` | `MN ⊂ A₁B₁C₁D₁` |
 
 ---
 
-## Экран 9 · `drill` · ответ `match` · формат `match` · тег `ugol-ne-s-proekciey`
+## Экран 9 · `drill` · ответ `match` · формат `match` · тег `secheniye-ne-ploskoe`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ПРАКТИКА | AMALIYOT | PRACTICE |
-| `title` | Прямые куба и основание | Kub chiziqlari va asos | Lines of the cube and the base |
-| `match.prompt` | Соедини прямую с её углом к основанию | Chiziqni asosga burchagi bilan birlashtiring | Match the line with its angle to the base |
-| `match.ok` | Все четыре на месте. Углы посчитаны, а не измерены. | To'rttasi ham joyida. Burchaklar hisoblangan, o'lchanmagan. | All four in place. The angles are computed, not measured. |
-| `audio.mount` | Четыре прямые куба и четыре угла. Соедини их. | Kubning to'rt chizig'i va to'rt burchak. Ularni birlashtiring. | Four lines of the cube and four angles. Match them. |
-| `match.a` | ноль градусов | nol daraja | zero degrees |
-| `match.b` | девяносто градусов | to'qson daraja | ninety degrees |
-| `match.c` | сорок пять градусов | qirq besh daraja | forty five degrees |
-| `match.d` | меньше сорока пяти | qirq beshdan kichik | less than forty five |
+| `title` | Наибольшее число сторон | Eng katta tomonlar soni | The largest number of sides |
+| `match.prompt` | Соедини число с телом | Sonni jism bilan birlashtiring | Match the number with the body |
+| `match.ok` | Все четыре на месте. Число сторон не больше числа граней. | To'rttasi ham joyida. Tomonlar soni yoqlar sonidan ko'p emas. | All four in place. The number of sides is not more than the number of faces. |
+| `audio.mount` | Четыре числа и четыре тела. Соедини их по числу граней. | To'rt son va to'rt jism. Ularni yoqlar soni bo'yicha birlashtiring. | Four numbers and four bodies. Match them by the number of faces. |
+| `match.a` | треугольная пирамида | uchburchakli piramida | triangular pyramid |
+| `match.b` | четырёхугольная пирамида | to'rtburchakli piramida | quadrilateral pyramid |
+| `match.c` | куб | kub | cube |
+| `match.d` | пятиугольная призма | beshburchakli prizma | pentagonal prism |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `match.left` | `AB` · `AA₁` · `AB₁` · `AC₁` |
+| `match.left` | `4` · `5` · `6` · `7` |
 
 ---
 
-## Экран 10 · `guided` · ответ `order` · формат `proof` · тег `ugol-ne-s-proekciey`
+## Экран 10 · `guided` · ответ `order` · формат `proof` · тег `gran-ne-storona`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ПО ШАГАМ | QADAMMA-QADAM | STEP BY STEP |
-| `title` | Найди проекцию диагонали | Diagonalning proyeksiyasini toping | Find the projection of the diagonal |
-| `proof.given` | диагональ куба и плоскость основания | kub diagonali va asos tekisligi | a diagonal of a cube and the plane of the base |
-| `proof.goal` | её проекция это диагональ основания | uning proyeksiyasi asos diagonali | its projection is a diagonal of the base |
-| `proof.r1` | боковое ребро перпендикулярно основанию | yon qirra asosga perpendikulyar | the side edge is perpendicular to the base |
-| `proof.r2` | значит основание перпендикуляра это вершина основания | demak perpendikulyarning asosi asos uchi | so the foot of the perpendicular is a vertex of the base |
-| `proof.r3` | проекция отрезка это отрезок между проекциями концов | kesmaning proyeksiyasi uchlari proyeksiyalari orasidagi kesma | the projection of a segment is the segment between the projections of its ends |
-| `proof.ok` | Доказано. Проекция диагонали куба это диагональ основания. | Isbotlandi. Kub diagonalining proyeksiyasi asos diagonali. | Proved. The projection of the cube diagonal is a diagonal of the base. |
-| `proof.e1` | Определение проекции идёт дальше. Откуда взят прямой угол. | Proyeksiya ta'rifi keyin keladi. To'g'ri burchak qayerdan olingan. | The definition of projection comes later. Where does the right angle come from. |
-| `proof.e2` | Прямой угол уже есть. Речь о точке, куда он приходит. | To'g'ri burchak bor. Gap u kelgan nuqta haqida. | The right angle is already there. This is about the point it arrives at. |
-| `proof.e3` | Про концы сказано. Теперь про весь отрезок. | Uchlari haqida aytildi. Endi butun kesma haqida. | The ends are done. Now about the whole segment. |
-| `reason.s1` | по построению куба | kub yasalishiga ko'ra | by the construction of the cube |
-| `reason.s2` | определение проекции | proyeksiya ta'rifi | the definition of projection |
-| `reason.s3` | проекция отрезка | kesmaning proyeksiyasi | the projection of a segment |
+| `title` | Докажи, что MN сторона сечения | MN kesim tomoni ekanini isbotlang | Prove that MN is a side of the section |
+| `proof.given` | M и N на рёбрах верхней грани | M va N ustki yoq qirralarida | M and N are on the edges of the top face |
+| `proof.goal` | MN сторона сечения | MN kesimning tomoni | MN is a side of the section |
+| `proof.r1` | обе точки лежат в секущей плоскости | ikki nuqta ham kesuvchi tekislikda yotadi | both points lie in the cutting plane |
+| `proof.r2` | обе точки лежат в плоскости верхней грани | ikki nuqta ham ustki yoq tekisligida yotadi | both points lie in the plane of the top face |
+| `proof.r3` | две плоскости пересекаются по прямой, и это MN | ikki tekislik to'g'ri chiziq bo'ylab kesishadi, va bu MN | two planes meet along a line, and that is MN |
+| `proof.ok` | Доказано. Сторона это линия пересечения плоскости с гранью. | Isbotlandi. Tomon tekislikning yoq bilan kesishish chizig'i. | Proved. A side is the line where the plane meets a face. |
+| `proof.e1` | Про грань дальше. Сначала про секущую плоскость. | Yoq haqida keyin. Avval kesuvchi tekislik haqida. | The face comes later. First about the cutting plane. |
+| `proof.e2` | Плоскость разобрана. Теперь вторая плоскость. | Tekislik ko'rildi. Endi ikkinchi tekislik. | The plane is done. Now the second plane. |
+| `proof.e3` | Обе плоскости названы. Теперь вывод. | Ikki tekislik ham aytildi. Endi xulosa. | Both planes are named. Now the conclusion. |
+| `reason.s1` | точки взяты в секущей плоскости | nuqtalar kesuvchi tekislikda olingan | the points are taken in the cutting plane |
+| `reason.s2` | оба ребра принадлежат верхней грани | ikki qirra ham ustki yoqqa tegishli | both edges belong to the top face |
+| `reason.s3` | аксиома о пересечении двух плоскостей | ikki tekislikning kesishishi haqidagi aksioma | the axiom on the meeting of two planes |
 | `reason.pic` | видно на чертеже | chizmada ko'rinadi | it is visible on the drawing |
 | `reason.pic.missing` | Чертёж не обоснование. Он показывает один ракурс из многих. | Chizma asoslash emas. U ko'p rakursdan bittasini ko'rsatadi. | A drawing is not a justification. It shows one view out of many. |
-| `audio.mount` | Три строки, и у каждой своё обоснование из списка. | Uch qator, va har birining ro'yxatdan o'z asoslashi bor. | Three lines, and each has its own justification from the list. |
+| `audio.mount` | Три строки, и у каждой своё обоснование из списка. | Uch qator, va har birining ro'yxatdan o'z asoslashi bor. | Three lines, each with its own justification from the list. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `expr` | `AC₁ → AC` |
+| `expr` | `MN ⊂ A₁B₁C₁D₁` |
 
 ---
 
@@ -344,26 +361,26 @@
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | БЕЗ ПРИБОРА | ASBOBSIZ | NO TOOL |
-| `title` | Счёт и порядок | Hisob va tartib | Counting and order |
-| `task.ok` | Сорок пять. Перпендикуляр и проекция равны, треугольник равнобедренный. | Qirq besh. Perpendikulyar va proyeksiya teng, uchburchak teng yonli. | Forty five. The perpendicular and the projection are equal, the triangle is isosceles. |
-| `task.hint.1` | Нарисуй прямоугольный треугольник и подпиши катеты. | To'g'ri burchakli uchburchak chizing va katetlarni imzolang. | Draw a right triangle and label the legs. |
-| `task.hint.2` | Тангенс угла это перпендикуляр, делённый на проекцию. | Burchak tangensi perpendikulyarning proyeksiyaga bo'lingani. | The tangent of the angle is the perpendicular divided by the projection. |
-| `task.hint.3` | Тангенс равен единице, значит угол сорок пять. | Tangens birga teng, demak burchak qirq besh. | The tangent is one, so the angle is forty five. |
-| `order.prompt` | Расставь записи в том порядке, в каком их получают | Yozuvlarni olinish tartibida joylashtiring | Arrange the readings in the order they are obtained |
-| `order.title` | Порядок работы | Ish tartibi | The order of work |
-| `order.ok` | Порядок верный. Проекция строится до угла, а не после. | Tartib to'g'ri. Proyeksiya burchakdan oldin quriladi, keyin emas. | The order is right. The projection is built before the angle, not after. |
-| `order.bad` | Не в этом порядке. Что нужно знать раньше. | Bu tartibda emas. Avval nimani bilish kerak. | Not in this order. What has to be known first. |
-| `audio.mount` | Прибор убран. Здесь считают на бумаге. | Asbob olib qo'yildi. Bu yerda qog'ozda hisoblanadi. | The tool is put away. Here you count on paper. |
-| `audio.next` | Теперь порядок записей. Расставь их так, как их получают. | Endi yozuvlar tartibi. Ularni qanday olinsa, shunday joylashtiring. | Now the order of the readings. Arrange them the way they are obtained. |
+| `title` | Счёт и порядок построения | Hisob va yasash tartibi | Counting and the order of building |
+| `task.ok` | Пятьдесят. Диагональ основания десять, высота пять. | Ellik. Asos diagonali o'n, balandlik besh. | Fifty. The base diagonal is ten, the height is five. |
+| `task.hint.1` | Сечение через два боковых ребра это прямоугольник. | Ikki yon qirra orqali kesim to'g'ri to'rtburchak. | A section through two lateral edges is a rectangle. |
+| `task.hint.2` | Одна его сторона диагональ основания, шесть и восемь. | Uning bir tomoni asos diagonali, olti va sakkiz. | One of its sides is the base diagonal, six and eight. |
+| `task.hint.3` | Десять умножить на пять. | O'nni beshga ko'paytiring. | Ten times five. |
+| `order.prompt` | Расставь шаги метода следов в нужном порядке | Izlar usuli qadamlarini kerakli tartibda joylashtiring | Arrange the steps of the trace method in the right order |
+| `order.title` | Порядок построения | Yasash tartibi | The order of building |
+| `order.ok` | Порядок верный. Сначала сторона в грани, потом след, потом новая точка. | Tartib to'g'ri. Avval yoqdagi tomon, keyin iz, keyin yangi nuqta. | The order is right. First a side in a face, then the trace, then the new point. |
+| `order.bad` | Не в этом порядке. Что нужно раньше. | Bu tartibda emas. Avval nima kerak. | Not in this order. What is needed first. |
+| `audio.mount` | Прибор убран. Считаем на бумаге. | Asbob olib qo'yildi. Qog'ozda hisoblaymiz. | The tool is put away. We count on paper. |
+| `audio.next` | Теперь порядок шагов. Расставь их так, как строят. | Endi qadamlar tartibi. Ularni qanday yasalsa, shunday joylashtiring. | Now the order of the steps. Arrange them the way the building goes. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `task.prompt` | `AB = 7,   BC = 7,   ∠(AC; α) = ?` |
-| `task.answer` | `45` |
-| `order.items` | `∠(a; α)` · `a ∩ α = A` · `a₁ ⊂ α` · `∠(a; a₁)` |
-| `order.answer` | `a ∩ α = A  a₁ ⊂ α  ∠(a; a₁)  ∠(a; α)` |
+| `task.prompt` | `a = 6,   b = 8,   h = 5,   S = ?` |
+| `task.answer` | `50` |
+| `order.items` | `N` · `KL` · `KX` · `X` |
+| `order.answer` | `KL  X  KX  N` |
 
 ---
 
@@ -375,26 +392,26 @@
 |---|---|---|---|
 | `eyebrow` | ЛОВУШКА | TUZOQ | THE TRAP |
 | `title` | Найди строку с ошибкой | Xato qatorni toping | Find the line with the mistake |
-| `hint.r1` | Условие переписано верно. | Shart to'g'ri ko'chirilgan. | The condition is copied correctly. |
-| `hint.r2` | Прямая в плоскости взята, и это пока не ошибка. | Tekislikda chiziq olingan, va bu hozircha xato emas. | A line in the plane is taken, and that is not a mistake yet. |
-| `hint.r4` | Вывод получен из неверной строки выше. | Xulosa yuqoridagi xato qatordan olingan. | The conclusion comes from the wrong line above. |
-| `proof` | Поверни сцену: дуга с этой прямой то растёт, то сжимается, а с проекцией нет. | Sahnani buring: bu chiziq bilan duga goh o'sadi, goh qisqaradi, proyeksiya bilan esa yo'q. | Rotate the scene: the arc with this line grows and shrinks, the one with the projection does not. |
+| `hint.r1` | Данные выписаны верно. | Berilganlar to'g'ri yozilgan. | The data are written correctly. |
+| `hint.r2` | Обе точки на рёбрах верхней грани, это верно. | Ikki nuqta ham ustki yoq qirralarida, bu to'g'ri. | Both points are on the edges of the top face, that is right. |
+| `hint.r4` | Периметр посчитан по неверной строке выше. | Perimetr yuqoridagi xato qator bo'yicha hisoblangan. | The perimeter is computed from the wrong line above. |
+| `proof` | Поверни куб: точка K лежит на дальнем боковом ребре, а эта грань его не содержит. | Kubni buring: K nuqta uzoq yon qirrada yotadi, bu yoq esa uni o'z ichiga olmaydi. | Rotate the cube: the point K lies on the far lateral edge, and this face does not contain it. |
 | `entry.prompt` | Номер строки с ошибкой | Xato qator raqami | The number of the line with the mistake |
-| `entry.ok` | Третья. Углом с плоскостью назвали угол с прямой этой плоскости. | Uchinchi. Tekislik bilan burchak deb shu tekislik chizig'i bilan burchak aytilgan. | The third. The angle with a line of the plane was called the angle with the plane. |
-| `entry.hint.1` | Проверь, с чем берут угол в каждой строке. | Har qatorda burchak nima bilan olinayotganini tekshiring. | Check what the angle is taken with in each line. |
-| `entry.hint.2` | Проекция в этом доказательстве не появилась ни разу. | Bu isbotda proyeksiya biror marta ham paydo bo'lmadi. | The projection never appeared in this proof. |
+| `entry.ok` | Третья. У M и K общей грани нет. | Uchinchi. M va K da umumiy yoq yo'q. | The third. M and K have no common face. |
+| `entry.hint.1` | Проверь каждую строку по правилу о грани. | Har qatorni yoq haqidagi qoida bo'yicha tekshiring. | Check each line against the rule about a face. |
+| `entry.hint.2` | Ищи сторону, которая ушла в грань без одной из точек. | Nuqtalardan biri yo'q yoqqa ketgan tomonni qidiring. | Look for the side that went into a face without one of the points. |
 | `entry.hint.3` | Ошибка в третьей строке. | Xato uchinchi qatorda. | The mistake is in the third line. |
-| `audio.mount` | Четыре строки, и одна из них подменяет угол. | To'rt qator, va ulardan biri burchakni almashtiradi. | Four lines, and one of them substitutes the angle. |
+| `audio.mount` | Четыре строки, и одна из них кладёт сторону в чужую грань. | To'rt qator, va ulardan biri tomonni begona yoqqa qo'yadi. | Four lines, and one of them puts a side into a face that is not its own. |
 | `audio.next` | Теперь напиши номер строки, в которой ошибка. | Endi xato bo'lgan qator raqamini yozing. | Now write the number of the line with the mistake. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `row.r1` | `a ∩ α = A` |
-| `row.r2` | `b ⊂ α,   A ∈ b` |
-| `row.r3` | `∠(a; α) = ∠(a; b)` |
-| `row.r4` | `∠(a; α) = 30°` |
+| `row.r1` | `M ∈ A₁B₁,   N ∈ B₁C₁` |
+| `row.r2` | `MN ⊂ A₁B₁C₁D₁` |
+| `row.r3` | `MK ⊂ ABB₁A₁` |
+| `row.r4` | `P = MN + NK + KM` |
 | `answerId` | `r3` |
 | `entry.answer` | `3` |
 
@@ -408,32 +425,32 @@
 |---|---|---|---|
 | `eyebrow` | ПЕРЕНОС | KO'CHIRISH | TRANSFER |
 | `title` | В обратную сторону | Teskari tomonga | The other way round |
-| `place.prompt` | Угол между прямой и плоскостью равен нулю. Сколько общих точек у них? | To'g'ri chiziq va tekislik orasidagi burchak nolga teng. Ularning nechta umumiy nuqtasi bor? | The angle between a line and a plane is zero. How many common points do they have? |
-| `place.ok` | Ни одной. Нулевой угол это параллельность, а параллельная прямая плоскость не встречает. | Bitta ham yo'q. Nol burchak parallellik, parallel chiziq esa tekislikni uchratmaydi. | None. A zero angle means parallel, and a parallel line does not meet the plane. |
-| `place.wrong` | Посмотри на второе соглашение в карточке. | Kartochkadagi ikkinchi kelishuvga qarang. | Look at the second convention on the card. |
+| `place.prompt` | Прямоугольный параллелепипед, измерения девять, двенадцать и четыре. Сечение проходит через два противоположных боковых ребра. Какова его площадь? | To'g'ri burchakli parallelepiped, o'lchovlari to'qqiz, o'n ikki va to'rt. Kesim ikki qarama-qarshi yon qirra orqali o'tadi. Uning yuzasi qancha? | A rectangular box with dimensions nine, twelve and four. A section goes through two opposite lateral edges. What is its area? |
+| `place.ok` | Шестьдесят. Диагональ пятнадцать, высота четыре. | Oltmish. Diagonal o'n besh, balandlik to'rt. | Sixty. The diagonal is fifteen, the height is four. |
+| `place.wrong` | Диагональ основания считают по двум измерениям, а не по одному. | Asos diagonali bir o'lchov bo'yicha emas, ikki o'lchov bo'yicha hisoblanadi. | The base diagonal is computed from two dimensions, not from one. |
 | `multi.prompt` | Отметь все верные записи | Barcha to'g'ri yozuvlarni belgilang | Mark all the correct readings |
-| `multi.title` | Что верно всегда | Nima doim to'g'ri | What is always true |
-| `multi.d.hint` | Это угол с прямой плоскости, а не с плоскостью. | Bu tekislik chizig'i bilan burchak, tekislik bilan emas. | That is an angle with a line of the plane, not with the plane. |
-| `multi.e.hint` | Угол с плоскостью не бывает больше девяноста градусов. | Tekislik bilan burchak to'qson darajadan katta bo'lmaydi. | An angle with a plane is never more than ninety degrees. |
-| `multi.ok` | Три записи из пяти. Две оставшиеся ломаются на слове проекция. | Beshtadan uch yozuv. Qolgan ikkitasi proyeksiya so'zida sinadi. | Three readings out of five. The other two break at the word projection. |
-| `audio.mount` | Прочитаем определение справа налево. По углу назовём положение прямой. | Ta'rifni o'ngdan chapga o'qiymiz. Burchak bo'yicha chiziqning holatini aytamiz. | Let us read the definition from right to left. From the angle we name the position of the line. |
-| `audio.work` | Отметь все записи, которые верны всегда. Их больше одной. | Doim to'g'ri bo'lgan barcha yozuvlarni belgilang. Ular bittadan ko'p. | Mark all the readings that are always true. There is more than one. |
+| `multi.title` | Что верно для этого сечения | Bu kesim uchun nima to'g'ri | What is true for this section |
+| `multi.d.hint` | Эта грань точку K не содержит. | Bu yoq K nuqtani o'z ichiga olmaydi. | This face does not contain the point K. |
+| `multi.e.hint` | Точка K лежит на другом боковом ребре. | K nuqta boshqa yon qirrada yotadi. | The point K lies on another lateral edge. |
+| `multi.ok` | Три записи из пяти. Две оставшиеся кладут точку в грань, которая её не содержит. | Beshtadan uch yozuv. Qolgan ikkitasi nuqtani uni o'z ichiga olmaydigan yoqqa qo'yadi. | Three readings out of five. The other two put a point into a face that does not contain it. |
+| `audio.mount` | Прочитаем урок справа налево. Сначала счёт по телу, потом проверка записей. | Darsni o'ngdan chapga o'qiymiz. Avval jism bo'yicha hisob, keyin yozuvlarni tekshirish. | Let us read the lesson from right to left. First the count from the body, then the check of the readings. |
+| `audio.work` | Отметь все записи, которые верны. Их больше одной. | To'g'ri bo'lgan barcha yozuvlarni belgilang. Ular bittadan ko'p. | Mark all the readings that are correct. There is more than one. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `place.target` | `0` |
-| `place.step` | `∠(a; α) = 0°   →   a ∥ α` |
-| `multi.a` [верно] | `∠(a; α) ≤ 90°` |
-| `multi.b` [верно] | `∠(a; α) = ∠(a; a₁)` |
-| `multi.c` [верно] | `a ⊥ α   →   ∠(a; α) = 90°` |
-| `multi.d` | `∠(a; α) = ∠(a; b)` |
-| `multi.e` | `∠(a; α) = 120°` |
+| `place.target` | `60` |
+| `place.step` | `15·4` |
+| `multi.a` [верно] | `M ∈ A₁B₁` |
+| `multi.b` [верно] | `MN ⊂ A₁B₁C₁D₁` |
+| `multi.c` [верно] | `PM ∥ KH` |
+| `multi.d` | `MK ⊂ ABB₁A₁` |
+| `multi.e` | `K ∈ ABB₁A₁` |
 
 ---
 
-## Экран 14 · `blitz` · ответ `mixed` · формат `chain` · тег `ugol-ne-s-proekciey`
+## Экран 14 · `blitz` · ответ `mixed` · формат `chain` · тег `secheniye-ne-ploskoe`
 
 **Текст**
 
@@ -441,49 +458,48 @@
 |---|---|---|---|
 | `eyebrow` | БЛИЦ | BLITS | QUICK ROUND |
 | `title` | Четыре вопроса подряд | Ketma-ket to'rt savol | Four questions in a row |
-| `q1.prompt` | С чем берут угол? | Burchak nima bilan olinadi? | What is the angle taken with? |
-| `q1.a` [верно] | с проекцией | proyeksiya bilan | with the projection |
-| `q1.b` | с перпендикуляром | perpendikulyar bilan | with the perpendicular |
-| `q1.b.hint` | С перпендикуляром угол всегда прямой, и он ничего не различает. | Perpendikulyar bilan burchak doim to'g'ri, va u hech narsani ajratmaydi. | With the perpendicular the angle is always right and tells nothing apart. |
-| `q1.c` | с любой прямой плоскости | tekislikning istalgan chizig'i bilan | with any line of the plane |
-| `q1.c.hint` | Таких прямых бесконечно много, и углы разные. | Bunday chiziqlar cheksiz ko'p, va burchaklar boshqa-boshqa. | There are infinitely many such lines and the angles differ. |
-| `q1.d` | с ребром основания | asos qirrasi bilan | with the edge of the base |
-| `q1.d.hint` | Ребро это одна из прямых плоскости, не более. | Qirra tekislik chiziqlaridan biri, boshqa emas. | An edge is one of the lines of the plane, no more. |
-| `q2.prompt` | Прямая перпендикулярна плоскости. Угол? | Chiziq tekislikka perpendikulyar. Burchak? | The line is perpendicular to the plane. The angle? |
-| `q2.a` [верно] | девяносто | to'qson | ninety |
-| `q2.b` | ноль | nol | zero |
-| `q2.b.hint` | Ноль у параллельной. | Nol parallelda. | Zero belongs to a parallel line. |
-| `q2.c` | сорок пять | qirq besh | forty five |
-| `q2.c.hint` | Это число ниоткуда не следует. | Bu son hech qayerdan chiqmaydi. | That number follows from nothing. |
-| `q2.d` | угол не определён | burchak aniqlanmagan | the angle is undefined |
-| `q2.d.hint` | Для этого случая учебник даёт отдельное соглашение. | Bu hol uchun darslik alohida kelishuv beradi. | For this case the textbook gives a separate convention. |
-| `q3.prompt` | Проекция прямой это точка. Что с прямой? | Chiziqning proyeksiyasi nuqta. Chiziq qanday? | The projection of a line is a point. What about the line? |
-| `q3.a` [верно] | перпендикулярна плоскости | tekislikka perpendikulyar | perpendicular to the plane |
-| `q3.b` | параллельна плоскости | tekislikka parallel | parallel to the plane |
-| `q3.b.hint` | У параллельной проекция это прямая, а не точка. | Parallelda proyeksiya chiziq, nuqta emas. | For a parallel line the projection is a line, not a point. |
-| `q3.c` | лежит в плоскости | tekislikda yotadi | lies in the plane |
-| `q3.c.hint` | Тогда проекция совпала бы с самой прямой. | Unda proyeksiya chiziqning o'zi bilan ustma-ust tushardi. | Then the projection would coincide with the line itself. |
-| `q3.d` | наклонена под сорок пять | qirq besh ostida og'gan | slanted at forty five |
-| `q3.d.hint` | У наклонной проекция это отрезок. | Og'mada proyeksiya kesma. | For a slanted line the projection is a segment. |
-| `q4.prompt` | Диагональ грани куба и основание. Угол? | Kub yoqining diagonali va asos. Burchak? | A face diagonal of a cube and the base. The angle? |
-| `q4.a` [верно] | сорок пять | qirq besh | forty five |
-| `q4.b` | тридцать | o'ttiz | thirty |
-| `q4.b.hint` | Тридцать вышло бы при катетах один и два. | O'ttiz katetlar bir va ikki bo'lganda chiqardi. | Thirty would come from legs one and two. |
-| `q4.c` | шестьдесят | oltmish | sixty |
-| `q4.c.hint` | Шестьдесят это угол при другом отношении катетов. | Oltmish katetlarning boshqa nisbatidagi burchak. | Sixty belongs to a different ratio of legs. |
-| `q4.d` | девяносто | to'qson | ninety |
-| `q4.d.hint` | Девяносто было бы у бокового ребра. | To'qson yon qirrada bo'lardi. | Ninety would belong to the side edge. |
+| `q1.prompt` | Где лежат вершины сечения? | Kesim uchlari qayerda yotadi? | Where do the vertices of a section lie? |
+| `q1.a` [верно] | только на рёбрах | faqat qirralarda | only on the edges |
+| `q1.b` | внутри граней | yoqlar ichida | inside the faces |
+| `q1.b.hint` | Внутри грани лежат стороны. | Yoq ichida tomonlar yotadi. | The sides lie inside a face. |
+| `q1.c` | в вершинах тела | jism uchlarida | at the vertices of the body |
+| `q1.c.hint` | Это частный случай, а не правило. | Bu xususiy hol, qoida emas. | That is a special case, not the rule. |
+| `q1.d` | в любом месте плоскости | tekislikning har qanday joyida | anywhere in the plane |
+| `q1.d.hint` | Вне тела точек сечения нет. | Jismdan tashqarida kesim nuqtalari yo'q. | Outside the body there are no points of the section. |
+| `q2.prompt` | Сколько сторон самое большее у сечения куба? | Kub kesimida eng ko'pi bilan nechta tomon? | The largest number of sides for a section of a cube? |
+| `q2.a` [верно] | шесть | oltita | six |
+| `q2.b` | четыре | to'rtta | four |
+| `q2.b.hint` | Четыре бывает, но это не наибольшее. | To'rt bo'ladi, lekin bu eng katta emas. | Four happens, but it is not the largest. |
+| `q2.c` | восемь | sakkizta | eight |
+| `q2.c.hint` | Восемь это вершины, а не грани. | Sakkiz uchlar, yoqlar emas. | Eight is the vertices, not the faces. |
+| `q2.d` | двенадцать | o'n ikkita | twelve |
+| `q2.d.hint` | Двенадцать это рёбра. | O'n ikki qirralar. | Twelve is the edges. |
+| `q3.prompt` | Когда две точки соединяют стороной? | Ikki nuqta qachon tomon bilan ulanadi? | When are two points joined by a side? |
+| `q3.a` [верно] | когда лежат в одной грани | bir yoqda yotganda | when they lie in one face |
+| `q3.b` | когда лежат близко | yaqin yotganda | when they lie close |
+| `q3.b.hint` | Близость на чертеже зависит от ракурса. | Chizmadagi yaqinlik rakursga bog'liq. | Closeness on the drawing depends on the view. |
+| `q3.c` | всегда | har doim | always |
+| `q3.c.hint` | Тогда отрезок пройдёт внутри тела. | U holda kesma jism ichidan o'tadi. | Then the segment would go inside the body. |
+| `q3.d` | когда лежат на одном ребре | bir qirrada yotganda | when they lie on one edge |
+| `q3.d.hint` | Тогда сторона совпала бы с ребром. | U holda tomon qirra bilan mos tushardi. | Then the side would coincide with the edge. |
+| `q4.prompt` | Что такое след секущей плоскости? | Kesuvchi tekislikning izi nima? | What is the trace of a cutting plane? |
+| `q4.a` [верно] | линия её пересечения с плоскостью основания | uning asos tekisligi bilan kesishish chizig'i | the line where it meets the plane of the base |
+| `q4.b` | ребро тела | jism qirrasi | an edge of the body |
+| `q4.b.hint` | Ребро есть у тела, а след у плоскости. | Qirra jismda bor, iz esa tekislikda. | An edge belongs to the body, a trace to the plane. |
+| `q4.c` | диагональ основания | asos diagonali | a diagonal of the base |
+| `q4.c.hint` | Диагональ задана телом, а след секущей плоскостью. | Diagonal jism bilan berilgan, iz esa kesuvchi tekislik bilan. | A diagonal is given by the body, a trace by the cutting plane. |
+| `q4.d` | высота тела | jism balandligi | the height of the body |
+| `q4.d.hint` | Высота это отрезок, а след прямая в основании. | Balandlik kesma, iz esa asosdagi to'g'ri chiziq. | A height is a segment, a trace is a line in the base. |
 | `audio.mount` | Четыре вопроса подряд. Отвечай без остановки. | Ketma-ket to'rt savol. To'xtamasdan javob bering. | Four questions in a row. Answer without stopping. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `q1.done` | `∠(a; a₁)` |
-| `q2.done` | `90°` |
-| `q3.done` | `a₁ = A` |
-| `q4.done` | `45°` |
-| `angles` | `AB` · `AA₁` · `AB₁` · `AC₁` |
+| `q1.done` | `M ∈ A₁B₁` |
+| `q2.done` | `6` |
+| `q3.done` | `MN ⊂ A₁B₁C₁D₁` |
+| `q4.done` | `X = LM ∩ AC` |
 
 ---
 
@@ -495,30 +511,30 @@
 |---|---|---|---|
 | `eyebrow` | ИТОГ | YAKUN | SUMMARY |
 | `title` | Что теперь умеешь | Endi nimani bilasiz | What you can do now |
-| `can.1` | Строю проекцию прямой на плоскость | Chiziqning tekislikdagi proyeksiyasini quraman | I build the projection of a line on a plane |
-| `can.2` | Беру угол с проекцией, а не с удобной прямой | Burchakni proyeksiya bilan olaman, qulay chiziq bilan emas | I take the angle with the projection, not with a convenient line |
-| `can.3` | Знаю два крайних случая | Ikki chegara holni bilaman | I know the two extreme cases |
-| `can.4` | Считаю угол, а не измеряю с картинки | Burchakni hisoblayman, rasmdan o'lchamayman | I compute the angle instead of measuring it off the picture |
+| `can.1` | Строю сечение по правилам, а не на глаз | Kesimni ko'z bilan emas, qoida bo'yicha yasayman | I build a section by the rules, not by eye |
+| `can.2` | Проверяю, лежат ли две точки в одной грани | Ikki nuqta bir yoqda yotganini tekshiraman | I check whether two points lie in one face |
+| `can.3` | Нахожу след и по нему новую точку на ребре | Izni topaman va u bo'yicha qirrada yangi nuqtani | I find the trace and a new point on an edge by it |
+| `can.4` | Проверяю ответ по числу граней | Javobni yoqlar soni bo'yicha tekshiraman | I check the answer against the number of faces |
 | `levels.full` | Все четыре | To'rttasi ham | All four |
 | `levels.gap` | Три из четырёх | To'rttadan uchtasi | Three out of four |
 | `levels.back` | Меньше трёх | Uchtadan kam | Fewer than three |
-| `bridge` | Дальше два угла между плоскостями — двугранный угол и его линейный угол | Bundan keyin tekisliklar orasidagi burchak, ikki yoqli burchak va uning chiziqli burchagi | Next comes the angle between planes, the dihedral angle and its linear angle |
-| `lifehack` | Не знаешь, с чем мерить угол — строй проекцию | Burchakni nima bilan o'lchashni bilmasangiz, proyeksiya quring | If you do not know what to measure the angle with, build the projection |
+| `bridge` | Дальше координаты и векторы в пространстве — тело будет задаваться числами | Bundan keyin fazoda koordinatalar va vektorlar, jism sonlar bilan beriladi | Next come coordinates and vectors in space, where a body is given by numbers |
+| `lifehack` | Прежде чем соединить две точки, найди грань, в которой лежат обе | Ikki nuqtani ulashdan oldin ikkisi yotgan yoqni toping | Before joining two points, find the face in which both of them lie |
 | `sheetTitle` | Шпаргалка | Shpargalka | Cheat sheet |
-| `sheetSrc` | Геометрия, страница сто тридцать восемь | Geometriya, bir yuz o'ttiz sakkizinchi bet | Geometry, page one hundred thirty eight |
-| `audio.mount` | Урок начался с двух записей. В первой угол брали с любой прямой плоскости. | Dars ikki yozuv bilan boshlandi. Birinchisida burchak tekislikning istalgan chizig'i bilan olingan edi. | The lesson began with two readings. In the first the angle was taken with any line of the plane. |
-| `audio.next` | Таких прямых бесконечно много, и каждая давала бы свой угол, значит определение было бы пустым. Проекция у прямой одна, и угол с ней наименьший. Поэтому именно она стоит в определении. Дальше нам понадобится угол между двумя плоскостями, и там мерить будем не прямые, а полуплоскости. | Bunday chiziqlar cheksiz ko'p, va har biri o'z burchagini berardi, ya'ni ta'rif bo'sh bo'lardi. Chiziqning proyeksiyasi bitta, va u bilan burchak eng kichik. Shuning uchun ta'rifda aynan u turadi. Keyin bizga ikki tekislik orasidagi burchak kerak bo'ladi, va u yerda chiziqlarni emas, yarimtekisliklarni o'lchaymiz. | There are infinitely many such lines and each would give its own angle, which means the definition would be empty. A line has one projection and the angle with it is the smallest. That is why it stands in the definition. Next we will need the angle between two planes, and there we will measure half-planes instead of lines. |
+| `sheetSrc` | Геометрия, страницы шестьдесят четыре и шестьдесят восемь | Geometriya, oltmish to'rtinchi va oltmish sakkizinchi betlar | Geometry, pages sixty four and sixty eight |
+| `audio.mount` | Урок начался с вопроса про три точки на рёбрах куба. | Dars kub qirralaridagi uch nuqta haqidagi savol bilan boshlandi. | The lesson began with a question about three points on the edges of a cube. |
+| `audio.next` | Сторон в сечении оказалось пять, а не три, и это не хитрость чертежа. Три точки задали плоскость, а плоскость сама решила, какие рёбра она режет, и их оказалось пять. Соединять между собой можно только те точки, у которых есть общая грань, потому что сторона сечения лежит в грани. Когда такие пары кончаются, работает след: выходим за тело, находим точку в плоскости основания и через неё получаем новую вершину на ребре. И готова проверка на весь урок: сторон не больше, чем граней. Дальше тело будет задаваться не чертежом, а числами. | Kesimda tomonlar beshta chiqdi, uchta emas, va bu chizmaning hiylasi emas. Uch nuqta tekislikni aniqladi, tekislik esa qaysi qirralarni kesishini o'zi hal qildi, va ular beshta bo'ldi. Bir biriga faqat umumiy yog'i bor nuqtalarni ulash mumkin, chunki kesim tomoni yoqda yotadi. Bunday juftlar tugaganda iz ishlaydi: jismdan tashqariga chiqamiz, asos tekisligida nuqta topamiz va u orqali qirrada yangi uch olamiz. Va butun darsga tekshiruv tayyor: tomonlar yoqlardan ko'p emas. Bundan keyin jism chizma bilan emas, sonlar bilan beriladi. | The section turned out to have five sides, not three, and that is not a trick of the drawing. Three points determined a plane, and the plane itself decided which edges it cuts, and there were five of them. Only points that have a common face may be joined to each other, because a side of a section lies in a face. When such pairs run out, the trace works: we go outside the body, find a point in the plane of the base and through it get a new vertex on an edge. And the check for the whole lesson is ready: no more sides than faces. Next the body will be given not by a drawing but by numbers. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `hook.a` | `∠(a; b),   b ⊂ α` |
-| `hook.b` | `∠(a; a₁)` |
-| `proved` | `∠(a; α) = ∠(a; a₁)` |
-| `law` | `a ∩ α = A,   a₁ ⊂ α` |
-| `sheet.1` | `a₁ ⊂ α` |
-| `sheet.2` | `∠(a; α) = ∠(a; a₁)` |
-| `sheet.3` | `∠(a; a₁) < ∠(a; b)` |
-| `sheet.4` | `a ⊥ α   →   90°` |
-| `sheet.5` | `a ∥ α   →   0°` |
+| `hook.a` | `3` |
+| `hook.b` | `5` |
+| `proved` | `5` |
+| `law` | `MN ⊂ A₁B₁C₁D₁` |
+| `sheet.1` | `M ∈ A₁B₁` |
+| `sheet.2` | `MN ⊂ A₁B₁C₁D₁` |
+| `sheet.3` | `X = LM ∩ AC` |
+| `sheet.4` | `N = KX ∩ BC` |
+| `sheet.5` | `PM ∥ KH` |

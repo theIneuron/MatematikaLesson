@@ -1,23 +1,31 @@
-# Урок 43 — Двугранный угол. Перпендикулярные плоскости · КОНТЕНТ (этап 2)
+# Урок 50 — Координаты в пространстве · КОНТЕНТ (этап 2)
 
-**Читается и правится методистом.** Формат тот же, что в `DARS42_KONTENT.md`.
+**Читается и правится методистом.** Формат тот же, что в `DARS49_KONTENT.md`.
 
-Скелет: в переписке 2026-08-20. Опора: учебник геометрии 2022, §20
-`Fazoda tekisliklarning perpendikulyarligi`, стр. 142–143. Определения двугранного угла,
-его граней, ребра и линейного угла взяты дословно.
+Скелет: в переписке 2026-08-21. **Опоры в учебнике 10 класса нет** — координат в пространстве нет
+ни в одном из двух томов 2017 года. Источник истины — план (`PODXOD_10SINF.md` §1, «спор закрыт:
+источник истины — план»). Это тот же случай, что в 11 классе на уроках 38–39: когда тема нужна для
+ДТМ, план сильнее отсутствующего учебника.
 
-**Главное решение урока.** Линейный угол строится **в плоскости, перпендикулярной ребру**, и
-его величина от точки на ребре не зависит (стр. 142). Ошибка живая: ученик берёт в гранях любые
-два луча из точки ребра и называет полученный угол линейным. Показать разницу можно только
-поворотом: на неподвижном чертеже кривой луч выглядит не хуже перпендикулярного.
+**Чтение блока.** Строки 50–54 повторяют названия блока Б5 одиннадцатого класса. Блок 10 класса
+читается как ПЕРВЫЙ проход: вводятся объекты. Углы между плоскостями, расстояния в пространстве и
+преобразования сюда не входят — они остаются 11 классу. Допущение записано методисту 2026-08-21,
+он открыл блок в производство.
 
-**Свидетель урока — точка, которая едет по ребру.** В каждой её позиции линейный угол один и
-тот же, и это видно, а не сказано.
+**Главное решение урока.** Ошибка года `nuqta-proyeksiyasiz`: точку в пространстве строят на глаз
+и третью координату приписывают не к той оси. Свидетель: у точки рисуется проекция на нижнюю
+плоскость, и при повороте каркаса проекция едет под точкой, не отрываясь. Если бы число попало не
+к своей оси, проекция стояла бы в другом узле, и поворот это показывает.
 
-**Закрывает блок 6.** После урока идёт ПК6.
+**Прибор 6C** — `Space3D` (`src/components/grade10/space.jsx`), переходник к `SpaceFrame`
+11 класса. Проекция включается флагом `proj`, расстояние — режимом `drop` с честной линейкой:
+неперпендикулярный отрезок прибор подписывает словом «наклонная» и в ответ не берёт.
+
+**Числа урока целые намеренно.** Расстояние от точки до оси считается по двум координатам, и
+шестёрка с восьмёркой дают ровно десять — ученик проверяет мысль, а не тренирует корни.
 
 **Терминология UZ — draft, требует валидации узбекским методистом математики.** Термины
-`ikki yoqli burchak`, `yoq`, `qirra`, `chiziqli burchak` взяты из учебника, стр. 142.
+`koordinatalar`, `proyeksiya`, `koordinata tekisligi`, `abssissa`, `ordinata`, `applikata`.
 
 ---
 
@@ -27,28 +35,28 @@
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | ДВУГРАННЫЙ УГОЛ | IKKI YOQLI BURCHAK | THE DIHEDRAL ANGLE |
-| `title` | Зависит от места или нет | Joyga bog'liqmi yoki yo'q | Does it depend on the place or not |
-| `row.a.name` | зависит | bog'liq | it depends |
-| `row.b.name` | не зависит | bog'liq emas | it does not depend |
+| `eyebrow` | КООРДИНАТЫ | KOORDINATALAR | COORDINATES |
+| `title` | Сколько чисел нужно точке | Nuqtaga nechta son kerak | How many numbers a point needs |
+| `row.a.name` | два | ikkita | two |
+| `row.b.name` | три | uchta | three |
 | `probe.question` | Какая запись верна? | Qaysi yozuv to'g'ri? | Which reading is correct? |
 | `probe.a` | первая | birinchi | the first |
 | `probe.b` [верно] | вторая | ikkinchi | the second |
 | `probe.both` | обе | ikkisi ham | both |
 | `probe.none` | ни одна | hech qaysi | neither |
-| `probe.after` | Твой ответ записан. Сейчас повернём сцену. | Javobingiz yozib olindi. Endi sahnani buramiz. | Your answer is recorded. Now we rotate the scene. |
-| `audio.mount` | Открытая книга даёт двугранный угол. Две половины плоскости и общая линия сгиба. | Ochiq kitob ikki yoqli burchak beradi. Tekislikning ikki yarmi va umumiy buklanish chizig'i. | An open book gives a dihedral angle. Two halves of a plane and a common fold line. |
-| `audio.r1` | Первая запись говорит, что величина угла зависит от того, в каком месте линии сгиба мы его мерим. | Birinchi yozuv burchak kattaligi buklanish chizig'ining qaysi joyida o'lchashimizga bog'liq deydi. | The first reading says the size of the angle depends on where along the fold line we measure it. |
-| `audio.r2` | Вторая говорит, что не зависит, и в любом месте получится одно и то же. | Ikkinchisi bog'liq emas deydi, va istalgan joyda bir xil chiqadi. | The second says it does not depend, and any place gives the same. |
-| `audio.ask` | Книга ближе к краю кажется раскрытой шире. Как думаешь, какая запись верная? | Kitob chekkaga yaqin joyda kengroq ochilgandek ko'rinadi. Sizningcha qaysi yozuv to'g'ri? | Near the edge the book seems opened wider. Which reading do you think is correct? |
+| `probe.after` | Твой ответ записан. Сейчас поставим точку. | Javobingiz yozib olindi. Endi nuqtani qo'yamiz. | Your answer is recorded. Now we place the point. |
+| `audio.mount` | Точка в пространстве и её запись из трёх чисел. | Fazodagi nuqta va uning uch sondan iborat yozuvi. | A point in space and its reading of three numbers. |
+| `audio.r1` | Первая запись говорит, что точке хватает двух чисел, как на плоскости. | Birinchi yozuv nuqtaga tekislikdagidek ikki son yetadi deydi. | The first reading says two numbers are enough for a point, as on a plane. |
+| `audio.r2` | Вторая говорит, что нужно три. | Ikkinchisi uchta kerak deydi. | The second says three are needed. |
+| `audio.ask` | На чертеже видна плоскость, и по ней кажется, что двух хватит. Как думаешь, какая запись верная? | Chizmada tekislik ko'rinadi, va unga qarab ikkitasi yetadigandek tuyuladi. Sizningcha qaysi yozuv to'g'ri? | The drawing shows a plane, and by it two seem enough. Which reading do you think is right? |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `expr` | `A, B ∈ a` |
-| `row.a.value` | `∠A ≠ ∠B` |
-| `row.b.value` | `∠A = ∠B` |
+| `expr` | `A (2; 3; 4)` |
+| `row.a.value` | `2` |
+| `row.b.value` | `3` |
 
 ---
 
@@ -59,274 +67,274 @@
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ОПОРА | TAYANCH | WHAT YOU KNOW |
-| `title` | Три вопроса перед углом | Burchakdan oldin uch savol | Three questions before the angle |
-| `q1.prompt` | С чем берут угол прямой и плоскости? | To'g'ri chiziq va tekislik burchagi nima bilan olinadi? | What is the angle of a line and a plane taken with? |
-| `q1.a` [верно] | с проекцией | proyeksiya bilan | with the projection |
-| `q1.b` | с любой прямой плоскости | tekislikning istalgan chizig'i bilan | with any line of the plane |
-| `q1.b.hint` | Таких прямых бесконечно много, и углы у них разные. | Bunday chiziqlar cheksiz ko'p, va burchaklari boshqa-boshqa. | There are infinitely many such lines with different angles. |
-| `q1.c` | с перпендикуляром | perpendikulyar bilan | with the perpendicular |
-| `q1.c.hint` | С перпендикуляром угол всегда прямой. | Perpendikulyar bilan burchak doim to'g'ri. | With the perpendicular the angle is always right. |
-| `q1.d` | с ребром | qirra bilan | with the edge |
-| `q1.d.hint` | Ребро это одна из прямых плоскости, не более. | Qirra tekislik chiziqlaridan biri, boshqa emas. | An edge is just one of the lines of the plane. |
-| `q2.prompt` | Сколько прямых в плоскости перпендикулярно данной прямой через данную точку? | Berilgan nuqta orqali tekislikda berilgan chiziqqa perpendikulyar nechta chiziq bor? | How many lines of the plane through a given point are perpendicular to a given line? |
-| `q2.a` [верно] | одна | bitta | one |
-| `q2.b` | две | ikkita | two |
-| `q2.b.hint` | Две такие прямые совпали бы. | Bunday ikki chiziq ustma-ust tushardi. | Two such lines would coincide. |
-| `q2.c` | бесконечно много | cheksiz ko'p | infinitely many |
-| `q2.c.hint` | Бесконечно много их было бы в пространстве, а не в плоскости. | Cheksiz ko'p ular fazoda bo'lardi, tekislikda emas. | There would be infinitely many in space, not in a plane. |
-| `q2.d` | ни одной | bitta ham yo'q | none |
-| `q2.d.hint` | Хотя бы одна есть всегда. | Hech bo'lmaganda bittasi doim bor. | At least one always exists. |
-| `q3.prompt` | Что даёт прямая, перпендикулярная плоскости? | Tekislikka perpendikulyar chiziq nima beradi? | What does a line perpendicular to a plane give? |
-| `q3.a` [верно] | прямой угол с каждой прямой этой плоскости | shu tekislikning har bir chizig'i bilan to'g'ri burchak | a right angle with every line of that plane |
-| `q3.b` | прямой угол только с одной прямой | faqat bitta chiziq bilan to'g'ri burchak | a right angle with one line only |
-| `q3.b.hint` | Одной прямой мало даже для признака. | Bitta chiziq alomat uchun ham kam. | One line is not even enough for the criterion. |
-| `q3.c` | равные отрезки | teng kesmalar | equal segments |
-| `q3.c.hint` | Речь об углах, а не о длинах. | Gap burchaklar haqida, uzunliklar haqida emas. | This is about angles, not lengths. |
-| `q3.d` | параллельность | parallellik | parallelism |
-| `q3.d.hint` | Параллельность даёт угол ноль, а не девяносто. | Parallellik nol burchak beradi, to'qson emas. | Parallelism gives a zero angle, not ninety. |
-| `audio.mount` | Три вопроса. Второй понадобится дословно через минуту. | Uchta savol. Ikkinchisi bir daqiqadan keyin so'zma-so'z kerak bo'ladi. | Three questions. The second will be needed word for word in a minute. |
+| `title` | Три вопроса из курса | Kursdan uch savol | Three questions from the course |
+| `q1.prompt` | Сколько чисел задаёт точку на плоскости? | Tekislikdagi nuqtani nechta son aniqlaydi? | How many numbers determine a point on a plane? |
+| `q1.a` [верно] | два | ikkita | two |
+| `q1.b` | одно | bitta | one |
+| `q1.b.hint` | Одно число задаёт точку на прямой. | Bitta son to'g'ri chiziqdagi nuqtani aniqlaydi. | One number determines a point on a line. |
+| `q1.c` | три | uchta | three |
+| `q1.c.hint` | Три числа появятся в пространстве. | Uchta son fazoda paydo bo'ladi. | Three numbers will appear in space. |
+| `q1.d` | четыре | to'rtta | four |
+| `q1.d.hint` | Четвёртого числа в геометрии курса нет. | Kursning geometriyasida to'rtinchi son yo'q. | There is no fourth number in the geometry of this course. |
+| `q2.prompt` | Что такое проекция точки на плоскость? | Nuqtaning tekislikka proyeksiyasi nima? | What is the projection of a point onto a plane? |
+| `q2.a` [верно] | основание перпендикуляра из точки | nuqtadan tushirilgan perpendikulyarning asosi | the foot of the perpendicular from the point |
+| `q2.b` | ближайшая точка на краю плоскости | tekislik chekkasidagi eng yaqin nuqta | the nearest point on the edge of the plane |
+| `q2.b.hint` | У плоскости края нет, она бесконечна. | Tekislikning chekkasi yo'q, u cheksiz. | A plane has no edge, it is endless. |
+| `q2.c` | точка под ней на глаз | ko'z bilan uning ostidagi nuqta | the point below it by eye |
+| `q2.c.hint` | На глаз это не строится: нужен перпендикуляр. | Bu ko'z bilan yasalmaydi: perpendikulyar kerak. | It is not built by eye: a perpendicular is needed. |
+| `q2.d` | середина отрезка до плоскости | tekislikkacha kesmaning o'rtasi | the midpoint of the segment to the plane |
+| `q2.d.hint` | Середина лежит между, а проекция на плоскости. | O'rta orasida yotadi, proyeksiya esa tekislikda. | The midpoint lies between, the projection lies in the plane. |
+| `q3.prompt` | Порядок чисел в записи произволен? | Yozuvdagi sonlar tartibi ixtiyoriymi? | Is the order of the numbers in the reading arbitrary? |
+| `q3.a` [верно] | нет, у каждого места своя ось | yo'q, har o'rinning o'z o'qi bor | no, each place has its own axis |
+| `q3.b` | да, лишь бы числа те же | ha, sonlar o'sha bo'lsa bo'ldi | yes, as long as the numbers are the same |
+| `q3.b.hint` | Те же числа в другом порядке дают другую точку. | O'sha sonlar boshqa tartibda boshqa nuqta beradi. | The same numbers in another order give another point. |
+| `q3.c` | да, если числа положительные | ha, agar sonlar musbat bo'lsa | yes, if the numbers are positive |
+| `q3.c.hint` | Знак тут ничего не решает. | Ishora bu yerda hech narsani hal qilmaydi. | The sign decides nothing here. |
+| `q3.d` | только для нуля | faqat nol uchun | only for zero |
+| `q3.d.hint` | Ноль тоже стоит на своём месте. | Nol ham o'z o'rnida turadi. | Zero also stands in its own place. |
+| `audio.mount` | Три вопроса. Правило урока соберётся из первого и третьего. | Uchta savol. Darsning qoidasi birinchi va uchinchidan yig'iladi. | Three questions. The rule of the lesson will be assembled from the first and the third. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `q1.done` | `∠(a; α) = ∠(a; a₁)` |
-| `q2.done` | `1` |
-| `q3.done` | `a ⊥ α   →   90°` |
+| `q1.done` | `M (x; y)` |
+| `q2.done` | `A₁ ∈ Oxy` |
+| `q3.done` | `(2; 3; 4) ≠ (4; 3; 2)` |
 
 ---
 
-## Экран 3 · `explain1` · ответ `number` · тег `kartinka-kak-dokazatelstvo`
+## Экран 3 · `explain1` · ответ `number` · тег `nuqta-proyeksiyasiz`
 
-Двугранный угол: две полуплоскости и ребро.
+Третья координата: подъём над плоскостью.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
-| `title` | Две грани и одно ребро | Ikki yoq va bitta qirra | Two faces and one edge |
-| `show.1.1` | одна полуплоскость легла | bir yarimtekislik yotdi | one half-plane lay down |
-| `show.1.2` | вторая поднялась от той же прямой | ikkinchisi o'sha chiziqdan ko'tarildi | the second rose from the same line |
-| `show.2.1` | общая прямая называется ребром | umumiy chiziq qirra deb ataladi | the common line is called the edge |
-| `show.2.2` | полуплоскости называются гранями | yarimtekisliklar yoqlar deb ataladi | the half-planes are called the faces |
-| `audio.mount` | Возьмём прямую и две полуплоскости, которые от неё начинаются. | Bitta chiziqni va undan boshlanadigan ikki yarimtekislikni olamiz. | Take a line and two half-planes that start from it. |
-| `audio.move*` | Такая фигура называется двугранным углом. Полуплоскости это его грани, а прямая, которая их ограничивает, это ребро. Так написано в учебнике на странице сто сорок два. Двугранные углы вокруг нас повсюду. Открытая книга, крышка ноутбука, открытая дверь и скат крыши. Поверни сцену и посмотри на фигуру с разных сторон. Ребро остаётся общим для двух граней при любом положении, потому что это не свойство чертежа, а условие фигуры. | Bunday shakl ikki yoqli burchak deb ataladi. Yarimtekisliklar uning yoqlari, ularni chegaralovchi chiziq esa qirra. Darslikda bir yuz qirq ikkinchi betda shunday yozilgan. Ikki yoqli burchaklar atrofimizda hamma joyda. Ochiq kitob, noutbuk qopqog'i, ochiq eshik va tom qiyaligi. Sahnani buring va shaklga turli tomondan qarang. Qirra har qanday holatda ikki yoq uchun umumiy qoladi, chunki bu chizmaning xossasi emas, shaklning sharti. | Such a figure is called a dihedral angle. The half-planes are its faces, and the line that bounds them is the edge. That is what the textbook says on page one hundred forty two. Dihedral angles are everywhere around us. An open book, a laptop lid, an open door and a roof slope. Rotate the scene and look at the figure from different sides. The edge stays common to both faces at any position, because this is not a property of the drawing but a condition of the figure. |
-| `audio.work` | Посчитай сам. Сколько полуплоскостей образуют двугранный угол? | O'zingiz hisoblang. Ikki yoqli burchakni nechta yarimtekislik hosil qiladi? | Work it out yourself. How many half-planes form a dihedral angle? |
-| `work.prompt` | Сколько полуплоскостей? | Nechta yarimtekislik? | How many half-planes? |
-| `work.ok` | Две. И одно общее ребро, которое их ограничивает. | Ikkita. Va ularni chegaralovchi bitta umumiy qirra. | Two. And one common edge that bounds them. |
-| `work.hint.1` | Посмотри, сколько частей плоскости на чертеже. | Chizmada tekislikning nechta bo'lagi borligini ko'ring. | See how many parts of a plane are on the drawing. |
-| `work.hint.2` | Название фигуры содержит это число. | Shaklning nomi bu sonni o'zida saqlaydi. | The name of the figure carries this number. |
-| `work.hint.3` | Две. | Ikkita. | Two. |
+| `title` | Третье число это подъём | Uchinchi son ko'tarilish | The third number is the rise |
+| `show.1.1` | сначала точка в нижней плоскости | avval nuqta pastki tekislikda | first the point in the lower plane |
+| `show.1.2` | два числа, как на плоскости | ikki son, tekislikdagidek | two numbers, as on a plane |
+| `show.2.1` | теперь подъём на четыре | endi to'rtga ko'tarilish | now a rise of four |
+| `show.2.2` | и проекция осталась внизу | va proyeksiya pastda qoldi | and the projection stayed below |
+| `audio.mount` | В нижней плоскости стоит точка с двумя числами. Она пока не в пространстве. | Pastki tekislikda ikki sonli nuqta turadi. U hozircha fazoda emas. | A point with two numbers stands in the lower plane. It is not yet in space. |
+| `audio.move*` | Поднимаю точку на четыре, и внизу остаётся её проекция. Проекция это основание перпендикуляра, и она никуда не уходит: сколько бы я ни поворачивал каркас, она стоит ровно под точкой. Первые два числа адресуют проекцию, третье говорит, на сколько точка поднята над плоскостью. Поэтому точке в пространстве нужны три числа, а не два: двух хватило бы, если бы весь мир лежал в одной плоскости. И заметь порядок: третье число закреплено за вертикальной осью, переставить его нельзя. | Nuqtani to'rtga ko'taraman, va pastda uning proyeksiyasi qoladi. Proyeksiya perpendikulyarning asosi, va u hech qayerga ketmaydi: karkasni qancha bursam ham, u nuqtaning tagida turadi. Birinchi ikki son proyeksiyaning manzili, uchinchisi nuqta tekislikdan qancha ko'tarilganini aytadi. Shuning uchun fazodagi nuqtaga ikki emas, uch son kerak: ikkitasi butun dunyo bitta tekislikda yotganda yetardi. Tartibga ham e'tibor bering: uchinchi son tik o'qqa biriktirilgan, uni almashtirib bo'lmaydi. | I raise the point by four, and its projection stays below. The projection is the foot of the perpendicular, and it does not move anywhere: however much I turn the frame, it stands exactly under the point. The first two numbers address the projection, the third says how far the point is raised above the plane. That is why a point in space needs three numbers and not two: two would be enough if the whole world lay in one plane. And note the order: the third number is tied to the vertical axis and cannot be moved. |
+| `audio.work` | Посчитай сам. Сколько чисел нужно точке в пространстве? | O'zingiz hisoblang. Fazodagi nuqtaga nechta son kerak? | Work it out yourself. How many numbers does a point in space need? |
+| `work.prompt` | Сколько чисел нужно точке? | Nuqtaga nechta son kerak? | How many numbers does a point need? |
+| `work.ok` | Три. Два на проекцию и одно на подъём. | Uchta. Ikkitasi proyeksiyaga, bittasi ko'tarilishga. | Three. Two for the projection and one for the rise. |
+| `work.hint.1` | Посчитай, сколько чисел ушло на проекцию. | Proyeksiyaga nechta son ketganini sanang. | Count how many numbers went to the projection. |
+| `work.hint.2` | И добавь то, что говорит про подъём. | Va ko'tarilish haqida aytadiganini qo'shing. | And add the one that speaks of the rise. |
+| `work.hint.3` | Три. | Uchta. | Three. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `expr` | `α, β;   a = α ∩ β` |
-| `work.answer` | `2` |
+| `expr` | `A (2; 3; 4)` |
+| `work.answer` | `3` |
 
 ---
 
-## Экран 4 · `explain2` · ответ `number` · тег `lineynyy-ne-tot`
+## Экран 4 · `explain2` · ответ `number` · тег `nuqta-proyeksiyasiz`
 
-Свидетель: точка едет по ребру, линейный угол тот же.
+Проекция как адрес: у неё третье число ноль.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | СВИДЕТЕЛЬ | SHOHID | THE WITNESS |
-| `title` | Точка едет по ребру | Nuqta qirra bo'ylab yuradi | The point travels along the edge |
-| `show.1.1` | из точки ребра в каждой грани идёт луч | qirra nuqtasidan har yoqda nur chiqadi | from a point of the edge a ray runs in each face |
-| `show.1.2` | оба луча перпендикулярны ребру | ikkala nur ham qirraga perpendikulyar | both rays are perpendicular to the edge |
-| `show.2.1` | точка переехала в другое место ребра | nuqta qirraning boshqa joyiga o'tdi | the point moved to another place on the edge |
-| `show.2.2` | угол остался тем же | burchak o'sha qoldi | the angle stayed the same |
-| `audio.mount` | На ребре есть точка, и из неё в каждой грани идёт луч, перпендикулярный ребру. Такой угол называется линейным. | Qirrada nuqta bor, va undan har yoqda qirraga perpendikulyar nur boradi. Bunday burchak chiziqli burchak deb ataladi. | There is a point on the edge, and from it a ray perpendicular to the edge runs in each face. Such an angle is called the linear angle. |
-| `audio.move*` | Теперь смотри на само число. Точка едет по ребру, лучи едут вместе с ней, а угол между ними не меняется ни на градус. Линейных углов бесконечно много, потому что точек на ребре бесконечно много, но величина у всех одна. Именно она и считается величиной двугранного угла. Поверни сцену и проверь, что при повороте одинаковыми остаются оба угла, а не только тот, который ближе. | Endi sonning o'ziga qarang. Nuqta qirra bo'ylab yuradi, nurlar u bilan birga yuradi, ular orasidagi burchak esa bir daraja ham o'zgarmaydi. Chiziqli burchaklar cheksiz ko'p, chunki qirrada nuqtalar cheksiz ko'p, lekin kattaligi hammasida bir xil. Aynan u ikki yoqli burchakning kattaligi deb hisoblanadi. Sahnani buring va burilishda faqat yaqinrog'i emas, ikkala burchak ham bir xil qolishini tekshiring. | Now look at the number itself. The point travels along the edge, the rays travel with it, and the angle between them does not change by a single degree. There are infinitely many linear angles, because there are infinitely many points on the edge, but all of them have one size. That size is taken to be the size of the dihedral angle. Rotate the scene and check that under rotation both angles stay equal, not only the nearer one. |
-| `audio.work` | Посчитай сам. Сколько разных величин у линейных углов одного двугранного угла? | O'zingiz hisoblang. Bitta ikki yoqli burchakning chiziqli burchaklari nechta xil kattalikka ega? | Work it out yourself. How many different sizes do the linear angles of one dihedral angle have? |
-| `work.prompt` | Сколько разных величин? | Nechta xil kattalik? | How many different sizes? |
-| `work.ok` | Одна. Линейных углов бесконечно много, а величина у них одна. | Bitta. Chiziqli burchaklar cheksiz ko'p, kattaligi esa bitta. | One. There are infinitely many linear angles, and they have one size. |
-| `work.hint.1` | Подвинь точку и сравни две дуги. | Nuqtani suring va ikki dugani solishtiring. | Move the point and compare the two arcs. |
-| `work.hint.2` | Лучи в одной грани при разных точках параллельны. | Bir yoqdagi nurlar turli nuqtalarda parallel. | The rays in one face at different points are parallel. |
-| `work.hint.3` | Одна. | Bitta. | One. |
+| `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
+| `title` | У проекции третье число ноль | Proyeksiyada uchinchi son nol | The projection has zero as its third number |
+| `show.1.1` | точка и её проекция | nuqta va uning proyeksiyasi | the point and its projection |
+| `show.1.2` | первые два числа у них общие | birinchi ikki son ularda umumiy | their first two numbers are the same |
+| `show.2.1` | поворот, и проекция под точкой | burilish, va proyeksiya nuqta tagida | a turn, and the projection is under the point |
+| `show.2.2` | подъём у неё нулевой | uning ko'tarilishi nol | its rise is zero |
+| `audio.mount` | Точка и её проекция стоят одна над другой. Сравним их записи. | Nuqta va uning proyeksiyasi bir-birining ustida turadi. Yozuvlarini taqqoslaymiz. | The point and its projection stand one above the other. Let us compare their readings. |
+| `audio.move*` | Первые два числа у них одинаковые, и это не совпадение: проекция и есть адрес точки в нижней плоскости. Различие только в третьем числе. У точки оно четыре, у проекции ноль, потому что проекция лежит в самой плоскости и подниматься ей некуда. Поворачиваю каркас: проекция едет вместе с точкой и остаётся под ней. Вот эта связка и есть проверка чертежа. Если бы я приписал четвёрку не к вертикальной оси, проекция встала бы в другой узел сетки, и поворот сразу бы это показал. | Birinchi ikki son ularda bir xil, va bu tasodif emas: proyeksiya nuqtaning pastki tekislikdagi manzilining o'zi. Farq faqat uchinchi sonda. Nuqtada u to'rt, proyeksiyada nol, chunki proyeksiya tekislikning o'zida yotadi va ko'tariladigan joyi yo'q. Karkasni buraman: proyeksiya nuqta bilan birga yuradi va uning tagida qoladi. Ana shu bog'lanish chizmaning tekshiruvi. Agar to'rtni tik o'qqa emas, boshqasiga bergan bo'lsam, proyeksiya to'rning boshqa tuguniga tushardi, va burilish buni darrov ko'rsatardi. | Their first two numbers are the same, and that is no coincidence: the projection is exactly the address of the point in the lower plane. The only difference is in the third number. For the point it is four, for the projection zero, because the projection lies in the plane itself and has nowhere to rise. I turn the frame: the projection travels with the point and stays under it. That link is the check of the drawing. Had I given the four to another axis, the projection would stand at another node of the grid, and the turn would show it at once. |
+| `audio.work` | Посчитай сам. Какое третье число у проекции? | O'zingiz hisoblang. Proyeksiyaning uchinchi soni qanday? | Work it out yourself. What is the third number of the projection? |
+| `work.prompt` | Третье число проекции? | Proyeksiyaning uchinchi soni? | The third number of the projection? |
+| `work.ok` | Ноль. Проекция лежит в самой плоскости. | Nol. Proyeksiya tekislikning o'zida yotadi. | Zero. The projection lies in the plane itself. |
+| `work.hint.1` | Спроси, на сколько поднята сама проекция. | Proyeksiyaning o'zi qancha ko'tarilgan deb so'rang. | Ask how far the projection itself is raised. |
+| `work.hint.2` | Она в плоскости, подниматься ей некуда. | U tekislikda, ko'tariladigan joyi yo'q. | It is in the plane, it has nowhere to rise. |
+| `work.hint.3` | Ноль. | Nol. | Zero. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `expr` | `∠A = ∠B = ∠C` |
+| `expr` | `A₁ (2; 3; 0)` |
+| `work.answer` | `0` |
+
+---
+
+## Экран 5 · `explain3` · ответ `number` · тег `nuqta-proyeksiyasiz`
+
+Порядок закреплён: те же числа в другом порядке дают другую точку.
+
+**Текст**
+
+| Ключ | RU | UZ | EN |
+|---|---|---|---|
+| `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
+| `title` | Те же числа, другая точка | O'sha sonlar, boshqa nuqta | The same numbers, another point |
+| `show.1.1` | точка с записью два три четыре | ikki uch to'rt yozuvli nuqta | the point read two three four |
+| `show.1.2` | и точка с записью четыре три два | va to'rt uch ikki yozuvli nuqta | and the point read four three two |
+| `show.2.1` | числа одни и те же | sonlar bir xil | the numbers are the same |
+| `show.2.2` | а точки разные | nuqtalar esa boshqa | but the points are different |
+| `audio.mount` | Две точки, и в записях у них одни и те же три числа. | Ikki nuqta, va yozuvlarida bir xil uchta son. | Two points, and their readings hold the same three numbers. |
+| `audio.move*` | Стоят они в разных местах, и разошлись далеко. Причина в порядке: место в записи закреплено за осью, а не за числом. У первой точки четвёрка отвечает за подъём, и она высоко. У второй четвёрка ушла на первую ось, а подъём стал двойкой, и точка опустилась. Отсюда важное следствие для экзамена: запись читается по местам, а не по набору чисел. Проверка та же, что и раньше, это проекция. У обеих точек проекции разные, и это видно сразу, до всякого счёта. | Ular boshqa-boshqa joyda turadi va uzoqqa ketdi. Sabab tartibda: yozuvdagi o'rin o'qqa biriktirilgan, songa emas. Birinchi nuqtada to'rt ko'tarilishga javob beradi, va u balandda. Ikkinchisida to'rt birinchi o'qqa ketdi, ko'tarilish esa ikki bo'ldi, va nuqta pastga tushdi. Bundan imtihon uchun muhim natija chiqadi: yozuv sonlar to'plami bo'yicha emas, o'rinlar bo'yicha o'qiladi. Tekshiruv esa o'sha -- proyeksiya. Ikki nuqtaning proyeksiyalari boshqa, va bu hisobsiz, darrov ko'rinadi. | They stand in different places and have parted far. The reason is the order: a place in the reading is tied to an axis, not to a number. In the first point the four answers for the rise, and it is high. In the second the four went to the first axis and the rise became two, so the point came down. Hence an important consequence for the exam: a reading is read by places, not by the set of numbers. And the check is the same one, it is the projection. The two points have different projections, and that is visible at once, before any counting. |
+| `audio.work` | Посчитай сам. У скольких из двух точек подъём равен четырём? | O'zingiz hisoblang. Ikki nuqtadan nechtasining ko'tarilishi to'rtga teng? | Work it out yourself. How many of the two points have a rise of four? |
+| `work.prompt` | У скольких подъём равен четырём? | Nechtasining ko'tarilishi to'rt? | How many have a rise of four? |
+| `work.ok` | У одной. Подъём это третье место, а не любое. | Bittasining. Ko'tarilish uchinchi o'rin, har qanday emas. | One. The rise is the third place, not any place. |
+| `work.hint.1` | Смотри только на третье место в записи. | Yozuvdagi faqat uchinchi o'ringa qarang. | Look only at the third place in the reading. |
+| `work.hint.2` | У второй точки там двойка. | Ikkinchi nuqtada u yerda ikki. | For the second point there is a two there. |
+| `work.hint.3` | Одна. | Bittasi. | One. |
+
+**Формулы**
+
+| Ключ | Значение |
+|---|---|
+| `expr` | `(2; 3; 4) ≠ (4; 3; 2)` |
 | `work.answer` | `1` |
 
 ---
 
-## Экран 5 · `explain3` · ответ `number` · тег `lineynyy-ne-tot`
+## Экран 6 · `explain4` · ответ `number` · тег `nuqta-proyeksiyasiz`
 
-Граница: луч не перпендикулярен ребру.
-
-**Текст**
-
-| Ключ | RU | UZ | EN |
-|---|---|---|---|
-| `eyebrow` | ГРАНИЦА | CHEGARA | THE BOUNDARY |
-| `title` | Кривой луч даёт другой угол | Qiyshiq nur boshqa burchak beradi | A skewed ray gives a different angle |
-| `show.1.1` | второй луч отклонили от перпендикуляра | ikkinchi nur perpendikulyardan og'dirildi | the second ray was tilted off the perpendicular |
-| `show.1.2` | на чертеже он выглядит не хуже | chizmada u yomon ko'rinmaydi | on the drawing it looks no worse |
-| `show.2.1` | поверни сцену и сравни дуги | sahnani buring va dugalarni solishtiring | rotate the scene and compare the arcs |
-| `show.2.2` | этот угол не линейный | bu burchak chiziqli emas | this angle is not the linear one |
-| `audio.mount` | Оставим первый луч на месте, а второй отклоним от перпендикуляра к ребру. | Birinchi nurni joyida qoldiramiz, ikkinchisini esa qirraga perpendikulyardan og'diramiz. | Leave the first ray in place and tilt the second one off the perpendicular to the edge. |
-| `audio.move*` | На неподвижном чертеже отклонение почти не видно, и угол выглядит таким же законным. Поверни сцену и сравни дуги. Они разные, и та, что построена на кривом луче, меняется вместе с поворотом. Линейный угол требует двух условий, и оба обязательны. Лучи лежат в гранях, и оба перпендикулярны ребру. Убери второе условие, и величина перестанет быть определённой, потому что каждый кривой луч даст своё число. | Qimirlamas chizmada og'ish deyarli ko'rinmaydi, va burchak xuddi shunday qonuniy ko'rinadi. Sahnani buring va dugalarni solishtiring. Ular boshqa-boshqa, va qiyshiq nurda qurilgani burilish bilan birga o'zgaradi. Chiziqli burchak ikki shartni talab qiladi, va ikkalasi ham majburiy. Nurlar yoqlarda yotadi, va ikkalasi ham qirraga perpendikulyar. Ikkinchi shartni olib tashlasangiz, kattalik aniq bo'lmay qoladi, chunki har bir qiyshiq nur o'z sonini beradi. | On a still drawing the tilt is almost invisible and the angle looks just as legitimate. Rotate the scene and compare the arcs. They differ, and the one built on the skewed ray changes together with the rotation. The linear angle needs two conditions and both are required. The rays lie in the faces, and both are perpendicular to the edge. Drop the second condition and the size stops being definite, because every skewed ray gives its own number. |
-| `audio.work` | Посчитай сам. Сколько из двух углов на чертеже линейный? | O'zingiz hisoblang. Chizmadagi ikki burchakdan nechtasi chiziqli? | Work it out yourself. How many of the two angles on the drawing are linear? |
-| `work.prompt` | Сколько линейных углов на чертеже? | Chizmada nechta chiziqli burchak bor? | How many linear angles are on the drawing? |
-| `work.ok` | Один. У второго луч не перпендикулярен ребру. | Bitta. Ikkinchisining nuri qirraga perpendikulyar emas. | One. The ray of the second one is not perpendicular to the edge. |
-| `work.hint.1` | Проверь у каждого угла оба условия. | Har burchakda ikki shartni tekshiring. | Check both conditions for each angle. |
-| `work.hint.2` | Лучи должны быть перпендикулярны ребру, а не просто лежать в гранях. | Nurlar qirraga perpendikulyar bo'lishi kerak, shunchaki yoqlarda yotishi emas. | The rays must be perpendicular to the edge, not merely lie in the faces. |
-| `work.hint.3` | Один. | Bitta. | One. |
-
-**Формулы**
-
-| Ключ | Значение |
-|---|---|
-| `expr` | `AB ⊥ a,   AD ⊥̸ a` |
-| `work.answer` | `1` |
-
----
-
-## Экран 6 · `explain4` · ответ `number` · тег `lineynyy-ne-tot`
-
-Сам: четыре двугранных угла при пересечении плоскостей.
+Расстояние до нижней плоскости и честная линейка.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | САМ | O'ZINGIZ | ON YOUR OWN |
-| `title` | Четыре угла вокруг ребра | Qirra atrofida to'rt burchak | Four angles around the edge |
-| `show.1.1` | две плоскости пересеклись | ikki tekislik kesishdi | two planes crossed |
-| `show.1.2` | вокруг ребра получилось четыре угла | qirra atrofida to'rt burchak chiqdi | four angles came out around the edge |
-| `show.2.1` | один из них пятьдесят градусов | ulardan biri ellik daraja | one of them is fifty degrees |
-| `show.2.2` | противоположный ему такой же | unga qarama-qarshisi ham shunday | the one opposite to it is the same |
-| `audio.mount` | Две пересекающиеся плоскости делят всё пространство на четыре двугранных угла с общим ребром. Так на странице сто сорок три. | Ikki kesishuvchi tekislik butun fazoni umumiy qirrali to'rt ikki yoqli burchakka ajratadi. Bir yuz qirq uchinchi betda shunday. | Two crossing planes divide the whole of space into four dihedral angles with a common edge. So it is on page one hundred forty three. |
-| `audio.move*` | Посмотри на линейные углы этих четырёх. Они устроены как обычные углы при пересечении двух прямых. Противоположные равны между собой, а соседние дополняют друг друга до ста восьмидесяти градусов. Значит если один угол пятьдесят градусов, то противоположный ему тоже пятьдесят, а два соседних по сто тридцать. Углом между пересекающимися плоскостями называют наименьший из четырёх, то есть тот, который не больше девяноста градусов. | Bu to'rttasining chiziqli burchaklariga qarang. Ular ikki chiziq kesishganda hosil bo'ladigan oddiy burchaklar kabi tuzilgan. Qarama-qarshilari o'zaro teng, qo'shnilari esa bir yuz sakson darajaga to'ldiradi. Demak agar bir burchak ellik daraja bo'lsa, unga qarama-qarshisi ham ellik, ikki qo'shnisi esa bir yuz o'ttiztadan. Kesishuvchi tekisliklar orasidagi burchak deb to'rttadan eng kichigi olinadi, ya'ni to'qson darajadan katta bo'lmagani. | Look at the linear angles of these four. They are arranged like ordinary angles at the crossing of two lines. Opposite ones are equal to each other, and neighbouring ones add up to one hundred eighty degrees. So if one angle is fifty degrees, the one opposite is also fifty, and the two neighbours are one hundred thirty each. The angle between crossing planes is taken to be the smallest of the four, the one not greater than ninety degrees. |
-| `audio.work` | Посчитай сам. Один угол пятьдесят градусов. Сколько градусов в соседнем? | O'zingiz hisoblang. Bir burchak ellik daraja. Qo'shnisida necha daraja? | Work it out yourself. One angle is fifty degrees. How many degrees are in the neighbouring one? |
-| `work.prompt` | Сколько градусов в соседнем? | Qo'shnisida necha daraja? | How many degrees in the neighbouring one? |
-| `work.ok` | Сто тридцать. Соседние дополняют друг друга до ста восьмидесяти. | Bir yuz o'ttiz. Qo'shnilar bir-birini bir yuz sakson darajaga to'ldiradi. | One hundred thirty. Neighbours add up to one hundred eighty. |
-| `work.hint.1` | Соседние линейные углы вместе дают развёрнутый. | Qo'shni chiziqli burchaklar birgalikda yoyiq burchak beradi. | Neighbouring linear angles together give a straight angle. |
-| `work.hint.2` | Отними пятьдесят от ста восьмидесяти. | Bir yuz sakson dan ellikni ayiring. | Subtract fifty from one hundred eighty. |
-| `work.hint.3` | Сто тридцать. | Bir yuz o'ttiz. | One hundred thirty. |
+| `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
+| `title` | Расстояние это перпендикуляр | Masofa perpendikulyar | A distance is a perpendicular |
+| `show.1.1` | наклонный отрезок до плоскости | tekislikkacha qiya kesma | a slanted segment to the plane |
+| `show.1.2` | прибор называет его наклонной | asbob uni qiya deb ataydi | the tool calls it a slant |
+| `show.2.1` | перпендикуляр из точки | nuqtadan perpendikulyar | the perpendicular from the point |
+| `show.2.2` | и это уже расстояние | va bu endi masofa | and this is a distance now |
+| `audio.mount` | Проведу от точки до нижней плоскости наклонный отрезок и попробую взять его за расстояние. | Nuqtadan pastki tekislikkacha qiya kesma o'tkazaman va uni masofa deb olishga harakat qilaman. | Let me draw a slanted segment from the point to the lower plane and try to take it as the distance. |
+| `audio.move*` | Прибор подписывает его словом наклонная и в ответ не берёт. Это правило блока шесть, и здесь оно работает так же: расстояние от точки до плоскости меряется только по перпендикуляру, всё остальное длиннее. Ставлю перпендикуляр, и его основание оказывается ровно в проекции точки. А длина перпендикуляра равна третьему числу записи, потому что третье число и есть подъём над плоскостью. Вот и связка: расстояние до нижней плоскости читается прямо из записи, считать ничего не надо. | Asbob uni qiya deb belgilaydi va javobga olmaydi. Bu oltinchi blokning qoidasi, va bu yerda ham xuddi shunday ishlaydi: nuqtadan tekislikkacha masofa faqat perpendikulyar bo'ylab o'lchanadi, qolgani uzunroq. Perpendikulyar qo'yaman, va uning asosi aynan nuqtaning proyeksiyasida chiqadi. Perpendikulyarning uzunligi esa yozuvning uchinchi soniga teng, chunki uchinchi son tekislikdan ko'tarilishning o'zi. Ana bog'lanish: pastki tekislikkacha masofa yozuvdan to'g'ridan to'g'ri o'qiladi, hisoblash kerak emas. | The tool labels it with the word slant and does not take it as the answer. That is the rule of block six, and here it works the same way: the distance from a point to a plane is measured only along the perpendicular, everything else is longer. I set the perpendicular, and its foot turns out to be exactly at the projection of the point. And the length of the perpendicular equals the third number of the reading, because the third number is the rise above the plane itself. There is the link: the distance to the lower plane is read straight from the reading, nothing to compute. |
+| `audio.work` | Посчитай сам. Каково расстояние от точки до нижней плоскости? | O'zingiz hisoblang. Nuqtadan pastki tekislikkacha masofa qancha? | Work it out yourself. What is the distance from the point to the lower plane? |
+| `work.prompt` | Расстояние до нижней плоскости? | Pastki tekislikkacha masofa? | The distance to the lower plane? |
+| `work.ok` | Четыре. Это третье число записи. | To'rt. Bu yozuvning uchinchi soni. | Four. That is the third number of the reading. |
+| `work.hint.1` | Расстояние меряется по перпендикуляру. | Masofa perpendikulyar bo'ylab o'lchanadi. | The distance is measured along the perpendicular. |
+| `work.hint.2` | Его длина это подъём точки. | Uning uzunligi nuqtaning ko'tarilishi. | Its length is the rise of the point. |
+| `work.hint.3` | Четыре. | To'rt. | Four. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `expr` | `50° + x = 180°` |
-| `work.answer` | `130` |
-
----
-
-## Экран 7 · `explain5` · ответ `number` · тег `svoystvo-vmesto-priznaka`
-
-Перпендикулярные плоскости.
-
-**Текст**
-
-| Ключ | RU | UZ | EN |
-|---|---|---|---|
-| `eyebrow` | ПЕРПЕНДИКУЛЯРНЫЕ | PERPENDIKULYAR | PERPENDICULAR |
-| `title` | Один прямой значит все четыре | Biri to'g'ri bo'lsa, to'rttasi ham | One right means all four |
-| `show.1.1` | линейный угол стал прямым | chiziqli burchak to'g'ri bo'ldi | the linear angle became right |
-| `show.1.2` | соседний тоже стал прямым | qo'shnisi ham to'g'ri bo'ldi | the neighbouring one also became right |
-| `show.2.1` | такие плоскости называют перпендикулярными | bunday tekisliklar perpendikulyar deb ataladi | such planes are called perpendicular |
-| `show.2.2` | пол и стена комнаты пример | xona poli va devori misol | the floor and a wall of a room are an example |
-| `audio.mount` | Здесь линейный угол прямой. Вокруг ребра всё те же четыре угла. | Bu yerda chiziqli burchak to'g'ri. Qirra atrofida o'sha to'rt burchak. | Here the linear angle is right. Around the edge there are the same four angles. |
-| `audio.move*` | Как только один из четырёх углов стал прямым, прямыми стали и остальные три. Соседний дополняет его до ста восьмидесяти, а сто восемьдесят минус девяносто это опять девяносто. Плоскости, пересекающиеся под прямым углом, называют перпендикулярными. Их вокруг нас много. Пол и стена комнаты, две стены с общим углом, грани кубика Рубика с общим ребром, земля и стена дома. | To'rt burchakdan biri to'g'ri bo'lishi bilanoq qolgan uchtasi ham to'g'ri bo'ldi. Qo'shnisi uni bir yuz sakson darajaga to'ldiradi, bir yuz sakson minus to'qson esa yana to'qson. To'g'ri burchak ostida kesishuvchi tekisliklar perpendikulyar deb ataladi. Ular atrofimizda ko'p. Xona poli va devori, umumiy qirrali ikki devor, umumiy qirrali rubik kubi yoqlari, yer va uy devori. | As soon as one of the four angles became right, the other three became right too. The neighbour completes it to one hundred eighty, and one hundred eighty minus ninety is ninety again. Planes crossing at a right angle are called perpendicular. There are many of them around us. The floor and a wall of a room, two walls with a common corner, faces of a Rubik cube with a common edge, the ground and the wall of a house. |
-| `audio.work` | Посчитай сам. Один из четырёх углов прямой. Сколько из четырёх прямые? | O'zingiz hisoblang. To'rt burchakdan biri to'g'ri. To'rttadan nechtasi to'g'ri? | Work it out yourself. One of the four angles is right. How many of the four are right? |
-| `work.prompt` | Сколько прямых углов из четырёх? | To'rttadan nechta to'g'ri burchak? | How many right angles out of four? |
-| `work.ok` | Все четыре. Сто восемьдесят минус девяносто снова девяносто. | To'rttasi ham. Bir yuz sakson minus to'qson yana to'qson. | All four. One hundred eighty minus ninety is ninety again. |
-| `work.hint.1` | Посчитай соседний угол. | Qo'shni burchakni hisoblang. | Compute the neighbouring angle. |
-| `work.hint.2` | Противоположные углы равны, соседние дают развёрнутый. | Qarama-qarshi burchaklar teng, qo'shnilar yoyiq beradi. | Opposite angles are equal, neighbours give a straight angle. |
-| `work.hint.3` | Все четыре. | To'rttasi ham. | All four. |
-
-**Формулы**
-
-| Ключ | Значение |
-|---|---|
-| `expr` | `α ⊥ β` |
+| `expr` | `A (2; 3; 4)` |
 | `work.answer` | `4` |
 
 ---
 
-## Экран 8 · `rule` · ответ `pick2` · тег `lineynyy-ne-tot`
+## Экран 7 · `explain5` · ответ `number` · тег `nuqta-proyeksiyasiz`
+
+ГРАНИЦА: нули в записи говорят, где лежит точка.
+
+**Текст**
+
+| Ключ | RU | UZ | EN |
+|---|---|---|---|
+| `eyebrow` | ГРАНИЦА | CHEGARA | THE EDGE CASE |
+| `title` | Нули говорят, где точка | Nollar nuqta qayerda ekanini aytadi | The zeros say where the point is |
+| `show.1.1` | точка два три нуль | ikki uch nol nuqta | the point two three zero |
+| `show.1.2` | один нуль, и она в плоскости | bitta nol, va u tekislikda | one zero, and it is in the plane |
+| `show.2.1` | точка нуль три нуль | nol uch nol nuqta | the point zero three zero |
+| `show.2.2` | два нуля, и она на оси | ikki nol, va u o'qda | two zeros, and it is on an axis |
+| `audio.mount` | Возьмём точку, у которой третье число ноль. Она совпала со своей проекцией. | Uchinchi soni nol bo'lgan nuqtani olamiz. U o'z proyeksiyasi bilan mos tushdi. | Take a point whose third number is zero. It has merged with its own projection. |
+| `audio.move*` | Значит она лежит в нижней плоскости, и перпендикуляр к этой плоскости у неё нулевой. Теперь обнулю ещё одно число. Точка ушла на ось, и это уже не случай плоскости, а случай прямой: два нуля оставляют ей только одну свободу. Отсюда правило чтения, которое на экзамене экономит время. Ни одного нуля значит точка внутри, вне плоскостей. Один нуль значит точка в координатной плоскости. Два нуля значит точка на оси. Три нуля дают начало координат, и оно одно. | Demak u pastki tekislikda yotadi, va bu tekislikka perpendikulyari nol. Endi yana bitta sonni nolga aylantiraman. Nuqta o'qqa ketdi, va bu endi tekislik holi emas, to'g'ri chiziq holi: ikki nol unga faqat bitta erkinlik qoldiradi. Bundan imtihonda vaqt tejaydigan o'qish qoidasi chiqadi. Bitta ham nol yo'q -- nuqta ichkarida, tekisliklardan tashqarida. Bitta nol -- nuqta koordinata tekisligida. Ikki nol -- nuqta o'qda. Uch nol -- bu koordinatalar boshi, va u bitta. | So it lies in the lower plane, and its perpendicular to that plane is zero. Now let me zero one more number. The point has gone to an axis, and this is no longer the case of a plane but the case of a line: two zeros leave it only one freedom. Hence a reading rule that saves time at the exam. No zeros at all means the point is inside, off the planes. One zero means the point is in a coordinate plane. Two zeros mean the point is on an axis. Three zeros give the origin, and there is only one. |
+| `audio.work` | Посчитай сам. Сколько нулей в записи точки, лежащей на оси? | O'zingiz hisoblang. O'qda yotgan nuqtaning yozuvida nechta nol bor? | Work it out yourself. How many zeros are in the reading of a point lying on an axis? |
+| `work.prompt` | Сколько нулей у точки на оси? | O'qdagi nuqtada nechta nol? | How many zeros for a point on an axis? |
+| `work.ok` | Два. Остаётся одна свобода, вдоль оси. | Ikkita. Bitta erkinlik qoladi, o'q bo'ylab. | Two. One freedom remains, along the axis. |
+| `work.hint.1` | Посчитай, сколько чисел обнулилось. | Nechta son nolga aylanganini sanang. | Count how many numbers became zero. |
+| `work.hint.2` | Одного нуля хватало на плоскость. | Bitta nol tekislikka yetardi. | One zero was enough for a plane. |
+| `work.hint.3` | Два. | Ikkita. | Two. |
+
+**Формулы**
+
+| Ключ | Значение |
+|---|---|
+| `expr` | `(0; 3; 0) ∈ Oy` |
+| `work.answer` | `2` |
+
+---
+
+## Экран 8 · `rule` · ответ `pick2` · тег `nuqta-proyeksiyasiz`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ПРАВИЛО | QOIDA | THE RULE |
-| `title` | Два условия линейного угла | Chiziqli burchakning ikki sharti | Two conditions of the linear angle |
-| `probe.question` | Какой угол называют линейным? | Qaysi burchak chiziqli deb ataladi? | Which angle is called the linear one? |
-| `probe.a` [верно] | лучи в гранях и оба перпендикулярны ребру | nurlar yoqlarda va ikkalasi qirraga perpendikulyar | the rays are in the faces and both perpendicular to the edge |
-| `probe.b` | любые два луча из точки ребра | qirra nuqtasidan chiqqan istalgan ikki nur | any two rays from a point of the edge |
-| `probe.b.hint` | Тогда у одного двугранного угла было бы много разных величин. | Unda bitta ikki yoqli burchakning ko'p xil kattaligi bo'lardi. | Then one dihedral angle would have many different sizes. |
-| `rule.lawLabel` | Линейный угол | Chiziqli burchak | The linear angle |
-| `rule.lines.1` | лучи выходят из одной точки ребра и лежат в гранях | nurlar qirraning bir nuqtasidan chiqadi va yoqlarda yotadi | the rays leave one point of the edge and lie in the faces |
-| `rule.lines.2` | оба луча перпендикулярны ребру | ikkala nur ham qirraga perpendikulyar | both rays are perpendicular to the edge |
-| `rule.lines.3` | величина двугранного угла это величина его линейного угла | ikki yoqli burchakning kattaligi uning chiziqli burchagi kattaligi | the size of a dihedral angle is the size of its linear angle |
+| `title` | Как читается тройка | Uchlik qanday o'qiladi | How a triple is read |
+| `probe.question` | Что проверяет проекция? | Proyeksiya nimani tekshiradi? | What does the projection check? |
+| `probe.a` [верно] | что первые два числа на своих осях | birinchi ikki son o'z o'qlarida ekanini | that the first two numbers are on their own axes |
+| `probe.b` | что точка близко к плоскости | nuqta tekislikka yaqin ekanini | that the point is close to the plane |
+| `probe.b.hint` | Близость тут ни при чём, проекция есть у любой точки. | Yaqinlikning bunga aloqasi yo'q, proyeksiya har qanday nuqtada bor. | Closeness has nothing to do with it, every point has a projection. |
+| `rule.lawLabel` | Точка в пространстве | Fazodagi nuqta | A point in space |
+| `rule.lines.1` | место в записи закреплено за осью, а не за числом | yozuvdagi o'rin songa emas, o'qqa biriktirilgan | a place in the reading is tied to an axis, not to a number |
+| `rule.lines.2` | первые два числа адресуют проекцию, третье даёт подъём | birinchi ikki son proyeksiyani manzillaydi, uchinchisi ko'tarilishni beradi | the first two numbers address the projection, the third gives the rise |
+| `rule.lines.3` | число нулей говорит, где точка лежит | nollar soni nuqta qayerda yotganini aytadi | the number of zeros says where the point lies |
 | `audio.mount` | Один вопрос на различение, потом карточка. | Farqlashga bitta savol, keyin kartochka. | One question to tell them apart, then the card. |
-| `audio.rule*` | В определении два условия, и второе делает всю работу. Лучи в гранях бывают любые, но перпендикулярных ребру ровно по одному в каждой грани. Поэтому линейный угол в данной точке один, а не много, и величина двугранного угла определена однозначно. Отсюда и удобство. Чтобы измерить двугранный угол, не надо мерить плоскости, достаточно построить один линейный угол в любом месте ребра. | Ta'rifda ikki shart bor, va ikkinchisi butun ishni qiladi. Yoqlardagi nurlar istalgancha bo'ladi, lekin qirraga perpendikulyarlari har yoqda roppa-rosa bittadan. Shuning uchun berilgan nuqtada chiziqli burchak bitta, ko'p emas, va ikki yoqli burchakning kattaligi yagona aniqlanadi. Qulaylik ham shundan. Ikki yoqli burchakni o'lchash uchun tekisliklarni o'lchash kerak emas, qirraning istalgan joyida bitta chiziqli burchak qurish yetarli. | The definition has two conditions and the second one does all the work. Rays in the faces can be any, but there is exactly one perpendicular to the edge in each face. That is why the linear angle at a given point is one and not many, and the size of the dihedral angle is uniquely defined. Hence the convenience. To measure a dihedral angle there is no need to measure the planes, it is enough to build one linear angle anywhere on the edge. |
+| `audio.rule*` | Все три строки про одно: тройка это не набор чисел, а три адреса по трём осям. Первая строка запрещает переставлять числа. Вторая говорит, как их проверить чертежом, и это самая полезная строка блока: проекция ловит ошибку до всякого счёта. Третья превращает нули в информацию. На экзамене она работает быстрее всего: увидел два нуля, значит точка на оси, и половина работы уже сделана. | Uchta satr ham bir narsa haqida: uchlik sonlar to'plami emas, uch o'q bo'yicha uch manzil. Birinchi satr sonlarni almashtirishni taqiqlaydi. Ikkinchisi ularni chizma bilan qanday tekshirishni aytadi, va bu blokning eng foydali satri: proyeksiya xatoni har qanday hisobdan oldin ushlaydi. Uchinchisi nollarni ma'lumotga aylantiradi. Imtihonda u eng tez ishlaydi: ikki nolni ko'rdingiz -- nuqta o'qda, va ishning yarmi bajarilgan. | All three lines are about one thing: a triple is not a set of numbers but three addresses along three axes. The first line forbids swapping the numbers. The second says how to check them with a drawing, and it is the most useful line of the block: the projection catches a mistake before any counting. The third turns zeros into information. At the exam it works fastest: you see two zeros and the point is on an axis, and half the work is already done. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `rule.law` | `AB ⊥ a,   AC ⊥ a   →   ∠BAC` |
+| `rule.law` | `A₁ (x; y; 0)` |
 
 ---
 
-## Экран 9 · `drill` · ответ `match` · формат `match` · тег `lineynyy-ne-tot`
+## Экран 9 · `drill` · ответ `match` · формат `match` · тег `nuqta-proyeksiyasiz`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ПРАКТИКА | AMALIYOT | PRACTICE |
-| `title` | Величина и вид | Kattalik va turi | The size and the kind |
-| `match.prompt` | Соедини величину линейного угла с видом двугранного | Chiziqli burchak kattaligini ikki yoqli burchak turi bilan birlashtiring | Match the size of the linear angle with the kind of dihedral angle |
-| `match.ok` | Все четыре на месте. Вид двугранного читается по линейному. | To'rttasi ham joyida. Ikki yoqli burchakning turi chiziqli bo'yicha o'qiladi. | All four in place. The kind of the dihedral angle is read from the linear one. |
-| `audio.mount` | Четыре величины и четыре названия. Соедини их. | To'rt kattalik va to'rt nom. Ularni birlashtiring. | Four sizes and four names. Match them. |
-| `match.a` | острый | o'tkir | acute |
-| `match.b` | прямой | to'g'ri | right |
-| `match.c` | тупой | o'tmas | obtuse |
-| `match.d` | развёрнутый | yoyiq | straight |
+| `title` | Где лежит точка | Nuqta qayerda yotadi | Where the point lies |
+| `match.prompt` | Соедини запись с местом | Yozuvni joy bilan birlashtiring | Match the reading with the place |
+| `match.ok` | Все четыре на месте. Нули сказали, где точка. | To'rttasi ham joyida. Nollar nuqta qayerda ekanini aytdi. | All four in place. The zeros said where the point is. |
+| `audio.mount` | Четыре записи и четыре места. Считай нули. | To'rt yozuv va to'rt joy. Nollarni sanang. | Four readings and four places. Count the zeros. |
+| `match.a` | на вертикальной оси | tik o'qda | on the vertical axis |
+| `match.b` | в нижней плоскости | pastki tekislikda | in the lower plane |
+| `match.c` | в задней плоскости | orqa tekislikda | in the back plane |
+| `match.d` | вне плоскостей | tekisliklardan tashqarida | off the planes |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `match.left` | `40°` · `90°` · `120°` · `180°` |
+| `match.left` | `(0; 0; 5)` · `(2; 3; 0)` · `(0; 2; 3)` · `(1; 2; 3)` |
 
 ---
 
-## Экран 10 · `guided` · ответ `order` · формат `proof` · тег `lineynyy-ne-tot`
+## Экран 10 · `guided` · ответ `order` · формат `proof` · тег `nuqta-proyeksiyasiz`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ПО ШАГАМ | QADAMMA-QADAM | STEP BY STEP |
-| `title` | Докажи независимость от точки | Nuqtaga bog'liq emasligini isbotlang | Prove it does not depend on the point |
-| `proof.given` | два линейных угла в разных точках ребра | qirraning turli nuqtalarida ikki chiziqli burchak | two linear angles at different points of the edge |
-| `proof.goal` | они равны | ular teng | they are equal |
-| `proof.r1` | в каждой грани лучи параллельны | har yoqda nurlar parallel | in each face the rays are parallel |
-| `proof.r2` | стороны углов сонаправлены | burchak tomonlari bir yo'nalgan | the sides of the angles point the same way |
-| `proof.r3` | значит углы равны | demak burchaklar teng | so the angles are equal |
-| `proof.ok` | Доказано. Величина двугранного угла от точки на ребре не зависит. | Isbotlandi. Ikki yoqli burchakning kattaligi qirradagi nuqtaga bog'liq emas. | Proved. The size of a dihedral angle does not depend on the point on the edge. |
-| `proof.e1` | Сонаправленность идёт дальше. Сначала про параллельность. | Bir yo'nalganlik keyin keladi. Avval parallellik haqida. | Codirection comes later. First about being parallel. |
-| `proof.e2` | Параллельность уже есть. Речь о направлении лучей. | Parallellik bor. Gap nurlarning yo'nalishi haqida. | Being parallel is done. This is about the direction of the rays. |
-| `proof.e3` | Стороны разобраны. Теперь вывод про углы. | Tomonlar ko'rildi. Endi burchaklar haqida xulosa. | The sides are done. Now the conclusion about the angles. |
-| `reason.s1` | в плоскости два перпендикуляра к одной прямой параллельны | tekislikda bir chiziqqa ikki perpendikulyar parallel | in a plane two perpendiculars to one line are parallel |
-| `reason.s2` | лучи идут в одну сторону от ребра | nurlar qirradan bir tomonga boradi | the rays go to one side of the edge |
-| `reason.s3` | углы с сонаправленными сторонами равны | bir yo'nalgan tomonli burchaklar teng | angles with codirected sides are equal |
+| `title` | Докажи, что точка в нижней плоскости | Nuqta pastki tekislikda ekanini isbotlang | Prove the point is in the lower plane |
+| `proof.given` | третье число записи равно нулю | yozuvning uchinchi soni nolga teng | the third number of the reading equals zero |
+| `proof.goal` | точка лежит в нижней плоскости | nuqta pastki tekislikda yotadi | the point lies in the lower plane |
+| `proof.r1` | подъём точки над плоскостью равен нулю | nuqtaning tekislikdan ko'tarilishi nolga teng | the rise of the point above the plane equals zero |
+| `proof.r2` | значит точка совпала со своей проекцией | demak nuqta o'z proyeksiyasi bilan mos tushdi | so the point has merged with its own projection |
+| `proof.r3` | проекция лежит в плоскости, значит и точка | proyeksiya tekislikda yotadi, demak nuqta ham | the projection lies in the plane, so does the point |
+| `proof.ok` | Доказано. Ноль в третьем месте это не мелочь, а условие. | Isbotlandi. Uchinchi o'rindagi nol mayda-chuyda emas, shart. | Proved. A zero in the third place is not a detail but a condition. |
+| `proof.e1` | Про проекцию дальше. Сначала про подъём. | Proyeksiya haqida keyin. Avval ko'tarilish haqida. | The projection comes later. First about the rise. |
+| `proof.e2` | Подъём разобран. Что из этого следует для проекции. | Ko'tarilish ko'rildi. Bundan proyeksiya uchun nima kelib chiqadi. | The rise is done. What follows from it for the projection. |
+| `proof.e3` | Совпадение показано. Теперь вывод про плоскость. | Mos tushish ko'rsatildi. Endi tekislik haqida xulosa. | The merging is shown. Now the conclusion about the plane. |
+| `reason.s1` | третье число закреплено за вертикальной осью | uchinchi son tik o'qqa biriktirilgan | the third number is tied to the vertical axis |
+| `reason.s2` | проекция это основание перпендикуляра | proyeksiya perpendikulyarning asosi | the projection is the foot of the perpendicular |
+| `reason.s3` | проекция по построению лежит в плоскости | proyeksiya yasalishi bo'yicha tekislikda yotadi | the projection lies in the plane by construction |
 | `reason.pic` | видно на чертеже | chizmada ko'rinadi | it is visible on the drawing |
 | `reason.pic.missing` | Чертёж не обоснование. Он показывает один ракурс из многих. | Chizma asoslash emas. U ko'p rakursdan bittasini ko'rsatadi. | A drawing is not a justification. It shows one view out of many. |
 | `audio.mount` | Три строки, и у каждой своё обоснование из списка. | Uch qator, va har birining ro'yxatdan o'z asoslashi bor. | Three lines, each with its own justification from the list. |
@@ -335,7 +343,7 @@
 
 | Ключ | Значение |
 |---|---|
-| `expr` | `∠A = ∠B` |
+| `expr` | `(2; 3; 0) ∈ Oxy` |
 
 ---
 
@@ -347,25 +355,25 @@
 |---|---|---|---|
 | `eyebrow` | БЕЗ ПРИБОРА | ASBOBSIZ | NO TOOL |
 | `title` | Счёт и порядок | Hisob va tartib | Counting and order |
-| `task.ok` | Сто десять. Соседний дополняет семьдесят до ста восьмидесяти. | Bir yuz o'n. Qo'shnisi yetmishni bir yuz sakson darajaga to'ldiradi. | One hundred ten. The neighbour completes seventy to one hundred eighty. |
-| `task.hint.1` | Нарисуй четыре угла вокруг одной точки. | Bitta nuqta atrofida to'rt burchak chizing. | Draw four angles around one point. |
-| `task.hint.2` | Соседние вместе дают развёрнутый угол. | Qo'shnilar birgalikda yoyiq burchak beradi. | Neighbours together give a straight angle. |
-| `task.hint.3` | Сто восемьдесят минус семьдесят. | Bir yuz sakson minus yetmish. | One hundred eighty minus seventy. |
-| `order.prompt` | Расставь записи в том порядке, в каком их получают | Yozuvlarni olinish tartibida joylashtiring | Arrange the readings in the order they are obtained |
-| `order.title` | Порядок построения | Qurish tartibi | The order of construction |
-| `order.ok` | Порядок верный. Точка берётся первой, вывод последним. | Tartib to'g'ri. Nuqta birinchi olinadi, xulosa oxirgi. | The order is right. The point is taken first, the conclusion last. |
+| `task.ok` | Десять. Шесть и восемь дают десять. | O'n. Olti va sakkiz o'n beradi. | Ten. Six and eight give ten. |
+| `task.hint.1` | Расстояние до вертикальной оси не зависит от подъёма. | Tik o'qqacha masofa ko'tarilishga bog'liq emas. | The distance to the vertical axis does not depend on the rise. |
+| `task.hint.2` | Работают первые два числа, как катеты. | Birinchi ikki son katetlar kabi ishlaydi. | The first two numbers work as legs. |
+| `task.hint.3` | Шесть, восемь, десять. | Olti, sakkiz, o'n. | Six, eight, ten. |
+| `order.prompt` | Расставь шаги в том порядке, в каком считают | Qadamlarni hisoblash tartibida joylashtiring | Arrange the steps in the order they are computed |
+| `order.title` | Порядок счёта | Hisob tartibi | The order of computing |
+| `order.ok` | Порядок верный. Проекция, катеты, сумма квадратов, корень. | Tartib to'g'ri. Proyeksiya, katetlar, kvadratlar yig'indisi, ildiz. | The order is right. The projection, the legs, the sum of squares, the root. |
 | `order.bad` | Не в этом порядке. Что нужно раньше. | Bu tartibda emas. Avval nima kerak. | Not in this order. What is needed first. |
 | `audio.mount` | Прибор убран. Считаем на бумаге. | Asbob olib qo'yildi. Qog'ozda hisoblaymiz. | The tool is put away. We count on paper. |
-| `audio.next` | Теперь порядок записей. Расставь их так, как их получают. | Endi yozuvlar tartibi. Ularni qanday olinsa, shunday joylashtiring. | Now the order of the readings. Arrange them the way they are obtained. |
+| `audio.next` | Теперь порядок шагов. Расставь их так, как считают. | Endi qadamlar tartibi. Ularni qanday hisoblansa, shunday joylashtiring. | Now the order of the steps. Arrange them the way the counting goes. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `task.prompt` | `∠1 = 70°,   ∠2 = ?` |
-| `task.answer` | `110` |
-| `order.items` | `∠BAC` · `A ∈ a` · `AB ⊥ a` · `AC ⊥ a` |
-| `order.answer` | `A ∈ a  AB ⊥ a  AC ⊥ a  ∠BAC` |
+| `task.prompt` | `A (6; 8; 5),   d(A, Oz) = ?` |
+| `task.answer` | `10` |
+| `order.items` | `d` · `A₁` · `x, y` · `x² + y²` |
+| `order.answer` | `A₁  x, y  x² + y²  d` |
 
 ---
 
@@ -377,26 +385,26 @@
 |---|---|---|---|
 | `eyebrow` | ЛОВУШКА | TUZOQ | THE TRAP |
 | `title` | Найди строку с ошибкой | Xato qatorni toping | Find the line with the mistake |
-| `hint.r1` | Точка на ребре взята верно. | Qirradagi nuqta to'g'ri olingan. | The point on the edge is taken correctly. |
-| `hint.r2` | Первый луч перпендикулярен ребру, это верно. | Birinchi nur qirraga perpendikulyar, bu to'g'ri. | The first ray is perpendicular to the edge, that is right. |
-| `hint.r4` | Вывод получен из неверной строки выше. | Xulosa yuqoridagi xato qatordan olingan. | The conclusion comes from the wrong line above. |
-| `proof` | Поверни сцену: дуга на этом луче меняется, а на перпендикулярном нет. | Sahnani buring: bu nurdagi duga o'zgaradi, perpendikulyardagisi esa yo'q. | Rotate the scene: the arc on this ray changes, the one on the perpendicular does not. |
+| `hint.r1` | Данные выписаны верно. | Berilganlar to'g'ri yozilgan. | The data are written correctly. |
+| `hint.r2` | Проекция найдена верно, третье число ноль. | Proyeksiya to'g'ri topilgan, uchinchi son nol. | The projection is found correctly, the third number is zero. |
+| `hint.r4` | Длина перпендикуляра взята из неверной строки выше. | Perpendikulyarning uzunligi yuqoridagi xato qatordan olingan. | The length of the perpendicular is taken from the wrong line above. |
+| `proof` | Поверни каркас: проекция стоит под точкой, и подъём остаётся третьим числом. | Karkasni buring: proyeksiya nuqta tagida turadi, va ko'tarilish uchinchi son bo'lib qoladi. | Rotate the frame: the projection stands under the point and the rise stays the third number. |
 | `entry.prompt` | Номер строки с ошибкой | Xato qator raqami | The number of the line with the mistake |
-| `entry.ok` | Третья. Второй луч ребру не перпендикулярен, и угол не линейный. | Uchinchi. Ikkinchi nur qirraga perpendikulyar emas, va burchak chiziqli emas. | The third. The second ray is not perpendicular to the edge and the angle is not linear. |
-| `entry.hint.1` | Проверь у каждого луча перпендикулярность ребру. | Har nurning qirraga perpendikulyarligini tekshiring. | Check each ray for perpendicularity to the edge. |
-| `entry.hint.2` | Условие про второй луч в доказательстве не проверено. | Isbotda ikkinchi nur haqidagi shart tekshirilmagan. | The condition about the second ray is not checked in the proof. |
+| `entry.ok` | Третья. Подъём взяли из второго места, а не из третьего. | Uchinchi. Ko'tarilish uchinchi o'rindan emas, ikkinchisidan olingan. | The third. The rise was taken from the second place, not the third. |
+| `entry.hint.1` | Проверь, из какого места взят подъём. | Ko'tarilish qaysi o'rindan olinganini tekshiring. | Check which place the rise was taken from. |
+| `entry.hint.2` | Подъём это всегда третье место записи. | Ko'tarilish har doim yozuvning uchinchi o'rni. | The rise is always the third place of the reading. |
 | `entry.hint.3` | Ошибка в третьей строке. | Xato uchinchi qatorda. | The mistake is in the third line. |
-| `audio.mount` | Четыре строки, и одна из них называет линейным не тот угол. | To'rt qator, va ulardan biri chiziqli deb boshqa burchakni aytadi. | Four lines, and one of them calls the wrong angle linear. |
+| `audio.mount` | Четыре строки, и одна из них берёт число не с того места. | To'rt qator, va ulardan biri sonni boshqa o'rindan oladi. | Four lines, and one of them takes a number from the wrong place. |
 | `audio.next` | Теперь напиши номер строки, в которой ошибка. | Endi xato bo'lgan qator raqamini yozing. | Now write the number of the line with the mistake. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `row.r1` | `A ∈ a` |
-| `row.r2` | `AB ⊥ a,   B ∈ α` |
-| `row.r3` | `AD ⊂ β   →   ∠BAD` |
-| `row.r4` | `∠BAD = 60°` |
+| `row.r1` | `A (2; 7; 4)` |
+| `row.r2` | `A₁ (2; 7; 0)` |
+| `row.r3` | `d(A, Oxy) = 7` |
+| `row.r4` | `AA₁ = 7` |
 | `answerId` | `r3` |
 | `entry.answer` | `3` |
 
@@ -410,32 +418,32 @@
 |---|---|---|---|
 | `eyebrow` | ПЕРЕНОС | KO'CHIRISH | TRANSFER |
 | `title` | В обратную сторону | Teskari tomonga | The other way round |
-| `place.prompt` | Двугранный угол прямой. Сколько градусов в его линейном угле? | Ikki yoqli burchak to'g'ri. Uning chiziqli burchagida necha daraja? | The dihedral angle is right. How many degrees are in its linear angle? |
-| `place.ok` | Девяносто. Величина двугранного это величина линейного. | To'qson. Ikki yoqli burchakning kattaligi chiziqli burchak kattaligi. | Ninety. The size of the dihedral is the size of the linear one. |
-| `place.wrong` | Посмотри на третью строку карточки. | Kartochkaning uchinchi qatoriga qarang. | Look at the third line of the card. |
+| `place.prompt` | Проекция точки на нижнюю плоскость это пять и двенадцать, а расстояние до этой плоскости девять. Каково расстояние от точки до вертикальной оси? | Nuqtaning pastki tekislikka proyeksiyasi besh va o'n ikki, bu tekislikkacha masofa esa to'qqiz. Nuqtadan tik o'qqacha masofa qancha? | The projection of a point onto the lower plane is five and twelve, and the distance to that plane is nine. What is the distance from the point to the vertical axis? |
+| `place.ok` | Тринадцать. Девятка тут не участвует. | O'n uch. To'qqizning bunga aloqasi yo'q. | Thirteen. The nine takes no part here. |
+| `place.wrong` | Расстояние до оси считают по проекции, подъём в него не входит. | O'qqacha masofa proyeksiya bo'yicha hisoblanadi, ko'tarilish unga kirmaydi. | The distance to the axis is computed from the projection, the rise does not enter it. |
 | `multi.prompt` | Отметь все верные записи | Barcha to'g'ri yozuvlarni belgilang | Mark all the correct readings |
-| `multi.title` | Что верно всегда | Nima doim to'g'ri | What is always true |
-| `multi.d.hint` | Лучи в гранях бывают любые, а линейный угол один. | Yoqlardagi nurlar istalgancha, chiziqli burchak esa bitta. | Rays in the faces can be any, the linear angle is one. |
-| `multi.e.hint` | Соседние углы дополняют друг друга, а не равны. | Qo'shni burchaklar bir-birini to'ldiradi, teng emas. | Neighbouring angles complete each other, they are not equal. |
-| `multi.ok` | Три записи из пяти. Две оставшиеся ломаются на условии про ребро. | Beshtadan uch yozuv. Qolgan ikkitasi qirra haqidagi shartda sinadi. | Three readings out of five. The other two break on the condition about the edge. |
-| `audio.mount` | Прочитаем правило справа налево. По двугранному углу назовём линейный. | Qoidani o'ngdan chapga o'qiymiz. Ikki yoqli burchak bo'yicha chiziqlini aytamiz. | Let us read the rule from right to left. From the dihedral angle we name the linear one. |
-| `audio.work` | Отметь все записи, которые верны всегда. Их больше одной. | Doim to'g'ri bo'lgan barcha yozuvlarni belgilang. Ular bittadan ko'p. | Mark all the readings that are always true. There is more than one. |
+| `multi.title` | Что верно для этой точки | Bu nuqta uchun nima to'g'ri | What is true for this point |
+| `multi.d.hint` | Это запись проекции, а не точки. | Bu proyeksiyaning yozuvi, nuqtaning emas. | That is the reading of the projection, not of the point. |
+| `multi.e.hint` | Расстояние до оси не берёт подъём. | O'qqacha masofa ko'tarilishni olmaydi. | The distance to the axis does not take the rise. |
+| `multi.ok` | Три записи из пяти. Две оставшиеся путают точку с её проекцией. | Beshtadan uch yozuv. Qolgan ikkitasi nuqtani proyeksiyasi bilan aralashtiradi. | Three readings out of five. The other two confuse the point with its projection. |
+| `audio.mount` | Прочитаем урок справа налево. Дана проекция и подъём, найти надо расстояние. | Darsni o'ngdan chapga o'qiymiz. Proyeksiya va ko'tarilish berilgan, masofa topish kerak. | Let us read the lesson from right to left. The projection and the rise are given, the distance is to be found. |
+| `audio.work` | Отметь все записи, которые верны. Их больше одной. | To'g'ri bo'lgan barcha yozuvlarni belgilang. Ular bittadan ko'p. | Mark all the readings that are correct. There is more than one. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `place.target` | `90` |
-| `place.step` | `α ⊥ β   →   ∠BAC = 90°` |
-| `multi.a` [верно] | `AB ⊥ a,   AC ⊥ a` |
-| `multi.b` [верно] | `∠A = ∠B` |
-| `multi.c` [верно] | `∠1 + ∠2 = 180°` |
-| `multi.d` | `AD ⊂ β   →   ∠BAD` |
-| `multi.e` | `∠1 = ∠2 = 180°` |
+| `place.target` | `13` |
+| `place.step` | `25 + 144` |
+| `multi.a` [верно] | `A (5; 12; 9)` |
+| `multi.b` [верно] | `A₁ (5; 12; 0)` |
+| `multi.c` [верно] | `d(A, Oxy) = 9` |
+| `multi.d` | `A (5; 12; 0)` |
+| `multi.e` | `d(A, Oz) = 9` |
 
 ---
 
-## Экран 14 · `blitz` · ответ `mixed` · формат `chain` · тег `lineynyy-ne-tot`
+## Экран 14 · `blitz` · ответ `mixed` · формат `chain` · тег `nuqta-proyeksiyasiz`
 
 **Текст**
 
@@ -443,49 +451,48 @@
 |---|---|---|---|
 | `eyebrow` | БЛИЦ | BLITS | QUICK ROUND |
 | `title` | Четыре вопроса подряд | Ketma-ket to'rt savol | Four questions in a row |
-| `q1.prompt` | Что ограничивает грани двугранного угла? | Ikki yoqli burchakning yoqlarini nima chegaralaydi? | What bounds the faces of a dihedral angle? |
-| `q1.a` [верно] | ребро | qirra | the edge |
-| `q1.b` | линейный угол | chiziqli burchak | the linear angle |
-| `q1.b.hint` | Линейный угол это мера, а не граница. | Chiziqli burchak o'lchov, chegara emas. | The linear angle is a measure, not a boundary. |
-| `q1.c` | вершина | uch | a vertex |
-| `q1.c.hint` | У двугранного угла вершины нет, у него ребро. | Ikki yoqli burchakning uchi yo'q, qirrasi bor. | A dihedral angle has no vertex, it has an edge. |
-| `q1.d` | плоскость | tekislik | a plane |
-| `q1.d.hint` | Плоскость это то, из чего сделаны грани. | Tekislik yoqlar yasalgan narsa. | A plane is what the faces are made of. |
-| `q2.prompt` | Куда должны смотреть лучи линейного угла? | Chiziqli burchak nurlari qayerga qarashi kerak? | Where must the rays of the linear angle point? |
-| `q2.a` [верно] | перпендикулярно ребру | qirraga perpendikulyar | perpendicular to the edge |
-| `q2.b` | вдоль ребра | qirra bo'ylab | along the edge |
-| `q2.b.hint` | Вдоль ребра луч дал бы нулевой угол. | Qirra bo'ylab nur nol burchak berardi. | Along the edge a ray would give a zero angle. |
-| `q2.c` | в любую сторону | istalgan tomonga | in any direction |
-| `q2.c.hint` | Тогда величина двугранного была бы не одна. | Unda ikki yoqli burchakning kattaligi bitta bo'lmasdi. | Then the size of the dihedral would not be single. |
-| `q2.d` | к вершине | uchga | towards the vertex |
-| `q2.d.hint` | Вершины у двугранного угла нет. | Ikki yoqli burchakda uch yo'q. | A dihedral angle has no vertex. |
-| `q3.prompt` | Один из четырёх углов сто двадцать. Соседний? | To'rt burchakdan biri bir yuz yigirma. Qo'shnisi? | One of the four angles is one hundred twenty. The neighbour? |
-| `q3.a` [верно] | шестьдесят | oltmish | sixty |
-| `q3.b` | сто двадцать | bir yuz yigirma | one hundred twenty |
-| `q3.b.hint` | Сто двадцать у противоположного, а не у соседнего. | Bir yuz yigirma qarama-qarshisida, qo'shnisida emas. | One hundred twenty belongs to the opposite one. |
-| `q3.c` | девяносто | to'qson | ninety |
-| `q3.c.hint` | Девяносто было бы у перпендикулярных плоскостей. | To'qson perpendikulyar tekisliklarda bo'lardi. | Ninety would belong to perpendicular planes. |
-| `q3.d` | сорок | qirq | forty |
-| `q3.d.hint` | Проверь сумму со ста восьмьюдесятью. | Bir yuz sakson bilan yig'indini tekshiring. | Check the sum with one hundred eighty. |
-| `q4.prompt` | Какой угол называют углом между плоскостями? | Tekisliklar orasidagi burchak deb qaysi burchak aytiladi? | Which angle is called the angle between planes? |
-| `q4.a` [верно] | наименьший из четырёх | to'rttadan eng kichigi | the smallest of the four |
-| `q4.b` | наибольший из четырёх | to'rttadan eng kattasi | the biggest of the four |
-| `q4.b.hint` | Наибольший бывает тупым, и он не годится в меру. | Eng kattasi o'tmas bo'ladi, va u o'lchov uchun yaramaydi. | The biggest can be obtuse and does not serve as a measure. |
-| `q4.c` | любой из четырёх | to'rttadan istalgani | any of the four |
-| `q4.c.hint` | Тогда мера была бы не одна. | Unda o'lchov bitta bo'lmasdi. | Then the measure would not be single. |
-| `q4.d` | сумма всех четырёх | to'rttasining yig'indisi | the sum of all four |
-| `q4.d.hint` | Сумма всегда триста шестьдесят и ничего не различает. | Yig'indi doim uch yuz oltmish va hech narsani ajratmaydi. | The sum is always three hundred sixty and tells nothing apart. |
+| `q1.prompt` | Сколько чисел задаёт точку в пространстве? | Fazodagi nuqtani nechta son aniqlaydi? | How many numbers determine a point in space? |
+| `q1.a` [верно] | три | uchta | three |
+| `q1.b` | два | ikkita | two |
+| `q1.b.hint` | Двух хватает только в плоскости. | Ikkitasi faqat tekislikda yetadi. | Two are enough only in a plane. |
+| `q1.c` | четыре | to'rtta | four |
+| `q1.c.hint` | Четвёртой оси в курсе нет. | Kursda to'rtinchi o'q yo'q. | There is no fourth axis in this course. |
+| `q1.d` | одно | bitta | one |
+| `q1.d.hint` | Одно число задаёт точку на прямой. | Bitta son to'g'ri chiziqdagi nuqtani aniqlaydi. | One number determines a point on a line. |
+| `q2.prompt` | Где лежит точка с двумя нулями? | Ikki noli bor nuqta qayerda yotadi? | Where does a point with two zeros lie? |
+| `q2.a` [верно] | на оси | o'qda | on an axis |
+| `q2.b` | в плоскости | tekislikda | in a plane |
+| `q2.b.hint` | Для плоскости хватает одного нуля. | Tekislikka bitta nol yetadi. | One zero is enough for a plane. |
+| `q2.c` | в начале координат | koordinatalar boshida | at the origin |
+| `q2.c.hint` | В начале координат нулей три. | Koordinatalar boshida nollar uchta. | At the origin there are three zeros. |
+| `q2.d` | вне плоскостей | tekisliklardan tashqarida | off the planes |
+| `q2.d.hint` | Вне плоскостей нулей нет вовсе. | Tekisliklardan tashqarida nollar umuman yo'q. | Off the planes there are no zeros at all. |
+| `q3.prompt` | Чему равно расстояние до нижней плоскости? | Pastki tekislikkacha masofa nimaga teng? | What does the distance to the lower plane equal? |
+| `q3.a` [верно] | третьему числу записи | yozuvning uchinchi soniga | the third number of the reading |
+| `q3.b` | первому числу | birinchi songa | the first number |
+| `q3.b.hint` | Первое число адресует проекцию. | Birinchi son proyeksiyani manzillaydi. | The first number addresses the projection. |
+| `q3.c` | сумме трёх чисел | uch sonning yig'indisiga | the sum of the three numbers |
+| `q3.c.hint` | Сумма не имеет тут геометрического смысла. | Yig'indi bu yerda geometrik ma'no bermaydi. | The sum has no geometric meaning here. |
+| `q3.d` | длине наклонной | qiyaning uzunligiga | the length of the slant |
+| `q3.d.hint` | Наклонная всегда длиннее перпендикуляра. | Qiya har doim perpendikulyardan uzun. | A slant is always longer than a perpendicular. |
+| `q4.prompt` | Что стоит на первых двух местах записи? | Yozuvning birinchi ikki o'rnida nima turadi? | What stands in the first two places of the reading? |
+| `q4.a` [верно] | адрес проекции | proyeksiyaning manzili | the address of the projection |
+| `q4.b` | подъём и наклон | ko'tarilish va og'ish | the rise and the slant |
+| `q4.b.hint` | Наклона в записи точки нет вовсе. | Nuqta yozuvida og'ish umuman yo'q. | There is no slant in the reading of a point at all. |
+| `q4.c` | расстояние до оси | o'qqacha masofa | the distance to the axis |
+| `q4.c.hint` | Расстояние из них считается, но само в записи не стоит. | Masofa ulardan hisoblanadi, lekin o'zi yozuvda turmaydi. | The distance is computed from them but does not stand in the reading itself. |
+| `q4.d` | два одинаковых числа | ikki bir xil son | two equal numbers |
+| `q4.d.hint` | Они равны только в особом случае. | Ular faqat maxsus holda teng. | They are equal only in a special case. |
 | `audio.mount` | Четыре вопроса подряд. Отвечай без остановки. | Ketma-ket to'rt savol. To'xtamasdan javob bering. | Four questions in a row. Answer without stopping. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `q1.done` | `a = α ∩ β` |
-| `q2.done` | `AB ⊥ a` |
-| `q3.done` | `120° + 60° = 180°` |
-| `q4.done` | `∠(α; β) ≤ 90°` |
-| `angles` | `40°` · `90°` · `120°` · `180°` |
+| `q1.done` | `A (x; y; z)` |
+| `q2.done` | `(0; 3; 0) ∈ Oy` |
+| `q3.done` | `d(A, Oxy) = z` |
+| `q4.done` | `A₁ (x; y; 0)` |
 
 ---
 
@@ -497,30 +504,30 @@
 |---|---|---|---|
 | `eyebrow` | ИТОГ | YAKUN | SUMMARY |
 | `title` | Что теперь умеешь | Endi nimani bilasiz | What you can do now |
-| `can.1` | Различаю грани и ребро двугранного угла | Ikki yoqli burchakning yoqlari va qirrasini ajrataman | I tell the faces and the edge of a dihedral angle apart |
-| `can.2` | Строю линейный угол перпендикулярно ребру | Chiziqli burchakni qirraga perpendikulyar quraman | I build the linear angle perpendicular to the edge |
-| `can.3` | Знаю, что от точки на ребре величина не зависит | Kattalik qirradagi nuqtaga bog'liq emasligini bilaman | I know the size does not depend on the point on the edge |
-| `can.4` | Нахожу все четыре угла по одному | Bittasi bo'yicha to'rttasini topaman | I find all four angles from one |
+| `can.1` | Ставлю точку по тройке чисел, а не на глаз | Nuqtani ko'z bilan emas, uchlik bo'yicha qo'yaman | I place a point by a triple, not by eye |
+| `can.2` | Проверяю запись проекцией | Yozuvni proyeksiya bilan tekshiraman | I check a reading with the projection |
+| `can.3` | Читаю по нулям, где точка лежит | Nollar bo'yicha nuqta qayerda yotganini o'qiyman | I read from the zeros where the point lies |
+| `can.4` | Считаю расстояние до плоскости и до оси | Tekislikkacha va o'qqacha masofani hisoblayman | I compute the distance to a plane and to an axis |
 | `levels.full` | Все четыре | To'rttasi ham | All four |
 | `levels.gap` | Три из четырёх | To'rttadan uchtasi | Three out of four |
 | `levels.back` | Меньше трёх | Uchtadan kam | Fewer than three |
-| `bridge` | Блок закончен. Дальше многогранники, и там двугранные углы будут в каждой задаче | Blok tugadi. Bundan keyin ko'pyoqliklar, va u yerda ikki yoqli burchaklar har masalada bo'ladi | The block is over. Next come polyhedra, where dihedral angles appear in every problem |
-| `lifehack` | Ищешь угол между плоскостями — строй линейный угол на ребре | Tekisliklar orasidagi burchakni izlayotgan bo'lsangiz, qirrada chiziqli burchak quring | Looking for the angle between planes, build the linear angle on the edge |
+| `bridge` | Дальше вектор — у него тоже тройка, но она не адрес, а сдвиг | Bundan keyin vektor, unda ham uchlik bor, lekin u manzil emas, siljish | Next comes the vector: it also has a triple, but that triple is a shift, not an address |
+| `lifehack` | Прежде чем считать, найди проекцию: она ловит ошибку в записи | Hisoblashdan oldin proyeksiyani toping: u yozuvdagi xatoni ushlaydi | Before computing, find the projection: it catches a mistake in the reading |
 | `sheetTitle` | Шпаргалка | Shpargalka | Cheat sheet |
-| `sheetSrc` | Геометрия, страницы сто сорок два и сто сорок три | Geometriya, bir yuz qirq ikkinchi va bir yuz qirq uchinchi betlar | Geometry, pages one hundred forty two and one hundred forty three |
-| `audio.mount` | Урок начался с вопроса, зависит ли величина от места на ребре. | Dars kattalik qirradagi joyga bog'liqmi degan savol bilan boshlandi. | The lesson began with the question whether the size depends on the place on the edge. |
-| `audio.next` | Не зависит, и мы это увидели, а не просто услышали. Точка ехала по ребру, а угол не менялся. Причина в том, что перпендикуляр к ребру в каждой грани один, и лучи при разных точках параллельны. Дальше начинаются многогранники, и двугранные углы будут появляться в каждой задаче. | Bog'liq emas, va biz buni shunchaki eshitmadik, ko'rdik. Nuqta qirra bo'ylab yurdi, burchak esa o'zgarmadi. Sababi shuki, har yoqda qirraga perpendikulyar bitta, va turli nuqtalardagi nurlar parallel. Bundan keyin ko'pyoqliklar boshlanadi, va ikki yoqli burchaklar har masalada paydo bo'ladi. | It does not depend, and we saw that rather than merely heard it. The point travelled along the edge and the angle did not change. The reason is that there is one perpendicular to the edge in each face, and the rays at different points are parallel. Next polyhedra begin, and dihedral angles will appear in every problem. |
+| `sheetSrc` | Программа, блок восемь | Programma, sakkizinchi blok | The programme, block eight |
+| `audio.mount` | Урок начался с вопроса, сколько чисел нужно точке. | Dars nuqtaga nechta son kerakligi haqidagi savol bilan boshlandi. | The lesson began with the question how many numbers a point needs. |
+| `audio.next` | Нужно три, и это не просто на одно больше. Третье число закреплено за вертикальной осью, и переставить его нельзя: те же числа в другом порядке дают другую точку. Первые два адресуют проекцию, и проекция это главная проверка блока, потому что она ловит ошибку до всякого счёта. Нули в записи не пустое место, а сведения: один нуль ставит точку в плоскость, два на ось, три в начало координат. Расстояние до нижней плоскости читается прямо из третьего числа, а до вертикальной оси считается по первым двум. Дальше появится вектор, и у него тоже будет тройка, но она будет означать не адрес, а сдвиг. | Uchta kerak, va bu shunchaki bittaga ko'p degani emas. Uchinchi son tik o'qqa biriktirilgan, va uni almashtirib bo'lmaydi: o'sha sonlar boshqa tartibda boshqa nuqta beradi. Birinchi ikkitasi proyeksiyani manzillaydi, proyeksiya esa blokning asosiy tekshiruvi, chunki u xatoni har qanday hisobdan oldin ushlaydi. Yozuvdagi nollar bo'sh joy emas, ma'lumot: bitta nol nuqtani tekislikka qo'yadi, ikkitasi o'qqa, uchtasi koordinatalar boshiga. Pastki tekislikkacha masofa to'g'ridan to'g'ri uchinchi sondan o'qiladi, tik o'qqacha esa birinchi ikkitasi bo'yicha hisoblanadi. Keyin vektor paydo bo'ladi, va unda ham uchlik bo'ladi, lekin u manzilni emas, siljishni bildiradi. | Three are needed, and that is not simply one more. The third number is tied to the vertical axis and cannot be moved: the same numbers in another order give another point. The first two address the projection, and the projection is the main check of the block, because it catches a mistake before any counting. The zeros in a reading are not empty places but information: one zero puts the point into a plane, two onto an axis, three at the origin. The distance to the lower plane is read straight from the third number, and the distance to the vertical axis is computed from the first two. Next the vector will appear, and it will also have a triple, but that triple will mean a shift, not an address. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `hook.a` | `∠A ≠ ∠B` |
-| `hook.b` | `∠A = ∠B` |
-| `proved` | `∠A = ∠B` |
-| `law` | `AB ⊥ a,   AC ⊥ a` |
-| `sheet.1` | `a = α ∩ β` |
-| `sheet.2` | `AB ⊥ a,   AC ⊥ a` |
-| `sheet.3` | `∠(α; β) = ∠BAC` |
-| `sheet.4` | `∠1 + ∠2 = 180°` |
-| `sheet.5` | `α ⊥ β   →   90°` |
+| `hook.a` | `2` |
+| `hook.b` | `3` |
+| `proved` | `3` |
+| `law` | `A₁ (x; y; 0)` |
+| `sheet.1` | `A (x; y; z)` |
+| `sheet.2` | `A₁ (x; y; 0)` |
+| `sheet.3` | `d(A, Oxy) = z` |
+| `sheet.4` | `(0; 3; 0) ∈ Oy` |
+| `sheet.5` | `(2; 3; 4) ≠ (4; 3; 2)` |

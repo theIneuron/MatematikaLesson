@@ -84,7 +84,25 @@ const ROLES = [
 // Разбор. Таблицы читаются по строкам с трубой: столбцов либо четыре (текст),
 // либо два (формула). Заголовок и разделитель таблицы пропускаются.
 // ---------------------------------------------------------------------------
-const cells = (line) => line.split('|').slice(1, -1).map((c) => c.trim())
+// QATOR YACHEYKALARGA bo'linadi. TIK CHIZIQ qiymatning ICHIDA ham bo'ladi:
+// vektorning uzunligi darslikda `|AB|` deb yoziladi, va bu belgi jadvalning
+// ajratuvchisi bilan bir xil. Shuning uchun ekranlangan chiziq (teskari slesh
+// va chiziq) ajratuvchi sanalmaydi va qiymatga oddiy chiziq bo'lib tushadi.
+//
+// Ilgari `|AB|` yozuvi yacheykani ikkiga bo'lib qo'yardi, va ma'lumot buzilardi:
+// `order.items` massiv emas, satr bo'lib chiqqan va 51-dars ekranda umuman
+// ishga tushmagan (2026-08-21). Yig'ilish esa o'tib ketgan -- xato faqat
+// brauzerda ko'rinadi.
+//
+// Lookbehind ishlatilmaydi: bu yerda ekranlash uch qatlam bo'lib chalkashadi.
+// Ekranlangan chiziq vaqtincha xizmat belgisiga almashtiriladi, bo'linishdan
+// keyin qaytariladi.
+const PIPE_KEEP = ''
+const cells = (line) => line
+  .replace(/\\\|/g, PIPE_KEEP)
+  .split('|')
+  .slice(1, -1)
+  .map((c) => c.trim().split(PIPE_KEEP).join('|'))
 const isRule = (line) => /^\|[\s:-]+\|/.test(line)
 
 const problems = []
@@ -193,7 +211,10 @@ const kids = (node) => Object.keys(node).filter((k) => k !== '__self')
 function build(scr) {
   const n = scr.n
   const want = ROLES[n - 1]
-  if (scr.role !== want) problems.push(`экран ${n}: роль «${scr.role}», по §4.1 здесь «${want}»`)
+  // Rollarning qat'iy ketma-ketligi DTM to'plamiga qo'llanilmaydi.
+  if (!IS_DTM && scr.role !== want) {
+    problems.push(`экран ${n}: роль «${scr.role}», по §4.1 здесь «${want}»`)
+  }
   if (!scr.answer) problems.push(`экран ${n}: не объявлено, как сдаётся ответ`)
 
   // Дерево ОДНО на текст и формулы. Два дерева не годятся: под одним ключом
@@ -399,6 +420,12 @@ function build(scr) {
 // ---------------------------------------------------------------------------
 const src = fs.readFileSync(path.resolve(SRC), 'utf8')
 const screens = parse(src)
+// DTM TO'PLAMI o'zini ROLLARI bilan tanitadi: o'n to'rt topshiriq va xarita,
+// tushuntirish ekranlari yo'q (PODXOD_10SINF.md §11). Alohida belgi
+// kiritilmaydi: ikki manba bir-biriga qarshi chiqishi mumkin, rollar esa
+// faktning o'zi.
+const IS_DTM = screens.length === 15
+  && screens.filter((x) => x && x.role === 'drill').length === 14
 if (screens.length !== 15) problems.push(`экранов в контенте ${screens.length}, эталон §4.1 требует 15`)
 
 const data = screens.sort((a, b) => a.n - b.n).map(build)
@@ -411,6 +438,11 @@ const stubs = screens.map((s) => `const Screen${s.n} = (p) => (
     )}
   </Screen>
 )`).join('\n\n')
+
+// Rejim satri shablondan TASHQARIDA yasaladi: shablon ichida ko'p qatlamli
+// ekranlash chalkashadi va satr buziladi (shu yerda bir marta buzilgan).
+const DTM_LINE = IS_DTM ? `
+  mode: 'dtm',` : ''
 
 const file = `// ============================================================================
 // 10-sinf, Dars ${NO}. KARKAS: MA'LUMOT KONTENTDAN YIG'ILDI.
@@ -482,7 +514,7 @@ export default makeLesson({
   meta: { id: LESSON_ID, no: LESSON_NO, title: LESSON_TITLE },
   block: BLOCK,
   screens: SCREENS,
-  voice: 'm',
+  voice: 'm',${DTM_LINE}
 })
 `
 

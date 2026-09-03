@@ -1,21 +1,23 @@
-# Урок 40 — Перпендикулярность прямой и плоскости · КОНТЕНТ (этап 2)
+# Урок 47 — Площадь поверхности · КОНТЕНТ (этап 2)
 
-**Читается и правится методистом.** Формат тот же, что в `DARS26_KONTENT.md`.
+**Читается и правится методистом.** Формат тот же, что в `DARS46_KONTENT.md`.
 
-Скелет: `DARS38_40_SKELET.md` §9. Опора: учебник геометрии 2022, §17
-`Fazoda perpendikulyar to'g'ri chiziq va tekisliklar`, стр. 120–126.
+Скелет: в переписке 2026-08-20. Опора: учебник геометрии 2022, стр. 59–61 — развёртка, модель
+тела из развёртки, задания на узнавание развёртки куба.
 
-**Главное решение урока.** Признак требует **двух пересекающихся** прямых, и весь урок стоит на
-том, что одной мало. Показать это можно только поворотом: прямая, перпендикулярная одной прямой
-плоскости, на неподвижном чертеже выглядит как честный перпендикуляр, а при повороте видно, что
-она наклонена.
+**Главное решение урока. Формул площади поверхности в учебнике 10 класса нет, и мы их не даём
+готовыми.** Есть развёртка: тело разворачивается в плоскую фигуру, и площадь поверхности
+становится суммой площадей знакомых плоских кусков. Все формулы урока выводятся из развёртки, а
+не запоминаются.
 
-**Определение и признак взяты со стр. 120–121 дословно.** Признак — теорема 4.2.
+**Ошибка года — считать по картинке.** На чертеже видно три грани из шести, и ученик складывает
+то, что видит. Свидетель: развёртка показывает все куски сразу, и их шесть.
 
-**После этого урока производство останавливается**: план ставит гейт «проверка прибора 6 до
-массового производства».
+**Развёртка в приборе плоская.** Ни камеры, ни поворота: её смысл в том, что она лежит на бумаге
+и измеряется. Куски открываются по одному и подсвечиваются тем же цветом, что грань на теле.
 
-**Терминология UZ — draft, требует валидации узбекским методистом математики.**
+**Терминология UZ — draft, требует валидации узбекским методистом математики.** Термины
+`yoyilma`, `sirt`, `yon sirt`, `to'liq sirt` взяты из учебника, стр. 59–61.
 
 ---
 
@@ -25,28 +27,28 @@
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | ПЕРПЕНДИКУЛЯР | PERPENDIKULYAR | THE PERPENDICULAR |
-| `title` | Одной прямой хватит или нет | Bitta chiziq yetadimi yoki yo'q | Is one line enough or not |
-| `row.a.name` | хватит одной | bittasi yetadi | one is enough |
-| `row.b.name` | одной мало | bittasi kam | one is not enough |
+| `eyebrow` | ПОВЕРХНОСТЬ | SIRT | THE SURFACE |
+| `title` | Три грани или шесть | Uch yoq yoki olti | Three faces or six |
+| `row.a.name` | три | uch | three |
+| `row.b.name` | шесть | olti | six |
 | `probe.question` | Какая запись верна? | Qaysi yozuv to'g'ri? | Which reading is correct? |
 | `probe.a` | первая | birinchi | the first |
 | `probe.b` [верно] | вторая | ikkinchi | the second |
 | `probe.both` | обе | ikkisi ham | both |
 | `probe.none` | ни одна | hech qaysi | neither |
-| `probe.after` | Твой ответ записан. Сейчас повернём сцену. | Javobingiz yozib olindi. Endi sahnani buramiz. | Your answer is saved. Now we will rotate the scene. |
-| `audio.mount` | В плоскости одна прямая, и наша прямая ей перпендикулярна. Угол в точке отмечен. | Tekislikda bitta chiziq, bizning chiziq unga perpendikulyar. Nuqtadagi burchak belgilangan. | One line in the plane, and our line is perpendicular to it. The angle at the point is marked. |
-| `audio.r1` | Первая запись говорит: угол прямой, значит прямая перпендикулярна и всей плоскости. | Birinchi yozuv shunday deydi: burchak to'g'ri, demak chiziq butun tekislikka ham perpendikulyar. | The first reading says: the angle is right, so the line is perpendicular to the whole plane. |
-| `audio.r2` | Вторая говорит, что одной прямой для такого вывода мало. | Ikkinchisi bunday xulosa uchun bitta chiziq kam deydi. | The second says one line is not enough for such a conclusion. |
-| `audio.ask` | Как думаешь, какая верная? Пока просто предположи. | Sizningcha qaysi biri to'g'ri? Hozircha shunchaki taxmin qiling. | Which one do you think is right? Just make a guess for now. |
+| `probe.after` | Твой ответ записан. Сейчас развернём тело. | Javobingiz yozib olindi. Endi jismni yoyamiz. | Your answer is recorded. Now we unfold the body. |
+| `audio.mount` | Прямоугольный параллелепипед. Нужно найти площадь его поверхности, то есть сложить площади граней. | To'g'ri burchakli parallelepiped. Uning sirt yuzasini topish kerak, ya'ni yoqlar yuzalarini qo'shish kerak. | A rectangular box. We need the area of its surface, that is the sum of the areas of its faces. |
+| `audio.r1` | Первая запись предлагает сложить три грани. Ровно столько видно на чертеже. | Birinchi yozuv uch yoqni qo'shishni taklif qiladi. Chizmada aynan shuncha ko'rinadi. | The first reading offers to add three faces. That is exactly how many show on the drawing. |
+| `audio.r2` | Вторая предлагает шесть. | Ikkinchisi oltini taklif qiladi. | The second offers six. |
+| `audio.ask` | Как думаешь, какая запись верная? Пока просто предположи. | Sizningcha qaysi yozuv to'g'ri? Hozircha shunchaki taxmin qiling. | Which reading do you think is right? Just guess for now. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `expr` | `a ⊥ b,   b ⊂ α` |
-| `row.a.value` | `a ⊥ α` |
-| `row.b.value` | `a ⊥ α  ?` |
+| `expr` | `S = ?` |
+| `row.a.value` | `S = ab + bc + ac` |
+| `row.b.value` | `S = 2(ab+bc+ac)` |
 
 ---
 
@@ -57,295 +59,283 @@
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ОПОРА | TAYANCH | WHAT YOU KNOW |
-| `title` | Три вопроса перед признаком | Alomatdan oldin uch savol | Three questions before the criterion |
-| `q1.prompt` | Когда две прямые в пространстве перпендикулярны? | Fazoda ikki to'g'ri chiziq qachon perpendikulyar? | When are two lines in space perpendicular? |
-| `q1.a` [верно] | когда угол между ними девяносто градусов | ular orasidagi burchak to'qson gradus bo'lganda | when the angle between them is ninety degrees |
-| `q1.b` | когда они пересекаются | ular kesishganda | when they meet |
-| `q1.b.hint` | Пересекаться можно под любым углом. | Istalgan burchak ostida kesishish mumkin. | Lines can meet at any angle. |
-| `q1.c` | когда они лежат в одной плоскости | ular bitta tekislikda yotganda | when they lie in one plane |
-| `q1.c.hint` | В одной плоскости лежат и параллельные. | Bitta tekislikda parallellar ham yotadi. | Parallel lines lie in one plane too. |
-| `q1.d` | когда они равны | ular teng bo'lganda | when they are equal |
-| `q1.d.hint` | У прямых длины нет вовсе. | To'g'ri chiziqlarning uzunligi umuman yo'q. | Lines have no length at all. |
-| `q2.prompt` | Могут ли перпендикулярные прямые быть скрещивающимися? | Perpendikulyar chiziqlar ayqash bo'lishi mumkinmi? | Can perpendicular lines be skew? |
-| `q2.a` [верно] | да, могут | ha, mumkin | yes, they can |
-| `q2.b` | нет, они всегда пересекаются | yo'q, ular doim kesishadi | no, they always meet |
-| `q2.b.hint` | Угол между скрещивающимися определён переносом, и он бывает прямым. | Ayqashlar orasidagi burchak ko'chirish bilan aniqlanadi, va u to'g'ri ham bo'ladi. | The angle between skew lines is defined by shifting, and it can be right. |
-| `q2.c` | нет, они всегда параллельны | yo'q, ular doim parallel | no, they are always parallel |
-| `q2.c.hint` | Параллельные образуют угол ноль, а не девяносто. | Parallellar nol burchak hosil qiladi, to'qson emas. | Parallel lines make an angle of zero, not ninety. |
-| `q2.d` | только в кубе | faqat kubda | only in a cube |
-| `q2.d.hint` | Куб это пример, а не условие. | Kub bu misol, shart emas. | A cube is an example, not a condition. |
-| `q3.prompt` | Сколько прямых плоскости проходит через одну её точку? | Tekislikning bir nuqtasi orqali uning nechta chizig'i o'tadi? | How many lines of a plane pass through one of its points? |
-| `q3.a` [верно] | бесконечно много | cheksiz ko'p | infinitely many |
+| `title` | Три вопроса из блока | Blokdan uch savol | Three questions from the block |
+| `q1.prompt` | Сколько граней у параллелепипеда? | Parallelepipedning nechta yog'i bor? | How many faces does a parallelepiped have? |
+| `q1.a` [верно] | шесть | oltita | six |
+| `q1.b` | четыре | to'rtta | four |
+| `q1.b.hint` | Четыре это только боковые. | To'rtta faqat yonlari. | Four are only the lateral ones. |
+| `q1.c` | три | uchta | three |
+| `q1.c.hint` | Три это сколько видно с одного взгляда. | Uchta bir qarashda nechta ko'rinishi. | Three is how many you see at a glance. |
+| `q1.d` | восемь | sakkizta | eight |
+| `q1.d.hint` | Восемь это число вершин. | Sakkiz uchlar soni. | Eight is the number of vertices. |
+| `q2.prompt` | Что такое апофема? | Apofema nima? | What is the apothem? |
+| `q2.a` [верно] | высота боковой грани из вершины | uchdan yon yoqning balandligi | the height of a lateral face from the apex |
+| `q2.b` | боковое ребро | yon qirra | the lateral edge |
+| `q2.b.hint` | Ребро приходит в вершину основания, апофема в середину стороны. | Qirra asos uchiga keladi, apofema tomon o'rtasiga. | The edge arrives at a base vertex, the apothem at the middle of a side. |
+| `q2.c` | высота пирамиды | piramida balandligi | the height of the pyramid |
+| `q2.c.hint` | Высота идёт в центр основания. | Balandlik asos markaziga boradi. | The height goes to the centre of the base. |
+| `q2.d` | сторона основания | asos tomoni | a base side |
+| `q2.d.hint` | Сторона лежит в основании, а апофема в боковой грани. | Tomon asosda yotadi, apofema esa yon yoqda. | The side lies in the base, the apothem in a lateral face. |
+| `q3.prompt` | Сколько граней сходится в одном ребре? | Bitta qirrada nechta yoq tutashadi? | How many faces meet at one edge? |
+| `q3.a` [верно] | две | ikkita | two |
 | `q3.b` | одна | bitta | one |
-| `q3.b.hint` | Через точку в плоскости можно провести прямую в любом направлении. | Tekislikdagi nuqta orqali istalgan yo'nalishda chiziq o'tkazish mumkin. | Through a point in a plane a line can go in any direction. |
-| `q3.c` | две | ikkita | two |
-| `q3.c.hint` | Двумя дело не ограничивается, направлений сколько угодно. | Ish ikkita bilan cheklanmaydi, yo'nalish istalgancha. | It does not stop at two, there are any number of directions. |
-| `q3.d` | ни одной | bitta ham yo'q | none |
-| `q3.d.hint` | Хотя бы одна есть всегда. | Hech bo'lmaganda bittasi doim bor. | At least one always exists. |
-| `audio.mount` | Три коротких вопроса. Все три понадобятся через минуту. | Uch qisqa savol. Uchalasi ham bir daqiqadan keyin kerak bo'ladi. | Three short questions. All three will be needed in a minute. |
+| `q3.b.hint` | Одна грань дала бы просто сторону. | Bitta yoq shunchaki tomon berardi. | One face would give just a side. |
+| `q3.c` | три | uchta | three |
+| `q3.c.hint` | Три сходятся в вершине. | Uchtasi uchda tutashadi. | Three meet at a vertex. |
+| `q3.d` | зависит от тела | jismga bog'liq | it depends on the body |
+| `q3.d.hint` | Это верно у любого многогранника. | Bu har qanday ko'pyoqda to'g'ri. | This is true for any polyhedron. |
+| `audio.mount` | Три вопроса. Все три понадобятся, когда тело развернётся. | Uchta savol. Jism yoyilganda uchalasi ham kerak bo'ladi. | Three questions. All three will be needed when the body unfolds. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `q1.done` | `a ⊥ b   →   90°` |
-| `q2.done` | `a ⊥ b,   a ∸ b` |
-| `q3.done` | `∞` |
+| `q1.done` | `4 + 2 = 6` |
+| `q2.done` | `SM ⊥ AB` |
+| `q3.done` | `2` |
 
 ---
 
-## Экран 3 · `explain1` · ответ `lead` · тег `odnoy-pryamoy-hvatit`
+## Экран 3 · `explain1` · ответ `number` · тег `ploshchad-po-kartinke`
 
-Одна прямая: поворот показывает наклон.
+Развёртка: тело становится плоской фигурой.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
-| `title` | Поверни и посмотри, стоит ли прямая | Buring va chiziq tik turganini ko'ring | Rotate and see whether the line stands up |
-| `show.1.1` | в плоскости взята одна прямая | tekislikda bitta chiziq olingan | one line is taken in the plane |
-| `show.1.2` | наша прямая ей перпендикулярна | bizning chiziq unga perpendikulyar | our line is perpendicular to it |
-| `show.1.3` | угол отмечен, и он прямой | burchak belgilangan, va u to'g'ri | the angle is marked and it is right |
-| `show.2.1` | поверни сцену | sahnani buring | rotate the scene |
-| `show.2.2` | прямая наклонилась | chiziq og'ib qoldi | the line turned out slanted |
-| `show.2.3` | к плоскости она стоит косо | u tekislikka nisbatan qiyshiq turadi | it stands askew to the plane |
-| `audio.mount` | В плоскости одна прямая, и наша прямая ей перпендикулярна. Больше ничего не проверено. | Tekislikda bitta chiziq, bizning chiziq unga perpendikulyar. Boshqa hech nima tekshirilmagan. | One line in the plane, and our line is perpendicular to it. Nothing else has been checked. |
-| `audio.spin*` | На первом ракурсе всё выглядит убедительно: угол прямой, прямая как будто стоит на плоскости. Поверни сцену и посмотри сбоку. Прямая наклонена: она уходит в сторону, а не поднимается вертикально. При этом угол с той единственной прямой остался прямым, никто его не портил. Значит перпендикулярность одной прямой плоскости ещё ничего не говорит о перпендикулярности самой плоскости. Заметь, из чего мы это узнали. Не из рассуждения и не из измерения, а из поворота: на первом ракурсе увидеть наклон было нельзя. | Birinchi rakursda hammasi ishonarli ko'rinadi: burchak to'g'ri, chiziq tekislikda tik turgandek. Sahnani buring va yondan qarang. Chiziq og'gan: u tikka ko'tarilmay, chetga ketadi. Shu bilan birga o'sha yagona chiziq bilan burchak to'g'ri qoldi, uni hech kim buzmadi. Demak tekislikning bitta chizig'iga perpendikulyarlik tekislikning o'ziga perpendikulyarlik haqida hali hech nima demaydi. Buni nimadan bilganimizga e'tibor bering. Mulohazadan yoki o'lchashdan emas, burilishdan: birinchi rakursda og'ishni ko'rish mumkin emas edi. | From the first view everything looks convincing: the angle is right, the line seems to stand on the plane. Rotate the scene and look from the side. The line is slanted: it goes off sideways instead of rising vertically. Meanwhile the angle with that single line stayed right, nobody spoiled it. So being perpendicular to one line of a plane says nothing yet about being perpendicular to the plane itself. Notice how we learned this. Not from reasoning and not from measuring, but from rotating: on the first view the slant could not be seen. |
-| `audio.work` | Поверни сцену и ответь: как прямая стоит к плоскости? | Sahnani buring va javob bering: chiziq tekislikka qanday turadi? | Rotate the scene and answer: how does the line stand to the plane? |
-| `pick.prompt` | Как прямая стоит к плоскости? | Chiziq tekislikka qanday turadi? | How does the line stand to the plane? |
-| `pick.a` | перпендикулярно | perpendikulyar | perpendicular to it |
-| `pick.a.hint` | Поверни ещё раз: она уходит в сторону, а не вверх. | Yana buring: u yuqoriga emas, chetga ketadi. | Rotate again: it goes sideways, not upwards. |
-| `pick.b` [верно] | наклонно | qiyshiq | at a slant |
-| `pick.c` | лежит в плоскости | tekislikda yotadi | it lies in the plane |
-| `pick.c.hint` | Тогда угол с прямой плоскости не был бы отмечен как прямой. | U holda tekislik chizig'i bilan burchak to'g'ri deb belgilanmasdi. | Then the angle with the line of the plane would not be marked as right. |
-| `pick.ok` | Наклонно. Угол с одной прямой прямой, а к плоскости прямая стоит косо. | Qiyshiq. Bitta chiziq bilan burchak to'g'ri, tekislikka esa chiziq qiyshiq turadi. | At a slant. The angle with one line is right, yet the line stands askew to the plane. |
+| `title` | Тело разворачивается на бумагу | Jism qog'ozga yoyiladi | The body unfolds onto paper |
+| `show.1.1` | сначала легли основания | avval asoslar yotdi | first the bases lay down |
+| `show.1.2` | это два знакомых многоугольника | bu ikki tanish ko'pburchak | these are two familiar polygons |
+| `show.2.1` | потом легла боковая поверхность | keyin yon sirt yotdi | then the lateral surface lay down |
+| `show.2.2` | вся поверхность на бумаге | butun sirt qog'ozda | the whole surface is on paper |
+| `audio.mount` | Возьмём призму и разрежем её поверхность по рёбрам, а потом разложим на бумаге. | Prizmani olamiz va uning sirtini qirralar bo'ylab kesib, keyin qog'ozda yozamiz. | Take a prism, cut its surface along the edges and lay it out on paper. |
+| `audio.move*` | Получилась плоская фигура, и она называется развёрткой. Так на странице пятьдесят девять. Смотри, что изменилось. У тела площадь поверхности была непонятной величиной, а у развёртки это просто сумма площадей плоских кусков, и каждый кусок мы умеем считать с седьмого класса. Ни одна грань при развёртке не потерялась и не появилась, поэтому площади равны. Именно поэтому развёртка это не картинка для красоты, а способ считать. | Yassi shakl chiqdi, va u yoyilma deb ataladi. Ellik to'qqizinchi betda shunday. Nima o'zgarganiga qarang. Jismda sirt yuzasi tushunarsiz kattalik edi, yoyilmada esa u shunchaki yassi bo'laklar yuzalarining yig'indisi, va har bir bo'lakni biz yettinchi sinfdan hisoblay olamiz. Yoyilishda birorta yoq yo'qolmadi va paydo bo'lmadi, shuning uchun yuzalar teng. Aynan shuning uchun yoyilma chiroylik uchun rasm emas, hisoblash usuli. | We got a flat figure, and it is called a net. So it is on page fifty nine. See what changed. For the body the surface area was an unclear quantity, while for the net it is simply the sum of the areas of flat pieces, and each piece we can compute since grade seven. No face is lost or added in the unfolding, so the areas are equal. That is exactly why a net is not a decorative picture but a way to count. |
+| `audio.work` | Посчитай сам. Сколько плоских кусков в развёртке четырёхугольной призмы? | O'zingiz hisoblang. To'rtburchakli prizma yoyilmasida nechta yassi bo'lak bor? | Work it out yourself. How many flat pieces are in the net of a quadrilateral prism? |
+| `work.prompt` | Сколько кусков в развёртке? | Yoyilmada nechta bo'lak? | How many pieces are in the net? |
+| `work.ok` | Шесть. Четыре боковых и два основания, столько же, сколько граней. | Oltita. To'rt yon va ikki asos, yoqlar qanchaligicha. | Six. Four lateral and two bases, as many as there are faces. |
+| `work.hint.1` | Посчитай куски на бумаге, а не грани на теле. | Jismdagi yoqlarni emas, qog'ozdagi bo'laklarni sanang. | Count the pieces on the paper, not the faces on the body. |
+| `work.hint.2` | Каждая грань даёт ровно один кусок. | Har yoq roppa-rosa bitta bo'lak beradi. | Each face gives exactly one piece. |
+| `work.hint.3` | Четыре плюс два. | To'rt qo'shuv ikki. | Four plus two. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `mark` | `a ⊥ b,   b ⊂ α` |
+| `expr` | `4 + 2 = 6` |
+| `work.answer` | `6` |
 
 ---
 
-## Экран 4 · `explain2` · ответ `lead` · тег `odnoy-pryamoy-hvatit`
+## Экран 4 · `explain2` · ответ `number` · тег `ploshchad-po-kartinke`
 
-Разграничение: добавили вторую пересекающуюся.
+Полная поверхность параллелепипеда.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | РАЗГРАНИЧЕНИЕ | FARQLASH | TELLING THEM APART |
-| `title` | Вторая прямая меняет всё | Ikkinchi chiziq hammasini o'zgartiradi | The second line changes everything |
-| `show.1.1` | в плоскости взята вторая прямая | tekislikda ikkinchi chiziq olingan | a second line is taken in the plane |
-| `show.1.2` | она пересекает первую | u birinchisini kesib o'tadi | it crosses the first one |
-| `show.1.3` | наша прямая перпендикулярна и ей | bizning chiziq unga ham perpendikulyar | our line is perpendicular to it as well |
-| `show.2.1` | поверни сцену | sahnani buring | rotate the scene |
-| `show.2.2` | наклона больше нет | og'ish endi yo'q | there is no slant any more |
-| `show.2.3` | ни при каком повороте | hech qanday burilishda | at no rotation at all |
-| `audio.mount` | Добавим в плоскость вторую прямую, которая пересекает первую. | Tekislikka birinchisini kesib o'tadigan ikkinchi chiziqni qo'shamiz. | Let us add a second line to the plane, one that crosses the first. |
-| `audio.two*` | Теперь наша прямая перпендикулярна двум прямым плоскости, и эти две пересекаются. Поверни сцену со всех сторон. Наклона нет ни при каком ракурсе: прямая стоит вертикально, как столб. Больше того, теперь она перпендикулярна любой прямой плоскости, а не только этим двум. Вот почему в признаке стоит слово пересекающиеся. Две пересекающиеся прямые задают в плоскости два разных направления, а этого хватает, чтобы закрепить прямую. Одна прямая задаёт одно направление, и вокруг него ещё есть куда наклониться. | Endi bizning chiziq tekislikning ikki chizig'iga perpendikulyar, va bu ikkitasi kesishadi. Sahnani har tomondan buring. Hech qanday rakursda og'ish yo'q: chiziq ustundek tikka turadi. Bundan tashqari, endi u faqat shu ikkitasiga emas, tekislikning istalgan chizig'iga perpendikulyar. Alomatda kesishuvchi so'zi shuning uchun turadi. Ikki kesishuvchi chiziq tekislikda ikki xil yo'nalishni beradi, va bu chiziqni mahkamlash uchun yetadi. Bitta chiziq bitta yo'nalishni beradi, uning atrofida esa og'ishga joy bor. | Now our line is perpendicular to two lines of the plane, and those two cross each other. Rotate the scene from every side. There is no slant at any view: the line stands vertical like a post. What is more, it is now perpendicular to any line of the plane, not only to these two. That is why the criterion carries the word crossing. Two crossing lines give two different directions in the plane, and that is enough to fix the line. One line gives one direction, and around it there is still room to lean. |
-| `audio.work` | Поверни сцену и ответь: как прямая стоит теперь? | Sahnani buring va javob bering: chiziq endi qanday turadi? | Rotate the scene and answer: how does the line stand now? |
-| `pick.prompt` | Как прямая стоит к плоскости теперь? | Chiziq endi tekislikka qanday turadi? | How does the line stand to the plane now? |
-| `pick.a` | всё ещё наклонно | hali ham qiyshiq | still at a slant |
-| `pick.a.hint` | Поверни ещё: наклона нет ни на одном ракурсе. | Yana buring: hech bir rakursda og'ish yo'q. | Rotate again: there is no slant at any view. |
-| `pick.b` [верно] | перпендикулярно плоскости | tekislikka perpendikulyar | perpendicular to the plane |
-| `pick.c` | это зависит от ракурса | bu rakursga bog'liq | it depends on the view |
-| `pick.c.hint` | От ракурса зависит картинка, а не сама фигура. | Rakursga rasm bog'liq, shaklning o'zi emas. | The picture depends on the view, the figure itself does not. |
-| `pick.ok` | Перпендикулярно. Двух пересекающихся прямых хватило, и это признак. | Perpendikulyar. Ikki kesishuvchi chiziq yetdi, va bu alomat. | Perpendicular. Two crossing lines were enough, and that is the criterion. |
+| `title` | Видно три, а сложить надо шесть | Uch ko'rinadi, oltini qo'shish kerak | Three show, six must be added |
+| `show.1.1` | на чертеже видно три грани | chizmada uch yoq ko'rinadi | three faces show on the drawing |
+| `show.1.2` | остальные три с другой стороны | qolgan uchtasi boshqa tomonda | the other three are on the far side |
+| `show.2.1` | в развёртке все шесть сразу | yoyilmada oltitasi birdan | in the net all six at once |
+| `show.2.2` | и они попарно равны | va ular juft-juft teng | and they are equal in pairs |
+| `audio.mount` | Измерения два, три и четыре. Посчитаем площадь поверхности. | O'lchamlar ikki, uch va to'rt. Sirt yuzasini hisoblaymiz. | The dimensions are two, three and four. Let us find the surface area. |
+| `audio.move*` | На чертеже видно три грани, и складывать хочется именно их. Но грани у параллелепипеда попарно равны, и каждая видимая грань имеет невидимого близнеца с той же площадью. В развёртке это сразу видно. Значит сумма трёх разных произведений умножается на два. Два умножить на три это шесть, три на четыре двенадцать, два на четыре восемь. Шесть плюс двенадцать плюс восемь это двадцать шесть, а вся поверхность пятьдесят два. Обрати внимание, что число видимых граней зависит от ракурса, а площадь поверхности нет. | Chizmada uch yoq ko'rinadi, va aynan ularni qo'shgi keladi. Lekin parallelepipedning yoqlari juft-juft teng, va har bir ko'rinadigan yoqning o'sha yuzali ko'rinmas egizagi bor. Yoyilmada bu darhol ko'rinadi. Demak uch xil ko'paytmaning yig'indisi ikkiga ko'paytiriladi. Ikki karra uch olti, uch karra to'rt o'n ikki, ikki karra to'rt sakkiz. Olti qo'shuv o'n ikki qo'shuv sakkiz bu yigirma olti, butun sirt esa ellik ikki. E'tibor bering, ko'rinadigan yoqlar soni rakursga bog'liq, sirt yuzasi esa yo'q. | Three faces show on the drawing and those are the ones you want to add. But the faces of a box are equal in pairs, and every visible face has an invisible twin of the same area. In the net that is immediately visible. So the sum of the three different products is multiplied by two. Two times three is six, three times four is twelve, two times four is eight. Six plus twelve plus eight is twenty six, and the whole surface is fifty two. Note that the number of visible faces depends on the view while the surface area does not. |
+| `audio.work` | Посчитай сам. Измерения два, три и четыре. Какова площадь поверхности? | O'zingiz hisoblang. O'lchamlar ikki, uch va to'rt. Sirt yuzasi qancha? | Work it out yourself. The dimensions are two, three and four. What is the surface area? |
+| `work.prompt` | Найди площадь поверхности | Sirt yuzasini toping | Find the surface area |
+| `work.ok` | Пятьдесят два. Двадцать шесть умножить на два. | Ellik ikki. Yigirma olti karra ikki. | Fifty two. Twenty six times two. |
+| `work.hint.1` | Сложи три разных произведения измерений. | O'lchamlarning uch xil ko'paytmasini qo'shing. | Add the three different products of the dimensions. |
+| `work.hint.2` | Шесть плюс двенадцать плюс восемь. | Olti qo'shuv o'n ikki qo'shuv sakkiz. | Six plus twelve plus eight. |
+| `work.hint.3` | Двадцать шесть умножить на два. | Yigirma olti karra ikki. | Twenty six times two. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `mark` | `a ⊥ b,   a ⊥ c,   b ∩ c = O   →   a ⊥ α` |
+| `expr` | `S = 2(ab+bc+ac)` |
+| `work.answer` | `52` |
 
 ---
 
-## Экран 5 · `explain3` · ответ `number` · тег `svoystvo-vmesto-priznaka`
+## Экран 5 · `explain3` · ответ `number` · тег `ploshchad-po-kartinke`
 
-Признак 4.2 и почему слово «пересекающиеся» обязательно.
+Боковая поверхность призмы: периметр на высоту.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
-| `title` | Что именно требует признак | Alomat aynan nimani talab qiladi | What exactly the criterion demands |
-| `show.1.1` | признак требует двух прямых | alomat ikki chiziqni talab qiladi | the criterion demands two lines |
-| `show.1.2` | обе лежат в плоскости | ikkalasi tekislikda yotadi | both lie in the plane |
-| `show.1.3` | и они пересекаются | va ular kesishadi | and they cross |
-| `show.2.1` | тогда прямая перпендикулярна плоскости | u holda chiziq tekislikka perpendikulyar | then the line is perpendicular to the plane |
-| `show.2.2` | и любой прямой в ней | va undagi istalgan chiziqqa | and to any line in it |
-| `show.2.3` | это уже свойство, а не признак | bu allaqachon xossa, alomat emas | that is already a property, not the criterion |
-| `audio.mount` | Соберём условия признака и посчитаем их. | Alomat shartlarini yig'amiz va sanaymiz. | Let us gather the conditions of the criterion and count them. |
-| `audio.count*` | Признак звучит так: если прямая перпендикулярна двум пересекающимся прямым, лежащим в плоскости, то она перпендикулярна и плоскости. Требований здесь два: прямых должно быть две, и они должны пересекаться. Теперь важное различение, на котором ошибаются чаще всего. Признак и свойство говорят в разные стороны. Признак идёт от двух прямых к плоскости: проверил две, получил вывод про всю плоскость. Свойство идёт обратно: если прямая уже перпендикулярна плоскости, то она перпендикулярна любой прямой в ней, и проверять ничего не надо. Подставить свойство вместо признака значит взять то, что надо доказать, за готовое. | Alomat shunday: agar chiziq tekislikda yotgan ikki kesishuvchi chiziqqa perpendikulyar bo'lsa, u tekislikka ham perpendikulyar. Talab bu yerda ikkita: chiziq ikkita bo'lishi kerak, va ular kesishishi kerak. Endi eng ko'p xato qilinadigan muhim farq. Alomat va xossa qarama-qarshi tomonga gapiradi. Alomat ikki chiziqdan tekislikka boradi: ikkitasini tekshirdim, butun tekislik haqida xulosa oldim. Xossa teskariga boradi: agar chiziq tekislikka allaqachon perpendikulyar bo'lsa, u undagi istalgan chiziqqa perpendikulyar, va hech nimani tekshirish kerak emas. Alomat o'rniga xossani qo'yish isbotlanishi kerak narsani tayyor deb olish degani. | The criterion says: if a line is perpendicular to two crossing lines lying in a plane, then it is perpendicular to the plane as well. There are two requirements here: there must be two lines, and they must cross. Now the important distinction where mistakes happen most. A criterion and a property speak in opposite directions. The criterion goes from two lines to the plane: I checked two, I got a conclusion about the whole plane. The property goes back: if a line is already perpendicular to the plane, then it is perpendicular to any line in it, and nothing needs checking. Putting the property in place of the criterion means taking what has to be proved as given. |
-| `audio.work` | Посчитай сам. Сколько прямых плоскости требует признак? | O'zingiz hisoblang. Alomat tekislikning nechta chizig'ini talab qiladi? | Work it out yourself. How many lines of the plane does the criterion require? |
-| `work.prompt` | Сколько прямых требует признак? | Alomat nechta chiziqni talab qiladi? | How many lines does the criterion require? |
-| `work.ok` | Две. И обязательно пересекающиеся, иначе признак не работает. | Ikkita. Va albatta kesishuvchi, aks holda alomat ishlamaydi. | Two. And necessarily crossing, otherwise the criterion does not work. |
-| `work.hint.1` | Перечитай признак и посчитай прямые в нём. | Alomatni qayta o'qing va undagi chiziqlarni sanang. | Read the criterion again and count the lines in it. |
-| `work.hint.2` | Одной не хватило, ты видел это поворотом. | Bittasi yetmadi, buni burilish bilan ko'rdingiz. | One was not enough, you saw that by rotating. |
-| `work.hint.3` | Две. | Ikki. | Two. |
+| `title` | Боковая поверхность это лента | Yon sirt bu tasma | The lateral surface is a strip |
+| `show.1.1` | боковые грани легли в одну ленту | yon yoqlar bitta tasmaga yotdi | the lateral faces lay down in one strip |
+| `show.1.2` | высота ленты это высота призмы | tasmaning balandligi prizma balandligi | the height of the strip is the height of the prism |
+| `show.2.1` | длина ленты это периметр основания | tasmaning uzunligi asos perimetri | the length of the strip is the base perimeter |
+| `show.2.2` | площадь ленты это произведение | tasma yuzasi ko'paytma | the area of the strip is the product |
+| `audio.mount` | Развернём только боковую поверхность прямой призмы, без оснований. | To'g'ri prizmaning faqat yon sirtini, asoslarsiz yoyamiz. | Let us unfold only the lateral surface of a right prism, without the bases. |
+| `audio.move*` | Боковые грани прямой призмы это прямоугольники, и в развёртке они складываются в одну длинную ленту. Высота у всех прямоугольников одна, это высота призмы. А их основания идут одно за другим, и вместе дают периметр основания. Значит площадь ленты это периметр основания, умноженный на высоту, и никакой новой формулы запоминать не надо, это площадь прямоугольника. Проверим на треугольной призме со сторонами три, четыре, пять и высотой десять. Периметр двенадцать, площадь боковой поверхности сто двадцать. | To'g'ri prizmaning yon yoqlari to'g'ri to'rtburchak, va yoyilmada ular bitta uzun tasmaga qo'shiladi. Barcha to'g'ri to'rtburchaklarning balandligi bir xil, bu prizma balandligi. Asoslari esa ketma-ket boradi va birgalikda asos perimetrini beradi. Demak tasma yuzasi asos perimetrini balandlikka ko'paytirgani, va yangi formulani yodlash kerak emas, bu to'g'ri to'rtburchak yuzasi. Tomonlari uch, to'rt, besh va balandligi o'n bo'lgan uchburchakli prizmada tekshiramiz. Perimetr o'n ikki, yon sirt yuzasi bir yuz yigirma. | The lateral faces of a right prism are rectangles, and in the net they add up into one long strip. All the rectangles have the same height, the height of the prism. Their bases go one after another and together give the perimeter of the base. So the area of the strip is the base perimeter times the height, and there is no new formula to memorise, it is the area of a rectangle. Let us check on a triangular prism with sides three, four, five and height ten. The perimeter is twelve, the lateral area is one hundred twenty. |
+| `audio.work` | Посчитай сам. Периметр основания двенадцать, высота десять. Какова боковая поверхность? | O'zingiz hisoblang. Asos perimetri o'n ikki, balandlik o'n. Yon sirt qancha? | Work it out yourself. The base perimeter is twelve, the height is ten. What is the lateral area? |
+| `work.prompt` | Найди боковую поверхность | Yon sirtni toping | Find the lateral area |
+| `work.ok` | Сто двадцать. Периметр на высоту. | Bir yuz yigirma. Perimetr karra balandlik. | One hundred twenty. The perimeter times the height. |
+| `work.hint.1` | Лента это прямоугольник. | Tasma to'g'ri to'rtburchak. | The strip is a rectangle. |
+| `work.hint.2` | Его стороны это периметр и высота. | Uning tomonlari perimetr va balandlik. | Its sides are the perimeter and the height. |
+| `work.hint.3` | Двенадцать умножить на десять. | O'n ikki karra o'n. | Twelve times ten. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `work.expr` | `a ⊥ b,   a ⊥ c,   b ∩ c = O` |
-| `work.answer` | `2` |
+| `expr` | `S = P·h` |
+| `work.answer` | `120` |
 
 ---
 
-## Экран 6 · `explain4` · ответ `number` · тег `odnoy-pryamoy-hvatit`
+## Экран 6 · `explain4` · ответ `number` · тег `apofema-ne-rebro`
 
-Сам: две параллельные признака не дают.
+Сам: боковая поверхность правильной пирамиды.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | САМ | O'ZINGIZ | ON YOUR OWN |
-| `title` | Две прямые, но параллельные | Ikki chiziq, lekin parallel | Two lines, but parallel |
-| `show.1.1` | в плоскости две прямые | tekislikda ikki chiziq | two lines in the plane |
-| `show.1.2` | наша прямая перпендикулярна обеим | bizning chiziq ikkalasiga perpendikulyar | our line is perpendicular to both |
-| `show.1.3` | но эти две параллельны | lekin bu ikkitasi parallel | but these two are parallel |
-| `show.2.1` | поверни сцену | sahnani buring | rotate the scene |
-| `show.2.2` | наклон остался | og'ish qoldi | the slant is still there |
-| `show.2.3` | двух прямых оказалось мало | ikki chiziq kam bo'lib chiqdi | two lines turned out not to be enough |
-| `audio.mount` | Возьмём в плоскости две прямые и снова проверим. Только теперь они параллельны. | Tekislikda ikki chiziq olib, yana tekshiramiz. Faqat endi ular parallel. | Let us take two lines in the plane and check again. Only now they are parallel. |
-| `audio.para*` | Наша прямая перпендикулярна обеим, прямых две, а вывода нет: поверни сцену и увидишь тот же наклон. Дело в направлениях. Две параллельные прямые задают в плоскости одно и то же направление, второго они не добавляют. Поэтому прямая может наклоняться вдоль этого направления, оставаясь перпендикулярной обеим. Признак требует не просто двух прямых, а двух РАЗНЫХ направлений, и потому в нём стоит слово пересекающиеся. Посчитай сам, сколько направлений задают две параллельные прямые. | Bizning chiziq ikkalasiga perpendikulyar, chiziq ikkita, xulosa esa yo'q: sahnani buring va o'sha og'ishni ko'rasiz. Gap yo'nalishlarda. Ikki parallel chiziq tekislikda bir xil yo'nalishni beradi, ikkinchisini qo'shmaydi. Shuning uchun chiziq shu yo'nalish bo'ylab og'ishi mumkin, ikkalasiga perpendikulyar qolgan holda. Alomat shunchaki ikki chiziqni emas, ikki XIL yo'nalishni talab qiladi, va shuning uchun unda kesishuvchi so'zi turadi. Ikki parallel chiziq nechta yo'nalish berishini o'zingiz sanang. | Our line is perpendicular to both, there are two lines, and yet there is no conclusion: rotate the scene and you will see the same slant. It is about directions. Two parallel lines give one and the same direction in the plane, they add no second one. So the line can lean along that direction while staying perpendicular to both. The criterion requires not simply two lines but two DIFFERENT directions, and that is why it carries the word crossing. Count for yourself how many directions two parallel lines give. |
-| `audio.work` | Посчитай сам. Сколько разных направлений задают две параллельные прямые? | O'zingiz hisoblang. Ikki parallel chiziq nechta har xil yo'nalish beradi? | Work it out yourself. How many different directions do two parallel lines give? |
-| `work.prompt` | Сколько разных направлений они задают? | Ular nechta har xil yo'nalish beradi? | How many different directions do they give? |
-| `work.ok` | Одно. Параллельные идут в одну сторону, второго направления они не дают. | Bitta. Parallellar bir tomonga boradi, ikkinchi yo'nalishni bermaydi. | One. Parallel lines go the same way, they give no second direction. |
-| `work.hint.1` | Посмотри, куда идёт каждая из них. | Ularning har biri qayerga borishiga qarang. | Look at where each of them goes. |
-| `work.hint.2` | У параллельных направление одно и то же. | Parallellarning yo'nalishi bir xil. | Parallel lines have one and the same direction. |
-| `work.hint.3` | Одно. | Bitta. | One. |
+| `title` | Развёртка пирамиды это треугольники | Piramida yoyilmasi uchburchaklar | The net of a pyramid is triangles |
+| `show.1.1` | в центре основание | markazda asos | the base in the centre |
+| `show.1.2` | вокруг четыре треугольника | atrofida to'rt uchburchak | four triangles around it |
+| `show.2.1` | высота каждого это апофема | har birining balandligi apofema | the height of each is the apothem |
+| `show.2.2` | основание каждого это сторона | har birining asosi tomon | the base of each is a side |
+| `audio.mount` | Развернём правильную пирамиду. Сторона основания шесть, апофема пять. | Muntazam piramidani yoyamiz. Asos tomoni olti, apofema besh. | Let us unfold a regular pyramid. The base side is six, the apothem is five. |
+| `audio.move*` | В развёртке пирамиды основание лежит в центре, а боковые грани раскладываются вокруг него треугольниками. У каждого треугольника основание это сторона основания пирамиды, а высота это апофема. Вот почему апофема так важна, и вот почему её нельзя подменять боковым ребром: ребро высотой треугольника не является. Площадь одного треугольника это половина произведения шесть на пять, то есть пятнадцать. Треугольников четыре, значит боковая поверхность шестьдесят. | Piramida yoyilmasida asos markazda yotadi, yon yoqlar esa uning atrofida uchburchak bo'lib yoziladi. Har uchburchakning asosi piramida asosining tomoni, balandligi esa apofema. Apofema shuning uchun muhim, va uni yon qirra bilan almashtirib bo'lmasligi ham shundan: qirra uchburchakning balandligi emas. Bitta uchburchak yuzasi olti karra beshning yarmi, ya'ni o'n besh. Uchburchaklar to'rtta, demak yon sirt oltmish. | In the net of a pyramid the base lies in the centre and the lateral faces spread around it as triangles. For each triangle the base is a side of the pyramid base and the height is the apothem. That is why the apothem matters so much, and why it cannot be replaced by the lateral edge: the edge is not the height of the triangle. The area of one triangle is half of six times five, that is fifteen. There are four triangles, so the lateral area is sixty. |
+| `audio.work` | Посчитай сам. Сторона основания шесть, апофема пять. Какова боковая поверхность? | O'zingiz hisoblang. Asos tomoni olti, apofema besh. Yon sirt qancha? | Work it out yourself. The base side is six, the apothem is five. What is the lateral area? |
+| `work.prompt` | Найди боковую поверхность | Yon sirtni toping | Find the lateral area |
+| `work.ok` | Шестьдесят. Четыре треугольника по пятнадцать. | Oltmish. To'rt uchburchak o'n beshtadan. | Sixty. Four triangles of fifteen each. |
+| `work.hint.1` | Посчитай площадь одного треугольника. | Bitta uchburchak yuzasini hisoblang. | Compute the area of one triangle. |
+| `work.hint.2` | Половина произведения стороны на апофему. | Tomonni apofemaga ko'paytirganning yarmi. | Half the product of the side and the apothem. |
+| `work.hint.3` | Пятнадцать умножить на четыре. | O'n besh karra to'rt. | Fifteen times four. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `work.expr` | `b ∥ c   →   b ∩ c = ∅` |
-| `work.answer` | `1` |
+| `expr` | `S = ½·P·m` |
+| `work.answer` | `60` |
 
 ---
 
-## Экран 7 · `explain5` · ответ `number` · тег `izmeril-znachit-dokazal`
+## Экран 7 · `explain5` · ответ `number` · тег `ploshchad-po-kartinke`
 
-Граничный: перпендикуляр пересекает плоскость.
+Граница: видимые грани зависят от ракурса, площадь нет.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | ГРАНИЧНЫЙ СЛУЧАЙ | CHEGARAVIY HOL | THE EDGE CASE |
-| `title` | Перпендикуляр не может пройти мимо | Perpendikulyar yonlab o'tolmaydi | A perpendicular cannot pass by |
-| `show.1.1` | прямая перпендикулярна плоскости | chiziq tekislikka perpendikulyar | the line is perpendicular to the plane |
-| `show.1.2` | значит она её пересекает | demak u uni kesib o'tadi | so it crosses it |
-| `show.1.3` | пройти мимо она не может | yonlab o'tolmaydi | it cannot pass by |
-| `show.2.1` | поверни и посчитай общие точки | buring va umumiy nuqtalarni sanang | rotate and count the common points |
-| `show.2.2` | их ровно столько, сколько у прямой с плоскостью | ular chiziq va tekislikda qanchaligicha | as many as a crossing line has |
-| `show.2.3` | и мерить тут нечего | va bu yerda o'lchaydigan narsa yo'q | and there is nothing to measure here |
-| `audio.mount` | Ещё одно утверждение учебника, короткое и полезное. | Darslikning yana bir tasdig'i, qisqa va foydali. | One more statement from the textbook, short and useful. |
-| `audio.cross*` | Учебник говорит: прямая, перпендикулярная плоскости, обязательно её пересекает. Понятно почему: если бы она плоскости не касалась, то была бы ей параллельна, а параллельная прямая никакого прямого угла с прямыми плоскости не образует. Значит общая точка есть, и она одна: двух быть не может, иначе по второй аксиоме вся прямая легла бы в плоскость. Посчитай эти точки сам. И держи в голове главное правило года: числа с чертежа не берут. Здесь ответ получен рассуждением, а не измерением, и потому он годится в доказательство. | Darslik shunday deydi: tekislikka perpendikulyar chiziq albatta uni kesib o'tadi. Nega ekani tushunarli: agar u tekislikka tegmasa, unga parallel bo'lardi, parallel chiziq esa tekislik chiziqlari bilan hech qanday to'g'ri burchak hosil qilmaydi. Demak umumiy nuqta bor, va u bitta: ikkita bo'lishi mumkin emas, aks holda ikkinchi aksioma bo'yicha butun chiziq tekislikka yotardi. Bu nuqtalarni o'zingiz sanang. Va yilning asosiy qoidasini eslab turing: sonlar chizmadan olinmaydi. Bu yerda javob o'lchash bilan emas, mulohaza bilan olindi, shuning uchun u isbotga yaraydi. | The textbook says: a line perpendicular to a plane necessarily crosses it. It is clear why: if it did not touch the plane it would be parallel to it, and a parallel line makes no right angle with the lines of the plane at all. So a common point exists, and there is one: there cannot be two, otherwise by the second axiom the whole line would lie in the plane. Count these points yourself. And keep the main rule of the year in mind: numbers are not taken from the drawing. Here the answer came from reasoning, not from measuring, and that is why it can go into a proof. |
-| `audio.work` | Посчитай сам. Сколько общих точек у перпендикуляра и плоскости? | O'zingiz hisoblang. Perpendikulyar va tekislikning nechta umumiy nuqtasi bor? | Work it out yourself. How many common points do the perpendicular and the plane have? |
-| `work.prompt` | Сколько у них общих точек? | Ularning nechta umumiy nuqtasi bor? | How many common points do they have? |
-| `work.ok` | Одна. Ноль означал бы параллельность, две означали бы, что прямая лежит в плоскости. | Bitta. Nol parallellikni, ikkita esa chiziq tekislikda yotishini bildirardi. | One. Zero would mean parallel, two would mean the line lies in the plane. |
-| `work.hint.1` | Может ли перпендикуляр быть параллелен плоскости? | Perpendikulyar tekislikka parallel bo'lishi mumkinmi? | Can a perpendicular be parallel to the plane? |
-| `work.hint.2` | Две общие точки затянули бы всю прямую в плоскость. | Ikki umumiy nuqta butun chiziqni tekislikka tortardi. | Two common points would pull the whole line into the plane. |
-| `work.hint.3` | Одна. | Bitta. | One. |
+| `eyebrow` | ГРАНИЦА | CHEGARA | THE BOUNDARY |
+| `title` | Ракурс меняет вид, не площадь | Rakurs ko'rinishni o'zgartiradi, yuzani emas | The view changes what you see, not the area |
+| `show.1.1` | с одного ракурса видно три грани | bir rakursdan uch yoq ko'rinadi | from one view three faces show |
+| `show.1.2` | поверни и видно другие три | buring va boshqa uchtasi ko'rinadi | rotate and another three show |
+| `show.2.1` | больше трёх сразу не видно | birdan uchtadan ko'p ko'rinmaydi | more than three never show at once |
+| `show.2.2` | а поверхность всё та же | sirt esa o'sha | while the surface is the same |
+| `audio.mount` | Посмотрим на куб с разных сторон и посчитаем, сколько граней видно сразу. | Kubga turli tomondan qaraymiz va birdan nechta yoq ko'rinishini sanaymiz. | Let us look at a cube from different sides and count how many faces show at once. |
+| `audio.move*` | Сколько куб ни крути, больше трёх граней одновременно увидеть нельзя. Три видно, три скрыто, и какие именно, зависит от ракурса. А площадь поверхности при повороте не меняется, потому что она про тело, а не про взгляд. Отсюда правило работы. Площадь считают по развёртке или по формуле, а не по числу видимых кусков. Если сложить только видимое, ответ окажется ровно вдвое меньше настоящего, и ошибку легко не заметить. | Kubni qancha burmang, birdan uchtadan ko'p yoqni ko'rish mumkin emas. Uchtasi ko'rinadi, uchtasi yashiringan, va qaysi biri ekani rakursga bog'liq. Sirt yuzasi esa burilishda o'zgarmaydi, chunki u jism haqida, qarash haqida emas. Ish qoidasi shundan. Yuza yoyilma yoki formula bo'yicha hisoblanadi, ko'rinadigan bo'laklar soni bo'yicha emas. Faqat ko'rinadiganini qo'shsangiz, javob haqiqiysidan roppa-rosa ikki baravar kichik chiqadi, va xatoni sezmaslik oson. | However much you rotate the cube, more than three faces can never be seen at once. Three show, three are hidden, and which ones depends on the view. The surface area does not change under rotation, because it is about the body and not about the look. Hence the working rule. The area is computed from the net or from a formula, not from the number of visible pieces. If you add only what you see, the answer comes out exactly half of the true one, and the mistake is easy to miss. |
+| `audio.work` | Посчитай сам. Сколько граней куба видно одновременно? | O'zingiz hisoblang. Kubning nechta yog'i birdan ko'rinadi? | Work it out yourself. How many faces of a cube show at once? |
+| `work.prompt` | Сколько граней видно сразу? | Birdan nechta yoq ko'rinadi? | How many faces show at once? |
+| `work.ok` | Три. Остальные три скрыты, но в площадь входят все шесть. | Uchta. Qolgan uchtasi yashiringan, lekin yuzaga oltitasi kiradi. | Three. The other three are hidden, but all six enter the area. |
+| `work.hint.1` | Поверни куб и посчитай видимые грани. | Kubni buring va ko'rinadigan yoqlarni sanang. | Rotate the cube and count the visible faces. |
+| `work.hint.2` | Сколько бы ты ни крутил, число не меняется. | Qancha burmang, son o'zgarmaydi. | However much you rotate, the number does not change. |
+| `work.hint.3` | Три. | Uchta. | Three. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `work.expr` | `a ⊥ α   →   a ∩ α = O` |
-| `work.answer` | `1` |
+| `expr` | `3 + 3 = 6` |
+| `work.answer` | `3` |
 
 ---
 
-## Экран 8 · `rule` · ответ `pick2` · тег `svoystvo-vmesto-priznaka`
+## Экран 8 · `rule` · ответ `pick2` · тег `ploshchad-po-kartinke`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ПРАВИЛО | QOIDA | THE RULE |
-| `title` | Признак и свойство | Alomat va xossa | The criterion and the property |
-| `probe.question` | Чем признак отличается от свойства? | Alomat xossadan nimasi bilan farq qiladi? | How does a criterion differ from a property? |
-| `probe.a` [верно] | признак ведёт к выводу, свойство следует из него | alomat xulosaga olib boradi, xossa undan kelib chiqadi | a criterion leads to the conclusion, a property follows from it |
-| `probe.b` | это одно и то же, сказанное по-разному | bu bir xil narsa, boshqacha aytilgan | they are the same thing said differently |
-| `probe.b.hint` | Тогда доказательство ходило бы по кругу: вывод брался бы за условие. | U holda isbot doira bo'ylab yurardi: xulosa shart o'rniga olinardi. | Then the proof would go in a circle: the conclusion would serve as the condition. |
-| `rule.lawLabel` | ПРИЗНАК | ALOMAT | THE CRITERION |
-| `rule.lines.1` | прямая перпендикулярна двум прямым плоскости | chiziq tekislikning ikki chizig'iga perpendikulyar | the line is perpendicular to two lines of the plane |
-| `rule.lines.2` | эти две прямые пересекаются | bu ikki chiziq kesishadi | those two lines cross each other |
-| `rule.lines.3` | тогда прямая перпендикулярна плоскости | u holda chiziq tekislikka perpendikulyar | then the line is perpendicular to the plane |
-| `audio.mount` | Соберём правило. Признак короткий, но каждое слово в нём работает. | Qoidani yig'amiz. Alomat qisqa, lekin undagi har so'z ishlaydi. | Let us put the rule together. The criterion is short, but every word in it works. |
-| `audio.rule*` | Признак: если прямая перпендикулярна двум пересекающимся прямым, лежащим в плоскости, то она перпендикулярна этой плоскости. Слово двум нужно потому, что одной мало: прямая наклонится вокруг единственного направления. Слово пересекающимся нужно потому, что параллельные дают одно направление, а не два. Дальше работает свойство, и оно смотрит в другую сторону: перпендикулярная плоскости прямая перпендикулярна любой прямой в этой плоскости. Признак доказывает, свойство пользуется доказанным. Поставить свойство на место признака нельзя: это то же самое, что взять вывод за условие. | Alomat: agar chiziq tekislikda yotgan ikki kesishuvchi chiziqqa perpendikulyar bo'lsa, u shu tekislikka perpendikulyar. Ikki so'zi shuning uchun kerak, chunki bittasi kam: chiziq yagona yo'nalish atrofida og'adi. Kesishuvchi so'zi shuning uchun kerak, chunki parallellar bitta yo'nalish beradi, ikkitasini emas. Keyin xossa ishlaydi, va u boshqa tomonga qaraydi: tekislikka perpendikulyar chiziq shu tekislikdagi istalgan chiziqqa perpendikulyar. Alomat isbotlaydi, xossa isbotlanganidan foydalanadi. Xossani alomat o'rniga qo'yib bo'lmaydi: bu xulosani shart o'rniga olish bilan bir xil. | The criterion: if a line is perpendicular to two crossing lines lying in a plane, then it is perpendicular to that plane. The word two is needed because one is not enough: the line will lean around the single direction. The word crossing is needed because parallel lines give one direction, not two. Then the property works, and it looks the other way: a line perpendicular to a plane is perpendicular to any line in that plane. The criterion proves, the property uses what was proved. The property cannot be put in place of the criterion: that is the same as taking the conclusion for the condition. |
+| `title` | Поверхность считают по развёртке | Sirt yoyilma bo'yicha hisoblanadi | The surface is counted from the net |
+| `probe.question` | Что складывают, считая площадь поверхности? | Sirt yuzasini hisoblaganda nima qo'shiladi? | What is added when computing the surface area? |
+| `probe.a` [верно] | площади всех граней | barcha yoqlar yuzalari | the areas of all the faces |
+| `probe.b` | площади видимых граней | ko'rinadigan yoqlar yuzalari | the areas of the visible faces |
+| `probe.b.hint` | Видимость зависит от ракурса, а площадь нет. | Ko'rinish rakursga bog'liq, yuza esa yo'q. | Visibility depends on the view, the area does not. |
+| `rule.lawLabel` | Площадь поверхности | Sirt yuzasi | The surface area |
+| `rule.lines.1` | полная поверхность это боковая плюс основания, у призмы их два | to'liq sirt yon sirt qo'shuv asoslar, prizmada ular ikkita | the full surface is the lateral one plus the bases, a prism has two |
+| `rule.lines.2` | боковая поверхность прямой призмы это периметр на высоту | to'g'ri prizmaning yon sirti perimetr karra balandlik | the lateral area of a right prism is the perimeter times the height |
+| `rule.lines.3` | боковая поверхность правильной пирамиды это половина периметра на апофему | muntazam piramidaning yon sirti perimetrning yarmi karra apofema | the lateral area of a regular pyramid is half the perimeter times the apothem |
+| `audio.mount` | Один вопрос на различение, потом карточка. | Farqlashga bitta savol, keyin kartochka. | One question to tell them apart, then the card. |
+| `audio.rule*` | Обе формулы в карточке не новые. Первая это площадь прямоугольника, вторая площадь треугольника, взятая столько раз, сколько сторон у основания. Поэтому запоминать их не обязательно, достаточно помнить, как выглядит развёртка. И полная поверхность это всегда боковая плюс основания, у призмы два основания, у пирамиды одно. | Kartochkadagi ikkala formula ham yangi emas. Birinchisi to'g'ri to'rtburchak yuzasi, ikkinchisi uchburchak yuzasi, asos tomonlari qancha bo'lsa shuncha marta olingani. Shuning uchun ularni yodlash shart emas, yoyilma qanday ko'rinishini eslash yetarli. To'liq sirt esa doim yon sirt qo'shuv asoslar, prizmada ikki asos, piramidada bitta. | Neither formula on the card is new. The first is the area of a rectangle, the second the area of a triangle taken as many times as the base has sides. So there is no need to memorise them, it is enough to remember what the net looks like. And the full surface is always the lateral one plus the bases, two bases for a prism and one for a pyramid. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `rule.law` | `a ⊥ b,   a ⊥ c,   b ∩ c = O   →   a ⊥ α` |
+| `rule.law` | `S = S₁ + 2S₀` |
 
 ---
 
-## Экран 9 · `drill` · ответ `match` · формат `match` · тег `svoystvo-vmesto-priznaka`
+## Экран 9 · `drill` · ответ `match` · формат `match` · тег `ploshchad-po-kartinke`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | ТРЕНИРОВКА | MASHQ | PRACTICE |
-| `title` | Посчитай по кубу | Kub bo'yicha sanang | Count on the cube |
-| `match.prompt` | Все четыре ответа разные | To'rt javobning hammasi har xil | All four answers are different |
-| `match.ok` | Верно. Перпендикулярных ребру больше всего: их восемь из одиннадцати. | To'g'ri. Qirraga perpendikulyarlari eng ko'p: o'n birdan sakkiztasi. | Correct. Perpendicular edges are the most: eight out of eleven. |
-| `audio.mount` | Четыре записи про куб. Последняя это число его граней. | Kub haqida to'rt yozuv. Oxirgisi uning yoqlari soni. | Four writings about the cube. The last one is the number of its faces. |
+| `eyebrow` | ПРАКТИКА | AMALIYOT | PRACTICE |
+| `title` | Формула и тело | Formula va jism | The formula and the body |
+| `match.prompt` | Соедини запись с телом | Yozuvni jism bilan birlashtiring | Match the reading with the body |
+| `match.ok` | Все четыре на месте. Каждая формула это площадь плоской фигуры. | To'rttasi ham joyida. Har formula yassi shakl yuzasi. | All four in place. Every formula is the area of a flat figure. |
+| `audio.mount` | Четыре записи и четыре названия. Соедини их. | To'rt yozuv va to'rt nom. Ularni birlashtiring. | Four readings and four names. Match them. |
+| `match.a` | боковая призмы | prizma yon sirti | lateral, prism |
+| `match.b` | полная параллелепипеда | parallelepiped to'liq sirti | full, box |
+| `match.c` | боковая пирамиды | piramida yon sirti | lateral, pyramid |
+| `match.d` | полная куба | kub to'liq sirti | full, cube |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `match.left` | `AB ⊥ ?` · `AB ∥ ?` · `AB ∸ ?` · `ABCDA₁B₁C₁D₁` |
-| `match.a` | `8` |
-| `match.b` | `3` |
-| `match.c` | `4` |
-| `match.d` | `6` |
+| `match.left` | `P·h` · `2(ab+bc+ac)` · `½·P·m` · `6a²` |
 
 ---
 
-## Экран 10 · `guided` · ответ `order` · формат `proof` · тег `svoystvo-vmesto-priznaka`
+## Экран 10 · `guided` · ответ `order` · формат `proof` · тег `ploshchad-po-kartinke`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ПО ШАГАМ | QADAMMA-QADAM | STEP BY STEP |
-| `title` | Докажи перпендикулярность | Perpendikulyarlikni isbotlang | Prove the perpendicularity |
-| `proof.given` | боковое ребро куба и плоскость основания | kubning yon qirrasi va asos tekisligi | a side edge of a cube and the plane of its base |
-| `proof.goal` | ребро перпендикулярно плоскости основания | qirra asos tekisligiga perpendikulyar | the edge is perpendicular to the plane of the base |
-| `proof.r1` | ребро перпендикулярно первому ребру основания | qirra asosning birinchi qirrasiga perpendikulyar | the edge is perpendicular to the first edge of the base |
-| `proof.r2` | оно перпендикулярно и второму | u ikkinchisiga ham perpendikulyar | it is perpendicular to the second as well |
-| `proof.r3` | эти два ребра основания пересекаются | asosning bu ikki qirrasi kesishadi | those two edges of the base cross |
-| `proof.e1` | Признак идёт в конце. Здесь проверяется его условие. | Alomat oxirida qo'llanadi. Hozir uning sharti tekshirilyapti. | The criterion comes at the end. Here its condition is checked. |
-| `proof.e2` | Эта строка как первая, только со вторым ребром. | Bu qator birinchisidek, faqat ikkinchi qirra bilan. | This line is like the first, only with the second edge. |
-| `proof.e3` | Речь не о перпендикулярности. Встречаются ли эти рёбра. | Gap perpendikulyarlik haqida emas. Bu ikki qirra uchrashadimi. | This is not about perpendicularity. Do these edges meet. |
-| `proof.ok` | Доказано. Оба условия признака проверены, и только теперь вывод законный. | Isbotlandi. Alomatning ikkala sharti tekshirildi, va faqat endi xulosa qonuniy. | Proved. Both conditions of the criterion are checked, and only now is the conclusion lawful. |
-| `reason.s1` | по построению куба | kub yasalishiga ko'ra | by the construction of the cube |
-| `reason.s2` | признак перпендикулярности | perpendikulyarlik alomati | the criterion of perpendicularity |
-| `reason.s3` | вершина основания общая | asos uchi umumiy | the vertex of the base is common |
-| `reason.pic` | свойство перпендикулярной прямой | perpendikulyar chiziq xossasi | the property of a perpendicular line |
-| `reason.pic.missing` | Это свойство, а не признак: оно следует из вывода, который ещё не получен. | Bu xossa, alomat emas: u hali olinmagan xulosadan kelib chiqadi. | That is a property, not the criterion: it follows from a conclusion not yet obtained. |
-| `audio.mount` | Докажем на кубе. Обоснование каждой строки выбирается из списка. | Kubda isbotlaymiz. Har qatorning asoslashi ro'yxatdan tanlanadi. | Let us prove it on the cube. The justification of each line is chosen from the list. |
+| `title` | Выведи формулу ленты | Tasma formulasini chiqaring | Derive the strip formula |
+| `proof.given` | прямая призма | to'g'ri prizma | a right prism |
+| `proof.goal` | боковая поверхность это периметр на высоту | yon sirt perimetr karra balandlik | the lateral area is the perimeter times the height |
+| `proof.r1` | боковая поверхность разворачивается в прямоугольник | yon sirt to'g'ri to'rtburchakka yoyiladi | the lateral surface unfolds into a rectangle |
+| `proof.r2` | его высота это высота призмы | uning balandligi prizma balandligi | its height is the height of the prism |
+| `proof.r3` | его основание это периметр основания | uning asosi asos perimetri | its base is the perimeter of the base |
+| `proof.ok` | Доказано. Площадь прямоугольника это произведение его сторон. | Isbotlandi. To'g'ri to'rtburchak yuzasi tomonlarining ko'paytmasi. | Proved. The area of a rectangle is the product of its sides. |
+| `proof.e1` | Про высоту дальше. Сначала какая фигура получилась. | Balandlik haqida keyin. Avval qanday shakl chiqdi. | The height comes later. First what figure appeared. |
+| `proof.e2` | Фигура известна. Откуда её высота. | Shakl ma'lum. Balandligi qayerdan. | The figure is known. Where does its height come from. |
+| `proof.e3` | Высота есть. Теперь про вторую сторону. | Balandlik bor. Endi ikkinchi tomon haqida. | The height is there. Now about the other side. |
+| `reason.s1` | развёртка боковой поверхности | yon sirtning yoyilmasi | the net of the lateral surface |
+| `reason.s2` | боковые рёбра прямой призмы равны и перпендикулярны основанию | to'g'ri prizmaning yon qirralari teng va asosga perpendikulyar | the lateral edges of a right prism are equal and perpendicular to the base |
+| `reason.s3` | рёбра основания идут одно за другим | asos qirralari ketma-ket boradi | the base edges go one after another |
+| `reason.pic` | видно на чертеже | chizmada ko'rinadi | it is visible on the drawing |
+| `reason.pic.missing` | Чертёж не обоснование. Он показывает один ракурс из многих. | Chizma asoslash emas. U ko'p rakursdan bittasini ko'rsatadi. | A drawing is not a justification. It shows one view out of many. |
+| `audio.mount` | Три строки, и у каждой своё обоснование из списка. | Uch qator, va har birining ro'yxatdan o'z asoslashi bor. | Three lines, each with its own justification from the list. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `expr` | `AA₁ ⊥ AB,   AA₁ ⊥ AD,   AB ∩ AD = A` |
+| `expr` | `S = P·h` |
 
 ---
 
@@ -355,27 +345,27 @@
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | НА БУМАГЕ | QOG'OZDA | ON PAPER |
-| `title` | Сколько рёбер перпендикулярно данному | Berilganiga nechta qirra perpendikulyar | How many edges are perpendicular to the given one |
-| `task.ok` | Восемь. Четыре пересекают его, четыре скрещиваются с ним под прямым углом. | Sakkizta. To'rttasi uni kesadi, to'rttasi to'g'ri burchak ostida ayqash. | Eight. Four cross it and four are skew to it at a right angle. |
-| `task.hint.1` | Перпендикулярными бывают и скрещивающиеся рёбра. | Ayqash qirralar ham perpendikulyar bo'ladi. | Skew edges can be perpendicular too. |
-| `task.hint.2` | Всего рёбер одиннадцать, параллельных три. | Qirralar jami o'n bitta, parallellari uchta. | Eleven edges in all, three of them parallel. |
-| `task.hint.3` | Восемь. | Sakkiz. | Eight. |
-| `order.prompt` | Расставь записи по возрастанию ответа | Yozuvlarni javobi o'sishi bo'yicha joylashtiring | Put the writings in order of increasing answer |
-| `order.title` | от меньшего числа к большему | kichik sondan kattasiga | from the smallest number to the largest |
-| `order.ok` | Верно. Перпендикулярных рёбер больше, чем всех остальных вместе. | To'g'ri. Perpendikulyar qirralar qolganlarining hammasidan ko'p. | Correct. There are more perpendicular edges than all the rest together. |
-| `order.bad` | Считай каждую запись отдельно. | Har yozuvni alohida hisoblang. | Compute each writing separately. |
-| `audio.mount` | Прибора нет. Считай на бумаге, потом сверься. | Asbob yo'q. Qog'ozda hisoblang, keyin solishtiring. | No instrument here. Work it out on paper, then compare. |
-| `audio.next` | Дальше запись с ошибкой. Найди строку, где она появилась. | Keyin xatoli yozuv. Xato paydo bo'lgan qatorni toping. | Next comes a written solution with a mistake. Find the line where it appeared. |
+| `eyebrow` | БЕЗ ПРИБОРА | ASBOBSIZ | NO TOOL |
+| `title` | Счёт и порядок | Hisob va tartib | Counting and order |
+| `task.ok` | Сто пятьдесят. Двадцать пять умножить на шесть. | Bir yuz ellik. Yigirma besh karra olti. | One hundred fifty. Twenty five times six. |
+| `task.hint.1` | У куба все грани квадраты. | Kubning barcha yoqlari kvadrat. | All faces of a cube are squares. |
+| `task.hint.2` | Площадь одной грани это ребро в квадрате. | Bitta yoq yuzasi qirraning kvadrati. | The area of one face is the edge squared. |
+| `task.hint.3` | Двадцать пять умножить на шесть. | Yigirma besh karra olti. | Twenty five times six. |
+| `order.prompt` | Расставь записи в том порядке, в каком считают | Yozuvlarni hisoblash tartibida joylashtiring | Arrange the readings in the order they are computed |
+| `order.title` | Порядок счёта | Hisob tartibi | The order of computing |
+| `order.ok` | Порядок верный. Сначала одна грань, потом все. | Tartib to'g'ri. Avval bitta yoq, keyin hammasi. | The order is right. First one face, then all of them. |
+| `order.bad` | Не в этом порядке. Что нужно раньше. | Bu tartibda emas. Avval nima kerak. | Not in this order. What is needed first. |
+| `audio.mount` | Прибор убран. Считаем на бумаге. | Asbob olib qo'yildi. Qog'ozda hisoblaymiz. | The tool is put away. We count on paper. |
+| `audio.next` | Теперь порядок записей. Расставь их так, как считают. | Endi yozuvlar tartibi. Ularni qanday hisoblansa, shunday joylashtiring. | Now the order of the readings. Arrange them the way they are computed. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `task.prompt` | `AB ⊥ ?` |
-| `task.answer` | `8` |
-| `order.items` | `ABCDA₁B₁C₁D₁` · `AB ⊥ ?` · `AB ∥ ?` · `AB ∸ ?` |
-| `order.answer` | `AB ∥ ?  AB ∸ ?  ABCDA₁B₁C₁D₁  AB ⊥ ?` |
+| `task.prompt` | `a = 5,   S = ?` |
+| `task.answer` | `150` |
+| `order.items` | `6a²` · `a` · `a²` · `S` |
+| `order.answer` | `a  a²  6a²  S` |
 
 ---
 
@@ -386,29 +376,29 @@
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ЛОВУШКА | TUZOQ | THE TRAP |
-| `title` | Найди строку с ошибкой | Xatoli qatorni toping | Find the line with the mistake |
-| `hint.r1` | Условие переписано верно. | Shart to'g'ri ko'chirilgan. | The condition is copied correctly. |
-| `hint.r2` | Этот прямой угол действительно есть. | Bu to'g'ri burchak haqiqatan bor. | This right angle does exist. |
-| `hint.r3` | Спроси себя, сколько прямых проверено к этому моменту. | O'zingizdan so'rang: shu paytgacha nechta chiziq tekshirilgan? | Ask yourself how many lines have been checked by this point. |
-| `proof` | Поверни сцену: при одной проверенной прямой наклон остаётся. | Sahnani buring: bitta tekshirilgan chiziqda og'ish qoladi. | Rotate the scene: with one line checked the slant remains. |
-| `entry.prompt` | Сколько прямых плоскости не хватило? | Tekislikning nechta chizig'i yetmadi? | How many lines of the plane were missing? |
-| `entry.ok` | Одной. Проверена была одна, а признак требует двух пересекающихся. | Bittasi. Bittasi tekshirilgan edi, alomat esa ikki kesishuvchini talab qiladi. | One. One was checked, and the criterion requires two crossing ones. |
-| `entry.hint.1` | Посчитай, сколько прямых упомянуто в записи. | Yozuvda nechta chiziq eslatilganini sanang. | Count how many lines are mentioned in the writing. |
-| `entry.hint.2` | Признак требует двух, а в записи одна. | Alomat ikkitasini talab qiladi, yozuvda esa bittasi. | The criterion requires two, and the writing has one. |
-| `entry.hint.3` | Одной. | Bittasi. | One. |
-| `audio.mount` | Четыре строки. Все углы в записи верные, а вывод нет. | To'rt qator. Yozuvdagi barcha burchaklar to'g'ri, xulosa esa yo'q. | Four lines. Every angle in the writing is right, and the conclusion is not. |
-| `audio.next` | Дальше обратная задача: по выводу назови недостающее условие. | Keyin teskari masala: xulosaga qarab yetishmayotgan shartni ayting. | Next comes the reverse task: name the missing condition from the conclusion. |
+| `title` | Найди строку с ошибкой | Xato qatorni toping | Find the line with the mistake |
+| `hint.r1` | Измерения выписаны верно. | O'lchamlar to'g'ri yozilgan. | The dimensions are written correctly. |
+| `hint.r2` | Три произведения найдены верно. | Uch ko'paytma to'g'ri topilgan. | The three products are found correctly. |
+| `hint.r4` | Ответ получен из неверной строки выше. | Javob yuqoridagi xato qatordan olingan. | The answer comes from the wrong line above. |
+| `proof` | Разверни тело: кусков шесть, а сложены только три. | Jismni yoying: bo'laklar oltita, qo'shilgani esa uchta. | Unfold the body: there are six pieces and only three were added. |
+| `entry.prompt` | Номер строки с ошибкой | Xato qator raqami | The number of the line with the mistake |
+| `entry.ok` | Третья. Забыли умножить на два, то есть невидимые грани. | Uchinchi. Ikkiga ko'paytirish, ya'ni ko'rinmas yoqlar esdan chiqdi. | The third. They forgot to multiply by two, that is the invisible faces. |
+| `entry.hint.1` | Посчитай, сколько граней вошло в сумму. | Yig'indiga nechta yoq kirganini hisoblang. | Count how many faces went into the sum. |
+| `entry.hint.2` | Грани параллелепипеда попарно равны. | Parallelepipedning yoqlari juft-juft teng. | The faces of a box are equal in pairs. |
+| `entry.hint.3` | Ошибка в третьей строке. | Xato uchinchi qatorda. | The mistake is in the third line. |
+| `audio.mount` | Четыре строки, и в одной из них потерялись грани. | To'rt qator, va ulardan birida yoqlar yo'qolgan. | Four lines, and in one of them faces got lost. |
+| `audio.next` | Теперь напиши номер строки, в которой ошибка. | Endi xato bo'lgan qator raqamini yozing. | Now write the number of the line with the mistake. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `row.r1` | `b ⊂ α,   a ⊥ b` |
-| `row.r2` | `∠(a, b) = 90°` |
-| `row.r3` | `a ⊥ α` |
-| `row.r4` | `a ⊥ c   ∀c ⊂ α` |
+| `row.r1` | `a = 2,   b = 3,   c = 4` |
+| `row.r2` | `6 + 12 + 8 = 26` |
+| `row.r3` | `S = 26` |
+| `row.r4` | `S = 26` |
 | `answerId` | `r3` |
-| `entry.answer` | `1` |
+| `entry.answer` | `3` |
 
 ---
 
@@ -419,34 +409,33 @@
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ПЕРЕНОС | KO'CHIRISH | TRANSFER |
-| `title` | Обратный ход | Teskari yo'l | The other direction |
-| `entry.prompt` | Прямая перпендикулярна плоскости. Скольким прямым в этой плоскости она НЕ перпендикулярна? | Chiziq tekislikka perpendikulyar. U bu tekislikdagi nechta chiziqqa perpendikulyar EMAS? | A line is perpendicular to a plane. To how many lines in that plane is it NOT perpendicular? |
-| `entry.ok` | Ни одной. Это уже свойство: перпендикулярна всем без исключения, и проверять нечего. | Bitta ham yo'q. Bu allaqachon xossa: istisnosiz hammasiga perpendikulyar, tekshiradigan narsa yo'q. | None. That is already the property: it is perpendicular to all of them without exception, and nothing is left to check. |
-| `entry.hint.1` | Признак работал в одну сторону, а свойство в другую. | Alomat bir tomonga, xossa esa boshqa tomonga ishlardi. | The criterion worked one way, the property works the other. |
-| `entry.hint.2` | Свойство говорит: перпендикулярна любой прямой плоскости. | Xossa shunday deydi: tekislikning istalgan chizig'iga perpendikulyar. | The property says: perpendicular to any line of the plane. |
-| `entry.hint.3` | Ноль. | Nol. | Zero. |
-| `multi.prompt` | Отметь все записи, из которых следует перпендикулярность плоскости | Tekislikka perpendikulyarlik kelib chiqadigan barcha yozuvlarni belgilang | Mark every writing from which perpendicularity to the plane follows |
-| `multi.title` | их ровно два | ular aynan ikkita | there are exactly two |
-| `multi.c.hint` | Здесь прямая одна: одного направления мало. | Bu yerda chiziq bitta: bitta yo'nalish kam. | Here there is one line: one direction is not enough. |
-| `multi.d.hint` | Здесь две прямые, но параллельные: направление снова одно. | Bu yerda ikki chiziq, lekin parallel: yo'nalish yana bitta. | Here there are two lines but parallel: again one direction. |
-| `multi.ok` | Верно. Нужны две прямые и обязательно пересекающиеся. | To'g'ri. Ikki chiziq kerak va albatta kesishuvchi. | Correct. Two lines are needed, and they must cross. |
-| `audio.mount` | Теперь наоборот. Сначала ответь про свойство. | Endi teskarisiga. Avval xossa haqida javob bering. | Now the other way round. First answer about the property. |
-| `audio.work` | Потом отметь все записи, из которых вывод следует. | Keyin xulosa kelib chiqadigan barcha yozuvlarni belgilang. | Then mark every writing from which the conclusion follows. |
+| `title` | В обратную сторону | Teskari tomonga | The other way round |
+| `place.prompt` | Площадь поверхности куба пятьдесят четыре. Каково ребро? | Kubning sirt yuzasi ellik to'rt. Qirra qancha? | The surface area of a cube is fifty four. What is the edge? |
+| `place.ok` | Три. Пятьдесят четыре делить на шесть это девять, корень из девяти три. | Uch. Ellik to'rtni oltiga bo'lsak to'qqiz, to'qqizdan ildiz uch. | Three. Fifty four divided by six is nine, the root of nine is three. |
+| `place.wrong` | Сначала найди площадь одной грани. | Avval bitta yoq yuzasini toping. | First find the area of one face. |
+| `multi.prompt` | Отметь все верные записи | Barcha to'g'ri yozuvlarni belgilang | Mark all the correct readings |
+| `multi.title` | Что верно всегда | Nima doim to'g'ri | What is always true |
+| `multi.d.hint` | Это сумма только видимых граней. | Bu faqat ko'rinadigan yoqlar yig'indisi. | That is the sum of the visible faces only. |
+| `multi.e.hint` | У пирамиды основание одно, а не два. | Piramidada asos bitta, ikkita emas. | A pyramid has one base, not two. |
+| `multi.ok` | Три записи из пяти. Две оставшиеся теряют грани. | Beshtadan uch yozuv. Qolgan ikkitasi yoqlarni yo'qotadi. | Three readings out of five. The other two lose faces. |
+| `audio.mount` | Прочитаем формулу справа налево. По площади найдём ребро. | Formulani o'ngdan chapga o'qiymiz. Yuza bo'yicha qirrani topamiz. | Let us read the formula from right to left. From the area we find the edge. |
+| `audio.work` | Отметь все записи, которые верны всегда. Их больше одной. | Doim to'g'ri bo'lgan barcha yozuvlarni belgilang. Ular bittadan ko'p. | Mark all the readings that are always true. There is more than one. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `entry.expr` | `a ⊥ α   →   a ⊥ c` |
-| `entry.answer` | `0` |
-| `multi.a` [верно] | `a ⊥ b,  a ⊥ c,  b ∩ c = O` |
-| `multi.b` [верно] | `AA₁ ⊥ AB,  AA₁ ⊥ AD` |
-| `multi.c` | `a ⊥ b,  b ⊂ α` |
-| `multi.d` | `a ⊥ b,  a ⊥ c,  b ∥ c` |
+| `place.target` | `3` |
+| `place.step` | `54 : 6 = 9` |
+| `multi.a` [верно] | `6a²` |
+| `multi.b` [верно] | `2(ab+bc+ac)` |
+| `multi.c` [верно] | `P·h` |
+| `multi.d` | `ab + bc + ac` |
+| `multi.e` | `½·P·m + 2S₀` |
 
 ---
 
-## Экран 14 · `blitz` · ответ `mixed` · формат `chain` · тег `odnoy-pryamoy-hvatit`
+## Экран 14 · `blitz` · ответ `mixed` · формат `chain` · тег `ploshchad-po-kartinke`
 
 **Текст**
 
@@ -454,49 +443,49 @@
 |---|---|---|---|
 | `eyebrow` | БЛИЦ | BLITS | QUICK ROUND |
 | `title` | Четыре вопроса подряд | Ketma-ket to'rt savol | Four questions in a row |
-| `q1.prompt` | Сколько прямых плоскости требует признак? | Alomat tekislikning nechta chizig'ini talab qiladi? | How many lines of the plane does the criterion require? |
-| `q1.a` [верно] | две пересекающиеся | ikki kesishuvchi | two crossing ones |
-| `q1.b` | одну | bittasini | one |
-| `q1.b.hint` | При одной прямая наклоняется, ты видел это поворотом. | Bittasida chiziq og'adi, buni burilish bilan ko'rdingiz. | With one the line leans, you saw that by rotating. |
-| `q1.c` | две любые | istalgan ikkitasini | any two |
-| `q1.c.hint` | Две параллельные дают одно направление, и этого мало. | Ikki parallel bitta yo'nalish beradi, va bu kam. | Two parallel ones give one direction, and that is not enough. |
-| `q1.d` | все прямые плоскости | tekislikning barcha chiziqlarini | all lines of the plane |
-| `q1.d.hint` | Все проверять не надо, в этом и смысл признака. | Hammasini tekshirish kerak emas, alomatning ma'nosi shunda. | Checking all is not needed, that is the point of the criterion. |
-| `q2.prompt` | Двух параллельных прямых хватает для вывода? | Ikki parallel chiziq xulosa uchun yetadimi? | Are two parallel lines enough for the conclusion? |
-| `q2.a` [верно] | нет, направление у них одно | yo'q, ularning yo'nalishi bitta | no, they have one direction |
-| `q2.b` | да, прямых же две | ha, chiziq ikkita-ku | yes, there are two lines after all |
-| `q2.b.hint` | Считаются направления, а не прямые. | Chiziqlar emas, yo'nalishlar hisoblanadi. | Directions are counted, not lines. |
-| `q2.c` | да, если они далеко друг от друга | ha, agar ular bir-biridan uzoq bo'lsa | yes, if they are far apart |
-| `q2.c.hint` | Расстояние между ними ничего не меняет. | Ular orasidagi masofa hech nimani o'zgartirmaydi. | The distance between them changes nothing. |
-| `q2.d` | это зависит от плоскости | bu tekislikka bog'liq | it depends on the plane |
-| `q2.d.hint` | Плоскость тут ни при чём, дело в направлениях. | Tekislikning bunga aloqasi yo'q, gap yo'nalishlarda. | The plane is not involved, it is about directions. |
-| `q3.prompt` | Сколько общих точек у перпендикуляра и плоскости? | Perpendikulyar va tekislikning nechta umumiy nuqtasi bor? | How many common points do a perpendicular and a plane have? |
-| `q3.a` [верно] | одна | bitta | one |
-| `q3.a.ok` | Одна. Перпендикуляр обязательно пересекает плоскость, и ровно один раз. | Bitta. Perpendikulyar albatta tekislikni kesib o'tadi, va roppa-rosa bir marta. | One. A perpendicular necessarily crosses the plane, exactly once. |
-| `q3.b` | ни одной | bitta ham yo'q | none |
-| `q3.b.hint` | Ни одной было бы у параллельной прямой. | Bitta ham yo'q parallel chiziqda bo'lardi. | None would belong to a parallel line. |
-| `q3.c` | две | ikkita | two |
-| `q3.c.hint` | Две точки затянули бы всю прямую в плоскость. | Ikki nuqta butun chiziqni tekislikka tortardi. | Two points would pull the whole line into the plane. |
-| `q3.d` | бесконечно много | cheksiz ko'p | infinitely many |
-| `q3.d.hint` | Бесконечно много было бы, если прямая лежит в плоскости. | Cheksiz ko'p chiziq tekislikda yotganda bo'lardi. | Infinitely many would happen if the line lay in the plane. |
-| `q4.prompt` | Что нельзя брать вместо признака? | Alomat o'rniga nimani olib bo'lmaydi? | What must not be taken in place of the criterion? |
-| `q4.a` [верно] | свойство перпендикулярной прямой | perpendikulyar chiziq xossasini | the property of a perpendicular line |
-| `q4.b` | вторую пересекающую прямую | ikkinchi kesuvchi chiziqni | a second crossing line |
-| `q4.b.hint` | Как раз её и надо взять: это условие признака. | Aynan uni olish kerak: bu alomatning sharti. | That is exactly what has to be taken: it is a condition of the criterion. |
-| `q4.c` | вторую аксиому | ikkinchi aksiomani | the second axiom |
-| `q4.c.hint` | Аксиома законна всегда, ею пользоваться можно. | Aksioma doim qonuniy, undan foydalanish mumkin. | An axiom is always lawful, it may be used. |
-| `q4.d` | условие задачи | masalaning shartini | the condition of the problem |
-| `q4.d.hint` | С условия доказательство и начинается. | Isbot shartdan boshlanadi. | A proof begins with the condition. |
-| `audio.mount` | Четыре вопроса подряд. Считается первая попытка. | Ketma-ket to'rt savol. Birinchi urinish hisobga olinadi. | Four questions in a row. The first attempt counts. |
+| `q1.prompt` | Что такое развёртка? | Yoyilma nima? | What is a net? |
+| `q1.a` [верно] | плоская фигура из всех граней | barcha yoqlardan yassi shakl | a flat figure of all the faces |
+| `q1.b` | вид тела сбоку | jismning yon ko'rinishi | a side view of the body |
+| `q1.b.hint` | Вид сбоку показывает не все грани. | Yon ko'rinish barcha yoqlarni ko'rsatmaydi. | A side view does not show all the faces. |
+| `q1.c` | сечение тела | jismning kesimi | a section of the body |
+| `q1.c.hint` | Сечение это разрез, а не разворот. | Kesim kesish, yoyish emas. | A section is a cut, not an unfolding. |
+| `q1.d` | тень тела | jismning soyasi | the shadow of the body |
+| `q1.d.hint` | Тень это проекция, площади она не сохраняет. | Soya proyeksiya, u yuzani saqlamaydi. | A shadow is a projection, it does not preserve areas. |
+| `q2.prompt` | Боковая поверхность прямой призмы? | To'g'ri prizmaning yon sirti? | The lateral area of a right prism? |
+| `q2.a` [верно] | периметр на высоту | perimetr karra balandlik | the perimeter times the height |
+| `q2.b` | площадь основания на высоту | asos yuzasi karra balandlik | the base area times the height |
+| `q2.b.hint` | Это была бы не площадь, а другая величина. | Bu yuza emas, boshqa kattalik bo'lardi. | That would not be an area but a different quantity. |
+| `q2.c` | сторона на высоту | tomon karra balandlik | a side times the height |
+| `q2.c.hint` | Сторона даёт одну грань, а не всю ленту. | Tomon bitta yoq beradi, butun tasmani emas. | A side gives one face, not the whole strip. |
+| `q2.d` | половина периметра на высоту | perimetrning yarmi karra balandlik | half the perimeter times the height |
+| `q2.d.hint` | Половина появляется у пирамиды, из площади треугольника. | Yarim piramidada, uchburchak yuzasidan paydo bo'ladi. | The half appears for a pyramid, from the triangle area. |
+| `q3.prompt` | Что является высотой боковой грани пирамиды? | Piramida yon yog'ining balandligi nima? | What is the height of a lateral face of a pyramid? |
+| `q3.a` [верно] | апофема | apofema | the apothem |
+| `q3.b` | боковое ребро | yon qirra | the lateral edge |
+| `q3.b.hint` | Ребро приходит в вершину основания. | Qirra asos uchiga keladi. | The edge arrives at a base vertex. |
+| `q3.c` | высота пирамиды | piramida balandligi | the height of the pyramid |
+| `q3.c.hint` | Высота пирамиды в боковой грани не лежит. | Piramida balandligi yon yoqda yotmaydi. | The height of the pyramid does not lie in a lateral face. |
+| `q3.d` | сторона основания | asos tomoni | a base side |
+| `q3.d.hint` | Сторона это основание треугольника, а не высота. | Tomon uchburchakning asosi, balandligi emas. | The side is the base of the triangle, not its height. |
+| `q4.prompt` | Сколько граней куба видно сразу? | Kubning nechta yog'i birdan ko'rinadi? | How many faces of a cube show at once? |
+| `q4.a` [верно] | три | uchta | three |
+| `q4.b` | шесть | oltita | six |
+| `q4.b.hint` | Шесть это все грани, но половина скрыта. | Olti barcha yoqlar, lekin yarmi yashiringan. | Six is all the faces, but half are hidden. |
+| `q4.c` | четыре | to'rtta | four |
+| `q4.c.hint` | Четвёртая грань всегда уходит за тело. | To'rtinchi yoq doim jism orqasiga ketadi. | The fourth face always goes behind the body. |
+| `q4.d` | одна | bitta | one |
+| `q4.d.hint` | Одна видна только строго напротив грани. | Bitta faqat yoqqa tik qaraganda ko'rinadi. | One shows only when looking straight at a face. |
+| `audio.mount` | Четыре вопроса подряд. Отвечай без остановки. | Ketma-ket to'rt savol. To'xtamasdan javob bering. | Four questions in a row. Answer without stopping. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `q1.done` | `b ∩ c = O` |
-| `q2.done` | `b ∥ c` |
-| `q3.done` | `a ∩ α = O` |
-| `q4.done` | `a ⊥ α   →   a ⊥ c` |
+| `q1.done` | `4 + 2 = 6` |
+| `q2.done` | `P·h` |
+| `q3.done` | `m` |
+| `q4.done` | `3 + 3 = 6` |
+| `angles` | `P·h` · `2(ab+bc+ac)` · `½·P·m` · `6a²` |
 
 ---
 
@@ -507,31 +496,31 @@
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ИТОГ | YAKUN | SUMMARY |
-| `title` | Что теперь умеешь | Endi nima qila olasiz | What you can do now |
-| `can.1` | Проверяю две прямые, а не одну | Bitta emas, ikki chiziqni tekshiraman | I check two lines, not one |
-| `can.2` | Смотрю, пересекаются ли они | Ular kesishadimi, qarayman | I look at whether they cross |
-| `can.3` | Различаю признак и свойство | Alomat va xossani ajrataman | I tell the criterion from the property |
-| `can.4` | Не подставляю вывод в условие | Xulosani shart o'rniga qo'ymayman | I do not put the conclusion into the condition |
-| `levels.full` | Этот тип задач закрыт. | Bu turdagi masalalar yopildi. | This type of problem is closed. |
-| `levels.gap` | Одно место требует повтора: почему параллельных недостаточно. | Bir joy takrorlashni talab qiladi: nega parallellar yetarli emas. | One spot needs a second look: why parallel lines are not enough. |
-| `levels.back` | Вернись к правилу и к экрану 6. | Qoidaga va oltinchi ekranga qayting. | Go back to the rule and to screen six. |
-| `bridge` | Дальше угол прямой с плоскостью: там понадобится проекция. | Keyin chiziq va tekislik orasidagi burchak: u yerda proyeksiya kerak bo'ladi. | Next comes the angle between a line and a plane: there a projection will be needed. |
-| `lifehack` | Считай не прямые, а направления. Две параллельные это одно направление. | Chiziqlarni emas, yo'nalishlarni sanang. Ikki parallel bu bitta yo'nalish. | Count directions, not lines. Two parallel lines are one direction. |
-| `sheetTitle` | Перпендикулярность · шпаргалка | Perpendikulyarlik · shpargalka | Perpendicularity · cheat sheet |
-| `sheetSrc` | 10 класс · урок 40 | 10-sinf · 40-dars | Grade 10 · lesson 40 |
-| `audio.mount` | Прогноз был про одну прямую. Посмотрим, что вышло. | Taxmin bitta chiziq haqida edi. Nima chiqqanini ko'ramiz. | The guess was about one line. Let us see how it turned out. |
-| `audio.next` | Одной мало. Нужны две, и обязательно пересекающиеся: два направления вместо одного. | Bittasi kam. Ikkita kerak, va albatta kesishuvchi: bitta o'rniga ikki yo'nalish. | One is not enough. Two are needed, and they must cross: two directions instead of one. |
+| `title` | Что теперь умеешь | Endi nimani bilasiz | What you can do now |
+| `can.1` | Разворачиваю тело в плоскую фигуру | Jismni yassi shaklga yoyaman | I unfold a body into a flat figure |
+| `can.2` | Складываю площади всех граней, а не видимых | Ko'rinadiganlarini emas, barcha yoqlar yuzasini qo'shaman | I add the areas of all the faces, not the visible ones |
+| `can.3` | Считаю боковую поверхность призмы как прямоугольник | Prizmaning yon sirtini to'g'ri to'rtburchak kabi hisoblayman | I compute the lateral area of a prism as a rectangle |
+| `can.4` | Считаю боковую поверхность пирамиды через апофему | Piramidaning yon sirtini apofema orqali hisoblayman | I compute the lateral area of a pyramid through the apothem |
+| `levels.full` | Все четыре | To'rttasi ham | All four |
+| `levels.gap` | Три из четырёх | To'rttadan uchtasi | Three out of four |
+| `levels.back` | Меньше трёх | Uchtadan kam | Fewer than three |
+| `bridge` | Дальше правильные призмы и пирамиды, где все эти формулы становятся короче | Bundan keyin muntazam prizma va piramidalar, u yerda bu formulalar qisqaradi | Next come regular prisms and pyramids, where all these formulas get shorter |
+| `lifehack` | Не помнишь формулу — разверни тело в голове | Formulani eslamasangiz, jismni xayolda yoying | If you forget a formula, unfold the body in your head |
+| `sheetTitle` | Шпаргалка | Shpargalka | Cheat sheet |
+| `sheetSrc` | Геометрия, страницы пятьдесят девять и шестьдесят | Geometriya, ellik to'qqizinchi va oltmishinchi betlar | Geometry, pages fifty nine and sixty |
+| `audio.mount` | Урок начался с вопроса, сколько граней складывать. | Dars nechta yoqni qo'shish kerak degan savol bilan boshlandi. | The lesson began with the question how many faces to add. |
+| `audio.next` | Три это то, что видно, а шесть это то, что есть. Развёртка показала все куски сразу, и площадь поверхности стала суммой площадей плоских фигур, которые мы умеем считать давно. Ни одной новой формулы в уроке не появилось: лента это прямоугольник, боковая грань пирамиды это треугольник. Дальше правильные призмы и пирамиды, там эти же формулы станут короче, потому что все стороны основания равны. | Uch bu ko'rinadigani, olti bu bori. Yoyilma barcha bo'laklarni birdan ko'rsatdi, va sirt yuzasi biz allaqachon hisoblay oladigan yassi shakllar yuzalarining yig'indisiga aylandi. Darsda birorta yangi formula paydo bo'lmadi: tasma to'g'ri to'rtburchak, piramidaning yon yog'i uchburchak. Keyin muntazam prizma va piramidalar, u yerda shu formulalar qisqaradi, chunki asosning barcha tomonlari teng. | Three is what shows, six is what there is. The net showed all the pieces at once, and the surface area became a sum of areas of flat figures we have been able to compute for a long time. Not a single new formula appeared in the lesson: the strip is a rectangle, a lateral face of a pyramid is a triangle. Next come regular prisms and pyramids, where these same formulas get shorter, because all sides of the base are equal. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `hook.a` | `a ⊥ α` |
-| `hook.b` | `a ⊥ α  ?` |
-| `proved` | `b ∩ c = O` |
-| `law` | `a ⊥ b,  a ⊥ c,  b ∩ c = O   →   a ⊥ α` |
-| `sheet.1` | `a ⊥ b,   b ⊂ α` |
-| `sheet.2` | `a ⊥ c,   c ⊂ α` |
-| `sheet.3` | `b ∩ c = O` |
-| `sheet.4` | `a ⊥ α` |
-| `sheet.5` | `a ∩ α = O` |
+| `hook.a` | `S = ab + bc + ac` |
+| `hook.b` | `S = 2(ab+bc+ac)` |
+| `proved` | `S = 2(ab+bc+ac)` |
+| `law` | `S = S₁ + 2S₀` |
+| `sheet.1` | `P·h` |
+| `sheet.2` | `2(ab+bc+ac)` |
+| `sheet.3` | `½·P·m` |
+| `sheet.4` | `6a²` |
+| `sheet.5` | `3 + 3 = 6` |

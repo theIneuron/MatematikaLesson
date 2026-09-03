@@ -1,18 +1,24 @@
-# Урок 31 — Логарифм. уравнения · КОНТЕНТ (этап 2)
+# Урок 31 — Параллельность двух плоскостей · КОНТЕНТ (этап 2)
 
-**Читается и правится методистом.** Формат тот же, что в `DARS26_KONTENT.md`.
+**Читается и правится методистом.** Формат тот же, что в `DARS30_KONTENT.md`.
 
-Скелет: `DARS29_31_SKELET.md` §9. Опора в учебнике: алгебра 2022, стр. 116–118, параграф
-`LOGARIFMIK TENGLAMALAR`.
+Скелет: в чате 27.08.2026. Опора в учебнике: геометрия 2022, §14, стр. 103–108
+(`FAZODA TEKISLIKLARNING O'ZARO JOYLASHUVI`).
 
-**Главное решение урока.** Посторонний корень здесь не «не подошёл при проверке». Он **изначально
-не был допустимым**, и полоса это показывает до того, как решение началось. Поэтому прибор 5
-появляется на экране 3, а не в конце: сначала закрашивается, где обе записи имеют смысл, и только
-потом делается первое преобразование.
+**Зачем урок.** В уроке 29 признак параллельности плоскостей шёл карточкой правила, своего
+экрана-объяснения не имел. В планах 7–9 и 11 классов темы нет.
 
-**Уравнение экрана 10 взято из учебника дословно** — стр. 116, `lg(2x − 2) = lg(x + 2)`.
+**Главное решение урока.** В признаке два требования к прямым, и оба теряют: прямых должно
+быть **две** и они должны **пересекаться**. Поэтому разграничение (экран 4) построено на
+гранях `ABCD` и `BCC₁B₁`: пара параллельных прямых там честно есть, `AD ∥ B₁C₁` (проверено
+счётом: оба ребра идут в одном направлении) — а плоскости всё равно пересекаются по ребру
+`BC`. Одной пары мало, и это же ловушка экрана 12.
 
-**После этого урока по плану идёт практикум повторения блока 5** (строка 36 плана).
+**Сцена одна — куб.** Плоскости берутся гранями: два основания параллельны, основание и
+боковая грань пересекаются по ребру. Прибор 6A, поворот делает ученик.
+
+**Терминология UZ — draft, требует валидации узбекским методистом математики.** Термины из
+учебника дословно: `parallel tekisliklar`, `alomat`, `kesishuvchi to'g'ri chiziqlar`.
 
 ---
 
@@ -22,28 +28,28 @@
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | УРАВНЕНИЕ | TENGLAMA | THE EQUATION |
-| `title` | Сколько корней на самом деле | Haqiqatda nechta ildiz | How many roots there really are |
-| `row.a.name` | оба числа подходят | ikkala son ham yaraydi | both numbers fit |
-| `row.b.name` | подходит только одно | faqat bittasi yaraydi | only one of them fits |
+| `eyebrow` | ДВЕ ПЛОСКОСТИ | IKKI TEKISLIK | TWO PLANES |
+| `title` | Пересекутся или нет | Kesishadi yoki yo'q | They will meet, or they will not |
+| `row.a.name` | пересекутся по прямой | to'g'ri chiziq bo'ylab kesishadi | they meet along a line |
+| `row.b.name` | не пересекутся никогда | hech qachon kesishmaydi | they never meet |
 | `probe.question` | Какая запись верна? | Qaysi yozuv to'g'ri? | Which reading is correct? |
 | `probe.a` | первая | birinchi | the first |
 | `probe.b` [верно] | вторая | ikkinchi | the second |
 | `probe.both` | обе | ikkisi ham | both |
 | `probe.none` | ни одна | hech qaysi | neither |
-| `probe.after` | Твой ответ записан. Сейчас проведём полосу и посмотрим, куда падают эти числа. | Javobingiz yozib olindi. Endi polosa o'tkazamiz va bu sonlar qayerga tushishini ko'ramiz. | Your answer is saved. Now we will draw the band and see where these numbers land. |
-| `audio.mount` | Уравнение с двумя логарифмами. Решение даёт два числа, четыре и минус два. | Ikki logarifmli tenglama. Yechim ikki son beradi, to'rt va minus ikki. | An equation with two logarithms. Solving it gives two numbers, four and minus two. |
-| `audio.r1` | Первая запись говорит, что оба числа корни, ведь оба получены верными преобразованиями. | Birinchi yozuv ikkala son ham ildiz deydi, chunki ikkalasi ham to'g'ri almashtirishlar bilan olingan. | The first reading says both numbers are roots, since both came from correct steps. |
-| `audio.r2` | Вторая говорит, что корень только один, а второе число в ответ не годится. | Ikkinchisi ildiz faqat bitta, ikkinchi son esa javobga yaramaydi deydi. | The second says there is only one root, and the second number does not belong in the answer. |
+| `probe.after` | Твой ответ записан. Сейчас повернём сцену. | Javobingiz yozib olindi. Endi sahnani buramiz. | Your answer is saved. Now we will turn the scene. |
+| `audio.mount` | Две закрашенные грани куба. Это две плоскости нашего вопроса. | Kubning ikki bo'yalgan yog'i. Bu bizning savolimizning ikki tekisligi. | Two shaded faces of the cube. These are the two planes of our question. |
+| `audio.r1` | Первая запись говорит, что общая прямая у них есть: на чертеже края граней сходятся. | Birinchi yozuv ularning umumiy chizig'i bor deydi: chizmada yoqlarning chetlari birlashadi. | The first reading says they do have a common line: on the drawing the edges of the faces come together. |
+| `audio.r2` | Вторая говорит, что общих точек нет вовсе, и никакое продолжение их не даст. | Ikkinchisi umumiy nuqta umuman yo'q deydi, va hech qanday davom ettirish bermaydi. | The second says there are no common points at all, and no extension will give any. |
 | `audio.ask` | Как думаешь, какая верная? Пока просто предположи. | Sizningcha qaysi biri to'g'ri? Hozircha shunchaki taxmin qiling. | Which one do you think is right? Just make a guess for now. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `expr` | `log₂ x + log₂ (x − 2) = 3` |
-| `row.a.value` | `4;  −2` |
-| `row.b.value` | `4` |
+| `expr` | `ABCD` · `A₁B₁C₁D₁` |
+| `row.a.value` | `1` |
+| `row.b.value` | `0` |
 
 ---
 
@@ -53,285 +59,266 @@
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | ОПОРА | TAYANCH | WHAT YOU KNOW |
-| `title` | Три вопроса перед уравнением | Tenglamadan oldin uch savol | Three questions before the equation |
-| `q1.prompt` | Чему равна сумма логарифмов с одним основанием? | Bir asosli logarifmlar yig'indisi nechaga teng? | What does a sum of logarithms with the same base equal? |
-| `q1.a` [верно] | логарифму произведения | ko'paytmaning logarifmiga | the logarithm of the product |
-| `q1.b` | логарифму суммы | yig'indining logarifmiga | the logarithm of the sum |
-| `q1.b.hint` | Логарифм суммы не раскрывается вовсе, это проверено на уроке про логарифм. | Yig'indining logarifmi umuman ochilmaydi, bu logarifm haqidagi darsda tekshirilgan. | The logarithm of a sum does not open at all, that was checked in the lesson on logarithms. |
-| `q1.c` | произведению логарифмов | logarifmlar ko'paytmasiga | the product of the logarithms |
-| `q1.c.hint` | Проверь на четырёх и восьми: выйдет шесть вместо пяти. | To'rt va sakkizda tekshiring: besh o'rniga olti chiqadi. | Check on four and eight: you get six instead of five. |
-| `q1.d` | ничему из этого | bularning hech biriga | none of these |
-| `q1.d.hint` | Правило есть, и оно выводится из свойства степени. | Qoida bor, va u daraja xossasidan chiqariladi. | The rule exists and comes from a property of powers. |
-| `q2.prompt` | Какое число может стоять под знаком логарифма? | Logarifm belgisi ostida qanday son turishi mumkin? | Which number can stand under a logarithm sign? |
-| `q2.a` [верно] | только положительное | faqat musbat | only a positive one |
-| `q2.b` | любое | har qanday | any |
-| `q2.b.hint` | Кривая слева от нуля не проходит вовсе. | Egri chiziq noldan chapda umuman o'tmaydi. | The curve does not pass to the left of zero at all. |
-| `q2.c` | любое, кроме нуля | noldan boshqa har qanday | any except zero |
-| `q2.c.hint` | Отрицательные тоже выпадают, а не только ноль. | Manfiylar ham tushib qoladi, faqat nol emas. | The negatives drop out too, not only zero. |
-| `q2.d` | только целое | faqat butun | only a whole number |
-| `q2.d.hint` | Дробное годится, лишь бы положительное. | Kasr yaraydi, faqat musbat bo'lsa. | A fractional one works, as long as it is positive. |
-| `q3.prompt` | Чему равен логарифм восьми по основанию два? | Sakkizning ikki asosga ko'ra logarifmi nechaga teng? | What is the logarithm of eight to base two? |
-| `q3.a` [верно] | три | uch | three |
-| `q3.b` | четыре | to'rt | four |
-| `q3.b.hint` | Четыре вышло бы делением, а логарифм это показатель. | To'rt bo'lish bilan chiqardi, logarifm esa ko'rsatkich. | Four would come from dividing, and a logarithm is an exponent. |
-| `q3.c` | восемь | sakkiz | eight |
-| `q3.c.hint` | Восемь стоит под знаком, а спросили про показатель. | Sakkiz belgi ostida turadi, savol esa ko'rsatkich haqida. | Eight stands under the sign, and the question was about the exponent. |
-| `q3.d` | одна треть | bir uchdan | one third |
-| `q3.d.hint` | Одна треть выходит при обратном порядке основания и числа. | Bir uchdan asos va son teskari tartibda bo'lganda chiqadi. | One third comes when the base and the number are in the other order. |
-| `audio.mount` | Три коротких вопроса. Все три понадобятся через минуту. | Uch qisqa savol. Uchalasi ham bir daqiqadan keyin kerak bo'ladi. | Three short questions. All three will be needed in a minute. |
-
-**Формулы**
-
-| Ключ | Значение |
-|---|---|
-| `q1.done` | `logₐ b + logₐ c = logₐ (b·c)` |
-| `q2.done` | `x > 0` |
-| `q3.done` | `log₂ 8 = 3` |
+| `eyebrow` | ОПОРА | TAYANCH | THE BASICS |
+| `title` | Три коротких перед началом | Boshlashdan oldin uchta qisqa savol | Three short ones before we start |
+| `q1.prompt` | Две плоскости имеют общую точку. Что у них есть ещё по аксиоме? | Ikki tekislikning umumiy nuqtasi bor. Aksioma bo'yicha ularda yana nima bor? | Two planes have a common point. What else do they have by the axiom? |
+| `q1.a` [верно] | общая прямая | umumiy to'g'ri chiziq | a common line |
+| `q1.b` | только эта точка | faqat shu nuqta | only that point |
+| `q1.b.hint` | Аксиома даёт целую прямую: у плоскостей одна общая точка не бывает. | Aksioma butun chiziq beradi: tekisliklarning bitta umumiy nuqtasi bo'lmaydi. | The axiom gives a whole line: planes never share just one point. |
+| `q1.c` | общая плоскость | umumiy tekislik | a common plane |
+| `q1.c.hint` | Общая плоскость означала бы, что они совпали. | Umumiy tekislik ular ustma-ust tushgani bo'lardi. | A common plane would mean they coincide. |
+| `q1.d` | ничего | hech narsa | nothing |
+| `q1.d.hint` | Точка уже есть, значит «ничего» отпадает. | Nuqta bor, demak «hech narsa» chiqib ketadi. | A point is already there, so nothing is not an option. |
+| `q2.prompt` | Прямые AB и AD куба: они пересекаются? | Kubning AB va AD chiziqlari: ular kesishadimi? | The lines AB and AD of the cube: do they meet? |
+| `q2.a` [верно] | да, в вершине A | ha, A uchida | yes, at the vertex A |
+| `q2.b` | нет, они параллельны | yo'q, ular parallel | no, they are parallel |
+| `q2.b.hint` | Параллельные не имеют общих точек, а у этих общая вершина. | Parallellarning umumiy nuqtasi yo'q, bularning umumiy uchi bor. | Parallel lines share no point, and these share a vertex. |
+| `q2.c` | нет, они скрещиваются | yo'q, ular ayqash | no, they are skew |
+| `q2.c.hint` | Скрещивающиеся не лежат в одной плоскости, а эти две в основании. | Ayqashlar bir tekislikda yotmaydi, bu ikkisi esa asosda. | Skew lines lie in no common plane, and these two are in the base. |
+| `q2.d` | зависит от чертежа | chizmaga bog'liq | it depends on the drawing |
+| `q2.d.hint` | Общая вершина есть на любом чертеже. | Umumiy uch har qanday chizmada bor. | The common vertex is there on any drawing. |
+| `q3.prompt` | Прямая параллельна плоскости. Сколько у них общих точек? | Chiziq tekislikka parallel. Ularning nechta umumiy nuqtasi bor? | A line is parallel to a plane. How many common points have they? |
+| `q3.a` [верно] | ни одной | birorta ham yo'q | none |
+| `q3.b` | одна | bitta | one |
+| `q3.b.hint` | Одна общая точка это пересечение. | Bitta umumiy nuqta bu kesishish. | One common point is an intersection. |
+| `q3.c` | две | ikkita | two |
+| `q3.c.hint` | Через две точки прямая легла бы в плоскость. | Ikki nuqta orqali chiziq tekislikka yotib qolardi. | Through two points the line would lie in the plane. |
+| `q3.d` | бесконечно много | cheksiz ko'p | infinitely many |
+| `q3.d.hint` | Бесконечно много у лежащей прямой, это прошлый урок. | Cheksiz ko'p yotgan chiziqda, bu o'tgan dars. | Infinitely many belongs to a lying line, that was the last lesson. |
+| `audio.mount` | Три вопроса на то, что уже было. Все три работают в признаке. | Bo'lib o'tgan narsalar uchun uchta savol. Uchalasi alomatda ishlaydi. | Three questions on what has already been. All three work in the criterion. |
+| `q1.done` | Общая точка тянет за собой целую прямую. | Umumiy nuqta butun chiziqni ergashtiradi. | A common point drags a whole line behind it. |
+| `q2.done` | Пересекающиеся прямые понадобятся в признаке. | Kesishuvchi chiziqlar alomatda kerak bo'ladi. | Intersecting lines will be needed in the criterion. |
+| `q3.done` | А это прошлый урок, и он тоже пойдёт в дело. | Bu esa o'tgan dars, u ham ishga tushadi. | And that was the last lesson, it will also come into play. |
 
 ---
 
-## Экран 3 · `explain1` · ответ `number` · тег `odz-logarifma`
-
-Прибор 5 появляется до первого преобразования.
+## Экран 3 · `explain1` · ответ `number` · тег `ploskost-po-chertezhu`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
-| `title` | Полоса чертится до решения | Polosa yechimdan oldin chiziladi | The band is drawn before solving |
-| `show.1.1` | первый логарифм требует икс больше нуля | birinchi logarifm iks noldan katta bo'lishini talab qiladi | the first logarithm needs x greater than zero |
-| `show.1.2` | второй требует икс больше двух | ikkinchisi iks ikkidan katta bo'lishini talab qiladi | the second needs x greater than two |
-| `show.2.1` | закрашено там, где верно и то и другое | ikkalasi ham to'g'ri bo'lgan joy bo'yalgan | the shading is where both hold |
-| `show.2.2` | полоса начинается справа от двойки | polosa ikkidan o'ngda boshlanadi | the band starts to the right of two |
-| `audio.mount` | Под уравнением появилась полоса. Она показывает, при каких икс обе записи вообще имеют смысл. | Tenglama tagida polosa paydo bo'ldi. U qaysi iksda ikkala yozuv umuman ma'noga ega ekanini ko'rsatadi. | A band appeared under the equation. It shows for which x both readings make sense at all. |
-| `audio.band*` | Под первым логарифмом стоит икс, значит икс больше нуля. Под вторым икс минус два, значит икс больше двух. Оба условия должны выполняться сразу, поэтому закрашивается только то, что правее двойки. Сама двойка выколота: при ней второй логарифм превращается в логарифм нуля, а такого числа нет. Полоса начерчена до первого преобразования, и это важно: потом будет поздно. | Birinchi logarifm ostida iks turadi, demak iks noldan katta. Ikkinchisida iks minus ikki, demak iks ikkidan katta. Ikkala shart bir vaqtda bajarilishi kerak, shuning uchun faqat ikkidan o'ngdagi bo'yaladi. Ikkining o'zi ochiq qoldirilgan: unda ikkinchi logarifm nolning logarifmiga aylanadi, bunday son esa yo'q. Polosa birinchi almashtirishdan oldin chizilgan, va bu muhim: keyin kech bo'ladi. | Under the first logarithm stands x, so x is greater than zero. Under the second stands x minus two, so x is greater than two. Both conditions must hold at once, so only what is to the right of two gets shaded. Two itself is punched out: there the second logarithm becomes the logarithm of zero, and no such number exists. The band was drawn before the first step, and that matters: afterwards it is too late. |
-| `audio.work` | Посчитай сам. С какого числа начинается закрашенная полоса? | O'zingiz hisoblang. Bo'yalgan polosa qaysi sondan boshlanadi? | Work it out yourself. From which number does the shaded band start? |
-| `work.prompt` | С какого числа начинается полоса? | Polosa qaysi sondan boshlanadi? | From which number does the band start? |
-| `work.ok` | С двойки. Условие икс больше двух строже, чем икс больше нуля, поэтому побеждает оно. | Ikkidan. Iks ikkidan katta sharti iks noldan katta shartidan qattiqroq, shuning uchun u yutadi. | From two. The condition x greater than two is stricter than x greater than zero, so it wins. |
-| `work.hint.1` | Выпиши условие для каждого логарифма отдельно. | Har logarifm uchun shartni alohida yozing. | Write the condition for each logarithm separately. |
-| `work.hint.2` | Оба условия должны выполняться сразу, значит берут более строгое. | Ikkala shart bir vaqtda bajarilishi kerak, demak qattiqrog'i olinadi. | Both must hold at once, so the stricter one is taken. |
-| `work.hint.3` | Два. | Ikki. | Two. |
+| `eyebrow` | ПОВЕРНИ СЦЕНУ | SAHNANI BURING | TURN THE SCENE |
+| `title` | Края граней на чертеже сходятся | Chizmada yoqlarning chetlari birlashadi | On the drawing the edges of the faces come together |
+| `show.1.1` | На этом ракурсе края двух граней почти совпали | Bu rakursda ikki yoqning chetlari deyarli mos tushdi | At this angle the edges of the two faces nearly coincide |
+| `show.1.2` | кажется, что у плоскостей есть общая прямая | tekisliklarning umumiy chizig'i bordek ko'rinadi | it looks as if the planes have a common line |
+| `show.1.3` | но это снова проекция на экран | lekin bu yana ekranga proyeksiya | but this is again the projection onto the screen |
+| `show.2.1` | Сцена повернулась | Sahna burildi | The scene has turned |
+| `show.2.2` | между гранями видна высота куба | yoqlar orasida kubning balandligi ko'rinadi | between the faces the height of the cube is visible |
+| `show.2.3` | и она не пропадает ни при каком повороте | va u hech qanday burilishda yo'qolmaydi | and it does not vanish at any turn |
+| `audio.mount` | Два основания куба. Поверни сцену кнопками ниже. | Kubning ikki asosi. Sahnani pastdagi tugmalar bilan buring. | The two bases of the cube. Turn the scene with the buttons below. |
+| `audio.spin*` | Смотри на просвет между гранями. Общей прямой у них нет ни на одном ракурсе. | Yoqlar orasidagi oraliqni kuzatib turing. Ularning umumiy chizig'i birorta rakursda yo'q. | Watch the gap between the faces. They have no common line at any angle. |
+| `audio.work` | Учебник говорит коротко: не пересекающиеся плоскости называются параллельными. | Darslik qisqa aytadi: kesishmaydigan tekisliklar parallel deb ataladi. | The textbook puts it briefly: planes that do not intersect are called parallel. |
+| `work.prompt` | Сколько общих точек у двух основаниий куба? | Kubning ikki asosining nechta umumiy nuqtasi bor? | How many common points have the two bases of the cube? |
+| `work.ok` | Верно. Ни одной, и это определение параллельности плоскостей. | To'g'ri. Birorta ham yo'q, va bu tekisliklar parallelligining ta'rifi. | Correct. None, and that is the definition of parallel planes. |
+| `work.hint.1` | Поверни сцену и поищи общую точку. | Sahnani buring va umumiy nuqtani izlang. | Turn the scene and look for a common point. |
+| `work.hint.2` | Между гранями всё время стоит высота куба. | Yoqlar orasida doim kubning balandligi turadi. | The height of the cube stands between the faces all the time. |
+| `work.hint.3` | Значит общих точек ноль. | Demak umumiy nuqta nol. | So the common points are zero. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `show.1.3` | `x > 0,   x − 2 > 0` |
-| `show.2.3` | `x > 2` |
-| `work.answer` | `2` |
+| `work.answer` | `0` |
 
 ---
 
-## Экран 4 · `explain2` · ответ `order` · тег `odz-logarifma`
-
-Разграничение: одно уравнение полосу почти не сужает, другое сужает вдвое.
+## Экран 4 · `explain2` · ответ `number` · тег `odna-para-dostatochno`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
-| `title` | Не всякое уравнение сужает полосу | Har tenglama polosani toraytirmaydi | Not every equation narrows the band |
-| `show.1.1` | у простого уравнения одно условие | sodda tenglamada bitta shart | a simple equation has one condition |
-| `show.1.2` | полоса начинается от нуля | polosa noldan boshlanadi | the band starts from zero |
-| `show.2.1` | у суммы условий два | yig'indida shartlar ikkita | a sum has two conditions |
-| `show.2.2` | и полоса становится короче | va polosa qisqaradi | and the band gets shorter |
-| `audio.mount` | Сравним два уравнения. В первом один логарифм, во втором два. | Ikki tenglamani solishtiramiz. Birinchisida bitta logarifm, ikkinchisida ikkita. | Let us compare two equations. The first has one logarithm, the second two. |
-| `audio.two*` | У первого уравнения под знаком стоит просто икс, значит условие одно и полоса начинается сразу от нуля. У второго под вторым знаком стоит икс минус два, и это добавляет второе условие. Полоса сдвигается вправо и становится короче. Чем больше логарифмов, тем короче полоса, и проверять надо каждый. | Birinchi tenglamada belgi ostida oddiy iks turadi, demak shart bitta va polosa darrov noldan boshlanadi. Ikkinchisida ikkinchi belgi ostida iks minus ikki turadi, va bu ikkinchi shartni qo'shadi. Polosa o'ngga suriladi va qisqaradi. Logarifm qancha ko'p bo'lsa, polosa shuncha qisqa, va har birini tekshirish kerak. | In the first equation plain x stands under the sign, so there is one condition and the band starts right at zero. In the second, x minus two stands under the second sign, and that adds a second condition. The band shifts right and gets shorter. The more logarithms, the shorter the band, and each one must be checked. |
-| `audio.work` | Расставь шаги, в каком порядке чертят полосу. | Polosa qanday tartibda chizilsa, qadamlarni shunday joylashtiring. | Put the steps in the order the band is drawn. |
-| `order.prompt` | Расставь шаги по порядку. | Qadamlarni tartib bilan joylashtiring. | Put the steps in order. |
-| `order.s1` | условие для каждого | har biri uchun shart | a condition for each |
-| `order.s2` | взять более строгое | qattiqrog'ini olish | take the stricter one |
-| `order.s3` | закрасить полосу | polosani bo'yash | shade the band |
-| `order.s4` | потом решать | keyin yechish | then solve |
-| `order.ok` | Полоса чертится первой. Если начать с решения, проверять корни будет нечем. | Polosa birinchi chiziladi. Yechimdan boshlansa, ildizlarni tekshiradigan narsa qolmaydi. | The band is drawn first. Starting with the solution leaves nothing to check the roots against. |
-| `order.bad` | Сначала условия, потом полоса, и только потом решение. | Avval shartlar, keyin polosa, va faqat keyin yechim. | First the conditions, then the band, and only then the solution. |
+| `eyebrow` | ОДНОЙ ПАРЫ МАЛО | BIR JUFTLIK KAM | ONE PAIR IS NOT ENOUGH |
+| `title` | Пара есть, а плоскости пересекаются | Juftlik bor, tekisliklar esa kesishadi | The pair is there, and the planes still meet |
+| `show.1.1` | Основание и боковая грань | Asos va yon yoq | The base and a side face |
+| `show.1.2` | в них есть пара параллельных прямых: AD и B₁C₁ параллельны | ularda parallel juftlik bor: AD va B₁C₁ parallel | they do have a parallel pair: AD and B₁C₁ are parallel |
+| `show.1.3` | одной пары признаку не хватает | alomatga bir juftlik yetmaydi | one pair is not enough for the criterion |
+| `show.2.1` | Эти две грани пересекаются по ребру BC | Bu ikki yoq BC qirrasi bo'ylab kesishadi | These two faces meet along the edge BC |
+| `show.2.2` | значит параллельными они не являются | demak ular parallel emas | so they are not parallel |
+| `show.2.3` | признак требует ДВЕ пересекающиеся прямые | alomat IKKI kesishuvchi chiziqni talab qiladi | the criterion requires TWO intersecting lines |
+| `audio.mount` | Возьмём основание и боковую грань. Одна пара параллельных прямых в них найдётся. | Asos va yon yoqni olamiz. Ularda bir juft parallel chiziq topiladi. | Take the base and a side face. One pair of parallel lines will be found in them. |
+| `audio.edge*` | Смотри на ребро, по которому эти грани сходятся. Общая прямая у них есть. | Bu yoqlar birlashadigan qirraga qarang. Ularning umumiy chizig'i bor. | Look at the edge where these faces come together. They do have a common line. |
+| `audio.work` | Одной пары мало. Признак называет две прямые, и они должны пересекаться. | Bir juftlik kam. Alomat ikki chiziqni ataydi, va ular kesishishi kerak. | One pair is not enough. The criterion names two lines, and they must intersect. |
+| `work.prompt` | Сколько общих рёбер у граней ABCD и BCC₁B₁? | ABCD va BCC₁B₁ yoqlarining nechta umumiy qirrasi bor? | How many edges do the faces ABCD and BCC₁B₁ share? |
+| `work.ok` | Верно. Одно, это ребро BC. Общее ребро значит общая прямая, а параллельные плоскости общих точек не имеют. | To'g'ri. Bitta -- BC qirrasi. Umumiy qirra umumiy chiziq degani, parallel tekisliklarning esa umumiy nuqtasi yo'q. | Correct. One: the edge BC. A shared edge means a shared line, and parallel planes have no common points. |
+| `work.hint.1` | Найди ребро, которое принадлежит обеим граням. | Ikkala yoqqa ham tegishli qirrani toping. | Find the edge belonging to both faces. |
+| `work.hint.2` | Обе грани содержат вершины B и C. | Ikkala yoq ham B va C uchlarini o'z ichiga oladi. | Both faces contain the vertices B and C. |
+| `work.hint.3` | Значит общее ребро одно, это BC. | Demak umumiy qirra bitta, bu BC. | So there is one shared edge, and it is BC. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `show.1.3` | `log₂ x = 3   →   x > 0` |
-| `show.2.3` | `log₂ x + log₂ (x − 2) = 3   →   x > 2` |
-| `order.mark` | `x > 2` |
-
----
-
-## Экран 5 · `explain3` · ответ `order` · тег `postoronniy-koren`
-
-**Текст**
-
-| Ключ | RU | UZ | EN |
-|---|---|---|---|
-| `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
-| `title` | Знаки логарифма снимаются | Logarifm belgilari olinadi | The logarithm signs come off |
-| `show.1.1` | сумма сворачивается в один логарифм | yig'indi bitta logarifmga yig'iladi | the sum folds into one logarithm |
-| `show.1.2` | справа тройка это тоже логарифм | o'ngdagi uch ham logarifm | the three on the right is a logarithm too |
-| `show.2.1` | основания одинаковы, знаки снимаются | asoslar bir xil, belgilar olinadi | the bases match, the signs come off |
-| `show.2.2` | остаётся обычное уравнение | oddiy tenglama qoladi | an ordinary equation is left |
-| `audio.mount` | Свернём левую часть. Сумма логарифмов это логарифм произведения. | Chap qismni yig'amiz. Logarifmlar yig'indisi ko'paytmaning logarifmi. | Let us fold the left side. A sum of logarithms is the logarithm of the product. |
-| `audio.drop*` | Слева получился один логарифм. Справа тройка, и её тоже можно записать логарифмом восьми по тому же основанию. Теперь слева и справа стоит логарифм с одинаковым основанием, а логарифмическая функция монотонна, значит одному значению отвечает один аргумент. Поэтому знаки снимаются и остаётся обычное уравнение. Но снимать их можно только внутри полосы: за её пределами логарифмов просто нет. | Chapda bitta logarifm chiqdi. O'ngda uch, va uni ham o'sha asosga ko'ra sakkizning logarifmi qilib yozish mumkin. Endi chapda ham o'ngda ham asosi bir xil logarifm turadi, logarifmik funksiya esa monoton, demak bitta qiymatga bitta argument mos keladi. Shuning uchun belgilar olinadi va oddiy tenglama qoladi. Lekin ularni faqat polosa ichida olish mumkin: undan tashqarida logarifmlar umuman yo'q. | On the left one logarithm came out. On the right is three, and it can be written as the logarithm of eight to the same base. Now a logarithm with the same base stands on both sides, and the logarithmic function is monotone, so one value matches one argument. That is why the signs come off and an ordinary equation is left. But they may come off only inside the band: outside it there are no logarithms at all. |
-| `audio.work` | Расставь шаги, как снимаются знаки. | Belgilar qanday olinsa, qadamlarni shunday joylashtiring. | Put the steps in the order the signs come off. |
-| `order.prompt` | Расставь шаги по порядку. | Qadamlarni tartib bilan joylashtiring. | Put the steps in order. |
-| `order.s1` | свернуть сумму | yig'indini yig'ish | fold the sum |
-| `order.s2` | справа тоже логарифм | o'ngda ham logarifm | a logarithm on the right too |
-| `order.s3` | снять знаки | belgilarni olish | take the signs off |
-| `order.s4` | решить обычное | oddiyni yechish | solve the ordinary one |
-| `order.ok` | Знаки снимаются, потому что основания совпали, а функция монотонна. | Belgilar olinadi, chunki asoslar bir xil bo'ldi, funksiya esa monoton. | The signs come off because the bases matched and the function is monotone. |
-| `order.bad` | Сначала свернуть, потом привести правую часть, потом снять знаки. | Avval yig'ish, keyin o'ng qismni keltirish, keyin belgilarni olish. | First fold, then bring the right side, then take the signs off. |
-
-**Формулы**
-
-| Ключ | Значение |
-|---|---|
-| `show.1.3` | `log₂ (x·(x − 2)) = 3` |
-| `show.2.3` | `x·(x − 2) = 8` |
-| `order.mark` | `x² − 2x − 8 = 0` |
-
----
-
-## Экран 6 · `explain4` · ответ `number` · тег `net-resheniy`
-
-**Текст**
-
-| Ключ | RU | UZ | EN |
-|---|---|---|---|
-| `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
-| `title` | Замена сводит к квадратному | Almashtirish kvadratga keltiradi | A substitution reduces it to a quadratic |
-| `show.1.1` | в уравнении логарифм и его квадрат | tenglamada logarifm va uning kvadrati | the equation has a logarithm and its square |
-| `show.1.2` | обозначим логарифм буквой | logarifmni harf bilan belgilaymiz | let us name the logarithm by a letter |
-| `show.2.1` | получилось квадратное уравнение | kvadrat tenglama chiqdi | a quadratic equation came out |
-| `show.2.2` | оба значения годятся | ikkala qiymat ham yaraydi | both values fit |
-| `audio.mount` | Другое уравнение. В нём логарифм стоит и в первой степени, и в квадрате. | Boshqa tenglama. Unda logarifm birinchi darajada ham, kvadratda ham turadi. | Another equation. In it the logarithm stands both in the first power and squared. |
-| `audio.sub*` | Обозначим логарифм икс буквой тэ. Получилось обычное квадратное уравнение, его корни один и два. Здесь важное отличие от показательного уравнения: там значение замены было степенью и обязано было быть положительным, а логарифм принимает любые значения. Поэтому оба корня годятся, и каждый возвращается к переменной отдельно. | Iksning logarifmini te harfi bilan belgilaymiz. Oddiy kvadrat tenglama chiqdi, uning ildizlari bir va ikki. Bu yerda ko'rsatkichli tenglamadan muhim farq bor: u yerda almashtirish qiymati daraja edi va musbat bo'lishi shart edi, logarifm esa har qanday qiymatni oladi. Shuning uchun ikkala ildiz ham yaraydi, va har biri o'zgaruvchiga alohida qaytadi. | Let us call the logarithm of x by the letter t. An ordinary quadratic came out, its roots are one and two. Here is an important difference from the exponential equation: there the substituted value was a power and had to be positive, while a logarithm takes any value. So both roots fit, and each returns to the variable separately. |
-| `audio.work` | Посчитай сам. Сколько корней замены годится? | O'zingiz hisoblang. Almashtirishning nechta ildizi yaraydi? | Work it out yourself. How many roots of the substitution fit? |
-| `work.prompt` | Сколько корней замены годится? | Almashtirishning nechta ildizi yaraydi? | How many roots of the substitution fit? |
-| `work.ok` | Два. Логарифм принимает любые значения, поэтому отбрасывать нечего, в отличие от показательного уравнения. | Ikkita. Logarifm har qanday qiymatni oladi, shuning uchun tashlaydigan narsa yo'q, ko'rsatkichli tenglamadan farqli. | Two. A logarithm takes any value, so there is nothing to drop, unlike in an exponential equation. |
-| `work.hint.1` | Проверь, есть ли у логарифма запретные значения. | Logarifmda taqiqlangan qiymatlar bormi, tekshiring. | Check whether a logarithm has forbidden values. |
-| `work.hint.2` | Множество значений логарифмической функции это все числа. | Logarifmik funksiyaning qiymatlar to'plami hamma son. | The range of a logarithmic function is all numbers. |
-| `work.hint.3` | Два. | Ikkita. | Two. |
-
-**Формулы**
-
-| Ключ | Значение |
-|---|---|
-| `show.1.3` | `log₂² x − 3 log₂ x + 2 = 0` |
-| `show.2.3` | `t² − 3t + 2 = 0` |
-| `work.answer` | `2` |
-
----
-
-## Экран 7 · `explain5` · ответ `number` · тег `postoronniy-koren`
-
-Свидетель урока: корень падает на полосу и гаснет.
-
-**Текст**
-
-| Ключ | RU | UZ | EN |
-|---|---|---|---|
-| `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
-| `title` | Корень падает на полосу | Ildiz polosaga tushadi | The root lands on the band |
-| `show.1.1` | квадратное дало два числа | kvadrat ikki son berdi | the quadratic gave two numbers |
-| `show.1.2` | четыре и минус два | to'rt va minus ikki | four and minus two |
-| `show.2.1` | четвёрка попала в закрашенное | to'rt bo'yalganga tushdi | four landed in the shading |
-| `show.2.2` | минус два остался снаружи и погас | minus ikki tashqarida qoldi va so'ndi | minus two stayed outside and faded |
-| `audio.mount` | Вернёмся к уравнению с начала урока. Квадратное дало два числа, четыре и минус два. | Dars boshidagi tenglamaga qaytamiz. Kvadrat ikki son berdi, to'rt va minus ikki. | Back to the equation from the start of the lesson. The quadratic gave two numbers, four and minus two. |
-| `audio.fall*` | Опустим оба числа на полосу. Четвёрка попадает в закрашенное, значит это корень. Минус два падает далеко слева, вне полосы, и гаснет. Обрати внимание: он не перестал быть решением квадратного уравнения. Он никогда и не был решением исходного, потому что при нём логарифма просто нет. Вот почему полосу чертят до решения, а не после. | Ikkala sonni polosaga tushiramiz. To'rt bo'yalganga tushadi, demak bu ildiz. Minus ikki chapda uzoqda, polosadan tashqarida tushadi va so'nadi. E'tibor bering: u kvadrat tenglamaning yechimi bo'lishdan to'xtamadi. U dastlabki tenglamaning yechimi hech qachon bo'lmagan, chunki unda logarifm umuman yo'q. Polosa nega yechimdan oldin chizilishi shundan. | Let us drop both numbers onto the band. Four lands in the shading, so it is a root. Minus two lands far to the left, outside the band, and fades. Note: it did not stop being a solution of the quadratic. It never was a solution of the original equation, because there the logarithm does not exist at all. That is why the band is drawn before solving, not after. |
-| `audio.work` | Посчитай сам. Сколько чисел из двух попало в полосу? | O'zingiz hisoblang. Ikki sondan nechtasi polosaga tushdi? | Work it out yourself. How many of the two numbers landed in the band? |
-| `work.prompt` | Сколько чисел попало в полосу? | Nechta son polosaga tushdi? | How many numbers landed in the band? |
-| `work.ok` | Одно. Минус два лежит левее двойки, а там логарифма нет, значит корнем он быть не мог. | Bitta. Minus ikki ikkidan chapda yotadi, u yerda logarifm yo'q, demak u ildiz bo'la olmasdi. | One. Minus two lies to the left of two, and there is no logarithm there, so it could not be a root. |
-| `work.hint.1` | Посмотри, где начинается закрашенное. | Bo'yalgan joy qayerdan boshlanishini ko'ring. | Look where the shading begins. |
-| `work.hint.2` | Полоса начинается справа от двойки. | Polosa ikkidan o'ngda boshlanadi. | The band starts to the right of two. |
-| `work.hint.3` | Одно. | Bitta. | One. |
-
-**Формулы**
-
-| Ключ | Значение |
-|---|---|
-| `show.1.3` | `x² − 2x − 8 = 0   →   4;  −2` |
-| `show.2.3` | `x = 4` |
 | `work.answer` | `1` |
 
 ---
 
-## Экран 8 · `rule` · ответ `pick2` · тег `odz-logarifma`
+## Экран 5 · `explain3` · ответ `number` · тег `pryamye-ne-peresekayutsya`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | ПРАВИЛО | QOIDA | RULE |
-| `title` | Логарифмическое уравнение | Logarifmik tenglama | The logarithmic equation |
-| `probe.question` | Почему посторонний корень появляется? | Begona ildiz nega paydo bo'ladi? | Why does an extraneous root appear? |
-| `probe.a` [верно] | он не был допустимым с самого начала | u boshidanoq joiz emas edi | it was not admissible from the start |
-| `probe.b` | при решении сделали ошибку | yechishda xato qilingan | a mistake was made while solving |
-| `probe.b.hint` | Ошибки нет: все шаги верны. Число просто не входит в полосу. | Xato yo'q: hamma qadam to'g'ri. Son shunchaki polosaga kirmaydi. | There is no mistake: every step is correct. The number simply is not in the band. |
-| `rule.lawLabel` | Правило | Qoida | The rule |
-| `rule.lines.1` | Уравнение, где неизвестное стоит под знаком логарифма или в его основании, называют логарифмическим. | Noma'lum logarifmosti ifodada yoki logarifm asosida qatnashgan tenglama logarifmik tenglama deyiladi. | An equation with the unknown under the logarithm sign or in its base is called logarithmic. |
-| `rule.lines.2` | Полосу допустимых значений чертят до первого преобразования. | Joiz qiymatlar polosasi birinchi almashtirishdan oldin chiziladi. | The band of admissible values is drawn before the first step. |
-| `rule.lines.3` | Найденный корень принимают, только если он попал в полосу. | Topilgan ildiz faqat polosaga tushsa qabul qilinadi. | A found root is accepted only if it landed in the band. |
-| `audio.mount` | Объяснение закончилось. Перед правилом один вопрос. | Tushuntirish tugadi. Qoidadan oldin bitta savol. | The explanation is over. One question before the rule. |
-| `audio.rule*` | Полоса остаётся на экране, и правило открывается рядом. Посторонний корень это не ошибка вычислений, а число, которого не было в области допустимых значений с самого начала. | Polosa ekranda qoladi, va qoida yonida ochiladi. Begona ildiz hisob xatosi emas, boshidanoq joiz qiymatlar sohasida bo'lmagan son. | The band stays on the screen and the rule opens beside it. An extraneous root is not a computation error but a number that was not in the admissible set from the very start. |
+| `eyebrow` | ДВЕ ПЕРЕСЕКАЮЩИЕСЯ | IKKI KESISHUVCHI | TWO INTERSECTING |
+| `title` | Прямые должны пересекаться | Chiziqlar kesishishi kerak | The lines have to intersect |
+| `show.1.1` | В основании берём AB и AD | Asosda AB va AD ni olamiz | In the base we take AB and AD |
+| `show.1.2` | они пересекаются в вершине A | ular A uchida kesishadi | they intersect at the vertex A |
+| `show.1.3` | и задают два разных направления | va ikki xil yo'nalish beradi | and they set two different directions |
+| `show.2.1` | В верхней грани им отвечают A₁B₁ и A₁D₁ | Yuqori yoqda ularga A₁B₁ va A₁D₁ mos keladi | in the top face A₁B₁ and A₁D₁ answer to them |
+| `show.2.2` | каждая параллельна своей | har biri o'ziga mos bo'lganiga parallel | each is parallel to its own |
+| `show.2.3` | по признаку плоскости параллельны | alomat bo'yicha tekisliklar parallel | by the criterion the planes are parallel |
+| `audio.mount` | Теперь признак целиком. В одной плоскости две пересекающиеся прямые. | Endi alomat butunlay. Bir tekislikda ikki kesishuvchi chiziq. | Now the whole criterion. Two intersecting lines in one plane. |
+| `audio.pair*` | Смотри, как подсвечиваются пары. Каждой прямой снизу отвечает своя сверху. | Juftliklar qanday bo'yalishini kuzatib turing. Pastdagi har chiziqqa tepada o'zining mosi bor. | Watch how the pairs light up. Each line below has its own counterpart above. |
+| `audio.work` | Двух параллельных прямых было бы мало: они задают одно направление. | Ikki parallel chiziq kam bo'lardi: ular bitta yo'nalish beradi. | Two parallel lines would not be enough: they set only one direction. |
+| `work.prompt` | Сколько пар параллельных прямых нужно признаку? | Alomatga nechta juft parallel chiziq kerak? | How many pairs of parallel lines does the criterion need? |
+| `work.ok` | Верно. Две, и прямые внутри плоскости должны пересекаться. | To'g'ri. Ikkita, va tekislik ichidagi chiziqlar kesishishi kerak. | Correct. Two, and the lines inside the plane must intersect. |
+| `work.hint.1` | Посмотри на подсветку: сколько пар подсвечено? | Bo'yalishga qarang: nechta juftlik bo'yalgan? | Look at the highlighting: how many pairs are lit? |
+| `work.hint.2` | Одна пара уже была на прошлом экране и не помогла. | Bir juftlik o'tgan ekranda bo'ldi va yordam bermadi. | One pair was on the previous screen and did not help. |
+| `work.hint.3` | Признак называет две пары. | Alomat ikki juftlikni ataydi. | The criterion names two pairs. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `rule.law` | `logₐ f(x) = logₐ g(x)   →   f(x) = g(x),   f(x) > 0` |
+| `work.answer` | `2` |
 
 ---
 
-## Экран 9 · `drill` · ответ `match` · формат `match` · тег `postoronniy-koren`
+## Экран 6 · `explain4` · ответ `number` · тег `odna-para-dostatochno`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | ПРАКТИКА | MASHQ | PRACTICE |
-| `title` | Уравнение и его корень | Tenglama va uning ildizi | An equation and its root |
-| `match.prompt` | Соедини уравнение с его корнем. | Tenglamani ildizi bilan birlashtiring. | Match each equation with its root. |
-| `match.ok` | Каждый корень лежит внутри своей полосы. Границы у полос разные, и смотреть надо на то, что стоит под знаком. | Har ildiz o'z polosasi ichida yotadi. Polosalarning chegaralari har xil, va belgi ostida turganiga qarash kerak. | Every root lies inside its own band. The bands have different edges, and what matters is what stands under the sign. |
-| `audio.mount` | Четыре уравнения и четыре корня. Соедини их. | To'rt tenglama va to'rt ildiz. Ularni birlashtiring. | Four equations and four roots. Match them. |
+| `eyebrow` | САМ | O'ZINGIZ | ON YOUR OWN |
+| `title` | Признак на новом случае | Yangi holatda alomat | The criterion on a new case |
+| `show.1.1` | У куба шесть граней | Kubning oltita yog'i bor | A cube has six faces |
+| `show.1.2` | грани разбиваются на три пары противоположных | yoqlar uchta qarama-qarshi juftlikka bo'linadi | the faces split into three pairs of opposite ones |
+| `show.1.3` | внутри пары плоскости параллельны | juftlik ichida tekisliklar parallel | inside a pair the planes are parallel |
+| `show.2.1` | Любые две грани из разных пар | Turli juftlikdagi har qanday ikki yoq | any two faces from different pairs |
+| `show.2.2` | имеют общее ребро и пересекаются | umumiy qirraga ega va kesishadi | share an edge and intersect |
+| `show.2.3` | так работает признак на параллелепипеде из учебника | darslikdagi parallelepipedda alomat shunday ishlaydi | that is how the criterion works on the textbook parallelepiped |
+| `audio.mount` | Теперь сам. Признак тот же, случай новый. | Endi o'zingiz. Alomat o'sha, hol yangi. | Now on your own. The same criterion, a new case. |
+| `audio.faces*` | Грани перебираются парами. Смотри, где есть общее ребро. | Yoqlar juftlab ko'rib chiqiladi. Umumiy qirra qayerda borligini kuzatib turing. | The faces are gone through in pairs. Watch where a common edge appears. |
+| `audio.work` | Считай пары граней, у которых общих точек нет вовсе. | Umumiy nuqtasi umuman yo'q yoq juftliklarini sanang. | Count the pairs of faces with no common point at all. |
+| `work.prompt` | Сколько пар параллельных граней у куба? | Kubning nechta juft parallel yog'i bor? | How many pairs of parallel faces has a cube? |
+| `work.ok` | Верно. Три пары: пол и потолок, и две пары противоположных стен. | To'g'ri. Uch juftlik: pol va shift, va ikki juft qarama-qarshi devor. | Correct. Three pairs: the floor and the ceiling, and two pairs of opposite walls. |
+| `work.hint.1` | Возьми грань и найди ту, что не имеет с ней общего ребра. | Bir yoqni oling va u bilan umumiy qirrasi yo'q yoqni toping. | Take a face and find the one with no common edge with it. |
+| `work.hint.2` | У каждой грани такая ровно одна. | Har yoqda bunday yoq aynan bitta. | Each face has exactly one such face. |
+| `work.hint.3` | Шесть граней делятся на пары: их три. | Oltita yoq juftlikka bo'linadi: ular uchta. | Six faces split into pairs: there are three. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `match.left` | `log₂ x = 3` · `log₂ (x − 5) = 1` · `lg (2x − 2) = lg (x + 2)` · `log₃ x = 0` |
-| `match.a` | `8` |
-| `match.b` | `7` |
-| `match.c` | `4` |
-| `match.d` | `1` |
+| `work.answer` | `3` |
 
 ---
 
-## Экран 10 · `guided` · ответ `order` · формат `order-steps` · тег `odz-logarifma`
-
-Уравнение взято из учебника, стр. 116.
+## Экран 7 · `explain5` · ответ `number` · тег `ploskosti-parallelny-vsem`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | ПРАКТИКА | MASHQ | PRACTICE |
-| `title` | Реши по шагам | Qadam bilan yeching | Solve it step by step |
-| `order.prompt` | Расставь шаги по порядку. | Qadamlarni tartib bilan joylashtiring. | Put the steps in order. |
-| `order.s1` | начертить полосу | polosani chizish | draw the band |
-| `order.s2` | снять знаки | belgilarni olish | take the signs off |
-| `order.s3` | решить обычное | oddiyni yechish | solve the ordinary one |
-| `order.s4` | проверить по полосе | polosa bo'yicha tekshirish | check against the band |
-| `order.ok` | Полоса начинается с единицы, а корень равен четырём, значит он подходит. | Polosa birdan boshlanadi, ildiz esa to'rtga teng, demak u yaraydi. | The band starts at one, and the root is four, so it fits. |
-| `order.bad` | Сначала полоса, потом знаки, потом решение, и проверка в конце. | Avval polosa, keyin belgilar, keyin yechim, oxirida tekshirish. | First the band, then the signs, then the solution, and the check at the end. |
-| `audio.mount` | Четыре шага. Порядок ставишь ты. | To'rtta qadam. Tartibini o'zingiz qo'yasiz. | Four steps. You put them in order. |
+| `eyebrow` | ГРАНИЦА | CHEGARA | THE EDGE |
+| `title` | Плоскости параллельны — прямые не обязательно | Tekisliklar parallel, chiziqlar shart emas | The planes are parallel, the lines need not be |
+| `show.1.1` | Основания параллельны, это уже доказано | Asoslar parallel, bu isbotlangan | The bases are parallel, that is already proved |
+| `show.1.2` | в них взяты две прямые: AB снизу и A₁D₁ сверху | ularda ikki chiziq olingan: pastda AB, tepada A₁D₁ | two lines are taken in them: AB below and A₁D₁ above |
+| `show.1.3` | параллельны ли они друг другу | ular bir-biriga parallelmi | are they parallel to each other |
+| `show.2.1` | Общей плоскости у этой пары нет | Bu juftlikning umumiy tekisligi yo'q | this pair has no common plane |
+| `show.2.2` | значит они скрещиваются, а не параллельны | demak ular ayqash, parallel emas | so they are skew, not parallel |
+| `show.2.3` | параллельность плоскостей этого не запрещает | tekisliklar parallelligi buni taqiqlamaydi | the parallelism of the planes does not forbid it |
+| `audio.mount` | Плоскости параллельны. Это не значит, что любая прямая одной параллельна любой прямой другой. | Tekisliklar parallel. Bu birining har chizig'i ikkinchisining har chizig'iga parallel degani emas. | The planes are parallel. That does not mean any line of one is parallel to any line of the other. |
+| `audio.skew*` | Смотри на подсвеченную пару. Общая плоскость для них не проводится. | Bo'yalgan juftlikka qarang. Ular uchun umumiy tekislik o'tkazilmaydi. | Look at the highlighted pair. No common plane can be drawn for them. |
+| `audio.work` | Посчитай, сколько прямых верхней грани параллельны нижнему ребру AB. | Yuqori yoqning nechta chizig'i pastdagi AB qirrasiga parallel ekanini hisoblang. | Count how many lines of the top face are parallel to the bottom edge AB. |
+| `work.prompt` | Сколько рёбер верхней грани параллельны ребру AB? | Yuqori yoqning nechta qirrasi AB qirrasiga parallel? | How many edges of the top face are parallel to the edge AB? |
+| `work.ok` | Верно. Два: A₁B₁ и D₁C₁. Другие два с ним скрещиваются. | To'g'ri. Ikkita: A₁B₁ va D₁C₁. Qolgan ikkitasi u bilan ayqash. | Correct. Two: A₁B₁ and D₁C₁. The other two are skew to it. |
+| `work.hint.1` | Найди рёбра верхней грани того же направления. | Yuqori yoqning o'sha yo'nalishdagi qirralarini toping. | Find the top edges of the same direction. |
+| `work.hint.2` | Два ребра идут вдоль, два поперёк. | Ikki qirra bo'ylab, ikkitasi ko'ndalang. | Two edges run along, two across. |
+| `work.hint.3` | Вдоль идут A₁B₁ и D₁C₁. | Bo'ylab A₁B₁ va D₁C₁ boradi. | Along run A₁B₁ and D₁C₁. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `expr` | `lg (2x − 2) = lg (x + 2)` |
-| `order.mark` | `x = 4` |
+| `work.answer` | `2` |
+
+---
+
+## Экран 8 · `rule` · ответ `pick2` · тег `pryamye-ne-peresekayutsya`
+
+**Текст**
+
+| Ключ | RU | UZ | EN |
+|---|---|---|---|
+| `title` | Определение и признак | Ta'rif va alomat | The definition and the criterion |
+| `probe.question` | Какими должны быть две прямые в плоскости? | Tekislikdagi ikki chiziq qanday bo'lishi kerak? | What must the two lines in the plane be? |
+| `probe.a` [верно] | пересекающимися | kesishuvchi | intersecting |
+| `probe.b` | параллельными | parallel | parallel |
+| `probe.b.hint` | Две параллельные задают одно направление, и плоскость вокруг него ещё поворачивается. | Ikki parallel bitta yo'nalish beradi, va tekislik uning atrofida hali buriladi. | Two parallel lines set one direction, and the plane still turns around it. |
+| `rule.lawLabel` | Две плоскости | Ikki tekislik | Two planes |
+| `rule.lines.1` | Стр. 103. Не пересекающиеся плоскости называются параллельными. | 103-bet. Kesishmaydigan tekisliklar parallel tekisliklar deb ataladi. | Page 103. Planes that do not intersect are called parallel. |
+| `rule.lines.2` | Стр. 103, теорема 3.7. Две пересекающиеся прямые одной плоскости параллельны двум прямым другой — плоскости параллельны. | 103-bet, 3.7-teorema. Bir tekislikdagi kesishuvchi ikki chiziq ikkinchisidagi ikki chiziqqa parallel bo'lsa, tekisliklar parallel. | Page 103, theorem 3.7. Two intersecting lines of one plane parallel to two lines of the other make the planes parallel. |
+| `rule.lines.3` | Стр. 103. Пол и потолок комнаты, противоположные стены — примеры учебника. | 103-bet. Xonaning poli va shifti, qarama-qarshi devorlar -- darslik misollari. | Page 103. The floor and ceiling of a room, opposite walls: the textbook examples. |
+| `audio.mount` | Прежде чем открыть карточку, ответь на один вопрос. | Kartochkani ochishdan oldin bitta savolga javob bering. | Before the card opens, answer one question. |
+| `audio.rule*` | Карточка говорит словами учебника. В признаке два требования, и второе про пересечение. | Kartochka darslik so'zlari bilan gapiradi. Alomatda ikki talab bor, ikkinchisi kesishish haqida. | The card speaks in the words of the textbook. The criterion has two demands, and the second is about intersecting. |
+
+**Формулы**
+
+| Ключ | Значение |
+|---|---|
+| `rule.law` | `a ∩ b = A,   a ∥ a₁,   b ∥ b₁   ⇒   α ∥ β` |
+
+---
+
+## Экран 9 · `drill` · ответ `match` · формат `match` · тег `ploskost-po-chertezhu`
+
+**Текст**
+
+| Ключ | RU | UZ | EN |
+|---|---|---|---|
+| `eyebrow` | ЧЕТЫРЕ ПАРЫ | TO'RT JUFTLIK | FOUR PAIRS |
+| `title` | Соедини пару граней с её случаем | Yoq juftligini o'z holi bilan biriktiring | Match each pair of faces with its case |
+| `match.prompt` | Пары граней одного куба | Bitta kubning yoq juftliklari | Pairs of faces of one cube |
+| `match.a` | параллельны | parallel | parallel |
+| `match.b` | пересекаются по BC | BC bo'ylab kesishadi | meet along BC |
+| `match.c` | пересекаются по AA₁ | AA₁ bo'ylab kesishadi | meet along AA₁ |
+| `match.d` | это одна и та же плоскость | bu bir xil tekislik | this is one and the same plane |
+| `match.ok` | Все четыре верно. Общее ребро сразу отвечает на вопрос. | To'rttasi ham to'g'ri. Umumiy qirra savolga darrov javob beradi. | All four correct. A shared edge answers the question at once. |
+| `audio.mount` | Четыре пары граней одного куба. Ищи общее ребро. | Bitta kubning to'rt juft yog'i. Umumiy qirrani izlang. | Four pairs of faces of one cube. Look for a common edge. |
+
+**Формулы**
+
+| Ключ | Значение |
+|---|---|
+| `match.left` | `ABCD, A₁B₁C₁D₁` · `ABCD, BCC₁B₁` · `ABB₁A₁, ADD₁A₁` · `ABCD, ABC` |
+
+---
+
+## Экран 10 · `guided` · ответ `order` · формат `order-steps` · тег `pryamye-ne-peresekayutsya`
+
+**Текст**
+
+| Ключ | RU | UZ | EN |
+|---|---|---|---|
+| `eyebrow` | ПО ШАГАМ | QADAMLAB | STEP BY STEP |
+| `title` | Докажи по признаку | Alomat bo'yicha isbotlang | Prove it by the criterion |
+| `order.prompt` | Расставь по порядку | Tartib bilan joylashtiring | Put them in order |
+| `order.s1` | в основании берём две пересекающиеся прямые | asosda ikki kesishuvchi chiziq olamiz | in the base we take two intersecting lines |
+| `order.s2` | каждой находим параллельную в верхней грани | har biriga yuqori yoqda parallel topamiz | for each we find a parallel one in the top face |
+| `order.s3` | по признаку плоскости параллельны | alomat bo'yicha tekisliklar parallel | by the criterion the planes are parallel |
+| `order.ok` | Верно. Сначала пересекающиеся прямые, потом их пары, и только потом вывод. | To'g'ri. Avval kesishuvchi chiziqlar, keyin juftliklari, keyin xulosa. | Correct. First the intersecting lines, then their pairs, and only then the conclusion. |
+| `order.bad` | Порядок другой. Пары ищутся уже после того, как выбраны прямые. | Tartib boshqacha. Juftliklar chiziqlar tanlangandan keyin izlanadi. | The order is different. The pairs are looked for after the lines are chosen. |
+| `audio.mount` | Докажем, что основания куба параллельны. Признак называет две пересекающиеся прямые. | Kubning asoslari parallel ekanini isbotlaymiz. Alomat ikki kesishuvchi chiziqni ataydi. | Let us prove the bases of the cube are parallel. The criterion names two intersecting lines. |
+
+**Формулы**
+
+| Ключ | Значение |
+|---|---|
+| `expr` | `ABCD` · `A₁B₁C₁D₁` |
+| `order.mark` | `ABCD ∥ A₁B₁C₁D₁` |
 
 ---
 
@@ -341,27 +328,27 @@
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | БЕЗ ПРИБОРА | ASBOBSIZ | NO INSTRUMENT |
-| `title` | Реши без полосы | Polosasiz yeching | Solve it without the band |
-| `task.ok` | Девять. Логарифм равен трём, значит икс минус один равно восьми. | To'qqiz. Logarifm uchga teng, demak iks minus bir sakkizga teng. | Nine. The logarithm is three, so x minus one equals eight. |
-| `task.hint.1` | Логарифм равен трём, значит под знаком стоит два в кубе. | Logarifm uchga teng, demak belgi ostida ikki kubda turadi. | The logarithm is three, so two cubed stands under the sign. |
-| `task.hint.2` | Икс минус один равно восьми. | Iks minus bir sakkizga teng. | X minus one equals eight. |
-| `task.hint.3` | Девять. | To'qqiz. | Nine. |
-| `order.prompt` | Расставь по возрастанию левой границы полосы. | Polosaning chap chegarasi o'sishi bo'yicha joylashtiring. | Arrange by increasing left edge of the band. |
-| `order.title` | У какого уравнения полоса начинается раньше? | Qaysi tenglamaning polosasi oldinroq boshlanadi? | Which equation has the band starting earlier? |
-| `order.ok` | Чем больше вычитают под знаком, тем правее начинается полоса. | Belgi ostida qancha ko'p ayirilsa, polosa shuncha o'ngroqda boshlanadi. | The more is subtracted under the sign, the further right the band starts. |
-| `order.bad` | Выпиши условие для каждого и сравни границы. | Har biri uchun shartni yozing va chegaralarni solishtiring. | Write the condition for each and compare the edges. |
-| `audio.mount` | На этом экране полосы нет. На экзамене её тоже не будет. | Bu ekranda polosa yo'q. Imtihonda ham bo'lmaydi. | There is no band on this screen. There will be none at the exam either. |
-| `audio.next` | Ответ запиши сам. | Javobni o'zingiz yozing. | Type the answer yourself. |
+| `eyebrow` | НА БУМАГЕ | QOG'OZDA | ON PAPER |
+| `title` | Без прибора | Asbobsiz | No instrument |
+| `order.prompt` | Расставь записи в том порядке, в каком они появляются в доказательстве | Yozuvlarni isbotda paydo bo'lish tartibida joylashtiring | Put the lines in the order they appear in the proof |
+| `order.title` | Порядок записей | Yozuvlar tartibi | The order of the lines |
+| `order.ok` | Верно. Условия сверху, вывод внизу. | To'g'ri. Shartlar tepada, xulosa pastda. | Correct. The conditions on top, the conclusion below. |
+| `order.bad` | Не тот порядок. Вывод пишется последним. | Tartib to'g'ri emas. Xulosa oxirida yoziladi. | Wrong order. The conclusion is written last. |
+| `task.prompt` | Сколько граней куба пересекают плоскость ABCD? | Kubning nechta yog'i ABCD tekisligini kesib o'tadi? | How many faces of the cube meet the plane ABCD? |
+| `task.ok` | Верно. Четыре боковых грани, каждая по своему ребру основания. | To'g'ri. To'rt yon yoq, har biri asosning o'z qirrasi bo'ylab. | Correct. The four side faces, each along its own base edge. |
+| `task.hint.1` | Само основание не считаем: это та же плоскость. | Asosning o'zini sanamaymiz: bu o'sha tekislik. | We do not count the base itself: it is the same plane. |
+| `task.hint.2` | Верхняя грань основанию параллельна. | Yuqori yoq asosga parallel. | The top face is parallel to the base. |
+| `task.hint.3` | Остаются боковые, их четыре. | Yon yoqlar qoladi, ular to'rtta. | The side faces remain, and there are four. |
+| `audio.mount` | Прибора здесь нет. Сначала порядок записей, потом ответ. | Bu yerda asbob yo'q. Avval yozuvlar tartibi, keyin javob. | There is no instrument here. First the order of the lines, then the answer. |
+| `audio.next` | Теперь сама задача. Пиши число. | Endi masalaning o'zi. Sonni yozing. | Now the task itself. Write the number. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `task.prompt` | `log₂ (x − 1) = 3   →   x = ?` |
-| `task.answer` | `9` |
-| `order.items` | `log₂ x` · `log₂ (x − 1)` · `log₂ (x − 5)` · `log₂ (x − 9)` |
-| `order.answer` | `log₂ x  log₂ (x − 1)  log₂ (x − 5)  log₂ (x − 9)` |
+| `task.answer` | `4` |
+| `order.items` | `AB ∩ AD = A` · `AB ∥ A₁B₁` · `AD ∥ A₁D₁` · `ABCD ∥ A₁B₁C₁D₁` |
+| `order.answer` | `AB ∩ AD = A  AB ∥ A₁B₁  AD ∥ A₁D₁  ABCD ∥ A₁B₁C₁D₁` |
 
 ---
 
@@ -372,29 +359,29 @@
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ЛОВУШКА | TUZOQ | THE TRAP |
-| `title` | Ответ лишний. Где? | Javobda ortiqchasi bor. Qayerda? | The answer has an extra. Where? |
-| `hint.r1` | Эта строка просто переписывает условие. | Bu qator shartni shunchaki qaytadan yozadi. | This line just rewrites the task. |
-| `hint.r2` | Свёртка суммы сделана верно. | Yig'indini yig'ish to'g'ri bajarilgan. | The sum was folded correctly. |
-| `hint.r3` | Квадратное уравнение решено верно. | Kvadrat tenglama to'g'ri yechilgan. | The quadratic was solved correctly. |
-| `proof` | Здесь в ответ записали оба числа, а одно из них лежит вне полосы. | Bu yerda javobga ikkala son yozilgan, ulardan biri esa polosadan tashqarida. | Here both numbers went into the answer, and one of them lies outside the band. |
-| `entry.prompt` | Какое число в ответе лишнее? | Javobdagi qaysi son ortiqcha? | Which number in the answer is the extra one? |
-| `entry.ok` | Минус три. При нём под знаком логарифма стоит отрицательное число, а такого логарифма нет. | Minus uch. Unda logarifm belgisi ostida manfiy son turadi, bunday logarifm esa yo'q. | Minus three. There a negative number stands under the logarithm sign, and no such logarithm exists. |
-| `entry.hint.1` | Подставь каждое число под знак логарифма. | Har sonni logarifm belgisi ostiga qo'ying. | Substitute each number under the logarithm sign. |
-| `entry.hint.2` | Одно из них даёт отрицательное выражение. | Ulardan biri manfiy ifoda beradi. | One of them gives a negative expression. |
-| `entry.hint.3` | Минус три. | Minus uch. | Minus three. |
-| `audio.mount` | Задача. Решить уравнение с двумя логарифмами. | Masala. Ikki logarifmli tenglamani yechish. | A task. Solve an equation with two logarithms. |
-| `audio.next` | Четыре строки, все выглядят верными. Ищи первую неверную. | To'rt qator, hammasi to'g'ri ko'rinadi. Birinchi xato qatorni qidiring. | Four lines, all look right. Look for the first wrong one. |
+| `title` | Все шаги верны, вывод неверен | Hamma qadam to'g'ri, xulosa noto'g'ri | Every step is right, the conclusion is wrong |
+| `hint.r1` | Верно: эти два ребра действительно параллельны. | To'g'ri: bu ikki qirra haqiqatan parallel. | Correct: these two edges really are parallel. |
+| `hint.r2` | Верно: каждое лежит в своей грани. | To'g'ri: har biri o'z yog'ida yotadi. | Correct: each lies in its own face. |
+| `hint.r3` | Тоже верно, пара найдена честно. | Bu ham to'g'ri, juftlik halol topilgan. | Also correct, the pair was found honestly. |
+| `proof` | Ошибка в последней строке. Признаку нужны ДВЕ пересекающиеся прямые, а найдена одна пара. | Xato oxirgi satrda. Alomatga IKKI kesishuvchi chiziq kerak, topilgani esa bir juftlik. | The mistake is in the last line. The criterion needs TWO intersecting lines, and only one pair was found. |
+| `entry.prompt` | Сколько пар параллельных прямых требует признак? | Alomat nechta juft parallel chiziqni talab qiladi? | How many pairs of parallel lines does the criterion require? |
+| `entry.ok` | Верно. Две, и прямые внутри плоскости должны пересекаться. | To'g'ri. Ikkita, va tekislik ichidagi chiziqlar kesishishi kerak. | Correct. Two, and the lines inside the plane must intersect. |
+| `entry.hint.1` | Посмотри на карточку правила. | Qoida kartochkasiga qarang. | Look at the rule card. |
+| `entry.hint.2` | Одной пары мало: это было на экране четыре. | Bir juftlik kam: bu to'rtinchi ekranda bo'ldi. | One pair is not enough: that was on screen four. |
+| `entry.hint.3` | Признак называет две прямые в каждой плоскости. | Alomat har tekislikda ikki chiziqni ataydi. | The criterion names two lines in each plane. |
+| `audio.mount` | Доказательство выписано в четыре строки. Найди ту, где появилась ошибка. | Isbot to'rt satrda yozilgan. Xato paydo bo'lgan satrni toping. | The proof is written in four lines. Find the one where the mistake appeared. |
+| `audio.next` | Теперь запиши число, которое требует признак. | Endi alomat talab qilgan sonni yozing. | Now write the number the criterion requires. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `row.r1` | `log₃ x + log₃ (x + 2) = 1` |
-| `row.r2` | `log₃ (x·(x + 2)) = 1` |
-| `row.r3` | `x² + 2x − 3 = 0` |
-| `row.r4` | `x = 1;  x = −3` |
+| `row.r1` | `AD ∥ B₁C₁` |
+| `row.r2` | `AD ⊂ ABCD,   B₁C₁ ⊂ BCC₁B₁` |
+| `row.r3` | `AD ∥ B₁C₁ — ✔` |
+| `row.r4` | `ABCD ∥ BCC₁B₁` |
 | `answerId` | `r4` |
-| `entry.answer` | `−3` |
+| `entry.answer` | `2` |
 
 ---
 
@@ -404,84 +391,80 @@
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | ПЕРЕНОС | KO'CHIRISH | TRANSFER |
-| `title` | По записи найди границу | Yozuv bo'yicha chegarani toping | From the reading back to the edge |
-| `entry.prompt` | С какого числа начинается полоса у логарифма от икс минус пять? | Iks minus beshning logarifmida polosa qaysi sondan boshlanadi? | From which number does the band start for the logarithm of x minus five? |
-| `entry.ok` | С пятёрки. Под знаком должно стоять положительное, значит икс больше пяти. | Beshdan. Belgi ostida musbat turishi kerak, demak iks beshdan katta. | From five. A positive number must stand under the sign, so x is greater than five. |
-| `entry.hint.1` | Приравняй выражение под знаком нулю. | Belgi ostidagi ifodani nolga tenglashtiring. | Set the expression under the sign to zero. |
-| `entry.hint.2` | Икс минус пять равно нулю. | Iks minus besh nolga teng. | X minus five equals zero. |
-| `entry.hint.3` | Пять. | Besh. | Five. |
-| `multi.prompt` | Отметь все числа, которые в эту полосу не попадают. | Bu polosaga tushmaydigan hamma sonni belgilang. | Mark every number that does not land in this band. |
-| `multi.title` | Какие числа в полосу не попадают? | Qaysi sonlar polosaga tushmaydi? | Which numbers do not land in the band? |
-| `multi.c.hint` | Шесть больше пяти, значит попадает. | Olti beshdan katta, demak tushadi. | Six is greater than five, so it lands inside. |
-| `multi.d.hint` | Десять больше пяти, значит попадает. | O'n beshdan katta, demak tushadi. | Ten is greater than five, so it lands inside. |
-| `multi.ok` | Две из четырёх. Граница выколота, поэтому сама пятёрка тоже не годится. | To'rttadan ikkitasi. Chegara ochiq, shuning uchun beshning o'zi ham yaramaydi. | Two out of four. The edge is punched out, so five itself does not fit either. |
-| `audio.mount` | Теперь обратная задача. Дана запись, найти надо границу полосы. | Endi teskari masala. Yozuv berilgan, polosaning chegarasini topish kerak. | Now the inverse task. A reading is given, and the edge of the band must be found. |
-| `audio.work` | Сначала запиши границу, потом отметишь числа вне полосы. | Avval chegarani yozing, keyin polosadan tashqaridagi sonlarni belgilaysiz. | First type the edge, then you will mark the numbers outside the band. |
+| `eyebrow` | ОБРАТНАЯ ЗАДАЧА | TESKARI MASALA | THE REVERSE TASK |
+| `title` | Теперь ищешь ты | Endi siz izlaysiz | Now you do the searching |
+| `entry.prompt` | Сколько граней куба параллельны грани ABCD? | Kubning nechta yog'i ABCD yog'iga parallel? | How many faces of the cube are parallel to the face ABCD? |
+| `entry.ok` | Верно. Одна: у каждой грани параллельная ровно одна. | To'g'ri. Bitta: har yoqda parallel yoq aynan bitta. | Correct. One: each face has exactly one parallel face. |
+| `entry.hint.1` | Параллельная грань не имеет с данной общего ребра. | Parallel yoqning berilgani bilan umumiy qirrasi yo'q. | A parallel face has no common edge with the given one. |
+| `entry.hint.2` | Четыре боковых грани общее ребро имеют. | To'rt yon yoqning umumiy qirrasi bor. | The four side faces do have a common edge. |
+| `entry.hint.3` | Остаётся верхняя грань, она одна. | Yuqori yoq qoladi, u bitta. | The top face remains, and it is the only one. |
+| `multi.prompt` | Отметь все пары граней, которые параллельны | Parallel bo'lgan hamma yoq juftligini belgilang | Mark every pair of faces that are parallel |
+| `multi.title` | Две из четырёх | To'rttadan ikkitasi | Two out of four |
+| `multi.c.hint` | У этих граней общее ребро BC, значит они пересекаются. | Bu yoqlarning umumiy BC qirrasi bor, demak ular kesishadi. | These faces share the edge BC, so they intersect. |
+| `multi.d.hint` | У этих общее ребро AA₁. | Bularning umumiy AA₁ qirrasi bor. | These share the edge AA₁. |
+| `multi.ok` | Верно. Параллельны те пары, у которых общего ребра нет. | To'g'ri. Umumiy qirrasi yo'q juftliklar parallel. | Correct. Parallel are the pairs with no common edge. |
+| `audio.mount` | До этого пары давали тебе. Теперь перебираешь грани сам. | Bungacha juftliklarni sizga berardilar. Endi yoqlarni o'zingiz ko'rib chiqasiz. | Until now the pairs were given to you. Now you go through the faces yourself. |
+| `audio.work` | Обрати внимание: у шести граней ровно три параллельных пары, и это проверка суммой. | E'tibor bering: oltita yoqda aynan uch parallel juftlik bor, va bu yig'indi bilan tekshiruv. | Notice: six faces give exactly three parallel pairs, and that is a check by the sum. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `entry.answer` | `5` |
-| `multi.a` [верно] | `5` |
-| `multi.b` [верно] | `0` |
-| `multi.c` | `6` |
-| `multi.d` | `10` |
+| `entry.expr` | `ABCD` |
+| `entry.answer` | `1` |
+| `multi.a` [верно] | `ABCD, A₁B₁C₁D₁` |
+| `multi.b` [верно] | `ABB₁A₁, DCC₁D₁` |
+| `multi.c` | `ABCD, BCC₁B₁` |
+| `multi.d` | `ABB₁A₁, ADD₁A₁` |
 
 ---
 
-## Экран 14 · `blitz` · ответ `mixed` · формат `chain` · тег `odz-logarifma`
+## Экран 14 · `blitz` · ответ `mixed` · формат `chain` · тег `odna-para-dostatochno`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | БЛИЦ | BLITS | BLITZ |
-| `title` | Четыре вопроса · идут в результат | To'rt savol · natijaga kiradi | Four questions · they count |
-| `q1.prompt` | Когда чертят полосу допустимых значений? | Joiz qiymatlar polosasi qachon chiziladi? | When is the band of admissible values drawn? |
-| `q1.a` [верно] | до первого преобразования | birinchi almashtirishdan oldin | before the first step |
-| `q1.b` | после того, как нашли корни | ildizlar topilgandan keyin | after the roots are found |
-| `q1.b.hint` | Тогда проверка превращается в обряд. Полоса нужна как условие, а не как проверка. | Unda tekshirish marosimga aylanadi. Polosa tekshirish emas, shart sifatida kerak. | Then the check becomes a ritual. The band is needed as a condition, not as a check. |
-| `q1.c` | только если ответ странный | faqat javob g'alati bo'lsa | only if the answer looks odd |
-| `q1.c.hint` | Странный ответ заметить нельзя, если не с чем сравнивать. | Solishtiradigan narsa bo'lmasa, g'alati javobni sezib bo'lmaydi. | An odd answer cannot be spotted with nothing to compare it to. |
-| `q1.d` | никогда | hech qachon | never |
-| `q1.d.hint` | Без неё посторонний корень попадает в ответ. | Usiz begona ildiz javobga tushadi. | Without it an extraneous root gets into the answer. |
-| `q2.prompt` | Почему появляется посторонний корень? | Begona ildiz nega paydo bo'ladi? | Why does an extraneous root appear? |
-| `q2.a` [верно] | он не был допустимым с самого начала | u boshidanoq joiz emas edi | it was not admissible from the start |
-| `q2.b` | из-за ошибки в вычислениях | hisobdagi xato tufayli | because of a computation error |
-| `q2.b.hint` | Все шаги были верны, и это видно по строкам. | Hamma qadam to'g'ri edi, va bu qatorlardan ko'rinadi. | Every step was correct, and the lines show it. |
-| `q2.c` | логарифм так устроен | logarifm shunday tuzilgan | that is how a logarithm works |
-| `q2.c.hint` | Дело не в логарифме, а в том, что число вне полосы. | Gap logarifmda emas, sonning polosadan tashqarida ekanida. | It is not about the logarithm but about the number being outside the band. |
-| `q2.d` | корней всегда два | ildiz doim ikkita | there are always two roots |
-| `q2.d.hint` | Их бывает и один, и ни одного. | Ular bitta ham, birorta ham bo'lmasligi mumkin. | There can be one, or none. |
-| `q3.prompt` | Что даёт логарифм от икс минус два? | Iks minus ikkining logarifmi nima beradi? | What does the logarithm of x minus two give? |
-| `q3.a` [верно] | условие икс больше двух | iks ikkidan katta shartini | the condition x greater than two |
-| `q3.a.ok` | Да. Под знаком должно стоять положительное число. | Ha. Belgi ostida musbat son turishi kerak. | Yes. A positive number must stand under the sign. |
-| `q3.b` | условие икс больше нуля | iks noldan katta shartini | the condition x greater than zero |
-| `q3.b.hint` | Ноль подошёл бы, если бы под знаком стоял просто икс. | Belgi ostida oddiy iks tursa nol yarardi. | Zero would fit if plain x stood under the sign. |
-| `q3.c` | условие икс меньше двух | iks ikkidan kichik shartini | the condition x less than two |
-| `q3.c.hint` | Тогда выражение под знаком было бы отрицательным. | Unda belgi ostidagi ifoda manfiy bo'lardi. | Then the expression under the sign would be negative. |
-| `q3.d` | никакого условия | hech qanday shart | no condition at all |
-| `q3.d.hint` | Условие есть у каждого логарифма. | Har logarifmning sharti bor. | Every logarithm has a condition. |
-| `q4.prompt` | Можно ли снимать знаки логарифма? | Logarifm belgilarini olish mumkinmi? | May the logarithm signs be taken off? |
-| `q4.a` [верно] | да, если основания совпали и мы внутри полосы | ha, asoslar bir xil bo'lsa va polosa ichida bo'lsak | yes, if the bases match and we are inside the band |
-| `q4.b` | да, всегда | ha, doim | yes, always |
-| `q4.b.hint` | Вне полосы логарифмов просто нет, снимать нечего. | Polosadan tashqarida logarifmlar umuman yo'q, oladigan narsa yo'q. | Outside the band there are no logarithms at all, nothing to take off. |
-| `q4.c` | нет, никогда | yo'q, hech qachon | no, never |
-| `q4.c.hint` | Можно: функция монотонна, и одному значению отвечает один аргумент. | Mumkin: funksiya monoton, va bitta qiymatga bitta argument mos keladi. | It is allowed: the function is monotone, and one value matches one argument. |
-| `q4.d` | только если основание равно десяти | faqat asos o'nga teng bo'lsa | only if the base is ten |
-| `q4.d.hint` | Основание может быть любым, лишь бы одинаковым слева и справа. | Asos har qanday bo'lishi mumkin, faqat chapda va o'ngda bir xil bo'lsa. | The base can be anything, as long as it is the same on both sides. |
-| `audio.mount` | Четыре коротких вопроса. Только этот экран идёт в результат. | To'rtta qisqa savol. Faqat shu ekran natijaga kiradi. | Four short questions. Only this screen counts. |
-
-**Формулы**
-
-| Ключ | Значение |
-|---|---|
-| `q1.done` | `x > 0` |
-| `q2.done` | `x = −2` |
-| `q3.done` | `x > 2` |
-| `q4.done` | `f(x) = g(x)` |
+| `eyebrow` | БЛИЦ | BLITS | THE BLITZ |
+| `title` | Четыре вопроса подряд | Ketma-ket to'rtta savol | Four questions in a row |
+| `q1.prompt` | Две плоскости параллельны. Сколько у них общих точек? | Ikki tekislik parallel. Ularning nechta umumiy nuqtasi bor? | Two planes are parallel. How many common points have they? |
+| `q1.a` [верно] | ни одной | birorta ham yo'q | none |
+| `q1.b` | одна | bitta | one |
+| `q1.b.hint` | Одна общая точка тянет за собой целую прямую, это аксиома. | Bitta umumiy nuqta butun chiziqni ergashtiradi, bu aksioma. | One common point drags a whole line behind it; that is the axiom. |
+| `q1.c` | бесконечно много | cheksiz ko'p | infinitely many |
+| `q1.c.hint` | Бесконечно много у пересекающихся: у них общая прямая. | Cheksiz ko'p kesishuvchilarda: ularning umumiy chizig'i bor. | Infinitely many belongs to intersecting ones: they share a line. |
+| `q1.d` | зависит от ракурса | rakursga bog'liq | it depends on the angle |
+| `q1.d.hint` | Ракурс меняет чертёж, а не сцену. | Rakurs chizmani o'zgartiradi, sahnani emas. | The angle changes the drawing, not the scene. |
+| `q2.prompt` | Признаку нужны прямые… | Alomatga kerak bo'lgan chiziqlar... | The criterion needs lines that are... |
+| `q2.a` [верно] | две пересекающиеся в каждой плоскости | har tekislikda ikki kesishuvchi | two intersecting in each plane |
+| `q2.b` | одна в каждой плоскости | har tekislikda bitta | one in each plane |
+| `q2.b.hint` | Одной пары мало: на экране четыре плоскости пересекались. | Bir juftlik kam: to'rtinchi ekranda tekisliklar kesishardi. | One pair is not enough: on screen four the planes did intersect. |
+| `q2.c` | две параллельные в каждой | har birida ikki parallel | two parallel in each |
+| `q2.c.hint` | Две параллельные дают одно направление, второго нет. | Ikki parallel bitta yo'nalish beradi, ikkinchisi yo'q. | Two parallel lines give one direction, the second is missing. |
+| `q2.d` | все прямые плоскости | tekislikning hamma chizig'i | all lines of the plane |
+| `q2.d.hint` | Столько проверять не надо: двух пересекающихся достаточно. | Bunchasini tekshirish shart emas: ikki kesishuvchi yetadi. | There is no need to check that many: two intersecting ones suffice. |
+| `q3.prompt` | Плоскости параллельны. Прямая одной и прямая другой… | Tekisliklar parallel. Birining chizig'i va ikkinchisining chizig'i... | The planes are parallel. A line of one and a line of the other... |
+| `q3.a` [верно] | могут скрещиваться | ayqash bo'lishi mumkin | may be skew |
+| `q3.a.ok` | Да: параллельность плоскостей про плоскости, а не про каждую пару прямых. | Ha: tekisliklar parallelligi tekisliklar haqida, har juft chiziq haqida emas. | Yes: parallel planes are about the planes, not about every pair of lines. |
+| `q3.b` | всегда параллельны | doim parallel | are always parallel |
+| `q3.b.hint` | Проверь на кубе: AB и A₁D₁ скрещиваются. | Kubda tekshiring: AB va A₁D₁ ayqash. | Check on the cube: AB and A₁D₁ are skew. |
+| `q3.c` | всегда пересекаются | doim kesishadi | always intersect |
+| `q3.c.hint` | Пересечься они не могут: плоскости общих точек не имеют. | Ular kesishishi mumkin emas: tekisliklarning umumiy nuqtasi yo'q. | They cannot intersect: the planes share no point. |
+| `q3.d` | всегда перпендикулярны | doim perpendikulyar | are always perpendicular |
+| `q3.d.hint` | Перпендикулярность тут ни при чём. | Perpendikulyarlikning bunga aloqasi yo'q. | Perpendicularity has nothing to do with it. |
+| `q4.prompt` | Сколько пар параллельных граней у куба? | Kubning nechta juft parallel yog'i bor? | How many pairs of parallel faces has a cube? |
+| `q4.a` [верно] | три | uchta | three |
+| `q4.b` | шесть | oltita | six |
+| `q4.b.hint` | Шесть это число граней, а пар вдвое меньше. | Olti bu yoqlar soni, juftliklar esa ikki barobar kam. | Six is the number of faces, and pairs are half that. |
+| `q4.c` | две | ikkita | two |
+| `q4.c.hint` | Пол с потолком и две пары стен: уже три. | Pol bilan shift va ikki juft devor: allaqachon uchta. | The floor with the ceiling and two pairs of walls: already three. |
+| `q4.d` | двенадцать | o'n ikkita | twelve |
+| `q4.d.hint` | Двенадцать это рёбра, а не пары граней. | O'n ikki bu qirralar, yoq juftliklari emas. | Twelve is the edges, not the pairs of faces. |
+| `audio.mount` | Четыре вопроса, и они идут в оценку. | To'rtta savol, va ular baholanadi. | Four questions, and they count towards the score. |
+| `q1.done` | Ни одной. Это определение. | Birorta ham yo'q. Bu ta'rif. | None. That is the definition. |
+| `q2.done` | Две пересекающиеся, и это главное слово признака. | Ikki kesishuvchi, va bu alomatning asosiy so'zi. | Two intersecting, and that is the key word of the criterion. |
+| `q3.done` | Могут скрещиваться. Плоскости параллельны, прямые нет. | Ayqash bo'lishi mumkin. Tekisliklar parallel, chiziqlar emas. | They may be skew. The planes are parallel, the lines are not. |
+| `q4.done` | Три пары: шесть граней делятся пополам. | Uch juftlik: oltita yoq teng bo'linadi. | Three pairs: six faces split in half. |
 
 ---
 
@@ -491,32 +474,32 @@
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | ИТОГ | YAKUN | SUMMARY |
-| `title` | Что осталось | Nima qoldi | What you take away |
-| `can.1` | Черчу полосу допустимых значений до решения | Joiz qiymatlar polosasini yechimdan oldin chizaman | I draw the band of admissible values before solving |
-| `can.2` | Свожу сумму логарифмов к одному | Logarifmlar yig'indisini bittaga keltiraman | I fold a sum of logarithms into one |
-| `can.3` | Снимаю знаки, когда основания совпали | Asoslar bir xil bo'lganda belgilarni olaman | I take the signs off when the bases match |
-| `can.4` | Проверяю корни по полосе, а не на удачу | Ildizlarni omadga emas, polosa bo'yicha tekshiraman | I check roots against the band, not by luck |
-| `levels.full` | Этот тип задач закрыт. | Bu turdagi masalalar yopildi. | This type of task is closed. |
-| `levels.gap` | Одно место требует повтора: полоса допустимых значений. | Bitta joy takrorlashni talab qiladi: joiz qiymatlar polosasi. | One place needs review: the band of admissible values. |
-| `levels.back` | Вернись к правилу и к экрану 3. | Qoidaga va 3-ekranga qayting. | Go back to the rule and to screen 3. |
-| `bridge` | Дальше практикум повторения блока: степень, показательная и логарифмическая вместе. | Keyin blokni takrorlash praktikumi: daraja, ko'rsatkichli va logarifmik birga. | Next comes the block review practicum: powers, exponentials and logarithms together. |
-| `lifehack` | Увидел логарифм с неизвестным, сразу черти полосу. Потом будет некогда и незачем. | Noma'lumli logarifmni ko'rdingizmi, darrov polosa chizing. Keyin vaqt ham, ma'no ham qolmaydi. | Spotted a logarithm with the unknown, draw the band at once. Later there will be neither time nor point. |
-| `sheetTitle` | Логарифмические уравнения · шпаргалка | Logarifmik tenglamalar · shpargalka | Logarithmic equations · cheat sheet |
-| `sheetSrc` | 10 класс · урок 31 | 10-sinf · 31-dars | Grade 10 · lesson 31 |
-| `audio.mount` | В начале урока нужно было выбрать одну из двух записей. Вот результат. | Dars boshida ikki yozuvdan birini tanlash kerak edi. Mana natija. | At the start you had to choose one of two readings. Here is the result. |
-| `audio.next` | Корень один. Второе число не стало посторонним после решения, оно никогда и не было допустимым. | Ildiz bitta. Ikkinchi son yechimdan keyin begona bo'lib qolgani yo'q, u hech qachon joiz bo'lmagan. | There is one root. The second number did not become extraneous after solving, it never was admissible. |
+| `eyebrow` | ИТОГ | XULOSA | THE SUMMARY |
+| `title` | Две пересекающиеся прямые — и плоскости параллельны | Ikki kesishuvchi chiziq -- va tekisliklar parallel | Two intersecting lines, and the planes are parallel |
+| `can.1` | Различаю пересекающиеся и параллельные плоскости | Kesishuvchi va parallel tekisliklarni ajrataman | I tell intersecting planes from parallel ones |
+| `can.2` | Применяю признак и беру именно пересекающиеся прямые | Alomatni qo'llaman va aynan kesishuvchi chiziqlarni olaman | I apply the criterion and take intersecting lines |
+| `can.3` | Знаю, что одной пары параллельных прямых мало | Bir juft parallel chiziq kam ekanini bilaman | I know one pair of parallel lines is not enough |
+| `can.4` | Не путаю параллельность плоскостей с параллельностью их прямых | Tekisliklar parallelligini ularning chiziqlari parallelligi bilan chalkashtirmayman | I do not confuse parallel planes with parallel lines in them |
+| `levels.full` | Прошёл всё и разобрал ловушку | Hammasidan o'tdingiz va tuzoqni ochdingiz | Everything done, the trap taken apart |
+| `levels.gap` | Признак работает, скрещивающиеся пары ещё путаются | Alomat ishlaydi, ayqash juftliklar hali chalkashadi | The criterion works, skew pairs still get mixed up |
+| `levels.back` | Стоит вернуться к экрану четыре: одной пары мало | To'rtinchi ekranga qaytish kerak: bir juftlik kam | Worth going back to screen four: one pair is not enough |
+| `bridge` | Дальше параллельное проецирование: там видно, почему на чертеже параллельные остаются параллельными, а прямой угол нет. | Keyingisi parallel proyeksiyalash: unda chizmada parallellar nega parallel qolib, to'g'ri burchak nega qolmasligini ko'rasiz. | Next comes parallel projection: there you see why parallel lines stay parallel on a drawing and a right angle does not. |
+| `lifehack` | Проверять пары граней удобно по общему ребру: есть общее ребро — пересекаются, нет — параллельны. У шести граней куба ровно три параллельных пары. | Yoq juftliklarini umumiy qirra bo'yicha tekshirish qulay: umumiy qirra bor -- kesishadi, yo'q -- parallel. Kubning olti yog'ida aynan uch parallel juftlik bor. | Checking pairs of faces by the shared edge is handy: a shared edge means they intersect, no edge means parallel. Six faces of a cube give exactly three parallel pairs. |
+| `sheetTitle` | Шпаргалка урока | Dars shpargalkasi | The lesson sheet |
+| `sheetSrc` | геометрия 2022, стр. 103 | geometriya 2022, 103-bet | geometry 2022, page 103 |
+| `audio.mount` | Прогноз с первого экрана и результат стоят рядом. | Birinchi ekrandagi taxmin va natija yonma-yon turadi. | The guess from screen one and the result stand side by side. |
+| `audio.next` | Шпаргалка собрана по учебнику. Ниже видно, что умеешь. | Shpargalka darslik bo'yicha yig'ilgan. Pastda nimani bilishingiz ko'rinadi. | The sheet is put together from the textbook. Below you can see what you can do. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `hook.a` | `4;  −2` |
-| `hook.b` | `4` |
-| `proved` | `4` |
-| `law` | `logₐ f(x) = logₐ g(x)   →   f(x) = g(x),   f(x) > 0` |
-| `sheet.1` | `f(x) > 0` |
-| `sheet.2` | `logₐ b + logₐ c = logₐ (b·c)` |
-| `sheet.3` | `logₐ f = logₐ g   →   f = g` |
-| `sheet.4` | `t = logₐ x,   t ∈ R` |
-| `sheet.5` | `4 ∈ (2; +∞),   −2 ∉ (2; +∞)` |
+| `hook.a` | `1` |
+| `hook.b` | `0` |
+| `proved` | `0` |
+| `law` | `a ∩ b = A,   a ∥ a₁,   b ∥ b₁   ⇒   α ∥ β` |
+| `sheet.1` | `α ∩ β = ∅   ⇒   α ∥ β` |
+| `sheet.2` | `AB ∩ AD = A` |
+| `sheet.3` | `AB ∥ A₁B₁,   AD ∥ A₁D₁` |
+| `sheet.4` | `ABCD ∥ A₁B₁C₁D₁` |
+| `sheet.5` | `6 = 3 + 3` |

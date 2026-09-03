@@ -4,8 +4,8 @@
 // Bu fayl `scripts/grade10-kontent-build.mjs` bilan yasalgan:
 //   manba:  src/books/grade10/DARS46_KONTENT.md
 // Ma'lumot (ovoz, kadrlar, variantlar, razborlar, qoida, yakun) tayyor.
-// EKRAN TANALARI esa `TODO` bo'lib qoldi: asbob va figurani tanlash --
-// matematik qaror, va u avtomatlashtirilmaydi (etalon §5.3).
+// Ekran tanalari qo'lda yozilgan: asbob va figurani tanlash matematik qaror,
+// va u avtomatlashtirilmaydi (etalon §5.3).
 //
 // Tartib: tanalarni to'ldirish, keyin `grade10-lesson-audit.mjs`, keyin
 // tez yarus (2 o'lcham), keyin to'liq prognon. Har yangi figura oldin
@@ -38,34 +38,34 @@ import {
   SpinScene,
 } from './tools.jsx'
 
-import { Space } from './figures.jsx'
+import { Space3D } from './space.jsx'
 
 // Метка урока: `lesson_id` = grade10-<номер>, `lesson_name` = номер + тема
 // ИЗ ПЛАНА дословно.
 const LESSON_NO = 46
 const LESSON_ID = `grade10-${String(LESSON_NO).padStart(2, '0')}`
 const LESSON_TITLE = L(
-  `${LESSON_NO}-dars. Piramida`,
-  `Урок ${LESSON_NO}. Пирамида`,
-  `Lesson ${LESSON_NO}. The pyramid`,
+  `${LESSON_NO}-dars. Skalyar ko'paytma`,
+  `Урок ${LESSON_NO}. Скалярное произведение`,
+  `Lesson ${LESSON_NO}. The dot product`,
 )
 
-const BLOCK = { label: 'B7', from: 44, to: 49, current: 46 }
+const BLOCK = { label: 'B8', from: 43, to: 47, current: 46 }
 
 const S1 = {
   role: 'hook',
   answer: 'pick4',
-  eyebrow: L('PIRAMIDA', 'ПИРАМИДА', 'THE PYRAMID'),
-  title: L('Apofema yoki yon qirra', 'Апофема или боковое ребро', 'The apothem or the lateral edge'),
+  eyebrow: L("KO'PAYTMA", 'ПРОИЗВЕДЕНИЕ', 'THE PRODUCT'),
+  title: L("Uzunliklar yoki o'qlar bo'yicha yig'indi", 'Длины или суммы по осям', 'Lengths or the sum along the axes'),
   audio: [
-    A('mount', "Muntazam piramida. Uchdan ikki kesma o'tkazilgan: biri asos tomonining uchiga, ikkinchisi o'rtasiga.", 'Правильная пирамида. Из вершины проведены два отрезка: один в конец стороны основания, другой в её середину.', 'A regular pyramid. Two segments are drawn from the apex: one to the end of a base side, the other to its middle.'),
-    A('r1', "Birinchi yozuv o'rtaga boradigan kesma uzunroq deydi.", 'Первая запись говорит, что отрезок в середину длиннее.', 'The first reading says the segment to the middle is longer.'),
-    A('r2', 'Ikkinchisi u qisqaroq deydi.', 'Вторая говорит, что он короче.', 'The second says it is shorter.'),
-    A('ask', "Chizmada ular deyarli ustma-ust tushadi. Sizningcha qaysi yozuv to'g'ri?", 'На чертеже они почти совпадают. Как думаешь, какая запись верная?', 'On the drawing they almost coincide. Which reading do you think is right?'),
+    A('mount', "Ikki vektor, uzunliklari olti va uch. Ularning skalyar ko'paytmasini qidiramiz.", 'Два вектора, длины шесть и три. Ищем их скалярное произведение.', 'Two vectors, lengths six and three. We look for their dot product.'),
+    A('r1', "Birinchi yozuv uzunliklarni ko'paytiradi va o'n sakkiz beradi.", 'Первая запись перемножает длины и даёт восемнадцать.', 'The first reading multiplies the lengths and gives eighteen.'),
+    A('r2', "Ikkinchisi o'qlar bo'yicha ko'paytmalarni qo'shadi va o'n olti beradi.", 'Вторая складывает произведения по осям и даёт шестнадцать.', 'The second adds the products along the axes and gives sixteen.'),
+    A('ask', "Ko'paytma so'zi uzunliklarni ko'paytirishga undaydi. Sizningcha qaysi yozuv to'g'ri?", 'Слово произведение подсказывает перемножить длины. Как думаешь, какая запись верная?', 'The word product suggests multiplying the lengths. Which reading do you think is right?'),
   ],
   probe: {
     question: L("Qaysi yozuv to'g'ri?", 'Какая запись верна?', 'Which reading is correct?'),
-    afterPredict: L('Javobingiz yozib olindi. Endi piramidani buramiz.', 'Твой ответ записан. Сейчас повернём пирамиду.', 'Your answer is recorded. Now we rotate the pyramid.'),
+    afterPredict: L('Javobingiz yozib olindi. Endi hisoblaymiz.', 'Твой ответ записан. Сейчас посчитаем.', 'Your answer is recorded. Now we compute.'),
     items: [
       { id: 'a', label: L('birinchi', 'первая', 'the first') },
       { id: 'b', label: L('ikkinchi', 'вторая', 'the second'), correct: true },
@@ -75,61 +75,61 @@ const S1 = {
   },
   row: {
     a: {
-      name: L('apofema uzunroq', 'апофема длиннее', 'the apothem is longer'),
-      value: 'SM > SA',
+      name: L("uzunliklar ko'paytmasi", 'произведение длин', 'the product of the lengths'),
+      value: '18',
     },
     b: {
-      name: L('apofema qisqaroq', 'апофема короче', 'the apothem is shorter'),
-      value: 'SM < SA',
+      name: L("o'qlar bo'yicha ko'paytmalar yig'indisi", 'сумма произведений по осям', 'the sum of products along the axes'),
+      value: '16',
     },
   },
-  expr: 'SM,   SA',
+  expr: 'a (4; 4; 2),   b (1; 2; 2)',
 }
 
 const S2 = {
   role: 'support',
   answer: 'pick4',
   eyebrow: L('TAYANCH', 'ОПОРА', 'WHAT YOU KNOW'),
-  title: L('Piramidadan oldin uch savol', 'Три вопроса перед пирамидой', 'Three questions before the pyramid'),
+  title: L('Kursdan uch savol', 'Три вопроса из курса', 'Three questions from the course'),
   tag: 'support',
   audio: [
-    A('mount', "Uchta savol. Apofema paydo bo'lganda ikkinchisi va uchinchisi kerak bo'ladi.", 'Три вопроса. Второй и третий понадобятся, когда появится апофема.', 'Three questions. The second and third will be needed when the apothem appears.'),
+    A('mount', "Uchta savol. Darsning qoidasi birinchi va ikkinchidan yig'iladi.", 'Три вопроса. Правило урока соберётся из первого и второго.', 'Three questions. The rule of the lesson will be assembled from the first and the second.'),
   ],
   items: [
     {
       id: 'q1',
       ask: true,
-      prompt: L("Parallelepipedning nechta yog'i bor?", 'Сколько граней у параллелепипеда?', 'How many faces does a parallelepiped have?'),
-      done: '4 + 2 = 6',
+      prompt: L("Skalyar ko'paytma nima beradi?", 'Что даёт скалярное произведение?', 'What does a dot product give?'),
+      done: 'a·b = 16',
       items: [
-        { id: 'a', label: L('oltita', 'шесть', 'six'), correct: true },
-        { id: 'b', label: L("to'rtta", 'четыре', 'four'), hint: L("To'rtta yon yoqlar, asoslarsiz.", 'Четыре это боковые грани, без оснований.', 'Four are the lateral faces, without the bases.') },
-        { id: 'c', label: L('sakkizta', 'восемь', 'eight'), hint: L('Sakkiz uchlar soni.', 'Восемь это число вершин.', 'Eight is the number of vertices.') },
-        { id: 'd', label: L("o'n ikkita", 'двенадцать', 'twelve'), hint: L("O'n ikki qirralar soni.", 'Двенадцать это число рёбер.', 'Twelve is the number of edges.') },
+        { id: 'a', label: L('son', 'число', 'a number'), correct: true },
+        { id: 'b', label: L('vektor', 'вектор', 'a vector'), hint: L("Skalyar so'zining o'zi natija son ekanini bildiradi.", 'Слово скалярное и значит, что результат число.', 'The word scalar itself means the result is a number.') },
+        { id: 'c', label: L('burchak', 'угол', 'an angle'), hint: L("Burchak undan olinadi, o'zi esa son.", 'Угол из него достают, но сам он число.', 'The angle is extracted from it, but it is a number itself.') },
+        { id: 'd', label: L('uzunlik', 'длину', 'a length'), hint: L("Uzunlik manfiy bo'lmaydi, ko'paytma esa bo'ladi.", 'Длина не бывает отрицательной, а произведение бывает.', 'A length is never negative, a product can be.') },
       ],
     },
     {
       id: 'q2',
       ask: true,
-      prompt: L('Uch perpendikulyar haqidagi teorema nima beradi?', 'Что даёт теорема о трёх перпендикулярах?', 'What does the theorem of three perpendiculars give?'),
-      done: 'c ⊥ BC ⇔ c ⊥ AC',
+      prompt: L("To'g'ri burchakning kosinusi nimaga teng?", 'Чему равен косинус прямого угла?', 'What is the cosine of a right angle?'),
+      done: 'cos 90° = 0',
       items: [
-        { id: 'a', label: L("perpendikulyarlikni proyeksiyadan og'maga o'tkazadi", 'переносит перпендикулярность с проекции на наклонную', 'it carries perpendicularity from the projection to the oblique'), correct: true },
-        { id: 'b', label: L('uzunliklarni solishtiradi', 'сравнивает длины', 'it compares lengths'), hint: L("Unda uzunliklar haqida gap yo'q.", 'Про длины в ней речи нет.', 'It says nothing about lengths.') },
-        { id: 'c', label: L('balandlik quradi', 'строит высоту', 'it builds the height'), hint: L('Perpendikulyar unda allaqachon berilgan.', 'Перпендикуляр в ней уже дан.', 'The perpendicular is already given in it.') },
-        { id: 'd', label: L('burchaklarni hisoblaydi', 'считает углы', 'it computes angles'), hint: L("U to'g'ri burchakni o'tkazadi, hisoblamaydi.", 'Она переносит прямой угол, а не считает.', 'It carries a right angle over, it does not compute.') },
+        { id: 'a', label: L('nolga', 'нулю', 'zero'), correct: true },
+        { id: 'b', label: L('birga', 'единице', 'one'), hint: L('Bir nol burchakning kosinusi.', 'Единица это косинус нулевого угла.', 'One is the cosine of the zero angle.') },
+        { id: 'c', label: L('bir ikkidan', 'одной второй', 'one half'), hint: L('Bir ikkidan oltmish daraja.', 'Одна вторая это шестьдесят градусов.', 'One half is sixty degrees.') },
+        { id: 'd', label: L('minus birga', 'минус единице', 'minus one'), hint: L('Minus bir yoyilgan burchak.', 'Минус единица это развёрнутый угол.', 'Minus one is the straight angle.') },
       ],
     },
     {
       id: 'q3',
       ask: true,
-      prompt: L("Nuqtadan tekislikkacha bo'lgan masofa nima?", 'Что такое расстояние от точки до плоскости?', 'What is the distance from a point to a plane?'),
-      done: 'ρ = AB',
+      prompt: L("Uzunlik uchlik bo'yicha qanday hisoblanadi?", 'Как считается длина по тройке?', 'How is a length computed from a triple?'),
+      done: '|a| = 6',
       items: [
-        { id: 'a', label: L('perpendikulyar uzunligi', 'длина перпендикуляра', 'the length of the perpendicular'), correct: true },
-        { id: 'b', label: L("og'ma uzunligi", 'длина наклонной', 'the length of an oblique'), hint: L("Og'malar ko'p, va hammasi uzunroq.", 'Наклонных много, и все они длиннее.', 'There are many obliques and all are longer.') },
-        { id: 'c', label: L('proyeksiya uzunligi', 'длина проекции', 'the length of the projection'), hint: L('Proyeksiya tekislikda yotadi.', 'Проекция лежит в плоскости.', 'The projection lies in the plane.') },
-        { id: 'd', label: L("o'lchovlarning o'rtachasi", 'среднее из замеров', 'the average of measurements'), hint: L("Masofa eng qisqa yo'l.", 'Расстояние это самый короткий путь.', 'A distance is the shortest path.') },
+        { id: 'a', label: L("kvadratlar yig'indisidan ildiz", 'корень из суммы квадратов', 'the root of the sum of squares'), correct: true },
+        { id: 'b', label: L("uch sonning yig'indisi", 'сумма трёх чисел', 'the sum of the three numbers'), hint: L("Yig'indi boshqa sonni beradi.", 'Сумма даёт другое число.', 'The sum gives another number.') },
+        { id: 'c', label: L("sonlar ko'paytmasi", 'произведение чисел', 'the product of the numbers'), hint: L("Nol bo'lsa, ko'paytma nolga aylanadi.", 'Произведение обнулится, если есть ноль.', 'The product becomes zero if there is a zero.') },
+        { id: 'd', label: L('sonlarning eng kattasi', 'наибольшее из чисел', 'the largest of the numbers'), hint: L("Eng kattasi bitta o'lchov.", 'Наибольшее это одно измерение.', 'The largest is one dimension.') },
       ],
     },
   ],
@@ -139,203 +139,203 @@ const S3 = {
   role: 'explain1',
   answer: 'number',
   eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L('Barcha yon yoqlar bitta uchda', 'Все боковые грани в одной вершине', 'All lateral faces at one vertex'),
-  tag: 'kartinka-kak-dokazatelstvo',
+  title: L("O'qlar bo'yicha ko'paytiramiz va qo'shamiz", 'Перемножаем по осям и складываем', 'We multiply along the axes and add'),
+  tag: 'kosinussiz-kopaytma',
   show: [
     [
-      L("pastda ko'pburchak, bu asos", 'внизу многоугольник, это основание', 'a polygon below, that is the base'),
-      L('tepada bitta nuqta', 'сверху одна точка', 'one point above'),
+      L('a vektori va b vektori', 'вектор a и вектор b', 'the vector a and the vector b'),
+      L("birinchi o'q bo'yicha to'rt karra bir", 'по первой оси четыре на один', 'along the first axis four times one'),
     ],
     [
-      L('asosning har tomoni uchburchak beradi', 'каждая сторона основания даёт треугольник', 'each side of the base gives a triangle'),
-      L('barcha uchburchaklar uchda tutashadi', 'все треугольники сходятся в вершине', 'all the triangles meet at the apex'),
+      L("va har o'q bo'yicha shunday", 'и так по каждой оси', 'and so along each axis'),
+      L("yig'indi o'n oltiga teng", 'сумма равна шестнадцати', 'the sum equals sixteen'),
     ],
   ],
   motion: ['move'],
   audio: [
-    A('mount', "Pastda ko'pburchak, tepada bitta nuqta. Nuqtani asosning har uchi bilan tutashtiramiz.", 'Внизу многоугольник, сверху одна точка. Соединим точку с каждой вершиной основания.', 'A polygon below, one point above. Let us join the point to every vertex of the base.'),
-    A('move', "Bir yog'i ko'pburchak, qolganlari umumiy uchli uchburchaklardan iborat jism chiqdi. Bu piramida, ta'rifi qirq beshinchi betda. Ko'pburchak asos, uchburchaklar yon yoqlar, umumiy nuqta esa piramidaning uchi deb ataladi. Prizmadan farqini sezing. Prizmada yon yoqlar parallelogramm va umumiy uch yo'q, bu yerda esa uchburchaklar va uch bitta. Piramidani buring va barcha yon yoqlar har qanday rakursda bir xil nuqtaga kelishiga ishonch hosil qiling.", 'Получилось тело, у которого одна грань многоугольник, а остальные треугольники с общей вершиной. Это и есть пирамида, определение на странице сорок пять. Многоугольник называется основанием, треугольники боковыми гранями, а общая точка вершиной пирамиды. Заметь разницу с призмой. У призмы боковые грани параллелограммы и общей вершины нет, а здесь треугольники и вершина одна. Поверни пирамиду и убедись, что все боковые грани приходят в одну и ту же точку при любом ракурсе.', 'We got a body with one face a polygon and the rest triangles with a common vertex. That is a pyramid, the definition is on page forty five. The polygon is called the base, the triangles the lateral faces, and the common point the apex. Note the difference from a prism. A prism has parallelograms as lateral faces and no common vertex, here we have triangles and a single apex. Rotate the pyramid and see that all lateral faces arrive at the same point at any view.'),
-    A('work', "O'zingiz hisoblang. To'rtburchakli piramidaning nechta yog'i bor?", 'Посчитай сам. Сколько граней у четырёхугольной пирамиды?', 'Work it out yourself. How many faces does a quadrilateral pyramid have?'),
+    A('mount', "Ikki vektor bir nuqtadan chiqarilgan, va ular orasida burchak ko'rinadi.", 'Два вектора выпущены из одной точки, и между ними виден угол.', 'Two vectors are drawn from one point, and the angle between them is visible.'),
+    A('move', "Skalyar ko'paytma o'qlar bo'yicha va juda qisqa hisoblanadi. To'rtni birga ko'paytirsak to'rt bo'ladi. To'rtni ikkiga ko'paytirsak sakkiz bo'ladi. Ikkini ikkiga ko'paytirsak to'rt bo'ladi. Qo'shamiz va o'n olti chiqadi. Bu yozuvning ikki xossasiga e'tibor bering. Birinchisi: natija son, vektor emas, shuning uchun unda yo'nalish yo'q. Ikkinchisi: ko'paytuvchilar tartibi muhim emas, a karra b va b karra a bir xil, chunki har qo'shiluvchi ikki sonning ko'paytmasi. Va e'tibor bering, bu hisobda uzunliklar umuman qatnashmadi: faqat uchliklar kerak bo'ldi.", 'Скалярное произведение считается по осям и очень коротко. Четыре умножить на один даёт четыре. Четыре умножить на два даёт восемь. Два умножить на два даёт четыре. Складываем и получаем шестнадцать. Обрати внимание на два свойства этой записи. Первое: результат число, а не вектор, и потому у него нет направления. Второе: порядок множителей не важен, произведение a на b и b на a одно и то же, потому что каждое слагаемое это произведение двух чисел. И заметь, что длины в этом счёте не участвовали вообще: понадобились только тройки.', 'The dot product is computed along the axes and very briefly. Four times one gives four. Four times two gives eight. Two times two gives four. We add and get sixteen. Note two properties of this notation. First: the result is a number and not a vector, so it has no direction. Second: the order of the factors does not matter, a times b and b times a are the same, because every term is a product of two numbers. And note that the lengths did not take part in this counting at all: only the triples were needed.'),
+    A('work', "O'zingiz hisoblang. a va b ning skalyar ko'paytmasi nimaga teng?", 'Посчитай сам. Чему равно скалярное произведение a и b?', 'Work it out yourself. What does the dot product of a and b equal?'),
   ],
   work: {
-    prompt: L('Nechta yoq?', 'Сколько граней?', 'How many faces?'),
-    ok: L("Beshta. Asos va to'rt uchburchak.", 'Пять. Основание и четыре треугольника.', 'Five. The base and four triangles.'),
+    prompt: L("a va b ning skalyar ko'paytmasi?", 'Скалярное произведение a и b?', 'The dot product of a and b?'),
+    ok: L("O'n olti. To'rt qo'shuv sakkiz qo'shuv to'rt.", 'Шестнадцать. Четыре плюс восемь плюс четыре.', 'Sixteen. Four plus eight plus four.'),
     hint: [
-      L('Asosni yonlaridan alohida sanang.', 'Считай основание отдельно от боковых.', 'Count the base separately from the lateral faces.'),
-      L('Yonlari asos tomonlari qanchaligicha.', 'Боковых столько же, сколько сторон у основания.', 'There are as many lateral faces as base sides.'),
-      L("Bir qo'shuv to'rt.", 'Один плюс четыре.', 'One plus four.'),
+      L("Sonlarni bir o'q bo'yicha ko'paytirib, keyin qo'shing.", 'Перемножай числа по одной оси, потом складывай.', 'Multiply the numbers along one axis, then add.'),
+      L("To'rt, sakkiz, to'rt.", 'Четыре, восемь, четыре.', 'Four, eight, four.'),
+      L("O'n olti.", 'Шестнадцать.', 'Sixteen.'),
     ],
-    answer: '5',
+    answer: '16',
   },
-  expr: '1 + 4 = 5',
+  expr: 'a·b = 4 + 8 + 4',
 }
 
 const S4 = {
   role: 'explain2',
   answer: 'number',
-  eyebrow: L('FARQLASH', 'РАЗГРАНИЧЕНИЕ', 'TELLING THEM APART'),
-  title: L('Muntazam ikki shart talab qiladi', 'Правильная требует двух условий', 'A regular one needs two conditions'),
-  tag: 'svoystvo-vmesto-priznaka',
+  eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
+  title: L('Uzunliklar kosinus bilan birga kiradi', 'Длины входят вместе с косинусом', 'The lengths enter together with the cosine'),
+  tag: 'kosinussiz-kopaytma',
   show: [
     [
-      L("asos muntazam bo'ldi", 'основание стало правильным', 'the base became regular'),
-      L('lekin uch chetga surilgan', 'но вершина сдвинута в сторону', 'but the apex is shifted aside'),
+      L('a ning uzunligi oltiga teng', 'длина a равна шести', 'the length of a equals six'),
+      L('b ning uzunligi uchga teng', 'длина b равна трём', 'the length of b equals three'),
     ],
     [
-      L('uch markaz ustiga keldi', 'вершина встала над центром', 'the apex stood above the centre'),
-      L('endi yon yoqlar teng', 'теперь боковые грани равны', 'now the lateral faces are equal'),
+      L("uzunliklar ko'paytmasi o'n sakkiz", 'произведение длин восемнадцать', 'the product of the lengths is eighteen'),
+      L("ko'paytma esa o'n olti", 'а произведение шестнадцать', 'and the product is sixteen'),
     ],
   ],
   motion: ['move'],
   audio: [
-    A('mount', "Asosni muntazam ko'pburchak qilamiz, uchni esa hozircha surilgan qoldiramiz.", 'Сделаем основание правильным многоугольником, а вершину пока оставим сдвинутой.', 'Let us make the base a regular polygon and leave the apex shifted for now.'),
-    A('move', "Asos muntazam, yon yoqlar esa boshqa-boshqa, chunki uch markaz ustida turmagan. Demak bitta shart kam. Asosi muntazam ko'pburchak va yon yoqlari o'zaro teng bo'lgan piramida muntazam deb ataladi. Qirq beshinchi betda shunday. Uchni asos markazi ustiga suramiz. Endi barcha yon qirralar teng, barcha yon yoqlar teng, va piramida muntazam bo'ldi. Uni buring va simmetriya har tomondan ko'rinishiga ishonch hosil qiling.", 'Основание правильное, а боковые грани разные, потому что вершина стоит не над центром. Значит одного условия мало. Правильной называется пирамида, у которой основание правильный многоугольник и боковые грани равны между собой. Так на странице сорок пять. Передвинем вершину над центр основания. Теперь все боковые рёбра равны, все боковые грани равны, и пирамида стала правильной. Поверни её и убедись, что симметрия видна с любой стороны.', 'The base is regular but the lateral faces differ, because the apex does not stand above the centre. So one condition is not enough. A pyramid is called regular if its base is a regular polygon and its lateral faces are equal to each other. So it is on page forty five. Let us move the apex above the centre of the base. Now all lateral edges are equal, all lateral faces are equal, and the pyramid has become regular. Rotate it and see that the symmetry shows from any side.'),
-    A('work', "O'zingiz hisoblang. Muntazam piramida ta'rifida nechta shart bor?", 'Посчитай сам. Сколько условий в определении правильной пирамиды?', 'Work it out yourself. How many conditions are in the definition of a regular pyramid?'),
+    A('mount', "Ikki vektorning uzunligini hisoblab, ularni ko'paytiraman.", 'Посчитаю длины обоих векторов и перемножу их.', 'Let me compute the lengths of both vectors and multiply them.'),
+    A('move', "Olti karra uch o'n sakkiz beradi, skalyar ko'paytmani esa biz allaqachon hisobladik, va u o'n olti. Sonlar boshqa, va farq bejiz emas: ikkinchi formulaning uchinchi ko'paytuvchisi bor, vektorlar orasidagi burchakning kosinusi. O'n sakkizni kosinusga ko'paytirsak o'n olti bo'ladi, demak kosinus sakkiz to'qqizdan. Burchak kichik, vektorlar deyarli bir tomonga qaraydi, va shuning uchun ko'paytma uzunliklar ko'paytmasiga yaqin. Ana darsning savoliga javob: uzunliklarni ko'paytirish mumkin, lekin bu eng katta mumkin bo'lgan qiymat bo'ladi, ko'paytmaning o'zi emas. Ular faqat kosinus birga teng bo'lganda, ya'ni vektorlar bir yo'nalishda bo'lganda mos tushadi.", 'Шесть на три даёт восемнадцать, а скалярное произведение мы уже посчитали, и оно шестнадцать. Числа разные, и разница не случайна: у второй формулы есть третий множитель, косинус угла между векторами. Восемнадцать умножить на косинус даёт шестнадцать, значит косинус равен восьми девятым. Угол небольшой, векторы смотрят почти в одну сторону, и произведение поэтому близко к произведению длин. Вот и ответ на вопрос урока: перемножить длины можно, но это будет наибольшее возможное значение, а не само произведение. Совпадут они только тогда, когда косинус равен единице, то есть когда векторы сонаправлены.', 'Six times three gives eighteen, and we have already computed the dot product, and it is sixteen. The numbers differ, and the difference is no accident: the second formula has a third factor, the cosine of the angle between the vectors. Eighteen times the cosine gives sixteen, so the cosine equals eight ninths. The angle is small, the vectors point almost the same way, and that is why the product is close to the product of the lengths. There is the answer to the question of the lesson: you may multiply the lengths, but that will be the largest possible value and not the product itself. They coincide only when the cosine equals one, that is when the vectors have the same direction.'),
+    A('work', "O'zingiz hisoblang. Uzunliklar ko'paytmasi nimaga teng?", 'Посчитай сам. Чему равно произведение длин?', 'Work it out yourself. What does the product of the lengths equal?'),
   ],
   work: {
-    prompt: L('Nechta shart?', 'Сколько условий?', 'How many conditions?'),
-    ok: L('Ikkita. Muntazam asos va teng yon yoqlar.', 'Два. Правильное основание и равные боковые грани.', 'Two. A regular base and equal lateral faces.'),
+    prompt: L("Uzunliklar ko'paytmasi?", 'Произведение длин?', 'The product of the lengths?'),
+    ok: L("O'n sakkiz. Olti karra uch.", 'Восемнадцать. Шесть на три.', 'Eighteen. Six times three.'),
     hint: [
-      L("Ikki kadr orasida nima o'zgarganini ko'ring.", 'Посмотри, что изменилось между двумя кадрами.', 'See what changed between the two frames.'),
-      L('Bitta muntazam asos yetmadi.', 'Одного правильного основания не хватило.', 'A regular base alone was not enough.'),
-      L('Ikkita.', 'Два.', 'Two.'),
+      L('Uzunliklar olti va uch.', 'Длины шесть и три.', 'The lengths are six and three.'),
+      L("Ularni ko'paytirish kerak.", 'Их надо перемножить.', 'They must be multiplied.'),
+      L("O'n sakkiz.", 'Восемнадцать.', 'Eighteen.'),
     ],
-    answer: '2',
+    answer: '18',
   },
-  expr: 'ABCD = muntazam,   SA = SB = SC = SD',
+  expr: '|a|·|b| = 18',
 }
 
 const S5 = {
   role: 'explain3',
   answer: 'number',
   eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L("Apofema tomon o'rtasiga boradi", 'Апофема идёт в середину стороны', 'The apothem goes to the middle of the side'),
-  tag: 'apofema-ne-rebro',
+  title: L("Nol to'g'ri burchakni bildiradi", 'Ноль означает прямой угол', 'Zero means a right angle'),
+  tag: 'kosinussiz-kopaytma',
   show: [
     [
-      L("uchdan tomon uchiga kesma o'tkazilgan", 'из вершины проведён отрезок в конец стороны', 'a segment is drawn from the apex to the end of a side'),
-      L('bu yon qirra', 'это боковое ребро', 'that is the lateral edge'),
+      L("uzunligi o'sha uch bo'lgan c vektori", 'вектор c той же длины три', 'the vector c of the same length three'),
+      L("uzunliklar o'zgarmadi", 'длины не изменились', 'the lengths did not change'),
     ],
     [
-      L("va tomon o'rtasiga kesma", 'и отрезок в середину стороны', 'and a segment to the middle of the side'),
-      L('bu apofema, va u qisqaroq', 'это апофема, и она короче', 'that is the apothem, and it is shorter'),
+      L("ko'paytma esa nol bo'ldi", 'а произведение стало нулём', 'and the product became zero'),
+      L("burchak to'g'ri chiqdi", 'угол оказался прямым', 'the angle turned out right'),
     ],
   ],
   motion: ['move'],
   audio: [
-    A('mount', "Muntazam piramidada uchdan asos tomoniga ko'p kesma o'tkazish mumkin. Ulardan ikkitasi alohida.", 'В правильной пирамиде из вершины можно провести много отрезков к стороне основания. Два из них особые.', 'In a regular pyramid many segments can be drawn from the apex to a base side. Two of them are special.'),
-    A('move', "Birinchisi tomon uchiga boradi, bu yon qirra. Ikkinchisi o'rtasiga, va u apofema deb ataladi. Apofema piramida uchidan o'tkazilgan yon yoqning balandligi, qirq oltinchi betda shunday. U nima uchun asos tomoniga perpendikulyar ekanini biz allaqachon tushuntira olamiz. Uning proyeksiyasi asos markazidan tomon o'rtasigacha kesma, va u tomonga perpendikulyar, chunki muntazam ko'pburchakda o'rta shunday joylashgan. Keyin uch perpendikulyar haqidagi teorema ishlaydi, va to'g'ri burchak apofemaning o'ziga o'tadi. Piramidani buring va apofema yon yoqda, qirra esa uning chekkasida yotganini ko'ring.", 'Первый идёт в конец стороны, это боковое ребро. Второй в её середину, и он называется апофемой. Апофема это высота боковой грани, проведённая из вершины пирамиды, так на странице сорок шесть. Почему она перпендикулярна стороне основания, мы уже умеем объяснять. Её проекция это отрезок от центра основания к середине стороны, а он перпендикулярен стороне, потому что в правильном многоугольнике так устроена середина. Дальше работает теорема о трёх перпендикулярах, и прямой угол переносится на саму апофему. Поверни пирамиду и посмотри, что апофема лежит в боковой грани, а ребро на её краю.', 'The first goes to the end of the side, that is the lateral edge. The second goes to its middle, and it is called the apothem. The apothem is the height of a lateral face drawn from the apex of the pyramid, so it is on page forty six. Why it is perpendicular to the base side we can already explain. Its projection is the segment from the centre of the base to the middle of the side, and that is perpendicular to the side, because that is how the middle works in a regular polygon. Then the theorem of three perpendiculars takes over and the right angle carries onto the apothem itself. Rotate the pyramid and see that the apothem lies inside the lateral face while the edge is on its border.'),
-    A('work', "O'zingiz hisoblang. Muntazam to'rtburchakli piramidaning nechta apofemasi bor?", 'Посчитай сам. Сколько апофем у правильной четырёхугольной пирамиды?', 'Work it out yourself. How many apothems does a regular quadrilateral pyramid have?'),
+    A('mount', "b ni c vektoriga almashtiraman. Uning uzunligi o'sha, uch, yo'nalishi esa boshqa.", 'Заменю b на вектор c. Длина у него та же, три, а направление другое.', 'Let me replace b with the vector c. Its length is the same, three, but its direction is different.'),
+    A('move', "O'qlar bo'yicha hisoblayman: to'rt karra ikki sakkiz beradi, to'rt karra minus bir minus to'rt beradi, ikki karra minus ikki minus to'rt beradi. Yig'indi nol. Uzunliklar o'zgarmadi, ko'paytma o'zgardi, va bu darsning asosiy savoliga javob: uzunliklar ko'paytmani aniqlamaydi. Bundan tashqari, bu yerdagi nol tasodifiy mos tushish emas. Ko'paytma uzunliklar karra kosinusga teng, uzunliklar nol emas, demak aynan kosinus nol bo'ldi. Kosinus esa roppa-rosa to'qsan darajada nolga teng. Shundan perpendikulyarlik alomati, blokdagi eng foydalisi: ikki vektor faqat va faqat skalyar ko'paytmasi nolga teng bo'lganda perpendikulyar. Tekshiruv uchliklar bo'yicha boradi, hech qanday chizmasiz va hech qanday burchaksiz.", 'Считаю по осям: четыре на два даёт восемь, четыре на минус один даёт минус четыре, два на минус два даёт минус четыре. Сумма ноль. Длины не изменились, произведение изменилось, и это и есть ответ на главный вопрос урока: длины произведение не определяют. Более того, ноль тут не случайное совпадение. Произведение равно длинам, умноженным на косинус, длины не нули, значит нулём стал именно косинус. А косинус равен нулю ровно на девяноста градусах. Отсюда признак перпендикулярности, самый полезный в блоке: два вектора перпендикулярны тогда и только тогда, когда их скалярное произведение равно нулю. Проверка идёт по тройкам, без всякого чертежа и без всякого угла.', 'I compute along the axes: four times two gives eight, four times minus one gives minus four, two times minus two gives minus four. The sum is zero. The lengths did not change, the product did, and that is the answer to the main question of the lesson: the lengths do not determine the product. Moreover, the zero here is not a chance coincidence. The product equals the lengths times the cosine, the lengths are not zero, so it is the cosine that became zero. And the cosine equals zero exactly at ninety degrees. Hence the criterion of perpendicularity, the most useful one in the block: two vectors are perpendicular if and only if their dot product equals zero. The check goes by the triples, with no drawing and no angle at all.'),
+    A('work', "O'zingiz hisoblang. a va c ning ko'paytmasi nimaga teng?", 'Посчитай сам. Чему равно произведение a и c?', 'Work it out yourself. What does the product of a and c equal?'),
   ],
   work: {
-    prompt: L('Nechta apofema?', 'Сколько апофем?', 'How many apothems?'),
-    ok: L("To'rtta. Har yon yoqda bittadan, va hammasi teng.", 'Четыре. По одной в каждой боковой грани, и все они равны.', 'Four. One in each lateral face, and all of them are equal.'),
+    prompt: L("a va c ning ko'paytmasi?", 'Произведение a и c?', 'The product of a and c?'),
+    ok: L("Nol. Demak burchak to'g'ri.", 'Ноль. Значит угол прямой.', 'Zero. So the angle is right.'),
     hint: [
-      L('Yon yoqlarni sanang.', 'Посчитай боковые грани.', 'Count the lateral faces.'),
-      L("Har yon yoqda uchdan o'z balandligi bor.", 'В каждой боковой грани своя высота из вершины.', 'Each lateral face has its own height from the apex.'),
-      L("To'rtta.", 'Четыре.', 'Four.'),
+      L("O'qlar bo'yicha hisoblang, ishoralarni hisobga oling.", 'Считай по осям, знаки учитывай.', 'Compute along the axes, take the signs into account.'),
+      L("Sakkiz minus to'rt minus to'rt.", 'Восемь минус четыре минус четыре.', 'Eight minus four minus four.'),
+      L('Nol.', 'Ноль.', 'Zero.'),
     ],
-    answer: '4',
+    answer: '0',
   },
-  expr: 'SM ⊥ AB',
+  expr: 'a·c = 0',
 }
 
 const S6 = {
   role: 'explain4',
   answer: 'number',
-  eyebrow: L("O'ZINGIZ", 'САМ', 'ON YOUR OWN'),
-  title: L('Balandlik orqali apofema', 'Апофема через высоту', 'The apothem through the height'),
-  tag: 'apofema-ne-rebro',
+  eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
+  title: L("Vektor o'ziga karra uzunlik kvadratini beradi", 'Вектор на себя даёт квадрат длины', 'A vector times itself gives the square of the length'),
+  tag: 'kosinussiz-kopaytma',
   show: [
     [
-      L('piramida balandligi markazda turadi', 'высота пирамиды стоит в центре', 'the height of the pyramid stands at the centre'),
-      L("markazdan tomon o'rtasigacha uch", 'от центра до середины стороны три', 'from the centre to the middle of the side is three'),
+      L("a ni olib, a ga ko'paytiramiz", 'берём a и умножаем на a', 'we take a and multiply by a'),
+      L('ular orasidagi burchak nol', 'угол между ними нулевой', 'the angle between them is zero'),
     ],
     [
-      L("balandlik to'rt", 'высота четыре', 'the height is four'),
-      L("uchburchak to'g'ri burchakli", 'треугольник прямоугольный', 'the triangle is right-angled'),
+      L('kosinus birga teng', 'косинус равен единице', 'the cosine equals one'),
+      L("natija o'ttiz olti", 'результат тридцать шесть', 'the result is thirty six'),
     ],
   ],
   motion: ['move'],
   audio: [
-    A('mount', "Muntazam piramidaning balandligi asos markazida turadi. Markazdan tomon o'rtasigacha uch, balandlik to'rt.", 'Высота правильной пирамиды стоит в центре основания. От центра до середины стороны три, высота четыре.', 'The height of a regular pyramid stands at the centre of the base. From the centre to the middle of a side is three, the height is four.'),
-    A('move', "Bir kateti piramida balandligi, ikkinchisi markazdan tomon o'rtasigacha kesma, gipotenuzasi esa apofema bo'lgan uchburchakka qarang. To'g'ri burchak balandlik asosga kelgan joyda, chunki balandlik asos tekisligiga perpendikulyar, kesma esa shu tekislikda yotadi. Demak Pifagor ishlaydi. Uch va to'rt beshni beradi. E'tibor bering, yon qirra bu uchburchakda qatnashmaydi, uning o'z uchburchagi va o'z uzunligi bor.", 'Посмотри на треугольник, у которого один катет это высота пирамиды, второй отрезок от центра до середины стороны, а гипотенуза это апофема. Прямой угол там, где высота приходит в основание, потому что высота перпендикулярна плоскости основания, а отрезок лежит в этой плоскости. Значит работает Пифагор. Три и четыре дают пять. Обрати внимание, что боковое ребро в этом треугольнике не участвует, у него свой треугольник и своя длина.', 'Look at the triangle whose one leg is the height of the pyramid, the other is the segment from the centre to the middle of the side, and the hypotenuse is the apothem. The right angle is where the height arrives at the base, because the height is perpendicular to the plane of the base while the segment lies in that plane. So Pythagoras works. Three and four give five. Note that the lateral edge does not take part in this triangle, it has its own triangle and its own length.'),
-    A('work', "O'zingiz hisoblang. Apofema qancha?", 'Посчитай сам. Какова апофема?', 'Work it out yourself. What is the apothem?'),
+    A('mount', "Vektorni o'ziga ko'paytiraman. U va o'zi orasidagi burchak nol.", 'Умножу вектор на самого себя. Угол между ним и им же нулевой.', 'Let me multiply a vector by itself. The angle between it and itself is zero.'),
+    A('move', "Nol burchakning kosinusi birga teng, demak ko'paytma shunchaki uzunlik karra uzunlik, ya'ni uzunlik kvadrati. O'qlar bo'yicha ham o'sha chiqadi: o'n olti qo'shuv o'n olti qo'shuv to'rt o'ttiz olti beradi, va bu roppa-rosa olti kvadrat. Shundan qulay usul: uzunlik kerak bo'lsa, qo'l ostida esa faqat uchlik bo'lsa, skalyar kvadratni hisoblab, ildizini olish mumkin. Va yana bitta natija, tekshiruvlar uchun muhim. Skalyar kvadrat hech qachon manfiy bo'lmaydi, chunki u kvadratlar yig'indisi. Demak yechimingizda manfiy skalyar kvadrat chiqsa, xato allaqachon bo'lgan, va uni oldinroqdan qidirish kerak.", 'Косинус нулевого угла равен единице, значит произведение это просто длина на длину, то есть квадрат длины. По осям выходит то же: шестнадцать плюс шестнадцать плюс четыре даёт тридцать шесть, и это ровно шесть в квадрате. Отсюда удобный приём: если нужна длина, а под руками только тройка, можно посчитать скалярный квадрат и взять корень. И ещё одно следствие, важное для проверок. Скалярный квадрат никогда не бывает отрицательным, потому что он сумма квадратов. Значит если у тебя в решении вышел отрицательный скалярный квадрат, ошибка уже случилась, и искать её надо раньше.', 'The cosine of the zero angle equals one, so the product is simply length times length, that is the square of the length. Along the axes the same comes out: sixteen plus sixteen plus four gives thirty six, and that is exactly six squared. Hence a handy trick: if you need a length and have only a triple at hand, you can compute the scalar square and take the root. And one more consequence, important for checking. A scalar square is never negative, because it is a sum of squares. So if a negative scalar square appeared in your solution, the mistake has already happened and must be looked for earlier.'),
+    A('work', "O'zingiz hisoblang. a karra a nimaga teng?", 'Посчитай сам. Чему равно произведение a на a?', 'Work it out yourself. What does a times a equal?'),
   ],
   work: {
-    prompt: L('Apofemani toping', 'Найди апофему', 'Find the apothem'),
-    ok: L("Besh. Uch va to'rt beshni beradi.", 'Пять. Три и четыре дают пять.', 'Five. Three and four give five.'),
+    prompt: L('a karra a?', 'Произведение a на a?', 'The product of a times a?'),
+    ok: L("O'ttiz olti. Bu olti kvadrat.", 'Тридцать шесть. Это шесть в квадрате.', 'Thirty six. That is six squared.'),
     hint: [
-      L("Gipotenuzasida apofema bo'lgan to'g'ri burchakli uchburchakni toping.", 'Найди прямоугольный треугольник с апофемой в гипотенузе.', 'Find the right triangle with the apothem as the hypotenuse.'),
-      L('Katetlar balandlik va markazdan chiqqan kesma.', 'Катеты это высота и отрезок от центра.', 'The legs are the height and the segment from the centre.'),
-      L("Uch va to'rt beshni beradi.", 'Три и четыре дают пять.', 'Three and four give five.'),
+      L('a ning uzunligi oltiga teng.', 'Длина a равна шести.', 'The length of a equals six.'),
+      L('Nol burchakning kosinusi birga teng.', 'Косинус нулевого угла равен единице.', 'The cosine of the zero angle equals one.'),
+      L("O'ttiz olti.", 'Тридцать шесть.', 'Thirty six.'),
     ],
-    answer: '5',
+    answer: '36',
   },
-  expr: 'SO = 4,   OM = 3,   SM = ?',
+  expr: 'a·a = 36',
 }
 
 const S7 = {
   role: 'explain5',
   answer: 'number',
-  eyebrow: L('CHEGARA', 'ГРАНИЦА', 'THE BOUNDARY'),
-  title: L('Balandlik qayerga tushadi', 'Куда падает высота', 'Where the height lands'),
-  tag: 'apofema-ne-rebro',
+  eyebrow: L('CHEGARA', 'ГРАНИЦА', 'THE EDGE CASE'),
+  title: L('Ishora burchak haqida aytadi', 'Знак говорит про угол', 'The sign speaks of the angle'),
+  tag: 'kosinussiz-kopaytma',
   show: [
     [
-      L('muntazam piramidada balandlik markazda', 'у правильной пирамиды высота в центре', 'in a regular pyramid the height is at the centre'),
-      L('barcha yon qirralar teng', 'все боковые рёбра равны', 'all lateral edges are equal'),
+      L('uch juft vektor', 'три пары векторов', 'three pairs of vectors'),
+      L("ko'paytmalar o'n olti, nol, minus to'rt", 'произведения шестнадцать, ноль, минус четыре', 'the products are sixteen, zero, minus four'),
     ],
     [
-      L('uch chetga surildi', 'вершину сдвинули в сторону', 'the apex was shifted aside'),
-      L("qirralar boshqa bo'ldi", 'рёбра стали разными', 'the edges became different'),
+      L("noldan katta o'tkir degani", 'больше нуля значит острый', 'greater than zero means acute'),
+      L("noldan kichik o'tmas degani", 'меньше нуля значит тупой', 'less than zero means obtuse'),
     ],
   ],
   motion: ['move'],
   audio: [
-    A('mount', "Muntazam piramidada balandlik aynan asos markaziga keladi. Uchni surganda nima bo'lishini ko'ramiz.", 'У правильной пирамиды высота приходит точно в центр основания. Посмотрим, что будет, если вершину сдвинуть.', 'In a regular pyramid the height arrives exactly at the centre of the base. Let us see what happens if the apex is shifted.'),
-    A('move', "Uch chetga ketishi bilanoq yon qirralar boshqa uzunlikda, yon yoqlar esa boshqa uchburchak bo'ldi. Oddiy ma'nodagi apofema endi yo'q, chunki yon yoqlarning balandliklari ham boshqa. Qoida shundan. Apofemani markaz orqali hisoblash faqat muntazam piramidada mumkin, va ko'z bilan emas, teng qirralar sharti bilan tekshirish kerak. Qimirlamas chizmada uchning surilishi deyarli sezilmaydi, va bu aynan perpendikulyarlik darsida tutgan xatomiz.", 'Как только вершина ушла в сторону, боковые рёбра стали разной длины, а боковые грани разными треугольниками. Апофем в обычном смысле больше нет, потому что высоты боковых граней теперь тоже разные. Отсюда правило. Считать апофему через центр можно только у правильной пирамиды, и проверять надо не глазом, а условием про равные рёбра. На неподвижном чертеже сдвиг вершины почти не заметен, и это ровно та ошибка, которую мы ловили в уроке про перпендикулярность.', 'As soon as the apex moved aside, the lateral edges got different lengths and the lateral faces became different triangles. There are no apothems in the usual sense any more, because the heights of the lateral faces now differ too. Hence the rule. The apothem can be computed through the centre only for a regular pyramid, and it has to be checked by the condition about equal edges rather than by eye. On a still drawing the shift of the apex is almost invisible, and that is exactly the mistake we caught in the lesson about perpendicularity.'),
-    A('work', "O'zingiz hisoblang. Muntazam to'rtburchakli piramidada nechta yon qirra o'zaro teng?", 'Посчитай сам. Сколько боковых рёбер равны между собой у правильной четырёхугольной пирамиды?', 'Work it out yourself. How many lateral edges are equal to each other in a regular quadrilateral pyramid?'),
+    A('mount', "Uchinchi juftni, b va c ni olamiz. Ikki uzunlik ham uch, ko'paytma esa minus to'rt.", 'Возьмём третью пару, b и c. Обе длины по три, а произведение минус четыре.', 'Take the third pair, b and c. Both lengths are three and the product is minus four.'),
+    A('move', "Manfiy ko'paytma xato emas. Uzunliklar har doim musbat, demak ishora kosinusdan keldi, kosinus esa o'tmas burchaklarda manfiy. Shunday qilib ishora asbobga aylanadi: noldan katta -- burchak o'tkir, roppa-rosa nol -- to'g'ri, noldan kichik -- o'tmas. Bu uchliklar bo'yicha darrov o'qiladi, kosinusni hisoblamasdan, va imtihonda vaqt tejaydi. Va maxsus hol: vektorlardan biri nol bo'lsa, ko'paytma ham nol, lekin bu perpendikulyarlikni bildirmaydi -- nol vektorda yo'nalish umuman yo'q, va u bilan burchak aniqlanmagan. Shuning uchun perpendikulyarlik alomatida har doim ikki vektor ham nol emasligi aytiladi.", 'Отрицательное произведение не ошибка. Длины положительны всегда, значит знак пришёл от косинуса, а косинус отрицателен на тупых углах. Так знак становится инструментом: больше нуля значит угол острый, ровно ноль значит прямой, меньше нуля значит тупой. Это читается сразу по тройкам, без счёта косинуса, и на экзамене экономит время. И особый случай: если один из векторов нулевой, произведение тоже ноль, но перпендикулярности это не означает, потому что у нулевого вектора направления нет вовсе, и угол с ним не определён. Поэтому в признаке перпендикулярности всегда оговаривают, что оба вектора не нулевые.', 'A negative product is not a mistake. Lengths are always positive, so the sign came from the cosine, and the cosine is negative at obtuse angles. So the sign becomes a tool: greater than zero means the angle is acute, exactly zero means right, less than zero means obtuse. That is read straight off the triples, without computing the cosine, and it saves time at the exam. And a special case: if one of the vectors is the zero vector, the product is zero too, but that does not mean perpendicularity, because the zero vector has no direction at all and the angle with it is undefined. That is why the criterion of perpendicularity always states that both vectors are non zero.'),
+    A('work', "O'zingiz hisoblang. Uch juftdan nechtasi to'g'ri burchak beradi?", 'Посчитай сам. Сколько из трёх пар дают прямой угол?', 'Work it out yourself. How many of the three pairs give a right angle?'),
   ],
   work: {
-    prompt: L('Nechta teng yon qirra?', 'Сколько равных боковых рёбер?', 'How many equal lateral edges?'),
-    ok: L("To'rttasi ham. Uch markaz ustida, demak asos uchlarigacha masofalar teng.", 'Все четыре. Вершина над центром, значит расстояния до вершин основания равны.', 'All four. The apex is above the centre, so the distances to the base vertices are equal.'),
+    prompt: L("Nechta juft to'g'ri burchak beradi?", 'Сколько пар дают прямой угол?', 'How many pairs give a right angle?'),
+    ok: L("Bittasi. Faqat ko'paytmasi nol bo'lgani.", 'Одна. Только та, где произведение ноль.', 'One. Only the one whose product is zero.'),
     hint: [
-      L('Yon qirralarni sanang.', 'Посчитай боковые рёбра.', 'Count the lateral edges.'),
-      L("Muntazam ko'pburchakning uchlari markazdan baravar uzoqlikda.", 'Вершины правильного многоугольника равноудалены от центра.', 'The vertices of a regular polygon are equidistant from the centre.'),
-      L("To'rttasi ham.", 'Все четыре.', 'All four.'),
+      L("To'g'ri burchak roppa-rosa nol.", 'Прямой угол это ровно ноль.', 'A right angle is exactly zero.'),
+      L("O'n olti va minus to'rt nol emas.", 'Шестнадцать и минус четыре не нули.', 'Sixteen and minus four are not zero.'),
+      L('Bittasi.', 'Одна.', 'One.'),
     ],
-    answer: '4',
+    answer: '1',
   },
-  expr: 'SO ⊥ ABCD,   OA = OB = OC = OD',
+  expr: 'b·c = −4',
 }
 
 const S8 = {
   role: 'rule',
   answer: 'pick2',
   eyebrow: L('QOIDA', 'ПРАВИЛО', 'THE RULE'),
-  title: L('Apofema va qirra', 'Апофема и ребро', 'The apothem and the edge'),
-  tag: 'apofema-ne-rebro',
+  title: L('Bitta sonning ikki formulasi', 'Две формулы одного числа', 'Two formulas of one number'),
+  tag: 'kosinussiz-kopaytma',
   motion: ['rule'],
   audio: [
     A('mount', 'Farqlashga bitta savol, keyin kartochka.', 'Один вопрос на различение, потом карточка.', 'One question to tell them apart, then the card.'),
-    A('rule', "Apofema va yon qirra bir nuqtadan chiqadi va asosning bir tomoniga boradi, lekin uning boshqa nuqtalariga keladi. Qirra uchiga, apofema o'rtasiga. Apofema qisqaroq, chunki yon yoqda u katet, qirra esa o'sha to'g'ri burchakli uchburchakning gipotenuzasi. Shuning uchun masalalarda ularni bir-birining o'rniga qo'yish mumkin emas, chizmada deyarli ustma-ust tushgan bo'lsa ham.", 'Апофема и боковое ребро выходят из одной точки и идут к одной стороне основания, но приходят в разные её точки. Ребро в конец, апофема в середину. Апофема короче, потому что в боковой грани она катет, а ребро гипотенуза того же прямоугольного треугольника. Поэтому в задачах их нельзя подставлять одну вместо другой, даже когда на чертеже они почти совпали.', 'The apothem and the lateral edge leave the same point and go to the same base side, but arrive at different points of it. The edge at the end, the apothem at the middle. The apothem is shorter, because inside the lateral face it is a leg while the edge is the hypotenuse of the same right triangle. That is why they cannot be substituted for one another in problems, even when they almost coincide on the drawing.'),
+    A('rule', "Ikki formula bir xil sonni beradi, va butun kuch shunda. Birinchisi uchliklar bo'yicha hisoblanadi va na chizma, na burchak talab qiladi. Ikkinchisi ma'noni tushuntiradi va uchliklar ma'lum bo'lganda burchakni topishga imkon beradi. Birgalikda ular shunday ishlaydi: o'qlar bo'yicha hisobladingiz, uzunliklar ko'paytmasiga bo'ldingiz, kosinusni oldingiz. Uchinchi satr perpendikulyarlik alomati, va u imtihonda eng ko'p uchraydi. Nol vektorlar haqidagi shart rasmiyatchilik emas: nol vektorda yo'nalish yo'q, va u bilan burchak aniqlanmagan, shuning uchun bu holda nol burchak haqida hech narsa aytmaydi.", 'Две формулы дают одно и то же число, и в этом вся сила. Первая считается по тройкам и не требует ни чертежа, ни угла. Вторая объясняет смысл и позволяет найти угол, когда тройки известны. Вместе они работают так: посчитал по осям, поделил на произведение длин, получил косинус. Третья строка это признак перпендикулярности, и он самый частый на экзамене. Оговорка про нулевые векторы не формальность: у нулевого вектора направления нет, и угол с ним не определён, поэтому ноль в этом случае ничего про угол не говорит.', 'The two formulas give one and the same number, and that is where all the power lies. The first is computed by triples and requires neither a drawing nor an angle. The second explains the meaning and lets you find the angle when the triples are known. Together they work like this: you computed along the axes, divided by the product of the lengths, got the cosine. The third line is the criterion of perpendicularity, and it is the most frequent one at the exam. The clause about zero vectors is not a formality: the zero vector has no direction and the angle with it is undefined, so zero in that case says nothing about the angle.'),
   ],
   probe: {
-    question: L('Apofema qayerga keladi?', 'Куда приходит апофема?', 'Where does the apothem arrive?'),
+    question: L("Ko'paytma uzunliklar ko'paytmasiga qachon teng?", 'Когда произведение равно произведению длин?', 'When does the product equal the product of the lengths?'),
     items: [
-      { id: 'a', label: L("asos tomonining o'rtasiga", 'в середину стороны основания', 'at the middle of a base side'), correct: true },
-      { id: 'b', label: L('asosning uchiga', 'в вершину основания', 'at a vertex of the base'), hint: L('Uchga yon qirra keladi.', 'В вершину приходит боковое ребро.', 'It is the lateral edge that arrives at a vertex.') },
+      { id: 'a', label: L("vektorlar bir yo'nalishda bo'lganda", 'когда векторы сонаправлены', 'when the vectors have the same direction'), correct: true },
+      { id: 'b', label: L('har doim', 'всегда', 'always'), hint: L("U holda kosinus har doim bir bo'lardi.", 'Тогда косинус был бы всегда единицей.', 'Then the cosine would always be one.') },
     ],
   },
   rule: {
-    lawLabel: L('Apofema', 'Апофема', 'The apothem'),
+    lawLabel: L("Skalyar ko'paytma", 'Скалярное произведение', 'The dot product'),
     lines: [
-      L("piramida ko'pburchak va umumiy uchli uchburchaklar", 'пирамида это многоугольник и треугольники с общей вершиной', 'a pyramid is a polygon and triangles with a common vertex'),
-      L('muntazam piramida muntazam asos va teng yon yoqlar', 'правильная пирамида это правильное основание и равные боковые грани', 'a regular pyramid means a regular base and equal lateral faces'),
-      L('apofema piramida uchidan yon yoq balandligi', 'апофема это высота боковой грани из вершины пирамиды', 'the apothem is the height of a lateral face from the apex'),
+      L("uchliklar bo'yicha bu o'qlar bo'yicha ko'paytmalar yig'indisi", 'по тройкам это сумма произведений по осям', 'by triples it is the sum of products along the axes'),
+      L('uzunliklar orqali bu uzunliklar karra burchak kosinusi', 'через длины это длины, умноженные на косинус угла', 'through lengths it is the lengths times the cosine of the angle'),
+      L("nol to'g'ri burchakni bildiradi, agar ikki vektor ham nol bo'lmasa", 'ноль означает прямой угол, если оба вектора не нулевые', 'zero means a right angle, provided both vectors are non zero'),
     ],
-    law: 'SM < SA',
+    law: 'a·b = |a|·|b|·cos φ',
   },
 }
 
@@ -344,19 +344,19 @@ const S9 = {
   answer: 'match',
   format: 'match',
   eyebrow: L('AMALIYOT', 'ПРАКТИКА', 'PRACTICE'),
-  title: L('Har bir kesmani nomlang', 'Назови каждый отрезок', 'Name each segment'),
-  tag: 'apofema-ne-rebro',
+  title: L("Juft va uning ko'paytmasi", 'Пара и её произведение', 'A pair and its product'),
+  tag: 'kosinussiz-kopaytma',
   audio: [
-    A('mount', "To'rt yozuv va to'rt nom. Ularni birlashtiring.", 'Четыре записи и четыре названия. Соедини их.', 'Four readings and four names. Match them.'),
+    A('mount', "To'rt son va to'rt juft. O'qlar bo'yicha hisoblang.", 'Четыре числа и четыре пары. Считай по осям.', 'Four numbers and four pairs. Count along the axes.'),
   ],
   match: {
-    prompt: L('Yozuvni nomi bilan birlashtiring', 'Соедини запись с названием', 'Match the reading with the name'),
-    ok: L("To'rttasi ham joyida. Apofema va qirra endi aralashmaydi.", 'Все четыре на месте. Апофема и ребро больше не путаются.', 'All four in place. The apothem and the edge no longer get mixed up.'),
-    a: L('yon qirra', 'боковое ребро', 'a lateral edge'),
-    b: L('apofema', 'апофема', 'the apothem'),
-    c: L('piramida balandligi', 'высота пирамиды', 'the height of the pyramid'),
-    d: L('asos tomoni', 'сторона основания', 'a base side'),
-    left: ['SA', 'SM', 'SO', 'AB'],
+    prompt: L('Sonni juft bilan birlashtiring', 'Соедини число с парой', 'Match the number with the pair'),
+    ok: L("To'rttasi ham joyida. Ishora burchakni o'qiydi.", 'Все четыре на месте. Знак читает угол.', 'All four in place. The sign reads the angle.'),
+    a: L('a va b', 'a и b', 'a and b'),
+    b: L('a va c', 'a и c', 'a and c'),
+    c: L('a va a', 'a и a', 'a and a'),
+    d: L('b va c', 'b и c', 'b and c'),
+    left: ['16', '0', '36', '−4'],
   },
 }
 
@@ -365,32 +365,32 @@ const S10 = {
   answer: 'order',
   format: 'proof',
   eyebrow: L('QADAMMA-QADAM', 'ПО ШАГАМ', 'STEP BY STEP'),
-  title: L('Yon qirralar haqida isbotlang', 'Докажи про боковые рёбра', 'Prove it about the lateral edges'),
-  tag: 'apofema-ne-rebro',
+  title: L('Vektorlar perpendikulyar ekanini isbotlang', 'Докажи, что векторы перпендикулярны', 'Prove the vectors are perpendicular'),
+  tag: 'kosinussiz-kopaytma',
   audio: [
     A('mount', "Uch qator, va har birining ro'yxatdan o'z asoslashi bor.", 'Три строки, и у каждой своё обоснование из списка.', 'Three lines, each with its own justification from the list.'),
   ],
   proof: {
-    given: L('muntazam piramida', 'правильная пирамида', 'a regular pyramid'),
-    goal: L('uning yon qirralari teng', 'её боковые рёбра равны', 'its lateral edges are equal'),
-    r1: L('asos uchlari markazdan baravar uzoqlikda', 'вершины основания равноудалены от центра', 'the base vertices are equidistant from the centre'),
-    r2: L('balandlik asosga perpendikulyar', 'высота перпендикулярна основанию', 'the height is perpendicular to the base'),
-    r3: L("to'g'ri burchakli uchburchaklar ikki katet bo'yicha teng", 'прямоугольные треугольники равны по двум катетам', 'the right triangles are equal by two legs'),
-    ok: L("Isbotlandi. Teng katetlar teng gipotenuza beradi, ya'ni teng qirra.", 'Доказано. Равные катеты дают равные гипотенузы, то есть равные рёбра.', 'Proved. Equal legs give equal hypotenuses, that is equal edges.'),
-    e1: L('Balandlik keyin keladi. Avval asos haqida.', 'Высота идёт дальше. Сначала про основание.', 'The height comes later. First about the base.'),
-    e2: L("Asos haqida aytildi. To'g'ri burchaklar qayerdan.", 'Про основание сказано. Откуда прямые углы.', 'The base is done. Where do the right angles come from.'),
-    e3: L('Burchaklar va katetlar bor. Endi uchburchaklar haqida xulosa.', 'Углы и катеты есть. Теперь вывод про треугольники.', 'The angles and legs are there. Now the conclusion about the triangles.'),
+    given: L('a va c vektorlarining uchliklari, ikkisi ham nol emas', 'тройки векторов a и c, оба не нулевые', 'the triples of a and c, both non zero'),
+    goal: L("ular orasidagi burchak to'g'ri", 'угол между ними прямой', 'the angle between them is right'),
+    r1: L("o'qlar bo'yicha ko'paytma nolga teng", 'произведение по осям равно нулю', 'the product along the axes equals zero'),
+    r2: L("uzunliklar nol emas, demak kosinus nol bo'ldi", 'длины не нули, значит нулём стал косинус', 'the lengths are not zero, so it is the cosine that became zero'),
+    r3: L("kosinus to'qsan darajada nolga teng", 'косинус равен нулю на девяноста градусах', 'the cosine equals zero at ninety degrees'),
+    ok: L("Isbotlandi. Alomat uchliklar bo'yicha, chizmasiz ishlaydi.", 'Доказано. Признак работает по тройкам, без чертежа.', 'Proved. The criterion works by triples, without a drawing.'),
+    e1: L("Uzunliklar haqida keyin. Avval ko'paytmani hisoblang.", 'Про длины дальше. Сначала посчитай произведение.', 'The lengths come later. First compute the product.'),
+    e2: L('Nol olindi. Endi bu nega kosinus.', 'Ноль получен. Теперь почему это косинус.', 'The zero is obtained. Now why it is the cosine.'),
+    e3: L('Kosinus nol. Endi burchak haqida xulosa.', 'Косинус ноль. Теперь вывод про угол.', 'The cosine is zero. Now the conclusion about the angle.'),
   },
   reason: {
-    s1: L("muntazam ko'pburchak xossasi", 'свойство правильного многоугольника', 'a property of a regular polygon'),
-    s2: L("perpendikulyar tekislikning barcha chiziqlari bilan to'g'ri burchak beradi", 'перпендикуляр даёт прямой угол со всеми прямыми плоскости', 'a perpendicular gives a right angle with all lines of the plane'),
-    s3: L("to'g'ri burchakli uchburchaklar tengligi alomati", 'признак равенства прямоугольных треугольников', 'the criterion of equality of right triangles'),
+    s1: L("ko'paytma o'qlar bo'yicha hisoblanadi", 'произведение считается по осям', 'the product is computed along the axes'),
+    s2: L("ko'paytmaning ikkinchi formulasi", 'вторая формула произведения', 'the second formula of the product'),
+    s3: L("to'g'ri burchakning kosinusi nolga teng", 'косинус прямого угла равен нулю', 'the cosine of a right angle equals zero'),
     pic: {
       label: L("chizmada ko'rinadi", 'видно на чертеже', 'it is visible on the drawing'),
       missing: L("Chizma asoslash emas. U ko'p rakursdan bittasini ko'rsatadi.", 'Чертёж не обоснование. Он показывает один ракурс из многих.', 'A drawing is not a justification. It shows one view out of many.'),
     },
   },
-  expr: 'OA = OB   →   SA = SB',
+  expr: 'a·c = 0',
 }
 
 const S11 = {
@@ -403,25 +403,25 @@ const S11 = {
   tag: 'bumaga',
   audio: [
     A('mount', "Asbob olib qo'yildi. Qog'ozda hisoblaymiz.", 'Прибор убран. Считаем на бумаге.', 'The tool is put away. We count on paper.'),
-    A('next', 'Endi yozuvlar tartibi. Ularni qanday hisoblansa, shunday joylashtiring.', 'Теперь порядок записей. Расставь их так, как считают.', 'Now the order of the readings. Arrange them the way they are computed.'),
+    A('next', 'Endi qadamlar tartibi. Ularni qanday hisoblansa, shunday joylashtiring.', 'Теперь порядок шагов. Расставь их так, как считают.', 'Now the order of the steps. Arrange them the way the counting goes.'),
   ],
   task: {
-    ok: L("O'n uch. Besh va o'n ikki o'n uchni beradi.", 'Тринадцать. Пять и двенадцать дают тринадцать.', 'Thirteen. Five and twelve give thirteen.'),
+    ok: L('Oltmish. Kosinus bir ikkidan chiqdi.', 'Шестьдесят. Косинус вышел одна вторая.', 'Sixty. The cosine came out one half.'),
     hint: [
-      L('Balandlik va markazdan kesma bilan uchburchak chizing.', 'Нарисуй треугольник с высотой и отрезком от центра.', 'Draw the triangle with the height and the segment from the centre.'),
-      L('Apofema gipotenuza.', 'Апофема это гипотенуза.', 'The apothem is the hypotenuse.'),
-      L("Besh va o'n ikki o'n uchni beradi.", 'Пять и двенадцать дают тринадцать.', 'Five and twelve give thirteen.'),
+      L("Ko'paytmani uzunliklar ko'paytmasiga bo'ling.", 'Раздели произведение на произведение длин.', 'Divide the product by the product of the lengths.'),
+      L("To'qqizni o'n sakkizga bo'lsak bir ikkidan bo'ladi.", 'Девять на восемнадцать даёт одну вторую.', 'Nine over eighteen gives one half.'),
+      L('Oltmish daraja.', 'Шестьдесят градусов.', 'Sixty degrees.'),
     ],
-    prompt: 'SO = 12,   OM = 5,   SM = ?',
-    answer: '13',
+    prompt: '|a| = 6,   |b| = 3,   a·b = 9,   φ = ?',
+    answer: '60',
   },
   order: {
-    prompt: L('Yozuvlarni hisoblash tartibida joylashtiring', 'Расставь записи в том порядке, в каком считают', 'Arrange the readings in the order they are computed'),
+    prompt: L('Qadamlarni hisoblash tartibida joylashtiring', 'Расставь шаги в том порядке, в каком считают', 'Arrange the steps in the order they are computed'),
     title: L('Hisob tartibi', 'Порядок счёта', 'The order of computing'),
-    ok: L("Tartib to'g'ri. Avval tomonning yarmi, keyin apofema.", 'Порядок верный. Сначала половина стороны, потом апофема.', 'The order is right. First half the side, then the apothem.'),
+    ok: L("Tartib to'g'ri. Ko'paytma, uzunliklar, kosinus, burchak.", 'Порядок верный. Произведение, длины, косинус, угол.', 'The order is right. The product, the lengths, the cosine, the angle.'),
     bad: L('Bu tartibda emas. Avval nima kerak.', 'Не в этом порядке. Что нужно раньше.', 'Not in this order. What is needed first.'),
-    items: ['SM', 'AB', 'OM', 'SO'],
-    answer: 'AB  OM  SO  SM',
+    items: ['φ', 'a·b', 'cos φ', '|a|·|b|'],
+    answer: 'a·b  |a|·|b|  cos φ  φ',
   },
 }
 
@@ -433,30 +433,30 @@ const S12 = {
   title: L('Xato qatorni toping', 'Найди строку с ошибкой', 'Find the line with the mistake'),
   tag: 'check',
   audio: [
-    A('mount', "To'rt qator, va ulardan biri kesmani almashtiradi.", 'Четыре строки, и одна из них подменяет отрезок.', 'Four lines, and one of them substitutes the segment.'),
+    A('mount', "To'rt qator, va ulardan biri kosinusni yo'qotadi.", 'Четыре строки, и одна из них теряет косинус.', 'Four lines, and one of them loses the cosine.'),
     A('next', "Endi xato bo'lgan qator raqamini yozing.", 'Теперь напиши номер строки, в которой ошибка.', 'Now write the number of the line with the mistake.'),
   ],
   hint: {
     r1: L("Berilganlar to'g'ri yozilgan.", 'Данные выписаны верно.', 'The data are written correctly.'),
-    r2: L("Tomonning yarmi to'g'ri topilgan.", 'Половина стороны найдена верно.', 'Half the side is found correctly.'),
-    r4: L('Javob yuqoridagi xato qatordan olingan.', 'Ответ получен из неверной строки выше.', 'The answer comes from the wrong line above.'),
+    r2: L("Uzunliklar to'g'ri hisoblangan.", 'Длины посчитаны верно.', 'The lengths are computed correctly.'),
+    r4: L('Kosinus yuqoridagi xato qatordan olingan.', 'Косинус получен из неверной строки выше.', 'The cosine comes from the wrong line above.'),
   },
-  proof: L("Piramidani buring: bu kesma tomon o'rtasiga emas, uchiga keladi.", 'Поверни пирамиду: этот отрезок приходит в вершину, а не в середину стороны.', 'Rotate the pyramid: this segment arrives at a vertex, not at the middle of the side.'),
+  proof: L("Sahnani buring: uzunliklar turadi, ko'paytma esa burchak bilan o'zgaradi.", 'Поверни сцену: длины держатся, а произведение меняется вместе с углом.', 'Rotate the scene: the lengths hold while the product changes with the angle.'),
   entry: {
     prompt: L('Xato qator raqami', 'Номер строки с ошибкой', 'The number of the line with the mistake'),
-    ok: L('Uchinchi. Apofema deb yon qirra aytilgan.', 'Третья. Апофемой назвали боковое ребро.', 'The third. The lateral edge was called the apothem.'),
+    ok: L("Uchinchi. Ko'paytma uzunliklar ko'paytmasi deb olingan.", 'Третья. Произведение взяли как произведение длин.', 'The third. The product was taken as the product of the lengths.'),
     hint: [
-      L('Har kesma qayerga kelishini tekshiring.', 'Проверь, куда приходит каждый отрезок.', 'Check where each segment arrives.'),
-      L("Apofema tomon o'rtasiga keladi.", 'Апофема приходит в середину стороны.', 'The apothem arrives at the middle of the side.'),
+      L('Uchinchi qatordagi son qayerdan olinganini tekshiring.', 'Проверь, откуда взялось число в третьей строке.', 'Check where the number in the third line came from.'),
+      L("O'qlar bo'yicha o'n olti chiqadi, o'n sakkiz emas.", 'По осям выходит шестнадцать, а не восемнадцать.', 'Along the axes sixteen comes out, not eighteen.'),
       L('Xato uchinchi qatorda.', 'Ошибка в третьей строке.', 'The mistake is in the third line.'),
     ],
     answer: '3',
   },
   row: {
-    r1: 'AB = 6,   SO = 4',
-    r2: 'OM = 3',
-    r3: 'SM = SA',
-    r4: 'SM = 5',
+    r1: 'a (4; 4; 2),   b (1; 2; 2)',
+    r2: '|a| = 6,   |b| = 3',
+    r3: 'a·b = 18',
+    r4: 'cos φ = 1',
   },
   answerId: 'r3',
 }
@@ -469,27 +469,27 @@ const S13 = {
   title: L('Teskari tomonga', 'В обратную сторону', 'The other way round'),
   tag: 'obratnoe',
   audio: [
-    A('mount', "Formulani o'ngdan chapga o'qiymiz. Apofema bo'yicha balandlikni topamiz.", 'Прочитаем формулу справа налево. По апофеме найдём высоту.', 'Let us read the formula from right to left. From the apothem we find the height.'),
-    A('work', "Muntazam piramida uchun to'g'ri bo'lgan barcha yozuvlarni belgilang. Ular bittadan ko'p.", 'Отметь все записи, которые верны для правильной пирамиды. Их больше одной.', 'Mark all the readings that are true for a regular pyramid. There is more than one.'),
+    A('mount', "Darsni o'ngdan chapga o'qiymiz. Ko'paytma berilgan, burchakni topish kerak.", 'Прочитаем урок справа налево. Дано произведение, найти надо угол.', 'Let us read the lesson from right to left. The product is given, the angle is to be found.'),
+    A('work', "To'g'ri bo'lgan barcha yozuvlarni belgilang. Ular bittadan ko'p.", 'Отметь все записи, которые верны. Их больше одной.', 'Mark all the readings that are correct. There is more than one.'),
   ],
   multi: {
     prompt: L("Barcha to'g'ri yozuvlarni belgilang", 'Отметь все верные записи', 'Mark all the correct readings'),
-    title: L("Muntazam piramida uchun nima to'g'ri", 'Что верно для правильной пирамиды', 'What is true for a regular pyramid'),
-    ok: L('Beshtadan uch yozuv. Qolgan ikkitasi kesmalarni aralashtiradi.', 'Три записи из пяти. Две оставшиеся путают отрезки.', 'Three readings out of five. The other two confuse the segments.'),
+    title: L("Bu vektorlar uchun nima to'g'ri", 'Что верно для этих векторов', 'What is true for these vectors'),
+    ok: L("Beshtadan uch yozuv. Qolgan ikkitasi kosinus va ishorani yo'qotadi.", 'Три записи из пяти. Две оставшиеся теряют косинус и знак.', 'Three readings out of five. The other two lose the cosine and the sign.'),
     items: [
-      { id: 'd', label: 'SM = SA', hint: L('Apofema qirradan qisqaroq, unga teng emas.', 'Апофема короче ребра, а не равна ему.', 'The apothem is shorter than the edge, not equal to it.') },
-      { id: 'e', label: 'SO ⊥ ABCD,   O = A', hint: L('Balandlik markazga tushadi, asos uchiga emas.', 'Высота падает в центр, а не в вершину основания.', 'The height lands at the centre, not at a base vertex.') },
-      { id: 'a', label: 'SM < SA', ok: true },
-      { id: 'b', label: 'SM² = SO² + OM²', ok: true },
-      { id: 'c', label: 'SA = SB = SC = SD', ok: true },
+      { id: 'd', label: 'a·b = 18', hint: L("Bu uzunliklar ko'paytmasi, skalyar ko'paytma emas.", 'Это произведение длин, а не скалярное произведение.', 'That is the product of the lengths, not the dot product.') },
+      { id: 'e', label: 'a·a = −36', hint: L("Skalyar kvadrat manfiy bo'lmaydi.", 'Скалярный квадрат отрицательным не бывает.', 'A scalar square is never negative.') },
+      { id: 'a', label: 'a·b = 16', ok: true },
+      { id: 'b', label: 'a·c = 0', ok: true },
+      { id: 'c', label: 'a·a = 36', ok: true },
     ],
   },
   place: {
-    prompt: L("Apofema o'n, markazdan tomon o'rtasigacha olti. Balandlik qancha?", 'Апофема десять, от центра до середины стороны шесть. Какова высота?', 'The apothem is ten, from the centre to the middle of the side is six. What is the height?'),
-    ok: L("Sakkiz. Yuz minus o'ttiz olti bu oltmish to'rt.", 'Восемь. Сто минус тридцать шесть это шестьдесят четыре.', 'Eight. One hundred minus thirty six is sixty four.'),
-    wrong: L('Apofema gipotenuza, demak uning kvadratidan ayiriladi.', 'Апофема гипотенуза, значит из её квадрата вычитают.', 'The apothem is the hypotenuse, so you subtract from its square.'),
-    target: '8',
-    step: '100 − 36 = 64',
+    prompt: L("Ikki nolmas vektorning skalyar ko'paytmasi nolga teng. Ular orasidagi burchak necha daraja?", 'Скалярное произведение двух ненулевых векторов равно нулю. Каков угол между ними в градусах?', 'The dot product of two non zero vectors equals zero. What is the angle between them in degrees?'),
+    ok: L("To'qsan. Nol to'g'ri burchakni bildiradi.", 'Девяносто. Ноль означает прямой угол.', 'Ninety. Zero means a right angle.'),
+    wrong: L("Uzunliklar nol emas, demak kosinus nol bo'ldi.", 'Длины не нули, значит нулём стал косинус.', 'The lengths are not zero, so it is the cosine that became zero.'),
+    target: '90',
+    step: 'cos φ = 0',
   },
 }
 
@@ -499,7 +499,7 @@ const S14 = {
   format: 'chain',
   eyebrow: L('BLITS', 'БЛИЦ', 'QUICK ROUND'),
   title: L("Ketma-ket to'rt savol", 'Четыре вопроса подряд', 'Four questions in a row'),
-  tag: 'apofema-ne-rebro',
+  tag: 'kosinussiz-kopaytma',
   audio: [
     A('mount', "Ketma-ket to'rt savol. To'xtamasdan javob bering.", 'Четыре вопроса подряд. Отвечай без остановки.', 'Four questions in a row. Answer without stopping.'),
   ],
@@ -507,53 +507,52 @@ const S14 = {
     {
       id: 'q1',
       ask: true,
-      prompt: L('Piramidaning qaysi yoqlari yon?', 'Какие грани у пирамиды боковые?', 'Which faces of a pyramid are lateral?'),
-      done: 'SAB,   SBC',
+      prompt: L("Skalyar ko'paytma nima beradi?", 'Что даёт скалярное произведение?', 'What does a dot product give?'),
+      done: 'a·b = 16',
       items: [
-        { id: 'a', label: L('umumiy uchli uchburchaklar', 'треугольники с общей вершиной', 'triangles with a common vertex'), correct: true },
-        { id: 'b', label: L('parallelogrammlar', 'параллелограммы', 'parallelograms'), hint: L('Parallelogrammlar prizmada.', 'Параллелограммы у призмы.', 'Parallelograms belong to a prism.') },
-        { id: 'c', label: L("ikki teng ko'pburchak", 'два равных многоугольника', 'two equal polygons'), hint: L('Bu prizmaning asoslari.', 'Это основания призмы.', 'Those are the bases of a prism.') },
-        { id: 'd', label: L('barcha yoqlar', 'все грани', 'all the faces'), hint: L("Asos yon yoq bo'lmaydi.", 'Основание боковой гранью не бывает.', 'The base is never a lateral face.') },
+        { id: 'a', label: L('son', 'число', 'a number'), correct: true },
+        { id: 'b', label: L('vektor', 'вектор', 'a vector'), hint: L("Skalyar so'zining o'zi son degani.", 'Слово скалярное и значит число.', 'The word scalar itself means a number.') },
+        { id: 'c', label: L('uzunlik', 'длину', 'a length'), hint: L("Uzunlik manfiy bo'lmaydi.", 'Длина не бывает отрицательной.', 'A length is never negative.') },
+        { id: 'd', label: L('yuza', 'площадь', 'an area'), hint: L("Yuzaning bunga aloqasi yo'q.", 'Площадь тут ни при чём.', 'An area has nothing to do with it.') },
       ],
     },
     {
       id: 'q2',
       ask: true,
-      prompt: L('Apofema qayerga keladi?', 'Куда приходит апофема?', 'Where does the apothem arrive?'),
-      done: 'AM = MB',
+      prompt: L('Nolmas vektorlarda nol nimani bildiradi?', 'Что означает ноль у ненулевых векторов?', 'What does zero mean for non zero vectors?'),
+      done: 'cos 90° = 0',
       items: [
-        { id: 'a', label: L("tomon o'rtasiga", 'в середину стороны', 'at the middle of a side'), correct: true },
-        { id: 'b', label: L('asos uchiga', 'в вершину основания', 'at a base vertex'), hint: L('U yerga yon qirra keladi.', 'Туда приходит боковое ребро.', 'The lateral edge arrives there.') },
-        { id: 'c', label: L('asos markaziga', 'в центр основания', 'at the centre of the base'), hint: L('Markazga balandlik keladi.', 'В центр приходит высота.', 'The height arrives at the centre.') },
-        { id: 'd', label: L('tomonning istalgan nuqtasiga', 'в любую точку стороны', 'at any point of a side'), hint: L("Unda uning uzunligi aniq bo'lmasdi.", 'Тогда её длина не была бы определена.', 'Then its length would not be defined.') },
+        { id: 'a', label: L("to'g'ri burchak", 'прямой угол', 'a right angle'), correct: true },
+        { id: 'b', label: L('nol burchak', 'нулевой угол', 'the zero angle'), hint: L("Nol burchakda ko'paytma eng katta.", 'При нулевом угле произведение наибольшее.', 'At the zero angle the product is the largest.') },
+        { id: 'c', label: L("o'tmas burchak", 'тупой угол', 'an obtuse angle'), hint: L("O'tmasda ko'paytma manfiy.", 'У тупого произведение отрицательное.', 'For an obtuse angle the product is negative.') },
+        { id: 'd', label: L('vektorlar teng ekanini', 'что векторы равны', 'that the vectors are equal'), hint: L("Tenglarda ko'paytma uzunlik kvadrati.", 'У равных произведение это квадрат длины.', 'For equal vectors the product is the square of the length.') },
       ],
     },
     {
       id: 'q3',
       ask: true,
-      prompt: L('Muntazam piramidada nima qisqaroq?', 'Что короче в правильной пирамиде?', 'Which is shorter in a regular pyramid?'),
-      done: 'SM < SA',
+      prompt: L("Vektorning o'ziga ko'paytmasi nimaga teng?", 'Чему равно произведение вектора на себя?', 'What does a vector times itself equal?'),
+      done: 'a·a = 36',
       items: [
-        { id: 'a', label: L('apofema', 'апофема', 'the apothem'), correct: true },
-        { id: 'b', label: L('yon qirra', 'боковое ребро', 'the lateral edge'), hint: L("Qirra o'sha uchburchakning gipotenuzasi.", 'Ребро гипотенуза того же треугольника.', 'The edge is the hypotenuse of that triangle.') },
-        { id: 'c', label: L('ular teng', 'они равны', 'they are equal'), hint: L("Ular tomonning yarmi nol bo'lganda teng bo'lardi.", 'Равны они были бы при нулевой половине стороны.', 'They would be equal if half the side were zero.') },
-        { id: 'd', label: L("piramidaga bog'liq", 'зависит от пирамиды', 'it depends on the pyramid'), hint: L('Har qanday muntazam piramidada apofema qisqaroq.', 'В любой правильной пирамиде апофема короче.', 'In any regular pyramid the apothem is shorter.') },
+        { id: 'a', label: L('uzunlik kvadratiga', 'квадрату длины', 'the square of the length'), correct: true },
+        { id: 'b', label: L('uzunlikka', 'длине', 'the length'), hint: L('Kosinus bir, lekin uzunlik ikki marta kiradi.', 'Косинус единица, но длина входит дважды.', 'The cosine is one, but the length enters twice.') },
+        { id: 'c', label: L('nolga', 'нулю', 'zero'), hint: L("Nol to'g'ri burchakda bo'lardi.", 'Ноль был бы при прямом угле.', 'Zero would be at a right angle.') },
+        { id: 'd', label: L('ikkilangan uzunlikka', 'удвоенной длине', 'the doubled length'), hint: L('Ikkilanish boshqa amal.', 'Удвоение это другое действие.', 'Doubling is another operation.') },
       ],
     },
     {
       id: 'q4',
       ask: true,
-      prompt: L("Oltiburchakli piramidaning nechta yog'i bor?", 'Сколько граней у шестиугольной пирамиды?', 'How many faces does a hexagonal pyramid have?'),
-      done: '6 + 1 = 7',
+      prompt: L("Manfiy ko'paytma nima haqida aytadi?", 'О чём говорит отрицательное произведение?', 'What does a negative product say?'),
+      done: 'b·c = −4',
       items: [
-        { id: 'a', label: L('yettita', 'семь', 'seven'), correct: true },
-        { id: 'b', label: L('oltita', 'шесть', 'six'), hint: L('Olti faqat yonlari.', 'Шесть это только боковые.', 'Six are only the lateral ones.') },
-        { id: 'c', label: L('sakkizta', 'восемь', 'eight'), hint: L("Sakkiz oltiburchakli prizmada bo'lardi.", 'Восемь было бы у шестиугольной призмы.', 'Eight would belong to a hexagonal prism.') },
-        { id: 'd', label: L("o'n ikkita", 'двенадцать', 'twelve'), hint: L("O'n ikki qirralar soni.", 'Двенадцать это число рёбер.', 'Twelve is the number of edges.') },
+        { id: 'a', label: L("burchak o'tmas", 'угол тупой', 'the angle is obtuse'), correct: true },
+        { id: 'b', label: L('yechimda xato', 'в решении ошибка', 'there is a mistake in the solution'), hint: L("Manfiy ko'paytma bo'ladi va bu odatiy.", 'Отрицательное произведение бывает и это норма.', 'A negative product does happen and it is normal.') },
+        { id: 'c', label: L('uzunlik manfiy', 'длина отрицательна', 'the length is negative'), hint: L('Uzunlik har doim musbat.', 'Длина всегда положительна.', 'A length is always positive.') },
+        { id: 'd', label: L('vektorlar perpendikulyar', 'векторы перпендикулярны', 'the vectors are perpendicular'), hint: L('Perpendikulyarlik roppa-rosa nol.', 'Перпендикулярность это ровно ноль.', 'Perpendicularity is exactly zero.') },
       ],
     },
   ],
-  angles: ['SA', 'SM', 'SO', 'AB'],
 }
 
 const S15 = {
@@ -562,74 +561,65 @@ const S15 = {
   eyebrow: L('YAKUN', 'ИТОГ', 'SUMMARY'),
   title: L('Endi nimani bilasiz', 'Что теперь умеешь', 'What you can do now'),
   audio: [
-    A('mount', "Dars uchdan chiqqan ikki kesma bilan boshlandi. Biri tomon uchiga, ikkinchisi o'rtasiga borardi.", 'Урок начался с двух отрезков из вершины. Один шёл в конец стороны, другой в середину.', 'The lesson began with two segments from the apex. One went to the end of a side, the other to the middle.'),
-    A('next', "O'rtasiga boradigani apofema deb ataladi, va u qisqaroq. Sabab oddiy. Yon yoqda apofema katet, qirra esa o'sha to'g'ri burchakli uchburchakning gipotenuzasi. Va yana bir muhim narsa. Apofema asos tomoniga chizma bo'yicha emas, tekisliklar bloki da isbotlagan uch perpendikulyar haqidagi teorema bo'yicha perpendikulyar. Keyin piramida va prizma yassi shaklga yoyiladi, va biz sirt yuzasini hisoblaymiz.", 'Тот, что в середину, называется апофемой, и он короче. Причина проста. В боковой грани апофема катет, а ребро гипотенуза того же прямоугольного треугольника. И ещё одно важное. Апофема перпендикулярна стороне основания не по чертежу, а по теореме о трёх перпендикулярах, которую мы доказали в блоке про плоскости. Дальше пирамида и призма развернутся в плоскую фигуру, и мы посчитаем площадь поверхности.', 'The one to the middle is called the apothem and it is shorter. The reason is simple. Inside the lateral face the apothem is a leg and the edge is the hypotenuse of the same right triangle. And one more important thing. The apothem is perpendicular to the base side not by the drawing but by the theorem of three perpendiculars, which we proved in the block about planes. Next the pyramid and the prism will unfold into a flat figure and we will compute the surface area.'),
+    A('mount', "Dars uzunliklarni ko'paytirish kerakmi degan savol bilan boshlandi.", 'Урок начался с вопроса, перемножать ли длины.', 'The lesson began with the question whether to multiply the lengths.'),
+    A('next', "Ularni ko'paytirish mumkin, lekin eng katta mumkin bo'lgan qiymat chiqadi, ko'paytmaning o'zi emas: haqiqiy formulada uchinchi ko'paytuvchi, burchak kosinusi bor. Uchliklar bo'yicha hisoblash oddiyroq, u yerda faqat sonlar kerak, va natija darrov chiqadi. Qolgani shundan. Uzunliklar ko'paytmani aniqlamaydi: biz faqat yo'nalishni o'zgartirdik, uzunliklar qoldi, son esa nol bo'ldi. Nolmas vektorlarda nol to'g'ri burchakni bildiradi, va bu imtihonda eng ko'p uchraydigan tekshiruv. Vektorning o'ziga ko'paytmasi uzunlik kvadratini beradi, chunki nol burchakning kosinusi birga teng. Ishora esa burchakni hisobsiz o'qiydi: noldan katta o'tkir, nol to'g'ri, noldan kichik o'tmas. Keyin tekislik tenglamasi paydo bo'ladi, va undagi koeffitsiyentlar uchligi normal bo'lib chiqadi.", 'Перемножить их можно, но выйдет наибольшее возможное значение, а не произведение: в настоящей формуле есть третий множитель, косинус угла. Считать проще по тройкам, там нужны только числа, и результат получается сразу. Отсюда всё остальное. Длины произведение не определяют: мы поменяли только направление, длины остались, а число стало нулём. Ноль при ненулевых векторах означает прямой угол, и это самая частая проверка на экзамене. Вектор на себя даёт квадрат длины, потому что косинус нулевого угла равен единице. А знак читает угол без всякого счёта: больше нуля острый, ноль прямой, меньше нуля тупой. Дальше появится уравнение плоскости, и тройка коэффициентов в нём окажется нормалью.', 'You may multiply them, but the largest possible value comes out and not the product: the real formula has a third factor, the cosine of the angle. Counting is simpler by triples, only numbers are needed there, and the result comes at once. Everything else follows. The lengths do not determine the product: we changed only the direction, the lengths stayed, and the number became zero. Zero for non zero vectors means a right angle, and that is the most frequent check at the exam. A vector times itself gives the square of the length, because the cosine of the zero angle equals one. And the sign reads the angle without any counting: greater than zero acute, zero right, less than zero obtuse. Next the equation of a plane will appear, and the triple of coefficients in it will turn out to be a normal.'),
   ],
   can: [
-    L('Piramidaning yon yoqlari umumiy uchli uchburchak ekanini bilaman', 'Знаю, что боковые грани пирамиды треугольники с общей вершиной', 'I know the lateral faces of a pyramid are triangles with a common vertex'),
-    L('Muntazam piramidada ikki shartni tekshiraman', 'Проверяю у правильной пирамиды два условия', 'I check two conditions for a regular pyramid'),
-    L('Apofemani yon qirradan ajrataman', 'Отличаю апофему от бокового ребра', 'I tell the apothem from the lateral edge'),
-    L("Apofemani balandlik va tomonning yarmi bo'yicha hisoblayman", 'Считаю апофему через высоту и половину стороны', 'I compute the apothem from the height and half the side'),
+    L("Ko'paytmani o'qlar bo'yicha hisoblayman", 'Считаю произведение по осям', 'I compute the product along the axes'),
+    L("Burchak kosinusini uchliklar bo'yicha topaman", 'Нахожу косинус угла по тройкам', 'I find the cosine of the angle from the triples'),
+    L('Perpendikulyarlikni nol bilan tekshiraman', 'Проверяю перпендикулярность нулём', 'I check perpendicularity by zero'),
+    L("Burchakni ko'paytma ishorasi bo'yicha o'qiyman", 'Читаю угол по знаку произведения', 'I read the angle from the sign of the product'),
   ],
   levels: {
     full: L("To'rttasi ham", 'Все четыре', 'All four'),
     gap: L("To'rttadan uchtasi", 'Три из четырёх', 'Three out of four'),
     back: L('Uchtadan kam', 'Меньше трёх', 'Fewer than three'),
   },
-  bridge: L('Bundan keyin sirt yuzasi, jism yassi shaklga yoyiladi', 'Дальше площадь поверхности — тело разворачивается в плоскую фигуру', 'Next comes the surface area, where the body unfolds into a flat figure'),
-  lifehack: L("Uchdan kesma olsangiz, avval u qayerga kelishini so'rang", 'Взял отрезок из вершины — сначала спроси, куда он приходит', 'Taking a segment from the apex, first ask where it arrives'),
+  bridge: L("Bundan keyin tekislik tenglamasi, koeffitsiyentlar uchligi normal bo'lib chiqadi", 'Дальше уравнение плоскости — тройка коэффициентов окажется нормалью', 'Next comes the equation of a plane, where the triple of coefficients turns out to be a normal'),
+  lifehack: L("Kosinusni hisoblashdan oldin ko'paytma ishorasiga qarang", 'Посмотри на знак произведения прежде, чем считать косинус', 'Look at the sign of the product before computing the cosine'),
   sheetTitle: L('Shpargalka', 'Шпаргалка', 'Cheat sheet'),
-  sheetSrc: L('Geometriya, qirq beshinchi va qirq oltinchi betlar', 'Геометрия, страницы сорок пять и сорок шесть', 'Geometry, pages forty five and forty six'),
+  sheetSrc: L('Programma, sakkizinchi blok', 'Программа, блок восемь', 'The programme, block eight'),
   hook: {
-    a: 'SM > SA',
-    b: 'SM < SA',
+    a: '18',
+    b: '16',
   },
-  proved: 'SM < SA',
-  law: 'SM ⊥ AB',
+  proved: '16',
+  law: 'a·b = |a|·|b|·cos φ',
   sheet: [
-    'SAB,   SBC',
-    'SA = SB = SC = SD',
-    'SM ⊥ AB',
-    'SM² = SO² + OM²',
-    'SM < SA',
+    'a·b = 16',
+    '|a|·|b| = 18',
+    'a·c = 0',
+    'a·a = 36',
+    'b·c = −4',
   ],
 }
 
 // ======== QOLDA YOZILGAN QISM: bundan pastdagisi saqlanadi ========
 
-const num = (s) => parseFloat(String(s).replace(/−/g, '-'))
+const num = (s) => parseFloat(String(s).replace(/\u2212/g, '-'))
 
-// PRIBOR 6B. Piramida generator bilan: asos kvadrat (`plan`), uch esa `skew`
-// bilan suriladi. Muntazam piramidada surish nol, 4 va 7-ekranlarda esa uch
-// chetga suriladi -- aynan shu farq darsning chegarasi.
-const H = 1.25
-const Z = -H / 2
-const PLAN = [[-0.5, -0.5], [0.5, -0.5], [0.5, 0.5], [-0.5, 0.5]]
-const PYR = { kind: 'pyramid', h: H, plan: PLAN }
-const PYR_OFF = { kind: 'pyramid', h: H, plan: PLAN, skew: [0.36, 0.2] }
+// PRIBOR 6C -- `Space3D`, 11-sinfning fazoviy karkasiga o'ram (space.jsx).
+// `dot` rejimi burchak dugasini chizadi, `value` esa sonni yozadi. Son FAQAT
+// razborda ochiladi: javobni o'quvchi yozadigan ekranda asbob oxirgi satrni
+// yozmasligi kerak (etalon §3).
+const BOX = [5, 5, 5]
+const VA = [4, 4, 2]          // uzunligi 6
+const VB = [1, 2, 2]          // uzunligi 3, VA bilan ko'paytmasi 16
+const VC = [2, -1, -2]        // uzunligi 3, VA bilan ko'paytmasi NOL
+const O = [0, 0, 0]
 
-// `M` -- asos tomonining O'RTASI, `O` -- asos markazi. Ular generatordan
-// chiqmaydi, chunki generator faqat uchlarni beradi.
-const PTS = [
-  { id: 'M', at: [0, -0.5, Z], label: 'M' },
-  { id: 'O', at: [0, 0, Z], label: 'O' },
+const PAIR_AB = [
+  { from: O, to: VA, label: 'a' },
+  { from: O, to: VB, label: 'b', tone: 'graph' },
 ]
-const GREY = '#7f8c8d'
-const FACE2 = '#6b8fa3'
-
-const BASE = [{ by: ['A', 'B', 'C', 'D'] }]
-const BASE_SIDE = [{ by: ['A', 'B', 'C', 'D'] }, { by: ['A', 'B', 'S'], tone: FACE2 }]
-
-const EDGE = { from: 'S', to: 'A' }
-const APO = { from: 'S', to: 'M' }
-const HGT = { from: 'S', to: 'O', tone: GREY, w: 2 }
-const OM = { from: 'O', to: 'M', tone: GREY, w: 2 }
-const TWO_SEG = [EDGE, APO]
-const TRI_SOM = [APO, HGT, OM]
-const ALL_SEG = [EDGE, APO, HGT, OM]
-
-const RIGHT_O = { at: 'O', from: 'S', to: 'M' }
-const RIGHT_M = { at: 'M', from: 'S', to: 'A', scale: 1.5 }
+const PAIR_AC = [
+  { from: O, to: VA, label: 'a' },
+  { from: O, to: VC, label: 'c', tone: 'accent' },
+]
+const PAIR_BC = [
+  { from: O, to: VB, label: 'b', tone: 'graph' },
+  { from: O, to: VC, label: 'c', tone: 'accent' },
+]
 
 const PAIR_IDS = ['p0', 'p1', 'p2', 'p3']
 const EQ_LEFT = S9.match.left.map((label, i) => ({ id: PAIR_IDS[i], label }))
@@ -662,9 +652,9 @@ const Screen1 = (p) => (
         // Prognoz TURG'UN chizmada: aynan shunda yon qirralar esdan chiqadi.
         fig={() => (
           <Scene
-            fig={<Space step={1} yaw={0.4} poly={PYR} pts={PTS} faces={BASE} segs={TWO_SEG} hide={['O']} />}
-            max={172}
-            h={172}
+            fig={<Space3D mode="dot" box={BOX} vectors={PAIR_AB} />}
+            max={230}
+            h={158}
           />
         )}
       />
@@ -678,7 +668,7 @@ const Screen2 = (p) => (
       <Cols l={1} r={1.2}>
         <Col>
           <Scene
-            fig={<Space step={1} yaw={0.4} poly={PYR} pts={PTS} faces={BASE} hide={['M', 'O']} />}
+            fig={<Space3D mode="dot" box={BOX} vectors={PAIR_AB} />}
             max={240}
             h={158}
           />
@@ -698,17 +688,21 @@ const Screen3 = (p) => (
          ko'pburchaklardan yig'iladi. */
       <Scene
         fig={(
-          <Space
-            step={1} yaw={0.35 + phase * 0.4} poly={PYR} pts={PTS}
-            faces={phase === 0 ? BASE : BASE_SIDE} hide={['M', 'O']}
+          <Space3D
+            mode="dot" box={BOX}
+            vectors={phase === 0
+              ? PAIR_AB
+              : [
+                { from: O, to: VA, label: 'a', coords: true },
+                { from: O, to: VB, label: 'b', coords: true, tone: 'graph' },
+              ]}
           />
         )}
         note={<NoteList items={S3.show[phase]} />}
       />
     ) : (
       <SpinScene
-        yaw0={0.35}
-        scene={<Space step={1} poly={PYR} pts={PTS} faces={BASE_SIDE} hide={['M', 'O']} />}
+        scene={<Space3D mode="dot" box={BOX} vectors={PAIR_AB} />}
         prompt={S3.work.prompt}
         answer={num(S3.work.answer)}
         okText={S3.work.ok}
@@ -727,9 +721,9 @@ const Screen4 = (p) => (
          qirra. Qirra yoritilgan, ya'ni ikki yoqning chegarasi ko'rinadi. */
       <Scene
         fig={(
-          <Space
-            step={1} yaw={0.35} poly={phase === 0 ? PYR_OFF : PYR} pts={PTS}
-            faces={BASE_SIDE} hide={['M', 'O']}
+          <Space3D
+            mode="dot" box={BOX} vectors={PAIR_AB}
+            value={phase === 0 ? 'len' : 'angle'}
           />
         )}
         note={<NoteList items={S4.show[phase]} />}
@@ -737,7 +731,7 @@ const Screen4 = (p) => (
     ) : (
       <SpinScene
         yaw0={0.35}
-        scene={<Space step={1} poly={PYR} pts={PTS} faces={BASE_SIDE} hide={['M', 'O']} />}
+        scene={<Space3D mode="dot" box={BOX} vectors={PAIR_AB} value="len" />}
         prompt={S4.work.prompt}
         answer={num(S4.work.answer)}
         okText={S4.work.ok}
@@ -754,12 +748,15 @@ const Screen5 = (p) => (
     {({ audio, phase, solved, solve }) => (phase < S5.show.length && !solved ? (
       <Scene
         fig={(
-          <Space
-            step={1} yaw={0.3 + phase * 0.45} poly={PYR} pts={PTS}
-            faces={BASE_SIDE} hi={['AB']}
-            segs={phase === 0 ? [EDGE] : TWO_SEG}
-            angleAt={phase === 0 ? null : RIGHT_M}
-            hide={['O']}
+          <Space3D
+            mode="dot" box={BOX}
+            vectors={phase === 0
+              ? [
+                { from: O, to: VA, label: 'a' },
+                { from: O, to: VC, label: 'c', coords: true, tone: 'accent' },
+              ]
+              : PAIR_AC}
+            value={phase === 0 ? 'len' : 'angle'}
           />
         )}
         note={<NoteList items={S5.show[phase]} />}
@@ -767,7 +764,7 @@ const Screen5 = (p) => (
     ) : (
       <SpinScene
         yaw0={0.3}
-        scene={<Space step={1} poly={PYR} pts={PTS} faces={BASE_SIDE} hi={['AB']} segs={TWO_SEG} angleAt={RIGHT_M} hide={['O']} />}
+        scene={<Space3D mode="dot" box={BOX} vectors={PAIR_AC} />}
         prompt={S5.work.prompt}
         answer={num(S5.work.answer)}
         okText={S5.work.ok}
@@ -784,10 +781,13 @@ const Screen6 = (p) => (
     {({ audio, phase, solved, solve }) => (phase < S6.show.length && !solved ? (
       <Scene
         fig={(
-          <Space
-            step={1} yaw={0.4} poly={PYR} pts={PTS} faces={BASE}
-            segs={phase === 0 ? [OM, HGT] : TRI_SOM}
-            angleAt={RIGHT_O}
+          <Space3D
+            mode="dot" box={BOX}
+            vectors={[
+              { from: O, to: VA, label: 'a', coords: true },
+              { from: O, to: VA, label: 'a', tone: 'accent', dash: true },
+            ]}
+            value={phase === 0 ? 'none' : 'len'}
           />
         )}
         note={<NoteList items={S6.show[phase]} />}
@@ -795,7 +795,15 @@ const Screen6 = (p) => (
     ) : (
       <SpinScene
         yaw0={0.3}
-        scene={<Space step={1} poly={PYR} pts={PTS} faces={BASE} segs={TRI_SOM} angleAt={RIGHT_O} />}
+        scene={(
+          <Space3D
+            mode="dot" box={BOX}
+            vectors={[
+              { from: O, to: VA, label: 'a', coords: true },
+              { from: O, to: VA, label: 'a', tone: 'accent', dash: true },
+            ]}
+          />
+        )}
         prompt={S6.work.prompt}
         answer={num(S6.work.answer)}
         okText={S6.work.ok}
@@ -814,10 +822,10 @@ const Screen7 = (p) => (
          qirrada, va qimirlamas chizmada u deyarli ko'rinmaydi. */
       <Scene
         fig={(
-          <Space
-            step={1} yaw={0.4} poly={phase === 0 ? PYR : PYR_OFF} pts={PTS}
-            faces={BASE} segs={[EDGE, HGT]} hide={['M']}
-            angleAt={phase === 0 ? RIGHT_O : null}
+          <Space3D
+            mode="dot" box={BOX}
+            vectors={phase === 0 ? PAIR_BC : PAIR_AC}
+            value={phase === 0 ? 'angle' : 'angle'}
           />
         )}
         note={<NoteList items={S7.show[phase]} />}
@@ -825,7 +833,7 @@ const Screen7 = (p) => (
     ) : (
       <SpinScene
         yaw0={0.35}
-        scene={<Space step={1} poly={PYR} pts={PTS} faces={BASE} segs={[EDGE, HGT]} hide={['M']} angleAt={RIGHT_O} />}
+        scene={<Space3D mode="dot" box={BOX} vectors={PAIR_BC} />}
         prompt={S7.work.prompt}
         answer={num(S7.work.answer)}
         okText={S7.work.ok}
@@ -846,10 +854,9 @@ const Screen8 = (p) => (
         fig={(solved) => (
           <Scene
             fig={(
-              <Space
-                step={1} yaw={solved ? 0.8 : 0.35}
-                poly={PYR} pts={PTS} faces={BASE_SIDE}
-                segs={TWO_SEG} angleAt={solved ? RIGHT_M : null} hide={['O']}
+              <Space3D
+                mode="dot" box={BOX} yaw={solved ? 0.9 : 0}
+                vectors={PAIR_AB} value={solved ? 'angle' : 'none'}
               />
             )}
             max={330}
@@ -1000,11 +1007,9 @@ const Screen14 = (p) => (
         fig={(round) => (
           <Scene
             fig={(
-              <Space
-                step={1} yaw={0.35 + round * 0.3}
-                poly={PYR} pts={PTS} faces={BASE_SIDE}
-                segs={round === 1 ? ALL_SEG : TWO_SEG}
-                hide={round === 1 ? [] : ['O']}
+              <Space3D
+                mode="dot" box={BOX} yaw={round * 0.3}
+                vectors={round === 1 ? PAIR_AC : PAIR_AB}
               />
             )}
             max={260}

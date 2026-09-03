@@ -4,7 +4,7 @@
 // Bu fayl `scripts/grade10-kontent-build.mjs` bilan yasalgan:
 //   manba:  src/books/grade10/DARS13_KONTENT.md
 // Ma'lumot mashina bilan yig'ilgan, ekran tanalari qo'lda yozilgan (etalon
-// §5.3). Tekshirish: `node scripts/grade10-check.mjs dars13`.
+// §5.3). Tekshirish: `node scripts/grade10-check.mjs dars12`.
 //
 // `import React` SHART (LMS klassik rejim).
 // ============================================================================
@@ -33,37 +33,37 @@ import {
   Scene,
   UnitCircle,
 } from './tools.jsx'
-// `LostRoots` -- свидетель урока: серия гаснет на глазах. Снята на стенде до
-// контента.
-import { LevelLine, LostRoots } from './figures.jsx'
+// Линия тангенсов — единственная новая фигура урока. Снята на стенде до
+// контента, и стенд поймал два дефекта (см. START_GRADE10).
+import { TanLine } from './figures.jsx'
 
 // Метка урока: `lesson_id` = grade10-<номер>, `lesson_name` = номер + тема
 // ИЗ ПЛАНА дословно.
 const LESSON_NO = 13
 const LESSON_ID = `grade10-${String(LESSON_NO).padStart(2, '0')}`
 const LESSON_TITLE = L(
-  `${LESSON_NO}-dars. Usullar`,
-  `Урок ${LESSON_NO}. Методы`,
-  `Lesson ${LESSON_NO}. Methods`,
+  `${LESSON_NO}-dars. tg x = a`,
+  `Урок ${LESSON_NO}. tg x = a`,
+  `Lesson ${LESSON_NO}. tg x = a`,
 )
 
-const BLOCK = { label: 'B2', from: 8, to: 13, current: 13 }
+const BLOCK = { label: 'B2', from: 9, to: 14, current: 13 }
 
 const S1 = {
   role: 'hook',
   answer: 'pick4',
-  eyebrow: L('USULLAR', 'МЕТОДЫ', 'THE METHODS'),
-  title: L("Kosinusga bo'lish mumkinmi?", 'Можно ли делить на косинус?', 'May we divide by the cosine?'),
+  eyebrow: L('TANGENS', 'ТАНГЕНС', 'THE TANGENT'),
+  title: L('Tangens necha gradusdan keyin takrorlanadi?', 'Через сколько повторяется тангенс?', 'After how much does the tangent repeat?'),
   motion: ['mount'],
   audio: [
-    A('mount', "Aylanada to'rt ildiz yonib turadi. Endi ikkala qismni kosinusga bo'lamiz, va ulardan ikkitasi so'nadi.", 'На окружности горят четыре корня. Сейчас мы поделим обе части на косинус, и два из них погаснут.', 'Four roots are lit on the circle. Now we will divide both sides by the cosine, and two of them will fade.'),
-    A('r1', "Birinchi yozuv bo'lish mumkin va javob o'zgarmaydi deydi.", 'Первая запись говорит, что делить можно и ответ не изменится.', 'The first reading says dividing is fine and the answer stays.'),
-    A('r2', 'Ikkinchisi ildizlarning bir qismi javobga tushmaydi deydi.', 'Вторая говорит, что часть корней в ответ не попадёт.', 'The second says some roots will not be in the answer.'),
+    A('mount', "Markazdan o'tgan chiziq yarim aylanaga buriladi, o'ngdagi kesish esa joyida qoladi.", 'Прямая через центр поворачивается на половину оборота, и отсечка справа остаётся на месте.', 'The line through the centre turns half a turn, and the mark on the right stays in place.'),
+    A('r1', "Birinchi yozuv to'liq aylanadan keyin takrorlanadi deydi.", 'Первая запись говорит, что повторяется через полный оборот.', 'The first reading says it repeats after a full turn.'),
+    A('r2', 'Ikkinchisi yarmi yetadi deydi.', 'Вторая говорит, что достаточно половины.', 'The second says half is enough.'),
     A('ask', "Sizningcha qaysi biri to'g'ri? Hozircha shunchaki taxmin qiling.", 'Как думаешь, какая верная? Пока просто предположи.', 'Which one do you think is right? Just make a guess for now.'),
   ],
   probe: {
     question: L("Qaysi yozuv to'g'ri?", 'Какая запись верна?', 'Which reading is correct?'),
-    afterPredict: L("Javobingiz yozib olindi. Endi bo'lib, nima qolishini ko'ramiz.", 'Твой ответ записан. Сейчас поделим и посмотрим, что останется.', 'Your answer is saved. Now we will divide and see what is left.'),
+    afterPredict: L("Javobingiz yozib olindi. Endi chiziqni burib ko'ramiz.", 'Твой ответ записан. Сейчас повернём прямую и посмотрим.', 'Your answer is saved. Now we will turn the line and see.'),
     items: [
       { id: 'a', label: L('birinchi', 'первая', 'the first') },
       { id: 'b', label: L('ikkinchi', 'вторая', 'the second'), correct: true },
@@ -73,22 +73,22 @@ const S1 = {
   },
   row: {
     a: {
-      name: L("mumkin, javob o'sha", 'можно, ответ тот же', 'yes, the answer stays'),
-      value: '2 sin x = 1',
+      name: L("to'liq aylanadan keyin", 'через полный оборот', 'after a full turn'),
+      value: 'x = arctg a + 360°n',
     },
     b: {
-      name: L("mumkin emas, ildizlar yo'qoladi", 'нельзя, корни потеряются', 'no, roots get lost'),
-      value: 'cos x·(2 sin x − 1) = 0',
+      name: L('yarim aylanadan keyin', 'через половину', 'after half a turn'),
+      value: 'x = arctg a + 180°n',
     },
   },
-  expr: '2 sin x·cos x = cos x',
+  expr: 'tg x = a',
 }
 
 const S2 = {
   role: 'support',
   answer: 'pick4',
   eyebrow: L('TAYANCH', 'ОПОРА', 'WHAT YOU KNOW'),
-  title: L('Usullardan oldin uch savol', 'Три вопроса перед методами', 'Three questions before the methods'),
+  title: L('Tangensdan oldin uch savol', 'Три вопроса перед тангенсом', 'Three questions before the tangent'),
   tag: 'support',
   audio: [
     A('mount', "Uch qisqa savol. Uchalasi ham bir daqiqadan keyin kerak bo'ladi.", 'Три коротких вопроса. Все три понадобятся через минуту.', 'Three short questions. All three will be needed in a minute.'),
@@ -97,37 +97,37 @@ const S2 = {
     {
       id: 'q1',
       ask: true,
-      prompt: L("Ko'paytma qachon nolga teng?", 'Когда произведение равно нулю?', 'When is a product equal to zero?'),
-      done: 'a·b = 0',
+      prompt: L('Burchak tangensi nima?', 'Что такое тангенс угла?', 'What is the tangent of an angle?'),
+      done: 'tg α = y / x',
       items: [
-        { id: 'a', label: L("bitta ko'paytuvchi nol", 'хотя бы один множитель ноль', 'at least one factor is zero'), correct: true },
-        { id: 'b', label: L("hamma ko'paytuvchi nol", 'все множители нули', 'all factors are zero'), hint: L("Bittasi yetadi: qolganlari har qanday bo'lishi mumkin.", 'Достаточно одного: остальные могут быть любыми.', 'One is enough: the others may be anything.') },
-        { id: 'c', label: L("ko'paytuvchilar teng", 'множители равны', 'the factors are equal'), hint: L("Teng ko'paytuvchilar kvadrat beradi, nol emas.", 'Равные множители дают квадрат, а не обязательно ноль.', 'Equal factors give a square, not necessarily zero.') },
-        { id: 'd', label: L('hech qachon', 'никогда', 'never'), hint: L("Ko'paytmadagi nol hammasini nollaydi.", 'Ноль в произведении обнуляет всё.', 'A zero in a product zeroes everything.') },
+        { id: 'a', label: L('balandlikning siljishga nisbati', 'высота, делённая на сдвиг', 'the height divided by the shift'), correct: true },
+        { id: 'b', label: L('siljishning balandlikka nisbati', 'сдвиг, делённый на высоту', 'the shift divided by the height'), hint: L("Bu ag'darilgan nisbat, uning nomi boshqa.", 'Это перевёрнутое отношение, у него другое имя.', 'That is the reversed ratio, it has a different name.') },
+        { id: 'c', label: L("koordinatalar yig'indisi", 'сумма координат', 'the sum of the coordinates'), hint: L("Tangens nisbat, yig'indi emas.", 'Тангенс это отношение, а не сумма.', 'The tangent is a ratio, not a sum.') },
+        { id: 'd', label: L('radius uzunligi', 'длина радиуса', 'the length of the radius'), hint: L("Radius doim birga teng va burchakka bog'liq emas.", 'Радиус всегда равен единице и от угла не зависит.', 'The radius is always one and does not depend on the angle.') },
       ],
     },
     {
       id: 'q2',
       ask: true,
-      prompt: L('Qaysi burchaklarda kosinus nolga teng?', 'При каких углах косинус равен нулю?', 'At which angles is the cosine zero?'),
-      done: 'cos x = 0   →   90°,  270°',
+      prompt: L("Qaysi burchakda tangens yo'q?", 'При каком угле тангенса нет?', 'At which angle does the tangent not exist?'),
+      done: 'x = 0',
       items: [
-        { id: 'a', label: L("to'qson va ikki yuz yetmish", 'девяносто и двести семьдесят', 'ninety and two hundred seventy'), correct: true },
-        { id: 'b', label: L('nol va yuz sakson', 'ноль и сто восемьдесят', 'zero and one hundred eighty'), hint: L("U yerda nol balandlikda, ya'ni sinusda.", 'Там ноль у высоты, то есть у синуса.', 'There the zero is in the height, that is the sine.') },
-        { id: 'c', label: L('hech qaysida', 'ни при каких', 'at none of them'), hint: L("Vertikal o'qda siljish nolga teng.", 'На вертикальной оси сдвиг равен нулю.', 'On the vertical axis the shift is zero.') },
-        { id: 'd', label: L('qirq besh', 'сорок пять', 'forty five'), hint: L('U yerda siljish va balandlik teng va nolga teng emas.', 'Там сдвиг и высота равны и не равны нулю.', 'There the shift and the height are equal and not zero.') },
+        { id: 'a', label: L("to'qson gradusda", 'при девяноста градусах', 'at ninety degrees'), correct: true },
+        { id: 'b', label: L('nolda', 'при нуле', 'at zero'), hint: L('Nolda balandlik nolga teng, nisbat ham nol.', 'При нуле высота равна нулю, и отношение тоже ноль.', 'At zero the height is zero, and the ratio is zero too.') },
+        { id: 'c', label: L('yuz saksonda', 'при ста восьмидесяти', 'at one hundred eighty'), hint: L("U yerda siljish minus birga teng, bo'lish mumkin.", 'Там сдвиг равен минус единице, делить можно.', 'There the shift is minus one, division works.') },
+        { id: 'd', label: L('tangens doim bor', 'тангенс есть всегда', 'it always exists'), hint: L("To'qsonda siljish nolga teng, nolga esa bo'lib bo'lmaydi.", 'На девяноста сдвиг равен нулю, а на ноль делить нельзя.', 'At ninety the shift is zero, and division by zero is not allowed.') },
       ],
     },
     {
       id: 'q3',
       ask: true,
-      prompt: L('Sinus qanday qiymatlarni olishi mumkin?', 'Какие значения может принимать синус?', 'Which values can the sine take?'),
-      done: '−1 ≤ sin x ≤ 1',
+      prompt: L('Nuqtani avvalgi joyiga nima qaytaradi?', 'Что возвращает точку на прежнее место?', 'What returns the point to its former place?'),
+      done: 'α + 360°n',
       items: [
-        { id: 'a', label: L('minus birdan birgacha', 'от минус единицы до единицы', 'from minus one to one'), correct: true },
-        { id: 'b', label: L('har qanday', 'любые', 'any values'), hint: L("Nuqta radiusi bir bo'lgan aylanada yotadi.", 'Точка лежит на окружности радиуса один.', 'The point lies on the circle of radius one.') },
-        { id: 'c', label: L('faqat butun sonlar', 'только целые', 'only whole numbers'), hint: L("Nol va bir orasida qiymatlar qancha bo'lsa ham bor.", 'Между нулём и единицей значений сколько угодно.', 'Between zero and one there are any number of values.') },
-        { id: 'd', label: L('faqat musbat', 'только положительные', 'only positive ones'), hint: L("O'qdan pastda balandlik manfiy.", 'Ниже оси высота отрицательна.', 'Below the axis the height is negative.') },
+        { id: 'a', label: L('butun sondagi aylana', 'целое число оборотов', 'a whole number of turns'), correct: true },
+        { id: 'b', label: L('yarim aylana', 'половина оборота', 'half a turn'), hint: L('Yarim aylana nuqtani qarshi tomonga olib ketadi.', 'Половина уводит точку напротив.', 'Half a turn sends the point opposite.') },
+        { id: 'c', label: L('chorak aylana', 'четверть оборота', 'a quarter turn'), hint: L("Chorak nuqtani qo'shni o'qqa olib o'tadi.", 'Четверть переводит точку на соседнюю ось.', 'A quarter moves the point to the neighbouring axis.') },
+        { id: 'd', label: L('hech narsa', 'ничто', 'nothing'), hint: L("Qaytaradi: to'liq aylana nuqtani o'sha yerga olib keladi.", 'Возвращает: полный оборот приводит точку туда же.', 'It does: a full turn brings the point to the same place.') },
       ],
     },
   ],
@@ -137,31 +137,31 @@ const S3 = {
   role: 'explain1',
   answer: 'lead',
   eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L("Umumiy ko'paytuvchi chiqariladi", 'Общий множитель выносится', 'The common factor comes out'),
-  tag: 'koren-poteryan-pri-delenii',
+  title: L("Tangenslar chizig'i", 'Линия тангенсов', 'The line of tangents'),
+  tag: 'tg-period-2pi',
   show: [
     [
-      L('kosinus ikkala qismda ham bor', 'косинус есть в обеих частях', 'the cosine is in both sides'),
-      L("ko'chiramiz va chiqaramiz", 'переносим и выносим', 'we move it over and factor it out'),
+      L("o'ngda vertikal chiziq turadi", 'справа стоит вертикальная линия', 'a vertical line stands on the right'),
+      L("markazdan o'tgan chiziq unga qadar davom etadi", 'прямая через центр продолжается до неё', 'the line through the centre reaches it'),
     ],
     [
-      L("ko'paytma nolga teng", 'произведение равно нулю', 'the product equals zero'),
-      L('demak ikkita sodda tenglama', 'значит два простейших уравнения', 'so two simplest equations'),
+      L("kesish tangensning o'zi", 'отсечка и есть тангенс', 'the mark is the tangent'),
+      L('uning balandligi nisbatga teng', 'её высота равна отношению', 'its height equals the ratio'),
     ],
   ],
-  motion: ['split'],
+  motion: ['cut'],
   audio: [
-    A('mount', 'Tenglamada kosinus ikkala qismda turadi. Uni chiqarish mumkin.', 'В уравнении косинус стоит в обеих частях. Его можно вынести.', 'In the equation the cosine stands in both sides. It can be factored out.'),
-    A('split', "Hammasini bir qismga ko'chiramiz va kosinusni chiqaramiz. Nolga teng ko'paytma chiqadi, bunday ko'paytma esa ikkita sodda tenglamaga ajraladi. Aylanada to'rt ildiz yonadi: ikkitasi kosinusdan, ikkitasi sinusdan.", 'Переносим всё в одну часть и выносим косинус. Получается произведение, равное нулю, а такое произведение распадается на два простейших уравнения. На окружности зажигаются все четыре корня: два от косинуса и два от синуса.', 'We move everything to one side and factor out the cosine. A product equal to zero appears, and such a product splits into two simplest equations. All four roots light up on the circle: two from the cosine and two from the sine.'),
-    A('work', "Endi o'zingiz. Kosinus beradigan ildizga nuqta qo'ying.", 'Теперь сам. Поставь точку в тот корень, который даёт косинус.', 'Now you. Place the point at the root that comes from the cosine.'),
+    A('mount', "Aylananing o'ng tomonida vertikal chiziq turadi. U tangens uchun asbob.", 'Справа от окружности стоит вертикальная линия. Она и есть прибор для тангенса.', 'A vertical line stands to the right of the circle. That is the instrument for the tangent.'),
+    A('cut', "Markazdan o'tkazilgan chiziq shu chiziqqacha davom etadi va unda bir bo'lak kesadi. Shu bo'lakning balandligi burchak tangensi: balandlikning siljishga nisbati.", 'Прямая, проведённая через центр, продолжается до этой линии и отсекает на ней кусок. Высота этого куска и есть тангенс угла: отношение высоты к сдвигу.', 'The line drawn through the centre continues to that line and cuts off a piece. The height of that piece is the tangent of the angle: the height divided by the shift.'),
+    A('work', "Endi o'zingiz. Nuqtani qirq besh gradusga qo'ying va kesishga qarang.", 'Теперь сам. Поставь точку на сорок пять градусов и посмотри на отсечку.', 'Now you. Place the point at forty five degrees and look at the mark.'),
   ],
   work: {
-    prompt: L("Kosinus nolga teng bo'lgan ildizga nuqta qo'ying.", 'Поставь точку в корень, где косинус равен нулю.', 'Place the point at the root where the cosine is zero.'),
-    ok: L("To'qson gradus. U yerda siljish nolga teng, demak birinchi ko'paytuvchi nollanadi.", 'Девяносто градусов. Сдвиг там равен нулю, значит первый множитель обнуляется.', 'Ninety degrees. The shift there is zero, so the first factor becomes zero.'),
+    prompt: L("Nuqtani 45 gradusga qo'ying.", 'Поставь точку на 45 градусов.', 'Place the point at 45 degrees.'),
+    ok: L('Bu yerda balandlik va siljish teng, shuning uchun nisbat birga teng, kesish esa bir balandlikda turadi.', 'Здесь высота и сдвиг равны, поэтому отношение равно единице, и отсечка стоит на высоте один.', 'Here the height and the shift are equal, so the ratio is one, and the mark stands at height one.'),
     hint: [
-      L('Kosinus bu siljish, u nolga teng joyni qidiring.', 'Косинус это сдвиг, ищи, где он равен нулю.', 'The cosine is the shift, look where it is zero.'),
-      L('Bu aylananing yuqori yoki pastki nuqtasi.', 'Это верхняя или нижняя точка окружности.', 'That is the top or the bottom point of the circle.'),
-      L("To'qson gradus.", 'Девяносто градусов.', 'Ninety degrees.'),
+      L("Qirq besh bu o'qlar orasidagi o'rta.", 'Сорок пять это середина между осями.', 'Forty five is midway between the axes.'),
+      L('U yerda balandlik va siljish bir xil.', 'Там высота и сдвиг одинаковые.', 'There the height and the shift are the same.'),
+      L('Qirq besh gradus.', 'Сорок пять градусов.', 'Forty five degrees.'),
     ],
   },
 }
@@ -170,31 +170,31 @@ const S4 = {
   role: 'explain2',
   answer: 'lead',
   eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L("Bo'lish seriyani so'ndiradi", 'Деление гасит серию', 'Dividing puts a series out'),
-  tag: 'koren-poteryan-pri-delenii',
+  title: L('Nuqta ketdi, kesish qoldi', 'Точка уехала, отсечка осталась', 'The point left, the mark stayed'),
+  tag: 'tg-period-2pi',
   show: [
     [
-      L("ikkala qismni kosinusga bo'lamiz", 'делим обе части на косинус', 'we divide both sides by the cosine'),
-      L('yozuv qisqardi', 'запись стала короче', 'the reading got shorter'),
+      L('yarim aylanaga burish', 'поворот на половину оборота', 'a turn of half a circle'),
+      L("nuqta boshqa bo'ldi", 'точка стала другой', 'the point became a different one'),
     ],
     [
-      L("ikki ildiz so'ndi", 'два корня погасли', 'two roots faded'),
-      L('ular esa yechim edi', 'а они были решением', 'and they were solutions'),
+      L('kesish qimirlamadi', 'отсечка не сдвинулась', 'the mark did not move'),
+      L("demak tangens o'sha", 'значит тангенс тот же', 'so the tangent is the same'),
     ],
   ],
-  motion: ['lose'],
+  motion: ['half'],
   audio: [
-    A('mount', "Endi boshqacha qilib ko'ramiz: ikkala qismni kosinusga bo'lamiz.", 'Теперь попробуем сделать иначе: поделим обе части на косинус.', 'Now let us try it differently: divide both sides by the cosine.'),
-    A('lose', "Yozuv qisqardi, lekin aylanaga qarang: ikki ildiz so'ndi. Bu kosinus nolga teng bo'lganlar. Ularga bo'lish mumkin emas edi, va ular javobdan tushib qoldi. Shuning uchun tenglama bo'linmaydi, ko'paytuvchilarga ajratiladi.", 'Запись стала короче, но смотри на окружность: два корня погасли. Это те, где косинус равен нулю. Делить на них было нельзя, и они выпали из ответа. Поэтому уравнение не делят, а разлагают на множители.', 'The reading got shorter, but look at the circle: two roots faded. Those are the ones where the cosine is zero. Dividing by them was not allowed, and they dropped out of the answer. That is why an equation is factored, not divided.'),
-    A('work', "Endi o'zingiz. Yo'qolgan ildizga nuqta qo'ying.", 'Теперь сам. Поставь точку в тот корень, который потерялся.', 'Now you. Place the point at the root that got lost.'),
+    A('mount', "Chiziqni yarim aylanaga buramiz va nima o'zgarishini ko'ramiz.", 'Повернём прямую на половину оборота и посмотрим, что изменится.', 'Let us turn the line half a circle and see what changes.'),
+    A('half', "Aylanadagi nuqta qarama-qarshi tomonga ketdi, kesish esa aynan o'sha yerda qoldi. Qarama-qarshi nuqtalarda ikkala koordinata ham ishorani almashtirdi, nisbat esa o'zgarmadi: minusga minus plyus beradi.", 'Точка на окружности ушла на противоположную сторону, а отсечка осталась ровно там же. У противоположных точек обе координаты сменили знак, а отношение от этого не изменилось: минус на минус даёт плюс.', 'The point on the circle moved to the opposite side, and the mark stayed exactly where it was. At opposite points both coordinates flipped sign, and the ratio did not change: minus times minus gives plus.'),
+    A('work', "Endi o'zingiz. Qarama-qarshisiga, ikki yuz yigirma besh gradusga nuqta qo'ying.", 'Теперь сам. Поставь точку в противоположную, на двести двадцать пять градусов.', 'Now you. Place the point at the opposite one, at two hundred twenty five degrees.'),
   ],
   work: {
-    prompt: L("Yo'qolgan ildizga nuqta qo'ying.", 'Поставь точку в потерянный корень.', 'Place the point at the lost root.'),
-    ok: L("Ikki yuz yetmish. U yerda kosinus nolga teng, va bo'lish aynan shu ildizlarni yo'q qiladi.", 'Двести семьдесят. Там косинус равен нулю, и деление именно эти корни и уничтожает.', 'Two hundred seventy. There the cosine is zero, and division destroys exactly those roots.'),
+    prompt: L("Nuqtani 225 gradusga qo'ying.", 'Поставь точку на 225 градусов.', 'Place the point at 225 degrees.'),
+    ok: L("Kesish o'sha. Ikki yuz yigirma beshning tangensi qirq beshnikidek.", 'Отсечка та же. Тангенс у двухсот двадцати пяти такой же, как у сорока пяти.', 'The same mark. The tangent at two hundred twenty five equals the one at forty five.'),
     hint: [
-      L("Kosinus nolga teng ildizlar yo'qoldi.", 'Потерялись те корни, где косинус равен нулю.', 'The lost roots are the ones where the cosine is zero.'),
-      L('Biri yuqorida, ikkinchisi pastda.', 'Один из них наверху, другой внизу.', 'One of them is at the top, the other at the bottom.'),
-      L('Ikki yuz yetmish gradus.', 'Двести семьдесят градусов.', 'Two hundred seventy degrees.'),
+      L('Qarama-qarshi nuqta markazning boshqa tomonida turadi.', 'Противоположная точка стоит по другую сторону от центра.', 'The opposite point stands on the other side of the centre.'),
+      L('Bu aylananing chap past qismi.', 'Это левая нижняя часть окружности.', 'That is the lower left part of the circle.'),
+      L('Ikki yuz yigirma besh gradus.', 'Двести двадцать пять градусов.', 'Two hundred twenty five degrees.'),
     ],
   },
 }
@@ -203,31 +203,31 @@ const S5 = {
   role: 'explain3',
   answer: 'lead',
   eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L('Almashtirish tenglamani oddiy qiladi', 'Замена делает уравнение обычным', 'A substitution makes it an ordinary equation'),
+  title: L('Seriya bitta, qadam yarim aylana', 'Серия одна, шаг половина оборота', 'One series, the step is half a turn'),
   tag: 'seriya-bez-n',
   show: [
     [
-      L('sinus ikki marta uchraydi', 'синус встречается дважды', 'the sine occurs twice'),
-      L('uni harf bilan belgilaymiz', 'обозначим его буквой', 'let us name it with a letter'),
+      L('ikkala nuqta bir qiymat beradi', 'обе точки дают одно значение', 'both points give one value'),
+      L('demak seriya bitta', 'значит серия одна', 'so the series is single'),
     ],
     [
-      L('oddiy tenglama chiqdi', 'получилось обычное уравнение', 'an ordinary equation came out'),
-      L('sakkizinchi sinfdagidek yechamiz', 'решаем как в восьмом классе', 'we solve it as in grade eight'),
+      L('qadam yuz saksonga teng', 'шаг равен ста восьмидесяти', 'the step equals one hundred eighty'),
+      L('uch yuz oltmishga emas', 'а не тремстам шестидесяти', 'not three hundred sixty'),
     ],
   ],
-  motion: ['swap'],
+  motion: ['one'],
   audio: [
-    A('mount', 'Bu yerda sinus ikki marta uchraydi: kvadratda va oddiy.', 'Здесь синус встречается дважды, и в квадрате, и просто.', 'Here the sine occurs twice, squared and plain.'),
-    A('swap', 'Sinusni te harfi bilan belgilaymiz. Tenglama oddiy kvadrat tenglamaga aylanadi, va u sakkizinchi sinfdagi usul bilan yechiladi. Ikki qiymat chiqadi: bir va bir ikkidan.', 'Обозначим синус буквой тэ. Уравнение становится обычным квадратным, и оно решается тем же способом, что в восьмом классе. Получаются два значения: единица и одна вторая.', 'Let us name the sine t. The equation becomes an ordinary quadratic one, and it is solved the same way as in grade eight. Two values come out: one and one half.'),
-    A('work', "Endi o'zingiz. Bir qiymatini beradigan ildizga nuqta qo'ying.", 'Теперь сам. Поставь точку в тот корень, который даёт значение единица.', 'Now you. Place the point at the root giving the value one.'),
+    A('mount', 'Sinus va kosinusda seriya ikkita edi. Bu yerda boshqacha.', 'У синуса и косинуса серий было две. Здесь другое.', 'For the sine and the cosine there were two series. Here it is different.'),
+    A('one', "Ikkala nuqta ham bir xil kesish beradi, demak ularni ajratishning keragi yo'q: seriya bitta. Ular esa yarim aylanadan keyin keladi, shuning uchun yozuvdagi qadam yuz sakson.", 'Обе точки дают одну и ту же отсечку, значит различать их незачем: серия одна. А идут они через половину оборота, поэтому и шаг в записи сто восемьдесят.', 'Both points give the same mark, so there is no need to tell them apart: the series is single. And they come half a turn apart, so the step in the reading is one hundred eighty.'),
+    A('work', "Endi o'zingiz. Ikki raqami olib keladigan joyga nuqta qo'ying.", 'Теперь сам. Поставь точку туда, куда приведёт номер два.', 'Now you. Place the point where the number two leads.'),
   ],
   work: {
-    prompt: L("Sinus birga teng joyga nuqta qo'ying.", 'Поставь точку, где синус равен единице.', 'Place the point where the sine equals one.'),
-    ok: L("To'qson gradus. U yerda balandlik birga teng, bu almashtirishning birinchi qiymati.", 'Девяносто градусов. Высота там равна единице, это и есть первое значение замены.', 'Ninety degrees. The height there is one, and that is the first value of the substitution.'),
+    prompt: L('`45° + 180° · 2` qayerga olib keladi?', 'Куда приведёт `45° + 180° · 2`?', 'Where does `45° + 180° · 2` lead?'),
+    ok: L("Boshlangan joyga. Yarim aylanadan ikki qadam bu to'liq aylana.", 'Туда же, где начали. Два шага по половине оборота это полный оборот.', 'Back where we started. Two half-turn steps make a full turn.'),
     hint: [
-      L('Sinus bu balandlik, eng kattasini qidiring.', 'Синус это высота, ищи наибольшую.', 'The sine is the height, look for the largest.'),
-      L("U aylananing eng tepasida bo'ladi.", 'Она бывает на самом верху окружности.', 'It happens at the very top of the circle.'),
-      L("To'qson gradus.", 'Девяносто градусов.', 'Ninety degrees.'),
+      L("Yuz saksonni ikki marta qo'shing.", 'Сложи сто восемьдесят два раза.', 'Add one hundred eighty twice.'),
+      L("Uch yuz oltmish chiqadi, ya'ni to'liq aylana.", 'Получится триста шестьдесят, то есть полный оборот.', 'You get three hundred sixty, a full turn.'),
+      L('Qirq besh gradus.', 'Сорок пять градусов.', 'Forty five degrees.'),
     ],
   },
 }
@@ -236,31 +236,31 @@ const S6 = {
   role: 'explain4',
   answer: 'number',
   eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L('Almashtirishning har qiymati yaramaydi', 'Не всякое значение замены годится', 'Not every substituted value fits'),
+  title: L("Tangensda qiymat uchun taqiq yo'q", 'У тангенса запретов на значение нет', 'The tangent has no forbidden values'),
   tag: 'net-resheniy',
   show: [
     [
-      L('almashtirish ikki qiymat berdi', 'замена дала два значения', 'the substitution gave two values'),
-      L('biri ikkiga teng', 'одно равно двум', 'one of them equals two'),
+      L("tangenslar chizig'i yuqoriga va pastga ketadi", 'линия тангенсов уходит вверх и вниз', 'the line of tangents runs up and down'),
+      L("uning chetlari yo'q", 'у неё нет краёв', 'it has no edges'),
     ],
     [
-      L('sinus ikkini bermaydi', 'синус двойки не даёт', 'the sine never gives two'),
-      L('demak bu qiymat tashlanadi', 'значит это значение отбрасывается', 'so that value is dropped'),
+      L('unda har qanday son uchraydi', 'любое число на ней встречается', 'every number occurs on it'),
+      L('demak tenglama doim yechiladi', 'значит уравнение решается всегда', 'so the equation always has a solution'),
     ],
   ],
-  motion: ['check'],
+  motion: ['free'],
   audio: [
-    A('mount', 'Boshqa tenglamani olaylik. Almashtirishdan keyin ikki va minus bir ikkidan chiqdi.', 'Возьмём другое уравнение. После замены получились двойка и минус одна вторая.', 'Take another equation. After the substitution we got two and minus one half.'),
-    A('check', "Ikki yaramaydi: aylanadagi nuqtaning balandligi birdan katta bo'lmaydi. Shunday balandlikdagi to'g'ri chiziq aylananing yonidan o'tardi. Demak bu qiymat tashlanadi, faqat ikkinchisi bilan yechish kerak.", 'Двойка не годится: высота точки на окружности больше единицы не бывает. Прямая на такой высоте прошла бы мимо круга. Значит это значение отбрасывается, а решать надо только со вторым.', 'Two does not fit: the height of a point on the circle is never above one. A line at such a height would miss the circle. So that value is dropped, and only the second one is solved.'),
-    A('work', "O'zingiz hisoblang. Almashtirishning nechta qiymati yaraydi?", 'Посчитай сам. Сколько значений замены годится?', 'Compute it yourself. How many substituted values fit?'),
+    A('mount', "Tangenslar chizig'ining o'ziga qaraymiz.", 'Посмотрим на саму линию тангенсов.', 'Let us look at the line of tangents itself.'),
+    A('free', "U yuqoriga va pastga chekkasiz ketadi, va unda har qanday son topiladi. Shuning uchun sinusda birdan katta qiymat mumkin emas edi, tangensda esa taqiq yo'q: tenglama har qanday sonda yechiladi.", 'Она уходит вверх и вниз без края, и любое число на ней найдётся. Поэтому у синуса значение больше единицы было невозможно, а у тангенса запретов нет: уравнение решается при любом числе.', 'It runs up and down without an edge, and any number can be found on it. That is why a value above one was impossible for the sine, while the tangent has no restrictions: the equation is solvable for any number.'),
+    A('work', "O'zingiz hisoblang. Tangens iks ikkiga teng tenglamada nechta seriya bor?", 'Посчитай сам. Сколько серий у уравнения тангенс икс равен двум?', 'Compute it yourself. How many series does tangent x equals two have?'),
   ],
   work: {
-    prompt: L('Almashtirishning nechta qiymati yaraydi?', 'Сколько значений замены годится?', 'How many substituted values fit?'),
-    ok: L("Bitta. Ikki chegaradan chiqadi, minus bir ikkidan esa sig'adi.", 'Одно. Двойка выходит за пределы, а минус одна вторая помещается.', 'One. Two is out of range, and minus one half fits.'),
+    prompt: L('tg x = 2 da nechta seriya bor?', 'Сколько серий у tg x = 2?', 'How many series does tg x = 2 have?'),
+    ok: L("Bitta. Ikki qiymati tangenslar chizig'ida bor, tangensda esa seriya doim bitta.", 'Одна. Значение два на линии тангенсов есть, а серия у тангенса всегда одна.', 'One. The value two exists on the line of tangents, and the tangent always has a single series.'),
     hint: [
-      L('Har qiymatni sinus chegaralari bilan tekshiring.', 'Проверь каждое значение по границам синуса.', 'Check each value against the bounds of the sine.'),
-      L('Chegaralar minus birdan birgacha.', 'Границы это от минус единицы до единицы.', 'The bounds are from minus one to one.'),
-      L('Bitta.', 'Одно.', 'One.'),
+      L("Tangenslar chizig'ida ikki bormi, qarang.", 'Посмотри, есть ли двойка на линии тангенсов.', 'Look whether two exists on the line of tangents.'),
+      L('Chiziq chekkasiz, demak bor.', 'Линия без краёв, значит есть.', 'The line has no edges, so it does.'),
+      L('Bitta.', 'Одна.', 'One.'),
     ],
     answer: '1',
   },
@@ -270,33 +270,33 @@ const S7 = {
   role: 'explain5',
   answer: 'number',
   eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L("O'zgaruvchiga qaytish", 'Возврат к переменной', 'Back to the variable'),
-  tag: 'seriya-bez-n',
+  title: L("Lekin tangensning o'zi hamma joyda yo'q", 'Но сам тангенс есть не везде', 'But the tangent itself is not everywhere'),
+  tag: 'tangens-bez-nulya',
   show: [
     [
-      L('almashtirish qiymati topildi', 'значение замены найдено', 'the substituted value is found'),
-      L('lekin bu hali javob emas', 'но это ещё не ответ', 'but that is not the answer yet'),
+      L('nuqta aylananing tepasiga ketadi', 'точка едет к верху окружности', 'the point moves to the top of the circle'),
+      L('siljish nolga ketadi', 'сдвиг уходит в ноль', 'the shift goes to zero'),
     ],
     [
-      L("orqaga qo'yamiz", 'подставляем обратно', 'we put it back'),
-      L('va soddani yechamiz', 'и решаем простейшее', 'and solve the simplest equation'),
+      L("chiziq parallel bo'lib qoladi", 'прямая становится параллельной', 'the line becomes parallel'),
+      L("kesish yo'q", 'отсечки нет', 'there is no mark'),
     ],
   ],
-  motion: ['back'],
+  motion: ['gone'],
   audio: [
-    A('mount', 'Almashtirish qiymati topildi, lekin javob harf bilan emas, burchaklar bilan yoziladi.', 'Значение замены найдено, но ответ пишется углами, а не буквой.', 'The substituted value is found, but the answer is written in angles, not in a letter.'),
-    A('back', "Topilgan qiymatni orqaga qo'yamiz va sodda tenglamani yechamiz. Almashtirishning bitta qiymati ikkita seriya beradi, chunki shu balandlikdagi to'g'ri chiziq aylanani ikki marta kesadi.", 'Подставляем найденное значение обратно и решаем простейшее уравнение. Одно значение замены даёт целых две серии корней, потому что прямая на этой высоте задевает окружность дважды.', 'We put the found value back and solve the simplest equation. One substituted value gives two whole series of roots, because a line at that height meets the circle twice.'),
-    A('work', "O'zingiz hisoblang. Almashtirishning bitta qiymati nechta seriya beradi?", 'Посчитай сам. Сколько серий даёт одно значение замены?', 'Compute it yourself. How many series does one substituted value give?'),
+    A('mount', 'Nuqta aylananing deyarli eng tepasida turadi.', 'Точка стоит почти у самого верха окружности.', 'The point stands almost at the very top of the circle.'),
+    A('gone', "Siljish kichrayadi va nolga ketadi, nolga esa bo'lib bo'lmaydi. Chizmada bu shunday ko'rinadi: chiziq tangenslar chizig'iga parallel bo'lib qoladi va uni endi kesmaydi. Kesish yo'q, demak qiymat ham yo'q.", 'Сдвиг уменьшается и уходит в ноль, а делить на ноль нельзя. На чертеже это видно так: прямая становится параллельной линии тангенсов и уже нигде её не пересекает. Отсечки нет, значит нет и значения.', 'The shift shrinks to zero, and division by zero is not allowed. On the drawing it looks like this: the line becomes parallel to the line of tangents and no longer meets it. There is no mark, so there is no value.'),
+    A('work', "O'zingiz hisoblang. Tangens iks ikkiga teng tenglamaning noldan yuz saksongacha oraliqda nechta ildizi bor?", 'Посчитай сам. Сколько корней у уравнения тангенс икс равен двум на промежутке от нуля до ста восьмидесяти?', 'Compute it yourself. How many roots does tangent x equals two have between zero and one hundred eighty?'),
   ],
   work: {
-    prompt: L('Almashtirishning bitta qiymati nechta seriya beradi?', 'Сколько серий даёт одно значение замены?', 'How many series does one substituted value give?'),
-    ok: L("Ikkita. Shu balandlikdagi to'g'ri chiziq aylanani ikki nuqtada kesadi, va har birining o'z seriyasi bor.", 'Две. Прямая на этой высоте задевает окружность в двух точках, и у каждой своя серия.', 'Two. A line at that height meets the circle at two points, and each has its own series.'),
+    prompt: L('tg x = 2 ning 0 dan 180° gacha nechta ildizi bor?', 'Сколько корней у tg x = 2 от 0 до 180°?', 'How many roots does tg x = 2 have from 0 to 180°?'),
+    ok: L('Bitta. Yarim aylanada seriya aynan bitta ildiz beradi.', 'Один. На половине оборота серия даёт ровно один корень.', 'One. On half a turn the series gives exactly one root.'),
     hint: [
-      L("Topilgan balandlikda to'g'ri chiziq o'tkazing.", 'Проведи прямую на найденной высоте.', 'Draw a line at the found height.'),
-      L('U aylanani ikki nuqtada kesadi.', 'Она задевает окружность в двух точках.', 'It meets the circle at two points.'),
-      L('Ikkita.', 'Две.', 'Two.'),
+      L('Seriyaning qadami yuz saksonga teng.', 'Шаг серии равен ста восьмидесяти.', 'The step of the series is one hundred eighty.'),
+      L("Demak bunday oraliqqa bitta ildiz sig'adi.", 'Значит на таком промежутке помещается один корень.', 'So one root fits into such an interval.'),
+      L('Bitta.', 'Один.', 'One.'),
     ],
-    answer: '2',
+    answer: '1',
   },
 }
 
@@ -304,28 +304,28 @@ const S8 = {
   role: 'rule',
   answer: 'pick2',
   eyebrow: L('QOIDA', 'ПРАВИЛО', 'RULE'),
-  title: L('Soddaga qanday keltirish', 'Как приводить к простейшему', 'How to reduce to the simplest'),
-  tag: 'koren-poteryan-pri-delenii',
+  title: L('Tangens ildizlarining yozuvi', 'Запись корней тангенса', 'The reading of tangent roots'),
+  tag: 'tg-period-2pi',
   motion: ['rule'],
   audio: [
     A('mount', 'Tushuntirish tugadi. Qoidani ochishdan oldin bitta savol.', 'Объяснение закончилось. Перед правилом один вопрос.', 'The explanation is over. One question before the rule.'),
-    A('rule', "So'ngan ildizlar qaytadan yonadi, va qoida yonida ochiladi. Noma'lumli ifodaga bo'lish kelishuv bo'yicha emas, ekranda nima yo'qolganini ko'rish mumkin bo'lgani uchun mumkin emas.", 'Погасшие корни зажигаются обратно, и правило открывается рядом. Делить на выражение с неизвестным нельзя не по договору, а потому, что на экране видно, что при этом теряется.', 'The faded roots light up again, and the rule opens beside it. Dividing by an expression with the unknown is forbidden not by agreement but because the screen shows what gets lost.'),
+    A('rule', 'Chiziq yana bir bor buriladi, va qoida yonida ochiladi. Yuz sakson qadam yozuvning qisqartmasi emas, ikkala nuqta bitta kesish bergani.', 'Прямая поворачивается ещё раз, и правило открывается рядом. Шаг сто восемьдесят это не сокращение записи, а то, что обе точки дают одну отсечку.', 'The line turns once more, and the rule opens beside it. The step of one hundred eighty is not shorthand but the fact that both points give one mark.'),
   ],
   probe: {
-    question: L("Nega kosinusga bo'lish mumkin emas?", 'Почему нельзя делить на косинус?', 'Why is dividing by the cosine not allowed?'),
+    question: L('Nega tangensda qadam yuz sakson?', 'Почему у тангенса шаг сто восемьдесят?', 'Why is the tangent step one hundred eighty?'),
     items: [
-      { id: 'a', label: L("u nol bo'lgan joyda ildizlar bor edi", 'там, где он ноль, были корни', 'where it is zero there were roots'), correct: true },
-      { id: 'b', label: L("bo'lish yozuvni murakkablashtiradi", 'деление усложняет запись', 'division makes the reading harder'), hint: L("Yozuv aksincha soddalashadi. Gap yo'qolgan ildizlarda, qulaylikda emas.", 'Запись как раз упрощается. Дело в потерянных корнях, а не в удобстве.', 'The reading actually gets simpler. The issue is the lost roots, not convenience.') },
+      { id: 'a', label: L('qarama-qarshi nuqtalar bir qiymat beradi', 'противоположные точки дают одно значение', 'opposite points give the same value'), correct: true },
+      { id: 'b', label: L('shunday yozish qisqaroq', 'так короче писать', 'it is shorter to write'), hint: L("Qisqaligi natija. Sabab ikkala nuqtaning kesishi bitta bo'lgani.", 'Короче это следствие. Причина в том, что отсечка у обеих точек одна.', 'Shortness is the consequence. The cause is that both points share one mark.') },
     ],
   },
   rule: {
-    lawLabel: L('Keltirish', 'Приведение', 'The reduction'),
+    lawLabel: L('Tangens seriyasi', 'Серия тангенса', 'The tangent series'),
     lines: [
-      L("Umumiy ko'paytuvchi chiqariladi, nolga teng ko'paytma esa sodda tenglamalarga ajraladi.", 'Общий множитель выносят, а произведение, равное нулю, распадается на простейшие уравнения.', 'The common factor is taken out, and a product equal to zero splits into simplest equations.'),
-      L("Ikkala qismni noma'lumli ifodaga bo'lish mumkin emas: u nolga teng bo'lgan ildizlar yo'qoladi.", 'Делить обе части на выражение с неизвестным нельзя: корни, где оно равно нулю, теряются.', 'Both sides must not be divided by an expression with the unknown: the roots where it is zero get lost.'),
-      L("Almashtirishdan keyin chegaralar tekshiriladi, oxirida esa o'zgaruvchiga qaytiladi.", 'После замены проверяют границы, а в конце возвращаются к переменной.', 'After a substitution the bounds are checked, and at the end we return to the variable.'),
+      L("Markazdan o'tgan chiziq ikkita qarama-qarshi nuqta beradi, ikkalasining tangensi bir xil.", 'Прямая через центр даёт две противоположные точки, и обе имеют один и тот же тангенс.', 'A line through the centre gives two opposite points, and both have the same tangent.'),
+      L("Shuning uchun seriya bitta, qadami esa `180°`, ya'ni `π`.", 'Поэтому серия одна, а шаг у неё `180°`, то есть `π`.', 'So the series is single, and its step is `180°`, that is `π`.'),
+      L("Qiymat har qanday bo'lishi mumkin, lekin `x = 90° + 180°n` da tangensning o'zi yo'q.", 'Значение может быть любым, но самого тангенса нет при `x = 90° + 180°n`.', 'The value may be any number, but the tangent itself does not exist at `x = 90° + 180°n`.'),
     ],
-    law: 'a·b = 0   →   a = 0,  b = 0',
+    law: 'x = arctg a + 180°n',
   },
 }
 
@@ -334,19 +334,19 @@ const S9 = {
   answer: 'match',
   format: 'match',
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
-  title: L("To'liq javobda nechta seriya", 'Сколько серий в полном ответе', 'How many series in the full answer'),
-  tag: 'koren-poteryan-pri-delenii',
+  title: L('Tenglama va uning seriyasi', 'Уравнение и его серия', 'The equation and its series'),
+  tag: 'tg-period-2pi',
   audio: [
-    A('mount', "To'rt tenglama va to'rt son. Ularni birlashtiring.", 'Четыре уравнения и четыре числа. Соедини их.', 'Four equations and four numbers. Match them.'),
+    A('mount', "To'rt tenglama va to'rt yozuv. Ularni birlashtiring.", 'Четыре уравнения и четыре записи. Соедини их.', 'Four equations and four readings. Match them.'),
   ],
   match: {
-    prompt: L("Tenglamani to'liq javobdagi seriyalar soni bilan birlashtiring.", 'Соедини уравнение с числом серий в полном ответе.', 'Match the equation with the number of series in its full answer.'),
-    ok: L("Ildizlar emas, seriyalar sanaladi. Kosinusda ikki nuqta bitta seriyaga yig'iladi, sinusda esa yo'q, aylananing yonidan o'tgan chiziq esa birortasini bermaydi.", 'Считаются серии, а не корни. У косинуса две точки складываются в одну серию, у синуса нет, а прямая мимо круга не даёт ни одной.', 'Series are counted, not roots. For the cosine two points fold into one series, for the sine they do not, and a line that misses the circle gives none.'),
-    left: ['sin x cos x = 0', '2 sin x cos x = cos x', 'sin x = −1', 'sin x = 2'],
-    a: '2',
-    b: '3',
-    c: '1',
-    d: '0',
+    prompt: L("Tenglamani o'z yozuvi bilan birlashtiring.", 'Соедини уравнение с его записью.', 'Match the equation with its reading.'),
+    ok: L("Tangensda qadam doim yuz sakson, faqat seriyaning boshi o'zgaradi.", 'У тангенса шаг всегда сто восемьдесят, меняется только начало серии.', 'For the tangent the step is always one hundred eighty, only the start of the series changes.'),
+    left: ['tg x = 1', 'tg x = 0', 'tg x = −1', 'tg x = √3'],
+    a: '45° + 180°n',
+    b: '180°n',
+    c: '−45° + 180°n',
+    d: '60° + 180°n',
   },
 }
 
@@ -355,20 +355,20 @@ const S10 = {
   answer: 'order',
   format: 'order-steps',
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
-  title: L('Qadam bilan yeching', 'Реши по шагам', 'Solve it step by step'),
-  tag: 'koren-poteryan-pri-delenii',
+  title: L("Javobni qadam bilan yig'ing", 'Собери ответ по шагам', 'Assemble the answer step by step'),
+  tag: 'seriya-bez-n',
   audio: [
     A('mount', "To'rtta qadam. Tartibini o'zingiz qo'yasiz.", 'Четыре шага. Порядок ставишь ты.', 'Four steps. You put them in order.'),
   ],
   order: {
     prompt: L('Qadamlarni tartib bilan joylashtiring.', 'Расставь шаги по порядку.', 'Put the steps in order.'),
-    s1: L('hammasi bir qismga', 'всё в одну часть', 'everything to one side'),
-    s2: L("ko'paytuvchini chiqaramiz", 'выносим множитель', 'we factor it out'),
-    s3: L('ikkita sodda', 'два простейших', 'two simplest equations'),
-    s4: L('ikkala seriya javobga', 'обе серии в ответ', 'both series into the answer'),
-    ok: L("Tartib doim shunday. Unda bo'lish bir qadamda ham yo'q, shuning uchun yo'qotadigan narsa yo'q.", 'Порядок такой всегда. Деления в нём нет ни на одном шаге, поэтому и терять нечего.', 'The order is always this. There is no division at any step, so there is nothing to lose.'),
-    bad: L("Avval hammasi bir qismga, keyin ko'paytuvchi, keyin ikki tenglama, keyin javob.", 'Сначала всё в одну часть, потом множитель, потом два уравнения, потом ответ.', 'First everything to one side, then the factor, then two equations, then the answer.'),
-    mark: '90°',
+    s1: L('chiziqdagi qiymat', 'значение на линии', 'the value on the line'),
+    s2: L('markazdan chiziq', 'прямая через центр', 'the line through the centre'),
+    s3: L('oynadagi burchak', 'угол из окна', 'the angle from the window'),
+    s4: L('qadam yuz sakson', 'шаг сто восемьдесят', 'the step one hundred eighty'),
+    ok: L('Tartib doim shunday: avval chiziqdagi qiymat, keyin chiziq, keyin burchak, keyin qadam.', 'Порядок такой всегда: сначала значение на линии, потом прямая, потом угол, потом шаг.', 'The order is always this: the value on the line, then the line, then the angle, then the step.'),
+    bad: L("Qiymatni belgilashdan boshlanadi, qadam esa oxirida qo'yiladi.", 'Начинают с отметки значения, а шаг ставят последним.', 'It starts with marking the value, and the step comes last.'),
+    mark: '45°',
   },
 }
 
@@ -385,22 +385,22 @@ const S11 = {
     A('next', "Javobni o'zingiz yozing.", 'Ответ запиши сам.', 'Type the answer yourself.'),
   ],
   task: {
-    ok: L('Uchta. Kosinus yuz sakson qadamli bitta seriya beradi, sinus esa ikkita.', 'Три. Косинус даёт одну серию с шагом сто восемьдесят, а синус две.', 'Three. The cosine gives one series with a step of one hundred eighty, and the sine two.'),
+    ok: L("To'rt yuz besh. Qirq besh ustiga yuz saksondan ikki qadam.", 'Четыреста пять. Два шага по сто восемьдесят сверх сорока пяти.', 'Four hundred five. Two steps of one hundred eighty on top of forty five.'),
     hint: [
-      L("Har ko'paytuvchining seriyalarini alohida sanang.", 'Посчитай серии у каждого множителя отдельно.', 'Count the series of each factor separately.'),
-      L('Kosinusda nuqtalar qarama-qarshi, seriyasi umumiy.', 'У косинуса точки противоположны, и серия у них общая.', 'For the cosine the points are opposite and share one series.'),
-      L('Uchta.', 'Три.', 'Three.'),
+      L("Harf o'rniga ikkini qo'ying.", 'Подставь двойку вместо буквы.', 'Put two in place of the letter.'),
+      L("Qirq besh qo'shilgan uch yuz oltmish.", 'Сорок пять плюс триста шестьдесят.', 'Forty five plus three hundred sixty.'),
+      L("To'rt yuz besh.", 'Четыреста пять.', 'Four hundred five.'),
     ],
-    prompt: 'cos x·(2 sin x − 1) = 0   →   ?',
-    answer: '3',
+    prompt: '45° + 180°n,   n = 2   →   ?',
+    answer: '405',
   },
   order: {
     prompt: L("O'sish tartibida joylashtiring.", 'Расставь по возрастанию.', 'Arrange in increasing order.'),
     title: L('Qaysi ildiz kichikroq?', 'Какой корень меньше?', 'Which root is smaller?'),
-    ok: L("Siz ular chiqqan ko'paytuvchilarni emas, burchaklarni solishtirdingiz.", 'Ты сравнил углы, а не множители, из которых они получились.', 'You compared angles, not the factors they came from.'),
-    bad: L("Har yozuvni songa o'tkazing, keyin solishtiring.", 'Переведи каждую запись в число, потом сравнивай.', 'Turn each reading into a number, then compare.'),
-    items: ['30°', '90°', '150°', '270°'],
-    answer: '30°  90°  150°  270°',
+    ok: L("Siz raqamlarni qo'ydingiz va yozuvlarni emas, burchaklarni solishtirdingiz.", 'Ты подставил номера и сравнил углы, а не записи.', 'You substituted the numbers and compared angles, not readings.'),
+    bad: L("Har yozuvga raqamini qo'ying va chiqqanini solishtiring.", 'Подставь в каждую запись её номер и сравни то, что получилось.', 'Put the number into each reading and compare the results.'),
+    items: ['n = −1', 'n = 0', 'n = 1', 'n = 2'],
+    answer: 'n = −1  n = 0  n = 1  n = 2',
   },
 }
 
@@ -412,32 +412,32 @@ const S12 = {
   title: L("Javob to'liq emas. Qayerda?", 'Ответ неполный. Где?', 'The answer is incomplete. Where?'),
   tag: 'check',
   audio: [
-    A('mount', "Masala. Ikkala qismda kosinus bo'lgan tenglamani yechish.", 'Задача. Решить уравнение с косинусом в обеих частях.', 'A task. Solve an equation with the cosine in both sides.'),
+    A('mount', 'Masala. Tangens iks birga teng tenglamani yechish.', 'Задача. Решить уравнение тангенс икс равен единице.', 'A task. Solve the equation tangent x equals one.'),
     A('next', "To'rt qator, hammasi to'g'ri ko'rinadi. Birinchi xato qatorni qidiring.", 'Четыре строки, все выглядят верными. Ищи первую неверную.', 'Four lines, all look right. Look for the first wrong one.'),
   ],
   hint: {
-    r1: L('Bu qator shartni shunchaki qaytadan yozadi.', 'Эта строка просто переписывает условие.', 'This line just rewrites the task.'),
-    r3: L("Bu oldingi qatorning to'g'ri natijasi.", 'Это верное следствие предыдущей строки.', 'This is a correct consequence of the previous line.'),
-    r4: L("Bu seriyalar to'g'ri hisoblangan, lekin hammasi emas.", 'Эти серии посчитаны верно, но их не все.', 'These series are computed correctly, but they are not all of them.'),
+    r1: L("Bu qator to'g'ri: birning arktangensi haqiqatan qirq beshga teng.", 'Эта строка верна: арктангенс единицы действительно равен сорока пяти.', 'This line is right: the arctangent of one really is forty five.'),
+    r2: L("Bu qator ham to'g'ri: ikki yuz yigirma beshning tangensi o'sha.", 'Эта строка тоже верна: у двухсот двадцати пяти тангенс тот же.', 'This line is right too: at two hundred twenty five the tangent is the same.'),
+    r4: L('Bu qator oldingisining xatosini takrorlaydi. Birinchi xato qator yuqorida.', 'Эта строка повторяет ошибку предыдущей. Первая неверная строка выше.', 'This line repeats the error of the previous one. The first wrong line is above.'),
   },
-  proof: L("Bu yerda kosinusga bo'lindi, va uning ildizlari yo'qoldi.", 'Здесь поделили на косинус, и его корни исчезли.', 'Here they divided by the cosine, and its roots vanished.'),
+  proof: L("To'liq aylana qadami bilan ikkinchi nuqta tushib qoladi.", 'С шагом в полный оборот вторая точка выпадает.', 'With a full-turn step the second point drops out.'),
   entry: {
-    prompt: L("To'liq javobda nechta seriya bor?", 'Сколько серий в полном ответе?', 'How many series are in the full answer?'),
-    ok: L('Uchta. Ikkitasi sinusdan, bittasi kosinusdan, yuz sakson qadam bilan.', 'Три. Две от синуса и одна от косинуса, с шагом сто восемьдесят.', 'Three. Two from the sine and one from the cosine, with a step of one hundred eighty.'),
+    prompt: L('Tangens seriyasining qadami qancha?', 'Чему равен шаг серии у тангенса?', 'What is the step of the tangent series?'),
+    ok: L('Yuz sakson. Qarama-qarshi nuqtalar bir qiymat beradi, ular orasida yarim aylana.', 'Сто восемьдесят. Противоположные точки дают одно значение, и между ними половина оборота.', 'One hundred eighty. Opposite points give the same value, half a turn apart.'),
     hint: [
-      L("Har ko'paytuvchining seriyalarini sanang.", 'Посчитай серии у каждого множителя.', 'Count the series of each factor.'),
-      L('Kosinusda nuqtalar qarama-qarshi, seriyasi bitta.', 'У косинуса точки противоположны, серия у них одна.', 'For the cosine the points are opposite, they share one series.'),
-      L('Uchta.', 'Три.', 'Three.'),
+      L('Kesish necha gradusdan keyin takrorlanishiga qarang.', 'Посмотри, через сколько повторяется отсечка.', 'Look after how much the mark repeats.'),
+      L('Nuqtalar markazning ikki tomonida turadi.', 'Точки стоят по разные стороны от центра.', 'The points stand on opposite sides of the centre.'),
+      L('Yuz sakson.', 'Сто восемьдесят.', 'One hundred eighty.'),
     ],
-    answer: '3',
+    answer: '180',
   },
   row: {
-    r1: '2 sin x·cos x = cos x',
-    r2: '2 sin x = 1',
-    r3: 'sin x = 1/2',
-    r4: '30° + 360°n,  150° + 360°n',
+    r1: 'arctg 1 = 45°',
+    r2: 'tg 225° = 1',
+    r3: 'x = 45° + 360°n',
+    r4: 'n = 1   →   405°',
   },
-  answerId: 'r2',
+  answerId: 'r3',
 }
 
 const S13 = {
@@ -445,30 +445,30 @@ const S13 = {
   answer: 'lead',
   format: 'place+multi',
   eyebrow: L("KO'CHIRISH", 'ПЕРЕНОС', 'TRANSFER'),
-  title: L("Qaysi ildizlar yo'qolgan", 'Какие корни потеряны', 'Which roots are lost'),
+  title: L('Ildizdan seriyani aytish', 'По корню назвать серию', 'From a root back to its series'),
   tag: 'obratnoe',
   audio: [
-    A('mount', "Endi teskari masala. Qaysi ildizlar yo'qolishini aytish kerak.", 'Теперь обратная задача. Надо назвать, какие именно корни теряются.', 'Now the inverse task. You must name exactly which roots get lost.'),
-    A('work', "Nuqtani qo'ying, keyin hamma yo'qolgan burchakni belgilaysiz.", 'Поставь точку, потом отметишь все потерянные углы.', 'Place the point, then you will mark every lost angle.'),
+    A('mount', "Endi teskari masala. Nuqta berilgan, o'sha tangensli hamma burchak kerak.", 'Теперь обратная задача. Дана точка, а нужны все углы с тем же тангенсом.', 'Now the inverse task. A point is given, and all angles with the same tangent are needed.'),
+    A('work', "Nuqtani qo'ying, keyin o'sha tangensli hamma yozuvni belgilaysiz.", 'Поставь точку, потом отметишь все записи с тем же тангенсом.', 'Place the point, then you will mark every reading with the same tangent.'),
   ],
   multi: {
-    prompt: L("Kosinusga bo'lishda yo'qoladigan hamma burchakni belgilang.", 'Отметь все углы, которые теряются при делении на косинус.', 'Mark every angle lost when dividing by the cosine.'),
-    title: L("Kosinusga bo'lishda qaysi burchaklar yo'qoladi?", 'Какие углы теряются при делении на косинус?', 'Which angles are lost when dividing by the cosine?'),
-    ok: L("Beshtadan uchtasi. Aynan kosinus nolga teng burchaklar yo'qoladi.", 'Три из пяти. Теряются ровно те углы, где косинус равен нулю.', 'Three out of five. Exactly the angles where the cosine is zero get lost.'),
+    prompt: L("O'sha tangensli hamma yozuvni belgilang.", 'Отметь все записи с тем же тангенсом.', 'Mark every reading with the same tangent.'),
+    title: L("Qaysi burchaklarda tangens o'sha?", 'У каких углов тангенс такой же?', 'Which angles have the same tangent?'),
+    ok: L('Beshtadan uchtasi. Ularning hammasi butun sondagi yarim aylanaga farq qiladi.', 'Три из пяти. Все они отличаются целым числом половин оборота.', 'Three out of five. All of them differ by a whole number of half-turns.'),
     items: [
-      { id: 'd', label: '30°', hint: L("O'ttizda kosinus nolga teng emas, bu ildiz qoladi.", 'У тридцати косинус не равен нулю, этот корень остаётся.', 'At thirty the cosine is not zero, this root stays.') },
-      { id: 'e', label: '150°', hint: L('Yuz elliknikida ham kosinus nol emas.', 'У ста пятидесяти косинус тоже не ноль.', 'At one hundred fifty the cosine is not zero either.') },
-      { id: 'a', label: '90°', ok: true },
-      { id: 'b', label: '270°', ok: true },
-      { id: 'c', label: '450°', ok: true },
+      { id: 'd', label: '135°', hint: L("Yuz o'ttiz beshda tangens minus bir: koordinatalar ishorasi har xil.", 'У ста тридцати пяти тангенс минус единица: знаки координат разные.', 'At one hundred thirty five the tangent is minus one: the signs of the coordinates differ.') },
+      { id: 'e', label: '90°', hint: L("To'qsonda tangens umuman yo'q.", 'У девяноста тангенса нет вовсе.', 'At ninety the tangent does not exist at all.') },
+      { id: 'a', label: '45°', ok: true },
+      { id: 'b', label: '405°', ok: true },
+      { id: 'c', label: '−135°', ok: true },
     ],
   },
   place: {
-    prompt: L("Nuqtani 90 gradusga qo'ying.", 'Поставь точку на 90 градусов.', 'Place the point at 90 degrees.'),
-    ok: L("Bu yo'qolgan ildizlardan biri: u yerda kosinus nolga teng.", 'Это один из потерянных корней: там косинус равен нулю.', 'This is one of the lost roots: the cosine is zero there.'),
-    wrong: L("To'qson bu aylananing eng tepasi.", 'Девяносто это самый верх окружности.', 'Ninety is the very top of the circle.'),
-    target: '90°',
-    step: 'cos x = 0',
+    prompt: L("Nuqtani 225 gradusga qo'ying.", 'Поставь точку на 225 градусов.', 'Place the point at 225 degrees.'),
+    ok: L("Bu qarama-qarshi nuqta. Uning tangensi o'sha, seriyasi ham umumiy.", 'Это противоположная точка. Тангенс у неё тот же, и серия у них общая.', 'This is the opposite point. Its tangent is the same, and they share one series.'),
+    wrong: L('Ikki yuz yigirma besh bu aylananing chap past qismi.', 'Двести двадцать пять это левая нижняя часть окружности.', 'Two hundred twenty five is the lower left part of the circle.'),
+    target: '225°',
+    step: '45° + 180°n',
   },
 }
 
@@ -478,7 +478,7 @@ const S14 = {
   format: 'chain',
   eyebrow: L('BLITS', 'БЛИЦ', 'BLITZ'),
   title: L("To'rt savol · natijaga kiradi", 'Четыре вопроса · идут в результат', 'Four questions · they count'),
-  tag: 'koren-poteryan-pri-delenii',
+  tag: 'tg-period-2pi',
   audio: [
     A('mount', "To'rtta qisqa savol. Faqat shu ekran natijaga kiradi.", 'Четыре коротких вопроса. Только этот экран идёт в результат.', 'Four short questions. Only this screen counts.'),
   ],
@@ -486,51 +486,51 @@ const S14 = {
     {
       id: 'q1',
       ask: true,
-      prompt: L("Umumiy ko'paytuvchini nima qiladilar?", 'Что делают с общим множителем?', 'What is done with a common factor?'),
-      done: 'a·b = 0',
+      prompt: L('Tangens seriyasining qadami qancha?', 'Чему равен шаг серии у тангенса?', 'What is the step of the tangent series?'),
+      done: '180°n',
       items: [
-        { id: 'a', label: L('chiqaradilar', 'выносят', 'it is factored out'), correct: true },
-        { id: 'b', label: L('qisqartiradilar', 'сокращают', 'it is cancelled'), hint: L("Qisqartirish bu o'sha bo'lish, va ildizlar yo'qoladi.", 'Сокращение это то же деление, и корни теряются.', 'Cancelling is the same division, and roots get lost.') },
-        { id: 'c', label: L("kvadratga ko'taradilar", 'возводят в квадрат', 'it is squared'), hint: L("Kvadratga ko'tarish begona ildizlar qo'shadi, yordam bermaydi.", 'Возведение добавит посторонние корни, а не поможет.', 'Squaring adds extraneous roots instead of helping.') },
-        { id: 'd', label: L('hech narsa', 'ничего', 'nothing'), hint: L('Unda tenglama soddaga keltirilmaydi.', 'Тогда уравнение не приведётся к простейшему.', 'Then the equation will not reduce to the simplest one.') },
+        { id: 'a', label: L('yuz sakson', 'сто восемьдесят', 'one hundred eighty'), correct: true },
+        { id: 'b', label: L('uch yuz oltmish', 'триста шестьдесят', 'three hundred sixty'), hint: L('Uch yuz oltmish bu sinus va kosinusdagi qadam.', 'Триста шестьдесят это шаг у синуса и косинуса.', 'Three hundred sixty is the step of the sine and the cosine.') },
+        { id: 'c', label: L("to'qson", 'девяносто', 'ninety'), hint: L("To'qsondan keyin nisbat o'zgaradi, takrorlanmaydi.", 'Через девяносто отношение меняется, а не повторяется.', 'After ninety the ratio changes, it does not repeat.') },
+        { id: 'd', label: L("qiymatga bog'liq", 'зависит от значения', 'it depends on the value'), hint: L("Qiymat qanday bo'lishidan qat'i nazar qadam doim bir xil.", 'Шаг всегда один и тот же, каким бы ни было значение.', 'The step is always the same whatever the value.') },
       ],
     },
     {
       id: 'q2',
       ask: true,
-      prompt: L("Kosinusga bo'lishda nima yo'qoladi?", 'Что теряется при делении на косинус?', 'What is lost when dividing by the cosine?'),
-      done: 'cos x = 0',
+      prompt: L('Tangensli tenglamada nechta seriya bor?', 'Сколько серий у уравнения с тангенсом?', 'How many series does a tangent equation have?'),
+      done: '1',
       items: [
-        { id: 'a', label: L('kosinus nolga teng ildizlar', 'корни, где косинус равен нулю', 'the roots where the cosine is zero'), correct: true },
-        { id: 'b', label: L('sinus nolga teng ildizlar', 'корни, где синус равен нулю', 'the roots where the sine is zero'), hint: L("Nimaga bo'lingan bo'lsa, u yo'qoladi, bo'lingani esa kosinus.", 'Теряется то, на что делили, а делили на косинус.', 'What is lost is what was divided by, and that was the cosine.') },
-        { id: 'c', label: L('hech narsa', 'ничего', 'nothing'), hint: L("Ekranda ikki ildiz so'ndi, demak yo'qoladi.", 'На экране два корня погасли, значит теряется.', 'Two roots faded on the screen, so something is lost.') },
-        { id: 'd', label: L('hamma ildiz', 'все корни', 'all the roots'), hint: L("Bir qismi qoladi: kosinus nol bo'lmaganlari.", 'Часть остаётся: те, где косинус не ноль.', 'Some remain: those where the cosine is not zero.') },
+        { id: 'a', label: L('bitta', 'одна', 'one'), correct: true },
+        { id: 'b', label: L('ikkita', 'две', 'two'), hint: L('Ikkita sinusda edi, u yerda nuqtalar har xil qiymat berardi.', 'Две были у синуса, там точки давали разные значения.', 'Two happened for the sine, where the points gave different values.') },
+        { id: 'c', label: L("to'rtta", 'четыре', 'four'), hint: L('Kesishish nuqtasi jami ikkita, va ikkalasi bir qiymat beradi.', 'Точек пересечения всего две, и обе дают одно значение.', 'There are only two points, and both give one value.') },
+        { id: 'd', label: L("cheksiz ko'p", 'бесконечно много', 'infinitely many'), hint: L("Ildiz cheksiz ko'p, seriya esa bitta.", 'Корней бесконечно много, а серия одна.', 'There are infinitely many roots, but one series.') },
       ],
     },
     {
       id: 'q3',
       ask: true,
-      prompt: L('Almashtirishdan keyin nima qiladilar?', 'Что делают после замены?', 'What is done after a substitution?'),
-      done: '−1 ≤ t ≤ 1',
+      prompt: L("Qaysi burchakda tangens yo'q?", 'При каком угле тангенса нет?', 'At which angle does the tangent not exist?'),
+      done: 'x = 90° + 180°n',
       items: [
-        { id: 'a', label: L('chegaralarni tekshiradilar', 'проверяют границы', 'the bounds are checked'), correct: true, ok: L('Ha. Birdan katta qiymatni sinus bermaydi.', 'Да. Значение больше единицы синус не даёт.', 'Yes. The sine never gives a value above one.') },
-        { id: 'b', label: L('darrov javob yozadilar', 'сразу пишут ответ', 'the answer is written at once'), hint: L('Unda javobga imkonsiz qiymat tushadi.', 'Тогда в ответ попадёт невозможное значение.', 'Then an impossible value gets into the answer.') },
+        { id: 'a', label: L("to'qsonda", 'при девяноста', 'at ninety'), correct: true, ok: L("Ha. U yerda siljish nolga teng, bo'lib bo'lmaydi.", 'Да. Там сдвиг равен нулю, и делить нельзя.', 'Yes. There the shift is zero, and division is impossible.') },
+        { id: 'b', label: L('nolda', 'при нуле', 'at zero'), hint: L('Nolda tangens bor va nolga teng.', 'При нуле тангенс есть и равен нулю.', 'At zero the tangent exists and equals zero.') },
       ],
     },
     {
       id: 'q4',
       ask: true,
-      prompt: L('Sinusning bitta qiymati nechta seriya beradi?', 'Сколько серий даёт одно значение синуса?', 'How many series does one value of the sine give?'),
-      done: '2',
+      prompt: L('tg x = 5 ning nechta ildizi bor?', 'Сколько корней у tg x = 5?', 'How many roots does tg x = 5 have?'),
+      done: '∞',
       items: [
-        { id: 'a', label: L('ikkita', 'две', 'two'), correct: true },
-        { id: 'b', label: L('bitta', 'одна', 'one'), hint: L("Bitta faqat chetda, bir va minus birda bo'ladi.", 'Одна бывает только у края, при единице и минус единице.', 'One happens only at the edge, at one and minus one.') },
-        { id: 'c', label: L("to'rtta", 'четыре', 'four'), hint: L('Kesishish nuqtasi ikkita, demak seriya ham ikkita.', 'Точек пересечения две, значит и серий две.', 'There are two intersection points, so two series.') },
-        { id: 'd', label: L('hech qaysi', 'ни одной', 'none'), hint: L("Qiymat chegaraga sig'sa, seriyalar bor.", 'Если значение помещается в границы, серии есть.', 'If the value fits the bounds, there are series.') },
+        { id: 'a', label: L("cheksiz ko'p", 'бесконечно много', 'infinitely many'), correct: true },
+        { id: 'b', label: L('hech qaysi', 'ни одного', 'none'), hint: L("Tangenslar chizig'i chekkasiz, besh unda bor.", 'Линия тангенсов без краёв, пятёрка на ней есть.', 'The line of tangents has no edges, five is on it.') },
+        { id: 'c', label: L('bitta', 'один', 'one'), hint: L("Yarim aylana oraliqda bitta, jami esa cheksiz ko'p.", 'Один на промежутке в половину оборота, а всего бесконечно много.', 'One on a half-turn interval, but infinitely many in total.') },
+        { id: 'd', label: L('ikkita', 'два', 'two'), hint: L("Ikkita sinusda bo'lardi, u yerda seriya ikkita.", 'Два было бы у синуса, там серий две.', 'Two would happen for the sine, where there are two series.') },
       ],
     },
   ],
-  angles: ['90°', '270°', '30°', '150°'],
+  angles: ['45°', '225°', '90°', '60°'],
 }
 
 const S15 = {
@@ -540,35 +540,35 @@ const S15 = {
   title: L('Nima qoldi', 'Что осталось', 'What you take away'),
   audio: [
     A('mount', 'Dars boshida ikki yozuvdan birini tanlagan edingiz. Mana natija.', 'В начале урока нужно было выбрать одну из двух записей. Вот результат.', 'At the start you chose one of the two readings. Here is the result.'),
-    A('next', "Noma'lumli ifodaga bo'lish mumkin emas: u nolga teng bo'lgan ildizlar javobdan yo'qoladi.", 'Делить на выражение с неизвестным нельзя: корни, где оно равно нулю, исчезают из ответа.', 'Dividing by an expression with the unknown is not allowed: the roots where it is zero vanish from the answer.'),
+    A('next', 'Tangens yarim aylanadan keyin takrorlanadi, chunki qarama-qarshi nuqtalar bitta kesish beradi.', 'Тангенс повторяется через половину оборота, потому что противоположные точки дают одну отсечку.', 'The tangent repeats after half a turn because opposite points give one mark.'),
   ],
   can: [
-    L("Bo'lish o'rniga ko'paytuvchini chiqaraman", 'Выношу множитель вместо деления', 'I factor out instead of dividing'),
-    L("Bo'lish qaysi ildizlarni yo'qotishini bilaman", 'Знаю, какие корни теряет деление', 'I know which roots division loses'),
-    L('Almashtirishdan keyin chegaralarni tekshiraman', 'Проверяю границы после замены', 'I check the bounds after a substitution'),
-    L("Oxirida o'zgaruvchiga qaytaman", 'Возвращаюсь к переменной в конце', 'I return to the variable at the end'),
+    L("Tangensni tangenslar chizig'idan o'qiyman", 'Читаю тангенс по линии тангенсов', 'I read the tangent off the line of tangents'),
+    L('Nega seriya bitta ekanini bilaman', 'Знаю, почему серия одна', 'I know why the series is single'),
+    L('Qadam yarim aylanaga tengligini eslayman', 'Помню, что шаг равен половине оборота', 'I remember the step is half a turn'),
+    L("Tangens qayerda yo'qligini bilaman", 'Знаю, где тангенса нет', 'I know where the tangent does not exist'),
   ],
   levels: {
     full: L('Bu turdagi masalalar yopildi.', 'Этот тип задач закрыт.', 'This type of task is closed.'),
-    gap: L("Bitta joy takrorlashni talab qiladi: bo'lishda nima yo'qoladi.", 'Одно место требует повтора: что теряется при делении.', 'One place needs review: what division loses.'),
+    gap: L('Bitta joy takrorlashni talab qiladi: qadam qanchaga teng.', 'Одно место требует повтора: чему равен шаг.', 'One place needs review: what the step equals.'),
     back: L('Qoidaga va 4-ekranga qayting.', 'Вернись к правилу и к экрану 4.', 'Go back to the rule and to screen 4.'),
   },
-  bridge: L("Ikkinchi blok yopildi: kursdagi hamma trigonometrik tenglama shu to'rt usul bilan yechiladi.", 'Блок 2 закрыт: все тригонометрические уравнения курса решаются этими четырьмя приёмами.', 'Block two is closed: every trigonometric equation of the course is solved with these four moves.'),
-  lifehack: L("Umumiy ko'paytuvchini ko'rdingizmi, chiqaring. Bo'lish doim biror narsani yeb qo'yadi.", 'Увидел общий множитель — выноси. Деление всегда что-нибудь съедает.', 'Spotted a common factor, factor it out. Division always eats something.'),
-  sheetTitle: L('Usullar · shpargalka', 'Методы · шпаргалка', 'The methods · cheat sheet'),
-  sheetSrc: L('10-sinf · 13-dars', '10 класс · урок 13', 'Grade 10 · lesson 13'),
+  bridge: L('13-dars: avval soddaga keltiriladigan murakkabroq tenglamalar.', 'Урок 13: уравнения посложнее, которые сначала приводят к простейшим.', 'Lesson 13: harder equations, first reduced to the simplest ones.'),
+  lifehack: L("Nuqtalar qarama-qarshi bo'lsa, qiymatlari faqat tangensda mos keladi.", 'Если точки противоположны, значения у них совпадают только у тангенса.', 'When the points are opposite, their values coincide only for the tangent.'),
+  sheetTitle: L('Tangens · shpargalka', 'Тангенс · шпаргалка', 'The tangent · cheat sheet'),
+  sheetSrc: L('10-sinf · 12-dars', '10 класс · урок 12', 'Grade 10 · lesson 12'),
   hook: {
-    a: '2 sin x = 1',
-    b: 'a·b = 0',
+    a: '360°n',
+    b: '180°n',
   },
-  proved: 'a·b = 0',
-  law: 'a·b = 0   →   a = 0,  b = 0',
+  proved: '45° + 180°n',
+  law: 'x = arctg a + 180°n',
   sheet: [
-    'a·b = 0',
-    'cos x = 0   →   90° + 180°n',
-    'sin x = 1/2   →   30°,  150°',
-    '−1 ≤ t ≤ 1',
-    't   →   x',
+    'x = arctg a + 180°n',
+    'tg x = 1   →   45° + 180°n',
+    'tg x = 0   →   180°n',
+    'x ≠ 90° + 180°n',
+    'arctg a ∈ (−90°; 90°)',
   ],
 }
 
@@ -585,6 +585,11 @@ const EQ_RIGHT = ['a', 'b', 'c', 'd'].map((k, i) => {
   const v = S9.match[k]
   return { id: PAIR_IDS[i], label: v && v.label ? v.label : v, hint: v && v.hint ? v.hint : undefined }
 })
+// Отметки при неверной паре: две противоположные точки одной прямой.
+const EQ_MARKS = [
+  { deg: 45, tone: 'graph', label: '45°' },
+  { deg: 225, tone: 'ink3', label: '225°' },
+]
 
 const ORD10 = ['s1', 's2', 's3', 's4'].map((id) => ({ id, label: S10.order[id] }))
 const ORD11 = S11.order.items.map((label, i) => ({ id: 'o' + i, label }))
@@ -599,9 +604,9 @@ const Screen1 = (p) => (
       <HookBody
         {...s}
         data={{ ...S1, rows: [{ id: 'a', ...S1.row.a }, { id: 'b', ...S1.row.b }] }}
-        // Два корня гаснут уже на хуке: ученик видит потерю до того, как она
-        // названа. Прогноз делается при полной картине.
-        fig={() => <Scene fig={<LostRoots step={2} />} max={172} h={172} />}
+        // Прямая поворачивается уже на хуке: отсечка остаётся на месте до
+        // того, как это названо. Прогноз делается при полной картине.
+        fig={() => <Scene fig={<TanLine step={2} deg={45} />} max={172} h={172} />}
       />
     )}
   </Screen>
@@ -628,20 +633,20 @@ const Screen3 = (p) => (
       /* Свидетель урока: прямая садится на высоту и зажигает ОБЕ точки разом.
          Они остаются на экране, пока ученик отвечает. */
       <Scene
-        fig={<LostRoots step={phase} />}
+        fig={<TanLine step={phase} deg={45} />}
         note={<NoteList items={S3.show[phase]} />}
       />
     ) : (
       <BuildPoint
         prompt={S3.work.prompt}
-        test={(c, s) => s > 0.9}
+        test={(c, s) => c > 0.5 && s > 0.5}
         hints={[
-          { when: (c, s) => Math.abs(c) > 0.3, text: S3.work.hint[0] },
-          { when: (c, s) => s < 0, text: S3.work.hint[1] },
+          { when: (c, s) => s < 0, text: S3.work.hint[0] },
+          { when: (c) => c < 0, text: S3.work.hint[1] },
           { when: () => true, text: S3.work.hint[2] },
         ]}
         okText={S3.work.ok}
-        snap={[90]}
+        snap={[45]}
         audio={audio}
         onSolved={solve}
       />
@@ -652,23 +657,24 @@ const Screen3 = (p) => (
 const Screen4 = (p) => (
   <Screen data={S4} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S4.show.length && !solved ? (
-      /* Свидетель урока: два корня ГАСНУТ на глазах. Они не исчезают, а
-         тускнеют: они были решением, и это надо увидеть. */
+      /* Свидетель урока: точка уезжает на пол-оборота, отсечка остаётся на
+         месте. Прямая нарисована ЦЕЛИКОМ через центр, поэтому видно, откуда
+         отсечка берётся при любом положении точки. */
       <Scene
-        fig={<LostRoots step={phase + 1} />}
+        fig={<TanLine step={phase + 1} deg={45} />}
         note={<NoteList items={S4.show[phase]} />}
       />
     ) : (
       <BuildPoint
         prompt={S4.work.prompt}
-        test={(c, s) => s < -0.9}
+        test={(c, s) => c < -0.5 && s < -0.5}
         hints={[
           { when: (c, s) => s > 0, text: S4.work.hint[0] },
-          { when: (c, s) => Math.abs(c) > 0.3, text: S4.work.hint[1] },
+          { when: (c) => c > 0, text: S4.work.hint[1] },
           { when: () => true, text: S4.work.hint[2] },
         ]}
         okText={S4.work.ok}
-        snap={[270]}
+        snap={[225]}
         audio={audio}
         onSolved={solve}
       />
@@ -680,20 +686,20 @@ const Screen5 = (p) => (
   <Screen data={S5} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S5.show.length && !solved ? (
       <Scene
-        fig={<LevelLine step={phase} a={1} arcs />}
+        fig={<TanLine step={2} deg={45} />}
         note={<NoteList items={S5.show[phase]} />}
       />
     ) : (
       <BuildPoint
         prompt={S5.work.prompt}
-        test={(c, s) => s > 0.9}
+        test={(c, s) => c > 0.5 && s > 0.5}
         hints={[
           { when: (c) => c < 0, text: S5.work.hint[0] },
           { when: (c, s) => s < 0, text: S5.work.hint[1] },
           { when: () => true, text: S5.work.hint[2] },
         ]}
         okText={S5.work.ok}
-        snap={[90]}
+        snap={[45]}
         audio={audio}
         onSolved={solve}
       />
@@ -706,13 +712,13 @@ const Screen6 = (p) => (
     {({ audio, phase, solved, solve }) => (phase < S6.show.length && !solved ? (
       /* Вертикаль КАСАЕТСЯ правого края: верх и низ совпали в одну точку. */
       <Scene
-        fig={<LevelLine step={phase} a={2} />}
+        fig={<TanLine step={phase >= 1 ? 1 : 0} deg={63} />}
         note={<NoteList items={S6.show[phase]} />}
       />
     ) : (
       <Cols l={1} r={1}>
         <Col>
-          <Scene fig={<LevelLine step={1} a={2} />} max={300} />
+          <Scene fig={<TanLine step={1} deg={63} />} max={300} />
         </Col>
         <Col>
           <NumberEntry
@@ -735,13 +741,13 @@ const Screen7 = (p) => (
     {({ audio, phase, solved, solve }) => (phase < S7.show.length && !solved ? (
       /* Вертикаль остановилась ПРАВЕЕ окружности и осталась видимой. */
       <Scene
-        fig={<LevelLine step={phase} a={-0.5} arcs />}
+        fig={<TanLine step={phase >= 1 ? 1 : 0} deg={85} />}
         note={<NoteList items={S7.show[phase]} />}
       />
     ) : (
       <Cols l={1} r={1}>
         <Col>
-          <Scene fig={<LevelLine step={1} a={-0.5} arcs />} max={300} />
+          <Scene fig={<TanLine step={1} deg={85} />} max={300} />
         </Col>
         <Col>
           <NumberEntry
@@ -767,7 +773,7 @@ const Screen8 = (p) => (
         data={S8}
         // Серия строится в момент ответа: правило открывается рядом с тем
         // движением, которое его и породило.
-        fig={(solved) => <Scene fig={<LostRoots step={solved ? 1 : 2} />} max={330} />}
+        fig={(solved) => <Scene fig={<TanLine step={solved ? 2 : 0} deg={45} />} max={330} />}
       />
     )}
   </Screen>
@@ -780,6 +786,7 @@ const Screen9 = (p) => (
         prompt={S9.match.prompt}
         left={EQ_LEFT}
         right={EQ_RIGHT}
+        marks={EQ_MARKS}
         okText={S9.match.ok}
         audio={audio}
         onSolved={solve}

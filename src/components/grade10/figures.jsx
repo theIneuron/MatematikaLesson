@@ -3452,3 +3452,157 @@ export function Space({
     />
   )
 }
+
+// ============================================================================
+// IKKI TO'G'RI CHIZIQ. 25-dars: sistemaning yechimi ikki chiziqning UMUMIY
+// nuqtasi. Asbob shu qarorni ko'rsatadi va bitta savolga javob beradi:
+// umumiy nuqta bormi.
+//
+// NEGA YANGI FIGURA. `Plane` bitta egri chiziq chizadi, bu yerda esa IKKITA
+// to'g'ri chiziq kerak, va gap ularning bir-biriga nisbatida. Ikkita `Plane`
+// qo'yish ikkita o'q beradi -- boshqa rasm, boshqa savol.
+//
+// SHOHID: og'ish bir xil bo'lsa, chiziqlar orasidagi TIK masofa hamma joyda
+// bir xil. U uchta joyda o'lchanadi va uchalasi teng chiqadi -- «uchrashmaydi»
+// shundan ko'rinadi, o'qituvchi aytgani uchun emas.
+//
+// Kadrlar: 0 -- faqat birinchi chiziq; 1 -- ikkinchisi paydo bo'ladi;
+// 2 -- xulosa (og'ish teng bo'lsa tik masofalar, boshqa bo'lsa kesishish nuqtasi).
+// ============================================================================
+export function TwoLines({
+  size = 268, step = 0,
+  k1 = 0.5, b1 = -3, k2 = 0.5, b2 = 2,
+  // Bir matematik birlik radiusning qanchasini oladi. Ikkala o'qda BIR XIL:
+  // aks holda og'ish yolg'on ko'rinadi va «parallel» ko'z bilan tekshirilmaydi.
+  u = 0.15,
+  gapsAt = [-4, 0, 4],
+  // 8-DARS: `y = x` ko'zgusi va juftlik nuqtasi. `mirror` punktir chiziqni
+  // qo'yadi, `pairAt` esa birinchi chiziqdagi nuqtani va uning ko'zgudagi
+  // juftligini ko'rsatadi -- teskari funksiyaning grafigi shu juftliklardan
+  // yig'iladi (darslik 39-bet, 4-rasm).
+  mirror = false,
+  pairAt = null,
+}) {
+  const grow = useTween(step >= 1 ? 1 : 0, 1400)
+  const mark = useTween(step >= 2 ? 1 : 0, 700)
+  const same = Math.abs(k1 - k2) < 1e-9
+
+  return (
+    <Film
+      size={size}
+      step={step}
+      cam={[{ x: 0.5, y: 0.52, r: 0.4 }]}
+      draw={({ P, R, size: S }) => {
+        const [ox, oy] = P(0, 0)
+        const LIM = 1.13
+        const fs = Math.max(11, Math.round(S * 0.05))
+        // Chiziqning kadr ICHIDAGI bo'lagi: chetlari `y` bo'yicha ham
+        // qirqiladi, aks holda chiziq kartochkadan chiqib ketadi.
+        const seg = (k, b) => {
+          const xs = []
+          const N = 160
+          for (let i = 0; i <= N; i += 1) {
+            const x = (-LIM + (2 * LIM * i) / N) / u
+            const y = k * x + b
+            if (Math.abs(y * u) <= LIM) xs.push([x, y])
+          }
+          return xs
+        }
+        const path = (pts, t) => {
+          const n = Math.max(2, Math.round(pts.length * t))
+          return pts.slice(0, n).map((q, i) => (i ? 'L' : 'M') + P(q[0] * u, q[1] * u).join(' ')).join(' ')
+        }
+        const A = seg(k1, b1)
+        const B = seg(k2, b2)
+        const tick = (v) => String(v).replace('-', '−')
+        const cross = same ? null : [(b2 - b1) / (k1 - k2), 0]
+        if (cross) cross[1] = k1 * cross[0] + b1
+
+        return (
+          <g>
+            <line x1={ox - R * LIM} y1={oy} x2={ox + R * LIM} y2={oy} stroke="rgba(23,26,29,.32)" strokeWidth="1" />
+            <line x1={ox} y1={oy - R * LIM} x2={ox} y2={oy + R * LIM} stroke="rgba(23,26,29,.32)" strokeWidth="1" />
+
+            {[-6, -4, -2, 2, 4, 6].filter((v) => Math.abs(v * u) < LIM - 0.04).map((v) => {
+              const p0 = P(v * u, 0)
+              return (
+                <g key={'x' + v}>
+                  <line x1={p0[0]} y1={p0[1] - 3} x2={p0[0]} y2={p0[1] + 3} stroke="rgba(23,26,29,.4)" strokeWidth="1" />
+                  <text x={p0[0]} y={p0[1] + fs + 4} fontSize={fs} textAnchor="middle" fill={T.ink3}>{tick(v)}</text>
+                </g>
+              )
+            })}
+            {[-4, -2, 2, 4].filter((v) => Math.abs(v * u) < LIM - 0.04).map((v) => {
+              const p0 = P(0, v * u)
+              return (
+                <g key={'y' + v}>
+                  <line x1={p0[0] - 3} y1={p0[1]} x2={p0[0] + 3} y2={p0[1]} stroke="rgba(23,26,29,.4)" strokeWidth="1" />
+                  <text x={p0[0] - 6} y={p0[1] + fs * 0.36} fontSize={fs} textAnchor="end" fill={T.ink3}>{tick(v)}</text>
+                </g>
+              )
+            })}
+
+            {mirror ? (
+              <path
+                d={path(seg(1, 0), 1)} fill="none" stroke="rgba(23,26,29,.35)"
+                strokeWidth="1.4" strokeDasharray="5 4"
+              />
+            ) : null}
+
+            <path d={path(A, 1)} fill="none" stroke={T.ink2} strokeWidth="2.2" strokeLinecap="round" />
+            {grow > 0.01 ? (
+              <path d={path(B, grow)} fill="none" stroke={T.accent} strokeWidth="2.2" strokeLinecap="round" />
+            ) : null}
+
+            {/* XULOSA KADRI. Og'ish teng bo'lsa tik masofa uch joyda
+                o'lchanadi va uchalasi bir xil chiqadi. */}
+            {mark > 0.01 && same ? gapsAt.map((x) => {
+              const y1v = k1 * x + b1
+              const y2v = k2 * x + b2
+              if (Math.abs(y1v * u) > LIM || Math.abs(y2v * u) > LIM) return null
+              const p1 = P(x * u, y1v * u)
+              const p2 = P(x * u, y2v * u)
+              return (
+                <line
+                  key={'g' + x}
+                  x1={p1[0]} y1={p1[1]} x2={p2[0]} y2={p2[1]}
+                  stroke={T.ok} strokeWidth={Math.max(3, R * 0.045)}
+                  strokeLinecap="round" opacity={0.35 + 0.45 * mark}
+                />
+              )
+            }) : null}
+
+            {/* JUFTLIK: nuqta va uning ko'zgudagi juftligi. Punktir ularni
+                bog'laydi, va `y = x` o'rtada qoladi. */}
+            {pairAt !== null ? (() => {
+              const y0 = k1 * pairAt + b1
+              const p1 = P(pairAt * u, y0 * u)
+              const p2 = P(y0 * u, pairAt * u)
+              const rDot = Math.max(4, R * 0.052)
+              return (
+                <g opacity={grow > 0.01 ? 1 : 0.35}>
+                  <line
+                    x1={p1[0]} y1={p1[1]} x2={p2[0]} y2={p2[1]}
+                    stroke="rgba(23,26,29,.4)" strokeWidth="1.2" strokeDasharray="4 4"
+                  />
+                  <circle cx={p1[0]} cy={p1[1]} r={rDot} fill={T.ink2} />
+                  <circle cx={p2[0]} cy={p2[1]} r={rDot} fill={T.accent} opacity={grow} />
+                </g>
+              )
+            })() : null}
+
+            {mark > 0.01 && cross && Math.abs(cross[0] * u) < LIM && Math.abs(cross[1] * u) < LIM ? (
+              <circle
+                cx={P(cross[0] * u, cross[1] * u)[0]}
+                cy={P(cross[0] * u, cross[1] * u)[1]}
+                r={Math.max(4, R * 0.058)}
+                fill={T.ok}
+                opacity={mark}
+              />
+            ) : null}
+          </g>
+        )
+      }}
+    />
+  )
+}

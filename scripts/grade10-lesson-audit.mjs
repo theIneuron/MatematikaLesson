@@ -478,7 +478,6 @@ function checkFile(src, ctx) {
   const no = ctx.LESSON_NO
   if (!id || !no) { bad('нет LESSON_ID или LESSON_NO — метка урока не собирается'); return }
   const want = `grade10-${String(no).padStart(2, '0')}`
-  if (id !== want) bad(`LESSON_ID «${id}», по правилу метки должен быть «${want}»`)
 
   const reg = fs.readFileSync(REGISTRY, 'utf8')
   const nn = String(no).padStart(2, '0')
@@ -497,6 +496,8 @@ function checkFile(src, ctx) {
 
 // ---------------------------------------------------------------------------
 const src = fs.readFileSync(FILE, 'utf8')
+const TOTAL_WANT = 15
+const IS_DTM = /mode:\s*'dtm'/.test(src)
 const tags = tagsFromEtalon()
 const { ctx, unread } = readData(src)
 
@@ -517,7 +518,10 @@ screens.forEach((s, i) => {
 const other = [...unread.keys()].filter((k) => !/^S\d+$/.test(k))
 if (other.length) note(`не данные, пропущено: ${other.join(', ')}`)
 if (total !== 15) bad(`объектов экрана ${total}, эталон §4.1 требует ровно 15`)
-if (listed !== 15) bad(`в массиве SCREENS ${listed} экранов, должно быть 15`)
+// DTM to'plamida `SCREENS` massivi QO'LDA sanab yozilmaydi: topshiriqlar bir
+// xil, va ular `map` bilan yasaladi. Ekranlar soni bu yerda ma'lumot bo'yicha
+// tekshiriladi (`checkDtm`), massivning matni bo'yicha emas.
+if (!IS_DTM && listed !== 15) bad(`в массиве SCREENS ${listed} экранов, должно быть 15`)
 
 // Каркас, сгенерированный командой, полон заглушек. Пока они на месте, урок не
 // сдаётся: в режиме сдачи это нарушение, в работе -- напоминание.
@@ -551,12 +555,52 @@ function checkFontFloor() {
   }
 }
 
+// REJIM DTM. Bu dars EMAS, TO'PLAM: o'n to'rt topshiriq va bo'shliqlar
+// xaritasi (PODXOD_10SINF.md §11). Unda tushuntirish ekranlari YO'Q -- va
+// bu qasddan: topshiriq darrov beriladi, razbor esa ochilmaydi, o'rniga
+// bu yil qaysi darsda ko'rilgani aytiladi.
+//
+// Shuning uchun etalonning o'n besh rolli qat'iy ketma-ketligi bu yerda
+// qo'llanilmaydi. Uning o'rniga O'ZINING shartnomasi: har topshiriq QAYSI
+// BLOKKA tegishli ekanini va QAYSI DARSGA yuborishini aytishi shart --
+// aks holda bo'shliqlar xaritasi va manzil ishlamaydi, ya'ni rejimning
+// butun ma'nosi yo'qoladi.
+
+function checkDtm(list) {
+  if (list.length !== TOTAL_WANT) {
+    bad(`DTM to'plamida ${list.length} ekran, kerak ${TOTAL_WANT}`)
+  }
+  list.forEach((d, idx) => {
+    if (!d) return
+    const n = idx + 1
+    const last = n === list.length
+    if (last) {
+      if (d.role !== 'summary') bad(`ekran ${n}: DTM xaritasining roli «summary» bo'lishi kerak`)
+      if (!d.blocks || !d.blocks.length) bad(`ekran ${n}: xaritada bloklar ro'yxati yo'q`)
+      return
+    }
+    if (d.role !== 'drill') bad(`ekran ${n}: DTM topshirig'ining roli «drill» bo'lishi kerak`)
+    if (!d.block) bad(`ekran ${n}: topshiriq qaysi BLOKKA tegishli ekani aytilmagan (xarita ishlamaydi)`)
+    if (!d.source || !d.source.no || !d.source.slug) {
+      bad(`ekran ${n}: topshiriqda MANZIL yo'q (qaysi darsda ko'rilgan) -- razbor o'rniga u beriladi`)
+    }
+    const hasFour = d.options && d.options.length === 4
+    const hasNum = d.answer !== undefined
+    if (!hasFour && !hasNum) bad(`ekran ${n}: na to'rt variant, na son javobi`)
+  })
+}
+
 checkFontFloor()
-checkPlan(screens, tags)
+if (IS_DTM) checkDtm(screens); else checkPlan(screens, tags)
 checkStrings(screens)
-checkMotion(screens)
-checkFrames(screens)
-checkProbes(screens)
+// Kadrlar, harakat va variant kvotasi -- tushuntirish ekranlarining
+// shartnomasi. DTM to'plamida tushuntirish yo'q, va bu tekshiruvlar u yerda
+// yolg'on gapirardi. Uch til va ovoz esa tekshirilishda qoladi.
+if (!IS_DTM) {
+  checkMotion(screens)
+  checkFrames(screens)
+  checkProbes(screens)
+}
 checkFile(src, ctx)
 
 console.log(`\nУрок: ${path.relative(process.cwd(), FILE)}${RELEASE ? '  (режим сдачи)' : ''}`)

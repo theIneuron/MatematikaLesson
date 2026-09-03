@@ -67,7 +67,7 @@ const LESSON_TITLE = L(
 
 // B1 bloki: 1-6-darslar, hozir 3-si. Manba: DARSLAR_REJASI_10SINF.md.
 // `B1` LOTIN harfi bilan: UZ va EN ekranida kirill bo'lmasligi kerak.
-const BLOCK = { label: 'B1', from: 1, to: 6, current: 3 }
+const BLOCK = { label: 'B1', from: 1, to: 8, current: 3 }
 
 
 // Общие подписи (Продолжить, Назад, Готовность, ...) лежат в `screens.jsx`.

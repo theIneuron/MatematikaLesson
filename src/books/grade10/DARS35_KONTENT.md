@@ -1,22 +1,23 @@
-# Урок 35 — Показательные и логарифмические неравенства · КОНТЕНТ (этап 2)
+# Урок 43 — Двугранный угол. Перпендикулярные плоскости · КОНТЕНТ (этап 2)
 
-**Читается и правится методистом.** Формат тот же, что в `DARS26_KONTENT.md`.
+**Читается и правится методистом.** Формат тот же, что в `DARS42_KONTENT.md`.
 
-Скелет: `DARS32_36_SKELET.md` §10. Опора в учебнике: алгебра 2022, стр. 102–103 и 123–125,
-параграфы `KO'RSATKICHLI TENGSIZLIKLAR` и `LOGARIFMIK TENGSIZLIKLAR`.
+Скелет: в переписке 2026-08-20. Опора: учебник геометрии 2022, §20
+`Fazoda tekisliklarning perpendikulyarligi`, стр. 142–143. Определения двугранного угла,
+его граней, ребра и линейного угла взяты дословно.
 
-**Главное решение урока.** Учебник решает логарифмическое неравенство **геометрически**, стр. 123:
-решение — те икс, при которых график лежит **ниже прямой**. Мы берём именно этот ход, а не правило
-про переворот знака. Переворот тогда не заучивается: у растущей кривой участок «ниже прямой» лежит
-слева от встречи, у убывающей — справа, и это видно на чертеже.
+**Главное решение урока.** Линейный угол строится **в плоскости, перпендикулярной ребру**, и
+его величина от точки на ребре не зависит (стр. 142). Ошибка живая: ученик берёт в гранях любые
+два луча из точки ребра и называет полученный угол линейным. Показать разницу можно только
+поворотом: на неподвижном чертеже кривой луч выглядит не хуже перпендикулярного.
 
-**Точка встречи та же, что в уроке 28.** Уравнение спрашивало, **где** горизонталь встречает
-кривую; неравенство спрашивает, **с какой стороны**. Чертёж один и тот же, вопрос другой.
+**Свидетель урока — точка, которая едет по ребру.** В каждой её позиции линейный угол один и
+тот же, и это видно, а не сказано.
 
-**Прибор 5 возвращается на экране 7**: у логарифмического неравенства к участку добавляется
-полоса допустимых значений, и берут пересечение.
+**Закрывает блок 6.** После урока идёт ПК6.
 
-**Терминология UZ — draft, требует валидации узбекским методистом математики.**
+**Терминология UZ — draft, требует валидации узбекским методистом математики.** Термины
+`ikki yoqli burchak`, `yoq`, `qirra`, `chiziqli burchak` взяты из учебника, стр. 142.
 
 ---
 
@@ -26,28 +27,28 @@
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | НЕРАВЕНСТВО | TENGSIZLIK | THE INEQUALITY |
-| `title` | Больше или меньше минус двух | Minus ikkidan kattami yoki kichikmi | Greater or less than minus two |
-| `row.a.name` | знак оставили как был | ishorani avvalgidek qoldirdik | the sign was left as it was |
-| `row.b.name` | знак перевернули | ishorani ag'dardik | the sign was flipped |
+| `eyebrow` | ДВУГРАННЫЙ УГОЛ | IKKI YOQLI BURCHAK | THE DIHEDRAL ANGLE |
+| `title` | Зависит от места или нет | Joyga bog'liqmi yoki yo'q | Does it depend on the place or not |
+| `row.a.name` | зависит | bog'liq | it depends |
+| `row.b.name` | не зависит | bog'liq emas | it does not depend |
 | `probe.question` | Какая запись верна? | Qaysi yozuv to'g'ri? | Which reading is correct? |
 | `probe.a` | первая | birinchi | the first |
 | `probe.b` [верно] | вторая | ikkinchi | the second |
 | `probe.both` | обе | ikkisi ham | both |
 | `probe.none` | ни одна | hech qaysi | neither |
-| `probe.after` | Твой ответ записан. Сейчас посмотрим на чертёж. | Javobingiz yozib olindi. Endi chizmaga qaraymiz. | Your answer is saved. Now we will look at the drawing. |
-| `audio.mount` | Ноль целых пять десятых в степени икс больше четырёх. Основание меньше единицы, и это здесь главное. | Nol butun besh o'ndan iks darajada to'rtdan katta. Asos birdan kichik, va bu yerda asosiysi shu. | Zero point five to the power x is greater than four. The base is less than one, and that is what matters here. |
-| `audio.r1` | Первая запись читает так же, как читали бы уравнение: раз в степени минус два выходит четыре, то икс больше минус двух. | Birinchi yozuv tenglamani o'qigandek o'qiydi: minus ikkinchi darajada to'rt chiqar ekan, demak iks minus ikkidan katta. | The first reading goes just as one would read an equation: since the power minus two gives four, then x is greater than minus two. |
-| `audio.r2` | Вторая говорит, что знак надо перевернуть, и верно обратное: икс меньше минус двух. | Ikkinchisi ishorani ag'darish kerak deydi, va aksi to'g'ri: iks minus ikkidan kichik. | The second says the sign must be flipped, and the opposite holds: x is less than minus two. |
-| `audio.ask` | Как думаешь, какая верная? Пока просто предположи. | Sizningcha qaysi biri to'g'ri? Hozircha shunchaki taxmin qiling. | Which one do you think is right? Just make a guess for now. |
+| `probe.after` | Твой ответ записан. Сейчас повернём сцену. | Javobingiz yozib olindi. Endi sahnani buramiz. | Your answer is recorded. Now we rotate the scene. |
+| `audio.mount` | Открытая книга даёт двугранный угол. Две половины плоскости и общая линия сгиба. | Ochiq kitob ikki yoqli burchak beradi. Tekislikning ikki yarmi va umumiy buklanish chizig'i. | An open book gives a dihedral angle. Two halves of a plane and a common fold line. |
+| `audio.r1` | Первая запись говорит, что величина угла зависит от того, в каком месте линии сгиба мы его мерим. | Birinchi yozuv burchak kattaligi buklanish chizig'ining qaysi joyida o'lchashimizga bog'liq deydi. | The first reading says the size of the angle depends on where along the fold line we measure it. |
+| `audio.r2` | Вторая говорит, что не зависит, и в любом месте получится одно и то же. | Ikkinchisi bog'liq emas deydi, va istalgan joyda bir xil chiqadi. | The second says it does not depend, and any place gives the same. |
+| `audio.ask` | Книга ближе к краю кажется раскрытой шире. Как думаешь, какая запись верная? | Kitob chekkaga yaqin joyda kengroq ochilgandek ko'rinadi. Sizningcha qaysi yozuv to'g'ri? | Near the edge the book seems opened wider. Which reading do you think is correct? |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `expr` | `0,5^x > 4` |
-| `row.a.value` | `x > −2` |
-| `row.b.value` | `x < −2` |
+| `expr` | `A, B ∈ a` |
+| `row.a.value` | `∠A ≠ ∠B` |
+| `row.b.value` | `∠A = ∠B` |
 
 ---
 
@@ -58,288 +59,283 @@
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ОПОРА | TAYANCH | WHAT YOU KNOW |
-| `title` | Три вопроса перед неравенством | Tengsizlikdan oldin uch savol | Three questions before the inequality |
-| `q1.prompt` | Что делает показательная кривая при основании меньше единицы? | Asos birdan kichik bo'lganda ko'rsatkichli egri chiziq nima qiladi? | What does an exponential curve do when the base is less than one? |
-| `q1.a` [верно] | убывает | kamayadi | it decreases |
-| `q1.b` | растёт | o'sadi | it grows |
-| `q1.b.hint` | Растёт она при основании больше единицы. | U asos birdan katta bo'lganda o'sadi. | It grows when the base is greater than one. |
-| `q1.c` | остаётся прямой | to'g'ri chiziq bo'lib qoladi | it stays a straight line |
-| `q1.c.hint` | Прямая выходит только при основании, равном единице. | To'g'ri chiziq faqat asos birga teng bo'lganda chiqadi. | A straight line comes only when the base equals one. |
-| `q1.d` | зависит от икс | iksga bog'liq | it depends on x |
-| `q1.d.hint` | Направление у неё одно на всей прямой. | Uning yo'nalishi butun chiziqda bitta. | Its direction is the same along the whole line. |
-| `q2.prompt` | При каком икс двойка в степени икс равна восьми? | Ikkining iks darajasi qaysi iksda sakkizga teng? | For which x does two to the power x equal eight? |
-| `q2.a` [верно] | три | uch | three |
-| `q2.b` | четыре | to'rt | four |
-| `q2.b.hint` | Четыре вышло бы делением, а нужен показатель. | To'rt bo'lish bilan chiqardi, ko'rsatkich kerak esa. | Four would come from dividing, and an exponent is what is needed. |
-| `q2.c` | восемь | sakkiz | eight |
-| `q2.c.hint` | Восемь это значение, а спросили про икс. | Sakkiz qiymat, savol esa iks haqida. | Eight is the value, and the question was about x. |
-| `q2.d` | два | ikki | two |
-| `q2.d.hint` | Два в квадрате даёт четыре, а не восемь. | Ikkining kvadrati to'rt beradi, sakkiz emas. | Two squared gives four, not eight. |
-| `q3.prompt` | Какое число может стоять под знаком логарифма? | Logarifm belgisi ostida qanday son turishi mumkin? | Which number can stand under a logarithm sign? |
-| `q3.a` [верно] | только положительное | faqat musbat | only a positive one |
-| `q3.b` | любое | har qanday | any |
-| `q3.b.hint` | Кривая слева от нуля не проходит вовсе. | Egri chiziq noldan chapda umuman o'tmaydi. | The curve does not pass to the left of zero at all. |
-| `q3.c` | любое, кроме нуля | noldan boshqa har qanday | any except zero |
-| `q3.c.hint` | Отрицательные тоже выпадают, а не только ноль. | Manfiylar ham tushib qoladi, faqat nol emas. | The negatives drop out too, not only zero. |
-| `q3.d` | только целое | faqat butun | only a whole number |
-| `q3.d.hint` | Дробное годится, лишь бы положительное. | Kasr yaraydi, faqat musbat bo'lsa. | A fractional one works, as long as it is positive. |
-| `audio.mount` | Три коротких вопроса. Все три понадобятся через минуту. | Uch qisqa savol. Uchalasi ham bir daqiqadan keyin kerak bo'ladi. | Three short questions. All three will be needed in a minute. |
+| `title` | Три вопроса перед углом | Burchakdan oldin uch savol | Three questions before the angle |
+| `q1.prompt` | С чем берут угол прямой и плоскости? | To'g'ri chiziq va tekislik burchagi nima bilan olinadi? | What is the angle of a line and a plane taken with? |
+| `q1.a` [верно] | с проекцией | proyeksiya bilan | with the projection |
+| `q1.b` | с любой прямой плоскости | tekislikning istalgan chizig'i bilan | with any line of the plane |
+| `q1.b.hint` | Таких прямых бесконечно много, и углы у них разные. | Bunday chiziqlar cheksiz ko'p, va burchaklari boshqa-boshqa. | There are infinitely many such lines with different angles. |
+| `q1.c` | с перпендикуляром | perpendikulyar bilan | with the perpendicular |
+| `q1.c.hint` | С перпендикуляром угол всегда прямой. | Perpendikulyar bilan burchak doim to'g'ri. | With the perpendicular the angle is always right. |
+| `q1.d` | с ребром | qirra bilan | with the edge |
+| `q1.d.hint` | Ребро это одна из прямых плоскости, не более. | Qirra tekislik chiziqlaridan biri, boshqa emas. | An edge is just one of the lines of the plane. |
+| `q2.prompt` | Сколько прямых в плоскости перпендикулярно данной прямой через данную точку? | Berilgan nuqta orqali tekislikda berilgan chiziqqa perpendikulyar nechta chiziq bor? | How many lines of the plane through a given point are perpendicular to a given line? |
+| `q2.a` [верно] | одна | bitta | one |
+| `q2.b` | две | ikkita | two |
+| `q2.b.hint` | Две такие прямые совпали бы. | Bunday ikki chiziq ustma-ust tushardi. | Two such lines would coincide. |
+| `q2.c` | бесконечно много | cheksiz ko'p | infinitely many |
+| `q2.c.hint` | Бесконечно много их было бы в пространстве, а не в плоскости. | Cheksiz ko'p ular fazoda bo'lardi, tekislikda emas. | There would be infinitely many in space, not in a plane. |
+| `q2.d` | ни одной | bitta ham yo'q | none |
+| `q2.d.hint` | Хотя бы одна есть всегда. | Hech bo'lmaganda bittasi doim bor. | At least one always exists. |
+| `q3.prompt` | Что даёт прямая, перпендикулярная плоскости? | Tekislikka perpendikulyar chiziq nima beradi? | What does a line perpendicular to a plane give? |
+| `q3.a` [верно] | прямой угол с каждой прямой этой плоскости | shu tekislikning har bir chizig'i bilan to'g'ri burchak | a right angle with every line of that plane |
+| `q3.b` | прямой угол только с одной прямой | faqat bitta chiziq bilan to'g'ri burchak | a right angle with one line only |
+| `q3.b.hint` | Одной прямой мало даже для признака. | Bitta chiziq alomat uchun ham kam. | One line is not even enough for the criterion. |
+| `q3.c` | равные отрезки | teng kesmalar | equal segments |
+| `q3.c.hint` | Речь об углах, а не о длинах. | Gap burchaklar haqida, uzunliklar haqida emas. | This is about angles, not lengths. |
+| `q3.d` | параллельность | parallellik | parallelism |
+| `q3.d.hint` | Параллельность даёт угол ноль, а не девяносто. | Parallellik nol burchak beradi, to'qson emas. | Parallelism gives a zero angle, not ninety. |
+| `audio.mount` | Три вопроса. Второй понадобится дословно через минуту. | Uchta savol. Ikkinchisi bir daqiqadan keyin so'zma-so'z kerak bo'ladi. | Three questions. The second will be needed word for word in a minute. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `q1.done` | `0 < a < 1` |
-| `q2.done` | `2^x = 8   →   x = 3` |
-| `q3.done` | `x > 0` |
+| `q1.done` | `∠(a; α) = ∠(a; a₁)` |
+| `q2.done` | `1` |
+| `q3.done` | `a ⊥ α   →   90°` |
 
 ---
 
-## Экран 3 · `explain1` · ответ `number` · тег `osnovanie-menshe-odnogo`
+## Экран 3 · `explain1` · ответ `number` · тег `kartinka-kak-dokazatelstvo`
 
-Растущая кривая: участок ниже прямой лежит слева.
+Двугранный угол: две полуплоскости и ребро.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
-| `title` | Ответ это сторона, а не точка | Javob tomon, nuqta emas | The answer is a side, not a point |
-| `show.1.1` | кривая растёт, прямая на уровне четыре | egri chiziq o'sadi, to'g'ri chiziq to'rt darajada | the curve grows, the line is at level four |
-| `show.1.2` | встреча приходится на двойку | uchrashuv ikkiga to'g'ri keladi | the meeting falls on two |
-| `show.1.3` | это ответ уравнения, но не неравенства | bu tenglamaning javobi, tengsizlikniki emas | that is the answer of the equation, not of the inequality |
-| `show.2.1` | закрашено там, где кривая ниже | egri chiziq pastroq bo'lgan joy bo'yalgan | the shading is where the curve is lower |
-| `show.2.2` | у растущей кривой это слева | o'suvchi egri chiziqda bu chapda | for a growing curve that is on the left |
-| `show.2.3` | ответ это луч, а не число | javob nur, son emas | the answer is a ray, not a number |
-| `audio.mount` | Возьмём знакомую кривую и знакомую горизонталь. Всё это уже было в уроке про показательные уравнения. | Tanish egri chiziq va tanish gorizontalni olamiz. Bularning hammasi ko'rsatkichli tenglamalar darsida bo'lgan. | Let us take the familiar curve and the familiar horizontal. All of this was in the lesson on exponential equations. |
-| `audio.side*` | Кривая двойка в степени икс растёт, прямая стоит на уровне четыре. Встречаются они в одной точке, и приходится встреча на двойку. Раньше на этом мы бы остановились: у уравнения ответ два. Но у нас неравенство, и вопрос другой. Спрашивают не где встреча, а где кривая ниже прямой. Смотри: слева от двойки кривая идёт под прямой, справа над ней. Значит ответ это весь луч левее двойки. Точка встречи никуда не делась, но она стала границей ответа, а не самим ответом. | Ikkining iks darajasi egri chizig'i o'sadi, to'g'ri chiziq to'rt darajada turadi. Ular bitta nuqtada uchrashadi, uchrashuv esa ikkiga to'g'ri keladi. Ilgari biz shu yerda to'xtardik: tenglamaning javobi ikki. Lekin bizda tengsizlik, savol esa boshqa. Uchrashuv qayerda emas, egri chiziq qayerda to'g'ri chiziqdan past ekani so'ralyapti. Qarang: ikkidan chapda egri chiziq to'g'ri chiziq ostidan boradi, o'ngda esa ustidan. Demak javob ikkidan chapdagi butun nur. Uchrashuv nuqtasi hech qayerga ketgani yo'q, lekin u javobning o'zi emas, chegarasi bo'lib qoldi. | The curve two to the power x grows, the line stands at level four. They meet at a single point, and the meeting falls on two. Earlier we would have stopped there: the equation has the answer two. But we have an inequality, and the question is different. It asks not where they meet, but where the curve is below the line. Look: to the left of two the curve runs under the line, to the right above it. So the answer is the whole ray to the left of two. The meeting point has not gone anywhere, but it has become the boundary of the answer rather than the answer itself. |
-| `audio.work` | Посчитай сам. При каком икс кривая встречает прямую? | O'zingiz hisoblang. Egri chiziq qaysi iksda to'g'ri chiziqni uchratadi? | Work it out yourself. At which x does the curve meet the line? |
-| `work.prompt` | При каком икс встреча? | Uchrashuv qaysi iksda? | At which x is the meeting? |
-| `work.ok` | При двойке. Два в квадрате равно четырём, и это граница ответа. | Ikkida. Ikkining kvadrati to'rtga teng, va bu javobning chegarasi. | At two. Two squared equals four, and that is the boundary of the answer. |
-| `work.hint.1` | Найди, в какой степени двойка даёт четыре. | Ikki qaysi darajada to'rt berishini toping. | Find the power at which two gives four. |
-| `work.hint.2` | Посмотри, где кривая пересекает горизонталь. | Egri chiziq gorizontalni qayerda kesib o'tishiga qarang. | See where the curve crosses the horizontal. |
-| `work.hint.3` | Два. | Ikki. | Two. |
+| `title` | Две грани и одно ребро | Ikki yoq va bitta qirra | Two faces and one edge |
+| `show.1.1` | одна полуплоскость легла | bir yarimtekislik yotdi | one half-plane lay down |
+| `show.1.2` | вторая поднялась от той же прямой | ikkinchisi o'sha chiziqdan ko'tarildi | the second rose from the same line |
+| `show.2.1` | общая прямая называется ребром | umumiy chiziq qirra deb ataladi | the common line is called the edge |
+| `show.2.2` | полуплоскости называются гранями | yarimtekisliklar yoqlar deb ataladi | the half-planes are called the faces |
+| `audio.mount` | Возьмём прямую и две полуплоскости, которые от неё начинаются. | Bitta chiziqni va undan boshlanadigan ikki yarimtekislikni olamiz. | Take a line and two half-planes that start from it. |
+| `audio.move*` | Такая фигура называется двугранным углом. Полуплоскости это его грани, а прямая, которая их ограничивает, это ребро. Так написано в учебнике на странице сто сорок два. Двугранные углы вокруг нас повсюду. Открытая книга, крышка ноутбука, открытая дверь и скат крыши. Поверни сцену и посмотри на фигуру с разных сторон. Ребро остаётся общим для двух граней при любом положении, потому что это не свойство чертежа, а условие фигуры. | Bunday shakl ikki yoqli burchak deb ataladi. Yarimtekisliklar uning yoqlari, ularni chegaralovchi chiziq esa qirra. Darslikda bir yuz qirq ikkinchi betda shunday yozilgan. Ikki yoqli burchaklar atrofimizda hamma joyda. Ochiq kitob, noutbuk qopqog'i, ochiq eshik va tom qiyaligi. Sahnani buring va shaklga turli tomondan qarang. Qirra har qanday holatda ikki yoq uchun umumiy qoladi, chunki bu chizmaning xossasi emas, shaklning sharti. | Such a figure is called a dihedral angle. The half-planes are its faces, and the line that bounds them is the edge. That is what the textbook says on page one hundred forty two. Dihedral angles are everywhere around us. An open book, a laptop lid, an open door and a roof slope. Rotate the scene and look at the figure from different sides. The edge stays common to both faces at any position, because this is not a property of the drawing but a condition of the figure. |
+| `audio.work` | Посчитай сам. Сколько полуплоскостей образуют двугранный угол? | O'zingiz hisoblang. Ikki yoqli burchakni nechta yarimtekislik hosil qiladi? | Work it out yourself. How many half-planes form a dihedral angle? |
+| `work.prompt` | Сколько полуплоскостей? | Nechta yarimtekislik? | How many half-planes? |
+| `work.ok` | Две. И одно общее ребро, которое их ограничивает. | Ikkita. Va ularni chegaralovchi bitta umumiy qirra. | Two. And one common edge that bounds them. |
+| `work.hint.1` | Посмотри, сколько частей плоскости на чертеже. | Chizmada tekislikning nechta bo'lagi borligini ko'ring. | See how many parts of a plane are on the drawing. |
+| `work.hint.2` | Название фигуры содержит это число. | Shaklning nomi bu sonni o'zida saqlaydi. | The name of the figure carries this number. |
+| `work.hint.3` | Две. | Ikkita. | Two. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `work.expr` | `2^x < 4` |
+| `expr` | `α, β;   a = α ∩ β` |
 | `work.answer` | `2` |
 
 ---
 
-## Экран 4 · `explain2` · ответ `order` · тег `osnovanie-menshe-odnogo`
+## Экран 4 · `explain2` · ответ `number` · тег `lineynyy-ne-tot`
 
-Разграничение: уравнение и неравенство на одном чертеже.
-
-**Текст**
-
-| Ключ | RU | UZ | EN |
-|---|---|---|---|
-| `eyebrow` | РАЗГРАНИЧЕНИЕ | FARQLASH | TELLING THEM APART |
-| `title` | Один чертёж, два вопроса | Bitta chizma, ikki savol | One drawing, two questions |
-| `show.1.1` | уравнение спрашивает где встреча | tenglama uchrashuv qayerdaligini so'raydi | the equation asks where they meet |
-| `show.1.2` | ответ там одно число | javob u yerda bitta son | the answer there is a single number |
-| `show.1.3` | чертёж при этом тот же самый | chizma esa o'sha-o'sha | the drawing is the very same |
-| `show.2.1` | неравенство спрашивает с какой стороны | tengsizlik qaysi tomondan ekanini so'raydi | the inequality asks on which side |
-| `show.2.2` | ответ там целый луч | javob u yerda butun nur | the answer there is a whole ray |
-| `show.2.3` | число стало границей | son chegaraga aylandi | the number became a boundary |
-| `audio.mount` | Сравним два вопроса на одном и том же чертеже. | Bir xil chizmada ikki savolni solishtiramiz. | Let us compare two questions on one and the same drawing. |
-| `audio.two*` | Первый вопрос: при каком икс двойка в степени икс равна четырём. Это уравнение, и ответ у него один, двойка. Второй вопрос: при каких икс двойка в степени икс меньше четырёх. Это неравенство, и ответ у него бесконечно много чисел, весь луч левее двойки. Чертёж при этом один и тот же, и точка встречи одна и та же. Меняется только то, что мы с неё читаем. Именно поэтому решать неравенство отдельно от чертежа опасно: с чертежа сторона видна, а из одной формулы её приходится угадывать. | Birinchi savol: ikkining iks darajasi qaysi iksda to'rtga teng. Bu tenglama, uning javobi bitta, ikkilik. Ikkinchi savol: ikkining iks darajasi qaysi iksda to'rtdan kichik. Bu tengsizlik, uning javobi cheksiz ko'p son, ikkidan chapdagi butun nur. Chizma esa bitta, uchrashuv nuqtasi ham bitta. Faqat undan nima o'qiyotganimiz o'zgaradi. Aynan shuning uchun tengsizlikni chizmadan ajratib yechish xavfli: chizmada tomon ko'rinadi, bitta formuladan esa uni taxmin qilishga to'g'ri keladi. | The first question: at which x does two to the power x equal four. That is an equation, and it has one answer, two. The second question: for which x is two to the power x less than four. That is an inequality, and it has infinitely many answers, the whole ray to the left of two. The drawing is the same, and the meeting point is the same. Only what we read from it changes. This is exactly why solving an inequality away from the drawing is dangerous: on the drawing the side is visible, from a formula alone it has to be guessed. |
-| `audio.work` | Расставь шаги в том порядке, в котором мы читали чертёж. | Chizmani o'qigan tartibimizda qadamlarni joylashtiring. | Put the steps in the order in which we read the drawing. |
-| `order.prompt` | Расставь шаги по порядку | Qadamlarni tartib bilan joylashtiring | Put the steps in order |
-| `order.s1` | горизонталь встречает кривую | gorizontal egri chiziqni uchratadi | the horizontal meets the curve |
-| `order.s2` | встреча даёт число | uchrashuv son beradi | the meeting gives a number |
-| `order.s3` | смотрим, где кривая ниже | egri chiziq qayerda pastroq ekaniga qaraymiz | we see where the curve is lower |
-| `order.s4` | берём эту сторону | shu tomonni olamiz | we take that side |
-| `order.ok` | Верно. Встреча первая, сторона вторая, и порядок этот не меняется. | To'g'ri. Uchrashuv birinchi, tomon ikkinchi, bu tartib o'zgarmaydi. | Correct. The meeting comes first, the side second, and this order does not change. |
-| `order.bad` | Сторону нельзя выбрать, пока не найдена встреча. | Uchrashuv topilmaguncha tomonni tanlab bo'lmaydi. | You cannot choose a side until the meeting is found. |
-
-**Формулы**
-
-| Ключ | Значение |
-|---|---|
-| `order.mark` | `2^x = 4   →   x = 2` |
-
----
-
-## Экран 5 · `explain3` · ответ `number` · тег `osnovanie-menshe-odnogo`
-
-Убывающая кривая: участок переезжает на другую сторону.
+Свидетель: точка едет по ребру, линейный угол тот же.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
-| `title` | Кривая пошла вниз, участок переехал | Egri chiziq pastga ketdi, bo'lak ko'chdi | The curve went down, the piece moved |
-| `show.1.1` | основание меньше единицы | asos birdan kichik | the base is less than one |
-| `show.1.2` | кривая убывает слева направо | egri chiziq chapdan o'ngga kamayadi | the curve decreases from left to right |
-| `show.1.3` | встреча приходится на минус два | uchrashuv minus ikkiga to'g'ri keladi | the meeting falls on minus two |
-| `show.2.1` | выше прямой теперь слева | to'g'ri chiziqdan yuqorisi endi chapda | above the line is now on the left |
-| `show.2.2` | значит ответ левее минус двух | demak javob minus ikkidan chapda | so the answer is left of minus two |
-| `show.2.3` | знак перевернулся сам собой | ishora o'zidan-o'zi ag'darildi | the sign flipped by itself |
-| `audio.mount` | Возвращаемся к неравенству из начала урока. Основание меньше единицы. | Dars boshidagi tengsizlikka qaytamiz. Asos birdan kichik. | Back to the inequality from the beginning of the lesson. The base is less than one. |
-| `audio.flip*` | Кривая теперь убывает: чем больше икс, тем меньше значение. Горизонталь на уровне четыре встречает её при минус двух, и это легко проверить: ноль целых пять десятых в степени минус два равно четырём. А дальше внимательно. Нам нужно, где кривая ВЫШЕ прямой, потому что в неравенстве стоит знак больше. У растущей кривой выше было справа, а у этой всё наоборот: слева. Значит ответ это луч левее минус двух. Обрати внимание, знака мы не переворачивали. Он перевернулся сам, потому что кривая пошла в другую сторону. Заучивать тут нечего, надо просто смотреть на чертёж. | Egri chiziq endi kamayadi: iks qancha katta bo'lsa, qiymat shuncha kichik. To'rt darajadagi gorizontal uni minus ikkida uchratadi, buni tekshirish oson: nol butun besh o'ndanning minus ikkinchi darajasi to'rtga teng. Keyin esa diqqat bilan. Bizga egri chiziq to'g'ri chiziqdan YUQORI bo'lgan joy kerak, chunki tengsizlikda katta ishorasi turibdi. O'suvchi egri chiziqda yuqorisi o'ngda edi, bunisida esa aksincha: chapda. Demak javob minus ikkidan chapdagi nur. E'tibor bering, biz ishorani ag'darmadik. U o'zi ag'darildi, chunki egri chiziq boshqa tomonga ketdi. Bu yerda yodlaydigan narsa yo'q, shunchaki chizmaga qarash kerak. | The curve now decreases: the bigger x is, the smaller the value. The horizontal at level four meets it at minus two, and that is easy to check: zero point five to the minus two equals four. Now pay attention. We need where the curve is ABOVE the line, because the inequality has a greater-than sign. For a growing curve, above was on the right; for this one it is the opposite: on the left. So the answer is the ray to the left of minus two. Notice that we did not flip any sign. It flipped by itself, because the curve went the other way. There is nothing to memorise here, one just has to look at the drawing. |
-| `audio.work` | Посчитай сам. При каком икс встреча? | O'zingiz hisoblang. Uchrashuv qaysi iksda? | Work it out yourself. At which x is the meeting? |
-| `work.prompt` | При каком икс встреча? | Uchrashuv qaysi iksda? | At which x is the meeting? |
-| `work.ok` | При минус двух. Ноль целых пять десятых в степени минус два равно четырём. | Minus ikkida. Nol butun besh o'ndanning minus ikkinchi darajasi to'rtga teng. | At minus two. Zero point five to the minus two equals four. |
-| `work.hint.1` | Степень с отрицательным показателем переворачивает дробь. | Manfiy ko'rsatkichli daraja kasrni ag'daradi. | A negative exponent turns the fraction over. |
-| `work.hint.2` | Две в квадрате это четыре, значит показатель отрицательный. | Ikkining kvadrati to'rt, demak ko'rsatkich manfiy. | Two squared is four, so the exponent is negative. |
-| `work.hint.3` | Минус два. | Minus ikki. | Minus two. |
+| `eyebrow` | СВИДЕТЕЛЬ | SHOHID | THE WITNESS |
+| `title` | Точка едет по ребру | Nuqta qirra bo'ylab yuradi | The point travels along the edge |
+| `show.1.1` | из точки ребра в каждой грани идёт луч | qirra nuqtasidan har yoqda nur chiqadi | from a point of the edge a ray runs in each face |
+| `show.1.2` | оба луча перпендикулярны ребру | ikkala nur ham qirraga perpendikulyar | both rays are perpendicular to the edge |
+| `show.2.1` | точка переехала в другое место ребра | nuqta qirraning boshqa joyiga o'tdi | the point moved to another place on the edge |
+| `show.2.2` | угол остался тем же | burchak o'sha qoldi | the angle stayed the same |
+| `audio.mount` | На ребре есть точка, и из неё в каждой грани идёт луч, перпендикулярный ребру. Такой угол называется линейным. | Qirrada nuqta bor, va undan har yoqda qirraga perpendikulyar nur boradi. Bunday burchak chiziqli burchak deb ataladi. | There is a point on the edge, and from it a ray perpendicular to the edge runs in each face. Such an angle is called the linear angle. |
+| `audio.move*` | Теперь смотри на само число. Точка едет по ребру, лучи едут вместе с ней, а угол между ними не меняется ни на градус. Линейных углов бесконечно много, потому что точек на ребре бесконечно много, но величина у всех одна. Именно она и считается величиной двугранного угла. Поверни сцену и проверь, что при повороте одинаковыми остаются оба угла, а не только тот, который ближе. | Endi sonning o'ziga qarang. Nuqta qirra bo'ylab yuradi, nurlar u bilan birga yuradi, ular orasidagi burchak esa bir daraja ham o'zgarmaydi. Chiziqli burchaklar cheksiz ko'p, chunki qirrada nuqtalar cheksiz ko'p, lekin kattaligi hammasida bir xil. Aynan u ikki yoqli burchakning kattaligi deb hisoblanadi. Sahnani buring va burilishda faqat yaqinrog'i emas, ikkala burchak ham bir xil qolishini tekshiring. | Now look at the number itself. The point travels along the edge, the rays travel with it, and the angle between them does not change by a single degree. There are infinitely many linear angles, because there are infinitely many points on the edge, but all of them have one size. That size is taken to be the size of the dihedral angle. Rotate the scene and check that under rotation both angles stay equal, not only the nearer one. |
+| `audio.work` | Посчитай сам. Сколько разных величин у линейных углов одного двугранного угла? | O'zingiz hisoblang. Bitta ikki yoqli burchakning chiziqli burchaklari nechta xil kattalikka ega? | Work it out yourself. How many different sizes do the linear angles of one dihedral angle have? |
+| `work.prompt` | Сколько разных величин? | Nechta xil kattalik? | How many different sizes? |
+| `work.ok` | Одна. Линейных углов бесконечно много, а величина у них одна. | Bitta. Chiziqli burchaklar cheksiz ko'p, kattaligi esa bitta. | One. There are infinitely many linear angles, and they have one size. |
+| `work.hint.1` | Подвинь точку и сравни две дуги. | Nuqtani suring va ikki dugani solishtiring. | Move the point and compare the two arcs. |
+| `work.hint.2` | Лучи в одной грани при разных точках параллельны. | Bir yoqdagi nurlar turli nuqtalarda parallel. | The rays in one face at different points are parallel. |
+| `work.hint.3` | Одна. | Bitta. | One. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `work.expr` | `0,5^x > 4` |
-| `work.answer` | `−2` |
+| `expr` | `∠A = ∠B = ∠C` |
+| `work.answer` | `1` |
 
 ---
 
-## Экран 6 · `explain4` · ответ `number` · тег `odz-logarifma`
+## Экран 5 · `explain3` · ответ `number` · тег `lineynyy-ne-tot`
 
-Сам: та же горизонталь на логарифмической кривой.
+Граница: луч не перпендикулярен ребру.
+
+**Текст**
+
+| Ключ | RU | UZ | EN |
+|---|---|---|---|
+| `eyebrow` | ГРАНИЦА | CHEGARA | THE BOUNDARY |
+| `title` | Кривой луч даёт другой угол | Qiyshiq nur boshqa burchak beradi | A skewed ray gives a different angle |
+| `show.1.1` | второй луч отклонили от перпендикуляра | ikkinchi nur perpendikulyardan og'dirildi | the second ray was tilted off the perpendicular |
+| `show.1.2` | на чертеже он выглядит не хуже | chizmada u yomon ko'rinmaydi | on the drawing it looks no worse |
+| `show.2.1` | поверни сцену и сравни дуги | sahnani buring va dugalarni solishtiring | rotate the scene and compare the arcs |
+| `show.2.2` | этот угол не линейный | bu burchak chiziqli emas | this angle is not the linear one |
+| `audio.mount` | Оставим первый луч на месте, а второй отклоним от перпендикуляра к ребру. | Birinchi nurni joyida qoldiramiz, ikkinchisini esa qirraga perpendikulyardan og'diramiz. | Leave the first ray in place and tilt the second one off the perpendicular to the edge. |
+| `audio.move*` | На неподвижном чертеже отклонение почти не видно, и угол выглядит таким же законным. Поверни сцену и сравни дуги. Они разные, и та, что построена на кривом луче, меняется вместе с поворотом. Линейный угол требует двух условий, и оба обязательны. Лучи лежат в гранях, и оба перпендикулярны ребру. Убери второе условие, и величина перестанет быть определённой, потому что каждый кривой луч даст своё число. | Qimirlamas chizmada og'ish deyarli ko'rinmaydi, va burchak xuddi shunday qonuniy ko'rinadi. Sahnani buring va dugalarni solishtiring. Ular boshqa-boshqa, va qiyshiq nurda qurilgani burilish bilan birga o'zgaradi. Chiziqli burchak ikki shartni talab qiladi, va ikkalasi ham majburiy. Nurlar yoqlarda yotadi, va ikkalasi ham qirraga perpendikulyar. Ikkinchi shartni olib tashlasangiz, kattalik aniq bo'lmay qoladi, chunki har bir qiyshiq nur o'z sonini beradi. | On a still drawing the tilt is almost invisible and the angle looks just as legitimate. Rotate the scene and compare the arcs. They differ, and the one built on the skewed ray changes together with the rotation. The linear angle needs two conditions and both are required. The rays lie in the faces, and both are perpendicular to the edge. Drop the second condition and the size stops being definite, because every skewed ray gives its own number. |
+| `audio.work` | Посчитай сам. Сколько из двух углов на чертеже линейный? | O'zingiz hisoblang. Chizmadagi ikki burchakdan nechtasi chiziqli? | Work it out yourself. How many of the two angles on the drawing are linear? |
+| `work.prompt` | Сколько линейных углов на чертеже? | Chizmada nechta chiziqli burchak bor? | How many linear angles are on the drawing? |
+| `work.ok` | Один. У второго луч не перпендикулярен ребру. | Bitta. Ikkinchisining nuri qirraga perpendikulyar emas. | One. The ray of the second one is not perpendicular to the edge. |
+| `work.hint.1` | Проверь у каждого угла оба условия. | Har burchakda ikki shartni tekshiring. | Check both conditions for each angle. |
+| `work.hint.2` | Лучи должны быть перпендикулярны ребру, а не просто лежать в гранях. | Nurlar qirraga perpendikulyar bo'lishi kerak, shunchaki yoqlarda yotishi emas. | The rays must be perpendicular to the edge, not merely lie in the faces. |
+| `work.hint.3` | Один. | Bitta. | One. |
+
+**Формулы**
+
+| Ключ | Значение |
+|---|---|
+| `expr` | `AB ⊥ a,   AD ⊥̸ a` |
+| `work.answer` | `1` |
+
+---
+
+## Экран 6 · `explain4` · ответ `number` · тег `lineynyy-ne-tot`
+
+Сам: четыре двугранных угла при пересечении плоскостей.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | САМ | O'ZINGIZ | ON YOUR OWN |
-| `title` | Та же работа на другой кривой | O'sha ish boshqa egri chiziqda | The same work on another curve |
-| `show.1.1` | кривая логарифмическая, растущая | egri chiziq logarifmik, o'suvchi | the curve is logarithmic and growing |
-| `show.1.2` | горизонталь на уровне три | gorizontal uch darajada | the horizontal is at level three |
-| `show.1.3` | ниже прямой лежит слева | to'g'ri chiziqdan pasti chapda yotadi | below the line lies on the left |
-| `show.2.1` | но слева кривая обрывается | lekin chapda egri chiziq uziladi | but on the left the curve breaks off |
-| `show.2.2` | до нуля она не доходит | u nolgacha yetmaydi | it does not reach zero |
-| `show.2.3` | значит у ответа два конца | demak javobning ikki uchi bor | so the answer has two ends |
-| `audio.mount` | Работа та же, кривая другая. Здесь появится то, чего у показательной не было. | Ish o'sha, egri chiziq boshqa. Bu yerda ko'rsatkichlida bo'lmagan narsa paydo bo'ladi. | The same work, a different curve. Here something appears that the exponential did not have. |
-| `audio.log*` | Логарифмическая кривая растёт, и горизонталь на уровне три встречает её при восьми: два в кубе равно восьми. Ниже прямой кривая идёт слева от этой точки, значит икс меньше восьми. Но посмотри на левый край. Кривая не доходит до вертикальной оси и слева от нуля не существует вовсе. Значит одним неравенством ответ не описать: сверху он ограничен восьмёркой, а снизу нулём. У показательного неравенства такого не было, там кривая шла по всей прямой. Вот и разница между двумя семействами, и она не в правилах, а в том, где кривая живёт. | Logarifmik egri chiziq o'sadi, uch darajadagi gorizontal uni sakkizda uchratadi: ikkining kubi sakkizga teng. To'g'ri chiziqdan past qismda egri chiziq shu nuqtadan chapda boradi, demak iks sakkizdan kichik. Lekin chap chekkaga qarang. Egri chiziq tik o'qqa yetmaydi va noldan chapda umuman mavjud emas. Demak javobni bitta tengsizlik bilan yozib bo'lmaydi: yuqoridan u sakkiz bilan, pastdan nol bilan chegaralangan. Ko'rsatkichli tengsizlikda bunday bo'lmagan, u yerda egri chiziq butun chiziq bo'ylab borardi. Ikki oila orasidagi farq ana shu, va u qoidalarda emas, egri chiziq qayerda yashashida. | The logarithmic curve grows, and the horizontal at level three meets it at eight: two cubed equals eight. Below the line the curve runs to the left of that point, so x is less than eight. But look at the left edge. The curve does not reach the vertical axis and does not exist to the left of zero at all. So the answer cannot be written with one inequality: from above it is bounded by eight, from below by zero. The exponential inequality had nothing of the kind, there the curve ran along the whole line. That is the difference between the two families, and it lies not in the rules but in where the curve lives. |
-| `audio.work` | Посчитай сам. Каким числом ответ ограничен сверху? | O'zingiz hisoblang. Javob yuqoridan qaysi son bilan chegaralangan? | Work it out yourself. Which number bounds the answer from above? |
-| `work.prompt` | Чем ответ ограничен сверху? | Javob yuqoridan nima bilan chegaralangan? | What bounds the answer from above? |
-| `work.ok` | Восьмёркой. Два в кубе равно восьми, и там встреча. | Sakkiz bilan. Ikkining kubi sakkizga teng, uchrashuv o'sha yerda. | By eight. Two cubed equals eight, and the meeting is there. |
-| `work.hint.1` | Найди, при каком икс логарифм равен трём. | Logarifm qaysi iksda uchga tengligini toping. | Find the x at which the logarithm equals three. |
-| `work.hint.2` | Два в кубе. | Ikkining kubi. | Two cubed. |
-| `work.hint.3` | Восемь. | Sakkiz. | Eight. |
+| `title` | Четыре угла вокруг ребра | Qirra atrofida to'rt burchak | Four angles around the edge |
+| `show.1.1` | две плоскости пересеклись | ikki tekislik kesishdi | two planes crossed |
+| `show.1.2` | вокруг ребра получилось четыре угла | qirra atrofida to'rt burchak chiqdi | four angles came out around the edge |
+| `show.2.1` | один из них пятьдесят градусов | ulardan biri ellik daraja | one of them is fifty degrees |
+| `show.2.2` | противоположный ему такой же | unga qarama-qarshisi ham shunday | the one opposite to it is the same |
+| `audio.mount` | Две пересекающиеся плоскости делят всё пространство на четыре двугранных угла с общим ребром. Так на странице сто сорок три. | Ikki kesishuvchi tekislik butun fazoni umumiy qirrali to'rt ikki yoqli burchakka ajratadi. Bir yuz qirq uchinchi betda shunday. | Two crossing planes divide the whole of space into four dihedral angles with a common edge. So it is on page one hundred forty three. |
+| `audio.move*` | Посмотри на линейные углы этих четырёх. Они устроены как обычные углы при пересечении двух прямых. Противоположные равны между собой, а соседние дополняют друг друга до ста восьмидесяти градусов. Значит если один угол пятьдесят градусов, то противоположный ему тоже пятьдесят, а два соседних по сто тридцать. Углом между пересекающимися плоскостями называют наименьший из четырёх, то есть тот, который не больше девяноста градусов. | Bu to'rttasining chiziqli burchaklariga qarang. Ular ikki chiziq kesishganda hosil bo'ladigan oddiy burchaklar kabi tuzilgan. Qarama-qarshilari o'zaro teng, qo'shnilari esa bir yuz sakson darajaga to'ldiradi. Demak agar bir burchak ellik daraja bo'lsa, unga qarama-qarshisi ham ellik, ikki qo'shnisi esa bir yuz o'ttiztadan. Kesishuvchi tekisliklar orasidagi burchak deb to'rttadan eng kichigi olinadi, ya'ni to'qson darajadan katta bo'lmagani. | Look at the linear angles of these four. They are arranged like ordinary angles at the crossing of two lines. Opposite ones are equal to each other, and neighbouring ones add up to one hundred eighty degrees. So if one angle is fifty degrees, the one opposite is also fifty, and the two neighbours are one hundred thirty each. The angle between crossing planes is taken to be the smallest of the four, the one not greater than ninety degrees. |
+| `audio.work` | Посчитай сам. Один угол пятьдесят градусов. Сколько градусов в соседнем? | O'zingiz hisoblang. Bir burchak ellik daraja. Qo'shnisida necha daraja? | Work it out yourself. One angle is fifty degrees. How many degrees are in the neighbouring one? |
+| `work.prompt` | Сколько градусов в соседнем? | Qo'shnisida necha daraja? | How many degrees in the neighbouring one? |
+| `work.ok` | Сто тридцать. Соседние дополняют друг друга до ста восьмидесяти. | Bir yuz o'ttiz. Qo'shnilar bir-birini bir yuz sakson darajaga to'ldiradi. | One hundred thirty. Neighbours add up to one hundred eighty. |
+| `work.hint.1` | Соседние линейные углы вместе дают развёрнутый. | Qo'shni chiziqli burchaklar birgalikda yoyiq burchak beradi. | Neighbouring linear angles together give a straight angle. |
+| `work.hint.2` | Отними пятьдесят от ста восьмидесяти. | Bir yuz sakson dan ellikni ayiring. | Subtract fifty from one hundred eighty. |
+| `work.hint.3` | Сто тридцать. | Bir yuz o'ttiz. | One hundred thirty. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `work.expr` | `log₂ x < 3` |
-| `work.answer` | `8` |
+| `expr` | `50° + x = 180°` |
+| `work.answer` | `130` |
 
 ---
 
-## Экран 7 · `explain5` · ответ `number` · тег `odz-logarifma`
+## Экран 7 · `explain5` · ответ `number` · тег `svoystvo-vmesto-priznaka`
 
-Граничный: полоса допустимых значений и пересечение.
+Перпендикулярные плоскости.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | ГРАНИЧНЫЙ СЛУЧАЙ | CHEGARAVIY HOL | THE EDGE CASE |
-| `title` | Ответ это пересечение двух условий | Javob ikki shartning kesishmasi | The answer is the intersection of two conditions |
-| `show.1.1` | под знаком теперь икс минус один | belgi ostida endi iks minus bir | now x minus one stands under the sign |
-| `show.1.2` | полоса начинается справа от единицы | polosa birdan o'ngda boshlanadi | the band starts to the right of one |
-| `show.1.3` | это первое условие | bu birinchi shart | that is the first condition |
-| `show.2.1` | по кривой выходит икс меньше девяти | egri chiziq bo'yicha iks to'qqizdan kichik chiqadi | from the curve x is less than nine |
-| `show.2.2` | это второе условие | bu ikkinchi shart | that is the second condition |
-| `show.2.3` | берут то, где верны оба | ikkalasi to'g'ri bo'lgan joy olinadi | you take where both hold |
-| `audio.mount` | Последний случай урока. Под знаком логарифма стоит уже не икс, а выражение. | Darsning oxirgi holi. Logarifm belgisi ostida endi iks emas, ifoda turibdi. | The last case of the lesson. Under the logarithm sign there is no longer x but an expression. |
-| `audio.band*` | Сначала полоса, как в уроке про логарифмические уравнения. Под знаком стоит икс минус один, значит икс минус один больше нуля, то есть икс больше единицы. Полоса начинается справа от единицы, и сама единица выколота. Теперь само неравенство. Логарифм меньше трёх, а три это логарифм восьми, значит икс минус один меньше восьми, отсюда икс меньше девяти. Условий получилось два, и выполняться они должны сразу. Берём пересечение: икс больше единицы и меньше девяти. Заметь, если полосу не начертить, ответом окажется всё, что меньше девяти, включая ноль и отрицательные числа, а при них логарифма просто нет. | Avval polosa, logarifmik tenglamalar darsidagi kabi. Belgi ostida iks minus bir turibdi, demak iks minus bir noldan katta, ya'ni iks birdan katta. Polosa birdan o'ngda boshlanadi, birning o'zi esa ochiq qoldiriladi. Endi tengsizlikning o'zi. Logarifm uchdan kichik, uch esa sakkizning logarifmi, demak iks minus bir sakkizdan kichik, bundan iks to'qqizdan kichik. Shart ikkita bo'ldi, ular bir vaqtda bajarilishi kerak. Kesishmani olamiz: iks birdan katta va to'qqizdan kichik. Sezing, polosa chizilmasa, javob to'qqizdan kichik hamma narsa bo'lib chiqadi, nol va manfiy sonlar bilan birga, ularda esa logarifm umuman yo'q. | First the band, as in the lesson on logarithmic equations. Under the sign stands x minus one, so x minus one is greater than zero, that is, x is greater than one. The band starts to the right of one, and one itself is punched out. Now the inequality itself. The logarithm is less than three, and three is the logarithm of eight, so x minus one is less than eight, which gives x less than nine. That makes two conditions, and both must hold at once. We take the intersection: x greater than one and less than nine. Notice that without drawing the band the answer would be everything less than nine, including zero and the negatives, and at those the logarithm simply does not exist. |
-| `audio.work` | Посчитай сам. С какого числа начинается полоса? | O'zingiz hisoblang. Polosa qaysi sondan boshlanadi? | Work it out yourself. From which number does the band start? |
-| `work.prompt` | С какого числа начинается полоса? | Polosa qaysi sondan boshlanadi? | From which number does the band start? |
-| `work.ok` | С единицы. Икс минус один должно быть больше нуля. | Birdan. Iks minus bir noldan katta bo'lishi kerak. | From one. X minus one has to be greater than zero. |
-| `work.hint.1` | Выпиши условие для того, что стоит под знаком. | Belgi ostidagi uchun shartni yozing. | Write the condition for what stands under the sign. |
-| `work.hint.2` | Икс минус один больше нуля. | Iks minus bir noldan katta. | X minus one is greater than zero. |
-| `work.hint.3` | Один. | Bir. | One. |
+| `eyebrow` | ПЕРПЕНДИКУЛЯРНЫЕ | PERPENDIKULYAR | PERPENDICULAR |
+| `title` | Один прямой значит все четыре | Biri to'g'ri bo'lsa, to'rttasi ham | One right means all four |
+| `show.1.1` | линейный угол стал прямым | chiziqli burchak to'g'ri bo'ldi | the linear angle became right |
+| `show.1.2` | соседний тоже стал прямым | qo'shnisi ham to'g'ri bo'ldi | the neighbouring one also became right |
+| `show.2.1` | такие плоскости называют перпендикулярными | bunday tekisliklar perpendikulyar deb ataladi | such planes are called perpendicular |
+| `show.2.2` | пол и стена комнаты пример | xona poli va devori misol | the floor and a wall of a room are an example |
+| `audio.mount` | Здесь линейный угол прямой. Вокруг ребра всё те же четыре угла. | Bu yerda chiziqli burchak to'g'ri. Qirra atrofida o'sha to'rt burchak. | Here the linear angle is right. Around the edge there are the same four angles. |
+| `audio.move*` | Как только один из четырёх углов стал прямым, прямыми стали и остальные три. Соседний дополняет его до ста восьмидесяти, а сто восемьдесят минус девяносто это опять девяносто. Плоскости, пересекающиеся под прямым углом, называют перпендикулярными. Их вокруг нас много. Пол и стена комнаты, две стены с общим углом, грани кубика Рубика с общим ребром, земля и стена дома. | To'rt burchakdan biri to'g'ri bo'lishi bilanoq qolgan uchtasi ham to'g'ri bo'ldi. Qo'shnisi uni bir yuz sakson darajaga to'ldiradi, bir yuz sakson minus to'qson esa yana to'qson. To'g'ri burchak ostida kesishuvchi tekisliklar perpendikulyar deb ataladi. Ular atrofimizda ko'p. Xona poli va devori, umumiy qirrali ikki devor, umumiy qirrali rubik kubi yoqlari, yer va uy devori. | As soon as one of the four angles became right, the other three became right too. The neighbour completes it to one hundred eighty, and one hundred eighty minus ninety is ninety again. Planes crossing at a right angle are called perpendicular. There are many of them around us. The floor and a wall of a room, two walls with a common corner, faces of a Rubik cube with a common edge, the ground and the wall of a house. |
+| `audio.work` | Посчитай сам. Один из четырёх углов прямой. Сколько из четырёх прямые? | O'zingiz hisoblang. To'rt burchakdan biri to'g'ri. To'rttadan nechtasi to'g'ri? | Work it out yourself. One of the four angles is right. How many of the four are right? |
+| `work.prompt` | Сколько прямых углов из четырёх? | To'rttadan nechta to'g'ri burchak? | How many right angles out of four? |
+| `work.ok` | Все четыре. Сто восемьдесят минус девяносто снова девяносто. | To'rttasi ham. Bir yuz sakson minus to'qson yana to'qson. | All four. One hundred eighty minus ninety is ninety again. |
+| `work.hint.1` | Посчитай соседний угол. | Qo'shni burchakni hisoblang. | Compute the neighbouring angle. |
+| `work.hint.2` | Противоположные углы равны, соседние дают развёрнутый. | Qarama-qarshi burchaklar teng, qo'shnilar yoyiq beradi. | Opposite angles are equal, neighbours give a straight angle. |
+| `work.hint.3` | Все четыре. | To'rttasi ham. | All four. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `work.expr` | `log₂ (x − 1) < 3` |
-| `work.answer` | `1` |
+| `expr` | `α ⊥ β` |
+| `work.answer` | `4` |
 
 ---
 
-## Экран 8 · `rule` · ответ `pick2` · тег `osnovanie-menshe-odnogo`
+## Экран 8 · `rule` · ответ `pick2` · тег `lineynyy-ne-tot`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ПРАВИЛО | QOIDA | THE RULE |
-| `title` | Сторону читают с чертежа | Tomon chizmadan o'qiladi | The side is read from the drawing |
-| `probe.question` | Отчего зависит, с какой стороны лежит ответ? | Javob qaysi tomonda yotishi nimaga bog'liq? | What decides on which side the answer lies? |
-| `probe.a` [верно] | от направления кривой | egri chiziqning yo'nalishiga | on the direction of the curve |
-| `probe.b` | от того, какое число справа | o'ngda qanday son turganiga | on which number is on the right |
-| `probe.b.hint` | Число справа задаёт высоту прямой, а не сторону. | O'ngdagi son to'g'ri chiziqning balandligini beradi, tomonni emas. | The number on the right sets the height of the line, not the side. |
-| `rule.lawLabel` | КАК РЕШАТЬ | QANDAY YECHILADI | HOW TO SOLVE |
-| `rule.lines.1` | у логарифмического сначала полоса допустимых значений | logarifmikda avval joiz qiymatlar polosasi | for a logarithmic one, the band of admissible values first |
-| `rule.lines.2` | горизонталь встречает кривую, встреча даёт границу | gorizontal egri chiziqni uchratadi, uchrashuv chegara beradi | the horizontal meets the curve, the meeting gives the boundary |
-| `rule.lines.3` | сторона берётся с чертежа, при убывающей она другая | tomon chizmadan olinadi, kamayuvchida u boshqacha | the side is taken from the drawing, for a decreasing curve it is the other one |
-| `audio.mount` | Соберём правило. Оно короткое, потому что главное в нём читается с чертежа. | Qoidani yig'amiz. U qisqa, chunki undagi asosiy narsa chizmadan o'qiladi. | Let us put the rule together. It is short, because the main part of it is read from the drawing. |
-| `audio.rule*` | Первое: если неравенство логарифмическое, начерти полосу допустимых значений до всякого решения. Второе: проведи горизонталь на уровне правой части и найди встречу с кривой, это граница ответа. Третье: посмотри, с какой стороны от встречи кривая удовлетворяет знаку, и возьми эту сторону. У растущей кривой и у убывающей стороны разные, и это единственное место, где ошибаются. В учебнике то же самое сказано словами: решение это те икс, при которых график лежит ниже прямой. | Birinchi: agar tengsizlik logarifmik bo'lsa, har qanday yechimdan oldin joiz qiymatlar polosasini chizing. Ikkinchi: o'ng tarafning darajasida gorizontal o'tkazing va egri chiziq bilan uchrashuvni toping, bu javobning chegarasi. Uchinchi: uchrashuvning qaysi tomonida egri chiziq ishorani qanoatlantirishiga qarang va shu tomonni oling. O'suvchi va kamayuvchi egri chiziqda tomonlar har xil, va xato qilinadigan yagona joy shu. Darslikda ham xuddi shu so'z bilan aytilgan: yechim bu grafik to'g'ri chiziqdan pastda joylashgan ikslar. | First: if the inequality is logarithmic, draw the band of admissible values before any solving. Second: draw the horizontal at the level of the right side and find its meeting with the curve, that is the boundary of the answer. Third: look at which side of the meeting the curve satisfies the sign, and take that side. For a growing and for a decreasing curve the sides differ, and that is the only place where mistakes happen. The textbook says the same in words: the solution is those x at which the graph lies below the line. |
+| `title` | Два условия линейного угла | Chiziqli burchakning ikki sharti | Two conditions of the linear angle |
+| `probe.question` | Какой угол называют линейным? | Qaysi burchak chiziqli deb ataladi? | Which angle is called the linear one? |
+| `probe.a` [верно] | лучи в гранях и оба перпендикулярны ребру | nurlar yoqlarda va ikkalasi qirraga perpendikulyar | the rays are in the faces and both perpendicular to the edge |
+| `probe.b` | любые два луча из точки ребра | qirra nuqtasidan chiqqan istalgan ikki nur | any two rays from a point of the edge |
+| `probe.b.hint` | Тогда у одного двугранного угла было бы много разных величин. | Unda bitta ikki yoqli burchakning ko'p xil kattaligi bo'lardi. | Then one dihedral angle would have many different sizes. |
+| `rule.lawLabel` | Линейный угол | Chiziqli burchak | The linear angle |
+| `rule.lines.1` | лучи выходят из одной точки ребра и лежат в гранях | nurlar qirraning bir nuqtasidan chiqadi va yoqlarda yotadi | the rays leave one point of the edge and lie in the faces |
+| `rule.lines.2` | оба луча перпендикулярны ребру | ikkala nur ham qirraga perpendikulyar | both rays are perpendicular to the edge |
+| `rule.lines.3` | величина двугранного угла это величина его линейного угла | ikki yoqli burchakning kattaligi uning chiziqli burchagi kattaligi | the size of a dihedral angle is the size of its linear angle |
+| `audio.mount` | Один вопрос на различение, потом карточка. | Farqlashga bitta savol, keyin kartochka. | One question to tell them apart, then the card. |
+| `audio.rule*` | В определении два условия, и второе делает всю работу. Лучи в гранях бывают любые, но перпендикулярных ребру ровно по одному в каждой грани. Поэтому линейный угол в данной точке один, а не много, и величина двугранного угла определена однозначно. Отсюда и удобство. Чтобы измерить двугранный угол, не надо мерить плоскости, достаточно построить один линейный угол в любом месте ребра. | Ta'rifda ikki shart bor, va ikkinchisi butun ishni qiladi. Yoqlardagi nurlar istalgancha bo'ladi, lekin qirraga perpendikulyarlari har yoqda roppa-rosa bittadan. Shuning uchun berilgan nuqtada chiziqli burchak bitta, ko'p emas, va ikki yoqli burchakning kattaligi yagona aniqlanadi. Qulaylik ham shundan. Ikki yoqli burchakni o'lchash uchun tekisliklarni o'lchash kerak emas, qirraning istalgan joyida bitta chiziqli burchak qurish yetarli. | The definition has two conditions and the second one does all the work. Rays in the faces can be any, but there is exactly one perpendicular to the edge in each face. That is why the linear angle at a given point is one and not many, and the size of the dihedral angle is uniquely defined. Hence the convenience. To measure a dihedral angle there is no need to measure the planes, it is enough to build one linear angle anywhere on the edge. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `rule.law` | `log_a f(x) < b,   f(x) > 0` |
+| `rule.law` | `AB ⊥ a,   AC ⊥ a   →   ∠BAC` |
 
 ---
 
-## Экран 9 · `drill` · ответ `match` · формат `match` · тег `osnovanie-menshe-odnogo`
+## Экран 9 · `drill` · ответ `match` · формат `match` · тег `lineynyy-ne-tot`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | ТРЕНИРОВКА | MASHQ | PRACTICE |
-| `title` | Соедини неравенство с ответом | Tengsizlikni javobi bilan ulang | Match each inequality with its answer |
-| `match.prompt` | Два основания больше единицы, одно меньше | Ikki asos birdan katta, bittasi kichik | Two bases are greater than one, one is less |
-| `match.ok` | Верно. Единственное убывающее основание дало единственный перевёрнутый знак. | To'g'ri. Yagona kamayuvchi asos yagona ag'darilgan ishorani berdi. | Correct. The one decreasing base gave the one flipped sign. |
-| `audio.mount` | Четыре неравенства и четыре ответа. Смотри сначала на основание. | To'rt tengsizlik va to'rt javob. Avval asosga qarang. | Four inequalities and four answers. Look at the base first. |
+| `eyebrow` | ПРАКТИКА | AMALIYOT | PRACTICE |
+| `title` | Величина и вид | Kattalik va turi | The size and the kind |
+| `match.prompt` | Соедини величину линейного угла с видом двугранного | Chiziqli burchak kattaligini ikki yoqli burchak turi bilan birlashtiring | Match the size of the linear angle with the kind of dihedral angle |
+| `match.ok` | Все четыре на месте. Вид двугранного читается по линейному. | To'rttasi ham joyida. Ikki yoqli burchakning turi chiziqli bo'yicha o'qiladi. | All four in place. The kind of the dihedral angle is read from the linear one. |
+| `audio.mount` | Четыре величины и четыре названия. Соедини их. | To'rt kattalik va to'rt nom. Ularni birlashtiring. | Four sizes and four names. Match them. |
+| `match.a` | острый | o'tkir | acute |
+| `match.b` | прямой | to'g'ri | right |
+| `match.c` | тупой | o'tmas | obtuse |
+| `match.d` | развёрнутый | yoyiq | straight |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `match.left` | `2^x > 8` · `0,5^x > 8` · `log₂ x < 4` · `log₂ x > 0` |
-| `match.a` | `x > 3` |
-| `match.b` | `x < −3` |
-| `match.c` | `0 < x < 16` |
-| `match.d` | `x > 1` |
+| `match.left` | `40°` · `90°` · `120°` · `180°` |
 
 ---
 
-## Экран 10 · `guided` · ответ `order` · формат `order-steps` · тег `odz-logarifma`
+## Экран 10 · `guided` · ответ `order` · формат `proof` · тег `lineynyy-ne-tot`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ПО ШАГАМ | QADAMMA-QADAM | STEP BY STEP |
-| `title` | Реши неравенство целиком | Tengsizlikni to'liq yeching | Solve the inequality from start to finish |
-| `order.prompt` | Расставь шаги решения по порядку | Yechish qadamlarini tartib bilan joylashtiring | Put the solution steps in order |
-| `order.s1` | начертить полосу | polosa chizish | draw the band |
-| `order.s2` | найти встречу | uchrashuvni topish | find the meeting |
-| `order.s3` | выбрать сторону | tomonni tanlash | choose the side |
-| `order.s4` | взять пересечение | kesishmani olish | take the intersection |
-| `order.ok` | Верно. Полоса первая, пересечение последнее. | To'g'ri. Polosa birinchi, kesishma oxirgi. | Correct. The band first, the intersection last. |
-| `order.bad` | Полосу чертят до решения, иначе в ответ попадут числа, где логарифма нет. | Polosa yechimdan oldin chiziladi, aks holda javobga logarifm yo'q sonlar tushadi. | The band is drawn before solving, otherwise numbers where no logarithm exists get into the answer. |
-| `audio.mount` | Теперь всё неравенство целиком. Четыре шага, порядок важен. | Endi butun tengsizlik. To'rt qadam, tartib muhim. | Now the whole inequality. Four steps, and the order matters. |
+| `title` | Докажи независимость от точки | Nuqtaga bog'liq emasligini isbotlang | Prove it does not depend on the point |
+| `proof.given` | два линейных угла в разных точках ребра | qirraning turli nuqtalarida ikki chiziqli burchak | two linear angles at different points of the edge |
+| `proof.goal` | они равны | ular teng | they are equal |
+| `proof.r1` | в каждой грани лучи параллельны | har yoqda nurlar parallel | in each face the rays are parallel |
+| `proof.r2` | стороны углов сонаправлены | burchak tomonlari bir yo'nalgan | the sides of the angles point the same way |
+| `proof.r3` | значит углы равны | demak burchaklar teng | so the angles are equal |
+| `proof.ok` | Доказано. Величина двугранного угла от точки на ребре не зависит. | Isbotlandi. Ikki yoqli burchakning kattaligi qirradagi nuqtaga bog'liq emas. | Proved. The size of a dihedral angle does not depend on the point on the edge. |
+| `proof.e1` | Сонаправленность идёт дальше. Сначала про параллельность. | Bir yo'nalganlik keyin keladi. Avval parallellik haqida. | Codirection comes later. First about being parallel. |
+| `proof.e2` | Параллельность уже есть. Речь о направлении лучей. | Parallellik bor. Gap nurlarning yo'nalishi haqida. | Being parallel is done. This is about the direction of the rays. |
+| `proof.e3` | Стороны разобраны. Теперь вывод про углы. | Tomonlar ko'rildi. Endi burchaklar haqida xulosa. | The sides are done. Now the conclusion about the angles. |
+| `reason.s1` | в плоскости два перпендикуляра к одной прямой параллельны | tekislikda bir chiziqqa ikki perpendikulyar parallel | in a plane two perpendiculars to one line are parallel |
+| `reason.s2` | лучи идут в одну сторону от ребра | nurlar qirradan bir tomonga boradi | the rays go to one side of the edge |
+| `reason.s3` | углы с сонаправленными сторонами равны | bir yo'nalgan tomonli burchaklar teng | angles with codirected sides are equal |
+| `reason.pic` | видно на чертеже | chizmada ko'rinadi | it is visible on the drawing |
+| `reason.pic.missing` | Чертёж не обоснование. Он показывает один ракурс из многих. | Chizma asoslash emas. U ko'p rakursdan bittasini ko'rsatadi. | A drawing is not a justification. It shows one view out of many. |
+| `audio.mount` | Три строки, и у каждой своё обоснование из списка. | Uch qator, va har birining ro'yxatdan o'z asoslashi bor. | Three lines, each with its own justification from the list. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `expr` | `log₂ (x − 1) < 3` |
-| `order.mark` | `1 < x < 9` |
+| `expr` | `∠A = ∠B` |
 
 ---
 
@@ -349,27 +345,27 @@
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | НА БУМАГЕ | QOG'OZDA | ON PAPER |
-| `title` | Система из двух неравенств | Ikki tengsizlikdan iborat sistema | A system of two inequalities |
-| `task.ok` | Два. Икс между двойкой и пятёркой, целых там три и четыре. | Ikkita. Iks ikki bilan besh orasida, butunlari esa uch va to'rt. | Two. X lies between two and five, and the whole numbers there are three and four. |
-| `task.hint.1` | Реши каждое неравенство отдельно. | Har bir tengsizlikni alohida yeching. | Solve each inequality separately. |
-| `task.hint.2` | Икс больше двух и меньше пяти. | Iks ikkidan katta va beshdan kichik. | X is greater than two and less than five. |
-| `task.hint.3` | Два. | Ikki. | Two. |
-| `order.prompt` | Расставь уравнения по возрастанию корня | Tenglamalarni ildizi o'sishi bo'yicha joylashtiring | Put the equations in order of increasing root |
-| `order.title` | от меньшего корня к большему | kichik ildizdan kattasiga | from the smallest root to the largest |
-| `order.ok` | Верно. Число справа больше не значит корень больше. | To'g'ri. O'ngdagi son kattaroq bo'lsa, ildiz kattaroq degani emas. | Correct. A bigger number on the right does not mean a bigger root. |
-| `order.bad` | Считай показатель каждого, а не смотри на число справа. | O'ngdagi songa qaramay, har birining ko'rsatkichini hisoblang. | Compute the exponent of each instead of looking at the number on the right. |
-| `audio.mount` | Прибора нет. Считай на бумаге, потом сверься. | Asbob yo'q. Qog'ozda hisoblang, keyin solishtiring. | No instrument here. Work it out on paper, then compare. |
-| `audio.next` | Дальше запись с ошибкой. Найди строку, где она появилась. | Keyin xatoli yozuv. Xato paydo bo'lgan qatorni toping. | Next comes a written solution with a mistake. Find the line where it appeared. |
+| `eyebrow` | БЕЗ ПРИБОРА | ASBOBSIZ | NO TOOL |
+| `title` | Счёт и порядок | Hisob va tartib | Counting and order |
+| `task.ok` | Сто десять. Соседний дополняет семьдесят до ста восьмидесяти. | Bir yuz o'n. Qo'shnisi yetmishni bir yuz sakson darajaga to'ldiradi. | One hundred ten. The neighbour completes seventy to one hundred eighty. |
+| `task.hint.1` | Нарисуй четыре угла вокруг одной точки. | Bitta nuqta atrofida to'rt burchak chizing. | Draw four angles around one point. |
+| `task.hint.2` | Соседние вместе дают развёрнутый угол. | Qo'shnilar birgalikda yoyiq burchak beradi. | Neighbours together give a straight angle. |
+| `task.hint.3` | Сто восемьдесят минус семьдесят. | Bir yuz sakson minus yetmish. | One hundred eighty minus seventy. |
+| `order.prompt` | Расставь записи в том порядке, в каком их получают | Yozuvlarni olinish tartibida joylashtiring | Arrange the readings in the order they are obtained |
+| `order.title` | Порядок построения | Qurish tartibi | The order of construction |
+| `order.ok` | Порядок верный. Точка берётся первой, вывод последним. | Tartib to'g'ri. Nuqta birinchi olinadi, xulosa oxirgi. | The order is right. The point is taken first, the conclusion last. |
+| `order.bad` | Не в этом порядке. Что нужно раньше. | Bu tartibda emas. Avval nima kerak. | Not in this order. What is needed first. |
+| `audio.mount` | Прибор убран. Считаем на бумаге. | Asbob olib qo'yildi. Qog'ozda hisoblaymiz. | The tool is put away. We count on paper. |
+| `audio.next` | Теперь порядок записей. Расставь их так, как их получают. | Endi yozuvlar tartibi. Ularni qanday olinsa, shunday joylashtiring. | Now the order of the readings. Arrange them the way they are obtained. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `task.prompt` | `4 < 2^x < 32` |
-| `task.answer` | `2` |
-| `order.items` | `2^x = 16` · `3^x = 9` · `5^x = 5` · `2^x = 8` |
-| `order.answer` | `5^x = 5  3^x = 9  2^x = 8  2^x = 16` |
+| `task.prompt` | `∠1 = 70°,   ∠2 = ?` |
+| `task.answer` | `110` |
+| `order.items` | `∠BAC` · `A ∈ a` · `AB ⊥ a` · `AC ⊥ a` |
+| `order.answer` | `A ∈ a  AB ⊥ a  AC ⊥ a  ∠BAC` |
 
 ---
 
@@ -380,29 +376,29 @@
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ЛОВУШКА | TUZOQ | THE TRAP |
-| `title` | Найди строку с ошибкой | Xatoli qatorni toping | Find the line with the mistake |
-| `hint.r1` | Исходное неравенство, здесь ошибки быть не может. | Dastlabki tengsizlik, bu yerda xato bo'lishi mumkin emas. | The original inequality, no mistake can live here. |
-| `hint.r2` | Четвёрку записали как степень того же основания. Это верно. | To'rtni o'sha asosning darajasi qilib yozishdi. Bu to'g'ri. | Four was written as a power of the same base. That is correct. |
-| `hint.r3` | Основание меньше единицы. Посмотри на знак. | Asos birdan kichik. Ishoraga qarang. | The base is less than one. Look at the sign. |
-| `proof` | Подставь ноль: ноль целых пять десятых в нулевой степени это один, а один не больше четырёх. | Nolni qo'ying: nol butun besh o'ndanning nolinchi darajasi bir, bir esa to'rtdan katta emas. | Substitute zero: zero point five to the power zero is one, and one is not greater than four. |
-| `entry.prompt` | Какое число из этого ответа не подходит? | Bu javobdagi qaysi son yaramaydi? | Which number from this answer does not fit? |
-| `entry.ok` | Ноль. Он входит в полученный ответ, а исходному неравенству не удовлетворяет. | Nol. U olingan javobga kiradi, dastlabki tengsizlikni esa qanoatlantirmaydi. | Zero. It belongs to the answer obtained, yet it does not satisfy the original inequality. |
-| `entry.hint.1` | Возьми самое удобное число из полученного ответа. | Olingan javobdan eng qulay sonni oling. | Take the most convenient number from the answer obtained. |
-| `entry.hint.2` | Любое число в нулевой степени равно единице. | Har qanday sonning nolinchi darajasi birga teng. | Any number to the power zero equals one. |
-| `entry.hint.3` | Ноль. | Nol. | Zero. |
-| `audio.mount` | Четыре строки. Все действия знакомые, а ответ неверный. | To'rt qator. Barcha amallar tanish, javob esa noto'g'ri. | Four lines. Every step is familiar and the answer is wrong. |
-| `audio.next` | Дальше обратная задача: по ответу восстанови условие. | Keyin teskari masala: javobga qarab shartni tiklang. | Next comes the reverse task: rebuild the condition from the answer. |
+| `title` | Найди строку с ошибкой | Xato qatorni toping | Find the line with the mistake |
+| `hint.r1` | Точка на ребре взята верно. | Qirradagi nuqta to'g'ri olingan. | The point on the edge is taken correctly. |
+| `hint.r2` | Первый луч перпендикулярен ребру, это верно. | Birinchi nur qirraga perpendikulyar, bu to'g'ri. | The first ray is perpendicular to the edge, that is right. |
+| `hint.r4` | Вывод получен из неверной строки выше. | Xulosa yuqoridagi xato qatordan olingan. | The conclusion comes from the wrong line above. |
+| `proof` | Поверни сцену: дуга на этом луче меняется, а на перпендикулярном нет. | Sahnani buring: bu nurdagi duga o'zgaradi, perpendikulyardagisi esa yo'q. | Rotate the scene: the arc on this ray changes, the one on the perpendicular does not. |
+| `entry.prompt` | Номер строки с ошибкой | Xato qator raqami | The number of the line with the mistake |
+| `entry.ok` | Третья. Второй луч ребру не перпендикулярен, и угол не линейный. | Uchinchi. Ikkinchi nur qirraga perpendikulyar emas, va burchak chiziqli emas. | The third. The second ray is not perpendicular to the edge and the angle is not linear. |
+| `entry.hint.1` | Проверь у каждого луча перпендикулярность ребру. | Har nurning qirraga perpendikulyarligini tekshiring. | Check each ray for perpendicularity to the edge. |
+| `entry.hint.2` | Условие про второй луч в доказательстве не проверено. | Isbotda ikkinchi nur haqidagi shart tekshirilmagan. | The condition about the second ray is not checked in the proof. |
+| `entry.hint.3` | Ошибка в третьей строке. | Xato uchinchi qatorda. | The mistake is in the third line. |
+| `audio.mount` | Четыре строки, и одна из них называет линейным не тот угол. | To'rt qator, va ulardan biri chiziqli deb boshqa burchakni aytadi. | Four lines, and one of them calls the wrong angle linear. |
+| `audio.next` | Теперь напиши номер строки, в которой ошибка. | Endi xato bo'lgan qator raqamini yozing. | Now write the number of the line with the mistake. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `row.r1` | `0,5^x > 4` |
-| `row.r2` | `0,5^x > 0,5^{−2}` |
-| `row.r3` | `x > −2` |
-| `row.r4` | `x ∈ (−2; +∞)` |
+| `row.r1` | `A ∈ a` |
+| `row.r2` | `AB ⊥ a,   B ∈ α` |
+| `row.r3` | `AD ⊂ β   →   ∠BAD` |
+| `row.r4` | `∠BAD = 60°` |
 | `answerId` | `r3` |
-| `entry.answer` | `0` |
+| `entry.answer` | `3` |
 
 ---
 
@@ -413,34 +409,33 @@
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ПЕРЕНОС | KO'CHIRISH | TRANSFER |
-| `title` | Обратный ход | Teskari yo'l | The other direction |
-| `entry.prompt` | С какого числа начинается полоса допустимых значений? | Joiz qiymatlar polosasi qaysi sondan boshlanadi? | From which number does the band of admissible values start? |
-| `entry.ok` | С пятёрки. Икс минус пять должно быть больше нуля. | Beshdan. Iks minus besh noldan katta bo'lishi kerak. | From five. X minus five has to be greater than zero. |
-| `entry.hint.1` | Посмотри, что стоит под знаком логарифма. | Logarifm belgisi ostida nima turganiga qarang. | Look at what stands under the logarithm sign. |
-| `entry.hint.2` | Икс минус пять больше нуля. | Iks minus besh noldan katta. | X minus five is greater than zero. |
-| `entry.hint.3` | Пять. | Besh. | Five. |
-| `multi.prompt` | Отметь все неравенства, где знак переворачивается | Ishora ag'dariladigan barcha tengsizliklarni belgilang | Mark every inequality where the sign flips |
-| `multi.title` | их ровно два | ular aynan ikkita | there are exactly two |
-| `multi.c.hint` | Основание больше единицы, кривая растёт, знак остаётся. | Asos birdan katta, egri chiziq o'sadi, ishora qoladi. | The base is greater than one, the curve grows, the sign stays. |
-| `multi.d.hint` | Здесь основание тоже больше единицы. | Bu yerda ham asos birdan katta. | Here the base is greater than one as well. |
-| `multi.ok` | Верно. Переворот приходит от основания меньше единицы, и только от него. | To'g'ri. Ag'darilish birdan kichik asosdan keladi, faqat undan. | Correct. The flip comes from a base less than one, and only from it. |
-| `audio.mount` | Теперь наоборот. Сначала назови начало полосы. | Endi teskarisiga. Avval polosaning boshini ayting. | Now the other way round. First name where the band starts. |
-| `audio.work` | Потом отметь все неравенства, где знак переворачивается. | Keyin ishora ag'dariladigan barcha tengsizliklarni belgilang. | Then mark every inequality where the sign flips. |
+| `title` | В обратную сторону | Teskari tomonga | The other way round |
+| `place.prompt` | Двугранный угол прямой. Сколько градусов в его линейном угле? | Ikki yoqli burchak to'g'ri. Uning chiziqli burchagida necha daraja? | The dihedral angle is right. How many degrees are in its linear angle? |
+| `place.ok` | Девяносто. Величина двугранного это величина линейного. | To'qson. Ikki yoqli burchakning kattaligi chiziqli burchak kattaligi. | Ninety. The size of the dihedral is the size of the linear one. |
+| `place.wrong` | Посмотри на третью строку карточки. | Kartochkaning uchinchi qatoriga qarang. | Look at the third line of the card. |
+| `multi.prompt` | Отметь все верные записи | Barcha to'g'ri yozuvlarni belgilang | Mark all the correct readings |
+| `multi.title` | Что верно всегда | Nima doim to'g'ri | What is always true |
+| `multi.d.hint` | Лучи в гранях бывают любые, а линейный угол один. | Yoqlardagi nurlar istalgancha, chiziqli burchak esa bitta. | Rays in the faces can be any, the linear angle is one. |
+| `multi.e.hint` | Соседние углы дополняют друг друга, а не равны. | Qo'shni burchaklar bir-birini to'ldiradi, teng emas. | Neighbouring angles complete each other, they are not equal. |
+| `multi.ok` | Три записи из пяти. Две оставшиеся ломаются на условии про ребро. | Beshtadan uch yozuv. Qolgan ikkitasi qirra haqidagi shartda sinadi. | Three readings out of five. The other two break on the condition about the edge. |
+| `audio.mount` | Прочитаем правило справа налево. По двугранному углу назовём линейный. | Qoidani o'ngdan chapga o'qiymiz. Ikki yoqli burchak bo'yicha chiziqlini aytamiz. | Let us read the rule from right to left. From the dihedral angle we name the linear one. |
+| `audio.work` | Отметь все записи, которые верны всегда. Их больше одной. | Doim to'g'ri bo'lgan barcha yozuvlarni belgilang. Ular bittadan ko'p. | Mark all the readings that are always true. There is more than one. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `entry.expr` | `log₂ (x − 5) < 2` |
-| `entry.answer` | `5` |
-| `multi.a` [верно] | `0,5^x > 4` |
-| `multi.b` [верно] | `0,2^x < 5` |
-| `multi.c` | `2^x > 4` |
-| `multi.d` | `3^x < 9` |
+| `place.target` | `90` |
+| `place.step` | `α ⊥ β   →   ∠BAC = 90°` |
+| `multi.a` [верно] | `AB ⊥ a,   AC ⊥ a` |
+| `multi.b` [верно] | `∠A = ∠B` |
+| `multi.c` [верно] | `∠1 + ∠2 = 180°` |
+| `multi.d` | `AD ⊂ β   →   ∠BAD` |
+| `multi.e` | `∠1 = ∠2 = 180°` |
 
 ---
 
-## Экран 14 · `blitz` · ответ `mixed` · формат `chain` · тег `osnovanie-menshe-odnogo`
+## Экран 14 · `blitz` · ответ `mixed` · формат `chain` · тег `lineynyy-ne-tot`
 
 **Текст**
 
@@ -448,49 +443,49 @@
 |---|---|---|---|
 | `eyebrow` | БЛИЦ | BLITS | QUICK ROUND |
 | `title` | Четыре вопроса подряд | Ketma-ket to'rt savol | Four questions in a row |
-| `q1.prompt` | Что даёт встреча горизонтали с кривой? | Gorizontalning egri chiziq bilan uchrashuvi nima beradi? | What does the meeting of the horizontal and the curve give? |
-| `q1.a` [верно] | границу ответа | javobning chegarasini | the boundary of the answer |
-| `q1.b` | весь ответ | butun javobni | the whole answer |
-| `q1.b.hint` | Весь ответ был бы у уравнения, а у неравенства это только край. | Butun javob tenglamada bo'lardi, tengsizlikda esa bu faqat chekka. | The whole answer would belong to an equation, for an inequality this is only the edge. |
-| `q1.c` | ничего | hech nima | nothing |
-| `q1.c.hint` | Без встречи ответ вообще не записать. | Uchrashuvsiz javobni umuman yozib bo'lmaydi. | Without the meeting the answer cannot be written at all. |
-| `q1.d` | направление кривой | egri chiziqning yo'nalishini | the direction of the curve |
-| `q1.d.hint` | Направление видно и без встречи, оно у кривой своё. | Yo'nalish uchrashuvsiz ham ko'rinadi, u egri chiziqning o'ziniki. | The direction is visible without the meeting, it belongs to the curve. |
-| `q2.prompt` | При каком основании знак переворачивается? | Qanday asosda ishora ag'dariladi? | For which base does the sign flip? |
-| `q2.a` [верно] | меньше единицы | birdan kichik | less than one |
-| `q2.b` | больше единицы | birdan katta | greater than one |
-| `q2.b.hint` | При таком основании кривая растёт, и знак остаётся. | Bunday asosda egri chiziq o'sadi, ishora qoladi. | With such a base the curve grows and the sign stays. |
-| `q2.c` | при любом | har qandayda | for any |
-| `q2.c.hint` | Тогда переворачивать пришлось бы всегда, а это не так. | U holda doim ag'darishga to'g'ri kelardi, bu esa unday emas. | Then it would have to flip every time, and that is not so. |
-| `q2.d` | при отрицательном | manfiyda | for a negative one |
-| `q2.d.hint` | Отрицательное основание не бывает вовсе. | Manfiy asos umuman bo'lmaydi. | A negative base does not occur at all. |
-| `q3.prompt` | Чему равно решение этого неравенства? | Bu tengsizlikning yechimi nimaga teng? | What is the solution of this inequality? |
-| `q3.a` [верно] | икс больше двух | iks ikkidan katta | x greater than two |
-| `q3.a.ok` | Верно. Основание больше единицы, знак остаётся. | To'g'ri. Asos birdan katta, ishora qoladi. | Correct. The base is greater than one, the sign stays. |
-| `q3.b` | икс меньше двух | iks ikkidan kichik | x less than two |
-| `q3.b.hint` | Переворот бывает только при основании меньше единицы. | Ag'darilish faqat birdan kichik asosda bo'ladi. | The flip happens only for a base less than one. |
-| `q3.c` | икс больше четырёх | iks to'rtdan katta | x greater than four |
-| `q3.c.hint` | Четыре это значение, а граница это показатель. | To'rt qiymat, chegara esa ko'rsatkich. | Four is the value, and the boundary is the exponent. |
-| `q3.d` | икс равен двум | iks ikkiga teng | x equals two |
-| `q3.d.hint` | Равенство было бы ответом уравнения. | Tenglik tenglamaning javobi bo'lardi. | An equality would be the answer of an equation. |
-| `q4.prompt` | Что делают первым в логарифмическом неравенстве? | Logarifmik tengsizlikda birinchi nima qilinadi? | What is done first in a logarithmic inequality? |
-| `q4.a` [верно] | чертят полосу допустимых значений | joiz qiymatlar polosasini chizishadi | they draw the band of admissible values |
-| `q4.b` | снимают знаки логарифма | logarifm belgilarini olib tashlashadi | they remove the logarithm signs |
-| `q4.b.hint` | Тогда условие исчезнет из записи, а из задачи нет. | U holda shart yozuvdan yo'qoladi, masaladan esa yo'q. | Then the condition vanishes from the writing but not from the problem. |
-| `q4.c` | переворачивают знак | ishorani ag'darishadi | they flip the sign |
-| `q4.c.hint` | Знак переворачивают не всегда, и уж точно не первым делом. | Ishora doim ham ag'darilmaydi, va albatta birinchi navbatda emas. | The sign is not always flipped, and certainly not first. |
-| `q4.d` | подставляют число | son qo'yishadi | they substitute a number |
-| `q4.d.hint` | Подстановка это проверка в конце, а не первый шаг. | Qo'yish oxiridagi tekshiruv, birinchi qadam emas. | Substitution is a check at the end, not the first step. |
-| `audio.mount` | Четыре вопроса подряд. Считается первая попытка. | Ketma-ket to'rt savol. Birinchi urinish hisobga olinadi. | Four questions in a row. The first attempt counts. |
+| `q1.prompt` | Что ограничивает грани двугранного угла? | Ikki yoqli burchakning yoqlarini nima chegaralaydi? | What bounds the faces of a dihedral angle? |
+| `q1.a` [верно] | ребро | qirra | the edge |
+| `q1.b` | линейный угол | chiziqli burchak | the linear angle |
+| `q1.b.hint` | Линейный угол это мера, а не граница. | Chiziqli burchak o'lchov, chegara emas. | The linear angle is a measure, not a boundary. |
+| `q1.c` | вершина | uch | a vertex |
+| `q1.c.hint` | У двугранного угла вершины нет, у него ребро. | Ikki yoqli burchakning uchi yo'q, qirrasi bor. | A dihedral angle has no vertex, it has an edge. |
+| `q1.d` | плоскость | tekislik | a plane |
+| `q1.d.hint` | Плоскость это то, из чего сделаны грани. | Tekislik yoqlar yasalgan narsa. | A plane is what the faces are made of. |
+| `q2.prompt` | Куда должны смотреть лучи линейного угла? | Chiziqli burchak nurlari qayerga qarashi kerak? | Where must the rays of the linear angle point? |
+| `q2.a` [верно] | перпендикулярно ребру | qirraga perpendikulyar | perpendicular to the edge |
+| `q2.b` | вдоль ребра | qirra bo'ylab | along the edge |
+| `q2.b.hint` | Вдоль ребра луч дал бы нулевой угол. | Qirra bo'ylab nur nol burchak berardi. | Along the edge a ray would give a zero angle. |
+| `q2.c` | в любую сторону | istalgan tomonga | in any direction |
+| `q2.c.hint` | Тогда величина двугранного была бы не одна. | Unda ikki yoqli burchakning kattaligi bitta bo'lmasdi. | Then the size of the dihedral would not be single. |
+| `q2.d` | к вершине | uchga | towards the vertex |
+| `q2.d.hint` | Вершины у двугранного угла нет. | Ikki yoqli burchakda uch yo'q. | A dihedral angle has no vertex. |
+| `q3.prompt` | Один из четырёх углов сто двадцать. Соседний? | To'rt burchakdan biri bir yuz yigirma. Qo'shnisi? | One of the four angles is one hundred twenty. The neighbour? |
+| `q3.a` [верно] | шестьдесят | oltmish | sixty |
+| `q3.b` | сто двадцать | bir yuz yigirma | one hundred twenty |
+| `q3.b.hint` | Сто двадцать у противоположного, а не у соседнего. | Bir yuz yigirma qarama-qarshisida, qo'shnisida emas. | One hundred twenty belongs to the opposite one. |
+| `q3.c` | девяносто | to'qson | ninety |
+| `q3.c.hint` | Девяносто было бы у перпендикулярных плоскостей. | To'qson perpendikulyar tekisliklarda bo'lardi. | Ninety would belong to perpendicular planes. |
+| `q3.d` | сорок | qirq | forty |
+| `q3.d.hint` | Проверь сумму со ста восьмьюдесятью. | Bir yuz sakson bilan yig'indini tekshiring. | Check the sum with one hundred eighty. |
+| `q4.prompt` | Какой угол называют углом между плоскостями? | Tekisliklar orasidagi burchak deb qaysi burchak aytiladi? | Which angle is called the angle between planes? |
+| `q4.a` [верно] | наименьший из четырёх | to'rttadan eng kichigi | the smallest of the four |
+| `q4.b` | наибольший из четырёх | to'rttadan eng kattasi | the biggest of the four |
+| `q4.b.hint` | Наибольший бывает тупым, и он не годится в меру. | Eng kattasi o'tmas bo'ladi, va u o'lchov uchun yaramaydi. | The biggest can be obtuse and does not serve as a measure. |
+| `q4.c` | любой из четырёх | to'rttadan istalgani | any of the four |
+| `q4.c.hint` | Тогда мера была бы не одна. | Unda o'lchov bitta bo'lmasdi. | Then the measure would not be single. |
+| `q4.d` | сумма всех четырёх | to'rttasining yig'indisi | the sum of all four |
+| `q4.d.hint` | Сумма всегда триста шестьдесят и ничего не различает. | Yig'indi doim uch yuz oltmish va hech narsani ajratmaydi. | The sum is always three hundred sixty and tells nothing apart. |
+| `audio.mount` | Четыре вопроса подряд. Отвечай без остановки. | Ketma-ket to'rt savol. To'xtamasdan javob bering. | Four questions in a row. Answer without stopping. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `q1.done` | `2^x = 4   →   x = 2` |
-| `q2.done` | `0 < a < 1` |
-| `q3.done` | `2^x > 4   →   x > 2` |
-| `q4.done` | `f(x) > 0` |
+| `q1.done` | `a = α ∩ β` |
+| `q2.done` | `AB ⊥ a` |
+| `q3.done` | `120° + 60° = 180°` |
+| `q4.done` | `∠(α; β) ≤ 90°` |
+| `angles` | `40°` · `90°` · `120°` · `180°` |
 
 ---
 
@@ -501,31 +496,31 @@
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ИТОГ | YAKUN | SUMMARY |
-| `title` | Что теперь умеешь | Endi nima qila olasiz | What you can do now |
-| `can.1` | Читаю решение неравенства как сторону от встречи | Tengsizlik yechimini uchrashuvdan tomon deb o'qiyman | I read the solution as a side of the meeting |
-| `can.2` | Вижу переворот знака по направлению кривой | Ishora ag'darilishini egri chiziq yo'nalishidan ko'raman | I see the sign flip from the direction of the curve |
-| `can.3` | Черчу полосу допустимых значений до решения | Yechimdan oldin joiz qiymatlar polosasini chizaman | I draw the band of admissible values before solving |
-| `can.4` | Беру пересечение двух условий | Ikki shartning kesishmasini olaman | I take the intersection of two conditions |
-| `levels.full` | Этот тип задач закрыт. | Bu turdagi masalalar yopildi. | This type of problem is closed. |
-| `levels.gap` | Одно место требует повтора: сторона при убывающей кривой. | Bir joy takrorlashni talab qiladi: kamayuvchi egri chiziqdagi tomon. | One spot needs a second look: the side for a decreasing curve. |
-| `levels.back` | Вернись к правилу и к экрану 5. | Qoidaga va beshinchi ekranga qayting. | Go back to the rule and to screen five. |
-| `bridge` | Дальше окружность: там участок станет дугой и будет повторяться. | Keyin aylana: u yerda bo'lak yoyga aylanadi va takrorlanadi. | Next comes the circle: there the piece becomes an arc and repeats. |
-| `lifehack` | Прежде чем решать, посмотри на основание. Оно уже говорит, с какой стороны искать ответ. | Yechishdan oldin asosga qarang. U javobni qaysi tomondan izlashni aytib turibdi. | Before solving, look at the base. It already tells you which side to look on. |
-| `sheetTitle` | Неравенства с логарифмом · шпаргалка | Logarifmli tengsizliklar · shpargalka | Inequalities with logarithms · cheat sheet |
-| `sheetSrc` | 10 класс · урок 35 | 10-sinf · 35-dars | Grade 10 · lesson 35 |
-| `audio.mount` | Прогноз был про сторону от минус двух. Посмотрим, что вышло. | Taxmin minus ikkidan tomon haqida edi. Nima chiqqanini ko'ramiz. | The guess was about the side of minus two. Let us see how it turned out. |
-| `audio.next` | Икс меньше минус двух. Знак перевернулся не по правилу, а потому что кривая идёт вниз. | Iks minus ikkidan kichik. Ishora qoida bo'yicha emas, egri chiziq pastga ketgani uchun ag'darildi. | X is less than minus two. The sign flipped not by a rule but because the curve goes down. |
+| `title` | Что теперь умеешь | Endi nimani bilasiz | What you can do now |
+| `can.1` | Различаю грани и ребро двугранного угла | Ikki yoqli burchakning yoqlari va qirrasini ajrataman | I tell the faces and the edge of a dihedral angle apart |
+| `can.2` | Строю линейный угол перпендикулярно ребру | Chiziqli burchakni qirraga perpendikulyar quraman | I build the linear angle perpendicular to the edge |
+| `can.3` | Знаю, что от точки на ребре величина не зависит | Kattalik qirradagi nuqtaga bog'liq emasligini bilaman | I know the size does not depend on the point on the edge |
+| `can.4` | Нахожу все четыре угла по одному | Bittasi bo'yicha to'rttasini topaman | I find all four angles from one |
+| `levels.full` | Все четыре | To'rttasi ham | All four |
+| `levels.gap` | Три из четырёх | To'rttadan uchtasi | Three out of four |
+| `levels.back` | Меньше трёх | Uchtadan kam | Fewer than three |
+| `bridge` | Блок закончен. Дальше многогранники, и там двугранные углы будут в каждой задаче | Blok tugadi. Bundan keyin ko'pyoqliklar, va u yerda ikki yoqli burchaklar har masalada bo'ladi | The block is over. Next come polyhedra, where dihedral angles appear in every problem |
+| `lifehack` | Ищешь угол между плоскостями — строй линейный угол на ребре | Tekisliklar orasidagi burchakni izlayotgan bo'lsangiz, qirrada chiziqli burchak quring | Looking for the angle between planes, build the linear angle on the edge |
+| `sheetTitle` | Шпаргалка | Shpargalka | Cheat sheet |
+| `sheetSrc` | Геометрия, страницы сто сорок два и сто сорок три | Geometriya, bir yuz qirq ikkinchi va bir yuz qirq uchinchi betlar | Geometry, pages one hundred forty two and one hundred forty three |
+| `audio.mount` | Урок начался с вопроса, зависит ли величина от места на ребре. | Dars kattalik qirradagi joyga bog'liqmi degan savol bilan boshlandi. | The lesson began with the question whether the size depends on the place on the edge. |
+| `audio.next` | Не зависит, и мы это увидели, а не просто услышали. Точка ехала по ребру, а угол не менялся. Причина в том, что перпендикуляр к ребру в каждой грани один, и лучи при разных точках параллельны. Дальше начинаются многогранники, и двугранные углы будут появляться в каждой задаче. | Bog'liq emas, va biz buni shunchaki eshitmadik, ko'rdik. Nuqta qirra bo'ylab yurdi, burchak esa o'zgarmadi. Sababi shuki, har yoqda qirraga perpendikulyar bitta, va turli nuqtalardagi nurlar parallel. Bundan keyin ko'pyoqliklar boshlanadi, va ikki yoqli burchaklar har masalada paydo bo'ladi. | It does not depend, and we saw that rather than merely heard it. The point travelled along the edge and the angle did not change. The reason is that there is one perpendicular to the edge in each face, and the rays at different points are parallel. Next polyhedra begin, and dihedral angles will appear in every problem. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `hook.a` | `x > −2` |
-| `hook.b` | `x < −2` |
-| `proved` | `x < −2` |
-| `law` | `log_a f(x) < b,   f(x) > 0` |
-| `sheet.1` | `f(x) > 0` |
-| `sheet.2` | `a > 1   →   x < x₀` |
-| `sheet.3` | `0 < a < 1   →   x > x₀` |
-| `sheet.4` | `2^x < 4   →   x < 2` |
-| `sheet.5` | `0,5^x > 4   →   x < −2` |
+| `hook.a` | `∠A ≠ ∠B` |
+| `hook.b` | `∠A = ∠B` |
+| `proved` | `∠A = ∠B` |
+| `law` | `AB ⊥ a,   AC ⊥ a` |
+| `sheet.1` | `a = α ∩ β` |
+| `sheet.2` | `AB ⊥ a,   AC ⊥ a` |
+| `sheet.3` | `∠(α; β) = ∠BAC` |
+| `sheet.4` | `∠1 + ∠2 = 180°` |
+| `sheet.5` | `α ⊥ β   →   90°` |

@@ -1,19 +1,19 @@
-# Урок 33 — Рациональные неравенства и системы · КОНТЕНТ (этап 2)
+# Урок 40 — Перпендикулярность прямой и плоскости · КОНТЕНТ (этап 2)
 
 **Читается и правится методистом.** Формат тот же, что в `DARS26_KONTENT.md`.
 
-Скелет: `DARS32_36_SKELET.md` §8. Опора в учебнике: алгебра 2022, стр. 75–80, параграфы
-`RATSIONAL TENGSIZLIKLAR` и `RATSIONAL TENGSIZLIKLAR SISTEMASI`.
+Скелет: `DARS38_40_SKELET.md` §9. Опора: учебник геометрии 2022, §17
+`Fazoda perpendikulyar to'g'ri chiziq va tekisliklar`, стр. 120–126.
 
-**Главное решение урока.** Здесь полоса меняет роль. В уроках 31 и 32 она проверяла найденное
-число; теперь она сама и есть ответ. Поэтому прибор работает в другом режиме: ось режется
-нулями, на каждом участке появляется знак, и только потом закрашивается ответ. Знаки —
-нейтрального цвета, ответ — цветом решения: иначе ученик читает знак как часть ответа.
+**Главное решение урока.** Признак требует **двух пересекающихся** прямых, и весь урок стоит на
+том, что одной мало. Показать это можно только поворотом: прямая, перпендикулярная одной прямой
+плоскости, на неподвижном чертеже выглядит как честный перпендикуляр, а при повороте видно, что
+она наклонена.
 
-**Пять шагов карточки взяты из учебника дословно** (стр. 75): нули числителя, нули знаменателя,
-отметить на оси, найти знаки на промежутках, выбрать промежутки.
+**Определение и признак взяты со стр. 120–121 дословно.** Признак — теорема 4.2.
 
-**Задание экрана 6 взято из учебника** — стр. 75, 3-misol: `x − 4/x ≥ 0`.
+**После этого урока производство останавливается**: план ставит гейт «проверка прибора 6 до
+массового производства».
 
 **Терминология UZ — draft, требует валидации узбекским методистом математики.**
 
@@ -25,28 +25,28 @@
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | НЕРАВЕНСТВО | TENGSIZLIK | THE INEQUALITY |
-| `title` | Один кусок или два | Bir bo'lakmi yoki ikkitami | One piece or two |
-| `row.a.name` | умножили на знаменатель | maxrajga ko'paytirdik | multiplied by the denominator |
-| `row.b.name` | разметили ось | o'qni belgiladik | marked up the axis |
+| `eyebrow` | ПЕРПЕНДИКУЛЯР | PERPENDIKULYAR | THE PERPENDICULAR |
+| `title` | Одной прямой хватит или нет | Bitta chiziq yetadimi yoki yo'q | Is one line enough or not |
+| `row.a.name` | хватит одной | bittasi yetadi | one is enough |
+| `row.b.name` | одной мало | bittasi kam | one is not enough |
 | `probe.question` | Какая запись верна? | Qaysi yozuv to'g'ri? | Which reading is correct? |
 | `probe.a` | первая | birinchi | the first |
 | `probe.b` [верно] | вторая | ikkinchi | the second |
 | `probe.both` | обе | ikkisi ham | both |
 | `probe.none` | ни одна | hech qaysi | neither |
-| `probe.after` | Твой ответ записан. Сейчас проверим числом. | Javobingiz yozib olindi. Endi son bilan tekshiramiz. | Your answer is saved. Now we will check with a number. |
-| `audio.mount` | Дробь больше нуля. Слева и справа два разных ответа, и оба выглядят убедительно. | Kasr noldan katta. Chapda va o'ngda ikki xil javob, ikkalasi ham ishonarli ko'rinadi. | A fraction greater than zero. On the left and on the right two different answers, and both look convincing. |
-| `audio.r1` | Первый получен умножением обеих частей на знаменатель: остаётся икс плюс один больше нуля. | Birinchisi ikkala tarafni maxrajga ko'paytirish bilan olingan: iks qo'shuv bir noldan katta bo'lib qoladi. | The first came from multiplying both sides by the denominator: x plus one greater than zero remains. |
-| `audio.r2` | Второй получен разметкой оси и состоит из двух кусков, а не из одного. | Ikkinchisi o'qni belgilash bilan olingan va bitta emas, ikki bo'lakdan iborat. | The second came from marking up the axis and consists of two pieces, not one. |
+| `probe.after` | Твой ответ записан. Сейчас повернём сцену. | Javobingiz yozib olindi. Endi sahnani buramiz. | Your answer is saved. Now we will rotate the scene. |
+| `audio.mount` | В плоскости одна прямая, и наша прямая ей перпендикулярна. Угол в точке отмечен. | Tekislikda bitta chiziq, bizning chiziq unga perpendikulyar. Nuqtadagi burchak belgilangan. | One line in the plane, and our line is perpendicular to it. The angle at the point is marked. |
+| `audio.r1` | Первая запись говорит: угол прямой, значит прямая перпендикулярна и всей плоскости. | Birinchi yozuv shunday deydi: burchak to'g'ri, demak chiziq butun tekislikka ham perpendikulyar. | The first reading says: the angle is right, so the line is perpendicular to the whole plane. |
+| `audio.r2` | Вторая говорит, что одной прямой для такого вывода мало. | Ikkinchisi bunday xulosa uchun bitta chiziq kam deydi. | The second says one line is not enough for such a conclusion. |
 | `audio.ask` | Как думаешь, какая верная? Пока просто предположи. | Sizningcha qaysi biri to'g'ri? Hozircha shunchaki taxmin qiling. | Which one do you think is right? Just make a guess for now. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `expr` | `(x + 1)/(x − 2) > 0` |
-| `row.a.value` | `x > −1` |
-| `row.b.value` | `x < −1;  x > 2` |
+| `expr` | `a ⊥ b,   b ⊂ α` |
+| `row.a.value` | `a ⊥ α` |
+| `row.b.value` | `a ⊥ α  ?` |
 
 ---
 
@@ -57,292 +57,295 @@
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ОПОРА | TAYANCH | WHAT YOU KNOW |
-| `title` | Три вопроса перед неравенством | Tengsizlikdan oldin uch savol | Three questions before the inequality |
-| `q1.prompt` | При каком икс дробь не определена? | Kasr qaysi iksda aniqlanmagan? | For which x is a fraction undefined? |
-| `q1.a` [верно] | когда знаменатель ноль | maxraj nol bo'lganda | when the denominator is zero |
-| `q1.b` | когда числитель ноль | surat nol bo'lganda | when the numerator is zero |
-| `q1.b.hint` | Ноль в числителе даёт ноль, и это обычное число. | Suratdagi nol nol beradi, va bu oddiy son. | Zero in the numerator gives zero, and that is an ordinary number. |
-| `q1.c` | когда икс отрицателен | iks manfiy bo'lganda | when x is negative |
-| `q1.c.hint` | Отрицательный икс дробь не ломает. | Manfiy iks kasrni buzmaydi. | A negative x does not break a fraction. |
-| `q1.d` | никогда | hech qachon | never |
-| `q1.d.hint` | Одна точка всё же выпадает, и её надо найти. | Bitta nuqta baribir tushib qoladi, va uni topish kerak. | One point does drop out, and it has to be found. |
-| `q2.prompt` | Какой знак у частного двух отрицательных чисел? | Ikki manfiy sonning bo'linmasi qanday ishorali? | What sign does a quotient of two negative numbers have? |
-| `q2.a` [верно] | плюс | plyus | plus |
-| `q2.b` | минус | minus | minus |
-| `q2.b.hint` | Минус на минус даёт плюс и при делении тоже. | Minusga minus bo'lishda ham plyus beradi. | Minus by minus gives plus in division too. |
-| `q2.c` | зависит от того, что больше | qaysi biri kattaligiga bog'liq | it depends on which one is bigger |
-| `q2.c.hint` | Величина не меняет знак, его определяют только знаки. | Kattalik ishorani o'zgartirmaydi, uni faqat ishoralar belgilaydi. | Size does not change the sign, only the signs decide it. |
-| `q2.d` | ноль | nol | zero |
-| `q2.d.hint` | Ноль вышел бы, будь числитель нулём. | Surat nol bo'lganda nol chiqardi. | Zero would come only from a zero numerator. |
-| `q3.prompt` | Что такое решение неравенства? | Tengsizlikning yechimi nima? | What is the solution of an inequality? |
-| `q3.a` [верно] | все числа, при которых оно верно | u to'g'ri bo'ladigan barcha sonlar | all numbers for which it holds |
-| `q3.b` | одно число | bitta son | one number |
-| `q3.b.hint` | Одно число это ответ уравнения, а не неравенства. | Bitta son tenglamaning javobi, tengsizlikniki emas. | One number is the answer of an equation, not of an inequality. |
-| `q3.c` | граница между кусками | bo'laklar orasidagi chegara | the boundary between pieces |
-| `q3.c.hint` | Граница помогает найти ответ, но сама им не является. | Chegara javobni topishga yordam beradi, lekin o'zi javob emas. | The boundary helps find the answer but is not the answer itself. |
-| `q3.d` | любое положительное число | har qanday musbat son | any positive number |
-| `q3.d.hint` | Иногда решения отрицательные, а положительные не годятся. | Ba'zan yechimlar manfiy, musbatlari esa yaramaydi. | Sometimes the solutions are negative and the positive ones do not fit. |
+| `title` | Три вопроса перед признаком | Alomatdan oldin uch savol | Three questions before the criterion |
+| `q1.prompt` | Когда две прямые в пространстве перпендикулярны? | Fazoda ikki to'g'ri chiziq qachon perpendikulyar? | When are two lines in space perpendicular? |
+| `q1.a` [верно] | когда угол между ними девяносто градусов | ular orasidagi burchak to'qson gradus bo'lganda | when the angle between them is ninety degrees |
+| `q1.b` | когда они пересекаются | ular kesishganda | when they meet |
+| `q1.b.hint` | Пересекаться можно под любым углом. | Istalgan burchak ostida kesishish mumkin. | Lines can meet at any angle. |
+| `q1.c` | когда они лежат в одной плоскости | ular bitta tekislikda yotganda | when they lie in one plane |
+| `q1.c.hint` | В одной плоскости лежат и параллельные. | Bitta tekislikda parallellar ham yotadi. | Parallel lines lie in one plane too. |
+| `q1.d` | когда они равны | ular teng bo'lganda | when they are equal |
+| `q1.d.hint` | У прямых длины нет вовсе. | To'g'ri chiziqlarning uzunligi umuman yo'q. | Lines have no length at all. |
+| `q2.prompt` | Могут ли перпендикулярные прямые быть скрещивающимися? | Perpendikulyar chiziqlar ayqash bo'lishi mumkinmi? | Can perpendicular lines be skew? |
+| `q2.a` [верно] | да, могут | ha, mumkin | yes, they can |
+| `q2.b` | нет, они всегда пересекаются | yo'q, ular doim kesishadi | no, they always meet |
+| `q2.b.hint` | Угол между скрещивающимися определён переносом, и он бывает прямым. | Ayqashlar orasidagi burchak ko'chirish bilan aniqlanadi, va u to'g'ri ham bo'ladi. | The angle between skew lines is defined by shifting, and it can be right. |
+| `q2.c` | нет, они всегда параллельны | yo'q, ular doim parallel | no, they are always parallel |
+| `q2.c.hint` | Параллельные образуют угол ноль, а не девяносто. | Parallellar nol burchak hosil qiladi, to'qson emas. | Parallel lines make an angle of zero, not ninety. |
+| `q2.d` | только в кубе | faqat kubda | only in a cube |
+| `q2.d.hint` | Куб это пример, а не условие. | Kub bu misol, shart emas. | A cube is an example, not a condition. |
+| `q3.prompt` | Сколько прямых плоскости проходит через одну её точку? | Tekislikning bir nuqtasi orqali uning nechta chizig'i o'tadi? | How many lines of a plane pass through one of its points? |
+| `q3.a` [верно] | бесконечно много | cheksiz ko'p | infinitely many |
+| `q3.b` | одна | bitta | one |
+| `q3.b.hint` | Через точку в плоскости можно провести прямую в любом направлении. | Tekislikdagi nuqta orqali istalgan yo'nalishda chiziq o'tkazish mumkin. | Through a point in a plane a line can go in any direction. |
+| `q3.c` | две | ikkita | two |
+| `q3.c.hint` | Двумя дело не ограничивается, направлений сколько угодно. | Ish ikkita bilan cheklanmaydi, yo'nalish istalgancha. | It does not stop at two, there are any number of directions. |
+| `q3.d` | ни одной | bitta ham yo'q | none |
+| `q3.d.hint` | Хотя бы одна есть всегда. | Hech bo'lmaganda bittasi doim bor. | At least one always exists. |
 | `audio.mount` | Три коротких вопроса. Все три понадобятся через минуту. | Uch qisqa savol. Uchalasi ham bir daqiqadan keyin kerak bo'ladi. | Three short questions. All three will be needed in a minute. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `q1.done` | `x − 2 ≠ 0` |
-| `q2.done` | `(−)/(−) = (+)` |
-| `q3.done` | `(x + 1)/(x − 2) > 0` |
+| `q1.done` | `a ⊥ b   →   90°` |
+| `q2.done` | `a ⊥ b,   a ∸ b` |
+| `q3.done` | `∞` |
 
 ---
 
-## Экран 3 · `explain1` · ответ `number` · тег `umnozhayut-na-znamenatel`
+## Экран 3 · `explain1` · ответ `lead` · тег `odnoy-pryamoy-hvatit`
 
-Ось режется нулями. Прибор 5 в режиме ленты знаков.
+Одна прямая: поворот показывает наклон.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
-| `title` | Ось режут два числа | O'qni ikki son kesadi | Two numbers cut the axis |
-| `show.1.1` | числитель равен нулю при минус единице | surat minus birda nolga teng | the numerator is zero at minus one |
-| `show.1.2` | знаменатель равен нулю при двойке | maxraj ikkida nolga teng | the denominator is zero at two |
-| `show.1.3` | оба числа падают на ось | ikkala son o'qqa tushadi | both numbers land on the axis |
-| `show.2.1` | ось разрезана на участки | o'q bo'laklarga bo'lingan | the axis is cut into pieces |
-| `show.2.2` | внутри участка знак не меняется | bo'lak ichida ishora o'zgarmaydi | inside a piece the sign does not change |
-| `show.2.3` | значит хватит одного числа на участок | demak har bo'lakka bitta son yetadi | so one number per piece is enough |
-| `audio.mount` | Ось под неравенством. Всё решение уместится на ней. | Tengsizlik tagida o'q. Butun yechim unga sig'adi. | An axis under the inequality. The whole solution will fit on it. |
-| `audio.cut*` | Числитель обращается в ноль при минус единице, знаменатель при двойке. Оба числа падают на ось и режут её на три участка. Дальше работает простая вещь: пока мы идём по одному участку, ни числитель, ни знаменатель знак не меняют, а значит и вся дробь его не меняет. Поменяться он может только в тех точках, где что-то обращается в ноль, то есть на границах. Поэтому проверять весь участок не надо, хватит одного числа из него. | Surat minus birda nolga aylanadi, maxraj esa ikkida. Ikkala son o'qqa tushadi va uni uch bo'lakka bo'ladi. Keyin oddiy narsa ishlaydi: biz bitta bo'lak bo'ylab yurganimizda na surat, na maxraj ishorasini o'zgartiradi, demak butun kasr ham uni o'zgartirmaydi. U faqat biror narsa nolga aylanadigan nuqtalarda, ya'ni chegaralarda o'zgarishi mumkin. Shuning uchun butun bo'lakni tekshirish shart emas, undan bitta son yetadi. | The numerator turns to zero at minus one, the denominator at two. Both numbers land on the axis and cut it into three pieces. Then a simple thing does the work: while we walk along one piece, neither the numerator nor the denominator changes sign, so the whole fraction does not change sign either. It can only change at the points where something turns to zero, that is, at the boundaries. So there is no need to test a whole piece, one number from it is enough. |
-| `audio.work` | Посчитай сам. На сколько участков два числа разрезали ось? | O'zingiz hisoblang. Ikki son o'qni necha bo'lakka bo'ldi? | Work it out yourself. Into how many pieces did the two numbers cut the axis? |
-| `work.prompt` | Сколько участков получилось? | Nechta bo'lak hosil bo'ldi? | How many pieces are there? |
-| `work.ok` | Три. Слева от минус единицы, между ней и двойкой, и правее двойки. | Uchta. Minus birdan chapda, u bilan ikki orasida, va ikkidan o'ngda. | Three. To the left of minus one, between it and two, and to the right of two. |
-| `work.hint.1` | Посчитай куски, а не сами точки. | Nuqtalarni emas, bo'laklarni sanang. | Count the pieces, not the points themselves. |
-| `work.hint.2` | Две точки режут прямую на три части. | Ikki nuqta to'g'ri chiziqni uch qismga bo'ladi. | Two points cut a line into three parts. |
-| `work.hint.3` | Три. | Uch. | Three. |
+| `title` | Поверни и посмотри, стоит ли прямая | Buring va chiziq tik turganini ko'ring | Rotate and see whether the line stands up |
+| `show.1.1` | в плоскости взята одна прямая | tekislikda bitta chiziq olingan | one line is taken in the plane |
+| `show.1.2` | наша прямая ей перпендикулярна | bizning chiziq unga perpendikulyar | our line is perpendicular to it |
+| `show.1.3` | угол отмечен, и он прямой | burchak belgilangan, va u to'g'ri | the angle is marked and it is right |
+| `show.2.1` | поверни сцену | sahnani buring | rotate the scene |
+| `show.2.2` | прямая наклонилась | chiziq og'ib qoldi | the line turned out slanted |
+| `show.2.3` | к плоскости она стоит косо | u tekislikka nisbatan qiyshiq turadi | it stands askew to the plane |
+| `audio.mount` | В плоскости одна прямая, и наша прямая ей перпендикулярна. Больше ничего не проверено. | Tekislikda bitta chiziq, bizning chiziq unga perpendikulyar. Boshqa hech nima tekshirilmagan. | One line in the plane, and our line is perpendicular to it. Nothing else has been checked. |
+| `audio.spin*` | На первом ракурсе всё выглядит убедительно: угол прямой, прямая как будто стоит на плоскости. Поверни сцену и посмотри сбоку. Прямая наклонена: она уходит в сторону, а не поднимается вертикально. При этом угол с той единственной прямой остался прямым, никто его не портил. Значит перпендикулярность одной прямой плоскости ещё ничего не говорит о перпендикулярности самой плоскости. Заметь, из чего мы это узнали. Не из рассуждения и не из измерения, а из поворота: на первом ракурсе увидеть наклон было нельзя. | Birinchi rakursda hammasi ishonarli ko'rinadi: burchak to'g'ri, chiziq tekislikda tik turgandek. Sahnani buring va yondan qarang. Chiziq og'gan: u tikka ko'tarilmay, chetga ketadi. Shu bilan birga o'sha yagona chiziq bilan burchak to'g'ri qoldi, uni hech kim buzmadi. Demak tekislikning bitta chizig'iga perpendikulyarlik tekislikning o'ziga perpendikulyarlik haqida hali hech nima demaydi. Buni nimadan bilganimizga e'tibor bering. Mulohazadan yoki o'lchashdan emas, burilishdan: birinchi rakursda og'ishni ko'rish mumkin emas edi. | From the first view everything looks convincing: the angle is right, the line seems to stand on the plane. Rotate the scene and look from the side. The line is slanted: it goes off sideways instead of rising vertically. Meanwhile the angle with that single line stayed right, nobody spoiled it. So being perpendicular to one line of a plane says nothing yet about being perpendicular to the plane itself. Notice how we learned this. Not from reasoning and not from measuring, but from rotating: on the first view the slant could not be seen. |
+| `audio.work` | Поверни сцену и ответь: как прямая стоит к плоскости? | Sahnani buring va javob bering: chiziq tekislikka qanday turadi? | Rotate the scene and answer: how does the line stand to the plane? |
+| `pick.prompt` | Как прямая стоит к плоскости? | Chiziq tekislikka qanday turadi? | How does the line stand to the plane? |
+| `pick.a` | перпендикулярно | perpendikulyar | perpendicular to it |
+| `pick.a.hint` | Поверни ещё раз: она уходит в сторону, а не вверх. | Yana buring: u yuqoriga emas, chetga ketadi. | Rotate again: it goes sideways, not upwards. |
+| `pick.b` [верно] | наклонно | qiyshiq | at a slant |
+| `pick.c` | лежит в плоскости | tekislikda yotadi | it lies in the plane |
+| `pick.c.hint` | Тогда угол с прямой плоскости не был бы отмечен как прямой. | U holda tekislik chizig'i bilan burchak to'g'ri deb belgilanmasdi. | Then the angle with the line of the plane would not be marked as right. |
+| `pick.ok` | Наклонно. Угол с одной прямой прямой, а к плоскости прямая стоит косо. | Qiyshiq. Bitta chiziq bilan burchak to'g'ri, tekislikka esa chiziq qiyshiq turadi. | At a slant. The angle with one line is right, yet the line stands askew to the plane. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `work.answer` | `3` |
+| `mark` | `a ⊥ b,   b ⊂ α` |
 
 ---
 
-## Экран 4 · `explain2` · ответ `order` · тег `umnozhayut-na-znamenatel`
+## Экран 4 · `explain2` · ответ `lead` · тег `odnoy-pryamoy-hvatit`
 
-Разграничение: умножение на знаменатель.
+Разграничение: добавили вторую пересекающуюся.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | РАЗГРАНИЧЕНИЕ | FARQLASH | TELLING THEM APART |
-| `title` | Почему нельзя умножить на знаменатель | Nega maxrajga ko'paytirib bo'lmaydi | Why you cannot multiply by the denominator |
-| `show.1.1` | умножаем обе части на знаменатель | ikkala tarafni maxrajga ko'paytiramiz | multiply both sides by the denominator |
-| `show.1.2` | остаётся икс плюс один больше нуля | iks qo'shuv bir noldan katta bo'lib qoladi | x plus one greater than zero remains |
-| `show.1.3` | ответ выходит одним куском | javob bitta bo'lak bo'lib chiqadi | the answer comes out as one piece |
-| `show.2.1` | берём ноль из этого ответа | shu javobdan nolni olamiz | take zero from that answer |
-| `show.2.2` | сверху один, снизу минус два | yuqorida bir, pastda minus ikki | one on top, minus two below |
-| `show.2.3` | выходит минус, а нужен плюс | minus chiqadi, plyus kerak esa | a minus comes out, and a plus was needed |
-| `audio.mount` | Разберём первый ответ. Он получен коротким и знакомым действием. | Birinchi javobni ko'rib chiqamiz. U qisqa va tanish amal bilan olingan. | Let us look at the first answer. It came from a short and familiar step. |
-| `audio.mul*` | Обе части умножили на знаменатель, дробь исчезла, осталось икс плюс один больше нуля, отсюда икс больше минус единицы. Проверим этот ответ числом. Ноль в него входит. Подставим ноль в исходное: сверху единица, снизу минус два, дробь равна минус ноль целых пять десятых. Это меньше нуля, а требовалось больше. Значит ответ неверный. Причина в том, что знаменатель бывает отрицательным, а при умножении на отрицательное знак неравенства переворачивается. У уравнения такой беды нет, там знака нет вовсе. Это и есть разница между уравнением и неравенством. | Ikkala tarafni maxrajga ko'paytirdik, kasr yo'qoldi, iks qo'shuv bir noldan katta bo'lib qoldi, bundan iks minus birdan katta. Bu javobni son bilan tekshiramiz. Nol unga kiradi. Nolni dastlabkisiga qo'yamiz: yuqorida bir, pastda minus ikki, kasr minus nol butun besh o'ndan ga teng. Bu noldan kichik, katta bo'lishi kerak edi. Demak javob noto'g'ri. Sababi shuki, maxraj manfiy ham bo'ladi, manfiyga ko'paytirilganda esa tengsizlik ishorasi ag'dariladi. Tenglamada bunday balo yo'q, u yerda ishora umuman yo'q. Tenglama bilan tengsizlik orasidagi farq ana shu. | Both sides were multiplied by the denominator, the fraction vanished, x plus one greater than zero remained, which gives x greater than minus one. Let us test this answer with a number. Zero belongs to it. Substitute zero into the original: one on top, minus two below, and the fraction equals minus zero point five. That is less than zero, while greater was required. So the answer is wrong. The reason is that the denominator can be negative, and multiplying by a negative flips the inequality sign. An equation has no such trouble, there is no sign there at all. That is exactly the difference between an equation and an inequality. |
-| `audio.work` | Расставь шаги в том порядке, в котором это произошло. | Bu sodir bo'lgan tartibda qadamlarni joylashtiring. | Put the steps in the order in which this happened. |
-| `order.prompt` | Расставь шаги по порядку | Qadamlarni tartib bilan joylashtiring | Put the steps in order |
-| `order.s1` | умножили на знаменатель | maxrajga ko'paytirdik | multiplied by the denominator |
-| `order.s2` | получили один кусок | bitta bo'lak oldik | got one piece |
-| `order.s3` | взяли ноль из ответа | javobdan nolni oldik | took zero from the answer |
-| `order.s4` | вышел минус | minus chiqdi | a minus came out |
-| `order.ok` | Верно. Проверка одним числом ломает неверный ответ за один шаг. | To'g'ri. Bitta son bilan tekshirish noto'g'ri javobni bir qadamda buzadi. | Correct. A check with one number breaks a wrong answer in a single step. |
-| `order.bad` | Начни с действия, а не с проверки. | Tekshirishdan emas, amaldan boshlang. | Start with the step, not with the check. |
+| `title` | Вторая прямая меняет всё | Ikkinchi chiziq hammasini o'zgartiradi | The second line changes everything |
+| `show.1.1` | в плоскости взята вторая прямая | tekislikda ikkinchi chiziq olingan | a second line is taken in the plane |
+| `show.1.2` | она пересекает первую | u birinchisini kesib o'tadi | it crosses the first one |
+| `show.1.3` | наша прямая перпендикулярна и ей | bizning chiziq unga ham perpendikulyar | our line is perpendicular to it as well |
+| `show.2.1` | поверни сцену | sahnani buring | rotate the scene |
+| `show.2.2` | наклона больше нет | og'ish endi yo'q | there is no slant any more |
+| `show.2.3` | ни при каком повороте | hech qanday burilishda | at no rotation at all |
+| `audio.mount` | Добавим в плоскость вторую прямую, которая пересекает первую. | Tekislikka birinchisini kesib o'tadigan ikkinchi chiziqni qo'shamiz. | Let us add a second line to the plane, one that crosses the first. |
+| `audio.two*` | Теперь наша прямая перпендикулярна двум прямым плоскости, и эти две пересекаются. Поверни сцену со всех сторон. Наклона нет ни при каком ракурсе: прямая стоит вертикально, как столб. Больше того, теперь она перпендикулярна любой прямой плоскости, а не только этим двум. Вот почему в признаке стоит слово пересекающиеся. Две пересекающиеся прямые задают в плоскости два разных направления, а этого хватает, чтобы закрепить прямую. Одна прямая задаёт одно направление, и вокруг него ещё есть куда наклониться. | Endi bizning chiziq tekislikning ikki chizig'iga perpendikulyar, va bu ikkitasi kesishadi. Sahnani har tomondan buring. Hech qanday rakursda og'ish yo'q: chiziq ustundek tikka turadi. Bundan tashqari, endi u faqat shu ikkitasiga emas, tekislikning istalgan chizig'iga perpendikulyar. Alomatda kesishuvchi so'zi shuning uchun turadi. Ikki kesishuvchi chiziq tekislikda ikki xil yo'nalishni beradi, va bu chiziqni mahkamlash uchun yetadi. Bitta chiziq bitta yo'nalishni beradi, uning atrofida esa og'ishga joy bor. | Now our line is perpendicular to two lines of the plane, and those two cross each other. Rotate the scene from every side. There is no slant at any view: the line stands vertical like a post. What is more, it is now perpendicular to any line of the plane, not only to these two. That is why the criterion carries the word crossing. Two crossing lines give two different directions in the plane, and that is enough to fix the line. One line gives one direction, and around it there is still room to lean. |
+| `audio.work` | Поверни сцену и ответь: как прямая стоит теперь? | Sahnani buring va javob bering: chiziq endi qanday turadi? | Rotate the scene and answer: how does the line stand now? |
+| `pick.prompt` | Как прямая стоит к плоскости теперь? | Chiziq endi tekislikka qanday turadi? | How does the line stand to the plane now? |
+| `pick.a` | всё ещё наклонно | hali ham qiyshiq | still at a slant |
+| `pick.a.hint` | Поверни ещё: наклона нет ни на одном ракурсе. | Yana buring: hech bir rakursda og'ish yo'q. | Rotate again: there is no slant at any view. |
+| `pick.b` [верно] | перпендикулярно плоскости | tekislikka perpendikulyar | perpendicular to the plane |
+| `pick.c` | это зависит от ракурса | bu rakursga bog'liq | it depends on the view |
+| `pick.c.hint` | От ракурса зависит картинка, а не сама фигура. | Rakursga rasm bog'liq, shaklning o'zi emas. | The picture depends on the view, the figure itself does not. |
+| `pick.ok` | Перпендикулярно. Двух пересекающихся прямых хватило, и это признак. | Perpendikulyar. Ikki kesishuvchi chiziq yetdi, va bu alomat. | Perpendicular. Two crossing lines were enough, and that is the criterion. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `frameA` | `x + 1 > 0   →   x > −1` |
-| `frameB` | `(0 + 1)/(0 − 2) = −0,5` |
-| `order.mark` | `−0,5 < 0` |
+| `mark` | `a ⊥ b,   a ⊥ c,   b ∩ c = O   →   a ⊥ α` |
 
 ---
 
-## Экран 5 · `explain3` · ответ `number` · тег `umnozhayut-na-znamenatel`
+## Экран 5 · `explain3` · ответ `number` · тег `svoystvo-vmesto-priznaka`
 
-Знаки встают по одному.
+Признак 4.2 и почему слово «пересекающиеся» обязательно.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
-| `title` | Знак каждого участка | Har bo'lakning ishorasi | The sign of each piece |
-| `show.1.1` | слева берём минус два | chapda minus ikkini olamiz | on the left we take minus two |
-| `show.1.2` | сверху минус, снизу минус | yuqorida minus, pastda minus | minus on top, minus below |
-| `show.1.3` | на первом участке плюс | birinchi bo'lakda plyus | plus on the first piece |
-| `show.2.1` | в середине берём ноль | o'rtada nolni olamiz | in the middle we take zero |
-| `show.2.2` | справа берём тройку | o'ngda uchni olamiz | on the right we take three |
-| `show.2.3` | знаки чередуются | ishoralar navbatlashadi | the signs alternate |
-| `audio.mount` | Три участка, три числа. Возьмём по одному из каждого. | Uch bo'lak, uch son. Har biridan bittadan olamiz. | Three pieces, three numbers. Let us take one from each. |
-| `audio.signs*` | Слева от минус единицы берём минус два. Сверху минус один, снизу минус четыре, минус на минус даёт плюс. На первом участке плюс. В середине берём ноль. Сверху один, снизу минус два, выходит минус. На втором участке минус. Справа от двойки берём тройку. Сверху четыре, снизу один, выходит плюс. На третьем участке плюс. Обрати внимание, знаки пошли плюс, минус, плюс, они чередуются. Так бывает не всегда, поэтому каждый участок мы всё же проверили числом, а не угадали по узору. | Minus birdan chapda minus ikkini olamiz. Yuqorida minus bir, pastda minus to'rt, minusga minus plyus beradi. Birinchi bo'lakda plyus. O'rtada nolni olamiz. Yuqorida bir, pastda minus ikki, minus chiqadi. Ikkinchi bo'lakda minus. Ikkidan o'ngda uchni olamiz. Yuqorida to'rt, pastda bir, plyus chiqadi. Uchinchi bo'lakda plyus. E'tibor bering, ishoralar plyus, minus, plyus bo'lib ketdi, ular navbatlashadi. Bu doim ham shunday bo'lavermaydi, shuning uchun biz har bo'lakni naqshga qarab taxmin qilmay, son bilan tekshirdik. | To the left of minus one we take minus two. Minus one on top, minus four below, and minus by minus gives plus. The first piece is plus. In the middle we take zero. One on top, minus two below, so a minus comes out. The second piece is minus. To the right of two we take three. Four on top, one below, so a plus comes out. The third piece is plus. Notice that the signs came out plus, minus, plus, they alternate. That is not always so, which is why we still tested every piece with a number instead of guessing from the pattern. |
-| `audio.work` | Посчитай сам. На скольких участках стоит плюс? | O'zingiz hisoblang. Nechta bo'lakda plyus turibdi? | Work it out yourself. How many pieces carry a plus? |
-| `work.prompt` | Сколько участков со знаком плюс? | Plyus ishorali nechta bo'lak bor? | How many pieces have a plus sign? |
-| `work.ok` | Два. Первый и третий, и они и составят ответ. | Ikkita. Birinchi va uchinchi, javobni ular tashkil qiladi. | Two. The first and the third, and they will make the answer. |
-| `work.hint.1` | Посмотри на знаки над осью. | O'q ustidagi ishoralarga qarang. | Look at the signs above the axis. |
-| `work.hint.2` | Плюс стоит слева и справа, минус в середине. | Plyus chapda va o'ngda, minus o'rtada. | Plus stands on the left and on the right, minus in the middle. |
-| `work.hint.3` | Два. | Ikki. | Two. |
+| `title` | Что именно требует признак | Alomat aynan nimani talab qiladi | What exactly the criterion demands |
+| `show.1.1` | признак требует двух прямых | alomat ikki chiziqni talab qiladi | the criterion demands two lines |
+| `show.1.2` | обе лежат в плоскости | ikkalasi tekislikda yotadi | both lie in the plane |
+| `show.1.3` | и они пересекаются | va ular kesishadi | and they cross |
+| `show.2.1` | тогда прямая перпендикулярна плоскости | u holda chiziq tekislikka perpendikulyar | then the line is perpendicular to the plane |
+| `show.2.2` | и любой прямой в ней | va undagi istalgan chiziqqa | and to any line in it |
+| `show.2.3` | это уже свойство, а не признак | bu allaqachon xossa, alomat emas | that is already a property, not the criterion |
+| `audio.mount` | Соберём условия признака и посчитаем их. | Alomat shartlarini yig'amiz va sanaymiz. | Let us gather the conditions of the criterion and count them. |
+| `audio.count*` | Признак звучит так: если прямая перпендикулярна двум пересекающимся прямым, лежащим в плоскости, то она перпендикулярна и плоскости. Требований здесь два: прямых должно быть две, и они должны пересекаться. Теперь важное различение, на котором ошибаются чаще всего. Признак и свойство говорят в разные стороны. Признак идёт от двух прямых к плоскости: проверил две, получил вывод про всю плоскость. Свойство идёт обратно: если прямая уже перпендикулярна плоскости, то она перпендикулярна любой прямой в ней, и проверять ничего не надо. Подставить свойство вместо признака значит взять то, что надо доказать, за готовое. | Alomat shunday: agar chiziq tekislikda yotgan ikki kesishuvchi chiziqqa perpendikulyar bo'lsa, u tekislikka ham perpendikulyar. Talab bu yerda ikkita: chiziq ikkita bo'lishi kerak, va ular kesishishi kerak. Endi eng ko'p xato qilinadigan muhim farq. Alomat va xossa qarama-qarshi tomonga gapiradi. Alomat ikki chiziqdan tekislikka boradi: ikkitasini tekshirdim, butun tekislik haqida xulosa oldim. Xossa teskariga boradi: agar chiziq tekislikka allaqachon perpendikulyar bo'lsa, u undagi istalgan chiziqqa perpendikulyar, va hech nimani tekshirish kerak emas. Alomat o'rniga xossani qo'yish isbotlanishi kerak narsani tayyor deb olish degani. | The criterion says: if a line is perpendicular to two crossing lines lying in a plane, then it is perpendicular to the plane as well. There are two requirements here: there must be two lines, and they must cross. Now the important distinction where mistakes happen most. A criterion and a property speak in opposite directions. The criterion goes from two lines to the plane: I checked two, I got a conclusion about the whole plane. The property goes back: if a line is already perpendicular to the plane, then it is perpendicular to any line in it, and nothing needs checking. Putting the property in place of the criterion means taking what has to be proved as given. |
+| `audio.work` | Посчитай сам. Сколько прямых плоскости требует признак? | O'zingiz hisoblang. Alomat tekislikning nechta chizig'ini talab qiladi? | Work it out yourself. How many lines of the plane does the criterion require? |
+| `work.prompt` | Сколько прямых требует признак? | Alomat nechta chiziqni talab qiladi? | How many lines does the criterion require? |
+| `work.ok` | Две. И обязательно пересекающиеся, иначе признак не работает. | Ikkita. Va albatta kesishuvchi, aks holda alomat ishlamaydi. | Two. And necessarily crossing, otherwise the criterion does not work. |
+| `work.hint.1` | Перечитай признак и посчитай прямые в нём. | Alomatni qayta o'qing va undagi chiziqlarni sanang. | Read the criterion again and count the lines in it. |
+| `work.hint.2` | Одной не хватило, ты видел это поворотом. | Bittasi yetmadi, buni burilish bilan ko'rdingiz. | One was not enough, you saw that by rotating. |
+| `work.hint.3` | Две. | Ikki. | Two. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
+| `work.expr` | `a ⊥ b,   a ⊥ c,   b ∩ c = O` |
 | `work.answer` | `2` |
 
 ---
 
-## Экран 6 · `explain4` · ответ `number` · тег `umnozhayut-na-znamenatel`
+## Экран 6 · `explain4` · ответ `number` · тег `odnoy-pryamoy-hvatit`
 
-Сам: задание учебника, дробь приводится к общему знаменателю.
+Сам: две параллельные признака не дают.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | САМ | O'ZINGIZ | ON YOUR OWN |
-| `title` | Сначала одна дробь, потом ось | Avval bitta kasr, keyin o'q | First one fraction, then the axis |
-| `show.1.1` | слева не дробь, а разность | chapda kasr emas, ayirma | on the left there is a difference, not a fraction |
-| `show.1.2` | приводим к общему знаменателю | umumiy maxrajga keltiramiz | bring it to a common denominator |
-| `show.1.3` | сверху икс в квадрате минус четыре | yuqorida iks kvadrat minus to'rt | x squared minus four on top |
-| `show.2.1` | числитель равен нулю при двойке и минус двойке | surat ikkida va minus ikkida nolga teng | the numerator is zero at two and at minus two |
-| `show.2.2` | знаменатель равен нулю при нуле | maxraj nolda nolga teng | the denominator is zero at zero |
-| `show.2.3` | на оси окажется три числа | o'qda uch son bo'ladi | three numbers will be on the axis |
-| `audio.mount` | Это задание из учебника. Оно начинается с шага, которого у нас ещё не было. | Bu darslikdagi topshiriq. U bizda hali bo'lmagan qadamdan boshlanadi. | This task comes from the textbook. It starts with a step we have not had yet. |
-| `audio.one*` | Слева стоит не дробь, а разность, и метод к ней пока не применить. Сначала приводим всё к общему знаменателю. Икс минус четыре делить на икс превращается в дробь, у которой сверху икс в квадрате минус четыре, а снизу икс. Теперь можно искать нули. Сверху ноль выходит при двойке и при минус двойке, снизу при нуле. Значит на оси окажется три числа, и участков будет четыре. Это правило работает всегда: сначала одна дробь, и только потом разметка. | Chapda kasr emas, ayirma turibdi, va usulni unga hozircha qo'llab bo'lmaydi. Avval hammasini umumiy maxrajga keltiramiz. Iks minus to'rtni iksga bo'lish yuqorisida iks kvadrat minus to'rt, pastida iks turgan kasrga aylanadi. Endi nollarni izlash mumkin. Yuqorida nol ikkida va minus ikkida chiqadi, pastda nolda. Demak o'qda uch son bo'ladi, bo'laklar esa to'rtta. Bu qoida doim ishlaydi: avval bitta kasr, faqat keyin belgilash. | On the left there is a difference, not a fraction, and the method does not apply to it yet. First we bring everything to a common denominator. X minus four over x turns into a fraction with x squared minus four on top and x below. Now the zeros can be found. On top the zero comes at two and at minus two, below it comes at zero. So three numbers will be on the axis, and there will be four pieces. This rule always holds: one fraction first, marking up only after that. |
-| `audio.work` | Посчитай сам. Сколько чисел попадёт на ось? | O'zingiz hisoblang. O'qqa nechta son tushadi? | Work it out yourself. How many numbers will land on the axis? |
-| `work.prompt` | Сколько чисел попадёт на ось? | O'qqa nechta son tushadi? | How many numbers land on the axis? |
-| `work.ok` | Три. Два нуля числителя и один ноль знаменателя. | Uchta. Suratning ikki noli va maxrajning bir noli. | Three. Two zeros of the numerator and one zero of the denominator. |
-| `work.hint.1` | Найди нули числителя и нули знаменателя отдельно. | Surat nollarini va maxraj nollarini alohida toping. | Find the zeros of the numerator and of the denominator separately. |
-| `work.hint.2` | Икс в квадрате минус четыре обращается в ноль дважды. | Iks kvadrat minus to'rt ikki marta nolga aylanadi. | X squared minus four turns to zero twice. |
-| `work.hint.3` | Три. | Uch. | Three. |
+| `title` | Две прямые, но параллельные | Ikki chiziq, lekin parallel | Two lines, but parallel |
+| `show.1.1` | в плоскости две прямые | tekislikda ikki chiziq | two lines in the plane |
+| `show.1.2` | наша прямая перпендикулярна обеим | bizning chiziq ikkalasiga perpendikulyar | our line is perpendicular to both |
+| `show.1.3` | но эти две параллельны | lekin bu ikkitasi parallel | but these two are parallel |
+| `show.2.1` | поверни сцену | sahnani buring | rotate the scene |
+| `show.2.2` | наклон остался | og'ish qoldi | the slant is still there |
+| `show.2.3` | двух прямых оказалось мало | ikki chiziq kam bo'lib chiqdi | two lines turned out not to be enough |
+| `audio.mount` | Возьмём в плоскости две прямые и снова проверим. Только теперь они параллельны. | Tekislikda ikki chiziq olib, yana tekshiramiz. Faqat endi ular parallel. | Let us take two lines in the plane and check again. Only now they are parallel. |
+| `audio.para*` | Наша прямая перпендикулярна обеим, прямых две, а вывода нет: поверни сцену и увидишь тот же наклон. Дело в направлениях. Две параллельные прямые задают в плоскости одно и то же направление, второго они не добавляют. Поэтому прямая может наклоняться вдоль этого направления, оставаясь перпендикулярной обеим. Признак требует не просто двух прямых, а двух РАЗНЫХ направлений, и потому в нём стоит слово пересекающиеся. Посчитай сам, сколько направлений задают две параллельные прямые. | Bizning chiziq ikkalasiga perpendikulyar, chiziq ikkita, xulosa esa yo'q: sahnani buring va o'sha og'ishni ko'rasiz. Gap yo'nalishlarda. Ikki parallel chiziq tekislikda bir xil yo'nalishni beradi, ikkinchisini qo'shmaydi. Shuning uchun chiziq shu yo'nalish bo'ylab og'ishi mumkin, ikkalasiga perpendikulyar qolgan holda. Alomat shunchaki ikki chiziqni emas, ikki XIL yo'nalishni talab qiladi, va shuning uchun unda kesishuvchi so'zi turadi. Ikki parallel chiziq nechta yo'nalish berishini o'zingiz sanang. | Our line is perpendicular to both, there are two lines, and yet there is no conclusion: rotate the scene and you will see the same slant. It is about directions. Two parallel lines give one and the same direction in the plane, they add no second one. So the line can lean along that direction while staying perpendicular to both. The criterion requires not simply two lines but two DIFFERENT directions, and that is why it carries the word crossing. Count for yourself how many directions two parallel lines give. |
+| `audio.work` | Посчитай сам. Сколько разных направлений задают две параллельные прямые? | O'zingiz hisoblang. Ikki parallel chiziq nechta har xil yo'nalish beradi? | Work it out yourself. How many different directions do two parallel lines give? |
+| `work.prompt` | Сколько разных направлений они задают? | Ular nechta har xil yo'nalish beradi? | How many different directions do they give? |
+| `work.ok` | Одно. Параллельные идут в одну сторону, второго направления они не дают. | Bitta. Parallellar bir tomonga boradi, ikkinchi yo'nalishni bermaydi. | One. Parallel lines go the same way, they give no second direction. |
+| `work.hint.1` | Посмотри, куда идёт каждая из них. | Ularning har biri qayerga borishiga qarang. | Look at where each of them goes. |
+| `work.hint.2` | У параллельных направление одно и то же. | Parallellarning yo'nalishi bir xil. | Parallel lines have one and the same direction. |
+| `work.hint.3` | Одно. | Bitta. | One. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `frameA` | `x − 4/x ≥ 0` |
-| `frameB` | `(x² − 4)/x ≥ 0` |
-| `work.expr` | `(x² − 4)/x ≥ 0` |
-| `work.answer` | `3` |
+| `work.expr` | `b ∥ c   →   b ∩ c = ∅` |
+| `work.answer` | `1` |
 
 ---
 
-## Экран 7 · `explain5` · ответ `number` · тег `tochku-ne-vykololi`
+## Экран 7 · `explain5` · ответ `number` · тег `izmeril-znachit-dokazal`
 
-Граничный: знак «не меньше» и выколотая точка.
+Граничный: перпендикуляр пересекает плоскость.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ГРАНИЧНЫЙ СЛУЧАЙ | CHEGARAVIY HOL | THE EDGE CASE |
-| `title` | Одна точка входит, другая нет | Bir nuqta kiradi, boshqasi yo'q | One point is in, the other is not |
-| `show.1.1` | тот же пример, но знак нестрогий | o'sha misol, lekin ishora qat'iy emas | the same example, but the sign is not strict |
-| `show.1.2` | минус единица делает дробь нулём | minus bir kasrni nolga aylantiradi | minus one makes the fraction zero |
-| `show.1.3` | ноль в ответ входит | nol javobga kiradi | zero belongs to the answer |
-| `show.2.1` | двойка делает знаменатель нулём | ikki maxrajni nolga aylantiradi | two makes the denominator zero |
-| `show.2.2` | такой дроби не существует | bunday kasr mavjud emas | such a fraction does not exist |
-| `show.2.3` | точка выколота изнутри ответа | nuqta javob ichidan o'yib olingan | the point is punched out from inside the answer |
-| `audio.mount` | То же неравенство, но знак поменяли на нестрогий. Ответ изменится не весь, а в двух точках. | O'sha tengsizlik, lekin ishora qat'iy emasga o'zgartirildi. Javob butunlay emas, ikki nuqtada o'zgaradi. | The same inequality, but the sign is now not strict. The answer changes not everywhere, but at two points. |
-| `audio.edge*` | При минус единице числитель равен нулю, значит и вся дробь равна нулю. Нестрогий знак ноль допускает, поэтому минус единица входит в ответ, и точка закрашивается. При двойке в ноль обращается знаменатель, а делить на ноль нельзя ни при каком знаке неравенства. Значит двойка не входит никогда, и точка остаётся выколотой. Посмотри, как это выглядит на оси: закрашенный участок идёт до двойки и обрывается, а сама двойка остаётся пустой. Она вырезана изнутри ответа, а не с края. | Minus birda surat nolga teng, demak butun kasr ham nolga teng. Qat'iy bo'lmagan ishora nolni yo'l qo'yadi, shuning uchun minus bir javobga kiradi, nuqta esa bo'yaladi. Ikkida maxraj nolga aylanadi, nolga bo'lish esa tengsizlikning hech qanday ishorasida mumkin emas. Demak ikki hech qachon kirmaydi, nuqta ochiq qoladi. O'qda bu qanday ko'rinishiga qarang: bo'yalgan bo'lak ikkigacha boradi va uziladi, ikkining o'zi esa bo'sh qoladi. U javob chetidan emas, ichidan o'yib olingan. | At minus one the numerator is zero, so the whole fraction is zero. A non-strict sign allows zero, so minus one belongs to the answer and the point is filled in. At two the denominator turns to zero, and dividing by zero is not allowed under any inequality sign. So two never belongs, and the point stays hollow. Look at how this shows on the axis: the shaded piece runs up to two and breaks off, while two itself stays empty. It is cut out from inside the answer, not from its edge. |
-| `audio.work` | Посчитай сам. Сколько точек в ответе выколото? | O'zingiz hisoblang. Javobda nechta nuqta ochiq qoldirilgan? | Work it out yourself. How many points in the answer are punched out? |
-| `work.prompt` | Сколько точек выколото? | Nechta nuqta ochiq? | How many points are punched out? |
-| `work.ok` | Одна. Двойка, где знаменатель ноль. Минус единица закрашена. | Bitta. Maxraj nol bo'lgan ikki. Minus bir esa bo'yalgan. | One. The two, where the denominator is zero. Minus one is filled in. |
-| `work.hint.1` | Посмотри отдельно на ноль числителя и на ноль знаменателя. | Surat noliga va maxraj noliga alohida qarang. | Look separately at the zero of the numerator and of the denominator. |
-| `work.hint.2` | Ноль числителя при нестрогом знаке входит в ответ. | Qat'iy bo'lmagan ishorada surat noli javobga kiradi. | With a non-strict sign the zero of the numerator belongs to the answer. |
+| `title` | Перпендикуляр не может пройти мимо | Perpendikulyar yonlab o'tolmaydi | A perpendicular cannot pass by |
+| `show.1.1` | прямая перпендикулярна плоскости | chiziq tekislikka perpendikulyar | the line is perpendicular to the plane |
+| `show.1.2` | значит она её пересекает | demak u uni kesib o'tadi | so it crosses it |
+| `show.1.3` | пройти мимо она не может | yonlab o'tolmaydi | it cannot pass by |
+| `show.2.1` | поверни и посчитай общие точки | buring va umumiy nuqtalarni sanang | rotate and count the common points |
+| `show.2.2` | их ровно столько, сколько у прямой с плоскостью | ular chiziq va tekislikda qanchaligicha | as many as a crossing line has |
+| `show.2.3` | и мерить тут нечего | va bu yerda o'lchaydigan narsa yo'q | and there is nothing to measure here |
+| `audio.mount` | Ещё одно утверждение учебника, короткое и полезное. | Darslikning yana bir tasdig'i, qisqa va foydali. | One more statement from the textbook, short and useful. |
+| `audio.cross*` | Учебник говорит: прямая, перпендикулярная плоскости, обязательно её пересекает. Понятно почему: если бы она плоскости не касалась, то была бы ей параллельна, а параллельная прямая никакого прямого угла с прямыми плоскости не образует. Значит общая точка есть, и она одна: двух быть не может, иначе по второй аксиоме вся прямая легла бы в плоскость. Посчитай эти точки сам. И держи в голове главное правило года: числа с чертежа не берут. Здесь ответ получен рассуждением, а не измерением, и потому он годится в доказательство. | Darslik shunday deydi: tekislikka perpendikulyar chiziq albatta uni kesib o'tadi. Nega ekani tushunarli: agar u tekislikka tegmasa, unga parallel bo'lardi, parallel chiziq esa tekislik chiziqlari bilan hech qanday to'g'ri burchak hosil qilmaydi. Demak umumiy nuqta bor, va u bitta: ikkita bo'lishi mumkin emas, aks holda ikkinchi aksioma bo'yicha butun chiziq tekislikka yotardi. Bu nuqtalarni o'zingiz sanang. Va yilning asosiy qoidasini eslab turing: sonlar chizmadan olinmaydi. Bu yerda javob o'lchash bilan emas, mulohaza bilan olindi, shuning uchun u isbotga yaraydi. | The textbook says: a line perpendicular to a plane necessarily crosses it. It is clear why: if it did not touch the plane it would be parallel to it, and a parallel line makes no right angle with the lines of the plane at all. So a common point exists, and there is one: there cannot be two, otherwise by the second axiom the whole line would lie in the plane. Count these points yourself. And keep the main rule of the year in mind: numbers are not taken from the drawing. Here the answer came from reasoning, not from measuring, and that is why it can go into a proof. |
+| `audio.work` | Посчитай сам. Сколько общих точек у перпендикуляра и плоскости? | O'zingiz hisoblang. Perpendikulyar va tekislikning nechta umumiy nuqtasi bor? | Work it out yourself. How many common points do the perpendicular and the plane have? |
+| `work.prompt` | Сколько у них общих точек? | Ularning nechta umumiy nuqtasi bor? | How many common points do they have? |
+| `work.ok` | Одна. Ноль означал бы параллельность, две означали бы, что прямая лежит в плоскости. | Bitta. Nol parallellikni, ikkita esa chiziq tekislikda yotishini bildirardi. | One. Zero would mean parallel, two would mean the line lies in the plane. |
+| `work.hint.1` | Может ли перпендикуляр быть параллелен плоскости? | Perpendikulyar tekislikka parallel bo'lishi mumkinmi? | Can a perpendicular be parallel to the plane? |
+| `work.hint.2` | Две общие точки затянули бы всю прямую в плоскость. | Ikki umumiy nuqta butun chiziqni tekislikka tortardi. | Two common points would pull the whole line into the plane. |
 | `work.hint.3` | Одна. | Bitta. | One. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `frameA` | `(x + 1)/(x − 2) ≥ 0` |
-| `frameB` | `x ≤ −1;  x > 2` |
-| `work.expr` | `(x + 1)/(x − 2) ≥ 0` |
+| `work.expr` | `a ⊥ α   →   a ∩ α = O` |
 | `work.answer` | `1` |
 
 ---
 
-## Экран 8 · `rule` · ответ `pick2` · тег `umnozhayut-na-znamenatel`
+## Экран 8 · `rule` · ответ `pick2` · тег `svoystvo-vmesto-priznaka`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ПРАВИЛО | QOIDA | THE RULE |
-| `title` | Пять шагов | Besh qadam | Five steps |
-| `probe.question` | Почему нельзя умножить обе части на знаменатель? | Nega ikkala tarafni maxrajga ko'paytirib bo'lmaydi? | Why can you not multiply both sides by the denominator? |
-| `probe.a` [верно] | знаменатель бывает отрицательным, и знак перевернётся | maxraj manfiy ham bo'ladi, ishora ag'dariladi | the denominator can be negative, and the sign will flip |
-| `probe.b` | потому что дробь исчезнет | chunki kasr yo'qoladi | because the fraction will vanish |
-| `probe.b.hint` | Дробь исчезает и в уравнении, и там это разрешено. Дело в знаке. | Kasr tenglamada ham yo'qoladi, va u yerda bu mumkin. Gap ishorada. | The fraction vanishes in an equation too, and there it is allowed. The point is the sign. |
-| `rule.lawLabel` | ПЯТЬ ШАГОВ | BESH QADAM | THE FIVE STEPS |
-| `rule.lines.1` | найти нули числителя и нули знаменателя | surat va maxraj nollarini topish | find the zeros of the numerator and of the denominator |
-| `rule.lines.2` | отметить их на числовой оси | ularni son o'qida belgilash | mark them on the number axis |
-| `rule.lines.3` | на каждом участке найти знак и выбрать нужные | har bo'lakda ishorani topib, keraklilarini tanlash | find the sign on every piece and pick the ones you need |
-| `audio.mount` | Соберём правило. В учебнике оно записано пятью шагами. | Qoidani yig'amiz. Darslikda u besh qadam bilan yozilgan. | Let us put the rule together. It is written as five steps. |
-| `audio.rule*` | Первое: найти нули числителя. Второе: найти нули знаменателя. Третье: отметить и те и другие на числовой оси. Четвёртое: на каждом получившемся участке определить знак дроби, подставив одно число. Пятое: выбрать те участки, которые удовлетворяют неравенству, и это и есть ответ. Отдельно держи в голове разницу между нулём сверху и нулём снизу. Ноль числителя при нестрогом знаке входит в ответ, ноль знаменателя не входит никогда. | Birinchi: surat nollarini topish. Ikkinchi: maxraj nollarini topish. Uchinchi: ikkalasini ham son o'qida belgilash. To'rtinchi: hosil bo'lgan har bir bo'lakda bitta son qo'yib kasr ishorasini aniqlash. Beshinchi: tengsizlikni qanoatlantiradigan bo'laklarni tanlash, javob ana shu. Alohida esda tuting: yuqoridagi nol bilan pastdagi nol boshqacha. Qat'iy bo'lmagan ishorada surat noli javobga kiradi, maxraj noli esa hech qachon kirmaydi. | First: find the zeros of the numerator. Second: find the zeros of the denominator. Third: mark both kinds on the number axis. Fourth: on every piece that appears, determine the sign of the fraction by substituting one number. Fifth: pick the pieces that satisfy the inequality, and that is the answer. Keep the difference between a zero on top and a zero below in mind separately. With a non-strict sign the zero of the numerator belongs to the answer, the zero of the denominator never does. |
+| `title` | Признак и свойство | Alomat va xossa | The criterion and the property |
+| `probe.question` | Чем признак отличается от свойства? | Alomat xossadan nimasi bilan farq qiladi? | How does a criterion differ from a property? |
+| `probe.a` [верно] | признак ведёт к выводу, свойство следует из него | alomat xulosaga olib boradi, xossa undan kelib chiqadi | a criterion leads to the conclusion, a property follows from it |
+| `probe.b` | это одно и то же, сказанное по-разному | bu bir xil narsa, boshqacha aytilgan | they are the same thing said differently |
+| `probe.b.hint` | Тогда доказательство ходило бы по кругу: вывод брался бы за условие. | U holda isbot doira bo'ylab yurardi: xulosa shart o'rniga olinardi. | Then the proof would go in a circle: the conclusion would serve as the condition. |
+| `rule.lawLabel` | ПРИЗНАК | ALOMAT | THE CRITERION |
+| `rule.lines.1` | прямая перпендикулярна двум прямым плоскости | chiziq tekislikning ikki chizig'iga perpendikulyar | the line is perpendicular to two lines of the plane |
+| `rule.lines.2` | эти две прямые пересекаются | bu ikki chiziq kesishadi | those two lines cross each other |
+| `rule.lines.3` | тогда прямая перпендикулярна плоскости | u holda chiziq tekislikka perpendikulyar | then the line is perpendicular to the plane |
+| `audio.mount` | Соберём правило. Признак короткий, но каждое слово в нём работает. | Qoidani yig'amiz. Alomat qisqa, lekin undagi har so'z ishlaydi. | Let us put the rule together. The criterion is short, but every word in it works. |
+| `audio.rule*` | Признак: если прямая перпендикулярна двум пересекающимся прямым, лежащим в плоскости, то она перпендикулярна этой плоскости. Слово двум нужно потому, что одной мало: прямая наклонится вокруг единственного направления. Слово пересекающимся нужно потому, что параллельные дают одно направление, а не два. Дальше работает свойство, и оно смотрит в другую сторону: перпендикулярная плоскости прямая перпендикулярна любой прямой в этой плоскости. Признак доказывает, свойство пользуется доказанным. Поставить свойство на место признака нельзя: это то же самое, что взять вывод за условие. | Alomat: agar chiziq tekislikda yotgan ikki kesishuvchi chiziqqa perpendikulyar bo'lsa, u shu tekislikka perpendikulyar. Ikki so'zi shuning uchun kerak, chunki bittasi kam: chiziq yagona yo'nalish atrofida og'adi. Kesishuvchi so'zi shuning uchun kerak, chunki parallellar bitta yo'nalish beradi, ikkitasini emas. Keyin xossa ishlaydi, va u boshqa tomonga qaraydi: tekislikka perpendikulyar chiziq shu tekislikdagi istalgan chiziqqa perpendikulyar. Alomat isbotlaydi, xossa isbotlanganidan foydalanadi. Xossani alomat o'rniga qo'yib bo'lmaydi: bu xulosani shart o'rniga olish bilan bir xil. | The criterion: if a line is perpendicular to two crossing lines lying in a plane, then it is perpendicular to that plane. The word two is needed because one is not enough: the line will lean around the single direction. The word crossing is needed because parallel lines give one direction, not two. Then the property works, and it looks the other way: a line perpendicular to a plane is perpendicular to any line in that plane. The criterion proves, the property uses what was proved. The property cannot be put in place of the criterion: that is the same as taking the conclusion for the condition. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `rule.law` | `f(x)/g(x) > 0,   g(x) ≠ 0` |
+| `rule.law` | `a ⊥ b,   a ⊥ c,   b ∩ c = O   →   a ⊥ α` |
 
 ---
 
-## Экран 9 · `drill` · ответ `match` · формат `match` · тег `tochku-ne-vykololi`
+## Экран 9 · `drill` · ответ `match` · формат `match` · тег `svoystvo-vmesto-priznaka`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ТРЕНИРОВКА | MASHQ | PRACTICE |
-| `title` | Соедини неравенство с ответом | Tengsizlikni javobi bilan ulang | Match each inequality with its answer |
-| `match.prompt` | Нули у всех разные, знаки тоже | Hammaning nollari har xil, ishoralari ham | The zeros differ everywhere, and so do the signs |
-| `match.ok` | Верно. Знак неравенства решает, какие участки берут, а не где нули. | To'g'ri. Qaysi bo'laklar olinishini nollar emas, tengsizlik ishorasi hal qiladi. | Correct. The inequality sign decides which pieces are taken, not where the zeros are. |
-| `audio.mount` | Четыре неравенства и четыре ответа. Размечай ось в уме. | To'rt tengsizlik va to'rt javob. O'qni xayolda belgilang. | Four inequalities and four answers. Mark up the axis in your head. |
+| `title` | Посчитай по кубу | Kub bo'yicha sanang | Count on the cube |
+| `match.prompt` | Все четыре ответа разные | To'rt javobning hammasi har xil | All four answers are different |
+| `match.ok` | Верно. Перпендикулярных ребру больше всего: их восемь из одиннадцати. | To'g'ri. Qirraga perpendikulyarlari eng ko'p: o'n birdan sakkiztasi. | Correct. Perpendicular edges are the most: eight out of eleven. |
+| `audio.mount` | Четыре записи про куб. Последняя это число его граней. | Kub haqida to'rt yozuv. Oxirgisi uning yoqlari soni. | Four writings about the cube. The last one is the number of its faces. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `match.left` | `(x − 1)/(x − 3) > 0` · `(x + 2)/(x − 1) < 0` · `1/(x − 4) > 0` · `(x + 3)/x < 0` |
-| `match.a` | `x < 1;  x > 3` |
-| `match.b` | `−2 < x < 1` |
-| `match.c` | `x > 4` |
-| `match.d` | `−3 < x < 0` |
+| `match.left` | `AB ⊥ ?` · `AB ∥ ?` · `AB ∸ ?` · `ABCDA₁B₁C₁D₁` |
+| `match.a` | `8` |
+| `match.b` | `3` |
+| `match.c` | `4` |
+| `match.d` | `6` |
 
 ---
 
-## Экран 10 · `guided` · ответ `order` · формат `order-steps` · тег `umnozhayut-na-znamenatel`
+## Экран 10 · `guided` · ответ `order` · формат `proof` · тег `svoystvo-vmesto-priznaka`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ПО ШАГАМ | QADAMMA-QADAM | STEP BY STEP |
-| `title` | Реши неравенство целиком | Tengsizlikni to'liq yeching | Solve the inequality from start to finish |
-| `order.prompt` | Расставь шаги решения по порядку | Yechish qadamlarini tartib bilan joylashtiring | Put the solution steps in order |
-| `order.s1` | найти нули | nollarni topish | find the zeros |
-| `order.s2` | отметить на оси | o'qda belgilash | mark them on the axis |
-| `order.s3` | расставить знаки | ishoralarni qo'yish | place the signs |
-| `order.s4` | выбрать участки | bo'laklarni tanlash | pick the pieces |
-| `order.ok` | Верно. Знаки ставят после разметки, а выбирают в самом конце. | To'g'ri. Ishoralar belgilashdan keyin qo'yiladi, tanlash esa eng oxirida. | Correct. Signs go after the marking, and the picking comes last. |
-| `order.bad` | Знак участка нельзя найти, пока участка ещё нет. | Bo'lak yo'q ekan, uning ishorasini topib bo'lmaydi. | You cannot find the sign of a piece while the piece does not exist yet. |
-| `audio.mount` | Теперь всё неравенство целиком. Четыре шага, порядок важен. | Endi butun tengsizlik. To'rt qadam, tartib muhim. | Now the whole inequality. Four steps, and the order matters. |
+| `title` | Докажи перпендикулярность | Perpendikulyarlikni isbotlang | Prove the perpendicularity |
+| `proof.given` | боковое ребро куба и плоскость основания | kubning yon qirrasi va asos tekisligi | a side edge of a cube and the plane of its base |
+| `proof.goal` | ребро перпендикулярно плоскости основания | qirra asos tekisligiga perpendikulyar | the edge is perpendicular to the plane of the base |
+| `proof.r1` | ребро перпендикулярно первому ребру основания | qirra asosning birinchi qirrasiga perpendikulyar | the edge is perpendicular to the first edge of the base |
+| `proof.r2` | оно перпендикулярно и второму | u ikkinchisiga ham perpendikulyar | it is perpendicular to the second as well |
+| `proof.r3` | эти два ребра основания пересекаются | asosning bu ikki qirrasi kesishadi | those two edges of the base cross |
+| `proof.e1` | Признак идёт в конце. Здесь проверяется его условие. | Alomat oxirida qo'llanadi. Hozir uning sharti tekshirilyapti. | The criterion comes at the end. Here its condition is checked. |
+| `proof.e2` | Эта строка как первая, только со вторым ребром. | Bu qator birinchisidek, faqat ikkinchi qirra bilan. | This line is like the first, only with the second edge. |
+| `proof.e3` | Речь не о перпендикулярности. Встречаются ли эти рёбра. | Gap perpendikulyarlik haqida emas. Bu ikki qirra uchrashadimi. | This is not about perpendicularity. Do these edges meet. |
+| `proof.ok` | Доказано. Оба условия признака проверены, и только теперь вывод законный. | Isbotlandi. Alomatning ikkala sharti tekshirildi, va faqat endi xulosa qonuniy. | Proved. Both conditions of the criterion are checked, and only now is the conclusion lawful. |
+| `reason.s1` | по построению куба | kub yasalishiga ko'ra | by the construction of the cube |
+| `reason.s2` | признак перпендикулярности | perpendikulyarlik alomati | the criterion of perpendicularity |
+| `reason.s3` | вершина основания общая | asos uchi umumiy | the vertex of the base is common |
+| `reason.pic` | свойство перпендикулярной прямой | perpendikulyar chiziq xossasi | the property of a perpendicular line |
+| `reason.pic.missing` | Это свойство, а не признак: оно следует из вывода, который ещё не получен. | Bu xossa, alomat emas: u hali olinmagan xulosadan kelib chiqadi. | That is a property, not the criterion: it follows from a conclusion not yet obtained. |
+| `audio.mount` | Докажем на кубе. Обоснование каждой строки выбирается из списка. | Kubda isbotlaymiz. Har qatorning asoslashi ro'yxatdan tanlanadi. | Let us prove it on the cube. The justification of each line is chosen from the list. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `expr` | `(x + 1)/(x − 2) > 0` |
-| `order.mark` | `x < −1;  x > 2` |
+| `expr` | `AA₁ ⊥ AB,   AA₁ ⊥ AD,   AB ∩ AD = A` |
 
 ---
 
@@ -353,15 +356,15 @@
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | НА БУМАГЕ | QOG'OZDA | ON PAPER |
-| `title` | Сколько целых чисел внутри | Ichida nechta butun son bor | How many whole numbers are inside |
-| `task.ok` | Три. Это два, три и четыре: границы сами не входят. | Uchta. Bular ikki, uch va to'rt: chegaralarning o'zi kirmaydi. | Three. They are two, three and four: the boundaries themselves are out. |
-| `task.hint.1` | Выпиши числа, которые больше одного и меньше пяти. | Birdan katta va beshdan kichik sonlarni yozing. | Write out the numbers greater than one and less than five. |
-| `task.hint.2` | Единица и пятёрка не входят: знаки строгие. | Bir va besh kirmaydi: ishoralar qat'iy. | One and five are out: the signs are strict. |
-| `task.hint.3` | Три. | Uch. | Three. |
-| `order.prompt` | Расставь промежутки по возрастанию длины | Oraliqlarni uzunligi o'sishi bo'yicha joylashtiring | Put the intervals in order of increasing length |
-| `order.title` | от короткого к длинному | qisqasidan uzuniga | from the shortest to the longest |
-| `order.ok` | Верно. Длина это разность концов, а не то, где промежуток стоит. | To'g'ri. Uzunlik chekkalar ayirmasi, oraliq qayerda turgani emas. | Correct. Length is the difference of the ends, not where the interval sits. |
-| `order.bad` | Длину считают вычитанием, а не смотрят, какой промежуток левее. | Uzunlik ayirish bilan hisoblanadi, qaysi oraliq chaproq ekaniga qaralmaydi. | Length is computed by subtracting, not by seeing which interval is further left. |
+| `title` | Сколько рёбер перпендикулярно данному | Berilganiga nechta qirra perpendikulyar | How many edges are perpendicular to the given one |
+| `task.ok` | Восемь. Четыре пересекают его, четыре скрещиваются с ним под прямым углом. | Sakkizta. To'rttasi uni kesadi, to'rttasi to'g'ri burchak ostida ayqash. | Eight. Four cross it and four are skew to it at a right angle. |
+| `task.hint.1` | Перпендикулярными бывают и скрещивающиеся рёбра. | Ayqash qirralar ham perpendikulyar bo'ladi. | Skew edges can be perpendicular too. |
+| `task.hint.2` | Всего рёбер одиннадцать, параллельных три. | Qirralar jami o'n bitta, parallellari uchta. | Eleven edges in all, three of them parallel. |
+| `task.hint.3` | Восемь. | Sakkiz. | Eight. |
+| `order.prompt` | Расставь записи по возрастанию ответа | Yozuvlarni javobi o'sishi bo'yicha joylashtiring | Put the writings in order of increasing answer |
+| `order.title` | от меньшего числа к большему | kichik sondan kattasiga | from the smallest number to the largest |
+| `order.ok` | Верно. Перпендикулярных рёбер больше, чем всех остальных вместе. | To'g'ri. Perpendikulyar qirralar qolganlarining hammasidan ko'p. | Correct. There are more perpendicular edges than all the rest together. |
+| `order.bad` | Считай каждую запись отдельно. | Har yozuvni alohida hisoblang. | Compute each writing separately. |
 | `audio.mount` | Прибора нет. Считай на бумаге, потом сверься. | Asbob yo'q. Qog'ozda hisoblang, keyin solishtiring. | No instrument here. Work it out on paper, then compare. |
 | `audio.next` | Дальше запись с ошибкой. Найди строку, где она появилась. | Keyin xatoli yozuv. Xato paydo bo'lgan qatorni toping. | Next comes a written solution with a mistake. Find the line where it appeared. |
 
@@ -369,10 +372,10 @@
 
 | Ключ | Значение |
 |---|---|
-| `task.prompt` | `1 < x < 5` |
-| `task.answer` | `3` |
-| `order.items` | `(1; 5)` · `(−1; 7)` · `(2; 4)` · `(0; 3)` |
-| `order.answer` | `(2; 4)  (0; 3)  (1; 5)  (−1; 7)` |
+| `task.prompt` | `AB ⊥ ?` |
+| `task.answer` | `8` |
+| `order.items` | `ABCDA₁B₁C₁D₁` · `AB ⊥ ?` · `AB ∥ ?` · `AB ∸ ?` |
+| `order.answer` | `AB ∥ ?  AB ∸ ?  ABCDA₁B₁C₁D₁  AB ⊥ ?` |
 
 ---
 
@@ -384,28 +387,28 @@
 |---|---|---|---|
 | `eyebrow` | ЛОВУШКА | TUZOQ | THE TRAP |
 | `title` | Найди строку с ошибкой | Xatoli qatorni toping | Find the line with the mistake |
-| `hint.r1` | Исходное неравенство, здесь ошибки быть не может. | Dastlabki tengsizlik, bu yerda xato bo'lishi mumkin emas. | The original inequality, no mistake can live here. |
-| `hint.r2` | Дробь исчезла. Спроси себя, что с ней сделали. | Kasr yo'qoldi. O'zingizdan so'rang: unga nima qilishdi? | The fraction vanished. Ask yourself what was done to it. |
-| `hint.r3` | Из предыдущей строки это следует верно, но сама она уже неверна. | Oldingi qatordan bu to'g'ri kelib chiqadi, lekin qatorning o'zi noto'g'ri. | This follows correctly from the previous line, but that line is already wrong. |
-| `proof` | Подставь ноль в первую строку: выйдет минус ноль целых пять десятых. | Nolni birinchi qatorga qo'ying: minus nol butun besh o'ndan chiqadi. | Substitute zero into the first line: minus zero point five comes out. |
-| `entry.prompt` | Какое число из этого ответа не подходит? | Bu javobdagi qaysi son yaramaydi? | Which number from this answer does not fit? |
-| `entry.ok` | Ноль. Он входит в полученный ответ, а исходному неравенству не удовлетворяет. | Nol. U olingan javobga kiradi, dastlabki tengsizlikni esa qanoatlantirmaydi. | Zero. It belongs to the answer obtained, yet it does not satisfy the original inequality. |
-| `entry.hint.1` | Возьми любое число между минус единицей и двойкой. | Minus bir bilan ikki orasidagi istalgan sonni oling. | Take any number between minus one and two. |
-| `entry.hint.2` | Самое удобное для счёта число как раз там и лежит. | Hisoblash uchun eng qulay son aynan o'sha yerda yotadi. | The most convenient number to compute with lies right there. |
-| `entry.hint.3` | Ноль. | Nol. | Zero. |
-| `audio.mount` | Четыре строки. Ошибка появилась рано, и дальше её никто не заметил. | To'rt qator. Xato erta paydo bo'ldi, keyin uni hech kim sezmadi. | Four lines. The mistake appeared early, and after that nobody noticed it. |
-| `audio.next` | Дальше обратная задача: по ответу восстанови неравенство. | Keyin teskari masala: javobga qarab tengsizlikni tiklang. | Next comes the reverse task: rebuild the inequality from its answer. |
+| `hint.r1` | Условие переписано верно. | Shart to'g'ri ko'chirilgan. | The condition is copied correctly. |
+| `hint.r2` | Этот прямой угол действительно есть. | Bu to'g'ri burchak haqiqatan bor. | This right angle does exist. |
+| `hint.r3` | Спроси себя, сколько прямых проверено к этому моменту. | O'zingizdan so'rang: shu paytgacha nechta chiziq tekshirilgan? | Ask yourself how many lines have been checked by this point. |
+| `proof` | Поверни сцену: при одной проверенной прямой наклон остаётся. | Sahnani buring: bitta tekshirilgan chiziqda og'ish qoladi. | Rotate the scene: with one line checked the slant remains. |
+| `entry.prompt` | Сколько прямых плоскости не хватило? | Tekislikning nechta chizig'i yetmadi? | How many lines of the plane were missing? |
+| `entry.ok` | Одной. Проверена была одна, а признак требует двух пересекающихся. | Bittasi. Bittasi tekshirilgan edi, alomat esa ikki kesishuvchini talab qiladi. | One. One was checked, and the criterion requires two crossing ones. |
+| `entry.hint.1` | Посчитай, сколько прямых упомянуто в записи. | Yozuvda nechta chiziq eslatilganini sanang. | Count how many lines are mentioned in the writing. |
+| `entry.hint.2` | Признак требует двух, а в записи одна. | Alomat ikkitasini talab qiladi, yozuvda esa bittasi. | The criterion requires two, and the writing has one. |
+| `entry.hint.3` | Одной. | Bittasi. | One. |
+| `audio.mount` | Четыре строки. Все углы в записи верные, а вывод нет. | To'rt qator. Yozuvdagi barcha burchaklar to'g'ri, xulosa esa yo'q. | Four lines. Every angle in the writing is right, and the conclusion is not. |
+| `audio.next` | Дальше обратная задача: по выводу назови недостающее условие. | Keyin teskari masala: xulosaga qarab yetishmayotgan shartni ayting. | Next comes the reverse task: name the missing condition from the conclusion. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `row.r1` | `(x + 1)/(x − 2) > 0` |
-| `row.r2` | `x + 1 > 0` |
-| `row.r3` | `x > −1` |
-| `row.r4` | `x ∈ (−1; +∞)` |
-| `answerId` | `r2` |
-| `entry.answer` | `0` |
+| `row.r1` | `b ⊂ α,   a ⊥ b` |
+| `row.r2` | `∠(a, b) = 90°` |
+| `row.r3` | `a ⊥ α` |
+| `row.r4` | `a ⊥ c   ∀c ⊂ α` |
+| `answerId` | `r3` |
+| `entry.answer` | `1` |
 
 ---
 
@@ -417,33 +420,33 @@
 |---|---|---|---|
 | `eyebrow` | ПЕРЕНОС | KO'CHIRISH | TRANSFER |
 | `title` | Обратный ход | Teskari yo'l | The other direction |
-| `entry.prompt` | Вот ответ неравенства. При каком икс знаменатель равен нулю? | Mana tengsizlikning javobi. Maxraj qaysi iksda nolga teng? | Here is the answer of an inequality. For which x is the denominator zero? |
-| `entry.ok` | Два. Эта точка выколота, значит именно там знаменатель обращается в ноль. | Ikki. Bu nuqta ochiq, demak aynan o'sha yerda maxraj nolga aylanadi. | Two. That point is punched out, so the denominator turns to zero exactly there. |
-| `entry.hint.1` | Посмотри, какая граница выколота, а какая закрашена. | Qaysi chegara ochiq, qaysi biri bo'yalganiga qarang. | Look at which boundary is hollow and which is filled. |
-| `entry.hint.2` | Выколотая граница всегда приходит от знаменателя. | Ochiq chegara doim maxrajdan keladi. | A hollow boundary always comes from the denominator. |
-| `entry.hint.3` | Два. | Ikki. | Two. |
-| `multi.prompt` | Отметь все числа, которые являются решениями | Yechim bo'lgan barcha sonlarni belgilang | Mark every number that is a solution |
+| `entry.prompt` | Прямая перпендикулярна плоскости. Скольким прямым в этой плоскости она НЕ перпендикулярна? | Chiziq tekislikka perpendikulyar. U bu tekislikdagi nechta chiziqqa perpendikulyar EMAS? | A line is perpendicular to a plane. To how many lines in that plane is it NOT perpendicular? |
+| `entry.ok` | Ни одной. Это уже свойство: перпендикулярна всем без исключения, и проверять нечего. | Bitta ham yo'q. Bu allaqachon xossa: istisnosiz hammasiga perpendikulyar, tekshiradigan narsa yo'q. | None. That is already the property: it is perpendicular to all of them without exception, and nothing is left to check. |
+| `entry.hint.1` | Признак работал в одну сторону, а свойство в другую. | Alomat bir tomonga, xossa esa boshqa tomonga ishlardi. | The criterion worked one way, the property works the other. |
+| `entry.hint.2` | Свойство говорит: перпендикулярна любой прямой плоскости. | Xossa shunday deydi: tekislikning istalgan chizig'iga perpendikulyar. | The property says: perpendicular to any line of the plane. |
+| `entry.hint.3` | Ноль. | Nol. | Zero. |
+| `multi.prompt` | Отметь все записи, из которых следует перпендикулярность плоскости | Tekislikka perpendikulyarlik kelib chiqadigan barcha yozuvlarni belgilang | Mark every writing from which perpendicularity to the plane follows |
 | `multi.title` | их ровно два | ular aynan ikkita | there are exactly two |
-| `multi.c.hint` | Ноль лежит в среднем участке, а там знак минус. | Nol o'rtadagi bo'lakda yotadi, u yerda esa minus. | Zero lies in the middle piece, and the sign there is minus. |
-| `multi.d.hint` | В этой точке знаменатель равен нулю, дроби просто нет. | Bu nuqtada maxraj nolga teng, kasr umuman yo'q. | At this point the denominator is zero, so there is no fraction at all. |
-| `multi.ok` | Верно. Годятся числа из крайних участков, средний участок отпадает. | To'g'ri. Chekka bo'laklardagi sonlar yaraydi, o'rtadagi bo'lak tushib qoladi. | Correct. Numbers from the outer pieces fit, the middle piece drops out. |
-| `audio.mount` | Теперь наоборот. Сначала по ответу назови ноль знаменателя. | Endi teskarisiga. Avval javobga qarab maxraj nolini ayting. | Now the other way round. First name the zero of the denominator from the answer. |
-| `audio.work` | Потом отметь все числа, при которых неравенство верно. | Keyin tengsizlik to'g'ri bo'ladigan barcha sonlarni belgilang. | Then mark every number for which the inequality holds. |
+| `multi.c.hint` | Здесь прямая одна: одного направления мало. | Bu yerda chiziq bitta: bitta yo'nalish kam. | Here there is one line: one direction is not enough. |
+| `multi.d.hint` | Здесь две прямые, но параллельные: направление снова одно. | Bu yerda ikki chiziq, lekin parallel: yo'nalish yana bitta. | Here there are two lines but parallel: again one direction. |
+| `multi.ok` | Верно. Нужны две прямые и обязательно пересекающиеся. | To'g'ri. Ikki chiziq kerak va albatta kesishuvchi. | Correct. Two lines are needed, and they must cross. |
+| `audio.mount` | Теперь наоборот. Сначала ответь про свойство. | Endi teskarisiga. Avval xossa haqida javob bering. | Now the other way round. First answer about the property. |
+| `audio.work` | Потом отметь все записи, из которых вывод следует. | Keyin xulosa kelib chiqadigan barcha yozuvlarni belgilang. | Then mark every writing from which the conclusion follows. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `entry.expr` | `x < −1;  x > 2` |
-| `entry.answer` | `2` |
-| `multi.a` [верно] | `−5` |
-| `multi.b` [верно] | `3` |
-| `multi.c` | `0` |
-| `multi.d` | `2` |
+| `entry.expr` | `a ⊥ α   →   a ⊥ c` |
+| `entry.answer` | `0` |
+| `multi.a` [верно] | `a ⊥ b,  a ⊥ c,  b ∩ c = O` |
+| `multi.b` [верно] | `AA₁ ⊥ AB,  AA₁ ⊥ AD` |
+| `multi.c` | `a ⊥ b,  b ⊂ α` |
+| `multi.d` | `a ⊥ b,  a ⊥ c,  b ∥ c` |
 
 ---
 
-## Экран 14 · `blitz` · ответ `mixed` · формат `chain` · тег `tochku-ne-vykololi`
+## Экран 14 · `blitz` · ответ `mixed` · формат `chain` · тег `odnoy-pryamoy-hvatit`
 
 **Текст**
 
@@ -451,49 +454,49 @@
 |---|---|---|---|
 | `eyebrow` | БЛИЦ | BLITS | QUICK ROUND |
 | `title` | Четыре вопроса подряд | Ketma-ket to'rt savol | Four questions in a row |
-| `q1.prompt` | На сколько участков делят ось два разных числа? | Ikki har xil son o'qni necha bo'lakka bo'ladi? | Into how many pieces do two different numbers cut the axis? |
-| `q1.a` [верно] | на три | uchga | into three |
-| `q1.b` | на два | ikkiga | into two |
-| `q1.b.hint` | Два куска дало бы одно число, а их два. | Ikki bo'lakni bitta son berardi, ular esa ikkita. | Two pieces would come from one number, and there are two. |
-| `q1.c` | на четыре | to'rtga | into four |
-| `q1.c.hint` | Четыре куска дают три числа. | To'rt bo'lakni uch son beradi. | Four pieces come from three numbers. |
-| `q1.d` | на пять | beshga | into five |
-| `q1.d.hint` | Кусков всегда на один больше, чем чисел. | Bo'laklar doim sonlardan bittaga ko'p. | There is always one piece more than there are numbers. |
-| `q2.prompt` | Что делают с точкой, где знаменатель ноль? | Maxraj nol bo'lgan nuqta bilan nima qilinadi? | What is done with the point where the denominator is zero? |
-| `q2.a` [верно] | выкалывают всегда | doim ochiq qoldiriladi | it is always punched out |
-| `q2.b` | включают при нестрогом знаке | qat'iy bo'lmagan ishorada kiritiladi | it is included when the sign is not strict |
-| `q2.b.hint` | Нестрогий знак меняет судьбу нуля числителя, а не знаменателя. | Qat'iy bo'lmagan ishora surat nolining taqdirini o'zgartiradi, maxrajnikini emas. | A non-strict sign changes the fate of the numerator zero, not the denominator one. |
-| `q2.c` | включают всегда | doim kiritiladi | it is always included |
-| `q2.c.hint` | Тогда пришлось бы делить на ноль. | U holda nolga bo'lishga to'g'ri kelardi. | Then you would have to divide by zero. |
-| `q2.d` | зависит от знака числителя | surat ishorasiga bog'liq | it depends on the sign of the numerator |
-| `q2.d.hint` | Числитель на это не влияет вовсе. | Surat bunga umuman ta'sir qilmaydi. | The numerator has no bearing on this at all. |
-| `q3.prompt` | Сколько целых чисел удовлетворяет записи? | Yozuvni nechta butun son qanoatlantiradi? | How many whole numbers satisfy this? |
-| `q3.a` [верно] | четыре | to'rt | four |
-| `q3.a.ok` | Четыре. Это минус один, ноль, один и два. | To'rtta. Bular minus bir, nol, bir va ikki. | Four. They are minus one, zero, one and two. |
-| `q3.b` | пять | besh | five |
-| `q3.b.hint` | Границы не входят, знаки строгие. | Chegaralar kirmaydi, ishoralar qat'iy. | The boundaries are out, the signs are strict. |
-| `q3.c` | три | uch | three |
-| `q3.c.hint` | Не забудь про ноль, он тоже целое число. | Nolni unutmang, u ham butun son. | Do not forget zero, it is a whole number too. |
-| `q3.d` | шесть | olti | six |
-| `q3.d.hint` | Шесть вышло бы, если бы вошли обе границы. | Olti ikkala chegara ham kirganda chiqardi. | Six would come if both boundaries were included. |
-| `q4.prompt` | Можно ли умножить обе части на знаменатель? | Ikkala tarafni maxrajga ko'paytirish mumkinmi? | Can both sides be multiplied by the denominator? |
-| `q4.a` [верно] | нет, знак может перевернуться | yo'q, ishora ag'darilishi mumkin | no, the sign may flip |
-| `q4.b` | да, всегда | ha, doim | yes, always |
-| `q4.b.hint` | Это верно для уравнения, но не для неравенства. | Bu tenglama uchun to'g'ri, tengsizlik uchun emas. | That holds for an equation, not for an inequality. |
-| `q4.c` | да, если знаменатель не ноль | ha, agar maxraj nol bo'lmasa | yes, if the denominator is not zero |
-| `q4.c.hint` | Не ноль, но может быть отрицательным, и этого достаточно. | Nol emas, lekin manfiy bo'lishi mumkin, va bu yetarli. | Not zero, but it can be negative, and that is enough. |
-| `q4.d` | да, если числитель положителен | ha, agar surat musbat bo'lsa | yes, if the numerator is positive |
-| `q4.d.hint` | Числитель тут ни при чём, знак берут у знаменателя. | Suratning bunga aloqasi yo'q, ishora maxrajdan olinadi. | The numerator is not involved, the sign comes from the denominator. |
+| `q1.prompt` | Сколько прямых плоскости требует признак? | Alomat tekislikning nechta chizig'ini talab qiladi? | How many lines of the plane does the criterion require? |
+| `q1.a` [верно] | две пересекающиеся | ikki kesishuvchi | two crossing ones |
+| `q1.b` | одну | bittasini | one |
+| `q1.b.hint` | При одной прямая наклоняется, ты видел это поворотом. | Bittasida chiziq og'adi, buni burilish bilan ko'rdingiz. | With one the line leans, you saw that by rotating. |
+| `q1.c` | две любые | istalgan ikkitasini | any two |
+| `q1.c.hint` | Две параллельные дают одно направление, и этого мало. | Ikki parallel bitta yo'nalish beradi, va bu kam. | Two parallel ones give one direction, and that is not enough. |
+| `q1.d` | все прямые плоскости | tekislikning barcha chiziqlarini | all lines of the plane |
+| `q1.d.hint` | Все проверять не надо, в этом и смысл признака. | Hammasini tekshirish kerak emas, alomatning ma'nosi shunda. | Checking all is not needed, that is the point of the criterion. |
+| `q2.prompt` | Двух параллельных прямых хватает для вывода? | Ikki parallel chiziq xulosa uchun yetadimi? | Are two parallel lines enough for the conclusion? |
+| `q2.a` [верно] | нет, направление у них одно | yo'q, ularning yo'nalishi bitta | no, they have one direction |
+| `q2.b` | да, прямых же две | ha, chiziq ikkita-ku | yes, there are two lines after all |
+| `q2.b.hint` | Считаются направления, а не прямые. | Chiziqlar emas, yo'nalishlar hisoblanadi. | Directions are counted, not lines. |
+| `q2.c` | да, если они далеко друг от друга | ha, agar ular bir-biridan uzoq bo'lsa | yes, if they are far apart |
+| `q2.c.hint` | Расстояние между ними ничего не меняет. | Ular orasidagi masofa hech nimani o'zgartirmaydi. | The distance between them changes nothing. |
+| `q2.d` | это зависит от плоскости | bu tekislikka bog'liq | it depends on the plane |
+| `q2.d.hint` | Плоскость тут ни при чём, дело в направлениях. | Tekislikning bunga aloqasi yo'q, gap yo'nalishlarda. | The plane is not involved, it is about directions. |
+| `q3.prompt` | Сколько общих точек у перпендикуляра и плоскости? | Perpendikulyar va tekislikning nechta umumiy nuqtasi bor? | How many common points do a perpendicular and a plane have? |
+| `q3.a` [верно] | одна | bitta | one |
+| `q3.a.ok` | Одна. Перпендикуляр обязательно пересекает плоскость, и ровно один раз. | Bitta. Perpendikulyar albatta tekislikni kesib o'tadi, va roppa-rosa bir marta. | One. A perpendicular necessarily crosses the plane, exactly once. |
+| `q3.b` | ни одной | bitta ham yo'q | none |
+| `q3.b.hint` | Ни одной было бы у параллельной прямой. | Bitta ham yo'q parallel chiziqda bo'lardi. | None would belong to a parallel line. |
+| `q3.c` | две | ikkita | two |
+| `q3.c.hint` | Две точки затянули бы всю прямую в плоскость. | Ikki nuqta butun chiziqni tekislikka tortardi. | Two points would pull the whole line into the plane. |
+| `q3.d` | бесконечно много | cheksiz ko'p | infinitely many |
+| `q3.d.hint` | Бесконечно много было бы, если прямая лежит в плоскости. | Cheksiz ko'p chiziq tekislikda yotganda bo'lardi. | Infinitely many would happen if the line lay in the plane. |
+| `q4.prompt` | Что нельзя брать вместо признака? | Alomat o'rniga nimani olib bo'lmaydi? | What must not be taken in place of the criterion? |
+| `q4.a` [верно] | свойство перпендикулярной прямой | perpendikulyar chiziq xossasini | the property of a perpendicular line |
+| `q4.b` | вторую пересекающую прямую | ikkinchi kesuvchi chiziqni | a second crossing line |
+| `q4.b.hint` | Как раз её и надо взять: это условие признака. | Aynan uni olish kerak: bu alomatning sharti. | That is exactly what has to be taken: it is a condition of the criterion. |
+| `q4.c` | вторую аксиому | ikkinchi aksiomani | the second axiom |
+| `q4.c.hint` | Аксиома законна всегда, ею пользоваться можно. | Aksioma doim qonuniy, undan foydalanish mumkin. | An axiom is always lawful, it may be used. |
+| `q4.d` | условие задачи | masalaning shartini | the condition of the problem |
+| `q4.d.hint` | С условия доказательство и начинается. | Isbot shartdan boshlanadi. | A proof begins with the condition. |
 | `audio.mount` | Четыре вопроса подряд. Считается первая попытка. | Ketma-ket to'rt savol. Birinchi urinish hisobga olinadi. | Four questions in a row. The first attempt counts. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `q1.done` | `3` |
-| `q2.done` | `g(x) ≠ 0` |
-| `q3.done` | `−2 < x < 3` |
-| `q4.done` | `f(x)/g(x) > 0` |
+| `q1.done` | `b ∩ c = O` |
+| `q2.done` | `b ∥ c` |
+| `q3.done` | `a ∩ α = O` |
+| `q4.done` | `a ⊥ α   →   a ⊥ c` |
 
 ---
 
@@ -505,30 +508,30 @@
 |---|---|---|---|
 | `eyebrow` | ИТОГ | YAKUN | SUMMARY |
 | `title` | Что теперь умеешь | Endi nima qila olasiz | What you can do now |
-| `can.1` | Нахожу нули числителя и знаменателя | Surat va maxraj nollarini topaman | I find the zeros of the numerator and denominator |
-| `can.2` | Размечаю ось и ставлю знак на каждом участке | O'qni belgilab, har bo'lakka ishora qo'yaman | I mark up the axis and put a sign on every piece |
-| `can.3` | Знаю, что на знаменатель умножать нельзя | Maxrajga ko'paytirib bo'lmasligini bilaman | I know you cannot multiply by the denominator |
-| `can.4` | Выкалываю точку, где знаменатель ноль | Maxraj nol bo'lgan nuqtani ochiq qoldiraman | I punch out the point where the denominator is zero |
+| `can.1` | Проверяю две прямые, а не одну | Bitta emas, ikki chiziqni tekshiraman | I check two lines, not one |
+| `can.2` | Смотрю, пересекаются ли они | Ular kesishadimi, qarayman | I look at whether they cross |
+| `can.3` | Различаю признак и свойство | Alomat va xossani ajrataman | I tell the criterion from the property |
+| `can.4` | Не подставляю вывод в условие | Xulosani shart o'rniga qo'ymayman | I do not put the conclusion into the condition |
 | `levels.full` | Этот тип задач закрыт. | Bu turdagi masalalar yopildi. | This type of problem is closed. |
-| `levels.gap` | Одно место требует повтора: знаки на участках. | Bir joy takrorlashni talab qiladi: bo'laklardagi ishoralar. | One spot needs a second look: the signs on the pieces. |
-| `levels.back` | Вернись к правилу и к экрану 5. | Qoidaga va beshinchi ekranga qayting. | Go back to the rule and to screen five. |
-| `bridge` | Дальше логарифмы: выражение надо будет свернуть, прежде чем решать. | Keyin logarifmlar: yechishdan oldin ifodani yig'ish kerak bo'ladi. | Next come logarithms: an expression will have to be folded up before solving. |
-| `lifehack` | Увидел дробь и знак неравенства, сразу ищи нули. Умножать нечего. | Kasr va tengsizlik ishorasini ko'rsangiz, darrov nollarni izlang. Ko'paytiradigan narsa yo'q. | When you see a fraction and an inequality sign, look for the zeros right away. There is nothing to multiply. |
-| `sheetTitle` | Рациональные неравенства · шпаргалка | Ratsional tengsizliklar · shpargalka | Rational inequalities · cheat sheet |
-| `sheetSrc` | 10 класс · урок 33 | 10-sinf · 33-dars | Grade 10 · lesson 33 |
-| `audio.mount` | Прогноз был про один кусок и два. Посмотрим, что вышло. | Taxmin bitta va ikki bo'lak haqida edi. Nima chiqqanini ko'ramiz. | The guess was about one piece and two. Let us see how it turned out. |
-| `audio.next` | Ответ из двух кусков. Умножение на знаменатель склеило их в один и потеряло половину. | Javob ikki bo'lakdan. Maxrajga ko'paytirish ularni bittaga yopishtirib, yarmini yo'qotgan. | The answer has two pieces. Multiplying by the denominator glued them into one and lost half of it. |
+| `levels.gap` | Одно место требует повтора: почему параллельных недостаточно. | Bir joy takrorlashni talab qiladi: nega parallellar yetarli emas. | One spot needs a second look: why parallel lines are not enough. |
+| `levels.back` | Вернись к правилу и к экрану 6. | Qoidaga va oltinchi ekranga qayting. | Go back to the rule and to screen six. |
+| `bridge` | Дальше угол прямой с плоскостью: там понадобится проекция. | Keyin chiziq va tekislik orasidagi burchak: u yerda proyeksiya kerak bo'ladi. | Next comes the angle between a line and a plane: there a projection will be needed. |
+| `lifehack` | Считай не прямые, а направления. Две параллельные это одно направление. | Chiziqlarni emas, yo'nalishlarni sanang. Ikki parallel bu bitta yo'nalish. | Count directions, not lines. Two parallel lines are one direction. |
+| `sheetTitle` | Перпендикулярность · шпаргалка | Perpendikulyarlik · shpargalka | Perpendicularity · cheat sheet |
+| `sheetSrc` | 10 класс · урок 40 | 10-sinf · 40-dars | Grade 10 · lesson 40 |
+| `audio.mount` | Прогноз был про одну прямую. Посмотрим, что вышло. | Taxmin bitta chiziq haqida edi. Nima chiqqanini ko'ramiz. | The guess was about one line. Let us see how it turned out. |
+| `audio.next` | Одной мало. Нужны две, и обязательно пересекающиеся: два направления вместо одного. | Bittasi kam. Ikkita kerak, va albatta kesishuvchi: bitta o'rniga ikki yo'nalish. | One is not enough. Two are needed, and they must cross: two directions instead of one. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `hook.a` | `x > −1` |
-| `hook.b` | `x < −1;  x > 2` |
-| `proved` | `x < −1;  x > 2` |
-| `law` | `f(x)/g(x) > 0,   g(x) ≠ 0` |
-| `sheet.1` | `f(x) = 0` |
-| `sheet.2` | `g(x) = 0` |
-| `sheet.3` | `(−)/(−) = (+)` |
-| `sheet.4` | `(+)/(−) = (−)` |
-| `sheet.5` | `x < −1;  x > 2` |
+| `hook.a` | `a ⊥ α` |
+| `hook.b` | `a ⊥ α  ?` |
+| `proved` | `b ∩ c = O` |
+| `law` | `a ⊥ b,  a ⊥ c,  b ∩ c = O   →   a ⊥ α` |
+| `sheet.1` | `a ⊥ b,   b ⊂ α` |
+| `sheet.2` | `a ⊥ c,   c ⊂ α` |
+| `sheet.3` | `b ∩ c = O` |
+| `sheet.4` | `a ⊥ α` |
+| `sheet.5` | `a ∩ α = O` |

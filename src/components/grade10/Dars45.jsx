@@ -4,8 +4,8 @@
 // Bu fayl `scripts/grade10-kontent-build.mjs` bilan yasalgan:
 //   manba:  src/books/grade10/DARS45_KONTENT.md
 // Ma'lumot (ovoz, kadrlar, variantlar, razborlar, qoida, yakun) tayyor.
-// EKRAN TANALARI esa `TODO` bo'lib qoldi: asbob va figurani tanlash --
-// matematik qaror, va u avtomatlashtirilmaydi (etalon §5.3).
+// Ekran tanalari qo'lda yozilgan: asbob va figurani tanlash matematik qaror,
+// va u avtomatlashtirilmaydi (etalon §5.3).
 //
 // Tartib: tanalarni to'ldirish, keyin `grade10-lesson-audit.mjs`, keyin
 // tez yarus (2 o'lcham), keyin to'liq prognon. Har yangi figura oldin
@@ -38,98 +38,98 @@ import {
   SpinScene,
 } from './tools.jsx'
 
-import { Space } from './figures.jsx'
+import { Space3D } from './space.jsx'
 
 // Метка урока: `lesson_id` = grade10-<номер>, `lesson_name` = номер + тема
 // ИЗ ПЛАНА дословно.
 const LESSON_NO = 45
 const LESSON_ID = `grade10-${String(LESSON_NO).padStart(2, '0')}`
 const LESSON_TITLE = L(
-  `${LESSON_NO}-dars. Parallelepiped`,
-  `Урок ${LESSON_NO}. Параллелепипед`,
-  `Lesson ${LESSON_NO}. The parallelepiped`,
+  `${LESSON_NO}-dars. Vektorlar ustida amallar`,
+  `Урок ${LESSON_NO}. Действия с векторами`,
+  `Lesson ${LESSON_NO}. Operations on vectors`,
 )
 
-const BLOCK = { label: 'B7', from: 44, to: 49, current: 45 }
+const BLOCK = { label: 'B8', from: 43, to: 47, current: 45 }
 
 const S1 = {
   role: 'hook',
   answer: 'pick4',
-  eyebrow: L('DIAGONAL', 'ДИАГОНАЛЬ', 'THE DIAGONAL'),
-  title: L("Ikki o'lcham yoki uch", 'Два измерения или три', 'Two dimensions or three'),
+  eyebrow: L('AMALLAR', 'ДЕЙСТВИЯ', 'OPERATIONS'),
+  title: L('Ayirma qayerga qaraydi', 'Куда смотрит разность', 'Where the difference points'),
   audio: [
-    A('mount', "To'g'ri burchakli parallelepiped. Bir uchdan qarama-qarshi uchga diagonal o'tkazilgan.", 'Прямоугольный параллелепипед. Из одной вершины проведена диагональ в противоположную вершину.', 'A rectangular box. From one vertex a diagonal is drawn to the opposite vertex.'),
-    A('r1', "Birinchi yozuv ikki o'lchamni oladi.", 'Первая запись берёт два измерения.', 'The first reading takes two dimensions.'),
-    A('r2', 'Ikkinchisi uchtasini oladi.', 'Вторая берёт три.', 'The second takes three.'),
-    A('ask', "Chizmada diagonal yoq diagonaliga o'xshaydi. Sizningcha qaysi yozuv to'g'ri?", 'На чертеже диагональ похожа на диагональ грани. Как думаешь, какая запись верная?', 'On the drawing the diagonal looks like a face diagonal. Which reading do you think is right?'),
+    A('mount', 'Ikki vektor bir nuqtadan chiqarilgan. Ularning ayirmasini, a minus b ni qidiramiz.', 'Два вектора выпущены из одной точки. Ищем их разность, a минус b.', 'Two vectors are drawn from one point. We look for their difference, a minus b.'),
+    A('r1', 'Birinchi yozuvda strelka b oxiridan a oxiriga.', 'В первой записи стрелка из конца b в конец a.', 'In the first reading the arrow is from the end of b to the end of a.'),
+    A('r2', 'Ikkinchisida teskarisiga.', 'Во второй наоборот.', 'In the second it is the other way.'),
+    A('ask', "Ikki strelka ham bir to'g'ri chiziqda yotadi, va ko'z bilan ular bir xil. Sizningcha qaysi yozuv to'g'ri?", 'Обе стрелки лежат на одной прямой, и на глаз они одинаковые. Как думаешь, какая запись верная?', 'Both arrows lie on one line, and by eye they look the same. Which reading do you think is right?'),
   ],
   probe: {
     question: L("Qaysi yozuv to'g'ri?", 'Какая запись верна?', 'Which reading is correct?'),
-    afterPredict: L('Javobingiz yozib olindi. Endi jismni buramiz.', 'Твой ответ записан. Сейчас повернём тело.', 'Your answer is recorded. Now we rotate the body.'),
+    afterPredict: L('Javobingiz yozib olindi. Endi ayirmani yasaymiz.', 'Твой ответ записан. Сейчас построим разность.', 'Your answer is recorded. Now we build the difference.'),
     items: [
-      { id: 'a', label: L('birinchi', 'первая', 'the first') },
-      { id: 'b', label: L('ikkinchi', 'вторая', 'the second'), correct: true },
+      { id: 'a', label: L('birinchi', 'первая', 'the first'), correct: true },
+      { id: 'b', label: L('ikkinchi', 'вторая', 'the second') },
       { id: 'both', label: L('ikkisi ham', 'обе', 'both') },
       { id: 'none', label: L('hech qaysi', 'ни одна', 'neither') },
     ],
   },
   row: {
     a: {
-      name: L('ikki', 'два', 'two'),
-      value: 'd² = a² + b²',
+      name: L('b oxiridan a oxiriga', 'из конца b в конец a', 'from the end of b to the end of a'),
+      value: '(3; 4; 0)',
     },
     b: {
-      name: L('uch', 'три', 'three'),
-      value: 'd² = a² + b² + c²',
+      name: L('a oxiridan b oxiriga', 'из конца a в конец b', 'from the end of a to the end of b'),
+      value: '(−3; −4; 0)',
     },
   },
-  expr: 'AC₁',
+  expr: 'a (4; 4; 2),   b (1; 0; 2)',
 }
 
 const S2 = {
   role: 'support',
   answer: 'pick4',
   eyebrow: L('TAYANCH', 'ОПОРА', 'WHAT YOU KNOW'),
-  title: L("O'tgan darsdan uch savol", 'Три вопроса из прошлого урока', 'Three questions from the last lesson'),
+  title: L('Kursdan uch savol', 'Три вопроса из курса', 'Three questions from the course'),
   tag: 'support',
   audio: [
-    A('mount', 'Prizma haqida uch savol. Parallelepiped uning xususiy holi.', 'Три вопроса про призму. Параллелепипед это её частный случай.', 'Three questions about the prism. A parallelepiped is its special case.'),
+    A('mount', "Uchta savol. Darsning qoidasi birinchi va ikkinchidan yig'iladi.", 'Три вопроса. Правило урока соберётся из первого и второго.', 'Three questions. The rule of the lesson will be assembled from the first and the second.'),
   ],
   items: [
     {
       id: 'q1',
       ask: true,
-      prompt: L('Prizmaning asoslari nima?', 'Что такое основания призмы?', 'What are the bases of a prism?'),
-      done: 'ABC = A₁B₁C₁',
+      prompt: L("Uchburchak qoidasi bo'yicha vektorlar qanday qo'shiladi?", 'Как складывают векторы по правилу треугольника?', 'How are vectors added by the triangle rule?'),
+      done: 'a + b',
       items: [
-        { id: 'a', label: L('ikki teng yoq', 'две равные грани', 'two equal faces'), correct: true },
-        { id: 'b', label: L('ikki pastdagi yoq', 'две нижние грани', 'the two lower faces'), hint: L("Past chizmaga bog'liq, asoslar esa yo'q.", 'Низ зависит от чертежа, а основания нет.', 'The bottom depends on the drawing, the bases do not.') },
-        { id: 'c', label: L('barcha parallelogrammlar', 'все параллелограммы', 'all the parallelograms'), hint: L('Parallelogrammlar yon yoqlar.', 'Параллелограммы это боковые грани.', 'The parallelograms are the lateral faces.') },
-        { id: 'd', label: L('eng katta yoqlar', 'самые большие грани', 'the biggest faces'), hint: L("O'lcham bu yerda hech narsani hal qilmaydi.", 'Размер тут ничего не решает.', 'Size decides nothing here.') },
+        { id: 'a', label: L("ikkinchisining boshi birinchisining oxiriga qo'yiladi", 'начало второго ставят в конец первого', 'the start of the second is placed at the end of the first'), correct: true },
+        { id: 'b', label: L("ikkisi ham bir nuqtadan qo'yiladi", 'оба ставят из одной точки', 'both are placed from one point'), hint: L('Bir nuqtadan bu parallelogramm qoidasi.', 'Из одной точки это правило параллелограмма.', 'From one point that is the parallelogram rule.') },
+        { id: 'c', label: L("uzunliklari qo'shiladi", 'складывают их длины', 'their lengths are added'), hint: L("Uzunliklar faqat bir yo'nalishdagilarda qo'shiladi.", 'Длины складываются только у сонаправленных.', 'Lengths add only for vectors of the same direction.') },
+        { id: 'd', label: L('ikkitasidan kattasi olinadi', 'берут наибольший из двух', 'the larger of the two is taken'), hint: L("Yig'indi qo'shiluvchilar orasidan tanlamaydi.", 'Сумма не выбирает между слагаемыми.', 'A sum does not choose between the terms.') },
       ],
     },
     {
       id: 'q2',
       ask: true,
-      prompt: L('Bitta qirrada nechta yoq tutashadi?', 'Сколько граней сходится в одном ребре?', 'How many faces meet at one edge?'),
-      done: '2',
+      prompt: L("Ikkiga ko'paytirish nima qiladi?", 'Что делает умножение на два?', 'What does multiplying by two do?'),
+      done: '2a',
       items: [
-        { id: 'a', label: L('ikkita', 'две', 'two'), correct: true },
-        { id: 'b', label: L('bitta', 'одна', 'one'), hint: L('Bitta yoq shunchaki tomon berardi.', 'Одна грань дала бы просто сторону.', 'One face would give just a side.') },
-        { id: 'c', label: L('uchta', 'три', 'three'), hint: L('Uchtasi uchda tutashadi.', 'Три сходятся в вершине.', 'Three meet at a vertex.') },
-        { id: 'd', label: L("to'rtta", 'четыре', 'four'), hint: L("To'rtta na qirrada, na kubning uchida tutashadi.", 'Четыре не сходятся ни в ребре, ни в вершине куба.', 'Four meet neither at an edge nor at a vertex of a cube.') },
+        { id: 'a', label: L("ikki barobar uzaytiradi, yo'nalish o'sha", 'удлиняет вдвое, направление то же', 'doubles the length, the direction is the same'), correct: true },
+        { id: 'b', label: L('vektorni buradi', 'поворачивает вектор', 'turns the vector'), hint: L("Songa ko'paytirishda burilish yo'q.", 'Поворота при умножении на число нет.', 'There is no turn when multiplying by a number.') },
+        { id: 'c', label: L("faqat birinchi sonni o'zgartiradi", 'меняет только первое число', 'changes only the first number'), hint: L("Ko'paytuvchi uch sonning hammasiga o'tadi.", 'Множитель проходит по всем трём числам.', 'The factor goes through all three numbers.') },
+        { id: 'd', label: L('ikki barobar uzaytiradi va teskari buradi', 'удлиняет вдвое и разворачивает', 'doubles the length and reverses it'), hint: L("Manfiy ko'paytuvchi teskari buradi.", 'Разворачивает отрицательный множитель.', 'A negative factor reverses it.') },
       ],
     },
     {
       id: 'q3',
       ask: true,
-      prompt: L("Prizma qachon to'g'ri?", 'Когда призма прямая?', 'When is a prism right?'),
-      done: 'AA₁ ⊥ ABCD',
+      prompt: L("Vektor va qarama-qarshining yig'indisi nimaga teng?", 'Чему равна сумма вектора и противоположного?', 'What does a vector plus its opposite equal?'),
+      done: 'a + (−a) = 0',
       items: [
-        { id: 'a', label: L('yon qirra asosga perpendikulyar', 'боковое ребро перпендикулярно основанию', 'the lateral edge is perpendicular to the base'), correct: true },
-        { id: 'b', label: L('asos muntazam', 'основание правильное', 'the base is regular'), hint: L('Bu muntazam prizmaning sharti.', 'Это условие правильной призмы.', 'That is the condition of a regular prism.') },
-        { id: 'c', label: L('barcha qirralar teng', 'все рёбра равны', 'all edges are equal'), hint: L('Bu kubda ham doim shunday emas.', 'Это даже у куба не всегда так.', 'Even for a box that is not always so.') },
-        { id: 'd', label: L('asosda turadi', 'стоит на основании', 'it stands on its base'), hint: L("Chizmada qanday turgani ishga aloqasi yo'q.", 'Как стоит на чертеже, к делу не относится.', 'How it stands on the drawing is irrelevant.') },
+        { id: 'a', label: L('nol vektorga', 'нулевому вектору', 'the zero vector'), correct: true },
+        { id: 'b', label: L('ikkilangan vektorga', 'удвоенному вектору', 'the doubled vector'), hint: L("Ikkilanish o'zi bilan qo'shganda chiqadi.", 'Удвоение выйдет при сложении с самим собой.', 'Doubling comes from adding it to itself.') },
+        { id: 'c', label: L("o'sha uzunlikdagi vektorga", 'вектору той же длины', 'a vector of the same length'), hint: L("Natijaning uzunligi nol, o'sha emas.", 'Длина результата ноль, а не та же.', 'The length of the result is zero, not the same.') },
+        { id: 'd', label: L("hech nimaga, bunday qo'shib bo'lmaydi", 'ничему, так складывать нельзя', 'nothing, such an addition is not allowed'), hint: L("Ixtiyoriy ikki vektorni qo'shish mumkin.", 'Складывать можно любые два вектора.', 'Any two vectors may be added.') },
       ],
     },
   ],
@@ -139,203 +139,203 @@ const S3 = {
   role: 'explain1',
   answer: 'number',
   eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L('Barcha olti yoq parallelogramm', 'Все шесть граней параллелограммы', 'All six faces are parallelograms'),
-  tag: 'kartinka-kak-dokazatelstvo',
+  title: L("O'qlar bo'yicha qo'shamiz", 'Складываем по осям', 'We add along the axes'),
+  tag: 'ayirma-tartibi',
   show: [
     [
-      L('asosda parallelogramm', 'в основании параллелограмм', 'there is a parallelogram in the base'),
-      L('bu prizma, demak yonlari ham', 'это призма, значит боковые тоже', 'this is a prism, so the lateral ones too'),
+      L('a vektori va b vektori', 'вектор a и вектор b', 'the vector a and the vector b'),
+      L("b boshi a oxiriga qo'yildi", 'начало b поставили в конец a', 'the start of b was placed at the end of a'),
     ],
     [
-      L('buring va yoqlarga qarang', 'поверни и посмотри на грани', 'rotate it and look at the faces'),
-      L('har birida parallelogramm', 'параллелограмм в каждой', 'a parallelogram in each of them'),
+      L('a boshidan b oxirigacha strelka', 'стрелка от начала a до конца b', 'an arrow from the start of a to the end of b'),
+      L("bu yig'indi, besh to'rt to'rt", 'это сумма, пять четыре четыре', 'this is the sum, five four four'),
     ],
   ],
   motion: ['move'],
   audio: [
-    A('mount', "Asosi istalgan ko'pburchak emas, parallelogramm bo'lgan prizmani olamiz.", 'Возьмём призму, у которой основание не любой многоугольник, а параллелограмм.', 'Take a prism whose base is not any polygon but a parallelogram.'),
-    A('move', "Bunday prizma parallelepiped deb nomlanadi. Qirq beshinchi betda shunday. Bundan nima kelib chiqishiga qarang. Asoslar shartga ko'ra parallelogramm, yon yoqlar esa prizma bo'lgani uchun parallelogramm. Demak barcha olti yoq parallelogramm, va parallelepipedda alohida yoq yo'q. Jismni buring va tekshiring. Qarama-qarshi yoqlarning har juftligi asos bo'lishga yaraydi, va jism bundan o'zgarmaydi. Oddiy prizmada bunday chiqmagan edi, chunki u yerda asoslar alohida.", 'Такая призма называется параллелепипедом. Так на странице сорок пять. Смотри, что из этого следует. Основания параллелограммы по условию, боковые грани параллелограммы потому что это призма. Значит все шесть граней параллелограммы, и особых граней у параллелепипеда нет. Поверни тело и проверь. Любая пара противоположных граней годится на роль основания, и тело от этого не меняется. У обычной призмы так не выходило, потому что основания там особые.', 'Such a prism is called a parallelepiped. So it is on page forty five. See what follows. The bases are parallelograms by the condition, the lateral faces are parallelograms because this is a prism. So all six faces are parallelograms and a parallelepiped has no special faces. Rotate the body and check. Any pair of opposite faces will do as the bases, and the body does not change. For an ordinary prism that did not work, because there the bases are special.'),
-    A('work', "O'zingiz hisoblang. Parallelepipedning nechta yog'i bor?", 'Посчитай сам. Сколько граней у параллелепипеда?', 'Work it out yourself. How many faces does a parallelepiped have?'),
+    A('mount', "Ikki vektor, va ikkinchisining boshini birinchisining oxiriga qo'ydim.", 'Два вектора, и второй я поставил началом в конец первого.', 'Two vectors, and I placed the start of the second at the end of the first.'),
+    A('move', "Yopuvchi strelka birinchisining boshidan ikkinchisining oxirigacha boradi, va bu yig'indi. Koordinatalarda hammasi chizmadagidan oddiy: har o'q bo'yicha alohida qo'shish kerak. To'rt qo'shuv bir besh beradi, to'rt qo'shuv nol to'rt beradi, ikki qo'shuv ikki to'rt beradi. Yig'indi besh to'rt to'rt. O'qlar bo'yicha mustaqil qo'shish nega mumkin: har vektor siljish, va bir o'q bo'yicha ketma-ket ikki siljish shunchaki qo'shiladi, boshqa o'qlar bunga ta'sir qilmaydi. E'tibor bering, yig'indi tartibga bog'liq emas: avval b ni, keyin a ni qo'ying, va yopuvchi strelka o'sha nuqtaga keladi.", 'Замыкающая стрелка идёт от начала первого до конца второго, и это сумма. В координатах всё проще, чем на чертеже: складывать надо по каждой оси отдельно. Четыре плюс один даёт пять, четыре плюс нуль даёт четыре, два плюс два даёт четыре. Сумма пять четыре четыре. Почему по осям можно складывать независимо: каждый вектор это сдвиг, а два сдвига подряд по одной оси просто складываются, и другие оси на это не влияют. Обрати внимание, что от порядка сумма не зависит: поставь сначала b, потом a, и замыкающая стрелка придёт в ту же точку.', 'The closing arrow goes from the start of the first to the end of the second, and that is the sum. In coordinates everything is simpler than on the drawing: you add along each axis separately. Four plus one gives five, four plus zero gives four, two plus two gives four. The sum is five four four. Why the axes may be added independently: every vector is a shift, and two shifts in a row along one axis simply add up, and the other axes do not affect it. Note that the sum does not depend on the order: place b first and a second, and the closing arrow arrives at the same point.'),
+    A('work', "O'zingiz hisoblang. Yig'indining ikkinchi soni qanday?", 'Посчитай сам. Какое второе число у суммы?', 'Work it out yourself. What is the second number of the sum?'),
   ],
   work: {
-    prompt: L('Nechta yoq?', 'Сколько граней?', 'How many faces?'),
-    ok: L("Oltita. Asos to'rtburchak, demak yoqlar to'rt qo'shuv ikki.", 'Шесть. Основание четырёхугольник, значит граней четыре плюс два.', 'Six. The base is a quadrilateral, so the faces are four plus two.'),
+    prompt: L("Yig'indining ikkinchi soni?", 'Второе число суммы?', 'The second number of the sum?'),
+    ok: L("To'rt. To'rt qo'shuv nol.", 'Четыре. Четыре плюс нуль.', 'Four. Four plus zero.'),
     hint: [
-      L("O'tgan darsdagi n qo'shuv ikki qoidasini eslang.", 'Вспомни правило из прошлого урока про n плюс два.', 'Recall the rule from the last lesson about n plus two.'),
-      L("Asosda to'rt tomon.", 'У основания четыре стороны.', 'The base has four sides.'),
-      L("To'rt qo'shuv ikki.", 'Четыре плюс два.', 'Four plus two.'),
+      L("Ikkinchi o'q bo'yicha qo'shing.", 'Складывай по второй оси.', 'Add along the second axis.'),
+      L('b da u yerda nol.', 'У b там нуль.', 'b has zero there.'),
+      L("To'rt.", 'Четыре.', 'Four.'),
     ],
-    answer: '6',
+    answer: '4',
   },
-  expr: '4 + 2 = 6',
+  expr: 'a + b = (5; 4; 4)',
 }
 
 const S4 = {
   role: 'explain2',
   answer: 'number',
-  eyebrow: L('FARQLASH', 'РАЗГРАНИЧЕНИЕ', 'TELLING THEM APART'),
-  title: L("To'g'ri va to'g'ri burchakli", 'Прямой и прямоугольный', 'Right and rectangular'),
-  tag: 'svoystvo-vmesto-priznaka',
+  eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
+  title: L('Ikki qoida, bitta javob', 'Два правила, один ответ', 'Two rules, one answer'),
+  tag: 'ayirma-tartibi',
   show: [
     [
-      L("yon qirra perpendikulyar bo'ldi", 'боковое ребро встало перпендикулярно', 'the lateral edge stood perpendicular'),
-      L("yon yoqlar to'g'ri to'rtburchak bo'ldi", 'боковые грани стали прямоугольниками', 'the lateral faces became rectangles'),
+      L('uchburchak qoidasi', 'правило треугольника', 'the triangle rule'),
+      L("yig'indi besh to'rt to'rt", 'сумма пять четыре четыре', 'the sum is five four four'),
     ],
     [
-      L("asos ham to'g'ri to'rtburchak bo'ldi", 'основание тоже стало прямоугольником', 'the base became a rectangle too'),
-      L("endi oltitasi ham to'g'ri to'rtburchak", 'теперь все шесть прямоугольники', 'now all six are rectangles'),
+      L('parallelogramm qoidasi', 'правило параллелограмма', 'the parallelogram rule'),
+      L("yig'indi o'sha", 'сумма та же самая', 'the sum is the same'),
     ],
   ],
   motion: ['move'],
   audio: [
-    A('mount', "Yon qirrani asosga perpendikulyar qo'yamiz. Bunday parallelepiped to'g'ri deb ataladi.", 'Поставим боковое ребро перпендикулярно основанию. Такой параллелепипед называется прямым.', 'Let us set the lateral edge perpendicular to the base. Such a parallelepiped is called right.'),
-    A('move', "To'g'ri parallelepipedning yon yoqlari to'g'ri to'rtburchak, asos esa qanday bo'lsa shunday qoladi, ya'ni parallelogramm. Endi asosni ham to'g'ri to'rtburchak qilamiz. Bunday parallelepiped to'g'ri burchakli deb ataladi, va unda oltita yoqning hammasi to'g'ri to'rtburchak. To'g'ri va to'g'ri burchakli orasidagi farq aynan asosda, va bu prizmadagi to'g'ri va muntazam farqining o'zi. Qirra haqidagi shart va asos haqidagi shart mustaqil, va ikkalasini ham tekshirish kerak.", 'У прямого параллелепипеда боковые грани прямоугольники, а вот основание остаётся каким было, то есть параллелограммом. Теперь сделаем прямоугольником и основание. Такой параллелепипед называется прямоугольным, и у него прямоугольники все шесть граней. Разница между прямым и прямоугольным ровно в основании, и это то же различение, что было у призмы между прямой и правильной. Условие про ребро и условие про основание независимы, и проверять надо оба.', 'In a right parallelepiped the lateral faces are rectangles, while the base stays what it was, a parallelogram. Now let us make the base a rectangle as well. Such a parallelepiped is called rectangular, and all six of its faces are rectangles. The difference between right and rectangular is exactly in the base, and that is the same distinction the prism had between right and regular. The condition about the edge and the condition about the base are independent and both have to be checked.'),
-    A('work', "O'zingiz hisoblang. To'g'ri burchakli parallelepiped yoqlari orasida nechta to'g'ri to'rtburchak bor?", 'Посчитай сам. Сколько прямоугольников среди граней прямоугольного параллелепипеда?', 'Work it out yourself. How many rectangles are among the faces of a rectangular box?'),
+    A('mount', "O'sha yig'indini ikkinchi usul bilan yig'aman: ikki vektor ham bir nuqtadan.", 'Соберу ту же сумму вторым способом: оба вектора из одной точки.', 'Let me collect the same sum in the second way: both vectors from one point.'),
+    A('move', "Parallelogrammni to'ldiraman, va yig'indi uning umumiy boshdan chiqqan diagonali. Uchlik o'sha chiqdi, besh to'rt to'rt, va bu tasodif emas: parallelogramm va uchburchak bir xil chizma, faqat ikkinchi holda ikkinchi vektor ko'chirilgan. Vektorni ko'chirish esa uni o'zgartirmaydi, bu o'tgan darsning qoidasi. Demak qoidani tanlash qulaylikni tanlash, javobni tanlash emas. Vektorlar ko'p bo'lib zanjir bo'lib ketsa, uchburchak qulayroq. Ikkisi ham bir nuqtadan chiqarilgan bo'lsa, parallelogramm qulayroq, va ayirma uchun aynan u kerak bo'ladi.", 'Достраиваю параллелограмм, и сумма это его диагональ из общего начала. Тройка получилась та же, пять четыре четыре, и это не совпадение: параллелограмм и треугольник это один и тот же чертёж, только во втором случае второй вектор перенесён. А перенос вектора его не меняет, это правило прошлого урока. Значит выбор правила это выбор удобства, а не выбор ответа. Треугольник удобнее, когда векторов много и они идут цепочкой. Параллелограмм удобнее, когда оба выпущены из одной точки, и именно он понадобится для разности.', 'I complete the parallelogram, and the sum is its diagonal from the common start. The triple came out the same, five four four, and that is no coincidence: the parallelogram and the triangle are one and the same drawing, only in the second case the second vector has been shifted. And shifting a vector does not change it, that is the rule of the previous lesson. So the choice of rule is a choice of convenience, not a choice of answer. The triangle is handier when there are many vectors going in a chain. The parallelogram is handier when both are drawn from one point, and it is exactly the one needed for the difference.'),
+    A('work', "O'zingiz hisoblang. Ikki qoida nechta xil javob beradi?", 'Посчитай сам. Сколько разных ответов дают два правила?', 'Work it out yourself. How many different answers do the two rules give?'),
   ],
   work: {
-    prompt: L("Nechta to'g'ri to'rtburchak?", 'Сколько прямоугольников?', 'How many rectangles?'),
-    ok: L('Oltita. Asoslar ham, yon yoqlar ham.', 'Шесть. И основания, и боковые грани.', 'Six. Both the bases and the lateral faces.'),
+    prompt: L('Nechta xil javob?', 'Сколько разных ответов?', 'How many different answers?'),
+    ok: L("Bitta. Qoidalar boshqa, yig'indi bitta.", 'Один. Правила разные, сумма одна.', 'One. The rules differ, the sum is one.'),
     hint: [
-      L('Asoslarni va yonlarni alohida sanang.', 'Посчитай отдельно основания и боковые.', 'Count the bases and the lateral faces separately.'),
-      L("Asoslar ikkita, yonlari to'rtta.", 'Оснований два, боковых четыре.', 'Two bases, four lateral faces.'),
-      L("Ikki qo'shuv to'rt.", 'Два плюс четыре.', 'Two plus four.'),
+      L('Uchliklarni taqqoslang, chizmalarni emas.', 'Сравни тройки, а не чертежи.', 'Compare the triples, not the drawings.'),
+      L("Ikkisi ham besh to'rt to'rt berdi.", 'Обе дали пять четыре четыре.', 'Both gave five four four.'),
+      L('Bitta.', 'Один.', 'One.'),
     ],
-    answer: '6',
+    answer: '1',
   },
-  expr: 'AA₁ ⊥ ABCD,   ABCD = ▭',
+  expr: 'a + b = b + a',
 }
 
 const S5 = {
   role: 'explain3',
   answer: 'number',
   eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L("Uch o'lcham va kub", 'Три измерения и куб', 'Three dimensions and the cube'),
-  tag: 'svoystvo-vmesto-priznaka',
+  title: L("Ayirma qarama-qarshi bilan yig'indi", 'Разность это сумма с противоположным', 'A difference is a sum with the opposite'),
+  tag: 'ayirma-tartibi',
   show: [
     [
-      L('bir uchdan uch qirra chiqadi', 'из одной вершины выходят три ребра', 'three edges leave one vertex'),
-      L("ularning uzunliklari o'lchamlar", 'их длины это измерения', 'their lengths are the dimensions'),
+      L('b vektori teskari burildi', 'развернули вектор b', 'the vector b was reversed'),
+      L("va a ga qo'shildi", 'и прибавили к a', 'and added to a'),
     ],
     [
-      L("o'lchamlar teng qilindi", 'измерения сделали равными', 'the dimensions were made equal'),
-      L('kub chiqdi', 'получился куб', 'a cube came out'),
+      L('b oxiridan a oxiriga strelka', 'стрелка из конца b в конец a', 'an arrow from the end of b to the end of a'),
+      L("ayirma uch to'rt nol", 'разность три четыре нуль', 'the difference is three four zero'),
     ],
   ],
   motion: ['move'],
   audio: [
-    A('mount', "To'g'ri burchakli parallelepipedda har uchdan uch qirra chiqadi. Ularning uzunliklari o'lchamlar deb ataladi.", 'В прямоугольном параллелепипеде из каждой вершины выходят три ребра. Их длины называются измерениями.', 'In a rectangular box three edges leave each vertex. Their lengths are called the dimensions.'),
-    A('move', "O'lchamlar roppa-rosa uchta, va ular jismni butunlay belgilaydi. Qirq beshinchi betda shunday. Uchalasini teng qilamiz. Barcha qirralari teng va barcha yoqlari kvadrat bo'lgan jism chiqadi, va u kub deb nomlanadi. Kub o'lchamlari teng bo'lgan to'g'ri burchakli parallelepiped, ya'ni xususiy hol, alohida shakl emas. Kubni buring va har qanday uchdan manzara bir xil ekaniga ishonch hosil qiling. Aynan shuning uchun kub bunday qulay misol, va biz undan tekisliklar bloki bo'ylab foydalandik.", 'Измерений ровно три, и они задают тело целиком. Так на странице сорок пять. Сделаем все три равными. Получится тело, у которого все рёбра равны и все грани квадраты, и оно называется кубом. Куб это прямоугольный параллелепипед с равными измерениями, то есть частный случай, а не отдельная фигура. Поверни куб и убедись, что из любой вершины картина одна и та же. Именно поэтому куб такой удобный пример, и мы им пользовались весь блок про плоскости.', 'There are exactly three dimensions and they fix the whole body. So it is on page forty five. Let us make all three equal. We get a body with all edges equal and all faces squares, and it is called a cube. A cube is a rectangular box with equal dimensions, that is a special case rather than a separate figure. Rotate the cube and see that the picture is the same from any vertex. That is exactly why a cube is such a convenient example, and we used it throughout the block about planes.'),
-    A('work', "O'zingiz hisoblang. Kubning nechta xil o'lchami bor?", 'Посчитай сам. Сколько разных измерений у куба?', 'Work it out yourself. How many different dimensions does a cube have?'),
+    A('mount', "Ayirma yangi amal emas. b ni teskari buraman va a bilan qo'shaman.", 'Разность не новое действие. Разворачиваю b и складываю с a.', 'A difference is not a new operation. I reverse b and add it to a.'),
+    A('move', "Koordinatalarda bu har o'q bo'yicha ayirish: to'rt minus bir uch beradi, to'rt minus nol to'rt beradi, ikki minus ikki nol beradi. Ayirma uch to'rt nol. Chizmada esa u boshqacha ko'rinadi, va bu darsning eng foydali joyi. Ikki vektor ham bir nuqtadan chiqarilgan bo'lsa, a minus b ayirmasi b oxiridan a oxiriga strelka. Tekshirish oson: b oxiridan a oxiriga yuring, va siz haqiqatan b bo'ylab orqaga qaytasiz, keyin a bo'ylab yurasiz. Tartib bu yerda hammasini hal qiladi. Harflarni almashtiring, va strelka teskari buriladi, uch son esa ishorani o'zgartiradi. Uzunlik esa o'zgarmaydi, shuning uchun tartibdagi xatoni uzunlik bilan ushlab bo'lmaydi.", 'В координатах это вычитание по каждой оси: четыре минус один даёт три, четыре минус нуль даёт четыре, два минус два даёт нуль. Разность три четыре нуль. А на чертеже она видна иначе, и это самое полезное место урока. Если оба вектора выпущены из одной точки, разность a минус b это стрелка из конца b в конец a. Проверить легко: пройди от конца b в конец a, и ты действительно вернёшься по b назад, а потом пройдёшь по a. Порядок здесь решает всё. Переставь буквы, и стрелка развернётся, а все три числа сменят знак. Длина при этом не изменится, и потому по длине ошибку в порядке не поймать.', 'In coordinates that is a subtraction along each axis: four minus one gives three, four minus zero gives four, two minus two gives zero. The difference is three four zero. On the drawing it is seen differently, and that is the most useful place in the lesson. If both vectors are drawn from one point, the difference a minus b is the arrow from the end of b to the end of a. It is easy to check: walk from the end of b to the end of a, and you really do go back along b and then forward along a. The order decides everything here. Swap the letters and the arrow reverses while all three numbers change sign. The length does not change, and that is why a mistake in the order cannot be caught by the length.'),
+    A('work', "O'zingiz hisoblang. a minus b ayirmasining birinchi soni qanday?", 'Посчитай сам. Какое первое число у разности a минус b?', 'Work it out yourself. What is the first number of the difference a minus b?'),
   ],
   work: {
-    prompt: L("Nechta xil o'lcham?", 'Сколько разных измерений?', 'How many different dimensions?'),
-    ok: L("Bitta. Uchala o'lcham o'zaro teng.", 'Одно. Все три измерения равны между собой.', 'One. All three dimensions are equal to each other.'),
+    prompt: L('Ayirmaning birinchi soni?', 'Первое число разности?', 'The first number of the difference?'),
+    ok: L("Uch. To'rt minus bir.", 'Три. Четыре минус один.', 'Three. Four minus one.'),
     hint: [
-      L('Bir uchdan chiqqan uch qirraga qarang.', 'Посмотри на три ребра из одной вершины.', 'Look at the three edges from one vertex.'),
-      L('Kubda ular teng.', 'У куба они равны.', 'In a cube they are equal.'),
-      L('Bitta.', 'Одно.', 'One.'),
+      L("Birinchi o'q bo'yicha ayiring.", 'Вычитай по первой оси.', 'Subtract along the first axis.'),
+      L("a da u yerda to'rt, b da bir.", 'У a там четыре, у b один.', 'a has four there, b has one.'),
+      L('Uch.', 'Три.', 'Three.'),
     ],
-    answer: '1',
+    answer: '3',
   },
-  expr: 'a = b = c',
+  expr: 'a − b = a + (−b)',
 }
 
 const S6 = {
   role: 'explain4',
   answer: 'number',
-  eyebrow: L("O'ZINGIZ", 'САМ', 'ON YOUR OWN'),
-  title: L("Diagonal uch o'lcham bo'yicha", 'Диагональ по трём измерениям', 'The diagonal from three dimensions'),
-  tag: 'diagonal-grani-i-tela',
+  eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
+  title: L("Ko'paytuvchi barcha o'qlarga o'tadi", 'Множитель проходит по всем осям', 'The factor goes through all the axes'),
+  tag: 'ayirma-tartibi',
   show: [
     [
-      L('avval asos diagonali', 'сначала диагональ основания', 'first the base diagonal'),
-      L("bu ikki o'lcham bo'yicha Pifagor", 'это Пифагор по двум измерениям', 'that is Pythagoras on two dimensions'),
+      L("uzunligi olti bo'lgan a vektori", 'вектор a длиной шесть', 'the vector a of length six'),
+      L("ikkiga ko'paytiramiz", 'умножаем на два', 'we multiply by two'),
     ],
     [
-      L('keyin jism diagonali', 'потом диагональ тела', 'then the body diagonal'),
-      L('bu yana Pifagor', 'это Пифагор ещё раз', 'that is Pythagoras once more'),
+      L('har son ikkilandi', 'каждое число удвоилось', 'every number doubled'),
+      L("uzunlik o'n ikki bo'ldi", 'длина стала двенадцать', 'the length became twelve'),
     ],
   ],
   motion: ['move'],
   audio: [
-    A('mount', "O'lchamlar uch, to'rt va o'n ikki. Jism diagonalini topamiz.", 'Измерения три, четыре и двенадцать. Найдём диагональ тела.', 'The dimensions are three, four and twelve. Let us find the body diagonal.'),
-    A('move', "Avval asos diagonali. Asosda o'lchamlari uch va to'rt bo'lgan to'g'ri to'rtburchak, demak uning diagonali besh. Endi bir kateti asos diagonali, ikkinchisi yon qirra bo'lgan uchburchakka qarang. Ular orasidagi burchak to'g'ri, chunki yon qirra asos tekisligiga perpendikulyar, diagonal esa shu tekislikda yotadi. Demak yana Pifagor. Besh va o'n ikki o'n uchni beradi. Jismni buring va bu uchburchak qayerda yotganini ko'ring, u parallelepipedning ichidan o'tadi.", 'Сначала диагональ основания. В основании прямоугольник с измерениями три и четыре, значит его диагональ пять. Теперь смотри на треугольник, у которого один катет это диагональ основания, а второй боковое ребро. Угол между ними прямой, потому что боковое ребро перпендикулярно плоскости основания, а диагональ лежит в этой плоскости. Значит снова Пифагор. Пять и двенадцать дают тринадцать. Поверни тело и посмотри, где лежит этот треугольник, он проходит внутри параллелепипеда.', 'First the base diagonal. The base is a rectangle with dimensions three and four, so its diagonal is five. Now look at the triangle whose one leg is the base diagonal and the other is the lateral edge. The angle between them is right, because the lateral edge is perpendicular to the plane of the base while the diagonal lies in that plane. So Pythagoras again. Five and twelve give thirteen. Rotate the body and see where that triangle lies, it goes inside the parallelepiped.'),
-    A('work', "O'zingiz hisoblang. O'lchamlar uch, to'rt va o'n ikki. Jism diagonali qancha?", 'Посчитай сам. Измерения три, четыре и двенадцать. Какова диагональ тела?', 'Work it out yourself. The dimensions are three, four and twelve. What is the body diagonal?'),
+    A('mount', "a vektorini olib, ikkiga ko'paytiramiz.", 'Возьмём вектор a и умножим его на два.', 'Take the vector a and multiply it by two.'),
+    A('move', "Ko'paytuvchi uch sonning hammasiga birdan o'tadi, va bu chizmada ko'rinadi: strelka ikki barobar uzaydi, yo'nalish esa avvalgi bo'lib qoldi. Uzunlik ham ikkilandi, va uni qaytadan hisoblash kerak emas: har son ikki barobar o'ssa, har kvadrat to'rt barobar o'sadi, to'rt barobar katta sondan ildiz esa roppa-rosa ikki barobar katta. Shundan umumiy qoida: uzunlik ko'paytuvchining moduliga ko'paytiriladi. Modul so'zi bu yerda muhim, chunki manfiy ko'paytuvchida ham uzunlik o'sadi, faqat yo'nalish teskari buriladi. Va maxsus hol: nolga ko'paytirish nol vektorni beradi, unda yo'nalish umuman yo'q.", 'Множитель проходит по всем трём числам сразу, и это видно на чертеже: стрелка вытянулась вдвое, а направление осталось прежним. Длина тоже удвоилась, и её не надо считать заново: если каждое число выросло вдвое, то каждый квадрат вырос вчетверо, а корень из вчетверо большего числа ровно вдвое больше. Отсюда общее правило: длина умножается на модуль множителя. Слово модуль тут важно, потому что при отрицательном множителе длина всё равно растёт, а разворачивается только направление. И особый случай: умножение на нуль даёт нулевой вектор, у которого направления нет вовсе.', 'The factor goes through all three numbers at once, and that is visible on the drawing: the arrow stretched twice while the direction stayed the same. The length doubled too, and there is no need to compute it anew: if every number grew twice, every square grew four times, and the root of a four times larger number is exactly twice as large. Hence the general rule: the length is multiplied by the modulus of the factor. The word modulus matters here, because with a negative factor the length still grows and only the direction reverses. And a special case: multiplying by zero gives the zero vector, which has no direction at all.'),
+    A('work', "O'zingiz hisoblang. Ikkilangan a vektorining uzunligi qancha?", 'Посчитай сам. Какова длина удвоенного вектора a?', 'Work it out yourself. What is the length of the doubled vector a?'),
   ],
   work: {
-    prompt: L('Jism diagonalini toping', 'Найди диагональ тела', 'Find the body diagonal'),
-    ok: L("O'n uch. Asosda besh, keyin besh va o'n ikki.", 'Тринадцать. Пять в основании, потом пять и двенадцать.', 'Thirteen. Five in the base, then five and twelve.'),
+    prompt: L('Ikkilangan a ning uzunligi?', 'Длина удвоенного a?', 'The length of the doubled a?'),
+    ok: L("O'n ikki. Olti karra ikki.", 'Двенадцать. Шесть на два.', 'Twelve. Six times two.'),
     hint: [
-      L('Avval asos diagonalini toping.', 'Сначала найди диагональ основания.', 'First find the base diagonal.'),
-      L("Uch va to'rt beshni beradi.", 'Три и четыре дают пять.', 'Three and four give five.'),
-      L("Besh va o'n ikki o'n uchni beradi.", 'Пять и двенадцать дают тринадцать.', 'Five and twelve give thirteen.'),
+      L('a ning uzunligi oltiga teng.', 'Длина a равна шести.', 'The length of a equals six.'),
+      L("Ko'paytuvchi uzunlikka ham o'tadi.", 'Множитель проходит и в длину.', 'The factor passes into the length as well.'),
+      L("O'n ikki.", 'Двенадцать.', 'Twelve.'),
     ],
-    answer: '13',
+    answer: '12',
   },
-  expr: '3, 4, 12   →   d = ?',
+  expr: '2a = (8; 8; 4)',
 }
 
 const S7 = {
   role: 'explain5',
   answer: 'number',
-  eyebrow: L('CHEGARA', 'ГРАНИЦА', 'THE BOUNDARY'),
-  title: L('Bir uchdan ikki diagonal', 'Две диагонали из одной вершины', 'Two diagonals from one vertex'),
-  tag: 'diagonal-grani-i-tela',
+  eyebrow: L('CHEGARA', 'ГРАНИЦА', 'THE EDGE CASE'),
+  title: L("Natija qachon yo'qoladi", 'Когда результат исчезает', 'When the result disappears'),
+  tag: 'ayirma-tartibi',
   show: [
     [
-      L('bir diagonal yoqda yotadi', 'одна диагональ лежит в грани', 'one diagonal lies in a face'),
-      L('ikkinchisi jism ichiga ketadi', 'другая уходит внутрь тела', 'the other goes inside the body'),
+      L('a vektori va qarama-qarshisi', 'вектор a и противоположный', 'the vector a and its opposite'),
+      L("ularni zanjir qilib qo'yamiz", 'ставим их цепочкой', 'we place them in a chain'),
     ],
     [
-      L('buring va ularga qarang', 'поверни и следи за ними', 'rotate and watch them'),
-      L('ular ajraldi, bu boshqa kesmalar', 'они разошлись, это разные отрезки', 'they came apart, these are different segments'),
+      L("yopuvchi strelka yo'qoldi", 'замыкающая стрелка пропала', 'the closing arrow vanished'),
+      L('oxir boshiga qaytdi', 'конец вернулся в начало', 'the end returned to the start'),
     ],
   ],
   motion: ['move'],
   audio: [
-    A('mount', "Bir uchdan ikki kesma o'tkazilgan. Biri yoqning qarama-qarshi uchiga, ikkinchisi jismning qarama-qarshi uchiga.", 'Из одной вершины проведены два отрезка. Один в противоположную вершину грани, второй в противоположную вершину тела.', 'Two segments are drawn from one vertex. One to the opposite vertex of a face, the other to the opposite vertex of the body.'),
-    A('move', "Qimirlamas chizmada ular deyarli yonma-yon boradi, va aynan shuning uchun ularni aralashtirib yuboradilar. Jismni buring. Yoq diagonali har qanday burilishda yoqda qoladi, jism diagonali esa hech qayerda yoqda yotmaydi, u ichdan boradi. Sanoqdagi farq ham shundan. Yoq diagonaliga ikki o'lcham kiradi, jism diagonaliga uchta. Uchta o'rniga ikkitasini olsangiz, javob haqiqiysidan kichik chiqadi, va bu xatoni sezish qiyin, chunki son ishonarli ko'rinadi.", 'На неподвижном чертеже они идут почти рядом, и именно поэтому их путают. Поверни тело. Диагональ грани остаётся в грани при любом повороте, а диагональ тела нигде в грани не лежит, она идёт внутри. Отсюда и разница в счёте. В диагональ грани входят два измерения, в диагональ тела три. Если взять два вместо трёх, ответ получится меньше настоящего, и ошибку эту заметить трудно, потому что число выглядит правдоподобно.', 'On a still drawing they run almost side by side, and that is exactly why they get confused. Rotate the body. The face diagonal stays in its face at any rotation, while the body diagonal lies in no face at all, it goes inside. Hence the difference in counting. Two dimensions go into a face diagonal, three into a body diagonal. If you take two instead of three, the answer comes out smaller than the true one, and that mistake is hard to notice because the number looks plausible.'),
-    A('work', "O'zingiz hisoblang. Yoq diagonaliga nechta o'lcham kiradi?", 'Посчитай сам. Сколько измерений входит в диагональ грани?', 'Work it out yourself. How many dimensions go into a face diagonal?'),
+    A('mount', "a vektorini, uning ketidan qarama-qarshisini boshini oxiriga qo'yib qo'yaman.", 'Поставлю вектор a, а за ним противоположный, началом в конец.', 'Let me place the vector a and after it its opposite, start at the end.'),
+    A('move', "Ikkinchi vektor bizni aynan chiqqan joyimizga qaytardi, va yopuvchi strelka qolmadi. Koordinatalarda ham xuddi shunday: har son o'zining manfiysi bilan qo'shilib nol berdi. Nol vektor chiqdi. U maxsus: uzunligi nol, yo'nalishi esa umuman yo'q, va bu yozuvdagi e'tiborsizlik emas, xossa. Shuning uchun nol vektorni strelka bilan chizib bo'lmaydi va u qayerga qaraydi deb so'rab bo'lmaydi. Buning o'rniga u arifmetikadagi nol kabi tutadi: uni ixtiyoriy vektorga qo'shing, va u o'zgarmaydi. Va yana: masalada nol vektor chiqsa, bu ko'pincha javobning o'zi, xatoning alomati emas.", 'Второй вектор вернул нас точно туда, откуда мы вышли, и замыкающей стрелки не осталось. В координатах то же самое: каждое число сложилось со своим отрицательным и дало нуль. Получился нулевой вектор. Он особый: длина у него нуль, а направления нет совсем, и это не небрежность записи, а свойство. Поэтому нулевой вектор нельзя нарисовать стрелкой и нельзя спросить, куда он смотрит. Зато он ведёт себя как нуль в арифметике: прибавь его к любому вектору, и тот не изменится. И ещё: если в задаче вышел нулевой вектор, это часто и есть ответ, а не признак ошибки.', 'The second vector brought us exactly back to where we started, and no closing arrow was left. In coordinates the same thing: every number added to its negative and gave zero. The zero vector appeared. It is special: its length is zero and it has no direction at all, and that is not sloppy notation but a property. That is why the zero vector cannot be drawn as an arrow and cannot be asked where it points. On the other hand it behaves like zero in arithmetic: add it to any vector and that vector does not change. And one more thing: if a problem yields the zero vector, that is often the answer itself and not a sign of a mistake.'),
+    A('work', "O'zingiz hisoblang. Bu yig'indining uzunligi qancha?", 'Посчитай сам. Какова длина этой суммы?', 'Work it out yourself. What is the length of this sum?'),
   ],
   work: {
-    prompt: L("Yoq diagonalida nechta o'lcham?", 'Сколько измерений в диагонали грани?', 'How many dimensions are in a face diagonal?'),
-    ok: L("Ikkita. Yoq yassi, uchinchi o'lcham unga tushmaydi.", 'Два. Грань плоская, третье измерение в неё не попадает.', 'Two. A face is flat, the third dimension does not enter it.'),
+    prompt: L("Yig'indining uzunligi?", 'Длина суммы?', 'The length of the sum?'),
+    ok: L('Nol. Bu nol vektor.', 'Ноль. Это нулевой вектор.', 'Zero. It is the zero vector.'),
     hint: [
-      L("Bu diagonal qaysi yoqda yotganini ko'ring.", 'Посмотри, в какой грани лежит эта диагональ.', 'See which face this diagonal lies in.'),
-      L('Yoqning uzunligi va kengligi bor, tamom.', 'У грани есть длина и ширина, и всё.', 'A face has a length and a width, and that is all.'),
-      L('Ikkita.', 'Два.', 'Two.'),
+      L("Har sonni o'zining manfiysi bilan qo'shing.", 'Сложи каждое число со своим отрицательным.', 'Add every number to its negative.'),
+      L('Uchtasi ham nol berdi.', 'Все три дали нуль.', 'All three gave zero.'),
+      L('Nol.', 'Ноль.', 'Zero.'),
     ],
-    answer: '2',
+    answer: '0',
   },
-  expr: 'AC² = a² + b²',
+  expr: 'a + (−a) = 0',
 }
 
 const S8 = {
   role: 'rule',
   answer: 'pick2',
   eyebrow: L('QOIDA', 'ПРАВИЛО', 'THE RULE'),
-  title: L("Diagonalda uch o'lcham", 'Три измерения в диагонали', 'Three dimensions in the diagonal'),
-  tag: 'diagonal-grani-i-tela',
+  title: L('Uch amal', 'Три действия', 'Three operations'),
+  tag: 'ayirma-tartibi',
   motion: ['rule'],
   audio: [
     A('mount', 'Farqlashga bitta savol, keyin kartochka.', 'Один вопрос на различение, потом карточка.', 'One question to tell them apart, then the card.'),
-    A('rule', "Formula ikki qadamda chiqariladi, va ikkinchi qadam yon qirraning perpendikulyarligiga tayanadi. Shuning uchun uni og'ma parallelepipedga qo'llash mumkin emas. O'zingizni oddiy usulda tekshiring. Qirrasi bir bo'lgan kubda yoq diagonali ikkidan ildiz, jism diagonali esa uchdan ildiz. Sonlar boshqa, va farq aynan uchinchi o'lchamda.", 'Формула выводится двумя шагами, и второй шаг опирается на перпендикулярность бокового ребра. Поэтому её нельзя применять к наклонному параллелепипеду. Проверь себя простым способом. В кубе с ребром один диагональ грани это корень из двух, а диагональ тела корень из трёх. Числа разные, и разница ровно в третьем измерении.', 'The formula is derived in two steps, and the second step rests on the perpendicularity of the lateral edge. That is why it cannot be applied to a slanted parallelepiped. Check yourself in a simple way. In a cube with edge one the face diagonal is the root of two and the body diagonal is the root of three. The numbers differ, and the difference is exactly the third dimension.'),
+    A('rule', "Birinchi satr deyarli barcha qiyinchilikni oladi: amallar o'qlar bo'yicha boradi, va hisob uchun hech qanday geometriya kerak emas. Ikkinchi satr chizma allaqachon berilgan va ayirmani undan o'qish kerak bo'lgan joyda kerak, va bu aynan tartib yo'qoladigan joy. Uchinchi satr ko'paytuvchi haqida, va unda modul so'zi muhim: uzunlik ishoraga bog'liq emas. Eng foydali odat esa bunday. Ayirmani hisoblashdan oldin qaysi oxirdan qaysi oxirga borayotganingizni ovoz chiqarib ayting. Aytolmasangiz, demak tartib hali tanlanmagan, va hisoblash erta.", 'Первая строка снимает почти все трудности: действия идут по осям, и никакой геометрии для счёта не нужно. Вторая строка нужна там, где чертёж уже дан и надо прочитать по нему разность, и это ровно то место, где теряют порядок. Третья строка про множитель, и в ней важно слово модуль: длина от знака не зависит. А самая полезная привычка такая. Прежде чем считать разность, назови вслух, из какого конца в какой ты идёшь. Если сказать не получается, значит порядок ещё не выбран, и считать рано.', 'The first line removes almost all the difficulty: the operations go along the axes, and no geometry is needed for the counting. The second line is needed where the drawing is already given and the difference has to be read off it, and that is exactly where the order gets lost. The third line is about the factor, and the word modulus matters in it: the length does not depend on the sign. And the most useful habit is this. Before computing a difference, say aloud which end you are going from and to. If you cannot say it, the order has not been chosen yet and it is too early to compute.'),
   ],
   probe: {
-    question: L("Jism diagonaliga nechta o'lcham kiradi?", 'Сколько измерений входит в диагональ тела?', 'How many dimensions go into a body diagonal?'),
+    question: L('a minus b ayirmasi qayerga boradi?', 'Куда идёт разность a минус b?', 'Where does the difference a minus b go?'),
     items: [
-      { id: 'a', label: L('uchta', 'три', 'three'), correct: true },
-      { id: 'b', label: L('ikkita', 'два', 'two'), hint: L('Ikkitasi yoq diagonalini beradi, jismning emas.', 'Два дают диагональ грани, а не тела.', 'Two give a face diagonal, not a body one.') },
+      { id: 'a', label: L('b oxiridan a oxiriga', 'из конца b в конец a', 'from the end of b to the end of a'), correct: true },
+      { id: 'b', label: L('a oxiridan b oxiriga', 'из конца a в конец b', 'from the end of a to the end of b'), hint: L('Bunda b minus a chiqadi, unda barcha ishoralar teskari.', 'Так выйдет b минус a, у неё все знаки обратные.', 'That gives b minus a, whose signs are all reversed.') },
     ],
   },
   rule: {
-    lawLabel: L('Jism diagonali', 'Диагональ тела', 'The body diagonal'),
+    lawLabel: L("O'qlar bo'yicha amallar", 'Действия по осям', 'Operations along the axes'),
     lines: [
-      L("parallelepiped asosi parallelogramm bo'lgan prizma", 'параллелепипед это призма с параллелограммом в основании', 'a parallelepiped is a prism with a parallelogram base'),
-      L("to'g'ri burchakli parallelepiped uch o'lcham bilan berilgan", 'прямоугольный параллелепипед задан тремя измерениями', 'a rectangular box is given by three dimensions'),
-      L("diagonal kvadrati uch o'lcham kvadratlari yig'indisi", 'квадрат диагонали это сумма квадратов трёх измерений', 'the square of the diagonal is the sum of the squares of the three dimensions'),
+      L("yig'indi va ayirma har o'q bo'yicha alohida hisoblanadi", 'сумма и разность считаются по каждой оси отдельно', 'the sum and the difference are computed along each axis separately'),
+      L('a minus b ayirmasi b oxiridan a oxiriga boradi', 'разность a минус b идёт из конца b в конец a', 'the difference a minus b goes from the end of b to the end of a'),
+      L("ko'paytuvchi barcha sonlarga o'tadi, uzunlik uning modulini oladi", 'множитель проходит по всем числам, длина берёт его модуль', 'the factor goes through all the numbers, the length takes its modulus'),
     ],
-    law: 'd² = a² + b² + c²',
+    law: 'a − b = a + (−b)',
   },
 }
 
@@ -344,19 +344,19 @@ const S9 = {
   answer: 'match',
   format: 'match',
   eyebrow: L('AMALIYOT', 'ПРАКТИКА', 'PRACTICE'),
-  title: L('Har bir kesmani nomlang', 'Назови каждый отрезок', 'Name each segment'),
-  tag: 'diagonal-grani-i-tela',
+  title: L('Amal va natija', 'Действие и результат', 'The operation and the result'),
+  tag: 'ayirma-tartibi',
   audio: [
-    A('mount', "To'rt yozuv va to'rt nom. Ularni birlashtiring.", 'Четыре записи и четыре названия. Соедини их.', 'Four readings and four names. Match them.'),
+    A('mount', "To'rt uchlik va to'rt amal. O'qlar bo'yicha hisoblang.", 'Четыре тройки и четыре действия. Считай по осям.', 'Four triples and four operations. Count along the axes.'),
   ],
   match: {
-    prompt: L('Yozuvni nomi bilan birlashtiring', 'Соедини запись с названием', 'Match the reading with the name'),
-    ok: L("To'rttasi ham joyida. Diagonallar endi aralashmaydi.", 'Все четыре на месте. Диагонали больше не путаются.', 'All four in place. The diagonals no longer get mixed up.'),
-    a: L('asos qirrasi', 'ребро основания', 'a base edge'),
-    b: L('yon qirra', 'боковое ребро', 'a lateral edge'),
-    c: L('asos diagonali', 'диагональ основания', 'a base diagonal'),
-    d: L('jism diagonali', 'диагональ тела', 'the body diagonal'),
-    left: ['AB', 'AA₁', 'AC', 'AC₁'],
+    prompt: L('Uchlikni amal bilan birlashtiring', 'Соедини тройку с действием', 'Match the triple with the operation'),
+    ok: L("To'rttasi ham joyida. Har amal o'qlar bo'yicha boradi.", 'Все четыре на месте. Каждое действие идёт по осям.', 'All four in place. Every operation goes along the axes.'),
+    a: L("a va b yig'indisi", 'сумма a и b', 'the sum of a and b'),
+    b: L('a minus b ayirmasi', 'разность a минус b', 'the difference a minus b'),
+    c: L('ikkilangan a', 'удвоенный a', 'the doubled a'),
+    d: L('qarama-qarshi b', 'противоположный b', 'the opposite of b'),
+    left: ['(5; 4; 4)', '(3; 4; 0)', '(8; 8; 4)', '(−1; 0; −2)'],
   },
 }
 
@@ -365,32 +365,32 @@ const S10 = {
   answer: 'order',
   format: 'proof',
   eyebrow: L('QADAMMA-QADAM', 'ПО ШАГАМ', 'STEP BY STEP'),
-  title: L('Diagonal formulasini chiqaring', 'Выведи формулу диагонали', 'Derive the diagonal formula'),
-  tag: 'diagonal-grani-i-tela',
+  title: L('Uchburchak qoidasini isbotlang', 'Докажи правило треугольника', 'Prove the triangle rule'),
+  tag: 'ayirma-tartibi',
   audio: [
     A('mount', "Uch qator, va har birining ro'yxatdan o'z asoslashi bor.", 'Три строки, и у каждой своё обоснование из списка.', 'Three lines, each with its own justification from the list.'),
   ],
   proof: {
-    given: L("to'g'ri burchakli parallelepiped", 'прямоугольный параллелепипед', 'a rectangular box'),
-    goal: L("diagonal uch o'lcham bo'yicha", 'диагональ через три измерения', 'the diagonal from three dimensions'),
-    r1: L("asos diagonali ikki o'lcham bo'yicha", 'диагональ основания по двум измерениям', 'the base diagonal from two dimensions'),
-    r2: L('qirra shu diagonalga perpendikulyar', 'ребро перпендикулярно этой диагонали', 'the edge is perpendicular to that diagonal'),
-    r3: L('demak yana Pifagor ishlaydi', 'значит снова работает Пифагор', 'so Pythagoras works again'),
-    ok: L("Isbotlandi. Ikki qadam Pifagor uch o'lcham beradi.", 'Доказано. Два шага Пифагора дают три измерения.', 'Proved. Two steps of Pythagoras give three dimensions.'),
-    e1: L('Perpendikulyarlik keyin keladi. Avval asos haqida.', 'Перпендикулярность идёт дальше. Сначала про основание.', 'Perpendicularity comes later. First about the base.'),
-    e2: L("Asosda hisoblandi. Ikkinchi uchburchakda to'g'ri burchak qayerdan.", 'В основании уже посчитано. Откуда прямой угол во втором треугольнике.', 'The base is done. Where does the right angle in the second triangle come from.'),
-    e3: L("To'g'ri burchak bor. Endi gipotenuzani hisoblang.", 'Прямой угол есть. Теперь считай гипотенузу.', 'The right angle is there. Now compute the hypotenuse.'),
+    given: L("uch nuqta, zanjir bo'lgan ikki vektor", 'три точки, два вектора цепочкой', 'three points, two vectors in a chain'),
+    goal: L("yig'indi birinchi nuqtadan uchinchisiga vektor beradi", 'сумма даёт вектор из первой точки в третью', 'the sum gives the vector from the first point to the third'),
+    r1: L('birinchi vektor ikkinchi nuqta minus birinchisi', 'первый вектор это вторая точка минус первая', 'the first vector is the second point minus the first'),
+    r2: L('ikkinchi vektor uchinchi nuqta minus ikkinchisi', 'второй вектор это третья точка минус вторая', 'the second vector is the third point minus the second'),
+    r3: L("yig'indida ikkinchi nuqta qisqardi", 'в сумме вторая точка сократилась', 'in the sum the second point cancelled'),
+    ok: L("Isbotlandi. Uchburchak qoidasi o'rtadagi nuqtaning qisqarishi.", 'Доказано. Правило треугольника это сокращение средней точки.', 'Proved. The triangle rule is the cancelling of the middle point.'),
+    e1: L('Ikkinchi vektor haqida keyin. Avval birinchisi.', 'Про второй вектор дальше. Сначала первый.', 'The second vector comes later. First the first one.'),
+    e2: L('Birinchisi yozildi. Endi ikkinchisi.', 'Первый записан. Теперь второй.', 'The first is written. Now the second.'),
+    e3: L("Ikkisi ham yozildi. Qo'shganda nima bo'ladi.", 'Оба записаны. Что происходит при сложении.', 'Both are written. What happens when they are added.'),
   },
   reason: {
-    s1: L('Pifagor teoremasi', 'теорема Пифагора', 'the Pythagorean theorem'),
-    s2: L("perpendikulyar tekislikning barcha chiziqlari bilan to'g'ri burchak beradi", 'перпендикуляр даёт прямой угол со всеми прямыми плоскости', 'a perpendicular gives a right angle with all lines of the plane'),
-    s3: L('parallelogramm xossasi', 'свойство параллелограмма', 'a property of a parallelogram'),
+    s1: L('vektorning uchligi oxir minus boshi', 'тройка вектора это конец минус начало', 'the triple of a vector is the end minus the start'),
+    s2: L("ikkinchi juft uchun o'sha qoida", 'то же правило для второй пары', 'the same rule for the second pair'),
+    s3: L("qo'shish har o'q bo'yicha boradi", 'сложение идёт по каждой оси', 'the addition goes along each axis'),
     pic: {
       label: L("chizmada ko'rinadi", 'видно на чертеже', 'it is visible on the drawing'),
       missing: L("Chizma asoslash emas. U ko'p rakursdan bittasini ko'rsatadi.", 'Чертёж не обоснование. Он показывает один ракурс из многих.', 'A drawing is not a justification. It shows one view out of many.'),
     },
   },
-  expr: 'AC₁² = AC² + CC₁²',
+  expr: 'AB + BC = AC',
 }
 
 const S11 = {
@@ -403,25 +403,25 @@ const S11 = {
   tag: 'bumaga',
   audio: [
     A('mount', "Asbob olib qo'yildi. Qog'ozda hisoblaymiz.", 'Прибор убран. Считаем на бумаге.', 'The tool is put away. We count on paper.'),
-    A('next', 'Endi yozuvlar tartibi. Ularni qanday hisoblansa, shunday joylashtiring.', 'Теперь порядок записей. Расставь их так, как считают.', 'Now the order of the readings. Arrange them the way they are computed.'),
+    A('next', 'Endi qadamlar tartibi. Ularni qanday hisoblansa, shunday joylashtiring.', 'Теперь порядок шагов. Расставь их так, как считают.', 'Now the order of the steps. Arrange them the way the counting goes.'),
   ],
   task: {
-    ok: L("Yigirma olti. O'ttiz olti qo'shuv oltmish to'rt qo'shuv besh yuz yetmish olti.", 'Двадцать шесть. Тридцать шесть плюс шестьдесят четыре плюс пятьсот семьдесят шесть.', 'Twenty six. Thirty six plus sixty four plus five hundred seventy six.'),
+    ok: L("Besh. Uch va to'rt besh beradi.", 'Пять. Три и четыре дают пять.', 'Five. Three and four give five.'),
     hint: [
-      L("Har o'lchamni kvadratga ko'taring.", 'Возведи в квадрат каждое измерение.', 'Square each dimension.'),
-      L("Uch kvadratni qo'shing va ildiz chiqaring.", 'Сложи три квадрата и извлеки корень.', 'Add the three squares and take the root.'),
-      L('Olti yuz yetmish olti yigirma oltining kvadrati.', 'Шестьсот семьдесят шесть это двадцать шесть в квадрате.', 'Six hundred seventy six is twenty six squared.'),
+      L('Avval ayirmaning uchligini toping.', 'Сначала найди тройку разности.', 'First find the triple of the difference.'),
+      L("Uch to'rt nol.", 'Три четыре нуль.', 'Three four zero.'),
+      L("To'qqiz qo'shuv o'n olti.", 'Девять плюс шестнадцать.', 'Nine plus sixteen.'),
     ],
-    prompt: '6, 8, 24   →   d = ?',
-    answer: '26',
+    prompt: 'a (4; 4; 2),   b (1; 0; 2),   |a − b| = ?',
+    answer: '5',
   },
   order: {
-    prompt: L('Yozuvlarni hisoblash tartibida joylashtiring', 'Расставь записи в том порядке, в каком считают', 'Arrange the readings in the order they are computed'),
+    prompt: L('Qadamlarni hisoblash tartibida joylashtiring', 'Расставь шаги в том порядке, в каком считают', 'Arrange the steps in the order they are computed'),
     title: L('Hisob tartibi', 'Порядок счёта', 'The order of computing'),
-    ok: L("Tartib to'g'ri. Avval asos, keyin jism.", 'Порядок верный. Сначала основание, потом тело.', 'The order is right. First the base, then the body.'),
+    ok: L("Tartib to'g'ri. Teskari burish, qo'shish, kvadratlar, ildiz.", 'Порядок верный. Развернуть, сложить, квадраты, корень.', 'The order is right. Reverse, add, squares, root.'),
     bad: L('Bu tartibda emas. Avval nima kerak.', 'Не в этом порядке. Что нужно раньше.', 'Not in this order. What is needed first.'),
-    items: ['AC₁', 'a, b, c', 'AC', 'AC₁²'],
-    answer: 'a, b, c  AC  AC₁²  AC₁',
+    items: ['|a − b|', '−b', 'x² + y² + z²', 'a + (−b)'],
+    answer: '−b  a + (−b)  x² + y² + z²  |a − b|',
   },
 }
 
@@ -433,30 +433,30 @@ const S12 = {
   title: L('Xato qatorni toping', 'Найди строку с ошибкой', 'Find the line with the mistake'),
   tag: 'check',
   audio: [
-    A('mount', "To'rt qator, va ulardan biri diagonalni almashtiradi.", 'Четыре строки, и одна из них подменяет диагональ.', 'Four lines, and one of them substitutes the diagonal.'),
+    A('mount', "To'rt qator, va ulardan biri ayirish tartibini o'zgartiradi.", 'Четыре строки, и одна из них меняет порядок вычитания.', 'Four lines, and one of them changes the order of subtraction.'),
     A('next', "Endi xato bo'lgan qator raqamini yozing.", 'Теперь напиши номер строки, в которой ошибка.', 'Now write the number of the line with the mistake.'),
   ],
   hint: {
-    r1: L("O'lchamlar to'g'ri yozilgan.", 'Измерения выписаны верно.', 'The dimensions are written correctly.'),
-    r2: L("Asos diagonali to'g'ri hisoblangan.", 'Диагональ основания посчитана верно.', 'The base diagonal is computed correctly.'),
-    r4: L('Javob yuqoridagi xato qatordan olingan.', 'Ответ получен из неверной строки выше.', 'The answer comes from the wrong line above.'),
+    r1: L("Berilganlar to'g'ri yozilgan.", 'Данные выписаны верно.', 'The data are written correctly.'),
+    r2: L("Qoida to'g'ri yozilgan.", 'Правило записано верно.', 'The rule is written correctly.'),
+    r4: L('Qator yuqoridagi xato qatordan olingan.', 'Строка получена из неверной строки выше.', 'The line comes from the wrong line above.'),
   },
-  proof: L('Jismni buring: bu kesma yoqda qoldi, demak u jism diagonali emas.', 'Поверни тело: этот отрезок остался в грани, значит он не диагональ тела.', 'Rotate the body: this segment stayed in a face, so it is not the body diagonal.'),
+  proof: L("Sahnani buring: strelka b oxiridan a oxiriga boradi, va burilish buni o'zgartirmaydi.", 'Поверни сцену: стрелка идёт из конца b в конец a, и поворот этого не меняет.', 'Rotate the scene: the arrow goes from the end of b to the end of a, and rotation does not change it.'),
   entry: {
     prompt: L('Xato qator raqami', 'Номер строки с ошибкой', 'The number of the line with the mistake'),
-    ok: L('Uchinchi. Jism diagonali deb asos diagonali aytilgan.', 'Третья. Диагональю тела назвали диагональ основания.', 'The third. The base diagonal was called the body diagonal.'),
+    ok: L('Uchinchi. Teskari tartibda ayirilgan.', 'Третья. Вычли в обратном порядке.', 'The third. The subtraction was done in the reverse order.'),
     hint: [
-      L('Har qatorda qaysi kesma aytilganini tekshiring.', 'Проверь, какой отрезок назван в каждой строке.', 'Check which segment is named in each line.'),
-      L("Uchinchi o'lcham yechimda biror marta ham paydo bo'lmadi.", 'Третье измерение в решении не появилось ни разу.', 'The third dimension never appeared in the solution.'),
+      L('Qaysi vektordan ayirilganini tekshiring.', 'Проверь, из какого вектора вычитали.', 'Check which vector was subtracted from.'),
+      L('Yozuvdagi birinchi harf ayiriladigan narsa.', 'Первая буква в записи это то, из чего вычитают.', 'The first letter in the notation is what you subtract from.'),
       L('Xato uchinchi qatorda.', 'Ошибка в третьей строке.', 'The mistake is in the third line.'),
     ],
     answer: '3',
   },
   row: {
-    r1: 'a = 3,   b = 4,   c = 12',
-    r2: 'AC² = 9 + 16',
-    r3: 'AC₁ = AC = 5',
-    r4: 'd = 5',
+    r1: 'a (4; 4; 2),   b (1; 0; 2)',
+    r2: 'a − b = a + (−b)',
+    r3: 'a − b = (−3; −4; 0)',
+    r4: 'b − a = (3; 4; 0)',
   },
   answerId: 'r3',
 }
@@ -469,27 +469,27 @@ const S13 = {
   title: L('Teskari tomonga', 'В обратную сторону', 'The other way round'),
   tag: 'obratnoe',
   audio: [
-    A('mount', "Formulani o'ngdan chapga o'qiymiz. O'lchamlar bo'yicha diagonalni aytamiz.", 'Прочитаем формулу справа налево. По измерениям назовём диагональ.', 'Let us read the formula from right to left. From the dimensions we name the diagonal.'),
-    A('work', "Doim to'g'ri bo'lgan barcha yozuvlarni belgilang. Ular bittadan ko'p.", 'Отметь все записи, которые верны всегда. Их больше одной.', 'Mark all the readings that are always true. There is more than one.'),
+    A('mount', "Darsni o'ngdan chapga o'qiymiz. Yig'indi berilgan, qo'shiluvchini topish kerak.", 'Прочитаем урок справа налево. Дана сумма, найти надо слагаемое.', 'Let us read the lesson from right to left. The sum is given, a term is to be found.'),
+    A('work', "To'g'ri bo'lgan barcha yozuvlarni belgilang. Ular bittadan ko'p.", 'Отметь все записи, которые верны. Их больше одной.', 'Mark all the readings that are correct. There is more than one.'),
   ],
   multi: {
     prompt: L("Barcha to'g'ri yozuvlarni belgilang", 'Отметь все верные записи', 'Mark all the correct readings'),
-    title: L("Nima doim to'g'ri", 'Что верно всегда', 'What is always true'),
-    ok: L("Beshtadan uch yozuv. Biri ikki o'lchamni oladi, ikkinchisi kvadratlar o'rniga qo'shadi.", 'Три записи из пяти. Одна берёт два измерения, другая складывает вместо квадратов.', 'Three readings out of five. One takes two dimensions, the other adds instead of squaring.'),
+    title: L("Bu vektorlar uchun nima to'g'ri", 'Что верно для этих векторов', 'What is true for these vectors'),
+    ok: L("Beshtadan uch yozuv. Qolgan ikkitasi tartib va ko'paytuvchini aralashtiradi.", 'Три записи из пяти. Две оставшиеся путают порядок и множитель.', 'Three readings out of five. The other two confuse the order and the factor.'),
     items: [
-      { id: 'd', label: 'd² = a² + b²', hint: L('Bu yoq diagonali, jismning emas.', 'Это диагональ грани, а не тела.', 'That is a face diagonal, not a body one.') },
-      { id: 'e', label: 'd = a + b + c', hint: L("Diagonal o'lchamlar yig'indisi emas, kvadratlar yig'indisidan ildiz.", 'Диагональ это не сумма измерений, а корень из суммы квадратов.', 'A diagonal is not the sum of the dimensions but the root of the sum of squares.') },
-      { id: 'a', label: 'd² = a² + b² + c²', ok: true },
-      { id: 'b', label: 'AC² = a² + b²', ok: true },
-      { id: 'c', label: 'a = b = c', ok: true },
+      { id: 'd', label: 'a − b = (−3; −4; 0)', hint: L('Bu teskari tartibdagi ayirma.', 'Это разность в обратном порядке.', 'That is the difference in the reverse order.') },
+      { id: 'e', label: '2a = (8; 4; 2)', hint: L("Ko'paytuvchi uch sonning hammasiga o'tadi.", 'Множитель проходит по всем трём числам.', 'The factor goes through all three numbers.') },
+      { id: 'a', label: 'b = (1; 0; 2)', ok: true },
+      { id: 'b', label: 'a − b = (3; 4; 0)', ok: true },
+      { id: 'c', label: '2a = (8; 8; 4)', ok: true },
     ],
   },
   place: {
-    prompt: L("O'lchamlar ikki, uch va olti. Jism diagonalini toping.", 'Измерения два, три и шесть. Найди диагональ тела.', 'The dimensions are two, three and six. Find the body diagonal.'),
-    ok: L("Yetti. To'rt qo'shuv to'qqiz qo'shuv o'ttiz olti bu qirq to'qqiz.", 'Семь. Четыре плюс девять плюс тридцать шесть это сорок девять.', 'Seven. Four plus nine plus thirty six is forty nine.'),
-    wrong: L("Uchala o'lcham kvadratlarini qo'shing.", 'Сложи квадраты всех трёх измерений.', 'Add the squares of all three dimensions.'),
-    target: '7',
-    step: '4 + 9 + 36 = 49',
+    prompt: L("a vektori va a qo'shuv b yig'indisi ma'lum. b vektorining uchinchi soni qanday?", 'Известны вектор a и сумма a плюс b. Каково третье число вектора b?', 'The vector a and the sum a plus b are known. What is the third number of the vector b?'),
+    ok: L("Ikki. To'rt minus ikki.", 'Два. Четыре минус два.', 'Two. Four minus two.'),
+    wrong: L("Yig'indidan ma'lum qo'shiluvchi ayiriladi, teskarisi emas.", 'Из суммы вычитают известное слагаемое, а не наоборот.', 'The known term is subtracted from the sum, not the other way.'),
+    target: '2',
+    step: '4 − 2',
   },
 }
 
@@ -499,7 +499,7 @@ const S14 = {
   format: 'chain',
   eyebrow: L('BLITS', 'БЛИЦ', 'QUICK ROUND'),
   title: L("Ketma-ket to'rt savol", 'Четыре вопроса подряд', 'Four questions in a row'),
-  tag: 'diagonal-grani-i-tela',
+  tag: 'ayirma-tartibi',
   audio: [
     A('mount', "Ketma-ket to'rt savol. To'xtamasdan javob bering.", 'Четыре вопроса подряд. Отвечай без остановки.', 'Four questions in a row. Answer without stopping.'),
   ],
@@ -507,53 +507,52 @@ const S14 = {
     {
       id: 'q1',
       ask: true,
-      prompt: L('Parallelepipedning asosida nima?', 'Что в основании параллелепипеда?', 'What is in the base of a parallelepiped?'),
-      done: 'ABCD = ▱',
+      prompt: L("Yig'indi koordinatalar bo'yicha qanday hisoblanadi?", 'Как считают сумму по координатам?', 'How is a sum computed in coordinates?'),
+      done: 'a + b = (5; 4; 4)',
       items: [
-        { id: 'a', label: L('parallelogramm', 'параллелограмм', 'a parallelogram'), correct: true },
-        { id: 'b', label: L("istalgan ko'pburchak", 'любой многоугольник', 'any polygon'), hint: L("Istalgan ko'pburchak umuman prizma.", 'Любой многоугольник это призма вообще.', 'Any polygon is a prism in general.') },
-        { id: 'c', label: L("to'g'ri to'rtburchak", 'прямоугольник', 'a rectangle'), hint: L("To'g'ri to'rtburchak faqat to'g'ri burchaklida.", 'Прямоугольник только у прямоугольного.', 'A rectangle only in the rectangular one.') },
-        { id: 'd', label: L('kvadrat', 'квадрат', 'a square'), hint: L("Kvadrat kubda bo'ladi.", 'Квадрат бывает у куба.', 'A square happens in a cube.') },
+        { id: 'a', label: L("har o'q bo'yicha alohida", 'по каждой оси отдельно', 'along each axis separately'), correct: true },
+        { id: 'b', label: L("uzunliklar qo'shiladi", 'складывают длины', 'the lengths are added'), hint: L("Uzunliklar faqat bir yo'nalishdagilarda qo'shiladi.", 'Длины складываются только у сонаправленных.', 'Lengths add only for vectors of the same direction.') },
+        { id: 'c', label: L('eng katta sonlar olinadi', 'берут наибольшие числа', 'the largest numbers are taken'), hint: L("Yig'indi sonlar orasidan tanlamaydi.", 'Сумма не выбирает между числами.', 'A sum does not choose between numbers.') },
+        { id: 'd', label: L("o'qlar bo'yicha ko'paytiriladi", 'умножают по осям', 'they are multiplied along the axes'), hint: L("Ko'paytirish boshqa amal.", 'Умножение это другое действие.', 'Multiplication is another operation.') },
       ],
     },
     {
       id: 'q2',
       ask: true,
-      prompt: L("To'g'ri burchakli parallelepipedning nechta o'lchami bor?", 'Сколько измерений у прямоугольного параллелепипеда?', 'How many dimensions does a rectangular box have?'),
-      done: 'a, b, c',
+      prompt: L('a minus b ayirmasi qayerga boradi?', 'Куда идёт разность a минус b?', 'Where does the difference a minus b go?'),
+      done: 'a − b = (3; 4; 0)',
       items: [
-        { id: 'a', label: L('uchta', 'три', 'three'), correct: true },
-        { id: 'b', label: L('ikkita', 'два', 'two'), hint: L("Ikki o'lcham yassi shaklda.", 'Два измерения у плоской фигуры.', 'Two dimensions belong to a flat figure.') },
-        { id: 'c', label: L('oltita', 'шесть', 'six'), hint: L('Olti yoqlar soni.', 'Шесть это число граней.', 'Six is the number of faces.') },
-        { id: 'd', label: L("o'n ikkita", 'двенадцать', 'twelve'), hint: L("O'n ikki qirralar soni.", 'Двенадцать это число рёбер.', 'Twelve is the number of edges.') },
+        { id: 'a', label: L('b oxiridan a oxiriga', 'из конца b в конец a', 'from the end of b to the end of a'), correct: true },
+        { id: 'b', label: L('a oxiridan b oxiriga', 'из конца a в конец b', 'from the end of a to the end of b'), hint: L('Bunda b minus a chiqadi.', 'Так выйдет b минус a.', 'That gives b minus a.') },
+        { id: 'c', label: L('umumiy boshdan', 'из общего начала', 'from the common start'), hint: L("Umumiy boshdan yig'indi boradi.", 'Из общего начала идёт сумма.', 'The sum goes from the common start.') },
+        { id: 'd', label: L("parallelogramm diagonali bo'ylab", 'по диагонали параллелограмма', 'along the diagonal of the parallelogram'), hint: L("Bu diagonal yig'indining o'zi.", 'Эта диагональ и есть сумма.', 'That diagonal is the sum itself.') },
       ],
     },
     {
       id: 'q3',
       ask: true,
-      prompt: L("Qirrasi bir bo'lgan kubda jism diagonali?", 'В кубе с ребром один диагональ тела?', 'In a cube with edge one, the body diagonal?'),
-      done: 'd = √3',
+      prompt: L("Minus birga ko'paytirish nima beradi?", 'Что даёт умножение на минус один?', 'What does multiplying by minus one give?'),
+      done: '−a',
       items: [
-        { id: 'a', label: L('uchdan ildiz', 'корень из трёх', 'the root of three'), correct: true },
-        { id: 'b', label: L('ikkidan ildiz', 'корень из двух', 'the root of two'), hint: L('Ikkidan ildiz yoq diagonali.', 'Корень из двух это диагональ грани.', 'The root of two is the face diagonal.') },
-        { id: 'c', label: L('bir', 'один', 'one'), hint: L('Bir qirra.', 'Один это ребро.', 'One is the edge.') },
-        { id: 'd', label: L('uch', 'три', 'three'), hint: L("Uch kvadratlar yig'indisi, diagonal emas.", 'Три это сумма квадратов, а не диагональ.', 'Three is the sum of squares, not the diagonal.') },
+        { id: 'a', label: L("uzunligi o'sha, yo'nalishi teskari", 'тот же по длине, обратный по направлению', 'the same in length, reverse in direction'), correct: true },
+        { id: 'b', label: L('nol vektor', 'нулевой вектор', 'the zero vector'), hint: L("Nolni nolga ko'paytirish beradi.", 'Нулевой даёт умножение на нуль.', 'The zero vector comes from multiplying by zero.') },
+        { id: 'c', label: L('ikki barobar qisqa', 'вдвое короче', 'twice as short'), hint: L("Ko'paytuvchining moduli birga teng.", 'Модуль множителя равен единице.', 'The modulus of the factor equals one.') },
+        { id: 'd', label: L("o'sha vektor", 'тот же вектор', 'the same vector'), hint: L("Yo'nalish teskari bo'ldi.", 'Направление стало обратным.', 'The direction became reverse.') },
       ],
     },
     {
       id: 'q4',
       ask: true,
-      prompt: L('Kub nima?', 'Куб это что?', 'What is a cube?'),
-      done: 'a = b = c',
+      prompt: L("Vektor va qarama-qarshining yig'indisi nimaga teng?", 'Чему равна сумма вектора и противоположного?', 'What does a vector plus its opposite equal?'),
+      done: 'a + (−a) = 0',
       items: [
-        { id: 'a', label: L("o'lchamlari teng to'g'ri burchakli parallelepiped", 'прямоугольный параллелепипед с равными измерениями', 'a rectangular box with equal dimensions'), correct: true },
-        { id: 'b', label: L('alohida shakl', 'отдельная фигура', 'a separate figure'), hint: L('Kub xususiy hol, yangi shakl emas.', 'Куб частный случай, а не новая фигура.', 'A cube is a special case, not a new figure.') },
-        { id: 'c', label: L('istalgan parallelepiped', 'любой параллелепипед', 'any parallelepiped'), hint: L("Istalganida na to'g'ri burchak, na teng qirra bor.", 'У любого нет ни прямых углов, ни равных рёбер.', 'Any one has neither right angles nor equal edges.') },
-        { id: 'd', label: L('muntazam prizma', 'правильная призма', 'a regular prism'), hint: L("Muntazam prizma oltiburchakli ham bo'ladi.", 'Правильная призма может быть и шестиугольной.', 'A regular prism can be hexagonal too.') },
+        { id: 'a', label: L('nol vektorga', 'нулевому вектору', 'the zero vector'), correct: true },
+        { id: 'b', label: L('ikkilangan vektorga', 'удвоенному вектору', 'the doubled vector'), hint: L("Ikkilanish o'zi bilan qo'shganda chiqadi.", 'Удвоение выйдет при сложении с самим собой.', 'Doubling comes from adding it to itself.') },
+        { id: 'c', label: L("o'sha uzunlikdagi vektorga", 'вектору той же длины', 'a vector of the same length'), hint: L('Natijaning uzunligi nol.', 'Длина результата ноль.', 'The length of the result is zero.') },
+        { id: 'd', label: L('qarama-qarshiga', 'противоположному', 'the opposite one'), hint: L("Qarama-qarshi qo'shiluvchilardan biri.", 'Противоположный это одно из слагаемых.', 'The opposite is one of the terms.') },
       ],
     },
   ],
-  angles: ['AB', 'AA₁', 'AC', 'AC₁'],
 }
 
 const S15 = {
@@ -562,64 +561,63 @@ const S15 = {
   eyebrow: L('YAKUN', 'ИТОГ', 'SUMMARY'),
   title: L('Endi nimani bilasiz', 'Что теперь умеешь', 'What you can do now'),
   audio: [
-    A('mount', "Dars diagonal haqida ikki yozuv bilan boshlandi. Birinchisida ikki o'lcham bor edi.", 'Урок начался с двух записей про диагональ. В первой было два измерения.', 'The lesson began with two readings about the diagonal. The first had two dimensions.'),
-    A('next', "Ikki o'lcham yoq diagonalini beradi, va u chizmada haqiqatan bor, shunchaki bu boshqa kesma. Jism diagonali birorta yoqda yotmaydi, shuning uchun unga uchala o'lcham kiradi. Formula ikki qadam Pifagor bilan chiqarilgan, va ikkinchi qadam faqat yon qirra asosga perpendikulyar bo'lgani uchun ishlaydi. Keyin piramida, va u yerda yon yoqlar bitta uchda tutashadi.", 'Два измерения дают диагональ грани, и она действительно есть на чертеже, просто это другой отрезок. Диагональ тела не лежит ни в одной грани, поэтому в неё входят все три измерения. Формула выведена двумя шагами Пифагора, и второй шаг работает только потому, что боковое ребро перпендикулярно основанию. Дальше пирамида, и там боковые грани сходятся в одной вершине.', 'Two dimensions give a face diagonal, and it really is on the drawing, it is just a different segment. The body diagonal lies in no face, so all three dimensions enter it. The formula is derived in two steps of Pythagoras, and the second step works only because the lateral edge is perpendicular to the base. Next comes the pyramid, where the lateral faces meet at one vertex.'),
+    A('mount', 'Dars ayirma qayerga qarashi haqidagi savol bilan boshlandi.', 'Урок начался с вопроса, куда смотрит разность.', 'The lesson began with the question where the difference points.'),
+    A('next', "U ikkinchi vektorning oxiridan birinchisining oxiriga boradi, va buni chalkashtirish oson, chunki ikki strelka ham bir to'g'ri chiziqda yotadi va uzunligi bitta. Xatoni faqat yo'nalish yoki ishoralar bo'yicha ushlash mumkin, shuning uchun tartibni hisobdan oldin tanlash kerak, keyin emas. Amallarning o'zi esa oddiy: yig'indi ham, ayirma ham har o'q bo'yicha alohida hisoblanadi, ko'paytuvchi esa uch sonning hammasiga o'tadi, va uzunlik uning modulini oladi. Uchburchak qoidasi va parallelogramm qoidasi bitta javob beradi, chunki bu ko'chirilgan vektorli bitta chizma. Nol vektor esa masalalarda oddiy javob: uzunligi nol, yo'nalishi yo'q. Keyin ikki vektor vektor emas, son bera boshlaydi.", 'Она идёт из конца второго вектора в конец первого, и перепутать это легко, потому что обе стрелки лежат на одной прямой и длина у них одна. Поймать ошибку можно только по направлению или по знакам, и потому порядок надо выбирать до счёта, а не после. Сами действия при этом просты: и сумма, и разность считаются по каждой оси отдельно, а множитель проходит по всем трём числам, и длина берёт его модуль. Правило треугольника и правило параллелограмма дают один ответ, потому что это один чертёж с перенесённым вектором. А нулевой вектор в задачах это нормальный ответ: длина нуль, направления нет. Дальше два вектора начнут давать не вектор, а число.', 'It goes from the end of the second vector to the end of the first, and it is easy to mix up, because both arrows lie on one line and their length is the same. The mistake can be caught only by the direction or by the signs, and that is why the order must be chosen before the counting, not after. The operations themselves are simple: both the sum and the difference are computed along each axis separately, and the factor goes through all three numbers while the length takes its modulus. The triangle rule and the parallelogram rule give one answer, because it is one drawing with a shifted vector. And the zero vector in problems is a normal answer: length zero, no direction. Next two vectors will start giving not a vector but a number.'),
   ],
   can: [
-    L("Parallelepiped asosi parallelogramm bo'lgan prizma ekanini bilaman", 'Знаю, что параллелепипед это призма с параллелограммом в основании', 'I know a parallelepiped is a prism with a parallelogram base'),
-    L("To'g'rini to'g'ri burchaklidan ajrataman", 'Отличаю прямой от прямоугольного', 'I tell a right one from a rectangular one'),
-    L('Yoq diagonalini jism diagonalidan ajrataman', 'Отличаю диагональ грани от диагонали тела', 'I tell a face diagonal from a body diagonal'),
-    L("Diagonalni uch o'lcham bo'yicha hisoblayman", 'Считаю диагональ по трём измерениям', 'I compute the diagonal from three dimensions'),
+    L("O'qlar bo'yicha qo'shaman va ayiraman", 'Складываю и вычитаю по осям', 'I add and subtract along the axes'),
+    L("Ayirmani chizmadan kerakli tartibda o'qiyman", 'Читаю разность с чертежа в нужном порядке', 'I read a difference off a drawing in the right order'),
+    L("Vektorni songa ko'paytiraman", 'Умножаю вектор на число', 'I multiply a vector by a number'),
+    L('Nol vektor javob, xato emasligini bilaman', 'Знаю, что нулевой вектор это ответ, а не ошибка', 'I know the zero vector is an answer, not a mistake'),
   ],
   levels: {
     full: L("To'rttasi ham", 'Все четыре', 'All four'),
     gap: L("To'rttadan uchtasi", 'Три из четырёх', 'Three out of four'),
     back: L('Uchtadan kam', 'Меньше трёх', 'Fewer than three'),
   },
-  bridge: L('Bundan keyin piramida, barcha yon yoqlari bitta uchda tutashadigan jism', 'Дальше пирамида — тело, у которого все боковые грани сходятся в одной вершине', 'Next comes the pyramid, a body whose lateral faces all meet at one vertex'),
-  lifehack: L("Diagonalni hisoblayotgan bo'lsangiz, avval u yoqdami yoki jism ichida ekanini so'rang", 'Считаешь диагональ — сначала спроси, в грани она или внутри тела', 'Computing a diagonal, first ask whether it is in a face or inside the body'),
+  bridge: L("Bundan keyin skalyar ko'paytma, ikki vektor vektor emas, son beradi", 'Дальше скалярное произведение — два вектора дадут не вектор, а число', 'Next comes the dot product, where two vectors give not a vector but a number'),
+  lifehack: L('Ayirmani hisoblashdan oldin qaysi oxirdan qaysi oxirga borayotganingizni ovoz chiqarib ayting', 'Прежде чем считать разность, скажи вслух, из какого конца в какой идёшь', 'Before computing a difference, say aloud which end you go from and to'),
   sheetTitle: L('Shpargalka', 'Шпаргалка', 'Cheat sheet'),
-  sheetSrc: L('Geometriya, qirq beshinchi bet', 'Геометрия, страница сорок пять', 'Geometry, page forty five'),
+  sheetSrc: L('Programma, sakkizinchi blok', 'Программа, блок восемь', 'The programme, block eight'),
   hook: {
-    a: 'd² = a² + b²',
-    b: 'd² = a² + b² + c²',
+    a: '(3; 4; 0)',
+    b: '(−3; −4; 0)',
   },
-  proved: 'd² = a² + b² + c²',
-  law: 'AA₁ ⊥ ABCD',
+  proved: '(3; 4; 0)',
+  law: 'a − b = a + (−b)',
   sheet: [
-    'ABCD = ▱',
-    'AA₁ ⊥ ABCD',
-    'AC² = a² + b²',
-    'd² = a² + b² + c²',
-    'a = b = c',
+    'a + b = (5; 4; 4)',
+    'a − b = (3; 4; 0)',
+    '2a = (8; 8; 4)',
+    '|2a| = 2|a|',
+    'a + (−a) = 0',
   ],
 }
 
 // ======== QOLDA YOZILGAN QISM: bundan pastdagisi saqlanadi ========
 
-const num = (s) => parseFloat(String(s).replace(/−/g, '-'))
+const num = (s) => parseFloat(String(s).replace(/\u2212/g, '-'))
 
-// PRIBOR 6B. Asos QO'LDA beriladi (`plan`), chunki darsning butun mazmuni
-// asosning shaklida: parallelogramm, to'g'ri to'rtburchak, kvadrat.
-const PARAL = { kind: 'prism', h: 1.05, plan: [[-0.5, -0.3], [0.5, -0.34], [0.68, 0.3], [-0.32, 0.34]] }
-const SLANT = { ...PARAL, skew: [0.34, 0.2] }
-const RECT = { kind: 'prism', h: 1.05, plan: [[-0.58, -0.34], [0.58, -0.34], [0.58, 0.34], [-0.58, 0.34]] }
-const CUBE = { kind: 'prism', h: 0.94, plan: [[-0.47, -0.47], [0.47, -0.47], [0.47, 0.47], [-0.47, 0.47]] }
+// PRIBOR 6C -- `Space3D`, 11-sinfning fazoviy karkasiga o'ram (space.jsx).
+const BOX = [5, 5, 5]
+const VA = [4, 4, 2]          // uzunligi 6
+const VB = [1, 0, 2]
+const VB_BACK = [-1, 0, -2]
+const VSUM = [5, 4, 4]
+const VDIFF = [3, 4, 0]       // uzunligi 5
+const VA_BACK = [-4, -4, -2]
+const O = [0, 0, 0]
 
-const GREY = '#7f8c8d'
-const FACE2 = '#6b8fa3'
-
-const BASE = [{ by: ['A', 'B', 'C', 'D'] }]
-const BASE_SIDE = [{ by: ['A', 'B', 'C', 'D'] }, { by: ['A', 'B', 'B1', 'A1'], tone: FACE2 }]
-
-// Ikki diagonal BIR uchdan: yoq diagonali va jism diagonali. Darsning shohidi
-// aynan shu ikkisining ajralishi.
-const DIAG_FACE = { from: 'A', to: 'C', tone: GREY, w: 2.2 }
-const DIAG_BODY = { from: 'A', to: 'C1' }
-const EDGE_UP = { from: 'C', to: 'C1', tone: GREY, w: 2 }
-const BOTH_DIAG = [DIAG_FACE, DIAG_BODY]
-const PROOF_SEGS = [DIAG_FACE, DIAG_BODY, EDGE_UP]
-const RIGHT_C = { at: 'C', from: 'A', to: 'C1' }
+// AYIRMA CHIZMADA: ikki vektor UMUMIY boshdan chiqarilgan, va ayirma b ning
+// oxiridan a ning oxiriga boradi. Shuning uchun u `vec` rejimida uchinchi
+// strelka bo'lib beriladi, `sum` rejimida emas: `sum` yopuvchi strelkani
+// boshqa joydan chizadi.
+const PAIR = [
+  { from: O, to: VA, label: 'a', coords: true },
+  { from: O, to: VB, label: 'b', coords: true, tone: 'graph' },
+]
+const DIFF_ARROW = { from: VB, to: VA, label: 'c', coords: true, tone: 'accent' }
+const DIFF_WRONG = { from: VA, to: VB, label: 'c', coords: true, tone: 'tip', dash: true }
 
 const PAIR_IDS = ['p0', 'p1', 'p2', 'p3']
 const EQ_LEFT = S9.match.left.map((label, i) => ({ id: PAIR_IDS[i], label }))
@@ -637,13 +635,10 @@ const REASONS = [
   { id: 's3', label: S10.reason.s3 },
   { id: 'pic', label: S10.reason.pic.label, missing: S10.reason.pic.missing },
 ]
-// UCHINCHI QATOR ham Pifagor: xulosa «yana Pifagor ishlaydi» deb yozilgan, va
-// uni parallelogramm xossasi bilan asoslash mazmunan xato. `s3` esa ataylab
-// ishlatilmaydi -- u to'g'ri, lekin bu isbotga aloqasi yo'q chalg'ituvchi.
 const PROOF_ROWS = [
   { text: S10.proof.r1, reason: 's1', early: S10.proof.e1 },
   { text: S10.proof.r2, reason: 's2', early: S10.proof.e2 },
-  { text: S10.proof.r3, reason: 's1', early: S10.proof.e3, ok: S10.proof.ok },
+  { text: S10.proof.r3, reason: 's3', early: S10.proof.e3, ok: S10.proof.ok },
 ]
 
 const Screen1 = (p) => (
@@ -655,9 +650,14 @@ const Screen1 = (p) => (
         // Prognoz TURG'UN chizmada: aynan shunda yon qirralar esdan chiqadi.
         fig={() => (
           <Scene
-            fig={<Space step={1} yaw={0.4} poly={RECT} faces={BASE} segs={[DIAG_BODY]} />}
-            max={172}
-            h={172}
+            fig={(
+              <Space3D
+                mode="vec" box={BOX}
+                vectors={PAIR.concat([DIFF_ARROW, DIFF_WRONG])}
+              />
+            )}
+            max={230}
+            h={158}
           />
         )}
       />
@@ -671,7 +671,7 @@ const Screen2 = (p) => (
       <Cols l={1} r={1.2}>
         <Col>
           <Scene
-            fig={<Space step={1} yaw={0.4} poly={PARAL} faces={BASE} />}
+            fig={<Space3D mode="vec" box={BOX} vectors={PAIR} />}
             max={240}
             h={158}
           />
@@ -691,17 +691,17 @@ const Screen3 = (p) => (
          ko'pburchaklardan yig'iladi. */
       <Scene
         fig={(
-          <Space
-            step={1} yaw={0.35 + phase * 0.4} poly={PARAL}
-            faces={phase === 0 ? BASE : BASE_SIDE}
-          />
+          phase === 0 ? (
+            <Space3D mode="vec" box={BOX} vectors={PAIR} />
+          ) : (
+            <Space3D mode="sum" box={BOX} sum={{ a: VA, b: VB, rule: 'triangle' }} />
+          )
         )}
         note={<NoteList items={S3.show[phase]} />}
       />
     ) : (
       <SpinScene
-        yaw0={0.35}
-        scene={<Space step={1} poly={PARAL} faces={BASE_SIDE} />}
+        scene={<Space3D mode="sum" box={BOX} sum={{ a: VA, b: VB, rule: 'triangle' }} />}
         prompt={S3.work.prompt}
         answer={num(S3.work.answer)}
         okText={S3.work.ok}
@@ -720,9 +720,9 @@ const Screen4 = (p) => (
          qirra. Qirra yoritilgan, ya'ni ikki yoqning chegarasi ko'rinadi. */
       <Scene
         fig={(
-          <Space
-            step={1} yaw={0.35} poly={phase === 0 ? PARAL : RECT}
-            faces={BASE_SIDE} hi={['AA1']}
+          <Space3D
+            mode="sum" box={BOX}
+            sum={{ a: VA, b: VB, rule: phase === 0 ? 'triangle' : 'parallelogram' }}
           />
         )}
         note={<NoteList items={S4.show[phase]} />}
@@ -730,7 +730,9 @@ const Screen4 = (p) => (
     ) : (
       <SpinScene
         yaw0={0.35}
-        scene={<Space step={1} poly={RECT} faces={BASE_SIDE} hi={['AA1']} />}
+        scene={(
+          <Space3D mode="sum" box={BOX} sum={{ a: VA, b: VB, rule: 'parallelogram' }} />
+        )}
         prompt={S4.work.prompt}
         answer={num(S4.work.answer)}
         okText={S4.work.ok}
@@ -747,9 +749,14 @@ const Screen5 = (p) => (
     {({ audio, phase, solved, solve }) => (phase < S5.show.length && !solved ? (
       <Scene
         fig={(
-          <Space
-            step={1} yaw={0.3 + phase * 0.5} poly={phase === 0 ? RECT : CUBE}
-            faces={BASE} hi={['AB', 'AD', 'AA1']}
+          <Space3D
+            mode="vec" box={BOX}
+            vectors={phase === 0
+              ? [
+                { from: O, to: VA, label: 'a', coords: true },
+                { from: O, to: VB_BACK, label: 'b', coords: true, tone: 'graph', dash: true },
+              ]
+              : PAIR.concat([DIFF_ARROW])}
           />
         )}
         note={<NoteList items={S5.show[phase]} />}
@@ -757,7 +764,7 @@ const Screen5 = (p) => (
     ) : (
       <SpinScene
         yaw0={0.3}
-        scene={<Space step={1} poly={CUBE} faces={BASE} hi={['AB', 'AD', 'AA1']} />}
+        scene={<Space3D mode="vec" box={BOX} vectors={PAIR.concat([DIFF_ARROW])} />}
         prompt={S5.work.prompt}
         answer={num(S5.work.answer)}
         okText={S5.work.ok}
@@ -774,10 +781,11 @@ const Screen6 = (p) => (
     {({ audio, phase, solved, solve }) => (phase < S6.show.length && !solved ? (
       <Scene
         fig={(
-          <Space
-            step={1} yaw={0.35} poly={RECT} faces={BASE}
-            segs={phase === 0 ? [DIAG_FACE] : PROOF_SEGS}
-            angleAt={phase === 0 ? null : RIGHT_C}
+          <Space3D
+            mode="vec" box={[9, 9, 9]}
+            vectors={[{ from: O, to: VA, label: 'a', coords: true }]}
+            lambda={phase === 0 ? 1 : 2}
+            value="len"
           />
         )}
         note={<NoteList items={S6.show[phase]} />}
@@ -785,7 +793,13 @@ const Screen6 = (p) => (
     ) : (
       <SpinScene
         yaw0={0.3}
-        scene={<Space step={1} poly={RECT} faces={BASE} segs={PROOF_SEGS} angleAt={RIGHT_C} />}
+        scene={(
+          <Space3D
+            mode="vec" box={[9, 9, 9]}
+            vectors={[{ from: O, to: VA, label: 'a', coords: true }]}
+            lambda={2} value="len"
+          />
+        )}
         prompt={S6.work.prompt}
         answer={num(S6.work.answer)}
         okText={S6.work.ok}
@@ -804,17 +818,29 @@ const Screen7 = (p) => (
          qirrada, va qimirlamas chizmada u deyarli ko'rinmaydi. */
       <Scene
         fig={(
-          <Space
-            step={1} yaw={phase === 0 ? 0.12 : 0.75} poly={RECT}
-            faces={BASE} segs={BOTH_DIAG}
-          />
+          phase === 0 ? (
+            <Space3D
+              mode="vec" box={BOX}
+              vectors={[
+                { from: O, to: VA, label: 'a', coords: true },
+                { from: VA, to: O, label: 'b', coords: true, tone: 'accent', dash: true },
+              ]}
+            />
+          ) : (
+            <Space3D
+              mode="sum" box={BOX}
+              sum={{ a: VA, b: VA_BACK, rule: 'triangle' }}
+            />
+          )
         )}
         note={<NoteList items={S7.show[phase]} />}
       />
     ) : (
       <SpinScene
         yaw0={0.35}
-        scene={<Space step={1} poly={RECT} faces={BASE} segs={BOTH_DIAG} />}
+        scene={(
+          <Space3D mode="sum" box={BOX} sum={{ a: VA, b: VA_BACK, rule: 'triangle' }} />
+        )}
         prompt={S7.work.prompt}
         answer={num(S7.work.answer)}
         okText={S7.work.ok}
@@ -835,10 +861,9 @@ const Screen8 = (p) => (
         fig={(solved) => (
           <Scene
             fig={(
-              <Space
-                step={1} yaw={solved ? 0.8 : 0.35}
-                poly={RECT} faces={BASE} segs={solved ? PROOF_SEGS : BOTH_DIAG}
-                angleAt={solved ? RIGHT_C : null}
+              <Space3D
+                mode="vec" box={BOX} yaw={solved ? 0.9 : 0}
+                vectors={PAIR.concat([DIFF_ARROW])}
               />
             )}
             max={330}
@@ -989,11 +1014,9 @@ const Screen14 = (p) => (
         fig={(round) => (
           <Scene
             fig={(
-              <Space
-                step={1} yaw={0.35 + round * 0.3}
-                poly={round === 1 ? CUBE : RECT}
-                faces={BASE}
-                segs={BOTH_DIAG}
+              <Space3D
+                mode="vec" box={BOX} yaw={round * 0.3}
+                vectors={round === 1 ? PAIR.concat([DIFF_ARROW]) : PAIR}
               />
             )}
             max={260}

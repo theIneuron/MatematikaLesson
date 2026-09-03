@@ -51,7 +51,7 @@ const LESSON_TITLE = L(
   `Lesson ${LESSON_NO}. Graphs`,
 )
 
-const BLOCK = { label: 'B1', from: 1, to: 7, current: 6 }
+const BLOCK = { label: 'B1', from: 1, to: 8, current: 6 }
 
 const S1 = {
   role: 'hook',

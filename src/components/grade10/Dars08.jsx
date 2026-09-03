@@ -3,12 +3,13 @@
 //
 // Bu fayl `scripts/grade10-kontent-build.mjs` bilan yasalgan:
 //   manba:  src/books/grade10/DARS08_KONTENT.md
-// Ma'lumot (ovoz, kadrlar, variantlar, razborlar, qoida, yakun) mashina bilan
-// yig'ilgan. Ekran tanalari qo'lda yozilgan: asbob va figurani tanlash --
-// matematik qaror, va u avtomatlashtirilmaydi (etalon §5.3).
+// Ma'lumot sborshchik bilan yig'ilgan, EKRAN TANALARI qo'lda: asbob va
+// figurani tanlash matematik qaror (etalon 5.3). Asbob 2 -- yozuv, asbob 5 --
+// polosa, 6-ekranda `TwoLines` ko'zgu rejimida (darslik 4-rasm, 39-bet).
 //
-// Matn o'zgarsa: kontentni to'g'rilash va qayta yig'ish (kalitsiz), tanalar
-// joyida qoladi. Keyin `grade10-lesson-audit.mjs`, tez yarus, to'liq prognon.
+// Tartib: tanalarni to'ldirish, keyin `grade10-lesson-audit.mjs`, keyin
+// tez yarus (2 o'lcham), keyin to'liq prognon. Har yangi figura oldin
+// `probe/figures.html` stendida suratga olinadi.
 //
 // `import React` SHART (LMS klassik rejim).
 // ============================================================================
@@ -26,112 +27,106 @@ import {
 } from './screens.jsx'
 import {
   AuditRows,
-  BuildPoint,
   MatchPairs,
   MultiPick,
   NoteList,
   NumberEntry,
   OrderRow,
-  PlaceAngle,
   ProbeChain,
   Scene,
-  UnitCircle,
 } from './tools.jsx'
-// Две новые фигуры блока 2. Обе сняты на стенде `probe/figures.html` до
-// контента, и стенд поймал четыре дефекта — см. START_GRADE10.
-import { LevelLine, WindowArc } from './figures.jsx'
+import { DomainBand, TwoLines } from './figures.jsx'
 
 // Метка урока: `lesson_id` = grade10-<номер>, `lesson_name` = номер + тема
 // ИЗ ПЛАНА дословно.
 const LESSON_NO = 8
 const LESSON_ID = `grade10-${String(LESSON_NO).padStart(2, '0')}`
 const LESSON_TITLE = L(
-  `${LESSON_NO}-dars. Arkfunksiyalar`,
-  `Урок ${LESSON_NO}. Аркфункции`,
-  `Lesson ${LESSON_NO}. Arc functions`,
+  `${LESSON_NO}-dars. Murakkab va teskari funksiya`,
+  `Урок ${LESSON_NO}. Сложная и обратная функция`,
+  `Lesson ${LESSON_NO}. Composite and inverse function`,
 )
 
-const BLOCK = { label: 'B2', from: 8, to: 13, current: 8 }
+const BLOCK = { label: 'B1', from: 1, to: 7, current: 8 }
 
 const S1 = {
   role: 'hook',
   answer: 'pick4',
-  eyebrow: L('ARKSINUS', 'АРКСИНУС', 'ARCSINE'),
-  title: L('Arksinusning nechta javobi bor?', 'Сколько ответов у арксинуса?', 'How many answers does the arcsine have?'),
-  motion: ['mount'],
+  eyebrow: L('TARTIB', 'ПОРЯДОК', 'THE ORDER'),
+  title: L("Tartib o'zgarsa, javob o'zgaradimi?", 'Меняем порядок — меняется ответ?', 'Change the order, does the answer change?'),
   audio: [
-    A('mount', "To'g'ri chiziq bir ikkidan balandlikka tushadi va aylanani ikki joyda kesadi.", 'Прямая опускается на высоту одна вторая и задевает окружность в двух местах.', 'The line drops to the height one half and meets the circle in two places.'),
-    A('r1', 'Birinchi yozuv javob bitta deydi.', 'Первая запись говорит, что ответ один.', 'The first reading says there is one answer.'),
-    A('r2', 'Ikkinchisi ikkita deydi, va ekrandagi nuqtalar uning tomonida.', 'Вторая говорит, что их два, и точки на экране за неё.', 'The second says there are two, and the points on the screen back it.'),
+    A('mount', "Ikki funksiya. Birinchisi kvadratga ko'taradi, ikkinchisi uchni ayiradi.", 'Две функции. Первая возводит в квадрат, вторая отнимает три.', 'Two functions. The first squares, the second subtracts three.'),
+    A('r1', "Birinchi yozuv tartib muhim emas deydi: avval kvadrat yoki avval minus uch, farqi yo'q.", 'Первая запись говорит, что порядок неважен: сначала квадрат или сначала минус три, разницы нет.', 'The first reading says the order does not matter: square first or subtract three first, no difference.'),
+    A('r2', "Ikkinchisi tartib sonni o'zgartiradi deydi, unda ikkitadan bittasi ortiqcha.", 'Вторая говорит, что порядок меняет число, и тогда одна запись из двух лишняя.', 'The second says the order changes the number, and then one of the two readings is wrong.'),
     A('ask', "Sizningcha qaysi biri to'g'ri? Hozircha shunchaki taxmin qiling.", 'Как думаешь, какая верная? Пока просто предположи.', 'Which one do you think is right? Just make a guess for now.'),
   ],
   probe: {
     question: L("Qaysi yozuv to'g'ri?", 'Какая запись верна?', 'Which reading is correct?'),
-    afterPredict: L("Javobingiz yozib olindi. Endi to'g'ri chiziqni tushirib ko'ramiz.", 'Твой ответ записан. Сейчас опустим прямую и посмотрим.', 'Your answer is saved. Now we will drop the line and see.'),
+    afterPredict: L('Javobingiz yozib olindi. Endi ikkala tartibni hisoblaymiz.', 'Твой ответ записан. Сейчас посчитаем оба порядка.', 'Your answer is saved. Now we will compute both orders.'),
     items: [
-      { id: 'a', label: L('birinchi', 'первая', 'the first'), correct: true },
-      { id: 'b', label: L('ikkinchi', 'вторая', 'the second') },
+      { id: 'a', label: L('birinchi', 'первая', 'the first') },
+      { id: 'b', label: L('ikkinchi', 'вторая', 'the second'), correct: true },
       { id: 'both', label: L('ikkisi ham', 'обе', 'both') },
       { id: 'none', label: L('hech qaysi', 'ни одна', 'neither') },
     ],
   },
   row: {
     a: {
-      name: L('javob bitta', 'ответ один', 'one answer'),
-      value: 'arcsin 1/2 = 30°',
+      name: L('ikkala tartib bir xil son beradi', 'оба порядка дают одно число', 'both orders give the same number'),
+      value: 'f(g(5)) = g(f(5))',
     },
     b: {
-      name: L('javob ikkita', 'ответов два', 'two answers'),
-      value: 'arcsin 1/2 = 30°,  150°',
+      name: L('tartiblar boshqa son beradi', 'порядки дают разные числа', 'the orders give different numbers'),
+      value: 'f(g(5)) ≠ g(f(5))',
     },
   },
-  expr: 'arcsin 1/2 = ?',
+  defs: ['f(x) = x²', 'g(x) = x − 3'],
 }
 
 const S2 = {
   role: 'support',
   answer: 'pick4',
-  eyebrow: L('TAYANCH', 'ОПОРА', 'WHAT YOU KNOW'),
-  title: L('Teskari masaladan oldin uch savol', 'Три вопроса перед обратной задачей', 'Three questions before the inverse task'),
+  eyebrow: L('TAYANCH', 'ОПОРА', 'THE BASICS'),
+  title: L('Boshlashdan oldin uchta qisqa savol', 'Три коротких перед началом', 'Three short ones before we start'),
   tag: 'support',
   audio: [
-    A('mount', "Uch qisqa savol. Uchalasi ham bir daqiqadan keyin kerak bo'ladi.", 'Три коротких вопроса. Все три понадобятся через минуту.', 'Three short questions. All three will be needed in a minute.'),
+    A('mount', 'Siz bilgan narsalar uchun uchta savol. Darsning ikkala funksiyasi ularda alohida uchraydi.', 'Три вопроса на то, что уже знаешь. Обе функции урока встретятся в них по отдельности.', 'Three questions on what you already know. Both functions of the lesson appear in them separately.'),
   ],
   items: [
     {
       id: 'q1',
       ask: true,
-      prompt: L('Nuqtaning qaysi koordinatasi sinus deyiladi?', 'Какая координата точки называется синусом?', 'Which coordinate of the point is the sine?'),
-      done: 'y = sin α',
+      prompt: L("Funksiya kvadratga ko'taradi. U ikkida nima beradi?", 'Функция возводит в квадрат. Что она даёт на двойке?', 'The function squares. What does it give at two?'),
+      done: L('Bu darsning tashqi funksiyasi.', 'Это внешняя функция урока.', 'This is the outer function of the lesson.'),
       items: [
-        { id: 'a', label: L('balandlik, ikkinchi son', 'высота, второе число', 'the height, the second number'), correct: true },
-        { id: 'b', label: L('siljish, birinchi son', 'сдвиг, первое число', 'the shift, the first number'), hint: L('Siljish bu kosinus, u birinchi turadi.', 'Сдвиг это косинус, он идёт первым.', 'The shift is the cosine, it comes first.') },
-        { id: 'c', label: L('radius', 'радиус', 'the radius'), hint: L('Radius doim birga teng va koordinata emas.', 'Радиус всегда равен единице и координатой не является.', 'The radius is always one and is not a coordinate.') },
-        { id: 'd', label: L("burchakning o'zi", 'сам угол', 'the angle itself'), hint: L('Burchak nuqtani beradi, sinus esa uning koordinatasi.', 'Угол задаёт точку, а синус это её координата.', 'The angle fixes the point, the sine is its coordinate.') },
+        { id: 'a', label: L('4', '4', '4'), correct: true },
+        { id: 'b', label: L('2', '2', '2'), hint: L('Ikki bu kirish, chiqish emas.', 'Двойка это вход, а не выход.', 'Two is the input, not the output.') },
+        { id: 'c', label: L('8', '8', '8'), hint: L("Sakkiz bu kub, kvadrat esa ikki ko'paytuvchi.", 'Восемь это куб, а квадрат это два множителя.', 'Eight is the cube; a square is two factors.') },
+        { id: 'd', label: L('1', '1', '1'), hint: L('Birni birning kvadrati beradi, ikkining emas.', 'Единицу даёт квадрат единицы, а не двойки.', 'One comes from the square of one, not of two.') },
       ],
     },
     {
       id: 'q2',
       ask: true,
-      prompt: L('Teskari amal nima qiladi?', 'Что делает обратное действие?', 'What does an inverse action do?'),
-      done: 'sin α = a   →   α = ?',
+      prompt: L('Funksiya uchni ayiradi. U beshda nima beradi?', 'Функция отнимает три. Что она даёт на пятёрке?', 'The function subtracts three. What does it give at five?'),
+      done: L('Bu esa ichkisi.', 'А это внутренняя.', 'And this is the inner one.'),
       items: [
-        { id: 'a', label: L('natijadan uni bergan narsani topadi', 'по результату находит то, из чего он получен', 'it finds what the result came from'), correct: true },
-        { id: 'b', label: L('amalni yana bir marta takrorlaydi', 'повторяет действие ещё раз', 'it repeats the action once more'), hint: L('Takror hech narsani qaytarmaydi, teskari amal esa qaytaradi.', 'Повтор ничего не возвращает назад, а обратное действие возвращает.', 'Repeating returns nothing, an inverse action does.') },
-        { id: 'c', label: L('ishorani almashtiradi', 'меняет знак', 'it flips the sign'), hint: L("Ishorani ko'zgu almashtiradi, bu o'tgan darsda edi.", 'Знак меняет зеркало, это был прошлый урок.', 'The mirror flips the sign, that was the previous lesson.') },
-        { id: 'd', label: L('ikki barobar orttiradi', 'увеличивает в два раза', 'it doubles'), hint: L("Teskari amal o'lchamga emas, sanoq yo'nalishiga bog'liq.", 'Обратное действие связано не с размером, а с направлением счёта.', 'An inverse action is about direction, not about size.') },
+        { id: 'a', label: L('2', '2', '2'), correct: true },
+        { id: 'b', label: L('8', '8', '8'), hint: L("Sakkiz qo'shishda chiqardi, bu yerda esa minus.", 'Восемь вышло бы при сложении, а здесь стоит минус.', 'Eight would come from addition, but here it is a minus.') },
+        { id: 'c', label: L('15', '15', '15'), hint: L("O'n besh bu uchga ko'paytirish, uchni ayirish emas.", 'Пятнадцать это умножение на три, а не вычитание трёх.', 'Fifteen is multiplication by three, not subtracting three.') },
+        { id: 'd', label: L('−2', '−2', '−2'), hint: L('Ishora teskari: beshdan uch ayirildi, teskarisi emas.', 'Знак перевёрнут: от пяти отняли три, а не наоборот.', 'The sign is flipped: three from five, not the other way.') },
       ],
     },
     {
       id: 'q3',
       ask: true,
-      prompt: L('Sinus qanday qiymatlarni oladi?', 'Какие значения принимает синус?', 'Which values does the sine take?'),
-      done: '−1 ≤ sin α ≤ 1',
+      prompt: L('Iks ayirish uch ifodasi qanday iksda nolga teng?', 'При каком икс выражение икс минус три равно нулю?', 'For which x does x minus three equal zero?'),
+      done: L("Xuddi shu son teskarisini izlaganda kerak bo'ladi.", 'Это же число понадобится, когда будем искать обратную.', 'The same number will be needed when we look for the inverse.'),
       items: [
-        { id: 'a', label: L('minus birdan birgacha', 'от минус единицы до единицы', 'from minus one to one'), correct: true },
-        { id: 'b', label: L('har qanday', 'любые', 'any values'), hint: L("Nuqta radiusi bir bo'lgan aylanada yotadi va uzoqroqqa ketmaydi.", 'Точка лежит на окружности радиуса один и дальше не уходит.', 'The point lies on the circle of radius one and goes no further.') },
-        { id: 'c', label: L('faqat musbat', 'только положительные', 'only positive ones'), hint: L("O'qdan pastda balandlik manfiy, bu to'rtinchi darsda edi.", 'Ниже оси высота отрицательна, это было на четвёртом уроке.', 'Below the axis the height is negative, that was in lesson four.') },
-        { id: 'd', label: L('noldan birgacha', 'от нуля до единицы', 'from zero to one'), hint: L('Aylananing pastki yarmi manfiy qiymatlar beradi.', 'Нижняя половина окружности даёт отрицательные значения.', 'The lower half of the circle gives negative values.') },
+        { id: 'a', label: L('3', '3', '3'), correct: true },
+        { id: 'b', label: L('0', '0', '0'), hint: L('Nolda minus uch chiqadi, nol emas.', 'При нуле выйдет минус три, а не ноль.', 'At zero it gives minus three, not zero.') },
+        { id: 'c', label: L('−3', '−3', '−3'), hint: L('Minus uchda minus olti chiqadi.', 'При минус трёх выйдет минус шесть.', 'At minus three it gives minus six.') },
+        { id: 'd', label: L('1', '1', '1'), hint: L('Birda minus ikki chiqadi.', 'При единице выйдет минус два.', 'At one it gives minus two.') },
       ],
     },
   ],
@@ -139,197 +134,237 @@ const S2 = {
 
 const S3 = {
   role: 'explain1',
-  answer: 'lead',
-  eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L("To'g'ri chiziq aylanani ikki marta kesadi", 'Прямая задевает круг дважды', 'The line meets the circle twice'),
-  tag: 'odin-koren',
+  answer: 'number',
+  eyebrow: L('MURAKKAB FUNKSIYA', 'СЛОЖНАЯ ФУНКЦИЯ', 'A COMPOSITE FUNCTION'),
+  title: L('Ichki funksiya birinchi ishlaydi', 'Внутренняя работает первой', 'The inner one works first'),
+  tag: 'slozhnaya-poryadok',
   show: [
     [
-      L('balandlik bir ikkidan', 'высота одна вторая', 'the height is one half'),
-      L("to'g'ri chiziq pastga tushadi", 'прямая идёт вниз', 'the line comes down'),
+      L('1-qadam. Ichki funksiya sonni oladi', 'Шаг 1. Внутренняя функция берёт число', 'Step 1. The inner function takes the number'),
+      L("iks o'rniga iks ayirish uch qo'yildi", 'вместо икс подставлено икс минус три', 'x minus three is put in place of x'),
+      L('uning natijasi tashqisiga boradi', 'её результат идёт дальше, во внешнюю', 'its result goes on, into the outer one'),
     ],
     [
-      L("nuqta ikkita bo'ldi", 'точек стало две', 'there are two points now'),
-      L('ikkalasining balandligi bir ikkidan', 'обе высотой одна вторая', 'both at height one half'),
+      L("2-qadam. Tashqisi kvadratga ko'taradi", 'Шаг 2. Внешняя возводит в квадрат', 'Step 2. The outer one squares'),
+      L('qavs ichida tayyor son turadi', 'в скобках стоит уже готовое число', 'inside the brackets a ready number stands'),
+      L('beshda ichkisi ikkini beradi', 'на пятёрке внутренняя даёт два', 'at five the inner one gives two'),
     ],
   ],
-  motion: ['drop'],
+  motion: ['side'],
   audio: [
-    A('mount', "Yuqorida to'g'ri chiziq. Uning balandligi bir ikkidan.", 'Сверху прямая. Её высота одна вторая.', 'A line at the top. Its height is one half.'),
-    A('drop', "To'g'ri chiziq joyiga tushdi va aylanani ikki nuqtada kesdi. Ikkalasining balandligi bir ikkidan, ikkalasi ham haqiqiy. O'ttiz gradus va yuz ellik.", 'Прямая села на место и задела окружность в двух точках. Обе высотой одна вторая, обе настоящие. Тридцать градусов и сто пятьдесят.', 'The line settled and met the circle at two points. Both at height one half, both real. Thirty degrees and one hundred fifty.'),
-    A('work', "Endi o'zingiz. Ulardan ikkinchisiga, chapdagisiga nuqta qo'ying.", 'Теперь сам. Поставь точку во вторую из них, ту, что слева.', 'Now you. Place the point at the second of them, the one on the left.'),
+    A('mount', "Chapda ikkala funksiya, o'ngda yozuv. Har bir qadam daftardagidek o'z satrini oladi.", 'Слева обе функции, справа запись. Каждый шаг занимает свою строку, как в тетради.', 'On the left both functions, on the right the record. Each step takes its own line, as in a notebook.'),
+    A('side', "Ichki funksiya qayerga qo'yilishini kuzatib turing. U butunlay, minusi bilan kiradi.", 'Смотри, куда подставляется внутренняя функция. Она входит целиком, вместе со своим минусом.', 'Watch where the inner function goes. It enters whole, together with its minus.'),
+    A('work', 'Darslik bunga murakkab funksiya deydi: bir funksiya boshqasining ichida turadi.', 'Учебник называет это сложной функцией: одна функция стоит внутри другой.', 'The textbook calls this a composite function: one function stands inside another.'),
   ],
   work: {
-    prompt: L("Balandligi ham bir ikkidan, lekin chapda turgan joyga nuqta qo'ying.", 'Поставь точку туда, где высота тоже равна одной второй, но точка слева.', 'Place the point where the height is also one half but the point is on the left.'),
-    ok: L("Yuz ellik gradus. Balandlik o'sha, nuqta esa boshqa: bitta songa ikkita burchak mos keladi.", 'Сто пятьдесят градусов. Высота та же, а точка другая: одному числу отвечают два угла.', 'One hundred fifty degrees. The same height, a different point: one number matches two angles.'),
+    prompt: L('Murakkab funksiyaning beshdagi qiymatini hisoblang', 'Посчитай значение сложной функции на пятёрке', 'Compute the value of the composite at five'),
+    ok: L("To'g'ri. Ichkisi ikkini berdi, tashqisi kvadratga ko'tardi: to'rt.", 'Верно. Внутренняя дала два, внешняя возвела в квадрат: четыре.', 'Correct. The inner gave two, the outer squared it: four.'),
     hint: [
-      L("O'sha balandlikdagi, lekin vertikal o'qning boshqa tomonidagi nuqta kerak.", 'Нужна точка на той же высоте, но по другую сторону от вертикальной оси.', 'You need a point at the same height on the other side of the vertical axis.'),
-      L("Vertikal o'qdan chapda siljish manfiy, balandlik esa musbat qoladi.", 'Слева от вертикальной оси сдвиг отрицательный, а высота остаётся положительной.', 'Left of the vertical axis the shift is negative and the height stays positive.'),
-      L('Yuz ellik gradus.', 'Сто пятьдесят градусов.', 'One hundred fifty degrees.'),
+      L("Avval iks besh bo'lganda iks ayirish uchni hisoblang.", 'Сначала посчитай икс минус три при икс равном пяти.', 'First compute x minus three at x equal to five.'),
+      L('Ichkisi ikkini berdi. Endi tashqisi ishlaydi.', 'Внутренняя дала два. Теперь работает внешняя.', 'The inner gave two. Now the outer works.'),
+      L("Ikkining kvadrati to'rt.", 'Квадрат двойки это четыре.', 'Two squared is four.'),
     ],
+    expr: 'f(g(5)) = (5 − 3)²',
+    answer: '4',
   },
+  defs: ['f(x) = x²', 'g(x) = x − 3'],
+  frame: [
+    'f(g(x)) = f(x − 3)',
+    'f(g(x)) = (x − 3)²',
+  ],
 }
 
 const S4 = {
   role: 'explain2',
-  answer: 'lead',
-  eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L("Nuqta bitta bo'ladigan oyna", 'Окно, где точка одна', 'The window where the point is alone'),
-  tag: 'arcsin-bez-promezhutka',
+  answer: 'order',
+  eyebrow: L('BOSHQA TARTIB', 'ДРУГОЙ ПОРЯДОК', 'THE OTHER ORDER'),
+  title: L("O'sha ikki funksiya, tartib teskari", 'Те же две функции, порядок обратный', 'The same two functions, the order reversed'),
+  tag: 'slozhnaya-poryadok',
   show: [
     [
-      L("o'ng yarmi bo'yaldi", 'закрашена правая половина', 'the right half is painted'),
-      L("minus to'qsondan to'qsongacha", 'от минус девяноста до девяноста', 'from minus ninety to ninety'),
+      L("Endi birinchi bo'lib kvadrat ishlaydi", 'Теперь первой работает квадрат', 'Now the square works first'),
+      L('va faqat keyin uch ayiriladi', 'и только потом отнимается три', 'and only then three is subtracted'),
+      L('beshda yigirma ikki chiqadi', 'на пятёрке выходит двадцать два', 'at five it comes out twenty two'),
     ],
     [
-      L('oynada nuqta bitta', 'в окне точка одна', 'inside the window the point is alone'),
-      L('ikkinchisi qoldi, lekin javobda emas', 'вторая осталась, но не в ответе', 'the second stayed but is not the answer'),
+      L("To'rt va yigirma ikki", 'Четыре против двадцати двух', 'Four against twenty two'),
+      L("o'sha funksiyalar, o'sha kirish, boshqa tartib", 'те же функции, тот же вход, разный порядок', 'same functions, same input, different order'),
+      L('demak tartibni yozish shart', 'значит запись порядка обязательна', 'so writing the order down is mandatory'),
     ],
   ],
-  motion: ['win'],
+  motion: ['two'],
   audio: [
-    A('mount', 'Ikkita nuqta noqulay: teskari amal bitta son berishi shart.', 'Две точки это неудобно: обратное действие обязано давать одно число.', 'Two points are awkward: an inverse action must give one number.'),
-    A('win', "Shuning uchun kelishildi: aylananing faqat o'ng yarmini, minus to'qsondan to'qsongacha olamiz. Bu oynada shunday balandlikdagi nuqta aynan bitta. Ikkinchisi yo'qolgani yo'q, u shunchaki javobga kirmaydi.", 'Поэтому договорились: берём только правую половину окружности, от минус девяноста до девяноста. В этом окне точка с такой высотой ровно одна. Вторая никуда не делась, она просто не идёт в ответ.', 'So it was agreed: we take only the right half of the circle, from minus ninety to ninety. In that window there is exactly one point with such a height. The second one is still there, it just does not go into the answer.'),
-    A('work', "Endi o'zingiz. Oynaga tushganiga nuqta qo'ying.", 'Теперь сам. Поставь точку в ту, что попала в окно.', 'Now you. Place the point at the one inside the window.'),
+    A('mount', 'Endi teskarisi: kvadrat birinchi, minus uch ikkinchi.', 'Теперь наоборот: квадрат первым, минус три вторым.', 'Now the other way round: the square first, minus three second.'),
+    A('two', 'Bir xil funksiyalar, sonlar esa boshqa. Qavslar qayerda turganiga qarang.', 'Одни и те же функции, а числа разные. Смотри, где стоят скобки.', 'The same functions, different numbers. Watch where the brackets are.'),
+    A('work', 'Ichkisi bu qavs ichidagisi. U birinchi ishlaydi.', 'Внутренняя это та, что в скобках. Она и работает первой.', 'The inner one is the one inside the brackets. It works first.'),
   ],
-  work: {
-    prompt: L("Oynada yotganiga nuqta qo'ying.", 'Поставь точку в ту, что лежит в окне.', 'Place the point at the one lying inside the window.'),
-    ok: L("O'ttiz gradus. U oynada, shuning uchun javob sifatida olinadi.", 'Тридцать градусов. Оно в окне, поэтому его и берут ответом.', 'Thirty degrees. It is inside the window, and that is why it is taken as the answer.'),
-    hint: [
-      L("Oyna bu aylananing o'ng yarmi.", 'Окно это правая половина окружности.', 'The window is the right half of the circle.'),
-      L('Chapda ham nuqta bor, lekin u oynadan tashqarida.', 'Слева точка тоже есть, но она вне окна.', 'There is a point on the left too, but it is outside the window.'),
-      L("O'ttiz gradus.", 'Тридцать градусов.', 'Thirty degrees.'),
-    ],
+  order: {
+    prompt: L('Tartib bilan joylashtiring', 'Расставь по порядку', 'Put them in order'),
+    s1: L('kirish ichkisiga boradi', 'вход идёт во внутреннюю', 'the input goes into the inner one'),
+    s2: L('uning natijasi tashqisiga boradi', 'её результат идёт во внешнюю', 'its result goes into the outer one'),
+    s3: L('tashqisi javob beradi', 'внешняя даёт ответ', 'the outer one gives the answer'),
+    ok: L("To'g'ri. Ichkisi doim birinchi, va bu qavslardan ko'rinadi.", 'Верно. Внутренняя всегда первой, и это видно по скобкам.', 'Correct. The inner one always goes first, and the brackets show it.'),
+    bad: L('Tartib boshqacha. Qavs ichida qaysi funksiya turganiga qarang.', 'Порядок другой. Смотри, какая функция стоит в скобках.', 'The order is different. Look at which function stands inside the brackets.'),
+    mark: 'f(g(x))',
   },
+  defs: ['f(x) = x²', 'g(x) = x − 3'],
+  frame: [
+    'g(f(x)) = x² − 3',
+    'f(g(5)) = 4,   g(f(5)) = 22',
+  ],
 }
 
 const S5 = {
   role: 'explain3',
   answer: 'number',
-  eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L('Arksinus bu oynadagi burchak', 'Арксинус это угол из окна', 'The arcsine is the angle from the window'),
-  tag: 'arcsin-bez-promezhutka',
+  eyebrow: L('QAYERDA ANIQLANGAN', 'ГДЕ ОПРЕДЕЛЕНА', 'WHERE IT IS DEFINED'),
+  title: L('Shart ichkisidan keladi', 'Условие приходит от внутренней', 'The condition comes from the inner one'),
+  tag: 'slozhnaya-oblast',
   show: [
     [
-      L('balandlik berilgan', 'высота дана', 'the height is given'),
-      L('burchak oynada qidiriladi', 'угол ищется в окне', 'the angle is looked for in the window'),
+      L("Tashqisi butun o'qda aniqlangan", 'Внешняя определена на всей прямой', 'The outer one is defined on the whole line'),
+      L('ichkisi esa ildiz', 'а внутренняя это корень', 'but the inner one is a root'),
+      L("ildiz ostida manfiy bo'lolmaydi", 'под корнем отрицательного быть не может', 'a negative cannot stand under a root'),
     ],
     [
-      L('oynadagi nuqta yoritilgan', 'точка в окне подсвечена', 'the point in the window is lit'),
-      L("ikkinchisi so'ndi, lekin qoldi", 'вторая потускнела, но осталась', 'the other faded but stayed'),
+      L("Polosa noldan o'ngga bo'yalgan", 'Полоса закрашена от нуля вправо', 'The band is shaded from zero rightwards'),
+      L('bu murakkab funksiyaning aniqlanish sohasi', 'это область определения сложной функции', 'this is the domain of the composite'),
+      L('darslik uni ichkisidan oladi, tashqisidan emas', 'учебник берёт её у внутренней, а не у внешней', 'the textbook takes it from the inner one, not the outer'),
     ],
   ],
-  motion: ['pick'],
+  motion: ['band'],
   audio: [
-    A('mount', "Arksinus bir ikkidan yozuvi shunday o'qiladi: balandligi bir ikkidan bo'lgan, oynadagi burchak.", 'Запись арксинус одна вторая читается так: угол из окна, у которого высота равна одной второй.', 'The reading arcsine of one half means: the angle from the window whose height is one half.'),
-    A('pick', "Oynadagi nuqta yoritilgan, ikkinchisi so'ndi. Javob yoritilganidan o'qiladi.", 'Точка в окне подсвечена, вторая потускнела. Ответ читается с подсвеченной.', 'The point inside the window is lit, the other one has faded. The answer is read off the lit one.'),
-    A('work', "O'zingiz hisoblang. Bir ikkidanning arksinusi gradusda qancha?", 'Посчитай сам. Чему равен арксинус одной второй в градусах?', 'Compute it yourself. What is the arcsine of one half in degrees?'),
+    A('mount', "Darslikdagi misol, o'ttiz beshinchi bet. Tashqi funksiya oddiy, ichkisi esa ildiz.", 'Пример из учебника, страница тридцать пять. Внешняя функция обычная, а внутренняя корень.', 'The example from the textbook, page thirty five. The outer function is ordinary, the inner one is a root.'),
+    A('band', "Ruxsat etilgan qiymatlar polosasi birinchi paydo bo'ladi, qo'yishdan oldin.", 'Полоса допустимых значений появляется первой, ещё до подстановки.', 'The band of allowed values appears first, before any substitution.'),
+    A('work', 'Shart ichki funksiyadan keldi, savol esa murakkab funksiya haqida edi.', 'Условие пришло от внутренней функции, хотя вопрос был про сложную.', 'The condition came from the inner function, though the question was about the composite.'),
   ],
   work: {
-    prompt: L('arcsin 1/2 gradusda qancha?', 'Чему равен arcsin 1/2 в градусах?', 'What is arcsin 1/2 in degrees?'),
-    ok: L("O'ttiz. Bu oynadagi, balandligi bir ikkidan bo'lgan o'sha burchak.", 'Тридцать. Это тот самый угол из окна, у которого высота равна одной второй.', 'Thirty. That is the very angle from the window whose height is one half.'),
+    prompt: L('t ning eng kichik ruxsat etilgan qiymatini yozing', 'Запиши наименьшее допустимое значение те', 'Write the smallest allowed value of t'),
+    ok: L("To'g'ri. Nol kiradi: noldan ildiz bor va u nolga teng.", 'Верно. Ноль входит: корень из нуля есть и равен нулю.', 'Correct. Zero is included: the root of zero exists and equals zero.'),
     hint: [
-      L("Balandligi bir ikkidan bo'lgan burchakni qidiring.", 'Ищи угол, у которого высота равна одной второй.', 'Look for the angle whose height is one half.'),
-      L("Shunday ikki burchakdan oynadagisini, ya'ni o'ngdagisini oling.", 'Из двух таких углов бери тот, что в окне, то есть справа.', 'Of the two such angles take the one in the window, that is on the right.'),
-      L("O'ttiz.", 'Тридцать.', 'Thirty.'),
+      L('Ildiz ostida nima turganiga qarang.', 'Смотри, что стоит под корнем.', 'Look at what stands under the root.'),
+      L("Ildiz uning ostidagi manfiy bo'lmaganda aniqlangan.", 'Корень определён, когда под ним не отрицательное.', 'A root is defined when what is under it is not negative.'),
+      L('Chegara sohaga kiradi: bu nol.', 'Граница входит в область: это ноль.', 'The boundary belongs to the domain: it is zero.'),
     ],
-    answer: '30',
+    expr: 'x = √t',
+    answer: '0',
   },
+  defs: ['y = 2x² − 3x', 'x = √t'],
+  frame: [
+    'y = 2t − 3√t',
+    't ≥ 0',
+  ],
 }
 
 const S6 = {
   role: 'explain4',
-  answer: 'lead',
-  eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L("Arkkosinusning o'z oynasi bor", 'У арккосинуса своё окно', 'The arccosine has its own window'),
-  tag: 'arcsin-bez-promezhutka',
+  answer: 'number',
+  eyebrow: L('TESKARI FUNKSIYA', 'ОБРАТНАЯ ФУНКЦИЯ', 'THE INVERSE FUNCTION'),
+  title: L('Kirish va chiqish joyini almashadi', 'Вход и выход меняются местами', 'The input and the output swap places'),
+  tag: 'obratnaya-kak-stepen',
   show: [
     [
-      L('kosinus bu siljish', 'косинус это сдвиг', 'the cosine is the shift'),
-      L("to'g'ri chiziq endi vertikal", 'прямая теперь вертикальная', 'the line is vertical now'),
+      L("To'g'ri funksiya iksdan igrekka olib boradi", 'Прямая функция ведёт от икс к игрек', 'The direct function leads from x to y'),
+      L('teskarisi igrekdan iksga qaytaradi', 'обратная возвращает от игрек к икс', 'the inverse leads back from y to x'),
+      L("minus bir va to'rt nuqtasi to'rt va minus bir bo'ladi", 'точка минус один и четыре становится четыре и минус один', 'the point minus one and four becomes four and minus one'),
     ],
     [
-      L('oyna noldan yuz saksongacha', 'окно от нуля до ста восьмидесяти', 'the window from zero to one hundred eighty'),
-      L('unda yana bitta nuqta', 'в нём снова одна точка', 'one point again inside it'),
+      L("Punktir bu igrek teng iks to'g'ri chizig'i", 'Пунктир это прямая игрек равно икс', 'The dashed line is y equals x'),
+      L('grafiklar unga nisbatan simmetrik', 'графики симметричны относительно неё', 'the graphs are symmetric about it'),
+      L("darslik xuddi shuni o'ttiz to'qqizinchi betda chizadi", 'учебник рисует это же на странице тридцать девять', 'the textbook draws the same on page thirty nine'),
     ],
   ],
-  motion: ['win'],
+  motion: ['mirror'],
   audio: [
-    A('mount', "Kosinusda balandlik emas, siljish berilgan, shuning uchun to'g'ri chiziq vertikal ketadi. U ham aylanani ikki marta kesadi.", 'У косинуса задан сдвиг, а не высота, поэтому прямая идёт вертикально. Она тоже задевает окружность дважды.', 'For the cosine the shift is given, not the height, so the line runs vertically. It also meets the circle twice.'),
-    A('win', "Arkkosinusning oynasi bu yuqori yarim, noldan yuz saksongacha. Yuqoridagi nuqta unda, pastdagisi yo'q.", 'Окно арккосинуса это верхняя половина, от нуля до ста восьмидесяти. Верхняя точка в нём, нижняя нет.', 'The arccosine window is the upper half, from zero to one hundred eighty. The upper point is in it, the lower one is not.'),
-    A('work', "Endi o'zingiz. Arkkosinus oynasiga tushgan nuqtaga qo'ying.", 'Теперь сам. Поставь точку в ту, что попала в окно арккосинуса.', 'Now you. Place the point at the one inside the arccosine window.'),
+    A('mount', "To'g'ri funksiya ikkilantiradi va olti qo'shadi. Teskarisi hammasini qaytarishi kerak.", 'Прямая функция удваивает и добавляет шесть. Обратная должна вернуть всё назад.', 'The direct function doubles and adds six. The inverse has to bring everything back.'),
+    A('mirror', "Ko'zgu nima qilishini kuzatib turing. Nuqta punktirdan o'tadi va koordinatalari joyini almashadi.", 'Смотри, что делает зеркало. Точка переходит через пунктир и меняет координаты местами.', 'Watch what the mirror does. The point crosses the dashed line and swaps its coordinates.'),
+    A('work', 'Yuqoridagi minus bir teskari funksiyani bildiradi, kasr yoki daraja emas.', 'Запись минус один сверху означает обратную функцию, а не дробь и не степень.', 'The minus one above means the inverse function, not a fraction and not a power.'),
   ],
   work: {
-    prompt: L("Arkkosinus oynasida yotgan nuqtaga qo'ying.", 'Поставь точку в ту, что лежит в окне арккосинуса.', 'Place the point at the one inside the arccosine window.'),
-    ok: L('Oltmish gradus. Siljish bir ikkidan, nuqta yuqorida, demak u oynada.', 'Шестьдесят градусов. Сдвиг равен одной второй, и точка сверху, значит она в окне.', 'Sixty degrees. The shift is one half and the point is on top, so it is in the window.'),
+    prompt: L("Teskari funksiyaning o'ndagi qiymatini hisoblang", 'Посчитай значение обратной функции на десятке', 'Compute the value of the inverse at ten'),
+    ok: L("To'g'ri. Ikki. Tekshiruv: to'g'ri funksiya ikkida o'n beradi, demak aynan o'sha yerga qaytdik.", 'Верно. Два. Проверка: прямая функция на двойке даёт десять, значит вернулись ровно туда.', 'Correct. Two. Check: the direct function at two gives ten, so we came back exactly there.'),
     hint: [
-      L('Arkkosinusning oynasi bu aylananing yuqori yarmi.', 'Окно арккосинуса это верхняя половина окружности.', 'The arccosine window is the upper half of the circle.'),
-      L("Pastki nuqtaning siljishi o'sha, lekin u oynaga tushmaydi.", 'Нижняя точка имеет тот же сдвиг, но в окно не попадает.', 'The lower point has the same shift but is not inside the window.'),
-      L('Oltmish gradus.', 'Шестьдесят градусов.', 'Sixty degrees.'),
+      L("Igrek teng ikki iks qo'shuv olti tenglikdan iksni ifodalang.", 'Из равенства игрек равно два икс плюс шесть вырази икс.', 'From y equals two x plus six express x.'),
+      L("Oltini ayiring, keyin ikkiga bo'ling.", 'Отними шесть, потом раздели на два.', 'Subtract six, then divide by two.'),
+      L("O'n ayirish olti bu to'rt, to'rtni ikkiga bo'lsa ikki.", 'Десять минус шесть это четыре, четыре на два это два.', 'Ten minus six is four, four divided by two is two.'),
     ],
+    expr: 'f⁻¹(x) = 0,5x − 3',
+    answer: '2',
   },
+  defs: ['f(x) = 2x + 6', 'f⁻¹(x) = 0,5x − 3'],
+  frame: [
+    'y = 2x + 6   ⇒   x = 0,5y − 3',
+    'f(2) = 10,   f⁻¹(10) = 2',
+  ],
 }
 
 const S7 = {
   role: 'explain5',
   answer: 'number',
-  eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L("To'g'ri chiziq yonidan o'tib ketishi mumkin", 'Прямая может пройти мимо', 'The line can miss the circle'),
-  tag: 'net-resheniy',
+  eyebrow: L('CHEGARA', 'ГРАНИЦА', 'THE EDGE'),
+  title: L("Har funksiyaning teskarisi yo'q", 'Обратная есть не у всякой функции', 'Not every function has an inverse'),
+  tag: 'obratnaya-bez-odnoznachnosti',
   show: [
     [
-      L('balandlik ikki', 'высота два', 'the height is two'),
-      L("to'g'ri chiziq aylanadan yuqorida", 'прямая выше окружности', 'the line is above the circle'),
+      L("Butun o'qdagi kvadratning teskarisi yo'q", 'Квадрат на всей прямой обратной не имеет', 'The square on the whole line has no inverse'),
+      L("bitta igrekka ikki xil iks to'g'ri keladi", 'одному игрек отвечают два разных икс', 'one y corresponds to two different x'),
+      L('demak bir qiymatli qaytish mumkin emas', 'значит вернуться однозначно нельзя', 'so there is no single way back'),
     ],
     [
-      L("kesishish nuqtasi yo'q", 'точек пересечения нет', 'there are no intersection points'),
-      L("demak burchak ham yo'q", 'значит нет и угла', 'so there is no angle either'),
+      L("O'qning o'ng yarmida teskarisi bor", 'На правой половине прямой обратная есть', 'On the right half of the line the inverse exists'),
+      L("unda har igrekka bitta iks to'g'ri keladi", 'там каждому игрек отвечает один икс', 'there each y has exactly one x'),
+      L('darslik ildizning yagonaligini talab qiladi', 'учебник и требует единственности корня', 'the textbook requires exactly this uniqueness'),
     ],
   ],
-  motion: ['miss'],
+  motion: ['count'],
   audio: [
-    A('mount', "Balandlik ikkini olaylik. To'g'ri chiziq aylanadan yuqorida turadi.", 'Возьмём высоту два. Прямая стоит выше окружности.', 'Take the height two. The line stands above the circle.'),
-    A('miss', "U yonidan o'tdi va aylanaga bir marta ham tegmadi. Nuqta yo'q, demak shunday balandlikdagi burchak ham yo'q. Ikkining arksinusi mavjud emas.", 'Она прошла мимо и не задела круг ни разу. Точки нет, значит нет и угла с такой высотой. Арксинус двух не существует.', 'It passed by and never touched the circle. There is no point, so there is no angle with such a height. The arcsine of two does not exist.'),
-    A('work', "O'zingiz hisoblang. Ikkining arksinusi nechta burchak beradi?", 'Посчитай сам. Сколько углов даёт арксинус двух?', 'Compute it yourself. How many angles does the arcsine of two give?'),
+    A('mount', "Darslik tenglama yagona ildizga ega bo'lishini talab qiladi. Buni son bilan tekshiramiz.", 'Учебник требует, чтобы уравнение имело единственный корень. Проверим это числом.', 'The textbook requires the equation to have a unique root. Let us check it with a number.'),
+    A('count', 'Yozuvga qarang. Ikki son bir xil kvadrat beradi.', 'Смотри на запись. Два числа дают один и тот же квадрат.', 'Look at the record. Two numbers give one and the same square.'),
+    A('work', "Aynan shu sababli butun o'qdagi kvadratning teskarisi yo'q.", 'Вот из-за этого обратной у квадрата на всей прямой и нет.', 'This is exactly why the square has no inverse on the whole line.'),
   ],
   work: {
-    prompt: L('arcsin 2 nechta burchak beradi?', 'Сколько углов даёт arcsin 2?', 'How many angles does arcsin 2 give?'),
-    ok: L('Nol. Birdan katta balandlik aylanada uchramaydi, shuning uchun ikkining arksinusi aniqlanmagan.', 'Ноль. Высота больше единицы на окружности не встречается, поэтому арксинус двух не определён.', 'Zero. A height above one never occurs on the circle, so the arcsine of two is undefined.'),
+    prompt: L("Kvadrati to'qqizga teng bo'lgan nechta son bor?", 'Сколько чисел дают квадрат, равный девяти?', 'How many numbers give a square equal to nine?'),
+    ok: L("To'g'ri. Ikkita: uch va minus uch. Bitta igrek, ikki iks, teskarisi yo'q.", 'Верно. Два: три и минус три. Один игрек, два икс, обратной нет.', 'Correct. Two: three and minus three. One y, two x, no inverse.'),
     hint: [
-      L("To'g'ri chiziq aylanaga tegdimi, qarang.", 'Посмотри, задела ли прямая окружность.', 'Look whether the line touched the circle.'),
-      L("U yuqoridan o'tdi, demak umumiy nuqta yo'q.", 'Она прошла выше, значит общих точек нет.', 'It passed above, so there are no common points.'),
-      L('Nol.', 'Ноль.', 'Zero.'),
+      L("Qaysi sonning kvadrati to'qqiz beradi?", 'Какое число в квадрате даёт девять?', 'Which number squared gives nine?'),
+      L("Minus uchning kvadrati ham to'qqiz beradi.", 'Минус три в квадрате тоже даёт девять.', 'Minus three squared also gives nine.'),
+      L('Demak bunday son ikkita, bitta emas.', 'Значит таких чисел два, а не одно.', 'So there are two such numbers, not one.'),
     ],
-    answer: '0',
+    expr: 'x² = 9',
+    answer: '2',
   },
+  defs: ['y = x²', 'y = 9'],
+  frame: [
+    'x² = 9   ⇒   x = 3;   x = −3',
+    'x ≥ 0   ⇒   x = 3',
+  ],
 }
 
 const S8 = {
   role: 'rule',
   answer: 'pick2',
-  eyebrow: L('QOIDA', 'ПРАВИЛО', 'RULE'),
-  title: L('Arksinus va arkkosinus', 'Арксинус и арккосинус', 'Arcsine and arccosine'),
-  tag: 'arcsin-bez-promezhutka',
+  title: L("Darslikning uchta ta'rifi", 'Три определения учебника', 'Three definitions from the textbook'),
+  tag: 'period-lyuboy',
   motion: ['rule'],
   audio: [
-    A('mount', 'Tushuntirish tugadi. Qoidani ochishdan oldin bitta savol.', 'Объяснение закончилось. Перед правилом один вопрос.', 'The explanation is over. One question before the rule.'),
-    A('rule', "Oyna yana bir bor bo'yaladi, va qoida yonida ochiladi. Teskari funksiya ro'yxat emas, son berishi aynan oyna kelishuv bilan qotirilganidan.", 'Окно закрашивается ещё раз, и правило открывается рядом. Обратная функция даёт число, а не список, ровно потому, что окно закреплено договором.', 'The window is painted once more, and the rule opens beside it. The inverse function gives a number, not a list, exactly because the window is fixed by agreement.'),
+    A('mount', 'Kartochkani ochishdan oldin bitta savolga javob bering.', 'Прежде чем открыть карточку, ответь на один вопрос.', 'Before the card opens, answer one question.'),
+    A('rule', "Kartochka darslik so'zlari bilan gapiradi. Uchta ta'rif, va uchalasi tartib haqida.", 'Карточка говорит словами учебника. Три определения, и все три про порядок.', 'The card speaks in the words of the textbook. Three definitions, and all three are about order.'),
   ],
   probe: {
-    question: L('Nega arksinusning javobi bitta?', 'Почему у арксинуса ответ один?', 'Why does the arcsine have one answer?'),
+    question: L('Asosiy davr nima?', 'Что такое основной период?', 'What is the fundamental period?'),
     items: [
-      { id: 'a', label: L('javob oynadan olinadi', 'ответ берут из окна', 'the answer is taken from the window'), correct: true },
-      { id: 'b', label: L('ikkinchi nuqta yechim emas', 'вторая точка не является решением', 'the second point is not a solution'), hint: L("Ikkinchi nuqta haqiqiy, balandligi o'sha. Shunchaki arksinus javobiga kirmaydi.", 'Вторая точка настоящая, у неё та же высота. Просто в ответ арксинуса она не идёт.', 'The second point is real and has the same height. It just does not go into the arcsine answer.') },
+      { id: 'a', label: L('eng kichik musbat davr', 'наименьший положительный период', 'the smallest positive period'), correct: true },
+      { id: 'b', label: L('mos kelgan har qanday davr', 'любой период, который подошёл', 'any period that happened to fit'), hint: L("Unda asosiy davr cheksiz ko'p bo'lardi: har birining ortidan ikkilangani va uchlangani keladi.", 'Тогда основных периодов было бы бесконечно много: за каждым идут его удвоение и утроение.', 'Then there would be infinitely many fundamental periods: each one is followed by its double and triple.') },
     ],
   },
   rule: {
-    lawLabel: L('Oynalar', 'Окна', 'The windows'),
+    lawLabel: L('Davriy funksiya', 'Периодическая функция', 'A periodic function'),
     lines: [
-      L('`y = arcsin x` — `y = sin x` ga teskari funksiya: u balandlikdan burchakni qaytaradi.', '`y = arcsin x` — функция, обратная `y = sin x`: она возвращает угол по его высоте.', '`y = arcsin x` is the inverse of `y = sin x`: it returns the angle from its height.'),
-      L("Javob oynadan olinadi, shuning uchun u ro'yxat emas, bitta.", 'Ответ берут из окна, поэтому он один, а не список.', 'The answer is taken from the window, so it is one number, not a list.'),
-      L('Arksinus va arkkosinus faqat `−1 ≤ x ≤ 1` da aniqlangan.', 'Арксинус и арккосинус определены только при `−1 ≤ x ≤ 1`.', 'The arcsine and arccosine are defined only for `−1 ≤ x ≤ 1`.'),
+      L('35-bet. Funksiya ichidagi funksiya — murakkab funksiya.', 'Стр. 35. Функция внутри функции — сложная функция.', 'Page 35. A function inside a function is a composite.'),
+      L("37-bet. Ildiz yagona bo'lsa teskarisi bor; yuqoridagi minus bir uni bildiradi.", 'Стр. 37. Корень единственный — есть обратная; минус один сверху её и означает.', 'Page 37. A unique root means an inverse; the minus one above denotes it.'),
+      L('39-bet. Asosiy davr — eng kichik musbat davr.', 'Стр. 39. Основной период — наименьший положительный.', 'Page 39. The fundamental period is the smallest positive one.'),
     ],
-    law: 'arcsin x ∈ [−90°; 90°],   arccos x ∈ [0°; 180°]',
+    law: 'f(x + nT) = f(x),   n ∈ Z',
   },
 }
 
@@ -337,20 +372,20 @@ const S9 = {
   role: 'drill',
   answer: 'match',
   format: 'match',
-  eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
-  title: L("To'rt yozuv, to'rt burchak", 'Четыре записи, четыре угла', 'Four readings, four angles'),
-  tag: 'arcsin-bez-promezhutka',
+  eyebrow: L("TO'RT JUFTLIK", 'ЧЕТЫРЕ ПАРЫ', 'FOUR PAIRS'),
+  title: L('Funksiyani teskarisi bilan biriktiring', 'Соедини функцию с её обратной', 'Match each function with its inverse'),
+  tag: 'obratnaya-kak-stepen',
   audio: [
-    A('mount', "To'rt yozuv va to'rt burchak. Ularni birlashtiring.", 'Четыре записи и четыре угла. Соедини их.', 'Four readings and four angles. Match them.'),
+    A('mount', "To'rtta funksiya, har birining o'z teskarisi bor. Teskarisi to'g'risi qilgan ishni bekor qiladi.", 'Четыре функции, и у каждой своя обратная. Обратная отменяет то, что сделала прямая.', 'Four functions, each with its own inverse. The inverse undoes what the direct one did.'),
   ],
   match: {
-    prompt: L("Har yozuvni o'z burchagi bilan birlashtiring.", 'Соедини каждую запись с её углом.', 'Match each reading with its angle.'),
-    ok: L('Arksinusda ishora pastga, arkkosinusda chapga olib boradi. Oynalar boshqa, javoblar ham boshqa.', 'У арксинуса знак уводит вниз, а у арккосинуса влево. Окна разные, поэтому и ответы разные.', 'The sign sends the arcsine down and the arccosine left. The windows differ, so the answers differ.'),
-    left: ['arcsin 1/2', 'arcsin(−1/2)', 'arccos 1/2', 'arccos(−1/2)'],
-    a: '30°',
-    b: '−30°',
-    c: '60°',
-    d: '120°',
+    prompt: L("Har funksiyaga o'z teskarisi", 'Каждой функции своя обратная', 'Each function gets its own inverse'),
+    a: L('x − 5', 'x − 5', 'x − 5'),
+    b: L('x : 3', 'x : 3', 'x : 3'),
+    c: L('x + 2', 'x + 2', 'x + 2'),
+    d: L('4x', '4x', '4x'),
+    ok: L("To'rttasi ham to'g'ri. Teskarisi amalni bekor qiladi, funksiyaga bo'lmaydi.", 'Все четыре верно. Обратная отменяет действие, а не делит на функцию.', 'All four correct. The inverse undoes the action; it does not divide by the function.'),
+    left: ['f(x) = x + 5', 'f(x) = 3x', 'f(x) = x − 2', 'f(x) = x : 4'],
   },
 }
 
@@ -358,22 +393,22 @@ const S10 = {
   role: 'guided',
   answer: 'order',
   format: 'order-steps',
-  eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
-  title: L('Arksinusni qadam bilan hisoblang', 'Посчитай арксинус по шагам', 'Compute an arcsine step by step'),
-  tag: 'arcsin-bez-promezhutka',
+  eyebrow: L('QADAMLAB', 'ПО ШАГАМ', 'STEP BY STEP'),
+  title: L('Qadamlar atalgan, tartib sizdan', 'Шаги названы, порядок за тобой', 'The steps are named, the order is yours'),
+  tag: 'obratnaya-kak-stepen',
   audio: [
-    A('mount', "To'rtta qadam. Tartibini o'zingiz qo'yasiz.", 'Четыре шага. Порядок ставишь ты.', 'Four steps. You put them in order.'),
+    A('mount', "Darslik teskarisini to'rt qadamda izlaydi, oxirgi qadamni esa yodda tutish qiyin.", 'Учебник ищет обратную в четыре шага, и последний шаг легко забыть.', 'The textbook finds the inverse in four steps, and the last step is easy to forget.'),
   ],
   order: {
-    prompt: L('Qadamlarni tartib bilan joylashtiring.', 'Расставь шаги по порядку.', 'Put the steps in order.'),
-    s1: L('balandlik minus bir ikkidan', 'высота равна минус одной второй', 'the height is minus one half'),
-    s2: L('ikkala nuqtani belgilaymiz', 'отмечаем обе точки', 'we mark both points'),
-    s3: L('oynadagisini olamiz', 'берём ту, что в окне', 'we take the one in the window'),
-    s4: L("javob minus o'ttiz", 'ответ минус тридцать', 'the answer is minus thirty'),
-    ok: L("Tartib doim shunday: avval ikkala nuqta, keyin oyna. Oynadan boshlansa, ikkinchi nuqta sezilmay yo'qoladi.", 'Порядок такой всегда: сначала обе точки, потом окно. Если начать с окна, вторая точка исчезнет незамеченной.', 'The order is always this: both points first, then the window. Starting with the window makes the second point vanish unnoticed.'),
-    bad: L('Avval ikkala nuqtani topamiz, keyin oynadagisini tanlaymiz, keyingina javobni yozamiz.', 'Сначала находим обе точки, потом выбираем ту, что в окне, и только потом пишем ответ.', 'First we find both points, then choose the one in the window, and only then write the answer.'),
-    mark: '−30°',
+    prompt: L('Tartib bilan joylashtiring', 'Расставь по порядку', 'Put them in order'),
+    s1: L("f(x) o'rniga igrekni yozish", 'записать игрек вместо эф от икс', 'write y in place of f(x)'),
+    s2: L('iksni igrek orqali ifodalash', 'выразить икс через игрек', 'express x through y'),
+    s3: L('harflarni almashtirib teskarisini yozish', 'поменять буквы и записать обратную', 'swap the letters and write the inverse'),
+    ok: L("To'g'ri. Ikki iks qo'shuv bir chiqadi. Tekshiruv: to'g'risi beshda ikki, teskarisi ikkida besh.", 'Верно. Выходит два икс плюс один. Проверка: прямая на пяти даёт два, обратная на двух даёт пять.', 'Correct. It gives two x plus one. Check: the direct at five gives two, the inverse at two gives five.'),
+    bad: L('Tartib boshqacha. Harflar oxirida almashadi, boshida emas.', 'Порядок другой. Буквы меняются местами в самом конце, а не в начале.', 'The order is different. The letters swap at the very end, not at the start.'),
+    mark: 'f⁻¹(x) = 2x + 1',
   },
+  defs: 'f(x) = (x − 1) : 2',
 }
 
 const S11 = {
@@ -381,30 +416,30 @@ const S11 = {
   answer: 'number',
   format: 'number+order',
   noTool: true,
-  eyebrow: L('ASBOBSIZ', 'БЕЗ ПРИБОРА', 'NO INSTRUMENT'),
-  title: L('Chizmasiz hisoblang', 'Посчитай без чертежа', 'Compute without a drawing'),
+  eyebrow: L("QOG'OZDA", 'НА БУМАГЕ', 'ON PAPER'),
+  title: L('Davr, asbobsiz', 'Период, без прибора', 'The period, no instrument'),
   tag: 'bumaga',
   audio: [
-    A('mount', "Bu ekranda aylana yo'q. Imtihonda ham chizma bo'lmaydi.", 'На этом экране окружности нет. На экзамене чертежа тоже не будет.', 'There is no circle on this screen. There will be none at the exam either.'),
-    A('next', "Javobni o'zingiz yozing.", 'Ответ запиши сам.', 'Type the answer yourself.'),
+    A('mount', "Bu yerda asbob yo'q. Avval yozuvlar tartibi, keyin javob.", 'Прибора здесь нет. Сначала порядок записей, потом ответ.', 'There is no instrument here. First the order of the lines, then the answer.'),
+    A('next', "Endi qiymatning o'zi. Sonni yozing.", 'Теперь само значение. Пиши число.', 'Now the value itself. Write the number.'),
   ],
-  task: {
-    ok: L("Yuz yigirma. Minus bir ikkidan siljish chapda bo'ladi, arkkosinus oynasi esa aynan yuqori yarim.", 'Сто двадцать. Сдвиг минус одна вторая бывает слева, а окно арккосинуса как раз верхняя половина.', 'One hundred twenty. The shift minus one half happens on the left, and the arccosine window is the upper half.'),
-    hint: [
-      L('Siljish manfiy, demak nuqta chapda.', 'Сдвиг отрицательный, значит точка слева.', 'The shift is negative, so the point is on the left.'),
-      L('Ikki chap nuqtadan yuqoridagisini oling: arkkosinus oynasi tepada.', 'Из двух левых точек бери верхнюю: окно арккосинуса сверху.', 'Of the two left points take the upper one: the arccosine window is on top.'),
-      L('Yuz yigirma.', 'Сто двадцать.', 'One hundred twenty.'),
-    ],
-    prompt: 'arccos(−1/2)  =  ?',
-    answer: '120',
-  },
   order: {
-    prompt: L("O'sish tartibida joylashtiring.", 'Расставь по возрастанию.', 'Arrange in increasing order.'),
-    title: L('Qaysi burchak kichikroq?', 'Какой угол меньше?', 'Which angle is smaller?'),
-    ok: L("Siz yozuvlarni emas, burchaklarni solishtirdingiz: arksinus minus to'qsondan to'qsongacha, arkkosinus noldan yuz saksongacha beradi.", 'Ты сравнил углы, а не записи: арксинус даёт от минус девяноста до девяноста, арккосинус от нуля до ста восьмидесяти.', 'You compared angles, not readings: the arcsine gives from minus ninety to ninety, the arccosine from zero to one hundred eighty.'),
-    bad: L("Avval har yozuvni gradusga o'tkazing, keyin solishtiring.", 'Сначала переведи каждую запись в градусы, потом сравнивай.', 'First turn each reading into degrees, then compare.'),
-    items: ['arcsin(−1/2)', 'arcsin 0', 'arcsin 1/2', 'arccos 0'],
-    answer: 'arcsin(−1/2)  arcsin 0  arcsin 1/2  arccos 0',
+    prompt: L("Yozuvlarni paydo bo'lish tartibida joylashtiring", 'Расставь записи в том порядке, в каком они появляются', 'Put the lines in the order they appear'),
+    title: L('Yozuvlar tartibi', 'Порядок записей', 'The order of the lines'),
+    ok: L("To'g'ri. To'qqiz bu bir qo'shuv ikki davr, shuning uchun qiymat o'sha.", 'Верно. Девятка это единица плюс два периода, поэтому значение то же.', 'Correct. Nine is one plus two periods, so the value is the same.'),
+    bad: L("Tartib to'g'ri emas. Avval to'qqizni davr orqali yozadilar, keyin qiymatni oladilar.", 'Не тот порядок. Сначала девятку раскладывают через период, потом берут значение.', 'Wrong order. First nine is written through the period, then the value is taken.'),
+    items: ['f(x + 4) = f(x)', 'f(9) = f(1 + 2·4)', 'f(9) = f(1)', 'f(9) = 7'],
+    answer: 'f(x + 4) = f(x)  f(9) = f(1 + 2·4)  f(9) = f(1)  f(9) = 7',
+  },
+  task: {
+    prompt: L("Davr to'rtga teng, birdagi qiymat yettiga teng. To'qqizdagi qiymat nimaga teng?", 'Период равен четырём, значение в единице равно семи. Чему равно значение в девятке?', 'The period is four, the value at one is seven. What is the value at nine?'),
+    ok: L("To'g'ri. Yetti. Qiymat har to'rt qadamda takrorlanadi.", 'Верно. Семь. Значение повторяется через каждые четыре шага.', 'Correct. Seven. The value repeats every four steps.'),
+    hint: [
+      L("Birdan to'qqizgacha nechta davr bor?", 'Сколько периодов от единицы до девятки?', 'How many periods from one to nine?'),
+      L("Sakkiz bu to'rtlik ikki davr.", 'Восемь это два периода по четыре.', 'Eight is two periods of four.'),
+      L("Butun son davrdan keyin qiymat o'sha bo'ladi.", 'Через целое число периодов значение то же самое.', 'After a whole number of periods the value is the same.'),
+    ],
+    answer: '7',
   },
 }
 
@@ -413,66 +448,69 @@ const S12 = {
   answer: 'number',
   format: 'audit',
   eyebrow: L('TUZOQ', 'ЛОВУШКА', 'THE TRAP'),
-  title: L("Javob noto'g'ri. Qayerda?", 'Ответ неверный. Где?', 'The answer is wrong. Where?'),
+  title: L("Hamma qadam to'g'ri, xulosa noto'g'ri", 'Все шаги верны, вывод неверен', 'Every step is right, the conclusion is wrong'),
   tag: 'check',
   audio: [
-    A('mount', 'Masala. Minus bir ikkidanning arksinusini topish.', 'Задача. Найти арксинус минус одной второй.', 'A task. Find the arcsine of minus one half.'),
-    A('next', "To'rt qator, hammasi to'g'ri ko'rinadi. Birinchi xato qatorni qidiring.", 'Четыре строки, все выглядят верными. Ищи первую неверную.', 'Four lines, all look right. Look for the first wrong one.'),
+    A('mount', "Yechim to'rt satrda yozilgan. Xato paydo bo'lgan satrni toping.", 'Решение выписано в четыре строки. Найди ту, где появилась ошибка.', 'The solution is written in four lines. Find the one where the mistake appeared.'),
+    A('next', "Endi u yerda turishi kerak bo'lgan sonni yozing.", 'Теперь запиши число, которое там должно стоять.', 'Now write the number that belongs there.'),
   ],
   hint: {
-    r1: L("Bu qator to'g'ri: ikki yuz o'nning balandligi haqiqatan minus bir ikkidan.", 'Эта строка верна: у двухсот десяти высота действительно минус одна вторая.', 'This line is right: at two hundred ten the height really is minus one half.'),
-    r3: L("Bu shunchaki sonlarni solishtirish, va u to'g'ri.", 'Это просто сравнение чисел, и оно верное.', 'This is just a comparison of numbers, and it is right.'),
-    r4: L("Bu qator xato qatordan o'sib chiqqan. Birinchi xato qator yuqorida.", 'Эта строка выросла из неверной. Первая неверная строка выше.', 'This line grew out of a wrong one. The first wrong line is above.'),
+    r1: L("Bu berilgan: davr to'rtga teng.", 'Это дано: период равен четырём.', 'This is given: the period equals four.'),
+    r2: L("To'g'ri: to'rt davr bo'lsa, sakkiz ham davr.", 'Верно: если четыре период, то и восемь период.', 'Correct: if four is a period, so is eight.'),
+    r3: L("Bu ham to'g'ri, sakkiz haqiqatan davr.", 'Тоже верно, восемь действительно период.', 'Also correct, eight really is a period.'),
   },
-  proof: L("Ikki yuz o'n oynaga tushmaydi.", 'Двести десять в окно не попадает.', 'Two hundred ten is not inside the window.'),
+  proof: L('Xato oxirgi satrda. Asosiy davr eng kichik musbat davr, topilgan har qanday davr emas.', 'Ошибка в последней строке. Основной период это наименьший положительный, а не любой найденный.', 'The mistake is in the last line. The fundamental period is the smallest positive one, not any found.'),
   entry: {
-    prompt: L('arcsin(−1/2) qancha?', 'Чему равен arcsin(−1/2)?', 'What is arcsin(−1/2)?'),
-    ok: L("Minus o'ttiz. Shunday balandlikdagi nuqta ikkita, lekin oynaga faqat shu tushadi.", 'Минус тридцать. Точек с такой высотой две, но в окно попадает только эта.', 'Minus thirty. There are two points with such a height, but only this one falls inside the window.'),
+    prompt: L('Bu funksiyaning asosiy davrini yozing', 'Запиши основной период этой функции', 'Write the fundamental period of this function'),
+    ok: L("To'g'ri. To'rt: bu eng kichik musbat davr.", 'Верно. Четыре: это наименьший положительный период.', 'Correct. Four: this is the smallest positive period.'),
     hint: [
-      L("Minus bir ikkidan balandlik ikki burchakda bo'ladi.", 'Высота минус одна вторая бывает у двух углов.', 'The height minus one half happens at two angles.'),
-      L("Ulardan minus to'qsondan to'qsongacha oynaga bittasi tushadi.", 'Из них в окно от минус девяноста до девяноста попадает один.', 'Of them one falls into the window from minus ninety to ninety.'),
-      L("Minus o'ttiz.", 'Минус тридцать.', 'Minus thirty.'),
+      L("To'rtdan sakkiz, o'n ikki va shu kabilar kelib chiqadi.", 'Из четвёрки следуют восемь, двенадцать и так далее.', 'From four follow eight, twelve and so on.'),
+      L("Teskarisi chiqmaydi: sakkizdan to'rt kelib chiqmaydi.", 'Наоборот не выходит: из восьмёрки четвёрка не следует.', 'The other way round fails: four does not follow from eight.'),
+      L("Demak ularning eng kichigi to'rt.", 'Значит наименьший из них четыре.', 'So the smallest of them is four.'),
     ],
-    answer: '−30',
+    answer: '4',
   },
   row: {
-    r1: 'sin 210° = −1/2',
-    r2: 'arcsin(−1/2) = 210°',
-    r3: '210° > 90°',
-    r4: 'arcsin(−1/2) > 90°',
+    r1: 'f(x + 4) = f(x)',
+    r2: 'f(x + 8) = f(x + 4) = f(x)',
+    r3: 'T = 8',
+    r4: 'T₀ = 8',
   },
-  answerId: 'r2',
+  answerId: 'r4',
 }
 
 const S13 = {
   role: 'transfer',
-  answer: 'lead',
-  format: 'place+multi',
-  eyebrow: L("KO'CHIRISH", 'ПЕРЕНОС', 'TRANSFER'),
-  title: L("Qaysi burchak javob bo'la oladi", 'Какой угол может быть ответом', 'Which angle can be an answer'),
+  answer: 'number',
+  format: 'number+multi',
+  eyebrow: L('TESKARI MASALA', 'ОБРАТНАЯ ЗАДАЧА', 'THE REVERSE TASK'),
+  title: L('Endi siz hisoblaysiz', 'Теперь считаешь ты', 'Now you do the counting'),
   tag: 'obratnoe',
   audio: [
-    A('mount', 'Endi teskari masala. Burchak berilgan, savol esa u javobga yaraydimi.', 'Теперь обратная задача. Дан угол, а спрашивается, годится ли он в ответ.', 'Now the inverse task. An angle is given, and the question is whether it fits as an answer.'),
-    A('work', "Nuqtani qo'ying, keyin yaraydigan hamma burchakni belgilaysiz.", 'Поставь точку, потом отметишь все углы, которые годятся.', 'Place the point, then you will mark every angle that fits.'),
+    A('mount', "Bungacha teskarisini sizga tayyor berardilar. Endi uning ishini o'zingiz tekshirasiz.", 'До этого обратную давали тебе готовой. Теперь проверишь её действие сам.', 'Until now the inverse was given to you ready-made. Now you check its action yourself.'),
+    A('work', "E'tibor bering: teskarisi va to'g'risi bir-birini bekor qiladi, va bu ularning asosiy xossasi.", 'Обрати внимание: обратная и прямая друг друга отменяют, и это их главное свойство.', 'Notice: the inverse and the direct cancel each other, and that is their main property.'),
   ],
   multi: {
-    prompt: L("Arksinus javobi bo'la oladigan hamma burchakni belgilang.", 'Отметь все углы, которые могут быть ответом арксинуса.', 'Mark every angle that can be an arcsine answer.'),
-    title: L("Qaysi burchaklar arksinus javobi bo'la oladi?", 'Какие углы могут быть ответом арксинуса?', 'Which angles can be an arcsine answer?'),
-    ok: L("Beshtadan uchtasi. Qanday son berilmasin, arksinus javobi doim minus to'qson bilan to'qson orasida yotadi.", 'Три из пяти. Ответ арксинуса всегда лежит между минус девяноста и девяноста, какое бы число ни дали.', 'Three out of five. Whatever number is given, the arcsine answer always lies between minus ninety and ninety.'),
+    prompt: L("Butun o'qda teskarisi bor hamma funksiyani belgilang", 'Отметь все функции, у которых обратная есть на всей прямой', 'Mark every function that has an inverse on the whole line'),
+    title: L("To'rttadan ikkitasi", 'Две из четырёх', 'Two out of four'),
+    ok: L("To'g'ri. Teskarisi har qiymatga aynan bitta kirish to'g'ri kelganda bor.", 'Верно. Обратная есть там, где каждому значению отвечает ровно один вход.', 'Correct. An inverse exists where each value has exactly one input.'),
     items: [
-      { id: 'd', label: '150°', hint: L("Yuz ellik oynadan tashqarida: u to'qsondan katta.", 'Сто пятьдесят вне окна: оно больше девяноста.', 'One hundred fifty is outside the window: it is more than ninety.') },
-      { id: 'e', label: '200°', hint: L("Ikki yuz ham to'qsondan katta, demak oynadan tashqarida.", 'Двести это тоже больше девяноста, значит вне окна.', 'Two hundred is also more than ninety, so it is outside the window.') },
-      { id: 'a', label: '30°', ok: true },
-      { id: 'b', label: '−30°', ok: true },
-      { id: 'c', label: '90°', ok: true },
+      { id: 'c', label: 'f(x) = x²', hint: L('Kvadrat bir qiymatni ikki xil songa beradi, bir qiymatli qaytish mumkin emas.', 'Квадрат даёт одно значение двум разным числам, вернуться однозначно нельзя.', 'The square gives one value to two different numbers; there is no single way back.') },
+      { id: 'd', label: 'f(x) = |x|', hint: L('Modul ham plyus va minusni yopishtiradi: ikki va minus ikkida u bir xil.', 'Модуль тоже склеивает плюс и минус: у двух и минус двух он одинаковый.', 'The absolute value also glues plus and minus: at two and minus two it is the same.') },
+      { id: 'a', label: 'f(x) = x + 1', ok: true },
+      { id: 'b', label: 'f(x) = 2x', ok: true },
     ],
   },
-  place: {
-    prompt: L("Nuqtani 150 gradusga qo'ying.", 'Поставь точку на 150 градусов.', 'Place the point at 150 degrees.'),
-    ok: L("Bu yerda balandlik bir ikkidan, o'ttizdagidek. Lekin bu son arksinus javobi bo'lmaydi.", 'Высота здесь одна вторая, как и у тридцати. Но ответом арксинуса это число не станет.', 'The height here is one half, as at thirty. But this number will not be an arcsine answer.'),
-    wrong: L("Yuz ellik gorizontal o'qdan yuqorida va vertikal o'qdan chapda.", 'Сто пятьдесят это выше горизонтальной оси и левее вертикальной.', 'One hundred fifty is above the horizontal axis and left of the vertical one.'),
-    target: '150°',
-    step: 'sin 150° = 1/2',
+  entry: {
+    prompt: L("Funksiya besh qo'shadi. Uchdagi to'g'ri qiymatning teskarisi nimaga teng?", 'Функция добавляет пять. Чему равно значение обратной от значения прямой в тройке?', 'The function adds five. What is the inverse of the direct value at three?'),
+    ok: L("To'g'ri. Uch. Teskarisi kirishda nima bo'lsa, aynan shuni qaytaradi.", 'Верно. Три. Обратная возвращает ровно то, что было на входе.', 'Correct. Three. The inverse returns exactly what was on the input.'),
+    hint: [
+      L("Avval uchdagi to'g'risini hisoblang.", 'Сначала посчитай прямую в тройке.', 'First compute the direct one at three.'),
+      L("To'g'risi sakkizni berdi. Endi teskarisi ishlaydi.", 'Прямая дала восемь. Теперь работает обратная.', 'The direct gave eight. Now the inverse works.'),
+      L('Teskarisi beshni ayiradi: sakkiz ayirish besh.', 'Обратная отнимает пять: восемь минус пять.', 'The inverse subtracts five: eight minus five.'),
+    ],
+    expr: 'f(x) = x + 5,   f⁻¹(f(3)) = ?',
+    answer: '3',
   },
 }
 
@@ -480,120 +518,153 @@ const S14 = {
   role: 'blitz',
   answer: 'mixed',
   format: 'chain',
-  eyebrow: L('BLITS', 'БЛИЦ', 'BLITZ'),
-  title: L("To'rt savol · natijaga kiradi", 'Четыре вопроса · идут в результат', 'Four questions · they count'),
-  tag: 'arcsin-bez-promezhutka',
+  eyebrow: L('BLITS', 'БЛИЦ', 'THE BLITZ'),
+  title: L("Ketma-ket to'rtta savol", 'Четыре вопроса подряд', 'Four questions in a row'),
+  tag: 'slozhnaya-poryadok',
   audio: [
-    A('mount', "To'rtta qisqa savol. Faqat shu ekran natijaga kiradi.", 'Четыре коротких вопроса. Только этот экран идёт в результат.', 'Four short questions. Only this screen counts.'),
+    A('mount', "To'rtta savol, va ular baholanadi.", 'Четыре вопроса, и они идут в оценку.', 'Four questions, and they count towards the score.'),
   ],
   items: [
     {
       id: 'q1',
       ask: true,
-      prompt: L('arcsin 1/2 qancha?', 'Чему равен arcsin 1/2?', 'What is arcsin 1/2?'),
-      done: 'arcsin 1/2 = 30°',
+      prompt: L('Murakkab funksiyada birinchi ishlaydigan...', 'В сложной функции первой работает…', 'In a composite function the first to work is...'),
+      done: L("Qavslar tartibni beradi, va ular ichdan o'qiladi.", 'Скобки задают порядок, и читаются они изнутри.', 'The brackets set the order, and they are read from inside out.'),
       items: [
-        { id: 'a', label: L("o'ttiz gradus", 'тридцать градусов', 'thirty degrees'), correct: true },
-        { id: 'b', label: L('yuz ellik gradus', 'сто пятьдесят градусов', 'one hundred fifty degrees'), hint: L("U yerda balandlik o'sha, lekin yuz ellik oynadan tashqarida.", 'Высота там та же, но сто пятьдесят вне окна.', 'The height there is the same, but one hundred fifty is outside the window.') },
-        { id: 'c', label: L("minus o'ttiz gradus", 'минус тридцать градусов', 'minus thirty degrees'), hint: L('Bu minus bir ikkidanning javobi, u yerda balandlik pastga ketadi.', 'Это ответ для минус одной второй, там высота уходит вниз.', 'That is the answer for minus one half, where the height goes down.') },
-        { id: 'd', label: L('oltmish gradus', 'шестьдесят градусов', 'sixty degrees'), hint: L('Oltmishning balandligi kattaroq, u uch ildizining yarmi.', 'У шестидесяти высота больше, это корень из трёх на два.', 'At sixty the height is larger, it is root three over two.') },
+        { id: 'a', label: L('qavs ichidagisi', 'та, что в скобках', 'the one inside the brackets'), correct: true },
+        { id: 'b', label: L('tashqaridagisi', 'та, что снаружи', 'the one outside'), hint: L('Tashqisi tayyor sonni oladi, demak ikkinchi ishlaydi.', 'Внешняя получает уже готовое число, значит работает второй.', 'The outer one receives a ready number, so it works second.') },
+        { id: 'c', label: L('har qanday, tartib muhim emas', 'любая, порядок неважен', 'either one, the order does not matter'), hint: L("To'rt va yigirma ikki: tartib muhim.", 'Четыре против двадцати двух: порядок важен.', 'Four against twenty two: the order matters.') },
+        { id: 'd', label: L("sohasi kengrog'i", 'та, у которой область шире', 'the one with the wider domain'), hint: L('Aniqlanish sohasi boshqa narsani hal qiladi: murakkab funksiya qayerda aniqlangan.', 'Область определения решает другое: где сложная функция определена.', 'The domain settles a different thing: where the composite is defined.') },
       ],
     },
     {
       id: 'q2',
       ask: true,
-      prompt: L('arccos 0 qancha?', 'Чему равен arccos 0?', 'What is arccos 0?'),
-      done: 'arccos 0 = 90°',
+      prompt: L('Yuqoridagi minus bir bildiradi...', 'Запись минус один сверху означает…', 'The minus one above means...'),
+      done: L('Teskari funksiya, kasr emas. Bu yozuv, daraja emas.', 'Обратная функция, а не дробь. Это запись, а не степень.', 'The inverse function, not a fraction. It is a notation, not a power.'),
       items: [
-        { id: 'a', label: L("to'qson gradus", 'девяносто градусов', 'ninety degrees'), correct: true },
-        { id: 'b', label: L('nol gradus', 'ноль градусов', 'zero degrees'), hint: L('Nol gradusda siljish birga teng, nolga emas.', 'При нуле градусов сдвиг равен единице, а не нулю.', 'At zero degrees the shift equals one, not zero.') },
-        { id: 'c', label: L('yuz sakson gradus', 'сто восемьдесят градусов', 'one hundred eighty degrees'), hint: L('U yerda siljish minus birga teng.', 'Там сдвиг равен минус единице.', 'There the shift equals minus one.') },
-        { id: 'd', label: L("minus to'qson gradus", 'минус девяносто градусов', 'minus ninety degrees'), hint: L('U yerda ham siljish nol, lekin arkkosinus oynasi noldan boshlanadi.', 'Сдвиг там тоже ноль, но окно арккосинуса начинается с нуля.', 'The shift there is zero too, but the arccosine window starts at zero.') },
+        { id: 'a', label: L('teskari funksiyani', 'обратную функцию', 'the inverse function'), correct: true },
+        { id: 'b', label: L("bir bo'lingan funksiya kasrini", 'дробь один делить на функцию', 'the fraction one over the function'), hint: L("Son bilan tekshiruv: teskarisi o'nda ikki beradi, kasr esa bir yigirma oltidan.", 'Проверка числом: обратная в десятке даёт два, а дробь одну двадцать шестую.', 'Check with a number: the inverse at ten gives two, the fraction gives one twenty sixth.') },
+        { id: 'c', label: L("funksiyaning o'zini minus bilan", 'минус саму функцию', 'minus the function itself'), hint: L("Funksiya oldidagi minus boshqacha yoziladi, yuqorida biri bo'lmaydi.", 'Минус перед функцией пишут иначе, без единицы сверху.', 'A minus in front of a function is written differently, with no one above.') },
+        { id: 'd', label: L('birinchi hosilani', 'первую производную', 'the first derivative'), hint: L('Hosila boshqa mavzu va boshqa yozuv.', 'Производная это другая тема и другая запись.', 'The derivative is another topic and another notation.') },
       ],
     },
     {
       id: 'q3',
       ask: true,
-      prompt: L('Nega arksinusning javobi bitta?', 'Почему у арксинуса ответ один?', 'Why does the arcsine have one answer?'),
-      done: 'arcsin x ∈ [−90°; 90°]',
+      prompt: L('Teskari funksiyaning grafigi...', 'График обратной функции…', 'The graph of the inverse...'),
+      done: L("Ko'zgu bu igrek teng iks to'g'ri chizig'i.", 'Зеркало это прямая игрек равно икс.', 'The mirror is the line y equals x.'),
       items: [
-        { id: 'a', label: L('javob oynadan olinadi', 'ответ берут из окна', 'the answer is taken from the window'), correct: true, ok: L('Ha. Ikkinchi nuqta bor, lekin u oynadan tashqarida.', 'Да. Вторая точка есть, но она вне окна.', 'Yes. The second point exists but lies outside the window.') },
-        { id: 'b', label: L('ikkinchi nuqta mavjud emas', 'вторая точка не существует', 'the second point does not exist'), hint: L("Mavjud: to'g'ri chiziq aylanani ikki marta kesadi.", 'Существует: прямая задевает окружность дважды.', 'It does exist: the line meets the circle twice.') },
+        { id: 'a', label: L("igrek teng iks to'g'ri chizig'iga nisbatan simmetrik", 'симметричен относительно прямой игрек равно икс', 'is symmetric about the line y equals x'), correct: true, ok: L("Ha: nuqta koordinatalarini almashtiradi, va bu punktirdagi aks etishning o'zi.", 'Да: точка меняет координаты местами, и это и есть отражение в пунктире.', 'Yes: the point swaps its coordinates, and that is the reflection in the dashed line.') },
+        { id: 'b', label: L("iks o'qiga nisbatan simmetrik", 'симметричен относительно оси икс', 'is symmetric about the x axis'), hint: L("Iks o'qidagi aks etish igrek ishorasini o'zgartiradi, harflarni almashtirmaydi.", 'Отражение в оси икс меняет знак игрек, а не меняет буквы местами.', 'Reflection in the x axis flips the sign of y; it does not swap the letters.') },
+        { id: 'c', label: L("to'g'risining grafigi bilan ustma-ust", 'совпадает с графиком прямой', 'coincides with the graph of the direct one'), hint: L("Ustma-ust tushish bo'ladi, lekin faqat maxsus hollarda, doim emas.", 'Совпадение бывает, но только в особых случаях, а не всегда.', 'Coinciding happens, but only in special cases, not always.') },
+        { id: 'd', label: L("igrek o'qiga nisbatan simmetrik", 'симметричен относительно оси игрек', 'is symmetric about the y axis'), hint: L('Bu juft funksiyaning simmetriyasi, mavzu boshqa.', 'Это симметрия чётной функции, тема другая.', 'That is the symmetry of an even function, a different topic.') },
       ],
     },
     {
       id: 'q4',
       ask: true,
-      prompt: L('arcsin 2 mavjudmi?', 'Существует ли arcsin 2?', 'Does arcsin 2 exist?'),
-      done: '−1 ≤ x ≤ 1',
+      prompt: L('Asosiy davr bu...', 'Основной период это…', 'The fundamental period is...'),
+      done: L('Eng kichik musbat, darslik shunday deydi.', 'Наименьший положительный, так говорит учебник.', 'The smallest positive, that is what the textbook says.'),
       items: [
-        { id: 'a', label: L("yo'q", 'нет', 'no'), correct: true },
-        { id: 'b', label: L('ha, katta burchak', 'да, большой угол', 'yes, a large angle'), hint: L('Ikki balandlik aylanada hech qanday burchakda uchramaydi.', 'Высота два на окружности не встречается ни при каком угле.', 'The height two never occurs on the circle at any angle.') },
-        { id: 'c', label: L('ha, ikki radian', 'да, два радиана', 'yes, two radians'), hint: L('Bu yerda ikki balandlik, burchak emas.', 'Двойка здесь высота, а не угол.', 'Here the two is a height, not an angle.') },
-        { id: 'd', label: L('faqat radianda', 'только в радианах', 'only in radians'), hint: L("Burchak o'lchov birligi bu yerda hech nima qilmaydi: to'g'ri chiziq aylanaga tegmadi.", 'Единицы измерения угла тут ни при чём: прямая просто не задела круг.', 'The unit of the angle changes nothing here: the line simply missed the circle.') },
+        { id: 'a', label: L('eng kichik musbat davr', 'наименьший положительный период', 'the smallest positive period'), correct: true },
+        { id: 'b', label: L('davrlarning eng qulayi', 'самый удобный из периодов', 'the most convenient of the periods'), hint: L("Qulaylik ta'rif emas: darslik eng kichik musbatni ataydi.", 'Удобство не определение: учебник называет наименьший положительный.', 'Convenience is not a definition: the textbook names the smallest positive.') },
+        { id: 'c', label: L('qiymatlar mos kelgan har qanday son', 'любое число, при котором значения совпали', 'any number where the values happened to match'), hint: L('Bitta nuqtadagi moslik davr qilmaydi: tenglik hamma iksda kerak.', 'Совпадение в одной точке периодом не делает: равенство нужно при всех икс.', 'A match at one point makes no period: the equality must hold for all x.') },
+        { id: 'd', label: L('ikkilangan davr', 'удвоенный период', 'the doubled period'), hint: L("Ikkilangani ham davr, lekin u kattaroq, kerak bo'lgani esa eng kichigi.", 'Удвоенный тоже период, но он больше, а нужен наименьший.', 'The doubled one is a period too, but it is larger, and the smallest is wanted.') },
       ],
     },
   ],
-  angles: ['30°', '90°', '210°', '150°'],
 }
 
 const S15 = {
   role: 'summary',
   answer: 'none',
-  eyebrow: L('YAKUN', 'ИТОГ', 'SUMMARY'),
-  title: L('Nima qoldi', 'Что осталось', 'What you take away'),
+  eyebrow: L('XULOSA', 'ИТОГ', 'THE SUMMARY'),
+  title: L('Uch mavzu, bitta fikr: tartib', 'Три темы, одна мысль: порядок', 'Three topics, one idea: order'),
   audio: [
-    A('mount', 'Dars boshida ikki yozuvdan birini tanlagan edingiz. Mana natija.', 'В начале урока нужно было выбрать одну из двух записей. Вот результат.', 'At the start you chose one of the two readings. Here is the result.'),
-    A('next', "Arksinusning javobi bitta, chunki u oynadan olinadi, ikkinchi nuqta noto'g'ri bo'lgani uchun emas.", 'Ответ у арксинуса один, потому что его берут из окна, а не потому, что вторая точка неправильная.', 'The arcsine has one answer because it is taken from the window, not because the second point is wrong.'),
+    A('mount', 'Birinchi ekrandagi taxmin va natija yonma-yon turadi.', 'Прогноз с первого экрана и результат стоят рядом.', 'The guess from screen one and the result stand side by side.'),
+    A('next', "Shpargalka darslik bo'yicha yig'ilgan. Pastda nimani bilishingiz ko'rinadi.", 'Шпаргалка собрана по учебнику. Ниже видно, что умеешь.', 'The sheet is put together from the textbook. Below you can see what you can do.'),
   ],
   can: [
-    L("Bitta emas, ikkala nuqtani ko'raman", 'Вижу обе точки, а не одну', 'I see both points, not one'),
-    L('Javobni oynadan olaman', 'Беру ответ из окна', 'I take the answer from the window'),
-    L('Arkkosinusning oynasi boshqa ekanini eslayman', 'Помню, что у арккосинуса окно другое', 'I remember the arccosine has a different window'),
-    L("Arksinus qachon yo'qligini bilaman", 'Знаю, когда арксинуса нет', 'I know when the arcsine does not exist'),
+    L("Murakkab funksiyani to'g'ri tartibda hisoblayman", 'Считаю сложную функцию в правильном порядке', 'I compute a composite in the right order'),
+    L("Teskarisini topaman va qo'yib tekshiraman", 'Нахожу обратную и проверяю её подстановкой', 'I find the inverse and check it by substitution'),
+    L("Teskarisi yo'q holatni ko'raman", 'Вижу, когда обратной нет', 'I see when there is no inverse'),
+    L('Davrni asosiy davrdan ajrataman', 'Отличаю период от основного периода', 'I tell a period from the fundamental period'),
   ],
   levels: {
-    full: L('Bu turdagi masalalar yopildi.', 'Этот тип задач закрыт.', 'This type of task is closed.'),
-    gap: L('Bitta joy takrorlashni talab qiladi: arkkosinusning oynasi qanday.', 'Одно место требует повтора: какое окно у арккосинуса.', 'One place needs review: what the arccosine window is.'),
-    back: L('Qoidaga va 4-ekranga qayting.', 'Вернись к правилу и к экрану 4.', 'Go back to the rule and to screen 4.'),
+    full: L("Hammasidan o'tdingiz va tuzoqni ochdingiz", 'Прошёл всё и разобрал ловушку', 'Everything done, the trap taken apart'),
+    gap: L("Murakkab va teskari ishlaydi, davr hali yo'q", 'Сложная и обратная работают, период ещё нет', 'Composite and inverse work, the period not yet'),
+    back: L('Uchinchi ekranga qaytish kerak: ichkisi birinchi ishlaydi', 'Стоит вернуться к экрану три: внутренняя работает первой', 'Worth going back to screen three: the inner one works first'),
   },
-  bridge: L("9-dars: o'sha ikki nuqta, lekin endi ikkalasi kerak — tenglamalar boshlanadi.", 'Урок 9: те же две точки, но теперь нужны обе — начинаются уравнения.', 'Lesson 9: the same two points, but now both are needed — equations begin.'),
-  lifehack: L('Avval ikkala nuqtani toping, keyingina oynadagisini tanlang.', 'Сначала найди обе точки, и только потом выбирай ту, что в окне.', 'Find both points first, and only then choose the one in the window.'),
-  sheetTitle: L('Arkfunksiyalar · shpargalka', 'Аркфункции · шпаргалка', 'Arc functions · cheat sheet'),
-  sheetSrc: L('10-sinf · 8-dars', '10 класс · урок 8', 'Grade 10 · lesson 8'),
+  bridge: L('Keyingisi arkfunksiyalar: bular sinus, kosinus va tangensga teskari, va yagonalik sharti ham shu yerda chiqadi.', 'Дальше аркфункции: это обратные к синусу, косинусу и тангенсу, и там же появится условие единственности.', 'Next come the arc functions: inverses of sine, cosine and tangent, and the uniqueness condition shows up there.'),
+  lifehack: L("Teskarisini formula bilan emas, son bilan tekshirish qulay: kirishni to'g'risidan, keyin teskarisidan o'tkazing. Aynan o'sha kirish qaytsa, teskarisi to'g'ri topilgan.", 'Обратную удобно проверять не формулой, а числом: прогони вход через прямую, потом через обратную. Если вернулся ровно тот же вход, обратная найдена верно.', 'It is handy to check an inverse with a number rather than a formula: run an input through the direct one, then through the inverse. If exactly the same input comes back, the inverse is right.'),
+  sheetTitle: L('Dars shpargalkasi', 'Шпаргалка урока', 'The lesson sheet'),
+  sheetSrc: L('algebra 2022, 35, 37, 39-betlar', 'алгебра 2022, стр. 35, 37, 39', 'algebra 2022, pages 35, 37, 39'),
   hook: {
-    a: 'arcsin 1/2 = 30°',
-    b: 'arcsin 1/2 = 30°,  150°',
+    a: 'f(g(5)) = g(f(5))',
+    b: 'f(g(5)) ≠ g(f(5))',
   },
-  proved: 'arcsin 1/2 = 30°',
-  law: 'arcsin x ∈ [−90°; 90°],   arccos x ∈ [0°; 180°]',
+  proved: '4 ≠ 22',
+  law: 'f(x + nT) = f(x),   n ∈ Z',
   sheet: [
-    'arcsin x ∈ [−90°; 90°]',
-    'arccos x ∈ [0°; 180°]',
-    'arcsin(−x) = −arcsin x',
-    '−1 ≤ x ≤ 1',
-    ['arcsin 1/2 = 30°', 'arccos 1/2 = 60°'],
+    'f(g(x)) = f(x − 3) = (x − 3)²',
+    'g(f(x)) = x² − 3',
+    'y = 2x + 6   ⇒   f⁻¹(x) = 0,5x − 3',
+    'x² = 9   ⇒   x = 3;  x = −3',
+    'T₀ = 4   ⇒   4, 8, 12, …',
   ],
 }
 
 // ======== QOLDA YOZILGAN QISM: bundan pastdagisi saqlanadi ========
 
-// Число и градус из контента: минус там типографский, `parseInt` его не понимает.
 const num = (s) => parseFloat(String(s).replace(/−/g, '-').replace(',', '.'))
-const deg = (s) => parseInt(String(s).replace(/−/g, '-'), 10)
 
-// Соответствие «запись — угол». Слева записи, справа углы; и то и другое
-// формулы, одинаковые на всех языках.
+// IKKI TA'RIF YONMA-YON. Sistema emas, shuning uchun figurali qavs yo'q:
+// bular ikkita alohida funksiya, va ularni bir qavsga olish yolg'on bo'lardi.
+const Defs = ({ rows, size = 'sm' }) => (
+  <span style={{ display: 'block' }}>
+    {(Array.isArray(rows) ? rows : [rows]).map((r, i) => (
+      <Expr key={i} size={size} style={{ textAlign: 'left' }}>{r}</Expr>
+    ))}
+  </span>
+)
+
+// ASBOB 2: YOZUV. Kartochka daftar varag'i, har qadam o'z satrida.
+const Rec = ({ defs, line, items }) => (
+  <Cols l={1} r={1}>
+    <Col>
+      <Panel tone="paper">
+        <Defs rows={defs} />
+        <Expr size="big" style={{ textAlign: 'left', marginTop: 6 }}>{line}</Expr>
+      </Panel>
+    </Col>
+    <Col><NoteList items={items} /></Col>
+  </Cols>
+)
+
+// ODZ POLOSASI 5-ekranda: ildiz ostidagi manfiy bo'lmaydi, chegara nolda.
+const BAND = { lo: -3, hi: 11, ticks: [-2, 0, 2, 4, 6, 8, 10] }
+
+// TESKARI FUNKSIYA GRAFIGI: `f(x) = 2x + 6` va `f⁻¹(x) = 0,5x − 3`, o'rtada
+// `y = x` ko'zgusi, nuqta (−1; 4) va uning juftligi (4; −1). Darslik, 4-rasm.
+const Mirror = ({ step, size }) => (
+  <TwoLines size={size} step={step} k1={2} b1={6} k2={0.5} b2={-3} mirror pairAt={-1} />
+)
+
 const PAIR_IDS = ['p0', 'p1', 'p2', 'p3']
-const ARC_LEFT = S9.match.left.map((label, i) => ({ id: PAIR_IDS[i], label }))
-const ARC_RIGHT = ['a', 'b', 'c', 'd'].map((k, i) => {
+const FUN_LEFT = S9.match.left.map((label, i) => ({ id: PAIR_IDS[i], label }))
+const FUN_RIGHT = ['a', 'b', 'c', 'd'].map((k, i) => {
   const v = S9.match[k]
   return { id: PAIR_IDS[i], label: v && v.label ? v.label : v, hint: v && v.hint ? v.hint : undefined }
 })
-// Отметки при неверной паре — те же четыре угла, что и в правом столбце.
-const ARC_MARKS = ARC_RIGHT.map((r, i) => ({ deg: deg(r.label), tone: i % 2 ? 'graph' : 'ink3', label: r.label }))
 
-const ORD10 = ['s1', 's2', 's3', 's4'].map((id) => ({ id, label: S10.order[id] }))
+// 4-ekranda UCHTA qadam: kirish, natija, javob. To'rtinchi qadam bu yerda
+// yo'q -- 25-darsda to'rttasi noutbukning 615 px iga sig'magan edi.
+const ORD4 = ['s1', 's2', 's3'].map((id) => ({ id, label: S4.order[id] }))
+// UCHTA QADAM: kitobning to'rt qadami uchga yig'ildi, chunki noutbukning
+// 615 px ida to'rtta slot 40 px ga oshib ketardi. Oxirgi ikkisi bitta
+// harakat -- harflarni almashtirib yozib qo'yish.
+const ORD10 = ['s1', 's2', 's3'].map((id) => ({ id, label: S10.order[id] }))
 const ORD11 = S11.order.items.map((label, i) => ({ id: 'o' + i, label }))
 const ORD11_ANS = String(S11.order.answer).split(/\s{2,}/)
   .map((lbl) => (ORD11.find((x) => x.label === lbl.trim()) || {}).id)
@@ -606,9 +677,13 @@ const Screen1 = (p) => (
       <HookBody
         {...s}
         data={{ ...S1, rows: [{ id: 'a', ...S1.row.a }, { id: 'b', ...S1.row.b }] }}
-        // Прямая опускается уже на хуке: обе точки видны до того, как названы.
-        // Прогноз делается при полной картине, а не вслепую.
-        fig={() => <Scene fig={<LevelLine step={1} a={0.5} arcs />} max={172} h={172} />}
+        // Ikkala funksiya ko'rinadi, hisob esa YO'Q: prognoz sondan oldin
+        // qilinadi, aks holda taxmin qilinmaydi, o'qiladi.
+        fig={() => (
+          <Panel tone="paper">
+            <Defs rows={S1.defs} size="mid" />
+          </Panel>
+        )}
       />
     )}
   </Screen>
@@ -617,9 +692,11 @@ const Screen1 = (p) => (
 const Screen2 = (p) => (
   <Screen data={S2} {...p}>
     {({ audio, solve }) => (
-      <Cols l={1} r={1}>
+      <Cols l={1} r={1.2}>
         <Col>
-          <Scene fig={<UnitCircle angle={30} locked drop meaning ticks />} max={300} />
+          <Panel tone="paper">
+            <Defs rows={S1.defs} size="mid" />
+          </Panel>
         </Col>
         <Col>
           <ProbeChain items={S2.items} cols={2} audio={audio} onSolved={solve} />
@@ -632,26 +709,28 @@ const Screen2 = (p) => (
 const Screen3 = (p) => (
   <Screen data={S3} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S3.show.length && !solved ? (
-      /* Свидетель урока: прямая садится на высоту и зажигает ОБЕ точки разом.
-         Они остаются на экране, пока ученик отвечает. */
-      <Scene
-        fig={<LevelLine step={phase} a={0.5} arcs />}
-        note={<NoteList items={S3.show[phase]} />}
-      />
+      /* Yozuv pastga o'sadi: 1-kadrda ichki funksiya qavsga kiradi,
+         2-kadrda tashqisi ishlaydi. */
+      <Rec defs={S3.defs} line={phase === 0 ? S3.frame[1] : S3.frame[2]} items={S3.show[phase]} />
     ) : (
-      <BuildPoint
-        prompt={S3.work.prompt}
-        test={(c, s) => c < -0.5 && Math.abs(s - 0.5) < 0.09}
-        hints={[
-          { when: (c) => c > 0, text: S3.work.hint[0] },
-          { when: (c, s) => s < 0, text: S3.work.hint[1] },
-          { when: () => true, text: S3.work.hint[2] },
-        ]}
-        okText={S3.work.ok}
-        snap={[150]}
-        audio={audio}
-        onSolved={solve}
-      />
+      <Cols l={1} r={1}>
+        <Col>
+          <Panel tone="paper">
+            <Expr size="mid" style={{ textAlign: 'left' }}>{S3.work.expr}</Expr>
+          </Panel>
+        </Col>
+        <Col>
+          <NumberEntry
+            compact
+            prompt={S3.work.prompt}
+            answer={num(S3.work.answer)}
+            okText={S3.work.ok}
+            hints={S3.work.hint}
+            audio={audio}
+            onSolved={solve}
+          />
+        </Col>
+      </Cols>
     ))}
   </Screen>
 )
@@ -659,23 +738,16 @@ const Screen3 = (p) => (
 const Screen4 = (p) => (
   <Screen data={S4} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S4.show.length && !solved ? (
-      /* Кадр 0 — окно закрашивается, кадр 1 — точка вне его тускнеет. Вторая
-         точка не исчезает: она есть, просто в ответ не идёт. */
-      <Scene
-        fig={<WindowArc step={phase + 1} a={0.5} from={-90} to={90} />}
-        note={<NoteList items={S4.show[phase]} />}
-      />
+      /* Razgranichenie: O'SHA ikki funksiya, tartib teskari. Ikkinchi kadrda
+         ikki son yonma-yon turadi -- to'rt va yigirma ikki. */
+      <Rec defs={S4.defs} line={phase === 0 ? S4.frame[1] : S4.frame[2]} items={S4.show[phase]} />
     ) : (
-      <BuildPoint
-        prompt={S4.work.prompt}
-        test={(c, s) => c > 0.5 && Math.abs(s - 0.5) < 0.09}
-        hints={[
-          { when: (c) => c < 0, text: S4.work.hint[0] },
-          { when: (c, s) => s < 0, text: S4.work.hint[1] },
-          { when: () => true, text: S4.work.hint[2] },
-        ]}
-        okText={S4.work.ok}
-        snap={[30]}
+      <OrderRow
+        prompt={S4.order.prompt}
+        items={ORD4}
+        answer={['s1', 's2', 's3']}
+        okText={S4.order.ok}
+        badText={S4.order.bad}
         audio={audio}
         onSolved={solve}
       />
@@ -686,14 +758,24 @@ const Screen4 = (p) => (
 const Screen5 = (p) => (
   <Screen data={S5} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S5.show.length && !solved ? (
-      <Scene
-        fig={<WindowArc step={phase === 0 ? 1 : 2} a={0.5} from={-90} to={90} />}
-        note={<NoteList items={S5.show[phase]} />}
-      />
+      /* ASBOB 5. Polosa ichki funksiyadan keladi: savol murakkab funksiya
+         haqida, shart esa ildizdan. */
+      <Cols l={1} r={1}>
+        <Col>
+          <Scene fig={<DomainBand step={phase} from={0} {...BAND} />} max={280} h={186} />
+          <Panel tone="paper">
+            <Expr size="mid">{phase === 0 ? S5.frame[1] : S5.frame[2]}</Expr>
+          </Panel>
+        </Col>
+        <Col><NoteList items={S5.show[phase]} /></Col>
+      </Cols>
     ) : (
       <Cols l={1} r={1}>
         <Col>
-          <Scene fig={<WindowArc step={2} a={0.5} from={-90} to={90} />} max={300} />
+          <Scene fig={<DomainBand step={1} from={0} {...BAND} />} max={280} h={186} />
+          <Panel tone="paper">
+            <Expr size="mid">{S5.work.expr}</Expr>
+          </Panel>
         </Col>
         <Col>
           <NumberEntry
@@ -714,26 +796,24 @@ const Screen5 = (p) => (
 const Screen6 = (p) => (
   <Screen data={S6} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S6.show.length && !solved ? (
-      /* У арккосинуса прямая ВЕРТИКАЛЬНАЯ. С горизонталью окно от нуля до ста
-         восьмидесяти не разделило бы точки: у обеих одинаковая высота. */
-      <Scene
-        fig={<WindowArc step={phase + 1} a={0.5} from={0} to={180} axis="x" />}
-        note={<NoteList items={S6.show[phase]} />}
-      />
+      /* DARSNING SHOHIDI. Nuqta punktirdan o'tadi va koordinatalari joyini
+         almashadi -- teskari funksiyaning grafigi shundan yig'iladi. */
+      <Scene fig={<Mirror step={phase + 1} />} note={<NoteList items={S6.show[phase]} />} />
     ) : (
-      <BuildPoint
-        prompt={S6.work.prompt}
-        test={(c, s) => Math.abs(c - 0.5) < 0.09 && s > 0.5}
-        hints={[
-          { when: (c, s) => s < 0, text: S6.work.hint[0] },
-          { when: (c) => c < 0, text: S6.work.hint[1] },
-          { when: () => true, text: S6.work.hint[2] },
-        ]}
-        okText={S6.work.ok}
-        snap={[60]}
-        audio={audio}
-        onSolved={solve}
-      />
+      <Cols l={1} r={1}>
+        <Col><Scene fig={<Mirror step={2} />} max={300} /></Col>
+        <Col>
+          <NumberEntry
+            compact
+            prompt={S6.work.prompt}
+            answer={num(S6.work.answer)}
+            okText={S6.work.ok}
+            hints={S6.work.hint}
+            audio={audio}
+            onSolved={solve}
+          />
+        </Col>
+      </Cols>
     ))}
   </Screen>
 )
@@ -741,16 +821,14 @@ const Screen6 = (p) => (
 const Screen7 = (p) => (
   <Screen data={S7} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S7.show.length && !solved ? (
-      /* Прямая останавливается ВЫШЕ окружности и остаётся видимой: «прошла
-         мимо» надо увидеть, а не услышать. */
-      <Scene
-        fig={<LevelLine step={phase} a={2} />}
-        note={<NoteList items={S7.show[phase]} />}
-      />
+      /* Chegara SON bilan tekshiriladi: ikki son bitta kvadrat beradi. */
+      <Rec defs={S7.defs} line={phase === 0 ? S7.frame[1] : S7.frame[2]} items={S7.show[phase]} />
     ) : (
       <Cols l={1} r={1}>
         <Col>
-          <Scene fig={<LevelLine step={1} a={2} />} max={300} />
+          <Panel tone="paper">
+            <Expr size="big" style={{ textAlign: 'left' }}>{S7.work.expr}</Expr>
+          </Panel>
         </Col>
         <Col>
           <NumberEntry
@@ -774,9 +852,8 @@ const Screen8 = (p) => (
       <RuleBody
         {...s}
         data={S8}
-        // Окно закрашивается в момент ответа: правило открывается рядом с тем
-        // движением, которое его и породило.
-        fig={(solved) => <Scene fig={<WindowArc step={solved ? 2 : 0} a={0.5} from={-90} to={90} />} max={330} />}
+        // Ko'zgu javob paytida ochiladi: qoida uni tug'dirgan harakat yonida.
+        fig={(solved) => <Scene fig={<Mirror step={solved ? 2 : 0} />} max={330} />}
       />
     )}
   </Screen>
@@ -787,9 +864,8 @@ const Screen9 = (p) => (
     {({ audio, solve }) => (
       <MatchPairs
         prompt={S9.match.prompt}
-        left={ARC_LEFT}
-        right={ARC_RIGHT}
-        marks={ARC_MARKS}
+        left={FUN_LEFT}
+        right={FUN_RIGHT}
         okText={S9.match.ok}
         audio={audio}
         onSolved={solve}
@@ -801,16 +877,18 @@ const Screen9 = (p) => (
 const Screen10 = (p) => (
   <Screen data={S10} {...p}>
     {({ audio, solve }) => (
-      <OrderRow
-        prompt={S10.order.prompt}
-        items={ORD10}
-        answer={['s1', 's2', 's3', 's4']}
-        marks={[{ deg: deg(S10.order.mark), tone: 'graph', label: S10.order.mark }]}
-        okText={S10.order.ok}
-        badText={S10.order.bad}
-        audio={audio}
-        onSolved={solve}
-      />
+      <>
+        <Defs rows={S10.defs} />
+        <OrderRow
+          prompt={S10.order.prompt}
+          items={ORD10}
+          answer={['s1', 's2', 's3']}
+          okText={S10.order.ok}
+          badText={S10.order.bad}
+          audio={audio}
+          onSolved={solve}
+        />
+      </>
     )}
   </Screen>
 )
@@ -828,22 +906,14 @@ const Screen11 = (p) => (
         onSolved={solve}
       />
     ) : (
-      <Cols l={1} r={1}>
-        <Col>
-          <Panel tone="paper">
-            <Expr size="big" style={{ textAlign: 'left' }}>{S11.task.prompt}</Expr>
-          </Panel>
-        </Col>
-        <Col>
-          <NumberEntry
-            answer={num(S11.task.answer)}
-            okText={S11.task.ok}
-            hints={S11.task.hint}
-            audio={audio}
-            onSolved={() => setTimeout(() => { setTitle(S11.order.title); setStage(1) }, 1400)}
-          />
-        </Col>
-      </Cols>
+      <NumberEntry
+        prompt={S11.task.prompt}
+        answer={num(S11.task.answer)}
+        okText={S11.task.ok}
+        hints={S11.task.hint}
+        audio={audio}
+        onSolved={() => setTimeout(() => { setTitle(S11.order.title); setStage(1) }, 1400)}
+      />
     ))}
   </Screen>
 )
@@ -858,6 +928,7 @@ const Screen12 = (p) => (
             answerId={S12.answerId}
             hints={S12.hint}
             proof={S12.proof}
+            hideProof
             audio={audio}
             onSolved={() => setStage(1)}
           />
@@ -893,16 +964,24 @@ const Screen13 = (p) => (
         onSolved={solve}
       />
     ) : (
-      <PlaceAngle
-        prompt={S13.place.prompt}
-        targets={[deg(S13.place.target)]}
-        steps={[S13.place.step]}
-        okText={S13.place.ok}
-        wrongText={S13.place.wrong}
-        audio={audio}
-        extra={{ ticks: true }}
-        onSolved={() => setTimeout(() => { setTitle(S13.multi.title); setStage(1) }, 1500)}
-      />
+      <Cols l={1} r={1}>
+        <Col>
+          <Panel tone="paper">
+            <Expr size="mid">{S13.entry.expr}</Expr>
+          </Panel>
+        </Col>
+        <Col>
+          <NumberEntry
+            compact
+            prompt={S13.entry.prompt}
+            answer={num(S13.entry.answer)}
+            okText={S13.entry.ok}
+            hints={S13.entry.hint}
+            audio={audio}
+            onSolved={() => setTimeout(() => { setTitle(S13.multi.title); setStage(1) }, 1500)}
+          />
+        </Col>
+      </Cols>
     ))}
   </Screen>
 )
@@ -914,10 +993,7 @@ const Screen14 = (p) => (
         {...s}
         data={S14}
         fig={(round) => (
-          <Scene
-            fig={<UnitCircle angle={deg(S14.angles[Math.min(round, S14.angles.length - 1)])} locked drop />}
-            max={300}
-          />
+          <Scene fig={<Mirror step={round >= 2 ? 2 : 1} />} max={260} h={168} />
         )}
       />
     )}

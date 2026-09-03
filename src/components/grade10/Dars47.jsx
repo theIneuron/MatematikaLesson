@@ -4,8 +4,8 @@
 // Bu fayl `scripts/grade10-kontent-build.mjs` bilan yasalgan:
 //   manba:  src/books/grade10/DARS47_KONTENT.md
 // Ma'lumot (ovoz, kadrlar, variantlar, razborlar, qoida, yakun) tayyor.
-// EKRAN TANALARI esa `TODO` bo'lib qoldi: asbob va figurani tanlash --
-// matematik qaror, va u avtomatlashtirilmaydi (etalon §5.3).
+// Ekran tanalari qo'lda yozilgan: asbob va figurani tanlash matematik qaror,
+// va u avtomatlashtirilmaydi (etalon §5.3).
 //
 // Tartib: tanalarni to'ldirish, keyin `grade10-lesson-audit.mjs`, keyin
 // tez yarus (2 o'lcham), keyin to'liq prognon. Har yangi figura oldin
@@ -38,34 +38,34 @@ import {
   SpinScene,
 } from './tools.jsx'
 
-import { Net, Space } from './figures.jsx'
+import { Space3D } from './space.jsx'
 
 // Метка урока: `lesson_id` = grade10-<номер>, `lesson_name` = номер + тема
 // ИЗ ПЛАНА дословно.
 const LESSON_NO = 47
 const LESSON_ID = `grade10-${String(LESSON_NO).padStart(2, '0')}`
 const LESSON_TITLE = L(
-  `${LESSON_NO}-dars. Sirt yuzasi`,
-  `Урок ${LESSON_NO}. Площадь поверхности`,
-  `Lesson ${LESSON_NO}. The surface area`,
+  `${LESSON_NO}-dars. Tekislik tenglamasi`,
+  `Урок ${LESSON_NO}. Уравнение плоскости`,
+  `Lesson ${LESSON_NO}. The equation of a plane`,
 )
 
-const BLOCK = { label: 'B7', from: 44, to: 49, current: 47 }
+const BLOCK = { label: 'B8', from: 43, to: 47, current: 47 }
 
 const S1 = {
   role: 'hook',
   answer: 'pick4',
-  eyebrow: L('SIRT', 'ПОВЕРХНОСТЬ', 'THE SURFACE'),
-  title: L('Uch yoq yoki olti', 'Три грани или шесть', 'Three faces or six'),
+  eyebrow: L('TEKISLIK', 'ПЛОСКОСТЬ', 'THE PLANE'),
+  title: L('Tenglamadagi uchlik nima', 'Что за тройка в уравнении', 'What the triple in the equation is'),
   audio: [
-    A('mount', "To'g'ri burchakli parallelepiped. Uning sirt yuzasini topish kerak, ya'ni yoqlar yuzalarini qo'shish kerak.", 'Прямоугольный параллелепипед. Нужно найти площадь его поверхности, то есть сложить площади граней.', 'A rectangular box. We need the area of its surface, that is the sum of the areas of its faces.'),
-    A('r1', "Birinchi yozuv uch yoqni qo'shishni taklif qiladi. Chizmada aynan shuncha ko'rinadi.", 'Первая запись предлагает сложить три грани. Ровно столько видно на чертеже.', 'The first reading offers to add three faces. That is exactly how many show on the drawing.'),
-    A('r2', 'Ikkinchisi oltini taklif qiladi.', 'Вторая предлагает шесть.', 'The second offers six.'),
-    A('ask', "Sizningcha qaysi yozuv to'g'ri? Hozircha shunchaki taxmin qiling.", 'Как думаешь, какая запись верная? Пока просто предположи.', 'Which reading do you think is right? Just guess for now.'),
+    A('mount', 'Tekislik tenglamasi, va unda uch koeffitsiyent: bir, ikki va ikki.', 'Уравнение плоскости, и в нём три коэффициента: один, два и два.', 'The equation of a plane, and in it three coefficients: one, two and two.'),
+    A('r1', 'Birinchi yozuv bu tekislikning nuqtasi deydi.', 'Первая запись говорит, что это точка плоскости.', 'The first reading says it is a point of the plane.'),
+    A('r2', 'Ikkinchisi bu normal deydi.', 'Вторая говорит, что это нормаль.', 'The second says it is a normal.'),
+    A('ask', "Uch son nuqtaning manzili kabi ko'rinadi, va bu chalkashtiradi. Sizningcha qaysi yozuv to'g'ri?", 'Тройка чисел выглядит как адрес точки, и это сбивает. Как думаешь, какая запись верная?', 'The triple of numbers looks like the address of a point, and that misleads. Which reading do you think is right?'),
   ],
   probe: {
     question: L("Qaysi yozuv to'g'ri?", 'Какая запись верна?', 'Which reading is correct?'),
-    afterPredict: L('Javobingiz yozib olindi. Endi jismni yoyamiz.', 'Твой ответ записан. Сейчас развернём тело.', 'Your answer is recorded. Now we unfold the body.'),
+    afterPredict: L("Javobingiz yozib olindi. Endi almashtirib qo'yib tekshiramiz.", 'Твой ответ записан. Сейчас проверим подстановкой.', 'Your answer is recorded. Now we check by substitution.'),
     items: [
       { id: 'a', label: L('birinchi', 'первая', 'the first') },
       { id: 'b', label: L('ikkinchi', 'вторая', 'the second'), correct: true },
@@ -75,15 +75,15 @@ const S1 = {
   },
   row: {
     a: {
-      name: L('uch', 'три', 'three'),
-      value: 'S = ab + bc + ac',
+      name: L('tekislikning nuqtasi', 'точка плоскости', 'a point of the plane'),
+      value: 'M (1; 2; 2)',
     },
     b: {
-      name: L('olti', 'шесть', 'six'),
-      value: 'S = 2(ab+bc+ac)',
+      name: L('tekislikning normali', 'нормаль плоскости', 'a normal of the plane'),
+      value: 'n (1; 2; 2)',
     },
   },
-  expr: 'S = ?',
+  expr: 'x + 2y + 2z − 6 = 0',
 }
 
 const S2 = {
@@ -93,43 +93,43 @@ const S2 = {
   title: L('Blokdan uch savol', 'Три вопроса из блока', 'Three questions from the block'),
   tag: 'support',
   audio: [
-    A('mount', "Uchta savol. Jism yoyilganda uchalasi ham kerak bo'ladi.", 'Три вопроса. Все три понадобятся, когда тело развернётся.', 'Three questions. All three will be needed when the body unfolds.'),
+    A('mount', "Uchta savol. Darsning qoidasi birinchi va ikkinchidan yig'iladi.", 'Три вопроса. Правило урока соберётся из первого и второго.', 'Three questions. The rule of the lesson will be assembled from the first and the second.'),
   ],
   items: [
     {
       id: 'q1',
       ask: true,
-      prompt: L("Parallelepipedning nechta yog'i bor?", 'Сколько граней у параллелепипеда?', 'How many faces does a parallelepiped have?'),
-      done: '4 + 2 = 6',
+      prompt: L('Nuqta chiziqda yoki tekislikda yotganini qanday tekshiriladi?', 'Как проверить, лежит ли точка на линии или плоскости?', 'How do you check whether a point lies on a line or a plane?'),
+      done: 'x + 2y + 2z − 6 = 0',
       items: [
-        { id: 'a', label: L('oltita', 'шесть', 'six'), correct: true },
-        { id: 'b', label: L("to'rtta", 'четыре', 'four'), hint: L("To'rtta faqat yonlari.", 'Четыре это только боковые.', 'Four are only the lateral ones.') },
-        { id: 'c', label: L('uchta', 'три', 'three'), hint: L("Uchta bir qarashda nechta ko'rinishi.", 'Три это сколько видно с одного взгляда.', 'Three is how many you see at a glance.') },
-        { id: 'd', label: L('sakkizta', 'восемь', 'eight'), hint: L('Sakkiz uchlar soni.', 'Восемь это число вершин.', 'Eight is the number of vertices.') },
+        { id: 'a', label: L("uning sonlarini tenglamaga qo'yib ko'rish", 'подставить её числа в уравнение', 'substitute its numbers into the equation'), correct: true },
+        { id: 'b', label: L('chizmaga qarash', 'посмотреть на чертёж', 'look at the drawing'), hint: L("Chizma ko'p rakursdan bittasini ko'rsatadi.", 'Чертёж показывает один ракурс из многих.', 'A drawing shows one view out of many.') },
+        { id: 'c', label: L('uzunliklarni taqqoslash', 'сравнить длины', 'compare the lengths'), hint: L('Uzunlik tegishlilik haqida hech narsa aytmaydi.', 'Длина про принадлежность ничего не говорит.', 'A length says nothing about belonging.') },
+        { id: 'd', label: L('sonlarning ishorasini tekshirish', 'проверить знак чисел', 'check the sign of the numbers'), hint: L("Ishora o'zi hech narsani hal qilmaydi.", 'Знак сам по себе ничего не решает.', 'A sign by itself decides nothing.') },
       ],
     },
     {
       id: 'q2',
       ask: true,
-      prompt: L('Apofema nima?', 'Что такое апофема?', 'What is the apothem?'),
-      done: 'SM ⊥ AB',
+      prompt: L("Nol skalyar ko'paytma nimani bildiradi?", 'Что означает нулевое скалярное произведение?', 'What does a zero dot product mean?'),
+      done: 'n·v = 0',
       items: [
-        { id: 'a', label: L('uchdan yon yoqning balandligi', 'высота боковой грани из вершины', 'the height of a lateral face from the apex'), correct: true },
-        { id: 'b', label: L('yon qirra', 'боковое ребро', 'the lateral edge'), hint: L("Qirra asos uchiga keladi, apofema tomon o'rtasiga.", 'Ребро приходит в вершину основания, апофема в середину стороны.', 'The edge arrives at a base vertex, the apothem at the middle of a side.') },
-        { id: 'c', label: L('piramida balandligi', 'высота пирамиды', 'the height of the pyramid'), hint: L('Balandlik asos markaziga boradi.', 'Высота идёт в центр основания.', 'The height goes to the centre of the base.') },
-        { id: 'd', label: L('asos tomoni', 'сторона основания', 'a base side'), hint: L('Tomon asosda yotadi, apofema esa yon yoqda.', 'Сторона лежит в основании, а апофема в боковой грани.', 'The side lies in the base, the apothem in a lateral face.') },
+        { id: 'a', label: L('nolmas vektorlarning perpendikulyarligi', 'перпендикулярность ненулевых векторов', 'the perpendicularity of non zero vectors'), correct: true },
+        { id: 'b', label: L('vektorlarning tengligi', 'равенство векторов', 'the equality of the vectors'), hint: L("Tenglarda ko'paytma uzunlik kvadrati.", 'У равных произведение это квадрат длины.', 'For equal vectors the product is the square of the length.') },
+        { id: 'c', label: L('ikki vektor ham nol ekanini', 'что оба вектора нулевые', 'that both vectors are zero'), hint: L('Nol nolmaslarda ham chiqadi.', 'Ноль выходит и у ненулевых.', 'Zero comes out for non zero vectors too.') },
+        { id: 'd', label: L("o'tmas burchak", 'тупой угол', 'an obtuse angle'), hint: L("O'tmasda ko'paytma manfiy.", 'У тупого произведение отрицательное.', 'For an obtuse angle the product is negative.') },
       ],
     },
     {
       id: 'q3',
       ask: true,
-      prompt: L('Bitta qirrada nechta yoq tutashadi?', 'Сколько граней сходится в одном ребре?', 'How many faces meet at one edge?'),
-      done: '2',
+      prompt: L('Bir ikki ikki uchligining uzunligi qancha?', 'Чему равна длина тройки один два два?', 'What is the length of the triple one two two?'),
+      done: '|n| = 3',
       items: [
-        { id: 'a', label: L('ikkita', 'две', 'two'), correct: true },
-        { id: 'b', label: L('bitta', 'одна', 'one'), hint: L('Bitta yoq shunchaki tomon berardi.', 'Одна грань дала бы просто сторону.', 'One face would give just a side.') },
-        { id: 'c', label: L('uchta', 'три', 'three'), hint: L('Uchtasi uchda tutashadi.', 'Три сходятся в вершине.', 'Three meet at a vertex.') },
-        { id: 'd', label: L("jismga bog'liq", 'зависит от тела', 'it depends on the body'), hint: L("Bu har qanday ko'pyoqda to'g'ri.", 'Это верно у любого многогранника.', 'This is true for any polyhedron.') },
+        { id: 'a', label: L('uchga', 'трём', 'three'), correct: true },
+        { id: 'b', label: L('beshga', 'пяти', 'five'), hint: L("Besh uch sonning yig'indisi.", 'Пять это сумма трёх чисел.', 'Five is the sum of the three numbers.') },
+        { id: 'c', label: L("to'qqizga", 'девяти', 'nine'), hint: L("To'qqiz ildiz ostida turadi.", 'Девять стоит под корнем.', 'Nine stands under the root.') },
+        { id: 'd', label: L('ikkiga', 'двум', 'two'), hint: L('Ikki sonlarning eng kattasi.', 'Два это наибольшее из чисел.', 'Two is the largest of the numbers.') },
       ],
     },
   ],
@@ -139,203 +139,203 @@ const S3 = {
   role: 'explain1',
   answer: 'number',
   eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L("Jism qog'ozga yoyiladi", 'Тело разворачивается на бумагу', 'The body unfolds onto paper'),
-  tag: 'ploshchad-po-kartinke',
+  title: L("Tekshiruv almashtirib qo'yish bilan boradi", 'Проверка идёт подстановкой', 'The check goes by substitution'),
+  tag: 'koeffitsiyent-nuqta-emas',
   show: [
     [
-      L('avval asoslar yotdi', 'сначала легли основания', 'first the bases lay down'),
-      L("bu ikki tanish ko'pburchak", 'это два знакомых многоугольника', 'these are two familiar polygons'),
+      L("tekislik o'qlarni kesadi", 'плоскость пересекает оси', 'the plane cuts the axes'),
+      L('oltida, uchda va uchda', 'в шести, трёх и трёх', 'at six, three and three'),
     ],
     [
-      L('keyin yon sirt yotdi', 'потом легла боковая поверхность', 'then the lateral surface lay down'),
-      L("butun sirt qog'ozda", 'вся поверхность на бумаге', 'the whole surface is on paper'),
+      L("har nuqtani qo'yib ko'ramiz", 'подставляем каждую точку', 'we substitute each point'),
+      L('va nol olamiz', 'и получаем ноль', 'and get zero'),
     ],
   ],
   motion: ['move'],
   audio: [
-    A('mount', "Prizmani olamiz va uning sirtini qirralar bo'ylab kesib, keyin qog'ozda yozamiz.", 'Возьмём призму и разрежем её поверхность по рёбрам, а потом разложим на бумаге.', 'Take a prism, cut its surface along the edges and lay it out on paper.'),
-    A('move', "Yassi shakl chiqdi, va u yoyilma deb ataladi. Ellik to'qqizinchi betda shunday. Nima o'zgarganiga qarang. Jismda sirt yuzasi tushunarsiz kattalik edi, yoyilmada esa u shunchaki yassi bo'laklar yuzalarining yig'indisi, va har bir bo'lakni biz yettinchi sinfdan hisoblay olamiz. Yoyilishda birorta yoq yo'qolmadi va paydo bo'lmadi, shuning uchun yuzalar teng. Aynan shuning uchun yoyilma chiroylik uchun rasm emas, hisoblash usuli.", 'Получилась плоская фигура, и она называется развёрткой. Так на странице пятьдесят девять. Смотри, что изменилось. У тела площадь поверхности была непонятной величиной, а у развёртки это просто сумма площадей плоских кусков, и каждый кусок мы умеем считать с седьмого класса. Ни одна грань при развёртке не потерялась и не появилась, поэтому площади равны. Именно поэтому развёртка это не картинка для красоты, а способ считать.', 'We got a flat figure, and it is called a net. So it is on page fifty nine. See what changed. For the body the surface area was an unclear quantity, while for the net it is simply the sum of the areas of flat pieces, and each piece we can compute since grade seven. No face is lost or added in the unfolding, so the areas are equal. That is exactly why a net is not a decorative picture but a way to count.'),
-    A('work', "O'zingiz hisoblang. To'rtburchakli prizma yoyilmasida nechta yassi bo'lak bor?", 'Посчитай сам. Сколько плоских кусков в развёртке четырёхугольной призмы?', 'Work it out yourself. How many flat pieces are in the net of a quadrilateral prism?'),
+    A('mount', "Tekislik tenglama bilan berilgan. U o'qlarni kesadigan nuqtalarni topamiz.", 'Плоскость задана уравнением. Найдём точки, где она пересекает оси.', 'The plane is given by an equation. Let us find the points where it cuts the axes.'),
+    A('move', "Birinchi o'qda boshqa ikki son nol, iks minus olti nolga teng bo'lib qoladi, ya'ni olti. Ikkinchi o'qda ikki igrek minus olti nolga teng, ya'ni uch. Uchinchisida ham xuddi shunday uch. Ana tekislikning uch nuqtasi, va uchtasi ham chizmasiz topildi. Tegishlilik tekshiruvi har doim bir xil: nuqtaning uch sonini chap tomonga qo'yib, nol chiqdimi deb qarash. Nol bo'lsa, nuqta tekislikda yotadi. Nol bo'lmasa, yotmaydi, va nuqta uzoqroq bo'lgani sari chetlanish kattaroq. E'tibor bering, tenglama bunda aylanib o'tish tartibi yoki shakl haqida hech narsa aytmaydi: tekislik cheksiz, va tenglama uni butunligicha tasvirlaydi.", 'На первой оси два других числа нули, остаётся икс минус шесть равно нулю, то есть шесть. На второй оси два игрек минус шесть равно нулю, то есть три. На третьей так же три. Вот и три точки плоскости, и все три найдены без чертежа. Проверка принадлежности всегда одна и та же: подставить три числа точки в левую часть и посмотреть, вышел ли ноль. Если ноль, точка лежит в плоскости. Если не ноль, не лежит, и величина отклонения тем больше, чем дальше точка. Обрати внимание, что уравнение при этом ничего не говорит про порядок обхода или про форму: плоскость бесконечна, и уравнение описывает её целиком.', 'On the first axis the other two numbers are zero, x minus six equals zero remains, that is six. On the second axis two y minus six equals zero, that is three. On the third the same three. There are three points of the plane, and all three were found without a drawing. The check of belonging is always the same: substitute the three numbers of the point into the left side and see whether zero came out. If it is zero, the point lies in the plane. If not zero, it does not lie there, and the deviation is larger the farther the point is. Note that the equation says nothing about the order of traversal or about a shape: a plane is endless, and the equation describes it entirely.'),
+    A('work', "O'zingiz hisoblang. O'qlardagi uch nuqtadan nechtasi tekislikda yotadi?", 'Посчитай сам. Сколько из трёх точек на осях лежат в плоскости?', 'Work it out yourself. How many of the three points on the axes lie in the plane?'),
   ],
   work: {
-    prompt: L("Yoyilmada nechta bo'lak?", 'Сколько кусков в развёртке?', 'How many pieces are in the net?'),
-    ok: L("Oltita. To'rt yon va ikki asos, yoqlar qanchaligicha.", 'Шесть. Четыре боковых и два основания, столько же, сколько граней.', 'Six. Four lateral and two bases, as many as there are faces.'),
+    prompt: L('Nechta nuqta tekislikda yotadi?', 'Сколько точек лежат в плоскости?', 'How many points lie in the plane?'),
+    ok: L("Uchta. Almashtirib qo'yish uchtasida ham nol berdi.", 'Три. Подстановка у всех дала ноль.', 'Three. The substitution gave zero for all of them.'),
     hint: [
-      L("Jismdagi yoqlarni emas, qog'ozdagi bo'laklarni sanang.", 'Посчитай куски на бумаге, а не грани на теле.', 'Count the pieces on the paper, not the faces on the body.'),
-      L("Har yoq roppa-rosa bitta bo'lak beradi.", 'Каждая грань даёт ровно один кусок.', 'Each face gives exactly one piece.'),
-      L("To'rt qo'shuv ikki.", 'Четыре плюс два.', 'Four plus two.'),
+      L("Har nuqtani chap tomonga qo'yib ko'ring.", 'Подставь каждую точку в левую часть.', 'Substitute each point into the left side.'),
+      L('Olti minus olti, olti minus olti, olti minus olti.', 'Шесть минус шесть, шесть минус шесть, шесть минус шесть.', 'Six minus six, six minus six, six minus six.'),
+      L('Uchta.', 'Три.', 'Three.'),
     ],
-    answer: '6',
+    answer: '3',
   },
-  expr: '4 + 2 = 6',
+  expr: 'x + 2y + 2z − 6 = 0',
 }
 
 const S4 = {
   role: 'explain2',
   answer: 'number',
-  eyebrow: L('FARQLASH', 'РАЗГРАНИЧЕНИЕ', 'TELLING THEM APART'),
-  title: L("Uch ko'rinadi, oltini qo'shish kerak", 'Видно три, а сложить надо шесть', 'Three show, six must be added'),
-  tag: 'ploshchad-po-kartinke',
+  eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
+  title: L('Koeffitsiyentlar uchligi strelka', 'Тройка коэффициентов это стрелка', 'The triple of coefficients is an arrow'),
+  tag: 'koeffitsiyent-nuqta-emas',
   show: [
     [
-      L("chizmada uch yoq ko'rinadi", 'на чертеже видно три грани', 'three faces show on the drawing'),
-      L('qolgan uchtasi boshqa tomonda', 'остальные три с другой стороны', 'the other three are on the far side'),
+      L('normal strelka bilan chizilgan', 'нормаль нарисована стрелкой', 'the normal is drawn as an arrow'),
+      L('u tekislikka perpendikulyar', 'она перпендикулярна плоскости', 'it is perpendicular to the plane'),
     ],
     [
-      L('yoyilmada oltitasi birdan', 'в развёртке все шесть сразу', 'in the net all six at once'),
-      L('va ular juft-juft teng', 'и они попарно равны', 'and they are equal in pairs'),
+      L("burilish, va u to'g'ri burchakni saqlaydi", 'поворот, и она держит прямой угол', 'a turn, and it keeps the right angle'),
+      L('bir ikki ikki nuqta esa tekislikdan tashqarida', 'а точка один два два вне плоскости', 'and the point one two two is off the plane'),
     ],
   ],
   motion: ['move'],
   audio: [
-    A('mount', "O'lchamlar ikki, uch va to'rt. Sirt yuzasini hisoblaymiz.", 'Измерения два, три и четыре. Посчитаем площадь поверхности.', 'The dimensions are two, three and four. Let us find the surface area.'),
-    A('move', "Chizmada uch yoq ko'rinadi, va aynan ularni qo'shgi keladi. Lekin parallelepipedning yoqlari juft-juft teng, va har bir ko'rinadigan yoqning o'sha yuzali ko'rinmas egizagi bor. Yoyilmada bu darhol ko'rinadi. Demak uch xil ko'paytmaning yig'indisi ikkiga ko'paytiriladi. Ikki karra uch olti, uch karra to'rt o'n ikki, ikki karra to'rt sakkiz. Olti qo'shuv o'n ikki qo'shuv sakkiz bu yigirma olti, butun sirt esa ellik ikki. E'tibor bering, ko'rinadigan yoqlar soni rakursga bog'liq, sirt yuzasi esa yo'q.", 'На чертеже видно три грани, и складывать хочется именно их. Но грани у параллелепипеда попарно равны, и каждая видимая грань имеет невидимого близнеца с той же площадью. В развёртке это сразу видно. Значит сумма трёх разных произведений умножается на два. Два умножить на три это шесть, три на четыре двенадцать, два на четыре восемь. Шесть плюс двенадцать плюс восемь это двадцать шесть, а вся поверхность пятьдесят два. Обрати внимание, что число видимых граней зависит от ракурса, а площадь поверхности нет.', 'Three faces show on the drawing and those are the ones you want to add. But the faces of a box are equal in pairs, and every visible face has an invisible twin of the same area. In the net that is immediately visible. So the sum of the three different products is multiplied by two. Two times three is six, three times four is twelve, two times four is eight. Six plus twelve plus eight is twenty six, and the whole surface is fifty two. Note that the number of visible faces depends on the view while the surface area does not.'),
-    A('work', "O'zingiz hisoblang. O'lchamlar ikki, uch va to'rt. Sirt yuzasi qancha?", 'Посчитай сам. Измерения два, три и четыре. Какова площадь поверхности?', 'Work it out yourself. The dimensions are two, three and four. What is the surface area?'),
+    A('mount', 'Koeffitsiyentlar uchligini ikki usulda chizaman: strelka va nuqta sifatida.', 'Нарисую тройку коэффициентов двумя способами: как стрелку и как точку.', 'Let me draw the triple of coefficients in two ways: as an arrow and as a point.'),
+    A('move', "Strelka sifatida u to'g'ri tutadi: tekislikka perpendikulyar, va sahnaning burilishi buni birorta holatda ham o'zgartirmaydi. Nuqta sifatida esa u tekislikka tushmaydi. Almashtirib qo'yib tekshiramiz: bir qo'shuv ikki karra ikki qo'shuv ikki karra ikki minus olti uch beradi, nol emas. Demak bu koordinatalarga ega nuqta tekislikdan tashqarida yotadi, va u hech qanday tekislik nuqtasi emas. Sabab oddiy. Tenglamada koeffitsiyentlar iks, igrek va zet oldida ko'paytuvchi bo'lib turadi, bu harflarning qiymati bo'lib emas. Ko'paytuvchi va qiymat boshqa-boshqa rol, va ularni aralashtirish mumkin emas, garchi yozuvda ikkisi ham uch son kabi ko'rinsa.", 'Как стрелка она ведёт себя правильно: перпендикулярна плоскости, и поворот сцены этого не меняет ни в одном положении. А как точка она в плоскость не попадает. Проверим подстановкой: один плюс два умножить на два плюс два умножить на два минус шесть даёт три, а не ноль. Значит точка с этими координатами лежит вне плоскости, и никакой она точкой плоскости не является. Причина проста. В уравнении коэффициенты стоят множителями при иксе, игреке и зете, а не значениями этих букв. Множитель и значение это разные роли, и путать их нельзя, хотя на письме и то и другое выглядит как тройка чисел.', 'As an arrow it behaves correctly: perpendicular to the plane, and turning the scene does not change that in any position. As a point it does not land in the plane. Let us check by substitution: one plus two times two plus two times two minus six gives three, not zero. So the point with these coordinates lies off the plane, and it is no point of the plane at all. The reason is simple. In the equation the coefficients stand as factors at x, y and z, not as the values of those letters. A factor and a value are different roles, and they must not be confused, even though in writing both look like a triple of numbers.'),
+    A('work', "O'zingiz hisoblang. Bir ikki ikki nuqtasini qo'yish nima beradi?", 'Посчитай сам. Что даёт подстановка точки один два два?', 'Work it out yourself. What does substituting the point one two two give?'),
   ],
   work: {
-    prompt: L('Sirt yuzasini toping', 'Найди площадь поверхности', 'Find the surface area'),
-    ok: L('Ellik ikki. Yigirma olti karra ikki.', 'Пятьдесят два. Двадцать шесть умножить на два.', 'Fifty two. Twenty six times two.'),
+    prompt: L("Almashtirib qo'yish nima beradi?", 'Что даёт подстановка?', 'What does the substitution give?'),
+    ok: L('Uch. Nol emas, demak nuqta tekislikdan tashqarida.', 'Три. Не ноль, значит точка вне плоскости.', 'Three. Not zero, so the point is off the plane.'),
     hint: [
-      L("O'lchamlarning uch xil ko'paytmasini qo'shing.", 'Сложи три разных произведения измерений.', 'Add the three different products of the dimensions.'),
-      L("Olti qo'shuv o'n ikki qo'shuv sakkiz.", 'Шесть плюс двенадцать плюс восемь.', 'Six plus twelve plus eight.'),
-      L('Yigirma olti karra ikki.', 'Двадцать шесть умножить на два.', 'Twenty six times two.'),
+      L("Bir, ikki va ikkini o'z o'rniga qo'ying.", 'Подставь один, два и два по местам.', 'Substitute one, two and two in their places.'),
+      L("Bir qo'shuv to'rt qo'shuv to'rt minus olti.", 'Один плюс четыре плюс четыре минус шесть.', 'One plus four plus four minus six.'),
+      L('Uch.', 'Три.', 'Three.'),
     ],
-    answer: '52',
+    answer: '3',
   },
-  expr: 'S = 2(ab+bc+ac)',
+  expr: '1 + 4 + 4 − 6 = 3',
 }
 
 const S5 = {
   role: 'explain3',
   answer: 'number',
   eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L('Yon sirt bu tasma', 'Боковая поверхность это лента', 'The lateral surface is a strip'),
-  tag: 'ploshchad-po-kartinke',
+  title: L('Strelka nega perpendikulyar', 'Почему стрелка перпендикулярна', 'Why the arrow is perpendicular'),
+  tag: 'koeffitsiyent-nuqta-emas',
   show: [
     [
-      L('yon yoqlar bitta tasmaga yotdi', 'боковые грани легли в одну ленту', 'the lateral faces lay down in one strip'),
-      L('tasmaning balandligi prizma balandligi', 'высота ленты это высота призмы', 'the height of the strip is the height of the prism'),
+      L('tekislikning ikki nuqtasi', 'две точки плоскости', 'two points of the plane'),
+      L('ular orasidagi vektor tekislikda yotadi', 'вектор между ними лежит в плоскости', 'the vector between them lies in the plane'),
     ],
     [
-      L('tasmaning uzunligi asos perimetri', 'длина ленты это периметр основания', 'the length of the strip is the base perimeter'),
-      L("tasma yuzasi ko'paytma", 'площадь ленты это произведение', 'the area of the strip is the product'),
+      L("normal bilan ko'paytmani hisoblaymiz", 'считаем произведение с нормалью', 'we compute the product with the normal'),
+      L('ixtiyoriy juftda nol chiqadi', 'выходит ноль при любой паре', 'zero comes out for any pair'),
     ],
   ],
   motion: ['move'],
   audio: [
-    A('mount', "To'g'ri prizmaning faqat yon sirtini, asoslarsiz yoyamiz.", 'Развернём только боковую поверхность прямой призмы, без оснований.', 'Let us unfold only the lateral surface of a right prism, without the bases.'),
-    A('move', "To'g'ri prizmaning yon yoqlari to'g'ri to'rtburchak, va yoyilmada ular bitta uzun tasmaga qo'shiladi. Barcha to'g'ri to'rtburchaklarning balandligi bir xil, bu prizma balandligi. Asoslari esa ketma-ket boradi va birgalikda asos perimetrini beradi. Demak tasma yuzasi asos perimetrini balandlikka ko'paytirgani, va yangi formulani yodlash kerak emas, bu to'g'ri to'rtburchak yuzasi. Tomonlari uch, to'rt, besh va balandligi o'n bo'lgan uchburchakli prizmada tekshiramiz. Perimetr o'n ikki, yon sirt yuzasi bir yuz yigirma.", 'Боковые грани прямой призмы это прямоугольники, и в развёртке они складываются в одну длинную ленту. Высота у всех прямоугольников одна, это высота призмы. А их основания идут одно за другим, и вместе дают периметр основания. Значит площадь ленты это периметр основания, умноженный на высоту, и никакой новой формулы запоминать не надо, это площадь прямоугольника. Проверим на треугольной призме со сторонами три, четыре, пять и высотой десять. Периметр двенадцать, площадь боковой поверхности сто двадцать.', 'The lateral faces of a right prism are rectangles, and in the net they add up into one long strip. All the rectangles have the same height, the height of the prism. Their bases go one after another and together give the perimeter of the base. So the area of the strip is the base perimeter times the height, and there is no new formula to memorise, it is the area of a rectangle. Let us check on a triangular prism with sides three, four, five and height ten. The perimeter is twelve, the lateral area is one hundred twenty.'),
-    A('work', "O'zingiz hisoblang. Asos perimetri o'n ikki, balandlik o'n. Yon sirt qancha?", 'Посчитай сам. Периметр основания двенадцать, высота десять. Какова боковая поверхность?', 'Work it out yourself. The base perimeter is twelve, the height is ten. What is the lateral area?'),
+    A('mount', 'Tekislikning ikki nuqtasini olib, ular orasida vektor yasayman. U tekislikda yotadi.', 'Возьму две точки плоскости и построю вектор между ними. Он лежит в плоскости.', 'Let me take two points of the plane and build the vector between them. It lies in the plane.'),
+    A('move', "Birinchi nuqta olti nol nol, ikkinchisi nol uch nol, ular orasidagi vektor minus olti uch nol. Koeffitsiyentlar uchligi bilan skalyar ko'paytmani hisoblayman: minus olti karra bir minus olti beradi, uch karra ikki olti beradi, nol karra ikki nol beradi. Yig'indi nol. Nolmas vektorlarda nol esa to'g'ri burchakni bildiradi, bu o'tgan darsning qoidasi. Tekislikning ixtiyoriy boshqa juft nuqtasini oling, va ko'paytma yana nol bo'ladi: ikkisida ham almashtirib qo'yish nol beradi, va ayirishda ozod had qisqaradi. Demak koeffitsiyentlar uchligi tekislikning har vektoriga perpendikulyar, ya'ni tekislikning o'ziga perpendikulyar. Bunday vektor normal deb ataladi.", 'Первая точка шесть нуль нуль, вторая нуль три нуль, вектор между ними минус шесть три нуль. Считаю скалярное произведение с тройкой коэффициентов: минус шесть на один даёт минус шесть, три на два даёт шесть, нуль на два даёт нуль. Сумма ноль. А ноль при ненулевых векторах означает прямой угол, это правило прошлого урока. Возьми любую другую пару точек плоскости, и произведение снова будет нулём: у обеих подстановка даёт ноль, и при вычитании свободный член сокращается. Значит тройка коэффициентов перпендикулярна каждому вектору плоскости, то есть перпендикулярна самой плоскости. Такой вектор и называется нормалью.', 'The first point is six zero zero, the second is zero three zero, the vector between them is minus six three zero. I compute the dot product with the triple of coefficients: minus six times one gives minus six, three times two gives six, zero times two gives zero. The sum is zero. And zero for non zero vectors means a right angle, that is the rule of the previous lesson. Take any other pair of points of the plane and the product will be zero again: the substitution gives zero for both, and in the subtraction the free term cancels. So the triple of coefficients is perpendicular to every vector of the plane, that is perpendicular to the plane itself. Such a vector is called a normal.'),
+    A('work', "O'zingiz hisoblang. Normal va tekislik vektorining ko'paytmasi nimaga teng?", 'Посчитай сам. Чему равно произведение нормали и вектора плоскости?', 'Work it out yourself. What does the product of the normal and a vector of the plane equal?'),
   ],
   work: {
-    prompt: L('Yon sirtni toping', 'Найди боковую поверхность', 'Find the lateral area'),
-    ok: L('Bir yuz yigirma. Perimetr karra balandlik.', 'Сто двадцать. Периметр на высоту.', 'One hundred twenty. The perimeter times the height.'),
+    prompt: L("Normal va tekislik vektorining ko'paytmasi?", 'Произведение нормали и вектора плоскости?', 'The product of the normal and a vector of the plane?'),
+    ok: L('Nol. Shuning uchun perpendikulyar.', 'Ноль. Потому и перпендикулярна.', 'Zero. That is why it is perpendicular.'),
     hint: [
-      L("Tasma to'g'ri to'rtburchak.", 'Лента это прямоугольник.', 'The strip is a rectangle.'),
-      L('Uning tomonlari perimetr va balandlik.', 'Его стороны это периметр и высота.', 'Its sides are the perimeter and the height.'),
-      L("O'n ikki karra o'n.", 'Двенадцать умножить на десять.', 'Twelve times ten.'),
+      L("O'qlar bo'yicha hisoblang, ishoralarni hisobga oling.", 'Считай по осям, знаки учитывай.', 'Compute along the axes, take the signs into account.'),
+      L("Minus olti qo'shuv olti qo'shuv nol.", 'Минус шесть плюс шесть плюс нуль.', 'Minus six plus six plus zero.'),
+      L('Nol.', 'Ноль.', 'Zero.'),
     ],
-    answer: '120',
+    answer: '0',
   },
-  expr: 'S = P·h',
+  expr: 'n·v = 0',
 }
 
 const S6 = {
   role: 'explain4',
   answer: 'number',
-  eyebrow: L("O'ZINGIZ", 'САМ', 'ON YOUR OWN'),
-  title: L('Piramida yoyilmasi uchburchaklar', 'Развёртка пирамиды это треугольники', 'The net of a pyramid is triangles'),
-  tag: 'apofema-ne-rebro',
+  eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
+  title: L("Nuqta va normal bo'yicha tenglama", 'Уравнение по точке и нормали', 'An equation from a point and a normal'),
+  tag: 'koeffitsiyent-nuqta-emas',
   show: [
     [
-      L('markazda asos', 'в центре основание', 'the base in the centre'),
-      L("atrofida to'rt uchburchak", 'вокруг четыре треугольника', 'four triangles around it'),
+      L("o'sha normal bir ikki ikki", 'та же нормаль один два два', 'the same normal one two two'),
+      L('lekin tekislik bir bir bir nuqta orqali', 'но плоскость через точку один один один', 'but the plane through the point one one one'),
     ],
     [
-      L('har birining balandligi apofema', 'высота каждого это апофема', 'the height of each is the apothem'),
-      L('har birining asosi tomon', 'основание каждого это сторона', 'the base of each is a side'),
+      L('koeffitsiyentlarni normaldan olamiz', 'коэффициенты берём из нормали', 'we take the coefficients from the normal'),
+      L("ozod hadni almashtirib qo'yishdan", 'свободный член из подстановки', 'the free term from the substitution'),
     ],
   ],
   motion: ['move'],
   audio: [
-    A('mount', 'Muntazam piramidani yoyamiz. Asos tomoni olti, apofema besh.', 'Развернём правильную пирамиду. Сторона основания шесть, апофема пять.', 'Let us unfold a regular pyramid. The base side is six, the apothem is five.'),
-    A('move', "Piramida yoyilmasida asos markazda yotadi, yon yoqlar esa uning atrofida uchburchak bo'lib yoziladi. Har uchburchakning asosi piramida asosining tomoni, balandligi esa apofema. Apofema shuning uchun muhim, va uni yon qirra bilan almashtirib bo'lmasligi ham shundan: qirra uchburchakning balandligi emas. Bitta uchburchak yuzasi olti karra beshning yarmi, ya'ni o'n besh. Uchburchaklar to'rtta, demak yon sirt oltmish.", 'В развёртке пирамиды основание лежит в центре, а боковые грани раскладываются вокруг него треугольниками. У каждого треугольника основание это сторона основания пирамиды, а высота это апофема. Вот почему апофема так важна, и вот почему её нельзя подменять боковым ребром: ребро высотой треугольника не является. Площадь одного треугольника это половина произведения шесть на пять, то есть пятнадцать. Треугольников четыре, значит боковая поверхность шестьдесят.', 'In the net of a pyramid the base lies in the centre and the lateral faces spread around it as triangles. For each triangle the base is a side of the pyramid base and the height is the apothem. That is why the apothem matters so much, and why it cannot be replaced by the lateral edge: the edge is not the height of the triangle. The area of one triangle is half of six times five, that is fifteen. There are four triangles, so the lateral area is sixty.'),
-    A('work', "O'zingiz hisoblang. Asos tomoni olti, apofema besh. Yon sirt qancha?", 'Посчитай сам. Сторона основания шесть, апофема пять. Какова боковая поверхность?', 'Work it out yourself. The base side is six, the apothem is five. What is the lateral area?'),
+    A('mount', "Normalni o'sha qoldiraman, tekislikni esa boshqa nuqta orqali o'tkazaman.", 'Нормаль оставлю ту же, а плоскость проведу через другую точку.', 'Let me keep the same normal and pass the plane through another point.'),
+    A('move', "Yangi tekislik eskisiga parallel, va bu ko'rinadi: normali bitta, demak og'ishi bir xil. Tenglamadagi koeffitsiyentlar to'g'ridan to'g'ri normaldan olinadi, bu yerda o'ylaydigan narsa yo'q. Ozod hadni topish qoldi, va u berilgan nuqta tekislikda yotadi degan shartdan topiladi. Bir, bir va birni qo'yaman: bir qo'shuv ikki qo'shuv ikki besh beradi. Demak ozod hadsiz chap tomon besh beradi, va nol chiqishi uchun ozod had minus beshga teng. Tenglama tayyor. Shundan umumiy usul: koeffitsiyentlar normaldan, ozod had nuqtadan. Va e'tibor bering, normal faqat tekislikning yo'nalishini beradi, nuqta esa parallel tekisliklardan qaysi biri kerakligini tanlaydi.", 'Новая плоскость параллельна старой, и это видно: нормаль у них одна, значит наклон одинаковый. Коэффициенты в уравнении берутся прямо из нормали, тут думать не о чем. Осталось найти свободный член, и он находится из условия, что данная точка лежит в плоскости. Подставляю один, один и один: один плюс два плюс два даёт пять. Значит левая часть без свободного члена даёт пять, и чтобы получился ноль, свободный член равен минус пяти. Уравнение готово. Отсюда общий приём: коэффициенты из нормали, свободный член из точки. И заметь, что нормаль задаёт только направление плоскости, а точка выбирает, какая именно из параллельных плоскостей нам нужна.', 'The new plane is parallel to the old one, and that is visible: they have one normal, so the same tilt. The coefficients in the equation are taken straight from the normal, there is nothing to think about there. What remains is the free term, and it is found from the condition that the given point lies in the plane. I substitute one, one and one: one plus two plus two gives five. So the left side without the free term gives five, and for zero to come out the free term equals minus five. The equation is ready. Hence the general trick: the coefficients from the normal, the free term from the point. And note that the normal gives only the direction of the plane, while the point chooses which of the parallel planes we need.'),
+    A('work', "O'zingiz hisoblang. Bir bir bir nuqtasini ozod hadsiz qo'yish nima beradi?", 'Посчитай сам. Что даёт подстановка точки один один один без свободного члена?', 'Work it out yourself. What does substituting the point one one one give without the free term?'),
   ],
   work: {
-    prompt: L('Yon sirtni toping', 'Найди боковую поверхность', 'Find the lateral area'),
-    ok: L("Oltmish. To'rt uchburchak o'n beshtadan.", 'Шестьдесят. Четыре треугольника по пятнадцать.', 'Sixty. Four triangles of fifteen each.'),
+    prompt: L("Almashtirib qo'yish nima beradi?", 'Что даёт подстановка?', 'What does the substitution give?'),
+    ok: L('Besh. Demak ozod had minus besh.', 'Пять. Значит свободный член минус пять.', 'Five. So the free term is minus five.'),
     hint: [
-      L('Bitta uchburchak yuzasini hisoblang.', 'Посчитай площадь одного треугольника.', 'Compute the area of one triangle.'),
-      L("Tomonni apofemaga ko'paytirganning yarmi.", 'Половина произведения стороны на апофему.', 'Half the product of the side and the apothem.'),
-      L("O'n besh karra to'rt.", 'Пятнадцать умножить на четыре.', 'Fifteen times four.'),
+      L("Normalning har sonini birga ko'paytiring.", 'Умножь каждое число нормали на единицу.', 'Multiply each number of the normal by one.'),
+      L("Bir qo'shuv ikki qo'shuv ikki.", 'Один плюс два плюс два.', 'One plus two plus two.'),
+      L('Besh.', 'Пять.', 'Five.'),
     ],
-    answer: '60',
+    answer: '5',
   },
-  expr: 'S = ½·P·m',
+  expr: 'x + 2y + 2z − 5 = 0',
 }
 
 const S7 = {
   role: 'explain5',
   answer: 'number',
-  eyebrow: L('CHEGARA', 'ГРАНИЦА', 'THE BOUNDARY'),
-  title: L("Rakurs ko'rinishni o'zgartiradi, yuzani emas", 'Ракурс меняет вид, не площадь', 'The view changes what you see, not the area'),
-  tag: 'ploshchad-po-kartinke',
+  eyebrow: L('CHEGARA', 'ГРАНИЦА', 'THE EDGE CASE'),
+  title: L("Bitta tekislik, ko'p tenglama", 'Одна плоскость, много уравнений', 'One plane, many equations'),
+  tag: 'koeffitsiyent-nuqta-emas',
   show: [
     [
-      L("bir rakursdan uch yoq ko'rinadi", 'с одного ракурса видно три грани', 'from one view three faces show'),
-      L("buring va boshqa uchtasi ko'rinadi", 'поверни и видно другие три', 'rotate and another three show'),
+      L('birinchi tenglama', 'первое уравнение', 'the first equation'),
+      L("ikkinchisi ikkiga ko'paytirib olindi", 'второе получено умножением на два', 'the second was obtained by multiplying by two'),
     ],
     [
-      L("birdan uchtadan ko'p ko'rinmaydi", 'больше трёх сразу не видно', 'more than three never show at once'),
-      L("sirt esa o'sha", 'а поверхность всё та же', 'while the surface is the same'),
+      L('chizmada tekislik bitta', 'плоскость на чертеже одна', 'on the drawing the plane is one'),
+      L('normal esa ikki barobar uzaydi', 'а нормаль стала вдвое длиннее', 'and the normal became twice as long'),
     ],
   ],
   motion: ['move'],
   audio: [
-    A('mount', "Kubga turli tomondan qaraymiz va birdan nechta yoq ko'rinishini sanaymiz.", 'Посмотрим на куб с разных сторон и посчитаем, сколько граней видно сразу.', 'Let us look at a cube from different sides and count how many faces show at once.'),
-    A('move', "Kubni qancha burmang, birdan uchtadan ko'p yoqni ko'rish mumkin emas. Uchtasi ko'rinadi, uchtasi yashiringan, va qaysi biri ekani rakursga bog'liq. Sirt yuzasi esa burilishda o'zgarmaydi, chunki u jism haqida, qarash haqida emas. Ish qoidasi shundan. Yuza yoyilma yoki formula bo'yicha hisoblanadi, ko'rinadigan bo'laklar soni bo'yicha emas. Faqat ko'rinadiganini qo'shsangiz, javob haqiqiysidan roppa-rosa ikki baravar kichik chiqadi, va xatoni sezmaslik oson.", 'Сколько куб ни крути, больше трёх граней одновременно увидеть нельзя. Три видно, три скрыто, и какие именно, зависит от ракурса. А площадь поверхности при повороте не меняется, потому что она про тело, а не про взгляд. Отсюда правило работы. Площадь считают по развёртке или по формуле, а не по числу видимых кусков. Если сложить только видимое, ответ окажется ровно вдвое меньше настоящего, и ошибку легко не заметить.', 'However much you rotate the cube, more than three faces can never be seen at once. Three show, three are hidden, and which ones depends on the view. The surface area does not change under rotation, because it is about the body and not about the look. Hence the working rule. The area is computed from the net or from a formula, not from the number of visible pieces. If you add only what you see, the answer comes out exactly half of the true one, and the mistake is easy to miss.'),
-    A('work', "O'zingiz hisoblang. Kubning nechta yog'i birdan ko'rinadi?", 'Посчитай сам. Сколько граней куба видно одновременно?', 'Work it out yourself. How many faces of a cube show at once?'),
+    A('mount', "Tenglamaning barcha koeffitsiyentlarini ikkiga ko'paytirib, tekislikka nima bo'lishini ko'raman.", 'Умножу все коэффициенты уравнения на два и посмотрю, что станет с плоскостью.', 'Let me multiply all the coefficients of the equation by two and see what happens to the plane.'),
+    A('move', "Chizmada hech narsa o'zgarmadi. To'g'ri ham: chap tomon nolga teng bo'lgan bo'lsa, ikkilangan chap tomon ham nolga teng, demak barcha nuqtalar joyida qoldi. Ixtiyoriy nuqtani qo'yib tekshirish mumkin: olti nol nol avvalgidek nol beradi. O'zgargan narsa normalning uzunligi, u ikki barobar kattalashdi. Lekin yo'nalishi o'sha, tekislikka esa faqat yo'nalish muhim. Shundan masalalar uchun muhim natija: normal yakka emas, ular cheksiz ko'p, va hammasi kollinear. Teskari natija ham foydali: agar ikki tenglama faqat umumiy ko'paytuvchi bilan farq qilsa, bu bitta va o'sha tekislik, ikki parallel emas.", 'На чертеже не изменилось ничего. И правильно: если левая часть равнялась нулю, то удвоенная левая часть тоже равна нулю, а значит все точки остались на месте. Проверить можно подстановкой любой точки: шесть нуль нуль по-прежнему даёт ноль. Что изменилось, так это длина нормали, она стала вдвое больше. Но направление у неё то же, а плоскости важно только направление. Отсюда важное следствие для задач: нормаль не единственная, их бесконечно много, и все они коллинеарны. И обратное следствие тоже полезно: если два уравнения отличаются только общим множителем, это одна и та же плоскость, а не две параллельные.', 'Nothing changed on the drawing. And rightly so: if the left side equalled zero, then twice the left side also equals zero, so all the points stayed where they were. It can be checked by substituting any point: six zero zero still gives zero. What did change is the length of the normal, it became twice as large. But its direction is the same, and only the direction matters to a plane. Hence an important consequence for problems: the normal is not unique, there are infinitely many of them, and all are collinear. And the converse consequence is useful too: if two equations differ only by a common factor, it is one and the same plane and not two parallel ones.'),
+    A('work', "O'zingiz hisoblang. Bu ikki tenglama nechta xil tekislikni aniqlaydi?", 'Посчитай сам. Сколько разных плоскостей задают эти два уравнения?', 'Work it out yourself. How many different planes do these two equations define?'),
   ],
   work: {
-    prompt: L("Birdan nechta yoq ko'rinadi?", 'Сколько граней видно сразу?', 'How many faces show at once?'),
-    ok: L('Uchta. Qolgan uchtasi yashiringan, lekin yuzaga oltitasi kiradi.', 'Три. Остальные три скрыты, но в площадь входят все шесть.', 'Three. The other three are hidden, but all six enter the area.'),
+    prompt: L('Nechta xil tekislik?', 'Сколько разных плоскостей?', 'How many different planes?'),
+    ok: L("Bitta. Umumiy ko'paytuvchi tekislikni o'zgartirmaydi.", 'Одна. Общий множитель плоскость не меняет.', 'One. A common factor does not change the plane.'),
     hint: [
-      L("Kubni buring va ko'rinadigan yoqlarni sanang.", 'Поверни куб и посчитай видимые грани.', 'Rotate the cube and count the visible faces.'),
-      L("Qancha burmang, son o'zgarmaydi.", 'Сколько бы ты ни крутил, число не меняется.', 'However much you rotate, the number does not change.'),
-      L('Uchta.', 'Три.', 'Three.'),
+      L("Nuqtani ikki tenglamaga ham qo'ying.", 'Подставь точку в оба уравнения.', 'Substitute a point into both equations.'),
+      L('Ikkisi ham nol berdi.', 'Оба дали ноль.', 'Both gave zero.'),
+      L('Bitta.', 'Одна.', 'One.'),
     ],
-    answer: '3',
+    answer: '1',
   },
-  expr: '3 + 3 = 6',
+  expr: '2x + 4y + 4z − 12 = 0',
 }
 
 const S8 = {
   role: 'rule',
   answer: 'pick2',
   eyebrow: L('QOIDA', 'ПРАВИЛО', 'THE RULE'),
-  title: L("Sirt yoyilma bo'yicha hisoblanadi", 'Поверхность считают по развёртке', 'The surface is counted from the net'),
-  tag: 'ploshchad-po-kartinke',
+  title: L("Tenglamadan nima o'qiladi", 'Что читается из уравнения', 'What is read from the equation'),
+  tag: 'koeffitsiyent-nuqta-emas',
   motion: ['rule'],
   audio: [
     A('mount', 'Farqlashga bitta savol, keyin kartochka.', 'Один вопрос на различение, потом карточка.', 'One question to tell them apart, then the card.'),
-    A('rule', "Kartochkadagi ikkala formula ham yangi emas. Birinchisi to'g'ri to'rtburchak yuzasi, ikkinchisi uchburchak yuzasi, asos tomonlari qancha bo'lsa shuncha marta olingani. Shuning uchun ularni yodlash shart emas, yoyilma qanday ko'rinishini eslash yetarli. To'liq sirt esa doim yon sirt qo'shuv asoslar, prizmada ikki asos, piramidada bitta.", 'Обе формулы в карточке не новые. Первая это площадь прямоугольника, вторая площадь треугольника, взятая столько раз, сколько сторон у основания. Поэтому запоминать их не обязательно, достаточно помнить, как выглядит развёртка. И полная поверхность это всегда боковая плюс основания, у призмы два основания, у пирамиды одно.', 'Neither formula on the card is new. The first is the area of a rectangle, the second the area of a triangle taken as many times as the base has sides. So there is no need to memorise them, it is enough to remember what the net looks like. And the full surface is always the lateral one plus the bases, two bases for a prism and one for a pyramid.'),
+    A('rule', "Birinchi satr yilning xatosi, va u bejiz birinchi turmagan: tenglamadagi uch son va nuqtaning uch soni bir xil ko'rinadi, rollari esa boshqa. Koeffitsiyent harf oldidagi ko'paytuvchi, koordinata esa harfning qiymati. Ikkinchi satr tekshirishning yagona usulini beradi, va u chizma talab qilmaydi: qo'ydingiz, nolga qaradingiz. Uchinchi satr aks holda xalaqit beradigan savolni oladi: tekislikning tenglamalari ko'p, normallari ham ko'p, lekin barcha normallarning yo'nalishi bitta. Foydali ish tartibi: avval normalni yozib oling, keyin nuqta bo'yicha ozod hadni toping.", 'Первая строка это ошибка года, и она стоит первой не случайно: тройка чисел в уравнении и тройка чисел точки выглядят одинаково, а роли у них разные. Коэффициент это множитель при букве, а координата это значение буквы. Вторая строка даёт единственный способ проверки, и он не требует чертежа: подставил, посмотрел на ноль. Третья строка снимает вопрос, который иначе мешает: уравнений у плоскости много, и нормалей тоже много, но направление у всех нормалей одно. Полезный порядок работы: сначала выпиши нормаль, потом найди свободный член по точке.', "The first line is the year's mistake, and it stands first for a reason: the triple of numbers in the equation and the triple of numbers of a point look the same, while their roles differ. A coefficient is a factor at a letter, a coordinate is the value of a letter. The second line gives the only way to check, and it needs no drawing: you substituted, you looked for zero. The third line removes a question that otherwise gets in the way: a plane has many equations and many normals, but all the normals have one direction. A useful order of work: first write out the normal, then find the free term from the point."),
   ],
   probe: {
-    question: L("Sirt yuzasini hisoblaganda nima qo'shiladi?", 'Что складывают, считая площадь поверхности?', 'What is added when computing the surface area?'),
+    question: L('Koeffitsiyentlar uchligi nima?', 'Чем является тройка коэффициентов?', 'What is the triple of coefficients?'),
     items: [
-      { id: 'a', label: L('barcha yoqlar yuzalari', 'площади всех граней', 'the areas of all the faces'), correct: true },
-      { id: 'b', label: L("ko'rinadigan yoqlar yuzalari", 'площади видимых граней', 'the areas of the visible faces'), hint: L("Ko'rinish rakursga bog'liq, yuza esa yo'q.", 'Видимость зависит от ракурса, а площадь нет.', 'Visibility depends on the view, the area does not.') },
+      { id: 'a', label: L('tekislikning normali', 'нормалью плоскости', 'a normal of the plane'), correct: true },
+      { id: 'b', label: L('tekislikning nuqtasi', 'точкой плоскости', 'a point of the plane'), hint: L("Bu uchlikni qo'yish nol bermaydi.", 'Подстановка этой тройки нуля не даёт.', 'Substituting that triple does not give zero.') },
     ],
   },
   rule: {
-    lawLabel: L('Sirt yuzasi', 'Площадь поверхности', 'The surface area'),
+    lawLabel: L('Tekislik tenglamasi', 'Уравнение плоскости', 'The equation of a plane'),
     lines: [
-      L("to'liq sirt yon sirt qo'shuv asoslar, prizmada ular ikkita", 'полная поверхность это боковая плюс основания, у призмы их два', 'the full surface is the lateral one plus the bases, a prism has two'),
-      L("to'g'ri prizmaning yon sirti perimetr karra balandlik", 'боковая поверхность прямой призмы это периметр на высоту', 'the lateral area of a right prism is the perimeter times the height'),
-      L('muntazam piramidaning yon sirti perimetrning yarmi karra apofema', 'боковая поверхность правильной пирамиды это половина периметра на апофему', 'the lateral area of a regular pyramid is half the perimeter times the apothem'),
+      L('koeffitsiyentlar uchligi normal, nuqta emas', 'тройка коэффициентов это нормаль, а не точка', 'the triple of coefficients is a normal, not a point'),
+      L("almashtirib qo'yish nol bersa, nuqta tekislikda yotadi", 'точка лежит в плоскости, если подстановка даёт ноль', 'a point lies in the plane if the substitution gives zero'),
+      L("umumiy ko'paytuvchi tekislikni o'zgartirmaydi", 'общий множитель плоскость не меняет', 'a common factor does not change the plane'),
     ],
-    law: 'S = S₁ + 2S₀',
+    law: 'ax + by + cz + d = 0',
   },
 }
 
@@ -344,19 +344,19 @@ const S9 = {
   answer: 'match',
   format: 'match',
   eyebrow: L('AMALIYOT', 'ПРАКТИКА', 'PRACTICE'),
-  title: L('Formula va jism', 'Формула и тело', 'The formula and the body'),
-  tag: 'ploshchad-po-kartinke',
+  title: L('Bu nuqta qayerda', 'Где эта точка', 'Where this point is'),
+  tag: 'koeffitsiyent-nuqta-emas',
   audio: [
-    A('mount', "To'rt yozuv va to'rt nom. Ularni birlashtiring.", 'Четыре записи и четыре названия. Соедини их.', 'Four readings and four names. Match them.'),
+    A('mount', "To'rt nuqta va to'rt joy. Tenglamaga qo'yib ko'ring.", 'Четыре точки и четыре места. Подставляй в уравнение.', 'Four points and four places. Substitute into the equation.'),
   ],
   match: {
-    prompt: L('Yozuvni jism bilan birlashtiring', 'Соедини запись с телом', 'Match the reading with the body'),
-    ok: L("To'rttasi ham joyida. Har formula yassi shakl yuzasi.", 'Все четыре на месте. Каждая формула это площадь плоской фигуры.', 'All four in place. Every formula is the area of a flat figure.'),
-    a: L('prizma yon sirti', 'боковая призмы', 'lateral, prism'),
-    b: L("parallelepiped to'liq sirti", 'полная параллелепипеда', 'full, box'),
-    c: L('piramida yon sirti', 'боковая пирамиды', 'lateral, pyramid'),
-    d: L("kub to'liq sirti", 'полная куба', 'full, cube'),
-    left: ['P·h', '2(ab+bc+ac)', '½·P·m', '6a²'],
+    prompt: L('Nuqtani joy bilan birlashtiring', 'Соедини точку с местом', 'Match the point with the place'),
+    ok: L("To'rttasi ham joyida. Tekshiruv bitta: almashtirib qo'yish.", 'Все четыре на месте. Проверка одна: подстановка.', 'All four in place. The check is one: substitution.'),
+    a: L("birinchi o'qda", 'на первой оси', 'on the first axis'),
+    b: L("ikkinchi o'qda", 'на второй оси', 'on the second axis'),
+    c: L("uchinchi o'qda", 'на третьей оси', 'on the third axis'),
+    d: L('tekislikdan tashqarida', 'вне плоскости', 'off the plane'),
+    left: ['(6; 0; 0)', '(0; 3; 0)', '(0; 0; 3)', '(1; 2; 2)'],
   },
 }
 
@@ -365,32 +365,32 @@ const S10 = {
   answer: 'order',
   format: 'proof',
   eyebrow: L('QADAMMA-QADAM', 'ПО ШАГАМ', 'STEP BY STEP'),
-  title: L('Tasma formulasini chiqaring', 'Выведи формулу ленты', 'Derive the strip formula'),
-  tag: 'ploshchad-po-kartinke',
+  title: L('Uchlik normal ekanini isbotlang', 'Докажи, что тройка это нормаль', 'Prove the triple is a normal'),
+  tag: 'koeffitsiyent-nuqta-emas',
   audio: [
     A('mount', "Uch qator, va har birining ro'yxatdan o'z asoslashi bor.", 'Три строки, и у каждой своё обоснование из списка.', 'Three lines, each with its own justification from the list.'),
   ],
   proof: {
-    given: L("to'g'ri prizma", 'прямая призма', 'a right prism'),
-    goal: L('yon sirt perimetr karra balandlik', 'боковая поверхность это периметр на высоту', 'the lateral area is the perimeter times the height'),
-    r1: L("yon sirt to'g'ri to'rtburchakka yoyiladi", 'боковая поверхность разворачивается в прямоугольник', 'the lateral surface unfolds into a rectangle'),
-    r2: L('uning balandligi prizma balandligi', 'его высота это высота призмы', 'its height is the height of the prism'),
-    r3: L('uning asosi asos perimetri', 'его основание это периметр основания', 'its base is the perimeter of the base'),
-    ok: L("Isbotlandi. To'g'ri to'rtburchak yuzasi tomonlarining ko'paytmasi.", 'Доказано. Площадь прямоугольника это произведение его сторон.', 'Proved. The area of a rectangle is the product of its sides.'),
-    e1: L('Balandlik haqida keyin. Avval qanday shakl chiqdi.', 'Про высоту дальше. Сначала какая фигура получилась.', 'The height comes later. First what figure appeared.'),
-    e2: L("Shakl ma'lum. Balandligi qayerdan.", 'Фигура известна. Откуда её высота.', 'The figure is known. Where does its height come from.'),
-    e3: L('Balandlik bor. Endi ikkinchi tomon haqida.', 'Высота есть. Теперь про вторую сторону.', 'The height is there. Now about the other side.'),
+    given: L('tekislikning ikki nuqtasi va koeffitsiyentlar uchligi', 'две точки плоскости и тройка коэффициентов', 'two points of the plane and the triple of coefficients'),
+    goal: L('uchlik tekislikka perpendikulyar', 'тройка перпендикулярна плоскости', 'the triple is perpendicular to the plane'),
+    r1: L("ikki nuqtada ham almashtirib qo'yish nol beradi", 'у обеих точек подстановка даёт ноль', 'for both points the substitution gives zero'),
+    r2: L('ayirishda ozod had qisqardi', 'при вычитании свободный член сократился', 'in the subtraction the free term cancelled'),
+    r3: L("demak tekislik vektori bilan ko'paytma nol", 'значит произведение с вектором плоскости ноль', 'so the product with a vector of the plane is zero'),
+    ok: L("Isbotlandi. Nol to'g'ri burchakni bildiradi, demak bu normal.", 'Доказано. Ноль означает прямой угол, значит это нормаль.', 'Proved. Zero means a right angle, so it is a normal.'),
+    e1: L("Ayirish haqida keyin. Avval nuqtalarning o'zi haqida.", 'Про вычитание дальше. Сначала про сами точки.', 'The subtraction comes later. First about the points themselves.'),
+    e2: L("Nuqtalar ko'rildi. Ayirish nima beradi.", 'Точки разобраны. Что даёт вычитание.', 'The points are done. What the subtraction gives.'),
+    e3: L('Ozod had ketdi. Endi xulosa.', 'Свободный член ушёл. Теперь вывод.', 'The free term is gone. Now the conclusion.'),
   },
   reason: {
-    s1: L('yon sirtning yoyilmasi', 'развёртка боковой поверхности', 'the net of the lateral surface'),
-    s2: L("to'g'ri prizmaning yon qirralari teng va asosga perpendikulyar", 'боковые рёбра прямой призмы равны и перпендикулярны основанию', 'the lateral edges of a right prism are equal and perpendicular to the base'),
-    s3: L('asos qirralari ketma-ket boradi', 'рёбра основания идут одно за другим', 'the base edges go one after another'),
+    s1: L("nuqta shart bo'yicha tekislikda yotadi", 'точка лежит в плоскости по условию', 'the point lies in the plane by the condition'),
+    s2: L('tekislik vektori nuqtalar ayirmasi', 'вектор плоскости это разность точек', 'a vector of the plane is the difference of the points'),
+    s3: L('nol orqali perpendikulyarlik alomati', 'признак перпендикулярности через ноль', 'the criterion of perpendicularity through zero'),
     pic: {
       label: L("chizmada ko'rinadi", 'видно на чертеже', 'it is visible on the drawing'),
       missing: L("Chizma asoslash emas. U ko'p rakursdan bittasini ko'rsatadi.", 'Чертёж не обоснование. Он показывает один ракурс из многих.', 'A drawing is not a justification. It shows one view out of many.'),
     },
   },
-  expr: 'S = P·h',
+  expr: 'n·v = 0',
 }
 
 const S11 = {
@@ -402,26 +402,26 @@ const S11 = {
   title: L('Hisob va tartib', 'Счёт и порядок', 'Counting and order'),
   tag: 'bumaga',
   audio: [
-    A('mount', "Asbob olib qo'yildi. Qog'ozda hisoblaymiz.", 'Прибор убран. Считаем на бумаге.', 'The tool is put away. We count on paper.'),
-    A('next', 'Endi yozuvlar tartibi. Ularni qanday hisoblansa, shunday joylashtiring.', 'Теперь порядок записей. Расставь их так, как считают.', 'Now the order of the readings. Arrange them the way they are computed.'),
+    A('mount', "Asbob olib qo'yildi. Tenglamani qog'ozda tuzamiz.", 'Прибор убран. Составляем уравнение на бумаге.', 'The tool is put away. We compose the equation on paper.'),
+    A('next', 'Endi qadamlar tartibi. Ularni qanday tuzilsa, shunday joylashtiring.', 'Теперь порядок шагов. Расставь их так, как составляют.', 'Now the order of the steps. Arrange them the way the composing goes.'),
   ],
   task: {
-    ok: L('Bir yuz ellik. Yigirma besh karra olti.', 'Сто пятьдесят. Двадцать пять умножить на шесть.', 'One hundred fifty. Twenty five times six.'),
+    ok: L("O'n. To'rt qo'shuv ikki qo'shuv to'rt.", 'Десять. Четыре плюс два плюс четыре.', 'Ten. Four plus two plus four.'),
     hint: [
-      L('Kubning barcha yoqlari kvadrat.', 'У куба все грани квадраты.', 'All faces of a cube are squares.'),
-      L('Bitta yoq yuzasi qirraning kvadrati.', 'Площадь одной грани это ребро в квадрате.', 'The area of one face is the edge squared.'),
-      L('Yigirma besh karra olti.', 'Двадцать пять умножить на шесть.', 'Twenty five times six.'),
+      L('Koeffitsiyentlarni normaldan oling.', 'Коэффициенты возьми из нормали.', 'Take the coefficients from the normal.'),
+      L("Ikki, ikki va ikkini qo'ying.", 'Подставь два, два и два.', 'Substitute two, two and two.'),
+      L("To'rt qo'shuv ikki qo'shuv to'rt.", 'Четыре плюс два плюс четыре.', 'Four plus two plus four.'),
     ],
-    prompt: 'a = 5,   S = ?',
-    answer: '150',
+    prompt: 'n (2; 1; 2),   M (2; 2; 2),   n·M = ?',
+    answer: '10',
   },
   order: {
-    prompt: L('Yozuvlarni hisoblash tartibida joylashtiring', 'Расставь записи в том порядке, в каком считают', 'Arrange the readings in the order they are computed'),
-    title: L('Hisob tartibi', 'Порядок счёта', 'The order of computing'),
-    ok: L("Tartib to'g'ri. Avval bitta yoq, keyin hammasi.", 'Порядок верный. Сначала одна грань, потом все.', 'The order is right. First one face, then all of them.'),
+    prompt: L('Qadamlarni tenglama tuzish tartibida joylashtiring', 'Расставь шаги в том порядке, в каком составляют уравнение', 'Arrange the steps in the order the equation is composed'),
+    title: L('Tuzish tartibi', 'Порядок составления', 'The order of composing'),
+    ok: L("Tartib to'g'ri. Normal, koeffitsiyentlar, almashtirib qo'yish, ozod had.", 'Порядок верный. Нормаль, коэффициенты, подстановка, свободный член.', 'The order is right. The normal, the coefficients, the substitution, the free term.'),
     bad: L('Bu tartibda emas. Avval nima kerak.', 'Не в этом порядке. Что нужно раньше.', 'Not in this order. What is needed first.'),
-    items: ['6a²', 'a', 'a²', 'S'],
-    answer: 'a  a²  6a²  S',
+    items: ['d', 'n', 'a, b, c', 'n·M'],
+    answer: 'n  a, b, c  n·M  d',
   },
 }
 
@@ -433,30 +433,30 @@ const S12 = {
   title: L('Xato qatorni toping', 'Найди строку с ошибкой', 'Find the line with the mistake'),
   tag: 'check',
   audio: [
-    A('mount', "To'rt qator, va ulardan birida yoqlar yo'qolgan.", 'Четыре строки, и в одной из них потерялись грани.', 'Four lines, and in one of them faces got lost.'),
+    A('mount', "To'rt qator, va ulardan biri uchlikning rolini o'zgartiradi.", 'Четыре строки, и одна из них меняет роль тройки.', 'Four lines, and one of them changes the role of the triple.'),
     A('next', "Endi xato bo'lgan qator raqamini yozing.", 'Теперь напиши номер строки, в которой ошибка.', 'Now write the number of the line with the mistake.'),
   ],
   hint: {
-    r1: L("O'lchamlar to'g'ri yozilgan.", 'Измерения выписаны верно.', 'The dimensions are written correctly.'),
-    r2: L("Uch ko'paytma to'g'ri topilgan.", 'Три произведения найдены верно.', 'The three products are found correctly.'),
-    r4: L('Javob yuqoridagi xato qatordan olingan.', 'Ответ получен из неверной строки выше.', 'The answer comes from the wrong line above.'),
+    r1: L("Tenglama to'g'ri yozilgan.", 'Уравнение выписано верно.', 'The equation is written correctly.'),
+    r2: L("Normal to'g'ri o'qilgan.", 'Нормаль прочитана верно.', 'The normal is read correctly.'),
+    r4: L('Qator yuqoridagi xato qatordan olingan.', 'Строка получена из неверной строки выше.', 'The line comes from the wrong line above.'),
   },
-  proof: L("Jismni yoying: bo'laklar oltita, qo'shilgani esa uchta.", 'Разверни тело: кусков шесть, а сложены только три.', 'Unfold the body: there are six pieces and only three were added.'),
+  proof: L("Sahnani buring: strelka to'g'ri burchakni saqlaydi, o'sha sonlarga ega nuqta esa tekislikka tushmaydi.", 'Поверни сцену: стрелка держит прямой угол, а точка с теми же числами в плоскость не попадает.', 'Rotate the scene: the arrow keeps the right angle, and the point with the same numbers does not land in the plane.'),
   entry: {
     prompt: L('Xato qator raqami', 'Номер строки с ошибкой', 'The number of the line with the mistake'),
-    ok: L("Uchinchi. Ikkiga ko'paytirish, ya'ni ko'rinmas yoqlar esdan chiqdi.", 'Третья. Забыли умножить на два, то есть невидимые грани.', 'The third. They forgot to multiply by two, that is the invisible faces.'),
+    ok: L('Uchinchi. Normal tekislikning nuqtasi deb aytilgan.', 'Третья. Нормаль объявили точкой плоскости.', 'The third. The normal was declared a point of the plane.'),
     hint: [
-      L("Yig'indiga nechta yoq kirganini hisoblang.", 'Посчитай, сколько граней вошло в сумму.', 'Count how many faces went into the sum.'),
-      L('Parallelepipedning yoqlari juft-juft teng.', 'Грани параллелепипеда попарно равны.', 'The faces of a box are equal in pairs.'),
+      L("Uchinchi qatorni almashtirib qo'yib tekshiring.", 'Проверь третью строку подстановкой.', 'Check the third line by substitution.'),
+      L("Almashtirib qo'yish uch beradi, nol emas.", 'Подстановка даёт три, а не ноль.', 'The substitution gives three, not zero.'),
       L('Xato uchinchi qatorda.', 'Ошибка в третьей строке.', 'The mistake is in the third line.'),
     ],
     answer: '3',
   },
   row: {
-    r1: 'a = 2,   b = 3,   c = 4',
-    r2: '6 + 12 + 8 = 26',
-    r3: 'S = 26',
-    r4: 'S = 26',
+    r1: 'x + 2y + 2z − 6 = 0',
+    r2: 'n (1; 2; 2)',
+    r3: 'M (1; 2; 2) ∈ α',
+    r4: '1 + 4 + 4 − 6 = 0',
   },
   answerId: 'r3',
 }
@@ -469,27 +469,27 @@ const S13 = {
   title: L('Teskari tomonga', 'В обратную сторону', 'The other way round'),
   tag: 'obratnoe',
   audio: [
-    A('mount', "Formulani o'ngdan chapga o'qiymiz. Yuza bo'yicha qirrani topamiz.", 'Прочитаем формулу справа налево. По площади найдём ребро.', 'Let us read the formula from right to left. From the area we find the edge.'),
-    A('work', "Doim to'g'ri bo'lgan barcha yozuvlarni belgilang. Ular bittadan ko'p.", 'Отметь все записи, которые верны всегда. Их больше одной.', 'Mark all the readings that are always true. There is more than one.'),
+    A('mount', "Darsni o'ngdan chapga o'qiymiz. Tenglama berilgan, normalni topish kerak.", 'Прочитаем урок справа налево. Дано уравнение, найти надо нормаль.', 'Let us read the lesson from right to left. The equation is given, the normal is to be found.'),
+    A('work', "To'g'ri bo'lgan barcha yozuvlarni belgilang. Ular bittadan ko'p.", 'Отметь все записи, которые верны. Их больше одной.', 'Mark all the readings that are correct. There is more than one.'),
   ],
   multi: {
     prompt: L("Barcha to'g'ri yozuvlarni belgilang", 'Отметь все верные записи', 'Mark all the correct readings'),
-    title: L("Nima doim to'g'ri", 'Что верно всегда', 'What is always true'),
-    ok: L("Beshtadan uch yozuv. Qolgan ikkitasi yoqlarni yo'qotadi.", 'Три записи из пяти. Две оставшиеся теряют грани.', 'Three readings out of five. The other two lose faces.'),
+    title: L("Bu tekislik uchun nima to'g'ri", 'Что верно для этой плоскости', 'What is true for this plane'),
+    ok: L('Beshtadan uch yozuv. Qolgan ikkitasi sonlarning rolini aralashtiradi.', 'Три записи из пяти. Две оставшиеся путают роли чисел.', 'Three readings out of five. The other two confuse the roles of the numbers.'),
     items: [
-      { id: 'd', label: 'ab + bc + ac', hint: L("Bu faqat ko'rinadigan yoqlar yig'indisi.", 'Это сумма только видимых граней.', 'That is the sum of the visible faces only.') },
-      { id: 'e', label: '½·P·m + 2S₀', hint: L('Piramidada asos bitta, ikkita emas.', 'У пирамиды основание одно, а не два.', 'A pyramid has one base, not two.') },
-      { id: 'a', label: '6a²', ok: true },
-      { id: 'b', label: '2(ab+bc+ac)', ok: true },
-      { id: 'c', label: 'P·h', ok: true },
+      { id: 'd', label: 'M (1; 2; 2) ∈ α', hint: L("Bu nuqtani qo'yish nol bermaydi.", 'Подстановка этой точки нуля не даёт.', 'Substituting that point does not give zero.') },
+      { id: 'e', label: 'n (1; 2; 2; −6)', hint: L('Ozod had normalga kirmaydi.', 'Свободный член в нормаль не входит.', 'The free term is not part of the normal.') },
+      { id: 'a', label: 'n (1; 2; 2)', ok: true },
+      { id: 'b', label: 'M (6; 0; 0) ∈ α', ok: true },
+      { id: 'c', label: '|n| = 3', ok: true },
     ],
   },
   place: {
-    prompt: L("Kubning sirt yuzasi ellik to'rt. Qirra qancha?", 'Площадь поверхности куба пятьдесят четыре. Каково ребро?', 'The surface area of a cube is fifty four. What is the edge?'),
-    ok: L("Uch. Ellik to'rtni oltiga bo'lsak to'qqiz, to'qqizdan ildiz uch.", 'Три. Пятьдесят четыре делить на шесть это девять, корень из девяти три.', 'Three. Fifty four divided by six is nine, the root of nine is three.'),
-    wrong: L('Avval bitta yoq yuzasini toping.', 'Сначала найди площадь одной грани.', 'First find the area of one face.'),
-    target: '3',
-    step: '54 : 6 = 9',
+    prompt: L("Ikki iks qo'shuv igrek qo'shuv ikki zet minus o'n nolga teng degan tekislik tenglamasi berilgan. Uning normalining uchinchi soni qanday?", 'Дано уравнение плоскости два икс плюс игрек плюс два зет минус десять равно нулю. Каково третье число её нормали?', 'The equation two x plus y plus two z minus ten equals zero is given. What is the third number of its normal?'),
+    ok: L('Ikki. Uchinchi harf oldidagi koeffitsiyent.', 'Два. Коэффициент при третьей букве.', 'Two. The coefficient at the third letter.'),
+    wrong: L('Normal koeffitsiyentlar, ozod had unga kirmaydi.', 'Нормаль это коэффициенты, свободный член в неё не входит.', 'A normal is the coefficients, the free term is not part of it.'),
+    target: '2',
+    step: '2x + y + 2z − 10 = 0',
   },
 }
 
@@ -499,7 +499,7 @@ const S14 = {
   format: 'chain',
   eyebrow: L('BLITS', 'БЛИЦ', 'QUICK ROUND'),
   title: L("Ketma-ket to'rt savol", 'Четыре вопроса подряд', 'Four questions in a row'),
-  tag: 'ploshchad-po-kartinke',
+  tag: 'koeffitsiyent-nuqta-emas',
   audio: [
     A('mount', "Ketma-ket to'rt savol. To'xtamasdan javob bering.", 'Четыре вопроса подряд. Отвечай без остановки.', 'Four questions in a row. Answer without stopping.'),
   ],
@@ -507,53 +507,52 @@ const S14 = {
     {
       id: 'q1',
       ask: true,
-      prompt: L('Yoyilma nima?', 'Что такое развёртка?', 'What is a net?'),
-      done: '4 + 2 = 6',
+      prompt: L('Koeffitsiyentlar uchligi nima?', 'Чем является тройка коэффициентов?', 'What is the triple of coefficients?'),
+      done: 'n (1; 2; 2)',
       items: [
-        { id: 'a', label: L('barcha yoqlardan yassi shakl', 'плоская фигура из всех граней', 'a flat figure of all the faces'), correct: true },
-        { id: 'b', label: L("jismning yon ko'rinishi", 'вид тела сбоку', 'a side view of the body'), hint: L("Yon ko'rinish barcha yoqlarni ko'rsatmaydi.", 'Вид сбоку показывает не все грани.', 'A side view does not show all the faces.') },
-        { id: 'c', label: L('jismning kesimi', 'сечение тела', 'a section of the body'), hint: L('Kesim kesish, yoyish emas.', 'Сечение это разрез, а не разворот.', 'A section is a cut, not an unfolding.') },
-        { id: 'd', label: L('jismning soyasi', 'тень тела', 'the shadow of the body'), hint: L('Soya proyeksiya, u yuzani saqlamaydi.', 'Тень это проекция, площади она не сохраняет.', 'A shadow is a projection, it does not preserve areas.') },
+        { id: 'a', label: L('normal', 'нормалью', 'a normal'), correct: true },
+        { id: 'b', label: L('tekislikning nuqtasi', 'точкой плоскости', 'a point of the plane'), hint: L("Bu uchlikni qo'yish nol bermaydi.", 'Подстановка этой тройки нуля не даёт.', 'Substituting that triple does not give zero.') },
+        { id: 'c', label: L('tekislikdagi vektor', 'вектором в плоскости', 'a vector in the plane'), hint: L('Tekislik vektorlari bilan u nol beradi.', 'С векторами плоскости она даёт ноль.', 'With vectors of the plane it gives zero.') },
+        { id: 'd', label: L('ozod had', 'свободным членом', 'the free term'), hint: L('Ozod had alohida, harfsiz turadi.', 'Свободный член стоит отдельно, без буквы.', 'The free term stands separately, without a letter.') },
       ],
     },
     {
       id: 'q2',
       ask: true,
-      prompt: L("To'g'ri prizmaning yon sirti?", 'Боковая поверхность прямой призмы?', 'The lateral area of a right prism?'),
-      done: 'P·h',
+      prompt: L('Nuqta tekislikda yotganini qanday tekshiriladi?', 'Как проверить, лежит ли точка в плоскости?', 'How do you check whether a point lies in the plane?'),
+      done: '1 + 4 + 4 − 6 = 3',
       items: [
-        { id: 'a', label: L('perimetr karra balandlik', 'периметр на высоту', 'the perimeter times the height'), correct: true },
-        { id: 'b', label: L('asos yuzasi karra balandlik', 'площадь основания на высоту', 'the base area times the height'), hint: L("Bu yuza emas, boshqa kattalik bo'lardi.", 'Это была бы не площадь, а другая величина.', 'That would not be an area but a different quantity.') },
-        { id: 'c', label: L('tomon karra balandlik', 'сторона на высоту', 'a side times the height'), hint: L('Tomon bitta yoq beradi, butun tasmani emas.', 'Сторона даёт одну грань, а не всю ленту.', 'A side gives one face, not the whole strip.') },
-        { id: 'd', label: L('perimetrning yarmi karra balandlik', 'половина периметра на высоту', 'half the perimeter times the height'), hint: L("Yarim piramidada, uchburchak yuzasidan paydo bo'ladi.", 'Половина появляется у пирамиды, из площади треугольника.', 'The half appears for a pyramid, from the triangle area.') },
+        { id: 'a', label: L("qo'yib ko'rib, nol olish", 'подставить и получить ноль', 'substitute and get zero'), correct: true },
+        { id: 'b', label: L('normal bilan taqqoslash', 'сравнить с нормалью', 'compare with the normal'), hint: L("Normal yo'nalish, joy emas.", 'Нормаль это направление, а не место.', 'A normal is a direction, not a place.') },
+        { id: 'c', label: L('chizmaga qarash', 'посмотреть на чертёж', 'look at the drawing'), hint: L("Chizma bitta rakursni ko'rsatadi.", 'Чертёж показывает один ракурс.', 'A drawing shows one view.') },
+        { id: 'd', label: L('uzunlikni hisoblash', 'посчитать длину', 'compute the length'), hint: L('Uzunlik tegishlilik haqida aytmaydi.', 'Длина про принадлежность не говорит.', 'A length says nothing about belonging.') },
       ],
     },
     {
       id: 'q3',
       ask: true,
-      prompt: L("Piramida yon yog'ining balandligi nima?", 'Что является высотой боковой грани пирамиды?', 'What is the height of a lateral face of a pyramid?'),
-      done: 'm',
+      prompt: L("Butun tenglamani uchga ko'paytirsak nima bo'ladi?", 'Что будет, если умножить всё уравнение на три?', 'What happens if the whole equation is multiplied by three?'),
+      done: '2x + 4y + 4z − 12 = 0',
       items: [
-        { id: 'a', label: L('apofema', 'апофема', 'the apothem'), correct: true },
-        { id: 'b', label: L('yon qirra', 'боковое ребро', 'the lateral edge'), hint: L('Qirra asos uchiga keladi.', 'Ребро приходит в вершину основания.', 'The edge arrives at a base vertex.') },
-        { id: 'c', label: L('piramida balandligi', 'высота пирамиды', 'the height of the pyramid'), hint: L('Piramida balandligi yon yoqda yotmaydi.', 'Высота пирамиды в боковой грани не лежит.', 'The height of the pyramid does not lie in a lateral face.') },
-        { id: 'd', label: L('asos tomoni', 'сторона основания', 'a base side'), hint: L('Tomon uchburchakning asosi, balandligi emas.', 'Сторона это основание треугольника, а не высота.', 'The side is the base of the triangle, not its height.') },
+        { id: 'a', label: L("tekislik o'sha bo'lib qoladi", 'плоскость останется той же', 'the plane will stay the same'), correct: true },
+        { id: 'b', label: L('tekislik siljiydi', 'плоскость сдвинется', 'the plane will shift'), hint: L('Barcha nuqtalar avvalgidek nol beradi.', 'Все точки по-прежнему дают ноль.', 'All the points still give zero.') },
+        { id: 'c', label: L("tekislik og'adi", 'плоскость наклонится', 'the plane will tilt'), hint: L("Normalning yo'nalishi o'zgarmadi.", 'Направление нормали не изменилось.', 'The direction of the normal did not change.') },
+        { id: 'd', label: L("tekislik yo'qoladi", 'плоскость исчезнет', 'the plane will disappear'), hint: L("Nolga ko'paytirilganda yo'qolardi.", 'Исчезла бы при умножении на нуль.', 'It would disappear when multiplied by zero.') },
       ],
     },
     {
       id: 'q4',
       ask: true,
-      prompt: L("Kubning nechta yog'i birdan ko'rinadi?", 'Сколько граней куба видно сразу?', 'How many faces of a cube show at once?'),
-      done: '3 + 3 = 6',
+      prompt: L('Ozod had qayerdan olinadi?', 'Откуда берётся свободный член?', 'Where does the free term come from?'),
+      done: 'x + 2y + 2z − 5 = 0',
       items: [
-        { id: 'a', label: L('uchta', 'три', 'three'), correct: true },
-        { id: 'b', label: L('oltita', 'шесть', 'six'), hint: L('Olti barcha yoqlar, lekin yarmi yashiringan.', 'Шесть это все грани, но половина скрыта.', 'Six is all the faces, but half are hidden.') },
-        { id: 'c', label: L("to'rtta", 'четыре', 'four'), hint: L("To'rtinchi yoq doim jism orqasiga ketadi.", 'Четвёртая грань всегда уходит за тело.', 'The fourth face always goes behind the body.') },
-        { id: 'd', label: L('bitta', 'одна', 'one'), hint: L("Bitta faqat yoqqa tik qaraganda ko'rinadi.", 'Одна видна только строго напротив грани.', 'One shows only when looking straight at a face.') },
+        { id: 'a', label: L("berilgan nuqtani qo'yishdan", 'из подстановки данной точки', 'from substituting the given point'), correct: true },
+        { id: 'b', label: L('normalning uzunligidan', 'из длины нормали', 'from the length of the normal'), hint: L('Normalning uzunligi tenglamaga kirmaydi.', 'Длина нормали в уравнение не входит.', 'The length of the normal is not in the equation.') },
+        { id: 'c', label: L('birinchi koeffitsiyentdan', 'из первого коэффициента', 'from the first coefficient'), hint: L("Koeffitsiyentlar faqat yo'nalishni beradi.", 'Коэффициенты дают только направление.', 'The coefficients give only the direction.') },
+        { id: 'd', label: L('u har doim nol', 'он всегда нуль', 'it is always zero'), hint: L("Nol koordinatalar boshi orqali o'tgan tekislikni bildiradi.", 'Нуль означает плоскость через начало координат.', 'Zero means a plane through the origin.') },
       ],
     },
   ],
-  angles: ['P·h', '2(ab+bc+ac)', '½·P·m', '6a²'],
 }
 
 const S15 = {
@@ -562,36 +561,36 @@ const S15 = {
   eyebrow: L('YAKUN', 'ИТОГ', 'SUMMARY'),
   title: L('Endi nimani bilasiz', 'Что теперь умеешь', 'What you can do now'),
   audio: [
-    A('mount', "Dars nechta yoqni qo'shish kerak degan savol bilan boshlandi.", 'Урок начался с вопроса, сколько граней складывать.', 'The lesson began with the question how many faces to add.'),
-    A('next', "Uch bu ko'rinadigani, olti bu bori. Yoyilma barcha bo'laklarni birdan ko'rsatdi, va sirt yuzasi biz allaqachon hisoblay oladigan yassi shakllar yuzalarining yig'indisiga aylandi. Darsda birorta yangi formula paydo bo'lmadi: tasma to'g'ri to'rtburchak, piramidaning yon yog'i uchburchak. Keyin muntazam prizma va piramidalar, u yerda shu formulalar qisqaradi, chunki asosning barcha tomonlari teng.", 'Три это то, что видно, а шесть это то, что есть. Развёртка показала все куски сразу, и площадь поверхности стала суммой площадей плоских фигур, которые мы умеем считать давно. Ни одной новой формулы в уроке не появилось: лента это прямоугольник, боковая грань пирамиды это треугольник. Дальше правильные призмы и пирамиды, там эти же формулы станут короче, потому что все стороны основания равны.', 'Three is what shows, six is what there is. The net showed all the pieces at once, and the surface area became a sum of areas of flat figures we have been able to compute for a long time. Not a single new formula appeared in the lesson: the strip is a rectangle, a lateral face of a pyramid is a triangle. Next come regular prisms and pyramids, where these same formulas get shorter, because all sides of the base are equal.'),
+    A('mount', 'Dars tenglamada qanday uchlik turgani haqidagi savol bilan boshlandi.', 'Урок начался с вопроса, что за тройка стоит в уравнении.', 'The lesson began with the question what triple stands in the equation.'),
+    A('next', "Bu normal, nuqta emas, va ularni bitta almashtirib qo'yish bilan ajratish mumkin: tekislik nuqtasida nol chiqadi, bu uchlikda esa uch chiqdi. Rollari boshqa: koeffitsiyent harf oldidagi ko'paytuvchi, koordinata harfning qiymati, va yozuvda ular bir xil ko'rinadi. Uchlik tekislikka nega perpendikulyar, bu ham hisobdan ko'rinadi: tekislikning ixtiyoriy ikki nuqtasida almashtirib qo'yish nol beradi, ayirishda ozod had qisqaradi, va tekislik vektori bilan ko'paytma nol bo'lib chiqadi. Teskari masala ikki qadamda yechiladi: koeffitsiyentlarni normaldan, ozod hadni nuqtadan olamiz. Va oxirgisi: bitta tekislikning tenglamalari ko'p, chunki umumiy ko'paytuvchi hech narsani o'zgartirmaydi. Keyin butun yil bo'yicha DTM topshiriqlari boshlanadi.", 'Это нормаль, а не точка, и различить их можно одной подстановкой: у точки плоскости выходит ноль, а у этой тройки вышло три. Роли разные: коэффициент это множитель при букве, координата это значение буквы, и на письме они выглядят одинаково. Почему тройка перпендикулярна плоскости, тоже видно из счёта: у любых двух точек плоскости подстановка даёт ноль, при вычитании свободный член сокращается, и произведение с вектором плоскости оказывается нулём. Обратная задача решается в два шага: коэффициенты берём из нормали, свободный член из точки. И последнее: у одной плоскости уравнений много, потому что общий множитель ничего не меняет. Дальше начнутся задачи ДТМ по всему году.', 'It is a normal and not a point, and they can be told apart by a single substitution: for a point of the plane zero comes out, and for this triple three came out. The roles differ: a coefficient is a factor at a letter, a coordinate is the value of a letter, and in writing they look the same. Why the triple is perpendicular to the plane is also visible from the counting: for any two points of the plane the substitution gives zero, in the subtraction the free term cancels, and the product with a vector of the plane turns out to be zero. The inverse problem is solved in two steps: the coefficients from the normal, the free term from the point. And the last thing: a plane has many equations, because a common factor changes nothing. Next the DTM tasks over the whole year will begin.'),
   ],
   can: [
-    L('Jismni yassi shaklga yoyaman', 'Разворачиваю тело в плоскую фигуру', 'I unfold a body into a flat figure'),
-    L("Ko'rinadiganlarini emas, barcha yoqlar yuzasini qo'shaman", 'Складываю площади всех граней, а не видимых', 'I add the areas of all the faces, not the visible ones'),
-    L("Prizmaning yon sirtini to'g'ri to'rtburchak kabi hisoblayman", 'Считаю боковую поверхность призмы как прямоугольник', 'I compute the lateral area of a prism as a rectangle'),
-    L('Piramidaning yon sirtini apofema orqali hisoblayman', 'Считаю боковую поверхность пирамиды через апофему', 'I compute the lateral area of a pyramid through the apothem'),
+    L("Normalni tenglamadan to'g'ridan to'g'ri o'qiyman", 'Читаю нормаль прямо из уравнения', 'I read the normal straight from the equation'),
+    L("Nuqtani almashtirib qo'yib tekshiraman", 'Проверяю точку подстановкой', 'I check a point by substitution'),
+    L("Nuqta va normal bo'yicha tenglama tuzaman", 'Составляю уравнение по точке и нормали', 'I compose an equation from a point and a normal'),
+    L('Bitta tekislikni turli tenglamalarda tanib olaman', 'Узнаю одну плоскость в разных уравнениях', 'I recognise one plane in different equations'),
   ],
   levels: {
     full: L("To'rttasi ham", 'Все четыре', 'All four'),
     gap: L("To'rttadan uchtasi", 'Три из четырёх', 'Three out of four'),
     back: L('Uchtadan kam', 'Меньше трёх', 'Fewer than three'),
   },
-  bridge: L('Bundan keyin muntazam prizma va piramidalar, u yerda bu formulalar qisqaradi', 'Дальше правильные призмы и пирамиды, где все эти формулы становятся короче', 'Next come regular prisms and pyramids, where all these formulas get shorter'),
-  lifehack: L('Formulani eslamasangiz, jismni xayolda yoying', 'Не помнишь формулу — разверни тело в голове', 'If you forget a formula, unfold the body in your head'),
+  bridge: L("Bundan keyin DTM topshiriqlari, o'sha yil, lekin topshiriq darrov va razborsiz beriladi", 'Дальше задачи ДТМ — тот же год, но задача даётся сразу и без разбора', 'Next come the DTM tasks: the same year, but a task is given at once and without a walkthrough'),
+  lifehack: L('Avval normalni yozib oling, keyin ozod hadni qidiring', 'Сначала выпиши нормаль, потом ищи свободный член', 'First write out the normal, then look for the free term'),
   sheetTitle: L('Shpargalka', 'Шпаргалка', 'Cheat sheet'),
-  sheetSrc: L("Geometriya, ellik to'qqizinchi va oltmishinchi betlar", 'Геометрия, страницы пятьдесят девять и шестьдесят', 'Geometry, pages fifty nine and sixty'),
+  sheetSrc: L('Programma, sakkizinchi blok', 'Программа, блок восемь', 'The programme, block eight'),
   hook: {
-    a: 'S = ab + bc + ac',
-    b: 'S = 2(ab+bc+ac)',
+    a: 'M (1; 2; 2)',
+    b: 'n (1; 2; 2)',
   },
-  proved: 'S = 2(ab+bc+ac)',
-  law: 'S = S₁ + 2S₀',
+  proved: 'n (1; 2; 2)',
+  law: 'ax + by + cz + d = 0',
   sheet: [
-    'P·h',
-    '2(ab+bc+ac)',
-    '½·P·m',
-    '6a²',
-    '3 + 3 = 6',
+    'x + 2y + 2z − 6 = 0',
+    'n (1; 2; 2)',
+    'n·v = 0',
+    '1 + 4 + 4 − 6 = 3',
+    '2x + 4y + 4z − 12 = 0',
   ],
 }
 
@@ -599,28 +598,27 @@ const S15 = {
 
 const num = (s) => parseFloat(String(s).replace(/\u2212/g, '-'))
 
-// PRIBOR 6B. Darsning butun mazmuni JISM va YOYILMA orasidagi bog'lanishda,
-// shuning uchun ular yonma-yon turadi: chapda jism, o'ngda yoyilma, va
-// yoritilgan bo'lak jismdagi yoq bilan bir xil rangda.
+// PRIBOR 6C -- `Space3D`. `plane` rejimi tekislikni `a x + b y + c z + d = 0`
+// ko'rinishida oladi va `normal` bilan normalni strelka qilib chizadi.
 //
-// `size` ni O'TKAZISH SHART: `Scene` o'lchamni `cloneElement` bilan beradi, va
-// uni yutib qo'ygan o'ram chizmani standart o'lchamda chizadi (35-darsda shu
-// sakson marta oshib ketishga olib kelgan).
-const Both = ({ size = 268, step = 0, lit = null, body, faces, kind = 'prism' }) => (
-  <div style={{ display: 'flex', gap: 10, alignItems: 'center', justifyContent: 'center' }}>
-    <Space size={size * 0.46} step={1} yaw={0.42} poly={body} faces={faces} />
-    <Net size={size * 0.46} step={step} kind={kind} lit={lit} />
-  </div>
-)
+// SHOHID SHU YERDA: normal strelka bo'lib har rakursda tekislikka perpendikulyar
+// turadi, KOEFFITSIYENTLAR bilan bir xil sonli NUQTA esa tekislikka tushmaydi.
+// Ikkisi bir kadrda chizilishi kerak -- shundagina rollar farqi ko'rinadi.
+const BOX = [7, 7, 7]
+const PLANE = { n: [1, 2, 2], d: -6, label: 'a', normal: true }
+const PLANE_X2 = { n: [2, 4, 4], d: -12, label: 'a', normal: true }
+const PLANE_5 = { n: [1, 2, 2], d: -5, label: 'b', normal: true }
+const NPOINT = [1, 2, 2]      // koeffitsiyentlar bilan bir xil son -- LEKIN nuqta
+const ON_X = [6, 0, 0]
+const ON_Y = [0, 3, 0]
+const ON_Z = [0, 0, 3]
+const P111 = [1, 1, 1]
 
-const PRISM = { kind: 'prism', h: 1.05, plan: [[-0.5, -0.32], [0.5, -0.32], [0.5, 0.32], [-0.5, 0.32]] }
-const CUBE = { kind: 'prism', h: 0.94, plan: [[-0.47, -0.47], [0.47, -0.47], [0.47, 0.47], [-0.47, 0.47]] }
-const PYR = { kind: 'pyramid', h: 1.2, plan: [[-0.5, -0.5], [0.5, -0.5], [0.5, 0.5], [-0.5, 0.5]] }
-
-const FACE2 = '#6b8fa3'
-const BASE = [{ by: ['A', 'B', 'C', 'D'] }]
-const BASE_SIDE = [{ by: ['A', 'B', 'C', 'D'] }, { by: ['A', 'B', 'B1', 'A1'], tone: FACE2 }]
-const PYR_SIDE = [{ by: ['A', 'B', 'C', 'D'] }, { by: ['A', 'B', 'S'], tone: FACE2 }]
+const AXIS_PTS = [
+  { at: ON_X, label: 'A' },
+  { at: ON_Y, label: 'B' },
+  { at: ON_Z, label: 'C' },
+]
 
 const PAIR_IDS = ['p0', 'p1', 'p2', 'p3']
 const EQ_LEFT = S9.match.left.map((label, i) => ({ id: PAIR_IDS[i], label }))
@@ -653,9 +651,14 @@ const Screen1 = (p) => (
         // Prognoz TURG'UN chizmada: aynan shunda yon qirralar esdan chiqadi.
         fig={() => (
           <Scene
-            fig={<Space step={1} yaw={0.4} poly={PRISM} faces={BASE_SIDE} />}
-            max={172}
-            h={172}
+            fig={(
+              <Space3D
+                mode="plane" box={BOX} planes={[PLANE]}
+                points={[{ at: NPOINT, label: 'M', tone: 'accent' }]}
+              />
+            )}
+            max={230}
+            h={158}
           />
         )}
       />
@@ -669,7 +672,7 @@ const Screen2 = (p) => (
       <Cols l={1} r={1.2}>
         <Col>
           <Scene
-            fig={<Space step={1} yaw={0.4} poly={PRISM} faces={BASE_SIDE} />}
+            fig={<Space3D mode="plane" box={BOX} planes={[PLANE]} value="eq" />}
             max={240}
             h={158}
           />
@@ -689,14 +692,17 @@ const Screen3 = (p) => (
          ko'pburchaklardan yig'iladi. */
       <Scene
         fig={(
-          <Both body={PRISM} faces={BASE} step={1 + phase} kind="prism" />
+          <Space3D
+            mode="plane" box={BOX} planes={[PLANE]}
+            points={phase === 0 ? [] : AXIS_PTS}
+            value={phase === 0 ? 'eq' : 'none'}
+          />
         )}
         note={<NoteList items={S3.show[phase]} />}
       />
     ) : (
       <SpinScene
-        yaw0={0.35}
-        scene={<Space step={1} poly={PRISM} faces={BASE_SIDE} />}
+        scene={<Space3D mode="plane" box={BOX} planes={[PLANE]} points={AXIS_PTS} />}
         prompt={S3.work.prompt}
         answer={num(S3.work.answer)}
         okText={S3.work.ok}
@@ -715,9 +721,10 @@ const Screen4 = (p) => (
          qirra. Qirra yoritilgan, ya'ni ikki yoqning chegarasi ko'rinadi. */
       <Scene
         fig={(
-          <Both
-            body={PRISM} faces={BASE_SIDE} step={2} kind="prism"
-            lit={phase === 0 ? 'lat0' : 'base0'}
+          <Space3D
+            mode="plane" box={BOX} yaw={phase === 0 ? 0 : 0.7}
+            planes={[PLANE]}
+            points={[{ at: NPOINT, label: 'M', tone: 'accent', coords: true }]}
           />
         )}
         note={<NoteList items={S4.show[phase]} />}
@@ -725,7 +732,12 @@ const Screen4 = (p) => (
     ) : (
       <SpinScene
         yaw0={0.35}
-        scene={<Space step={1} poly={PRISM} faces={BASE_SIDE} />}
+        scene={(
+          <Space3D
+            mode="plane" box={BOX} planes={[PLANE]}
+            points={[{ at: NPOINT, label: 'M', tone: 'accent', coords: true }]}
+          />
+        )}
         prompt={S4.work.prompt}
         answer={num(S4.work.answer)}
         okText={S4.work.ok}
@@ -742,9 +754,12 @@ const Screen5 = (p) => (
     {({ audio, phase, solved, solve }) => (phase < S5.show.length && !solved ? (
       <Scene
         fig={(
-          <Both
-            body={PRISM} faces={BASE_SIDE} step={2} kind="prism"
-            lit={phase === 0 ? 'lat0' : 'lat2'}
+          <Space3D
+            mode="plane" box={BOX} planes={[PLANE]}
+            points={[{ at: ON_X, label: 'A' }, { at: ON_Y, label: 'B' }]}
+            vectors={phase === 0
+              ? []
+              : [{ from: ON_X, to: ON_Y, label: 'v', coords: true, tone: 'graph' }]}
           />
         )}
         note={<NoteList items={S5.show[phase]} />}
@@ -752,7 +767,13 @@ const Screen5 = (p) => (
     ) : (
       <SpinScene
         yaw0={0.3}
-        scene={<Space step={1} poly={PRISM} faces={BASE_SIDE} />}
+        scene={(
+          <Space3D
+            mode="plane" box={BOX} planes={[PLANE]}
+            points={[{ at: ON_X, label: 'A' }, { at: ON_Y, label: 'B' }]}
+            vectors={[{ from: ON_X, to: ON_Y, label: 'v', coords: true, tone: 'graph' }]}
+          />
+        )}
         prompt={S5.work.prompt}
         answer={num(S5.work.answer)}
         okText={S5.work.ok}
@@ -769,9 +790,11 @@ const Screen6 = (p) => (
     {({ audio, phase, solved, solve }) => (phase < S6.show.length && !solved ? (
       <Scene
         fig={(
-          <Both
-            body={PYR} faces={PYR_SIDE} step={1 + phase} kind="pyramid"
-            lit={phase === 0 ? null : 'lat0'}
+          <Space3D
+            mode="plane" box={BOX}
+            planes={phase === 0 ? [PLANE] : [PLANE, PLANE_5]}
+            points={[{ at: P111, label: 'M', tone: 'accent' }]}
+            value={phase === 0 ? 'none' : 'eq'}
           />
         )}
         note={<NoteList items={S6.show[phase]} />}
@@ -779,7 +802,12 @@ const Screen6 = (p) => (
     ) : (
       <SpinScene
         yaw0={0.3}
-        scene={<Space step={1} poly={PYR} faces={PYR_SIDE} />}
+        scene={(
+          <Space3D
+            mode="plane" box={BOX} planes={[PLANE, PLANE_5]}
+            points={[{ at: P111, label: 'M', tone: 'accent' }]}
+          />
+        )}
         prompt={S6.work.prompt}
         answer={num(S6.work.answer)}
         okText={S6.work.ok}
@@ -798,9 +826,11 @@ const Screen7 = (p) => (
          qirrada, va qimirlamas chizmada u deyarli ko'rinmaydi. */
       <Scene
         fig={(
-          <Space
-            step={1} yaw={phase === 0 ? 0.4 : 1.9} poly={CUBE}
-            faces={BASE_SIDE}
+          <Space3D
+            mode="plane" box={BOX}
+            planes={[phase === 0 ? PLANE : PLANE_X2]}
+            points={AXIS_PTS}
+            value="eq"
           />
         )}
         note={<NoteList items={S7.show[phase]} />}
@@ -808,7 +838,7 @@ const Screen7 = (p) => (
     ) : (
       <SpinScene
         yaw0={0.35}
-        scene={<Space step={1} poly={CUBE} faces={BASE_SIDE} />}
+        scene={<Space3D mode="plane" box={BOX} planes={[PLANE_X2]} points={AXIS_PTS} />}
         prompt={S7.work.prompt}
         answer={num(S7.work.answer)}
         okText={S7.work.ok}
@@ -829,9 +859,9 @@ const Screen8 = (p) => (
         fig={(solved) => (
           <Scene
             fig={(
-              <Both
-                body={PRISM} faces={BASE_SIDE} kind="prism"
-                step={solved ? 2 : 1} lit={solved ? 'lat0' : null}
+              <Space3D
+                mode="plane" box={BOX} yaw={solved ? 0.9 : 0}
+                planes={[PLANE]} value={solved ? 'eq' : 'none'}
               />
             )}
             max={330}
@@ -982,11 +1012,10 @@ const Screen14 = (p) => (
         fig={(round) => (
           <Scene
             fig={(
-              <Both
-                body={round === 1 ? PYR : PRISM}
-                faces={round === 1 ? PYR_SIDE : BASE_SIDE}
-                kind={round === 1 ? 'pyramid' : 'prism'}
-                step={2}
+              <Space3D
+                mode="plane" box={BOX} yaw={round * 0.3}
+                planes={[round === 2 ? PLANE_X2 : PLANE]}
+                points={round === 1 ? [{ at: NPOINT, label: 'M', tone: 'accent' }] : []}
               />
             )}
             max={260}

@@ -37,7 +37,7 @@ import {
   Scene,
   UnitCircle,
 } from './tools.jsx'
-// Фигуры блока 2. `alt` -- чередование двух мест, свидетель этого урока.
+// Фигуры блока 2. Сняты на стенде `probe/figures.html` до контента.
 import { LevelLine, SeriesTicks } from './figures.jsx'
 
 // Метка урока: `lesson_id` = grade10-<номер>, `lesson_name` = номер + тема
@@ -45,28 +45,28 @@ import { LevelLine, SeriesTicks } from './figures.jsx'
 const LESSON_NO = 10
 const LESSON_ID = `grade10-${String(LESSON_NO).padStart(2, '0')}`
 const LESSON_TITLE = L(
-  `${LESSON_NO}-dars. sin x = a`,
-  `Урок ${LESSON_NO}. sin x = a`,
-  `Lesson ${LESSON_NO}. sin x = a`,
+  `${LESSON_NO}-dars. Sodda tenglamalar`,
+  `Урок ${LESSON_NO}. Простейшие уравнения`,
+  `Lesson ${LESSON_NO}. Simplest equations`,
 )
 
-const BLOCK = { label: 'B2', from: 8, to: 13, current: 10 }
+const BLOCK = { label: 'B2', from: 9, to: 14, current: 10 }
 
 const S1 = {
   role: 'hook',
   answer: 'pick4',
-  eyebrow: L('BITTA YOZUV', 'ОДНА ЗАПИСЬ', 'ONE READING'),
-  title: L('Javobda darajadagi minus bir qayerdan?', 'Откуда в ответе минус единица в степени?', 'Where does the minus one in the power come from?'),
+  eyebrow: L('TENGLAMA', 'УРАВНЕНИЕ', 'THE EQUATION'),
+  title: L('Tenglamaning nechta ildizi bor?', 'Сколько корней у уравнения?', 'How many roots does the equation have?'),
   motion: ['mount'],
   audio: [
-    A('mount', 'Nuqta ikki joy orasida yuradi va har qadamda yarim aylana uzoqroqqa ketadi.', 'Точка ходит между двумя местами и с каждым шагом уходит на половину оборота дальше.', 'The point walks between two places and each step goes half a turn further.'),
-    A('r1', "Birinchi yozuv bu yodlash kerak bo'lgan yangi formula deydi.", 'Первая запись говорит, что это новая формула, которую надо выучить.', 'The first reading says it is a new formula to memorise.'),
-    A('r2', 'Ikkinchisi bu kechagi ikki seriya birga yozilgani deydi.', 'Вторая говорит, что это две вчерашние серии, записанные вместе.', "The second says these are yesterday's two series written together."),
+    A('mount', "Nuqta to'liq aylanadan keyin o'z joyiga qaytadi, balandligi ham o'sha.", 'Точка возвращается на своё место после полного оборота, и высота у неё та же.', 'The point returns to its place after a full turn, with the same height.'),
+    A('r1', 'Birinchi yozuv ildiz ikkita deydi.', 'Первая запись говорит, что корней два.', 'The first reading says there are two roots.'),
+    A('r2', "Ikkinchisi cheksiz ko'p deydi.", 'Вторая говорит, что их бесконечно много.', 'The second says there are infinitely many.'),
     A('ask', "Sizningcha qaysi biri to'g'ri? Hozircha shunchaki taxmin qiling.", 'Как думаешь, какая верная? Пока просто предположи.', 'Which one do you think is right? Just make a guess for now.'),
   ],
   probe: {
     question: L("Qaysi yozuv to'g'ri?", 'Какая запись верна?', 'Which reading is correct?'),
-    afterPredict: L("Javobingiz yozib olindi. Endi raqamlarni qo'yib ko'ramiz.", 'Твой ответ записан. Сейчас подставим номера и посмотрим.', 'Your answer is saved. Now we will substitute the numbers and see.'),
+    afterPredict: L('Javobingiz yozib olindi. Endi aylana bilan tekshiramiz.', 'Твой ответ записан. Сейчас проверим оборотом.', 'Your answer is saved. Now a turn will check it.'),
     items: [
       { id: 'a', label: L('birinchi', 'первая', 'the first') },
       { id: 'b', label: L('ikkinchi', 'вторая', 'the second'), correct: true },
@@ -76,12 +76,12 @@ const S1 = {
   },
   row: {
     a: {
-      name: L('bu yangi formula', 'это новая формула', 'this is a new formula'),
-      value: ['(−1)ⁿ', '30° + 180°n'],
+      name: L('ildiz ikkita', 'корней два', 'two roots'),
+      value: 'x = 30°,  150°',
     },
     b: {
-      name: L('bu ikki seriya birga', 'это две серии вместе', 'these are two series together'),
-      value: '30° + 360°n,  150° + 360°n',
+      name: L("ildiz cheksiz ko'p", 'корней бесконечно много', 'infinitely many roots'),
+      value: 'x = 30° + 360°n',
     },
   },
   expr: 'sin x = 1/2',
@@ -91,7 +91,7 @@ const S2 = {
   role: 'support',
   answer: 'pick4',
   eyebrow: L('TAYANCH', 'ОПОРА', 'WHAT YOU KNOW'),
-  title: L("Yig'ishdan oldin uch savol", 'Три вопроса перед склейкой', 'Three questions before folding'),
+  title: L('Tenglamalardan oldin uch savol', 'Три вопроса перед уравнениями', 'Three questions before equations'),
   tag: 'support',
   audio: [
     A('mount', "Uch qisqa savol. Uchalasi ham bir daqiqadan keyin kerak bo'ladi.", 'Три коротких вопроса. Все три понадобятся через минуту.', 'Three short questions. All three will be needed in a minute.'),
@@ -100,25 +100,25 @@ const S2 = {
     {
       id: 'q1',
       ask: true,
-      prompt: L("Sinusli tenglamaning to'liq javobida nechta seriya bor?", 'Сколько серий в полном ответе уравнения с синусом?', 'How many series are in the full answer of a sine equation?'),
+      prompt: L("Gorizontal to'g'ri chiziq aylana ichida nechta nuqta beradi?", 'Сколько точек даёт горизонтальная прямая внутри круга?', 'How many points does a horizontal line give inside the circle?'),
       done: '2',
       items: [
         { id: 'a', label: L('ikkita', 'две', 'two'), correct: true },
-        { id: 'b', label: L('bitta', 'одна', 'one'), hint: L('Bittasi ikki nuqtadan faqat bittasini qoplaydi.', 'Одна покрывает только одну из двух точек.', 'One covers only one of the two points.') },
-        { id: 'c', label: L("cheksiz ko'p", 'бесконечно много', 'infinitely many'), hint: L("Ildiz cheksiz ko'p, ularni tavsiflaydigan seriya esa ikkita.", 'Бесконечно много корней, а серий, которые их описывают, две.', 'There are infinitely many roots, but two series describing them.') },
-        { id: 'd', label: L("to'rtta", 'четыре', 'four'), hint: L('Kesishish nuqtasi ikkita, demak seriya ham ikkita.', 'Точек пересечения две, значит и серий две.', 'There are two intersection points, so two series.') },
+        { id: 'b', label: L('bitta', 'одну', 'one'), hint: L('Bitta faqat chetiga tekkanda, eng tepada yoki pastda beradi.', 'Одну она даёт только когда касается края, на самом верху или внизу.', 'One only when it touches the edge, at the very top or bottom.') },
+        { id: 'c', label: L('hech qaysi', 'ни одной', 'none'), hint: L("To'g'ri chiziq aylanadan yuqoridan o'tsa, hech qaysi bo'ladi.", 'Ни одной бывает, если прямая прошла выше окружности.', 'None happens if the line passed above the circle.') },
+        { id: 'd', label: L("to'rtta", 'четыре', 'four'), hint: L("To'g'ri chiziq va aylana ikkitadan ko'p nuqtada kesishmaydi.", 'Прямая и окружность пересекаются не больше чем в двух точках.', 'A line and a circle meet in at most two points.') },
       ],
     },
     {
       id: 'q2',
       ask: true,
-      prompt: L('Minus birning kvadrati nimaga teng?', 'Чему равен минус один в квадрате?', 'What is minus one squared?'),
-      done: '(−1)² = 1',
+      prompt: L('Nuqtani avvalgi joyiga nima qaytaradi?', 'Что возвращает точку на прежнее место?', 'What returns the point to its former place?'),
+      done: 'α + 360°n',
       items: [
-        { id: 'a', label: L('birga', 'единице', 'one'), correct: true },
-        { id: 'b', label: L('minus birga', 'минус единице', 'minus one'), hint: L('Minusga minus plyus beradi, demak ikkinchi daraja musbat.', 'Минус на минус даёт плюс, значит вторая степень положительна.', 'Minus times minus gives plus, so the second power is positive.') },
-        { id: 'c', label: L('nolga', 'нулю', 'zero'), hint: L('Nol faqat noldan chiqadi.', 'Ноль получается только из нуля.', 'Zero comes only from zero.') },
-        { id: 'd', label: L('ikkiga', 'двум', 'two'), hint: L("Daraja bu ko'paytirish, qo'shish emas.", 'Степень это умножение, а не сложение.', 'A power is multiplication, not addition.') },
+        { id: 'a', label: L('butun sondagi aylana', 'целое число оборотов', 'a whole number of turns'), correct: true },
+        { id: 'b', label: L('yarim aylana', 'половина оборота', 'half a turn'), hint: L('Yarim aylana nuqtani qarshi tomonga olib ketadi, bu beshinchi darsda edi.', 'Половина уводит точку напротив, это был пятый урок.', 'Half a turn sends the point opposite, that was lesson five.') },
+        { id: 'c', label: L('har qanday gradus soni', 'любое число градусов', 'any number of degrees'), hint: L("Unda nuqta qimirlagan bo'lardi, bizga esa aynan o'sha kerak.", 'Тогда точка сдвинулась бы, а нужна та же самая.', 'Then the point would move, and we need the very same one.') },
+        { id: 'd', label: L('hech narsa', 'ничто', 'nothing'), hint: L("Qaytaradi: to'liq aylana nuqtani o'sha yerga olib keladi.", 'Возвращает: полный оборот приводит точку туда же.', 'It does: a full turn brings the point to the same place.') },
       ],
     },
     {
@@ -140,30 +140,30 @@ const S3 = {
   role: 'explain1',
   answer: 'lead',
   eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L("Ikki yozuv, ikkalasi to'g'ri", 'Две записи, обе верные', 'Two readings, both true'),
+  title: L('Tenglamani yechish barcha burchaklarni topish', 'Решить уравнение значит найти все углы', 'Solving means finding every angle'),
   tag: 'odin-koren',
   show: [
     [
-      L("bir ikkidan balandlikdagi to'g'ri chiziq", 'прямая на высоте одна вторая', 'the line at height one half'),
-      L("o'ttiz va yuz ellik nuqtalar", 'точки тридцать и сто пятьдесят', 'the points thirty and one hundred fifty'),
+      L('balandlik berilgan', 'высота задана', 'the height is given'),
+      L("shu balandlikdagi to'g'ri chiziq", 'прямая на этой высоте', 'the line at that height'),
     ],
     [
-      L("har birining o'z seriyasi", 'у каждой своя серия', 'each has its own series'),
-      L('javobda ikkita qator', 'в ответе две строки', 'two lines in the answer'),
+      L("ikkala nuqta ham to'g'ri keladi", 'подходят обе точки', 'both points fit'),
+      L("o'ttiz va yuz ellik", 'тридцать и сто пятьдесят', 'thirty and one hundred fifty'),
     ],
   ],
-  motion: ['two'],
+  motion: ['drop'],
   audio: [
-    A('mount', "Kechagi javob: ikkita nuqta, va har birining o'z seriyasi.", 'Вчерашний ответ: две точки, и у каждой своя серия.', "Yesterday's answer: two points, each with its own series."),
-    A('two', "Ikkala qator ham to'g'ri, va birga ular hamma ildizni beradi. Noqulayligi boshqa: qator ikkita, darslikda va imtihonda esa javob bitta qator bilan yoziladi.", 'Обе строки верны, и вместе они дают все корни. Неудобно другое: строк две, а в учебнике и на экзамене ответ пишут одной.', 'Both lines are true, and together they give every root. The awkward part is different: there are two lines, while the textbook and the exam write the answer as one.'),
-    A('work', "Endi o'zingiz. Ulardan ikkinchisiga nuqta qo'ying.", 'Теперь сам. Поставь точку во вторую из них.', 'Now you. Place the point at the second of them.'),
+    A('mount', "Tenglama so'raydi: balandligi bir ikkidan bo'lgan burchaklarni toping.", 'Уравнение просит: найди углы, у которых высота равна одной второй.', 'The equation asks: find the angles whose height is one half.'),
+    A('drop', "To'g'ri chiziq shu balandlikka tushadi va aylanani ikki nuqtada kesadi. O'tgan darsda ulardan bittasi olinardi, bu yerda esa ikkalasi kerak: ikkalasi ham to'g'ri tenglik beradi.", 'Прямая садится на эту высоту и задевает окружность в двух точках. На прошлом уроке из них брали одну, а здесь нужны обе: обе дают верное равенство.', 'The line settles at that height and meets the circle at two points. Last lesson one of them was taken, here both are needed: both give a true equality.'),
+    A('work', "Endi o'zingiz. Ikkinchi ildizga, chapdagisiga nuqta qo'ying.", 'Теперь сам. Поставь точку во второй корень, тот, что слева.', 'Now you. Place the point at the second root, the one on the left.'),
   ],
   work: {
-    prompt: L("Ikkinchi ildizga nuqta qo'ying.", 'Поставь точку во второй корень.', 'Place the point at the second root.'),
-    ok: L('Yuz ellik gradus. Bu nuqta ikkinchi seriyani beradi.', 'Сто пятьдесят градусов. Эта точка даёт вторую серию.', 'One hundred fifty degrees. This point gives the second series.'),
+    prompt: L("Tenglamaning ikkinchi ildiziga nuqta qo'ying.", 'Поставь точку во второй корень уравнения.', 'Place the point at the second root of the equation.'),
+    ok: L("Yuz ellik gradus. Balandlik o'sha, demak tenglik to'g'ri, va bu ham ildiz.", 'Сто пятьдесят градусов. Высота та же, значит равенство верное, и это тоже корень.', 'One hundred fifty degrees. The same height, so the equality holds, and this is a root too.'),
     hint: [
       L("O'sha to'g'ri chiziqdagi ikkinchi nuqta kerak.", 'Нужна вторая точка на той же прямой.', 'You need the second point on the same line.'),
-      L("U vertikal o'qdan chapda.", 'Она слева от вертикальной оси.', 'It is left of the vertical axis.'),
+      L("U vertikal o'qdan chapda, balandligi musbat.", 'Она слева от вертикальной оси, высота у неё положительная.', 'It is left of the vertical axis, with a positive height.'),
       L('Yuz ellik gradus.', 'Сто пятьдесят градусов.', 'One hundred fifty degrees.'),
     ],
   },
@@ -173,31 +173,31 @@ const S4 = {
   role: 'explain2',
   answer: 'lead',
   eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L("Raqamlarni navbat bilan qo'yamiz", 'Подставим номера по очереди', 'Substitute the numbers one by one'),
+  title: L('Har nuqtadan seriya ketadi', 'Из каждой точки уходит серия', 'A series leaves each point'),
   tag: 'seriya-bez-n',
   show: [
     [
-      L("nolda nuqta o'ngda", 'при нуле точка справа', 'at zero the point is on the right'),
-      L('birda chapda', 'при единице слева', 'at one on the left'),
+      L('nuqta joyiga qaytdi', 'точка вернулась на место', 'the point returned to its place'),
+      L("uch yuz oltmish qo'shildi", 'прибавилось триста шестьдесят', 'three hundred sixty was added'),
     ],
     [
-      L("ikkida yana o'ngda", 'при двойке снова справа', 'at two on the right again'),
-      L('joy jami ikkita', 'места всего два', 'there are only two places'),
+      L('yana bir aylana', 'ещё оборот', 'one more turn'),
+      L('yozuv allaqachon uchta', 'записей уже три', 'three readings already'),
     ],
   ],
-  motion: ['alt'],
+  motion: ['turn'],
   audio: [
-    A('mount', "Bitta qatorga raqamlarni navbat bilan qo'yamiz va nuqta qayerga tushishini ko'ramiz.", 'Подставим в одну строку номера по очереди и посмотрим, куда попадает точка.', 'Substitute the numbers one by one into a single line and watch where the point lands.'),
-    A('alt', "Nol o'ttizni beradi, bir yuz ellikni, ikki uch yuz to'qsonni, uch besh yuz o'nni. Nuqta ikki joy orasida yuradi va har safar yarim aylana uzoqroqqa ketadi.", 'Ноль даёт тридцать, единица сто пятьдесят, двойка триста девяносто, тройка пятьсот десять. Точка ходит между двумя местами и каждый раз уходит на половину оборота дальше.', 'Zero gives thirty, one gives one hundred fifty, two gives three hundred ninety, three gives five hundred ten. The point walks between two places and each time goes half a turn further.'),
-    A('work', "Endi o'zingiz. Bir raqami olib keladigan joyga nuqta qo'ying.", 'Теперь сам. Поставь точку туда, куда приведёт номер один.', 'Now you. Place the point where the number one leads.'),
+    A('mount', "Birinchi ildizga, o'ttiz gradusga qaytamiz.", 'Вернёмся к первому корню, к тридцати градусам.', 'Back to the first root, to thirty degrees.'),
+    A('turn', "To'liq aylana nuqtani o'sha yerga olib keladi, demak uch yuz to'qson gradus ham ildiz. Yana bir aylana, va yetti yuz ellik ham. Ro'yxat tugamaydi.", 'Полный оборот приводит точку туда же, значит триста девяносто градусов тоже корень. Ещё оборот, и семьсот пятьдесят тоже. Список не кончается.', 'A full turn brings the point to the same place, so three hundred ninety degrees is a root too. One more turn, and seven hundred fifty as well. The list does not end.'),
+    A('work', "Endi o'zingiz. Yetti yuz ellik graduslik burchak keladigan joyga nuqta qo'ying.", 'Теперь сам. Поставь точку туда, куда придёт угол в семьсот пятьдесят градусов.', 'Now you. Place the point where the angle of seven hundred fifty degrees arrives.'),
   ],
   work: {
-    prompt: L('n = 1 qayerga olib keladi?', 'Куда приведёт n = 1?', 'Where does n = 1 lead?'),
-    ok: L('Yuz ellikka. Toq raqam nuqtani ikkinchi joyga yuboradi.', 'В сто пятьдесят. Нечётный номер отправляет точку во вторую позицию.', 'To one hundred fifty. An odd number sends the point to the second place.'),
+    prompt: L('750 graduslik burchak qayerga keladi?', 'Куда придёт угол 750 градусов?', 'Where does the angle of 750 degrees arrive?'),
+    ok: L("O'ttiz kelgan joyga. Ikki to'liq aylana hech narsani o'zgartirmaydi.", 'Туда же, куда и тридцать. Два полных оборота ничего не меняют.', 'The same place as thirty. Two full turns change nothing.'),
     hint: [
-      L("Birni qo'ying va hisoblang.", 'Подставь единицу и посчитай.', 'Substitute one and compute.'),
-      L("Minus o'ttiz qo'shilgan yuz sakson.", 'Минус тридцать плюс сто восемьдесят.', 'Minus thirty plus one hundred eighty.'),
-      L('Yuz ellik gradus.', 'Сто пятьдесят градусов.', 'One hundred fifty degrees.'),
+      L("Yetti yuz ellikdan to'liq aylanalarni tashlang.", 'Отбрось от семисот пятидесяти полные обороты.', 'Drop the whole turns from seven hundred fifty.'),
+      L("Yetti yuz ellik bu o'ttiz qo'shilgan ikki aylana.", 'Семьсот пятьдесят это тридцать плюс два оборота.', 'Seven hundred fifty is thirty plus two turns.'),
+      L("O'ttiz gradus.", 'Тридцать градусов.', 'Thirty degrees.'),
     ],
   },
 }
@@ -206,30 +206,30 @@ const S5 = {
   role: 'explain3',
   answer: 'lead',
   eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L("Juftlar o'ngga, toqlar chapga", 'Чётные направо, нечётные налево', 'Even to the right, odd to the left'),
+  title: L("Cheksiz ro'yxatni qanday yozish", 'Как записать бесконечный список', 'How to write an endless list'),
   tag: 'seriya-bez-n',
   show: [
     [
-      L('juft raqam ishorani qoldiradi', 'чётный номер оставляет знак', 'an even number keeps the sign'),
-      L('toq esa almashtiradi', 'нечётный меняет', 'an odd one flips it'),
+      L("o'ttiz, uch yuz to'qson, yetti yuz ellik", 'тридцать, триста девяносто, семьсот пятьдесят', 'thirty, three hundred ninety, seven hundred fifty'),
+      L('qadam doim bitta aylana', 'шаг всегда один оборот', 'the step is always one turn'),
     ],
     [
-      L("buni ko'paytuvchi qiladi", 'это и делает множитель', 'that is what the factor does'),
-      L('darajadagi minus bir', 'минус единица в степени', 'minus one in the power'),
+      L("ro'yxat o'rniga bitta qator", 'вместо списка одна строка', 'one line instead of a list'),
+      L('`n` harfi aylana raqami', 'буква `n` это номер оборота', 'the letter `n` is the number of the turn'),
     ],
   ],
-  motion: ['sign'],
+  motion: ['write'],
   audio: [
-    A('mount', 'Juft raqamlarni toqlaridan nima farqlashiga qaraymiz.', 'Посмотрим, что отличает чётные номера от нечётных.', 'Let us see what tells even numbers from odd ones.'),
-    A('sign', "Juft raqamda burchak plyus ishora bilan, toqda minus ishora bilan olinadi. Aynan shuni minus bir daraja en ko'paytuvchisi qiladi: u hech narsa hisoblamaydi, faqat ishorani almashtiradi.", 'При чётном номере угол берётся со знаком плюс, при нечётном со знаком минус. Именно это и делает множитель минус единица в степени эн: он ничего не считает, он только переключает знак.', 'With an even number the angle is taken with a plus, with an odd one with a minus. That is exactly what the factor minus one to the power n does: it computes nothing, it only switches the sign.'),
-    A('work', "Endi o'zingiz. Ikki raqami olib keladigan joyga nuqta qo'ying.", 'Теперь сам. Поставь точку туда, куда приведёт номер два.', 'Now you. Place the point where the number two leads.'),
+    A('mount', "Ro'yxat cheksiz, uni esa bitta qatorga yozish kerak.", 'Список бесконечный, а записать его надо в одну строку.', 'The list is endless, and it has to be written in one line.'),
+    A('write', "Hamma yozuv butun sondagi aylanaga farq qiladi. Demak yozamiz: o'ttiz gradus qo'shilgan uch yuz oltmish karra en, bu yerda en har qanday butun son. Nol o'ttizni beradi, bir uch yuz to'qsonni, minus bir minus uch yuz o'ttizni.", 'Все записи отличаются целым числом оборотов. Значит пишем: тридцать градусов плюс триста шестьдесят умножить на эн, где эн любое целое число. Ноль даёт тридцать, единица триста девяносто, минус единица минус триста тридцать.', 'All the readings differ by a whole number of turns. So we write: thirty degrees plus three hundred sixty times n, where n is any whole number. Zero gives thirty, one gives three hundred ninety, minus one gives minus three hundred thirty.'),
+    A('work', "Endi o'zingiz. En minus birga teng bo'lganda keladigan joyga nuqta qo'ying.", 'Теперь сам. Поставь точку туда, куда приведёт эн, равное минус единице.', 'Now you. Place the point where n equal to minus one leads.'),
   ],
   work: {
-    prompt: L('n = 2 qayerga olib keladi?', 'Куда приведёт n = 2?', 'Where does n = 2 lead?'),
-    ok: L('Nol kelgan joyga. Juft raqam nuqtani birinchi joyga qaytaradi, faqat bir aylana uzoqroqqa.', 'Туда же, куда и ноль. Чётный номер возвращает точку в первую позицию, только на оборот дальше.', 'The same place as zero. An even number returns the point to the first place, just one turn further.'),
+    prompt: L('n = −1 qayerga olib keladi?', 'Куда приведёт n = −1?', 'Where does n = −1 lead?'),
+    ok: L("O'sha yerga. Minus uch yuz o'ttiz bu o'ttizdan to'liq aylana ayirilgani, nuqta o'sha.", 'Туда же. Минус триста тридцать это тридцать минус полный оборот, точка та же самая.', 'The same place. Minus three hundred thirty is thirty minus a full turn, the same point.'),
     hint: [
-      L('Ikki juft, demak burchak ishorasi plyus.', 'Двойка чётная, значит знак у угла плюс.', 'Two is even, so the angle keeps its plus.'),
-      L("O'ttiz qo'shilgan uch yuz oltmish uch yuz to'qson bo'ladi.", 'Тридцать плюс триста шестьдесят это триста девяносто.', 'Thirty plus three hundred sixty is three hundred ninety.'),
+      L("O'ttizdan bitta to'liq aylanani ayiring.", 'Отними от тридцати один полный оборот.', 'Subtract one full turn from thirty.'),
+      L("Minus uch yuz o'ttiz chiqadi, nuqta esa qimirlamaydi.", 'Получится минус триста тридцать, а точка не сдвинется.', 'You get minus three hundred thirty, and the point does not move.'),
       L("O'ttiz gradus.", 'Тридцать градусов.', 'Thirty degrees.'),
     ],
   },
@@ -239,33 +239,33 @@ const S6 = {
   role: 'explain4',
   answer: 'number',
   eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L('Qadam ikki barobar qisqardi', 'Шаг стал вдвое короче', 'The step became twice as short'),
-  tag: 'seriya-bez-n',
+  title: L("Ildiz umuman bo'lmaganda", 'Когда корней нет совсем', 'When there are no roots at all'),
+  tag: 'net-resheniy',
   show: [
     [
-      L('har seriyada qadam aylana edi', 'в каждой серии шаг был оборот', 'in each series the step was a turn'),
-      L('yozuv ikkita edi', 'записей было две', 'there were two readings'),
+      L('balandlik ikki', 'высота два', 'the height is two'),
+      L("to'g'ri chiziq aylanadan yuqorida", 'прямая выше окружности', 'the line is above the circle'),
     ],
     [
-      L('umumiy yozuvda qadam yarim', 'в общей записи шаг половина', 'in the joint reading the step is half'),
-      L('chunki yozuvlar almashadi', 'потому что записи чередуются', 'because the readings alternate'),
+      L("umumiy nuqta yo'q", 'общих точек нет', 'no common points'),
+      L("demak ildiz ham yo'q", 'значит нет и корней', 'so there are no roots'),
     ],
   ],
-  motion: ['half'],
+  motion: ['miss'],
   audio: [
-    A('mount', "Har alohida seriyada qadam to'liq aylana edi.", 'В каждой отдельной серии шаг был полный оборот.', 'In each separate series the step was a full turn.'),
-    A('half', "Umumiy yozuvda esa qo'shni raqamlar boshqa nuqtalarni beradi, va ular orasida yarim aylana. Shuning uchun formulada uch yuz oltmish emas, yuz sakson turadi. Bu xato emas, bu yig'ishning natijasi.", 'А в общей записи соседние номера дают разные точки, и между ними половина оборота. Поэтому в формуле стоит сто восемьдесят, а не триста шестьдесят. Это не опечатка, это следствие склейки.', 'In the joint reading neighbouring numbers give different points, half a turn apart. That is why the formula has one hundred eighty, not three hundred sixty. It is not a typo, it follows from the folding.'),
-    A('work', "O'zingiz hisoblang. Umumiy yozuvda qadam qanchaga teng?", 'Посчитай сам. Чему равен шаг в общей записи?', 'Compute it yourself. What is the step in the joint reading?'),
+    A('mount', "Sinus iks ikkiga teng tenglamani olaylik. To'g'ri chiziq aylanadan yuqorida turadi.", 'Возьмём уравнение синус икс равен двум. Прямая стоит выше окружности.', 'Take the equation sine x equals two. The line stands above the circle.'),
+    A('miss', "U yonidan o'tadi va aylanaga bir marta ham tegmaydi. Umumiy nuqta yo'q, demak burchak ham yo'q, ya'ni tenglamaning yechimi yo'q. Buni to'g'ri chiziq ko'rsatadi, yodlab olinmaydi.", 'Она проходит мимо и ни разу не задевает круг. Общей точки нет, значит нет и угла, а значит уравнение решений не имеет. Это видно прямой, а не выучено словами.', 'It passes by and never touches the circle. There is no common point, so there is no angle, and the equation has no solutions. The line shows it, it is not memorised.'),
+    A('work', "O'zingiz hisoblang. Sinus iks ikkiga teng tenglamaning nechta ildizi bor?", 'Посчитай сам. Сколько корней у уравнения синус икс равен двум?', 'Compute it yourself. How many roots does the equation sine x equals two have?'),
   ],
   work: {
-    prompt: L('Umumiy yozuvda qadam necha gradus?', 'Чему равен шаг в общей записи, в градусах?', 'What is the step of the joint reading, in degrees?'),
-    ok: L("Yuz sakson. Qo'shni raqamlar qo'shni nuqtalarni beradi, ular orasida esa yarim aylana.", 'Сто восемьдесят. Соседние номера дают соседние точки, а между ними половина оборота.', 'One hundred eighty. Neighbouring numbers give neighbouring points, half a turn apart.'),
+    prompt: L('sin x = 2 ning nechta ildizi bor?', 'Сколько корней у sin x = 2?', 'How many roots does sin x = 2 have?'),
+    ok: L('Nol. Birdan katta balandlik aylanada hech qanday burchakda uchramaydi.', 'Ноль. Высота больше единицы на окружности не встречается ни при каком угле.', 'Zero. A height greater than one never occurs on the circle at any angle.'),
     hint: [
-      L("Yuz ellik bilan o'ttiz orasidagi farqni hisoblang.", 'Посчитай разность между сто пятьдесят и тридцать.', 'Compute the difference between one hundred fifty and thirty.'),
-      L("Bu to'liq aylananing yarmi.", 'Это половина полного оборота.', 'That is half a full turn.'),
-      L('Yuz sakson.', 'Сто восемьдесят.', 'One hundred eighty.'),
+      L("To'g'ri chiziq aylanaga tegdimi, qarang.", 'Посмотри, задела ли прямая окружность.', 'Look whether the line touched the circle.'),
+      L("U yuqoridan o'tdi, umumiy nuqta yo'q.", 'Она прошла выше, общих точек нет.', 'It passed above, there are no common points.'),
+      L('Nol.', 'Ноль.', 'Zero.'),
     ],
-    answer: '180',
+    answer: '0',
   },
 }
 
@@ -273,33 +273,33 @@ const S7 = {
   role: 'explain5',
   answer: 'number',
   eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L("Nuqta bitta bo'lganda", 'Когда точка всего одна', 'When there is only one point'),
+  title: L("Kosinusda to'g'ri chiziq vertikal", 'У косинуса прямая вертикальная', 'For the cosine the line is vertical'),
   tag: 'odin-koren',
   show: [
     [
-      L('balandlik birga teng', 'высота равна единице', 'the height equals one'),
-      L("to'g'ri chiziq chetiga tegadi", 'прямая касается края', 'the line touches the edge'),
+      L('balandlik emas, siljish berilgan', 'задан сдвиг, а не высота', 'the shift is given, not the height'),
+      L("to'g'ri chiziq vertikal ketadi", 'прямая идёт вертикально', 'the line runs vertically'),
     ],
     [
-      L('nuqta jami bitta', 'точка всего одна', 'there is only one point'),
-      L('seriya ham bitta', 'и серия тоже одна', 'and the series is single too'),
+      L('nuqta yana ikkita', 'точек снова две', 'two points again'),
+      L('ular bir-birining ustida', 'они одна над другой', 'one above the other'),
     ],
   ],
-  motion: ['touch'],
+  motion: ['cut'],
   audio: [
-    A('mount', "Birga teng balandlikni olaylik. To'g'ri chiziq eng tepada turadi.", 'Возьмём высоту, равную единице. Прямая стоит у самого верха.', 'Take the height equal to one. The line stands at the very top.'),
-    A('touch', "U aylanaga bir nuqtada tegadi, kesib o'tmaydi. Nuqta bitta, demak seriya ham bitta, va umumiy formula bu yerda kerak emas.", 'Она касается окружности в одной точке, а не пересекает её. Точка одна, значит и серия одна, и общая формула здесь не нужна.', 'It touches the circle at one point instead of crossing it. There is one point, so one series, and the joint formula is not needed here.'),
-    A('work', "O'zingiz hisoblang. Sinus iks birga teng tenglamaning javobida nechta seriya bor?", 'Посчитай сам. Сколько серий в ответе уравнения синус икс равен единице?', 'Compute it yourself. How many series are in the answer of sine x equals one?'),
+    A('mount', "Kosinusli tenglamada siljish berilgan, shuning uchun to'g'ri chiziq vertikal.", 'В уравнении с косинусом задан сдвиг, поэтому прямая вертикальная.', 'In an equation with the cosine the shift is given, so the line is vertical.'),
+    A('cut', 'U ham aylanani ikki marta kesadi, faqat nuqtalar endi bir-birining ustida. Yuqoridagi va pastdagi, oltmish va uch yuz gradus.', 'Она тоже задевает окружность дважды, только точки теперь одна над другой. Верхняя и нижняя, шестьдесят и триста градусов.', 'It also meets the circle twice, only now the points are one above the other. The upper and the lower, sixty and three hundred degrees.'),
+    A('work', "O'zingiz hisoblang. Kosinus iks bir ikkidanga teng tenglamaning noldan uch yuz oltmishgacha oraliqda nechta ildizi bor?", 'Посчитай сам. Сколько корней у уравнения косинус икс равен одной второй на промежутке от нуля до трёхсот шестидесяти?', 'Compute it yourself. How many roots does cosine x equals one half have between zero and three hundred sixty?'),
   ],
   work: {
-    prompt: L('sin x = 1 da nechta seriya bor?', 'Сколько серий у sin x = 1?', 'How many series does sin x = 1 have?'),
-    ok: L("Bitta. Nuqta jami bitta, va u to'liq aylanadan keyin takrorlanadi.", 'Одна. Точка всего одна, и повторяется она через полный оборот.', 'One. There is a single point, and it repeats after a full turn.'),
+    prompt: L('cos x = 1/2 ning 0 dan 360° gacha nechta ildizi bor?', 'Сколько корней у cos x = 1/2 от 0 до 360°?', 'How many roots does cos x = 1/2 have from 0 to 360°?'),
+    ok: L('Ikkita. Bitta aylana, ikkita nuqta: oltmish va uch yuz gradus.', 'Два. Один оборот, две точки: шестьдесят и триста градусов.', 'Two. One turn, two points: sixty and three hundred degrees.'),
     hint: [
-      L("To'g'ri chiziq aylanani uchratgan nuqtalarni sanang.", 'Посчитай точки, где прямая встретила окружность.', 'Count the points where the line met the circle.'),
-      L('U tegdi, kesmadi, demak nuqta bitta.', 'Она коснулась, а не пересекла, значит точка одна.', 'It touched instead of crossing, so there is one point.'),
-      L('Bitta.', 'Одна.', 'One.'),
+      L('Bitta aylanadagi kesishish nuqtalarini sanang.', 'Посчитай точки пересечения на одном обороте.', 'Count the intersection points on one turn.'),
+      L("Vertikal to'g'ri chiziq aylanani yuqoridan va pastdan kesadi.", 'Вертикальная прямая задевает окружность сверху и снизу.', 'The vertical line meets the circle above and below.'),
+      L('Ikkita.', 'Два.', 'Two.'),
     ],
-    answer: '1',
+    answer: '2',
   },
 }
 
@@ -307,28 +307,28 @@ const S8 = {
   role: 'rule',
   answer: 'pick2',
   eyebrow: L('QOIDA', 'ПРАВИЛО', 'RULE'),
-  title: L('Ildizlarning umumiy yozuvi', 'Общая запись корней', 'The joint reading of the roots'),
+  title: L('Ildizlar seriya bilan ketadi', 'Корни идут сериями', 'Roots come in series'),
   tag: 'seriya-bez-n',
   motion: ['rule'],
   audio: [
     A('mount', 'Tushuntirish tugadi. Qoidani ochishdan oldin bitta savol.', 'Объяснение закончилось. Перед правилом один вопрос.', 'The explanation is over. One question before the rule.'),
-    A('rule', "Nuqta yana bir bor raqamlar bo'ylab o'tadi, va qoida yonida ochiladi. Formula yangi emas: bu birga yozilgan ikki seriya.", 'Точка ещё раз проходит по номерам, и правило открывается рядом. Формула не новая: это две серии, записанные вместе.', 'The point walks through the numbers once more, and the rule opens beside it. The formula is not new: it is two series written together.'),
+    A('rule', "Seriya yana bir bor quriladi, va qoida yonida ochiladi. En harfi aylana raqami, va u bitta qator cheksiz ro'yxatni almashtirishi uchun kerak.", 'Серия строится ещё раз, и правило открывается рядом. Буква эн это номер оборота, и она нужна, чтобы одна строка заменила бесконечный список.', 'The series is built once more, and the rule opens beside it. The letter n is the number of the turn, and it is needed so that one line replaces an endless list.'),
   ],
   probe: {
-    question: L("`(−1)ⁿ` ko'paytuvchi nima qiladi?", 'Что делает множитель `(−1)ⁿ`?', 'What does the factor `(−1)ⁿ` do?'),
+    question: L('Javobda `n` harfi nima uchun?', 'Зачем в ответе буква `n`?', 'Why is there a letter `n` in the answer?'),
     items: [
-      { id: 'a', label: L('burchak ishorasini almashtiradi', 'переключает знак угла', 'it switches the sign of the angle'), correct: true },
-      { id: 'b', label: L('burchakni orttiradi', 'увеличивает угол', 'it enlarges the angle'), hint: L("Ko'paytuvchi birga yoki minus birga teng, o'lchamni o'zgartirmaydi.", 'Множитель равен единице или минус единице, размер он не меняет.', 'The factor equals one or minus one, it does not change the size.') },
+      { id: 'a', label: L('u hamma aylanani birdan sanaydi', 'она перечисляет все обороты сразу', 'it lists every turn at once'), correct: true },
+      { id: 'b', label: L('u ildizning raqamini bildiradi', 'она обозначает номер корня', 'it marks the number of the root'), hint: L("Ildiz cheksiz ko'p, `n` esa ularni emas, aylanalarni sanaydi.", 'Корней бесконечно много, и `n` считает не их по порядку, а обороты.', 'There are infinitely many roots, and `n` counts turns, not roots in order.') },
     ],
   },
   rule: {
-    lawLabel: L("Yig'ish", 'Склейка', 'The folding'),
+    lawLabel: L('Seriya', 'Серия', 'The series'),
     lines: [
-      L('Ikki seriya bitta qator bilan yoziladi: juft raqamlar birinchi nuqtani, toqlar ikkinchisini beradi.', 'Две серии записываются одной строкой: чётные номера дают первую точку, нечётные вторую.', 'Two series are written as one line: even numbers give the first point, odd ones the second.'),
-      L("`(−1)ⁿ` ko'paytuvchi faqat burchak ishorasini almashtiradi, hech narsa hisoblamaydi.", 'Множитель `(−1)ⁿ` только переключает знак угла, ничего не считая.', 'The factor `(−1)ⁿ` only switches the sign of the angle, computing nothing.'),
-      L("Umumiy yozuvda qadam `180°` ga teng, chunki qo'shni raqamlar qo'shni nuqtalarni beradi.", 'Шаг в общей записи равен `180°`, то есть `π`: соседние номера дают соседние точки.', 'The step in the joint reading is `180°` because neighbouring numbers give neighbouring points.'),
+      L("Aylanadagi har nuqta bitta ildiz emas, seriya beradi: burchakka istalgan butun sondagi aylanani qo'shish mumkin.", 'Каждая точка на окружности даёт не один корень, а серию: к углу можно прибавить любое целое число оборотов.', 'Each point on the circle gives not one root but a series: any whole number of turns may be added to the angle.'),
+      L('Nuqta ikkita, demak seriya ham ikkita, va javobga ikkalasi kiradi.', 'Точек две, значит и серий две, и в ответ идут обе.', 'There are two points, so two series, and both go into the answer.'),
+      L("To'g'ri chiziq aylananing yonidan o'tsa, ildiz umuman yo'q.", 'Если прямая прошла мимо окружности, корней нет вовсе.', 'If the line missed the circle, there are no roots at all.'),
     ],
-    law: 'x = (−1)ⁿ arcsin a + πn',
+    law: 'x = 30° + 360°n,   x = 150° + 360°n',
   },
 }
 
@@ -337,19 +337,19 @@ const S9 = {
   answer: 'match',
   format: 'match',
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
-  title: L('Raqam va uning nuqtasi', 'Номер и его точка', 'The number and its point'),
-  tag: 'seriya-bez-n',
+  title: L('Tenglama va uning seriyasi', 'Уравнение и его серия', 'The equation and its series'),
+  tag: 'odin-koren',
   audio: [
-    A('mount', "To'rt raqam va to'rt burchak. Ularni birlashtiring.", 'Четыре номера и четыре угла. Соедини их.', 'Four numbers and four angles. Match them.'),
+    A('mount', "To'rt tenglama va to'rt seriya. Ularni birlashtiring.", 'Четыре уравнения и четыре серии. Соедини их.', 'Four equations and four series. Match them.'),
   ],
   match: {
-    prompt: L('Raqamni u beradigan burchak bilan birlashtiring.', 'Соедини номер с углом, который он даёт.', 'Match the number with the angle it gives.'),
-    ok: L('Juft raqamlar birinchi nuqtaga, toqlar ikkinchisiga olib boradi, va har keyingisi yarim aylana uzoqroqqa.', 'Чётные номера ведут в первую точку, нечётные во вторую, и каждый следующий на половину оборота дальше.', 'Even numbers lead to the first point, odd ones to the second, each next half a turn further.'),
-    left: ['n = 0', 'n = 1', 'n = 2', 'n = 3'],
-    a: '30°',
-    b: '150°',
-    c: '390°',
-    d: '510°',
+    prompt: L("Tenglamani o'z seriyasi bilan birlashtiring.", 'Соедини уравнение с его серией.', 'Match the equation with its series.'),
+    ok: L("Bu to'rttasida seriya bitta: to'g'ri chiziq yo chetiga tegadi, yo ikki nuqta bitta qadamga yig'iladi.", 'В этих четырёх серия одна: прямая либо касается края, либо две точки складываются в один шаг.', 'In these four the series is single: the line either touches the edge or the two points fold into one step.'),
+    left: ['sin x = 1', 'sin x = 0', 'cos x = 1', 'cos x = −1'],
+    a: '90° + 360°n',
+    b: '180°n',
+    c: '360°n',
+    d: '180° + 360°n',
   },
 }
 
@@ -358,19 +358,19 @@ const S10 = {
   answer: 'order',
   format: 'order-steps',
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
-  title: L("Formulani qadam bilan yig'ing", 'Собери формулу по шагам', 'Assemble the formula step by step'),
+  title: L("Javobni qadam bilan yig'ing", 'Собери ответ по шагам', 'Assemble the answer step by step'),
   tag: 'seriya-bez-n',
   audio: [
     A('mount', "To'rtta qadam. Tartibini o'zingiz qo'yasiz.", 'Четыре шага. Порядок ставишь ты.', 'Four steps. You put them in order.'),
   ],
   order: {
     prompt: L('Qadamlarni tartib bilan joylashtiring.', 'Расставь шаги по порядку.', 'Put the steps in order.'),
-    s1: L('oynadagi burchakni topamiz', 'находим угол в окне', 'we find the angle in the window'),
-    s2: L('ikkinchi nuqtani olamiz', 'берём вторую точку', 'we take the second point'),
-    s3: L("ishora orqali yig'amiz", 'склеиваем через знак', 'we fold them through the sign'),
-    s4: L("qadamni yuz sakson qo'yamiz", 'шаг ставим сто восемьдесят', 'we set the step to one hundred eighty'),
-    ok: L("Formula avvalgi narsalardan yig'ildi: oynadagi burchak, ikkinchi nuqta, ishora almashinuvi va yarim aylana.", 'Формула собрана из того, что уже было: угол из окна, вторая точка, чередование знака и половина оборота.', 'The formula is assembled from what was already there: the angle from the window, the second point, the sign alternation and half a turn.'),
-    bad: L('Avval oynadagi burchak, keyin ikkinchi nuqta, keyin ishora, keyingina qadam.', 'Сначала угол из окна, потом вторая точка, потом знак, и только потом шаг.', 'First the angle from the window, then the second point, then the sign, and only then the step.'),
+    s1: L("balandlik bo'ylab to'g'ri chiziq o'tkazamiz", 'проводим прямую по высоте', 'we draw the line at the height'),
+    s2: L('ikkala nuqtani belgilaymiz', 'отмечаем обе точки', 'we mark both points'),
+    s3: L("har biriga aylanalarni qo'shamiz", 'к каждой прибавляем обороты', 'we add turns to each'),
+    s4: L('ikkita seriya yozamiz', 'пишем две серии', 'we write two series'),
+    ok: L("Tartib doim shunday. Ikkinchi qadam tashlab ketilsa, ildizlarning yarmi javobdan sezilmay yo'qoladi.", 'Порядок такой всегда. Если пропустить второй шаг, половина корней исчезнет из ответа незамеченной.', 'The order is always this. Skipping the second step makes half the roots vanish unnoticed.'),
+    bad: L("Avval to'g'ri chiziq, keyin ikkala nuqta, keyin aylanalar, keyingina javob.", 'Сначала прямая, потом обе точки, потом обороты, и только потом ответ.', 'First the line, then both points, then the turns, and only then the answer.'),
     mark: '150°',
   },
 }
@@ -388,22 +388,22 @@ const S11 = {
     A('next', "Javobni o'zingiz yozing.", 'Ответ запиши сам.', 'Type the answer yourself.'),
   ],
   task: {
-    ok: L("Yuz ellik. Raqam toq, demak burchak minus bilan olinadi, va yuz sakson qo'shiladi.", 'Сто пятьдесят. Номер нечётный, значит угол берётся с минусом, и прибавляется сто восемьдесят.', 'One hundred fifty. The number is odd, so the angle takes a minus, and one hundred eighty is added.'),
+    ok: L("Uch yuz to'qson. Seriyadagi bir o'ttiz ustiga bitta to'liq aylana degani.", 'Триста девяносто. Единица в серии означает один полный оборот сверх тридцати.', 'Three hundred ninety. A one in the series means one full turn on top of thirty.'),
     hint: [
-      L("Bir toq, demak ko'paytuvchi minus birga teng.", 'Единица нечётная, значит множитель равен минус единице.', 'One is odd, so the factor equals minus one.'),
-      L("Minus o'ttiz qo'shilgan yuz sakson.", 'Минус тридцать плюс сто восемьдесят.', 'Minus thirty plus one hundred eighty.'),
-      L('Yuz ellik.', 'Сто пятьдесят.', 'One hundred fifty.'),
+      L("Harf o'rniga birni qo'ying.", 'Подставь единицу вместо буквы.', 'Put one in place of the letter.'),
+      L("O'ttiz qo'shilgan uch yuz oltmish.", 'Тридцать плюс триста шестьдесят.', 'Thirty plus three hundred sixty.'),
+      L("Uch yuz to'qson.", 'Триста девяносто.', 'Three hundred ninety.'),
     ],
-    prompt: '(−1)ⁿ·30° + 180°n,   n = 1   →   ?',
-    answer: '150',
+    prompt: 'x = 30° + 360°n,   n = 1   →   x = ?',
+    answer: '390',
   },
   order: {
     prompt: L("O'sish tartibida joylashtiring.", 'Расставь по возрастанию.', 'Arrange in increasing order.'),
     title: L('Qaysi ildiz kichikroq?', 'Какой корень меньше?', 'Which root is smaller?'),
-    ok: L("Siz raqamlarni qo'ydingiz va yozuvlarni emas, burchaklarni solishtirdingiz.", 'Ты подставил номера и сравнил углы, а не записи.', 'You substituted the numbers and compared angles, not readings.'),
-    bad: L("Har raqamni formulaga qo'ying va chiqqanini solishtiring.", 'Подставь каждый номер в формулу и сравни то, что получилось.', 'Put each number into the formula and compare the results.'),
-    items: ['n = 0', 'n = 1', 'n = 2', 'n = 3'],
-    answer: 'n = 0  n = 1  n = 2  n = 3',
+    ok: L("Siz aylana raqamlarini qo'ydingiz va yozuvlarni emas, sonlarni solishtirdingiz.", 'Ты подставил номера оборотов и сравнил числа, а не записи.', 'You substituted the turn numbers and compared numbers, not readings.'),
+    bad: L("Har yozuvga aylana raqamini qo'ying va chiqqanini solishtiring.", 'Подставь в каждую запись её номер оборота и сравни то, что получилось.', 'Put the turn number into each reading and compare the results.'),
+    items: ['n = −1', 'n = 0', 'n = 1', 'n = 2'],
+    answer: 'n = −1  n = 0  n = 1  n = 2',
   },
 }
 
@@ -412,33 +412,33 @@ const S12 = {
   answer: 'number',
   format: 'audit',
   eyebrow: L('TUZOQ', 'ЛОВУШКА', 'THE TRAP'),
-  title: L("Javob noto'g'ri. Qayerda?", 'Ответ неверный. Где?', 'The answer is wrong. Where?'),
+  title: L("Javob to'liq emas. Qayerda?", 'Ответ неполный. Где?', 'The answer is incomplete. Where?'),
   tag: 'check',
   audio: [
-    A('mount', 'Masala. Sinus iks bir ikkidanga teng tenglamaning hamma ildizini bitta qator bilan yozish.', 'Задача. Записать все корни уравнения синус икс равен одной второй одной строкой.', 'A task. Write every root of sine x equals one half in a single line.'),
+    A('mount', 'Masala. Sinus iks bir ikkidanga teng tenglamani yechish.', 'Задача. Решить уравнение синус икс равен одной второй.', 'A task. Solve the equation sine x equals one half.'),
     A('next', "To'rt qator, hammasi to'g'ri ko'rinadi. Birinchi xato qatorni qidiring.", 'Четыре строки, все выглядят верными. Ищи первую неверную.', 'Four lines, all look right. Look for the first wrong one.'),
   ],
   hint: {
-    r1: L("Bu qator to'g'ri: bir ikkidanning arksinusi haqiqatan o'ttizga teng.", 'Эта строка верна: арксинус одной второй действительно равен тридцати.', 'This line is right: the arcsine of one half really is thirty.'),
-    r2: L("Bu qator ham to'g'ri: ko'paytuvchi ishorani almashtiradi.", 'Эта строка тоже верна: множитель переключает знак.', 'This line is right too: the factor switches the sign.'),
-    r4: L("Bu qator xato qatordan o'sib chiqqan. Birinchi xato qator yuqorida.", 'Эта строка выросла из неверной. Первая неверная строка выше.', 'This line grew out of a wrong one. The first wrong line is above.'),
+    r1: L("Bu qator to'g'ri: balandlik haqiqatan bir ikkidan.", 'Эта строка верна: высота действительно одна вторая.', 'This line is right: the height really is one half.'),
+    r2: L("Bu qator ham to'g'ri: o'ttiz gradus haqiqiy ildiz.", 'Эта строка тоже верна: тридцать градусов настоящий корень.', 'This line is right too: thirty degrees is a real root.'),
+    r4: L('Bu qator oldingisining xatosini takrorlaydi. Birinchi xato qator yuqorida.', 'Эта строка повторяет ошибку предыдущей. Первая неверная строка выше.', 'This line repeats the error of the previous one. The first wrong line is above.'),
   },
-  proof: L("Bir raqamida uch yuz o'ttiz chiqadi, kerakli esa yuz ellik.", 'При номере один получается триста тридцать, а нужен сто пятьдесят.', 'With the number one it gives three hundred thirty, and one hundred fifty is needed.'),
+  proof: L("Ikkinchi nuqta yo'qoldi.", 'Вторая точка потерялась.', 'The second point was lost.'),
   entry: {
-    prompt: L('Umumiy yozuvda qadam qanchaga teng?', 'Чему равен шаг в общей записи?', 'What is the step in the joint reading?'),
-    ok: L("Yuz sakson. Qo'shni raqamlar qo'shni nuqtalarni beradi, ular orasida esa yarim aylana.", 'Сто восемьдесят. Соседние номера дают соседние точки, а между ними половина оборота.', 'One hundred eighty. Neighbouring numbers give neighbouring points, half a turn apart.'),
+    prompt: L("To'liq javobda nechta seriya bor?", 'Сколько серий в полном ответе?', 'How many series are in the full answer?'),
+    ok: L("Ikkita. Kesishish nuqtasi ikkita, va har biri o'z seriyasini beradi.", 'Две. Точек пересечения две, и каждая даёт свою серию.', 'Two. There are two intersection points, and each gives its own series.'),
     hint: [
-      L("Nol va birni qo'ying va javoblarni solishtiring.", 'Подставь ноль и единицу и сравни ответы.', 'Substitute zero and one and compare the answers.'),
-      L("O'ttiz bilan yuz ellik orasida yarim aylana.", 'Между тридцатью и ста пятьюдесятью половина оборота.', 'Between thirty and one hundred fifty there is half a turn.'),
-      L('Yuz sakson.', 'Сто восемьдесят.', 'One hundred eighty.'),
+      L("To'g'ri chiziq beradigan nuqtalarni sanang.", 'Посчитай точки, которые даёт прямая.', 'Count the points the line gives.'),
+      L("Har nuqta o'z seriyasini beradi.", 'Каждая точка даёт свою серию.', 'Each point gives its own series.'),
+      L('Ikkita.', 'Две.', 'Two.'),
     ],
-    answer: '180',
+    answer: '2',
   },
   row: {
-    r1: 'arcsin 1/2 = 30°',
-    r2: ['x = (−1)ⁿ', '30° + ...'],
-    r3: ['x = (−1)ⁿ', '30° + 360°n'],
-    r4: 'n = 1   →   x = 330°',
+    r1: 'sin x = 1/2',
+    r2: 'x = 30°',
+    r3: 'x = 30° + 360°n',
+    r4: 'x = 30°,  390°,  750°',
   },
   answerId: 'r3',
 }
@@ -448,30 +448,30 @@ const S13 = {
   answer: 'lead',
   format: 'place+multi',
   eyebrow: L("KO'CHIRISH", 'ПЕРЕНОС', 'TRANSFER'),
-  title: L('Nuqtadan raqamlarni aytish', 'По точке назвать номера', 'From the point back to the numbers'),
+  title: L('Ildizdan seriyani aytish', 'По корню назвать серию', 'From a root back to its series'),
   tag: 'obratnoe',
   audio: [
-    A('mount', 'Endi teskari masala. Nuqta berilgan, unga olib keladigan raqamlar kerak.', 'Теперь обратная задача. Дана точка, а нужны номера, которые в неё ведут.', 'Now the inverse task. A point is given, and the numbers leading to it are needed.'),
-    A('work', "Nuqtani qo'ying, keyin unga olib keladigan hamma raqamni belgilaysiz.", 'Поставь точку, потом отметишь все номера, которые в неё ведут.', 'Place the point, then you will mark every number leading to it.'),
+    A('mount', 'Endi teskari masala. Nuqta berilgan, seriyasining hamma yozuvi kerak.', 'Теперь обратная задача. Дана точка, а нужны все записи её серии.', 'Now the inverse task. A point is given, and all the readings of its series are needed.'),
+    A('work', "Nuqtani qo'ying, keyin shu yerga olib keladigan hamma yozuvni belgilaysiz.", 'Поставь точку, потом отметишь все записи, которые ведут сюда же.', 'Place the point, then you will mark every reading that leads here.'),
   ],
   multi: {
-    prompt: L('Shu nuqtani beradigan hamma raqamni belgilang.', 'Отметь все номера, которые дают эту точку.', 'Mark every number that gives this point.'),
-    title: L('Qaysi raqamlar shu nuqtani beradi?', 'Какие номера дают эту точку?', 'Which numbers give this point?'),
-    ok: L("Beshtadan uchtasi. Bu nuqtaga aynan toq raqamlar olib boradi, boshqasi yo'q.", 'Три из пяти. В эту точку ведут ровно нечётные номера, и никакие другие.', 'Three out of five. Exactly the odd numbers lead to this point, and no others.'),
+    prompt: L('Shu nuqtaning seriyasidagi hamma yozuvni belgilang.', 'Отметь все записи из серии этой точки.', 'Mark every reading from the series of this point.'),
+    title: L('Qaysi yozuvlar aynan shu nuqtani beradi?', 'Какие записи дают эту же точку?', 'Which readings give this same point?'),
+    ok: L('Beshtadan uchtasi. Seriya bu bitta nuqta va uning atrofidagi hamma aylana.', 'Три из пяти. Серия это одна точка и все обороты вокруг неё.', 'Three out of five. A series is one point and all the turns around it.'),
     items: [
-      { id: 'd', label: 'n = 0', hint: L('Nol juft, u birinchi nuqtaga olib boradi.', 'Ноль чётный, он ведёт в первую точку.', 'Zero is even, it leads to the first point.') },
-      { id: 'e', label: 'n = 2', hint: L('Ikki ham juft, demak u ham birinchisiga.', 'Двойка тоже чётная, значит и она в первую.', 'Two is even as well, so it also leads to the first.') },
-      { id: 'a', label: 'n = 1', ok: true },
-      { id: 'b', label: 'n = 3', ok: true },
-      { id: 'c', label: 'n = −1', ok: true },
+      { id: 'd', label: '30°', hint: L("O'ttiz bu birinchi nuqta, bu emas.", 'Тридцать это первая точка, а не эта.', 'Thirty is the first point, not this one.') },
+      { id: 'e', label: '330°', hint: L("Bu yerda yarim aylana qo'shilgan, nuqta qarshi tomonda bo'ladi.", 'Здесь прибавлена половина оборота, точка окажется напротив.', 'Here half a turn was added, the point ends up opposite.') },
+      { id: 'a', label: '510°', ok: true },
+      { id: 'b', label: '−210°', ok: true },
+      { id: 'c', label: '870°', ok: true },
     ],
   },
   place: {
     prompt: L("Nuqtani 150 gradusga qo'ying.", 'Поставь точку на 150 градусов.', 'Place the point at 150 degrees.'),
-    ok: L('Bu ikkinchi joy. Unga toq raqamlar olib boradi.', 'Это вторая позиция. В неё ведут нечётные номера.', 'This is the second place. Odd numbers lead to it.'),
+    ok: L("Bu ikkinchi nuqta. Endi bu yerga yana qaysi burchaklar olib kelishini ko'ramiz.", 'Это вторая точка. Теперь посмотрим, какие ещё углы приводят сюда же.', 'This is the second point. Now let us see which other angles lead here.'),
     wrong: L("Yuz ellik gorizontal o'qdan yuqorida va vertikal o'qdan chapda.", 'Сто пятьдесят это выше горизонтальной оси и левее вертикальной.', 'One hundred fifty is above the horizontal axis and left of the vertical one.'),
     target: '150°',
-    step: 'n = 1   →   150°',
+    step: '150° + 360°n',
   },
 }
 
@@ -489,51 +489,51 @@ const S14 = {
     {
       id: 'q1',
       ask: true,
-      prompt: L("`(−1)ⁿ` ko'paytuvchi nima qiladi?", 'Что делает множитель `(−1)ⁿ`?', 'What does the factor `(−1)ⁿ` do?'),
-      done: '(−1)ⁿ = ± 1',
+      prompt: L('Bitta aylanada sin x = 1/2 ning nechta ildizi bor?', 'Сколько корней у sin x = 1/2 на одном обороте?', 'How many roots does sin x = 1/2 have on one turn?'),
+      done: '2',
       items: [
-        { id: 'a', label: L('ishorani almashtiradi', 'переключает знак', 'it switches the sign'), correct: true },
-        { id: 'b', label: L('burchakni orttiradi', 'увеличивает угол', 'it enlarges the angle'), hint: L("U birga yoki minus birga teng, o'lchamni o'zgartirmaydi.", 'Он равен единице или минус единице, размер не меняет.', 'It equals one or minus one and does not change the size.') },
-        { id: 'c', label: L('burchakni nollaydi', 'обнуляет угол', 'it zeroes the angle'), hint: L("Nol faqat nolga ko'paytirilganda chiqardi.", 'Ноль получился бы только при умножении на ноль.', 'Zero would come only from multiplying by zero.') },
-        { id: 'd', label: L('hech narsa qilmaydi', 'ничего не делает', 'it does nothing'), hint: L('Toq raqamda u ishorani almashtiradi, va nuqta boshqa joyga ketadi.', 'При нечётном номере он меняет знак, и точка уходит в другое место.', 'With an odd number it flips the sign, and the point goes elsewhere.') },
+        { id: 'a', label: L('ikkita', 'два', 'two'), correct: true },
+        { id: 'b', label: L('bitta', 'один', 'one'), hint: L("To'g'ri chiziq aylanani ikki marta kesadi, demak ildiz ikkita.", 'Прямая задевает окружность дважды, значит корней два.', 'The line meets the circle twice, so there are two roots.') },
+        { id: 'c', label: L('hech qaysi', 'ни одного', 'none'), hint: L("Hech qaysi faqat to'g'ri chiziq yonidan o'tganda bo'ladi.", 'Ни одного бывает, только если прямая прошла мимо.', 'None happens only if the line missed the circle.') },
+        { id: 'd', label: L("cheksiz ko'p", 'бесконечно много', 'infinitely many'), hint: L("Bitta aylanada ikkita, cheksiz ko'p esa butun sonlar o'qida.", 'На одном обороте их два, а бесконечно много на всей прямой.', 'On one turn there are two, infinitely many over all numbers.') },
       ],
     },
     {
       id: 'q2',
       ask: true,
-      prompt: L('Umumiy yozuvda qadam qanchaga teng?', 'Чему равен шаг в общей записи?', 'What is the step in the joint reading?'),
-      done: '180°n',
+      prompt: L('Javobdagi `n` harfi nimani bildiradi?', 'Что означает буква `n` в ответе?', 'What does the letter `n` mean in the answer?'),
+      done: '+ 360°n',
       items: [
-        { id: 'a', label: L('yuz sakson', 'сто восемьдесят', 'one hundred eighty'), correct: true },
-        { id: 'b', label: L('uch yuz oltmish', 'триста шестьдесят', 'three hundred sixty'), hint: L('Uch yuz oltmish har alohida seriyaning qadami, umumiy yozuvniki emas.', 'Триста шестьдесят это шаг каждой отдельной серии, а не общей записи.', 'Three hundred sixty is the step of each separate series, not of the joint reading.') },
-        { id: 'c', label: L("to'qson", 'девяносто', 'ninety'), hint: L("Qo'shni nuqtalar orasida yarim aylana, chorak emas.", 'Между соседними точками половина оборота, а не четверть.', 'Between neighbouring points there is half a turn, not a quarter.') },
-        { id: 'd', label: L("burchakka bog'liq", 'зависит от угла', 'it depends on the angle'), hint: L("Qadam burchak qanday bo'lishidan qat'i nazar doim bir xil.", 'Шаг всегда один и тот же, каким бы ни был угол.', 'The step is always the same whatever the angle.') },
+        { id: 'a', label: L('istalgan butun sondagi aylana', 'любое целое число оборотов', 'any whole number of turns'), correct: true },
+        { id: 'b', label: L('ildizning tartib raqami', 'номер корня по порядку', 'the position number of the root'), hint: L("Ularni tartib bilan raqamlab bo'lmaydi: ildiz cheksiz ko'p.", 'По порядку их не пронумеровать: корней бесконечно много.', 'They cannot be numbered in order: there are infinitely many roots.') },
+        { id: 'c', label: L('har qanday gradus soni', 'любое число градусов', 'any number of degrees'), hint: L("Faqat butun aylanalarni qo'shish mumkin, aks holda nuqta qimirlaydi.", 'Прибавлять можно только целые обороты, иначе точка сдвинется.', 'Only whole turns may be added, otherwise the point moves.') },
+        { id: 'd', label: L('doim birni', 'всегда единицу', 'always one'), hint: L('Bir bu holatlardan faqat bittasi.', 'Единица это только один из случаев.', 'One is just a single case.') },
       ],
     },
     {
       id: 'q3',
       ask: true,
-      prompt: L('Juft raqamlar qayerga olib boradi?', 'Куда ведут чётные номера?', 'Where do even numbers lead?'),
-      done: 'n = 0, 2, 4',
+      prompt: L('sin x = 2 ning nechta ildizi bor?', 'Сколько корней у sin x = 2?', 'How many roots does sin x = 2 have?'),
+      done: '0',
       items: [
-        { id: 'a', label: L('birinchi nuqtaga', 'в первую точку', 'to the first point'), correct: true, ok: L('Ha. Juft raqam burchakni plyus bilan qoldiradi.', 'Да. Чётный номер оставляет угол с плюсом.', 'Yes. An even number leaves the angle with a plus.') },
-        { id: 'b', label: L('ikkinchi nuqtaga', 'во вторую точку', 'to the second point'), hint: L("Ikkinchisiga toqlar olib boradi: u yerda ko'paytuvchi minus birga teng.", 'Во вторую ведут нечётные: там множитель равен минус единице.', 'Odd ones lead to the second: there the factor equals minus one.') },
+        { id: 'a', label: L('hech qaysi', 'ни одного', 'none'), correct: true, ok: L("Ha. To'g'ri chiziq aylanadan yuqoridan o'tdi.", 'Да. Прямая прошла выше окружности.', 'Yes. The line passed above the circle.') },
+        { id: 'b', label: L("cheksiz ko'p", 'бесконечно много', 'infinitely many'), hint: L("Umumiy nuqta bitta ham yo'q, demak ildiz ham yo'q.", 'Общей точки нет ни одной, значит и корня ни одного.', 'There is not a single common point, so not a single root.') },
       ],
     },
     {
       id: 'q4',
       ask: true,
-      prompt: L('sin x = 1 da nechta seriya bor?', 'Сколько серий у sin x = 1?', 'How many series does sin x = 1 have?'),
-      done: '1',
+      prompt: L("Sinusli tenglamaning to'liq javobida nechta seriya bor?", 'Сколько серий в полном ответе уравнения с синусом?', 'How many series are in the full answer of a sine equation?'),
+      done: '2',
       items: [
-        { id: 'a', label: L('bitta', 'одна', 'one'), correct: true },
-        { id: 'b', label: L('ikkita', 'две', 'two'), hint: L("To'g'ri chiziq chetiga tegdi, nuqta jami bitta.", 'Прямая коснулась края, точка всего одна.', 'The line touched the edge, there is only one point.') },
-        { id: 'c', label: L('hech qaysi', 'ни одной', 'none'), hint: L('Bitta nuqta bor, demak seriya ham bor.', 'Одна точка есть, значит и серия есть.', 'There is one point, so there is a series.') },
-        { id: 'd', label: L("cheksiz ko'p", 'бесконечно много', 'infinitely many'), hint: L("Ildiz cheksiz ko'p, seriya esa bitta.", 'Корней бесконечно много, а серия одна.', 'There are infinitely many roots, but one series.') },
+        { id: 'a', label: L('ikkita', 'две', 'two'), correct: true },
+        { id: 'b', label: L('bitta', 'одна', 'one'), hint: L('Bitta seriya ikki nuqtadan faqat bittasini qoplaydi.', 'Одна серия покрывает только одну из двух точек.', 'One series covers only one of the two points.') },
+        { id: 'c', label: L("to'rtta", 'четыре', 'four'), hint: L('Kesishish nuqtasi ikkita, demak seriya ham ikkita.', 'Точек пересечения две, значит и серий две.', 'There are two intersection points, so two series.') },
+        { id: 'd', label: L("cheksiz ko'p", 'бесконечно много', 'infinitely many'), hint: L("Ildiz cheksiz ko'p, ularni tavsiflaydigan seriya esa ikkita.", 'Корней бесконечно много, а серий, которые их описывают, две.', 'There are infinitely many roots, but two series describing them.') },
       ],
     },
   ],
-  angles: ['30°', '150°', '390°', '90°'],
+  angles: ['30°', '150°', '390°', '210°'],
 }
 
 const S15 = {
@@ -543,35 +543,35 @@ const S15 = {
   title: L('Nima qoldi', 'Что осталось', 'What you take away'),
   audio: [
     A('mount', 'Dars boshida ikki yozuvdan birini tanlagan edingiz. Mana natija.', 'В начале урока нужно было выбрать одну из двух записей. Вот результат.', 'At the start you chose one of the two readings. Here is the result.'),
-    A('next', 'Bu yangi formula emas, kechagi ikki seriya birga yozilgani.', 'Это не новая формула, а две вчерашние серии, записанные вместе.', "It is not a new formula but yesterday's two series written together."),
+    A('next', "Ildiz cheksiz ko'p, va ular ikkita seriya bilan yoziladi, har nuqtaga bittadan.", 'Корней бесконечно много, и записываются они двумя сериями, по одной на каждую точку.', 'There are infinitely many roots, and they are written as two series, one for each point.'),
   ],
   can: [
-    L('Hamma ildizni bitta qator bilan yozaman', 'Записываю все корни одной строкой', 'I write every root in one line'),
-    L("Ko'paytuvchi ishora bilan nima qilishini bilaman", 'Знаю, что делает множитель со знаком', 'I know what the factor does to the sign'),
-    L('Qadam yarim aylanaga tengligini eslayman', 'Помню, что шаг равен половине оборота', 'I remember the step is half a turn'),
-    L('Formulani orqaga yozaman', 'Разворачиваю формулу обратно', 'I unfold the formula back'),
+    L('Bitta emas, ikkala nuqtani topaman', 'Нахожу обе точки, а не одну', 'I find both points, not one'),
+    L('Seriyani harf bilan yozaman', 'Записываю серию с буквой', 'I write the series with a letter'),
+    L("Ildiz yo'qligini ko'raman", 'Вижу, когда корней нет', 'I see when there are no roots'),
+    L("Kosinusda to'g'ri chiziq vertikal ekanini eslayman", 'Помню, что у косинуса прямая вертикальная', 'I remember the cosine line is vertical'),
   ],
   levels: {
     full: L('Bu turdagi masalalar yopildi.', 'Этот тип задач закрыт.', 'This type of task is closed.'),
-    gap: L('Bitta joy takrorlashni talab qiladi: qadam qanchaga teng.', 'Одно место требует повтора: чему равен шаг.', 'One place needs review: what the step equals.'),
+    gap: L("Bitta joy takrorlashni talab qiladi: to'liq javobda nechta seriya.", 'Одно место требует повтора: сколько серий в полном ответе.', 'One place needs review: how many series are in the full answer.'),
     back: L('Qoidaga va 4-ekranga qayting.', 'Вернись к правилу и к экрану 4.', 'Go back to the rule and to screen 4.'),
   },
-  bridge: L("11-dars: kosinus uchun o'shanisi, va u yerda yig'ish qisqaroq chiqadi.", 'Урок 11: то же самое для косинуса, и там склейка выйдет короче.', 'Lesson 11: the same for the cosine, and there the folding comes out shorter.'),
-  lifehack: L("Formulani unutdingizmi, nol va birni qo'ying. Ikkala nuqta chiqsa, formula to'g'ri yozilgan.", 'Забыл формулу — подставь ноль и единицу. Если получились обе точки, формула записана верно.', 'Forgot the formula, substitute zero and one. If both points come out, the formula is written right.'),
-  sheetTitle: L('Umumiy yozuv · shpargalka', 'Общая запись · шпаргалка', 'The joint reading · cheat sheet'),
-  sheetSrc: L('10-sinf · 10-dars', '10 класс · урок 10', 'Grade 10 · lesson 10'),
+  bridge: L("10-dars: ikki seriya bitta yozuvga yig'iladi, va darajadagi minus o'sha yerdan chiqadi.", 'Урок 10: две серии сворачиваются в одну запись, и оттуда берётся знак минус в степени.', 'Lesson 10: the two series fold into one reading, and that is where the minus in the power comes from.'),
+  lifehack: L("Bitta ildizni topdingizmi, ikkinchisini qidiring. U doim bor, faqat to'g'ri chiziq chetiga tekkan holdan tashqari.", 'Нашёл один корень — ищи второй. Он всегда есть, кроме случая, когда прямая касается края.', 'Found one root, look for the second. It is always there, except when the line touches the edge.'),
+  sheetTitle: L('Sodda tenglamalar · shpargalka', 'Простейшие уравнения · шпаргалка', 'Simplest equations · cheat sheet'),
+  sheetSrc: L('10-sinf · 9-dars', '10 класс · урок 9', 'Grade 10 · lesson 9'),
   hook: {
-    a: '(−1)ⁿ',
-    b: '360°n',
+    a: 'x = 30°,  150°',
+    b: 'x = 30° + 360°n',
   },
-  proved: '(−1)ⁿ·30° + 180°n',
-  law: 'x = (−1)ⁿ arcsin a + πn',
+  proved: 'x = 30° + 360°n',
+  law: 'x = 30° + 360°n,   x = 150° + 360°n',
   sheet: [
-    '(−1)ⁿ arcsin a + πn',
-    'n = 0  →  30°',
-    'n = 1  →  150°',
-    'n = 2  →  390°',
-    '90° + 360°n',
+    'sin x = 1/2',
+    'x = 30° + 360°n',
+    'x = 150° + 360°n',
+    '−1 ≤ a ≤ 1',
+    'x = ± arccos a + 360°n',
   ],
 }
 
@@ -581,18 +581,21 @@ const S15 = {
 const num = (s) => parseFloat(String(s).replace(/−/g, '-').replace(',', '.'))
 const deg = (s) => parseInt(String(s).replace(/−/g, '-'), 10)
 
-// Соответствие «номер — угол». Обе стороны формулы, переводить нечего.
+// Соответствие «уравнение — серия». Обе стороны формулы, одинаковые на всех
+// языках; переводить нечего.
 const PAIR_IDS = ['p0', 'p1', 'p2', 'p3']
-const NUM_LEFT = S9.match.left.map((label, i) => ({ id: PAIR_IDS[i], label }))
-const NUM_RIGHT = ['a', 'b', 'c', 'd'].map((k, i) => {
+const EQ_LEFT = S9.match.left.map((label, i) => ({ id: PAIR_IDS[i], label }))
+const EQ_RIGHT = ['a', 'b', 'c', 'd'].map((k, i) => {
   const v = S9.match[k]
   return { id: PAIR_IDS[i], label: v && v.label ? v.label : v, hint: v && v.hint ? v.hint : undefined }
 })
-// Отметки при неверной паре: ДВА места, между которыми ходит точка. Их и
-// только их дают все номера.
-const NUM_MARKS = [
-  { deg: 30, tone: 'graph', label: '30°' },
-  { deg: 150, tone: 'ink3', label: '150°' },
+// Отметки при неверной паре: четыре особые точки окружности — именно они и
+// дают эти серии.
+const EQ_MARKS = [
+  { deg: 90, tone: 'graph', label: '90°' },
+  { deg: 0, tone: 'ink3', label: '0°' },
+  { deg: 180, tone: 'graph', label: '180°' },
+  { deg: 270, tone: 'ink3', label: '270°' },
 ]
 
 const ORD10 = ['s1', 's2', 's3', 's4'].map((id) => ({ id, label: S10.order[id] }))
@@ -608,9 +611,9 @@ const Screen1 = (p) => (
       <HookBody
         {...s}
         data={{ ...S1, rows: [{ id: 'a', ...S1.row.a }, { id: 'b', ...S1.row.b }] }}
-        // Точка ходит между двумя местами уже на хуке: чередование видно до
-        // того, как названо. Прогноз делается при полной картине.
-        fig={() => <Scene fig={<SeriesTicks step={2} deg={30} turns={3} alt />} max={156} h={156} />}
+        // Точка уходит на полный оборот уже на хуке: возврат виден до того,
+        // как назван. Прогноз делается при полной картине.
+        fig={() => <Scene fig={<SeriesTicks step={1} deg={30} turns={2} />} max={172} h={172} />}
       />
     )}
   </Screen>
@@ -661,23 +664,23 @@ const Screen3 = (p) => (
 const Screen4 = (p) => (
   <Screen data={S4} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S4.show.length && !solved ? (
-      /* Свидетель урока: точка ходит между ДВУМЯ местами. Список номеров
-         растёт, и чередование видно по нему, а не по формуле. */
+      /* Свидетель урока: из точки уходит серия. Записи растут одна за другой,
+         и буква `n` появляется из этого списка, а не из определения. */
       <Scene
-        fig={<SeriesTicks step={phase + 1} deg={30} turns={3} alt />}
+        fig={<SeriesTicks step={phase + 1} deg={30} turns={2} />}
         note={<NoteList items={S4.show[phase]} />}
       />
     ) : (
       <BuildPoint
         prompt={S4.work.prompt}
-        test={(c, s) => c < -0.5 && Math.abs(s - 0.5) < 0.09}
+        test={(c, s) => c > 0.5 && Math.abs(s - 0.5) < 0.09}
         hints={[
-          { when: (c) => c > 0, text: S4.work.hint[0] },
+          { when: (c) => c < 0, text: S4.work.hint[0] },
           { when: (c, s) => s < 0, text: S4.work.hint[1] },
           { when: () => true, text: S4.work.hint[2] },
         ]}
         okText={S4.work.ok}
-        snap={[150]}
+        snap={[30]}
         audio={audio}
         onSolved={solve}
       />
@@ -689,7 +692,7 @@ const Screen5 = (p) => (
   <Screen data={S5} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S5.show.length && !solved ? (
       <Scene
-        fig={<SeriesTicks step={phase + 2} deg={30} turns={3} alt />}
+        fig={<SeriesTicks step={2} deg={30} turns={2} />}
         note={<NoteList items={S5.show[phase]} />}
       />
     ) : (
@@ -713,16 +716,16 @@ const Screen5 = (p) => (
 const Screen6 = (p) => (
   <Screen data={S6} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S6.show.length && !solved ? (
-      /* Шаг виден по списку: соседние номера дают соседние точки, а между
-         ними половина оборота. */
+      /* Прямая останавливается ВЫШЕ окружности и остаётся видимой: «прошла
+         мимо» надо увидеть, а не услышать. */
       <Scene
-        fig={<SeriesTicks step={phase + 2} deg={30} turns={3} alt />}
+        fig={<LevelLine step={phase} a={2} />}
         note={<NoteList items={S6.show[phase]} />}
       />
     ) : (
       <Cols l={1} r={1}>
         <Col>
-          <Scene fig={<SeriesTicks step={3} deg={30} turns={3} alt />} max={300} />
+          <Scene fig={<LevelLine step={1} a={2} />} max={300} />
         </Col>
         <Col>
           <NumberEntry
@@ -743,16 +746,16 @@ const Screen6 = (p) => (
 const Screen7 = (p) => (
   <Screen data={S7} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S7.show.length && !solved ? (
-      /* Прямая КАСАЕТСЯ края: точка одна, и это видно по чертежу, а не по
-         словам «особый случай». */
+      /* У косинуса задан СДВИГ, поэтому прямая вертикальная: две точки теперь
+         одна над другой, а не рядом. */
       <Scene
-        fig={<LevelLine step={phase} a={1} arcs />}
+        fig={<LevelLine step={phase} a={0.5} axis="x" arcs />}
         note={<NoteList items={S7.show[phase]} />}
       />
     ) : (
       <Cols l={1} r={1}>
         <Col>
-          <Scene fig={<LevelLine step={1} a={1} arcs />} max={300} />
+          <Scene fig={<LevelLine step={1} a={0.5} axis="x" arcs />} max={300} />
         </Col>
         <Col>
           <NumberEntry
@@ -778,7 +781,7 @@ const Screen8 = (p) => (
         data={S8}
         // Серия строится в момент ответа: правило открывается рядом с тем
         // движением, которое его и породило.
-        fig={(solved) => <Scene fig={<SeriesTicks step={solved ? 3 : 0} deg={30} turns={3} alt />} max={330} />}
+        fig={(solved) => <Scene fig={<SeriesTicks step={solved ? 2 : 0} deg={30} turns={2} />} max={330} />}
       />
     )}
   </Screen>
@@ -789,9 +792,9 @@ const Screen9 = (p) => (
     {({ audio, solve }) => (
       <MatchPairs
         prompt={S9.match.prompt}
-        left={NUM_LEFT}
-        right={NUM_RIGHT}
-        marks={NUM_MARKS}
+        left={EQ_LEFT}
+        right={EQ_RIGHT}
+        marks={EQ_MARKS}
         okText={S9.match.ok}
         audio={audio}
         onSolved={solve}

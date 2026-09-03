@@ -38,34 +38,34 @@ import {
   SpinScene,
 } from './tools.jsx'
 
-import { Space } from './figures.jsx'
+import { Net, Space } from './figures.jsx'
 
 // Метка урока: `lesson_id` = grade10-<номер>, `lesson_name` = номер + тема
 // ИЗ ПЛАНА дословно.
 const LESSON_NO = 40
 const LESSON_ID = `grade10-${String(LESSON_NO).padStart(2, '0')}`
 const LESSON_TITLE = L(
-  `${LESSON_NO}-dars. Perpendikulyar chiziq va tekislik`,
-  `Урок ${LESSON_NO}. Перпендикулярность`,
-  `Lesson ${LESSON_NO}. Perpendicular line and plane`,
+  `${LESSON_NO}-dars. Sirt yuzasi`,
+  `Урок ${LESSON_NO}. Площадь поверхности`,
+  `Lesson ${LESSON_NO}. The surface area`,
 )
 
-const BLOCK = { label: 'B6', from: 38, to: 43, current: 40 }
+const BLOCK = { label: 'B7', from: 37, to: 42, current: 40 }
 
 const S1 = {
   role: 'hook',
   answer: 'pick4',
-  eyebrow: L('PERPENDIKULYAR', 'ПЕРПЕНДИКУЛЯР', 'THE PERPENDICULAR'),
-  title: L("Bitta chiziq yetadimi yoki yo'q", 'Одной прямой хватит или нет', 'Is one line enough or not'),
+  eyebrow: L('SIRT', 'ПОВЕРХНОСТЬ', 'THE SURFACE'),
+  title: L('Uch yoq yoki olti', 'Три грани или шесть', 'Three faces or six'),
   audio: [
-    A('mount', 'Tekislikda bitta chiziq, bizning chiziq unga perpendikulyar. Nuqtadagi burchak belgilangan.', 'В плоскости одна прямая, и наша прямая ей перпендикулярна. Угол в точке отмечен.', 'One line in the plane, and our line is perpendicular to it. The angle at the point is marked.'),
-    A('r1', "Birinchi yozuv shunday deydi: burchak to'g'ri, demak chiziq butun tekislikka ham perpendikulyar.", 'Первая запись говорит: угол прямой, значит прямая перпендикулярна и всей плоскости.', 'The first reading says: the angle is right, so the line is perpendicular to the whole plane.'),
-    A('r2', 'Ikkinchisi bunday xulosa uchun bitta chiziq kam deydi.', 'Вторая говорит, что одной прямой для такого вывода мало.', 'The second says one line is not enough for such a conclusion.'),
-    A('ask', "Sizningcha qaysi biri to'g'ri? Hozircha shunchaki taxmin qiling.", 'Как думаешь, какая верная? Пока просто предположи.', 'Which one do you think is right? Just make a guess for now.'),
+    A('mount', "To'g'ri burchakli parallelepiped. Uning sirt yuzasini topish kerak, ya'ni yoqlar yuzalarini qo'shish kerak.", 'Прямоугольный параллелепипед. Нужно найти площадь его поверхности, то есть сложить площади граней.', 'A rectangular box. We need the area of its surface, that is the sum of the areas of its faces.'),
+    A('r1', "Birinchi yozuv uch yoqni qo'shishni taklif qiladi. Chizmada aynan shuncha ko'rinadi.", 'Первая запись предлагает сложить три грани. Ровно столько видно на чертеже.', 'The first reading offers to add three faces. That is exactly how many show on the drawing.'),
+    A('r2', 'Ikkinchisi oltini taklif qiladi.', 'Вторая предлагает шесть.', 'The second offers six.'),
+    A('ask', "Sizningcha qaysi yozuv to'g'ri? Hozircha shunchaki taxmin qiling.", 'Как думаешь, какая запись верная? Пока просто предположи.', 'Which reading do you think is right? Just guess for now.'),
   ],
   probe: {
     question: L("Qaysi yozuv to'g'ri?", 'Какая запись верна?', 'Which reading is correct?'),
-    afterPredict: L('Javobingiz yozib olindi. Endi sahnani buramiz.', 'Твой ответ записан. Сейчас повернём сцену.', 'Your answer is saved. Now we will rotate the scene.'),
+    afterPredict: L('Javobingiz yozib olindi. Endi jismni yoyamiz.', 'Твой ответ записан. Сейчас развернём тело.', 'Your answer is recorded. Now we unfold the body.'),
     items: [
       { id: 'a', label: L('birinchi', 'первая', 'the first') },
       { id: 'b', label: L('ikkinchi', 'вторая', 'the second'), correct: true },
@@ -75,61 +75,61 @@ const S1 = {
   },
   row: {
     a: {
-      name: L('bittasi yetadi', 'хватит одной', 'one is enough'),
-      value: 'a ⊥ α',
+      name: L('uch', 'три', 'three'),
+      value: 'S = ab + bc + ac',
     },
     b: {
-      name: L('bittasi kam', 'одной мало', 'one is not enough'),
-      value: 'a ⊥ α  ?',
+      name: L('olti', 'шесть', 'six'),
+      value: 'S = 2(ab+bc+ac)',
     },
   },
-  expr: 'a ⊥ b,   b ⊂ α',
+  expr: 'S = ?',
 }
 
 const S2 = {
   role: 'support',
   answer: 'pick4',
   eyebrow: L('TAYANCH', 'ОПОРА', 'WHAT YOU KNOW'),
-  title: L('Alomatdan oldin uch savol', 'Три вопроса перед признаком', 'Three questions before the criterion'),
+  title: L('Blokdan uch savol', 'Три вопроса из блока', 'Three questions from the block'),
   tag: 'support',
   audio: [
-    A('mount', "Uch qisqa savol. Uchalasi ham bir daqiqadan keyin kerak bo'ladi.", 'Три коротких вопроса. Все три понадобятся через минуту.', 'Three short questions. All three will be needed in a minute.'),
+    A('mount', "Uchta savol. Jism yoyilganda uchalasi ham kerak bo'ladi.", 'Три вопроса. Все три понадобятся, когда тело развернётся.', 'Three questions. All three will be needed when the body unfolds.'),
   ],
   items: [
     {
       id: 'q1',
       ask: true,
-      prompt: L("Fazoda ikki to'g'ri chiziq qachon perpendikulyar?", 'Когда две прямые в пространстве перпендикулярны?', 'When are two lines in space perpendicular?'),
-      done: 'a ⊥ b   →   90°',
+      prompt: L("Parallelepipedning nechta yog'i bor?", 'Сколько граней у параллелепипеда?', 'How many faces does a parallelepiped have?'),
+      done: '4 + 2 = 6',
       items: [
-        { id: 'a', label: L("ular orasidagi burchak to'qson gradus bo'lganda", 'когда угол между ними девяносто градусов', 'when the angle between them is ninety degrees'), correct: true },
-        { id: 'b', label: L('ular kesishganda', 'когда они пересекаются', 'when they meet'), hint: L('Istalgan burchak ostida kesishish mumkin.', 'Пересекаться можно под любым углом.', 'Lines can meet at any angle.') },
-        { id: 'c', label: L('ular bitta tekislikda yotganda', 'когда они лежат в одной плоскости', 'when they lie in one plane'), hint: L('Bitta tekislikda parallellar ham yotadi.', 'В одной плоскости лежат и параллельные.', 'Parallel lines lie in one plane too.') },
-        { id: 'd', label: L("ular teng bo'lganda", 'когда они равны', 'when they are equal'), hint: L("To'g'ri chiziqlarning uzunligi umuman yo'q.", 'У прямых длины нет вовсе.', 'Lines have no length at all.') },
+        { id: 'a', label: L('oltita', 'шесть', 'six'), correct: true },
+        { id: 'b', label: L("to'rtta", 'четыре', 'four'), hint: L("To'rtta faqat yonlari.", 'Четыре это только боковые.', 'Four are only the lateral ones.') },
+        { id: 'c', label: L('uchta', 'три', 'three'), hint: L("Uchta bir qarashda nechta ko'rinishi.", 'Три это сколько видно с одного взгляда.', 'Three is how many you see at a glance.') },
+        { id: 'd', label: L('sakkizta', 'восемь', 'eight'), hint: L('Sakkiz uchlar soni.', 'Восемь это число вершин.', 'Eight is the number of vertices.') },
       ],
     },
     {
       id: 'q2',
       ask: true,
-      prompt: L("Perpendikulyar chiziqlar ayqash bo'lishi mumkinmi?", 'Могут ли перпендикулярные прямые быть скрещивающимися?', 'Can perpendicular lines be skew?'),
-      done: 'a ⊥ b,   a ∸ b',
+      prompt: L('Apofema nima?', 'Что такое апофема?', 'What is the apothem?'),
+      done: 'SM ⊥ AB',
       items: [
-        { id: 'a', label: L('ha, mumkin', 'да, могут', 'yes, they can'), correct: true },
-        { id: 'b', label: L("yo'q, ular doim kesishadi", 'нет, они всегда пересекаются', 'no, they always meet'), hint: L("Ayqashlar orasidagi burchak ko'chirish bilan aniqlanadi, va u to'g'ri ham bo'ladi.", 'Угол между скрещивающимися определён переносом, и он бывает прямым.', 'The angle between skew lines is defined by shifting, and it can be right.') },
-        { id: 'c', label: L("yo'q, ular doim parallel", 'нет, они всегда параллельны', 'no, they are always parallel'), hint: L("Parallellar nol burchak hosil qiladi, to'qson emas.", 'Параллельные образуют угол ноль, а не девяносто.', 'Parallel lines make an angle of zero, not ninety.') },
-        { id: 'd', label: L('faqat kubda', 'только в кубе', 'only in a cube'), hint: L('Kub bu misol, shart emas.', 'Куб это пример, а не условие.', 'A cube is an example, not a condition.') },
+        { id: 'a', label: L('uchdan yon yoqning balandligi', 'высота боковой грани из вершины', 'the height of a lateral face from the apex'), correct: true },
+        { id: 'b', label: L('yon qirra', 'боковое ребро', 'the lateral edge'), hint: L("Qirra asos uchiga keladi, apofema tomon o'rtasiga.", 'Ребро приходит в вершину основания, апофема в середину стороны.', 'The edge arrives at a base vertex, the apothem at the middle of a side.') },
+        { id: 'c', label: L('piramida balandligi', 'высота пирамиды', 'the height of the pyramid'), hint: L('Balandlik asos markaziga boradi.', 'Высота идёт в центр основания.', 'The height goes to the centre of the base.') },
+        { id: 'd', label: L('asos tomoni', 'сторона основания', 'a base side'), hint: L('Tomon asosda yotadi, apofema esa yon yoqda.', 'Сторона лежит в основании, а апофема в боковой грани.', 'The side lies in the base, the apothem in a lateral face.') },
       ],
     },
     {
       id: 'q3',
       ask: true,
-      prompt: L("Tekislikning bir nuqtasi orqali uning nechta chizig'i o'tadi?", 'Сколько прямых плоскости проходит через одну её точку?', 'How many lines of a plane pass through one of its points?'),
-      done: '∞',
+      prompt: L('Bitta qirrada nechta yoq tutashadi?', 'Сколько граней сходится в одном ребре?', 'How many faces meet at one edge?'),
+      done: '2',
       items: [
-        { id: 'a', label: L("cheksiz ko'p", 'бесконечно много', 'infinitely many'), correct: true },
-        { id: 'b', label: L('bitta', 'одна', 'one'), hint: L("Tekislikdagi nuqta orqali istalgan yo'nalishda chiziq o'tkazish mumkin.", 'Через точку в плоскости можно провести прямую в любом направлении.', 'Through a point in a plane a line can go in any direction.') },
-        { id: 'c', label: L('ikkita', 'две', 'two'), hint: L("Ish ikkita bilan cheklanmaydi, yo'nalish istalgancha.", 'Двумя дело не ограничивается, направлений сколько угодно.', 'It does not stop at two, there are any number of directions.') },
-        { id: 'd', label: L("bitta ham yo'q", 'ни одной', 'none'), hint: L("Hech bo'lmaganda bittasi doim bor.", 'Хотя бы одна есть всегда.', 'At least one always exists.') },
+        { id: 'a', label: L('ikkita', 'две', 'two'), correct: true },
+        { id: 'b', label: L('bitta', 'одна', 'one'), hint: L('Bitta yoq shunchaki tomon berardi.', 'Одна грань дала бы просто сторону.', 'One face would give just a side.') },
+        { id: 'c', label: L('uchta', 'три', 'three'), hint: L('Uchtasi uchda tutashadi.', 'Три сходятся в вершине.', 'Three meet at a vertex.') },
+        { id: 'd', label: L("jismga bog'liq", 'зависит от тела', 'it depends on the body'), hint: L("Bu har qanday ko'pyoqda to'g'ri.", 'Это верно у любого многогранника.', 'This is true for any polyhedron.') },
       ],
     },
   ],
@@ -137,221 +137,205 @@ const S2 = {
 
 const S3 = {
   role: 'explain1',
-  answer: 'lead',
+  answer: 'number',
   eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L("Buring va chiziq tik turganini ko'ring", 'Поверни и посмотри, стоит ли прямая', 'Rotate and see whether the line stands up'),
-  tag: 'odnoy-pryamoy-hvatit',
+  title: L("Jism qog'ozga yoyiladi", 'Тело разворачивается на бумагу', 'The body unfolds onto paper'),
+  tag: 'ploshchad-po-kartinke',
   show: [
     [
-      L('tekislikda bitta chiziq olingan', 'в плоскости взята одна прямая', 'one line is taken in the plane'),
-      L('bizning chiziq unga perpendikulyar', 'наша прямая ей перпендикулярна', 'our line is perpendicular to it'),
-      L("burchak belgilangan, va u to'g'ri", 'угол отмечен, и он прямой', 'the angle is marked and it is right'),
+      L('avval asoslar yotdi', 'сначала легли основания', 'first the bases lay down'),
+      L("bu ikki tanish ko'pburchak", 'это два знакомых многоугольника', 'these are two familiar polygons'),
     ],
     [
-      L('sahnani buring', 'поверни сцену', 'rotate the scene'),
-      L("chiziq og'ib qoldi", 'прямая наклонилась', 'the line turned out slanted'),
-      L('u tekislikka nisbatan qiyshiq turadi', 'к плоскости она стоит косо', 'it stands askew to the plane'),
+      L('keyin yon sirt yotdi', 'потом легла боковая поверхность', 'then the lateral surface lay down'),
+      L("butun sirt qog'ozda", 'вся поверхность на бумаге', 'the whole surface is on paper'),
     ],
   ],
-  motion: ['spin'],
+  motion: ['move'],
   audio: [
-    A('mount', 'Tekislikda bitta chiziq, bizning chiziq unga perpendikulyar. Boshqa hech nima tekshirilmagan.', 'В плоскости одна прямая, и наша прямая ей перпендикулярна. Больше ничего не проверено.', 'One line in the plane, and our line is perpendicular to it. Nothing else has been checked.'),
-    A('spin', "Birinchi rakursda hammasi ishonarli ko'rinadi: burchak to'g'ri, chiziq tekislikda tik turgandek. Sahnani buring va yondan qarang. Chiziq og'gan: u tikka ko'tarilmay, chetga ketadi. Shu bilan birga o'sha yagona chiziq bilan burchak to'g'ri qoldi, uni hech kim buzmadi. Demak tekislikning bitta chizig'iga perpendikulyarlik tekislikning o'ziga perpendikulyarlik haqida hali hech nima demaydi. Buni nimadan bilganimizga e'tibor bering. Mulohazadan yoki o'lchashdan emas, burilishdan: birinchi rakursda og'ishni ko'rish mumkin emas edi.", 'На первом ракурсе всё выглядит убедительно: угол прямой, прямая как будто стоит на плоскости. Поверни сцену и посмотри сбоку. Прямая наклонена: она уходит в сторону, а не поднимается вертикально. При этом угол с той единственной прямой остался прямым, никто его не портил. Значит перпендикулярность одной прямой плоскости ещё ничего не говорит о перпендикулярности самой плоскости. Заметь, из чего мы это узнали. Не из рассуждения и не из измерения, а из поворота: на первом ракурсе увидеть наклон было нельзя.', 'From the first view everything looks convincing: the angle is right, the line seems to stand on the plane. Rotate the scene and look from the side. The line is slanted: it goes off sideways instead of rising vertically. Meanwhile the angle with that single line stayed right, nobody spoiled it. So being perpendicular to one line of a plane says nothing yet about being perpendicular to the plane itself. Notice how we learned this. Not from reasoning and not from measuring, but from rotating: on the first view the slant could not be seen.'),
-    A('work', 'Sahnani buring va javob bering: chiziq tekislikka qanday turadi?', 'Поверни сцену и ответь: как прямая стоит к плоскости?', 'Rotate the scene and answer: how does the line stand to the plane?'),
+    A('mount', "Prizmani olamiz va uning sirtini qirralar bo'ylab kesib, keyin qog'ozda yozamiz.", 'Возьмём призму и разрежем её поверхность по рёбрам, а потом разложим на бумаге.', 'Take a prism, cut its surface along the edges and lay it out on paper.'),
+    A('move', "Yassi shakl chiqdi, va u yoyilma deb ataladi. Ellik to'qqizinchi betda shunday. Nima o'zgarganiga qarang. Jismda sirt yuzasi tushunarsiz kattalik edi, yoyilmada esa u shunchaki yassi bo'laklar yuzalarining yig'indisi, va har bir bo'lakni biz yettinchi sinfdan hisoblay olamiz. Yoyilishda birorta yoq yo'qolmadi va paydo bo'lmadi, shuning uchun yuzalar teng. Aynan shuning uchun yoyilma chiroylik uchun rasm emas, hisoblash usuli.", 'Получилась плоская фигура, и она называется развёрткой. Так на странице пятьдесят девять. Смотри, что изменилось. У тела площадь поверхности была непонятной величиной, а у развёртки это просто сумма площадей плоских кусков, и каждый кусок мы умеем считать с седьмого класса. Ни одна грань при развёртке не потерялась и не появилась, поэтому площади равны. Именно поэтому развёртка это не картинка для красоты, а способ считать.', 'We got a flat figure, and it is called a net. So it is on page fifty nine. See what changed. For the body the surface area was an unclear quantity, while for the net it is simply the sum of the areas of flat pieces, and each piece we can compute since grade seven. No face is lost or added in the unfolding, so the areas are equal. That is exactly why a net is not a decorative picture but a way to count.'),
+    A('work', "O'zingiz hisoblang. To'rtburchakli prizma yoyilmasida nechta yassi bo'lak bor?", 'Посчитай сам. Сколько плоских кусков в развёртке четырёхугольной призмы?', 'Work it out yourself. How many flat pieces are in the net of a quadrilateral prism?'),
   ],
-  pick: {
-    prompt: L('Chiziq tekislikka qanday turadi?', 'Как прямая стоит к плоскости?', 'How does the line stand to the plane?'),
-    a: {
-      label: L('perpendikulyar', 'перпендикулярно', 'perpendicular to it'),
-      hint: L('Yana buring: u yuqoriga emas, chetga ketadi.', 'Поверни ещё раз: она уходит в сторону, а не вверх.', 'Rotate again: it goes sideways, not upwards.'),
-    },
-    b: L('qiyshiq', 'наклонно', 'at a slant'),
-    c: {
-      label: L('tekislikda yotadi', 'лежит в плоскости', 'it lies in the plane'),
-      hint: L("U holda tekislik chizig'i bilan burchak to'g'ri deb belgilanmasdi.", 'Тогда угол с прямой плоскости не был бы отмечен как прямой.', 'Then the angle with the line of the plane would not be marked as right.'),
-    },
-    ok: L("Qiyshiq. Bitta chiziq bilan burchak to'g'ri, tekislikka esa chiziq qiyshiq turadi.", 'Наклонно. Угол с одной прямой прямой, а к плоскости прямая стоит косо.', 'At a slant. The angle with one line is right, yet the line stands askew to the plane.'),
+  work: {
+    prompt: L("Yoyilmada nechta bo'lak?", 'Сколько кусков в развёртке?', 'How many pieces are in the net?'),
+    ok: L("Oltita. To'rt yon va ikki asos, yoqlar qanchaligicha.", 'Шесть. Четыре боковых и два основания, столько же, сколько граней.', 'Six. Four lateral and two bases, as many as there are faces.'),
+    hint: [
+      L("Jismdagi yoqlarni emas, qog'ozdagi bo'laklarni sanang.", 'Посчитай куски на бумаге, а не грани на теле.', 'Count the pieces on the paper, not the faces on the body.'),
+      L("Har yoq roppa-rosa bitta bo'lak beradi.", 'Каждая грань даёт ровно один кусок.', 'Each face gives exactly one piece.'),
+      L("To'rt qo'shuv ikki.", 'Четыре плюс два.', 'Four plus two.'),
+    ],
+    answer: '6',
   },
-  mark: 'a ⊥ b,   b ⊂ α',
+  expr: '4 + 2 = 6',
 }
 
 const S4 = {
   role: 'explain2',
-  answer: 'lead',
+  answer: 'number',
   eyebrow: L('FARQLASH', 'РАЗГРАНИЧЕНИЕ', 'TELLING THEM APART'),
-  title: L("Ikkinchi chiziq hammasini o'zgartiradi", 'Вторая прямая меняет всё', 'The second line changes everything'),
-  tag: 'odnoy-pryamoy-hvatit',
+  title: L("Uch ko'rinadi, oltini qo'shish kerak", 'Видно три, а сложить надо шесть', 'Three show, six must be added'),
+  tag: 'ploshchad-po-kartinke',
   show: [
     [
-      L('tekislikda ikkinchi chiziq olingan', 'в плоскости взята вторая прямая', 'a second line is taken in the plane'),
-      L("u birinchisini kesib o'tadi", 'она пересекает первую', 'it crosses the first one'),
-      L('bizning chiziq unga ham perpendikulyar', 'наша прямая перпендикулярна и ей', 'our line is perpendicular to it as well'),
+      L("chizmada uch yoq ko'rinadi", 'на чертеже видно три грани', 'three faces show on the drawing'),
+      L('qolgan uchtasi boshqa tomonda', 'остальные три с другой стороны', 'the other three are on the far side'),
     ],
     [
-      L('sahnani buring', 'поверни сцену', 'rotate the scene'),
-      L("og'ish endi yo'q", 'наклона больше нет', 'there is no slant any more'),
-      L('hech qanday burilishda', 'ни при каком повороте', 'at no rotation at all'),
+      L('yoyilmada oltitasi birdan', 'в развёртке все шесть сразу', 'in the net all six at once'),
+      L('va ular juft-juft teng', 'и они попарно равны', 'and they are equal in pairs'),
     ],
   ],
-  motion: ['two'],
+  motion: ['move'],
   audio: [
-    A('mount', "Tekislikka birinchisini kesib o'tadigan ikkinchi chiziqni qo'shamiz.", 'Добавим в плоскость вторую прямую, которая пересекает первую.', 'Let us add a second line to the plane, one that crosses the first.'),
-    A('two', "Endi bizning chiziq tekislikning ikki chizig'iga perpendikulyar, va bu ikkitasi kesishadi. Sahnani har tomondan buring. Hech qanday rakursda og'ish yo'q: chiziq ustundek tikka turadi. Bundan tashqari, endi u faqat shu ikkitasiga emas, tekislikning istalgan chizig'iga perpendikulyar. Alomatda kesishuvchi so'zi shuning uchun turadi. Ikki kesishuvchi chiziq tekislikda ikki xil yo'nalishni beradi, va bu chiziqni mahkamlash uchun yetadi. Bitta chiziq bitta yo'nalishni beradi, uning atrofida esa og'ishga joy bor.", 'Теперь наша прямая перпендикулярна двум прямым плоскости, и эти две пересекаются. Поверни сцену со всех сторон. Наклона нет ни при каком ракурсе: прямая стоит вертикально, как столб. Больше того, теперь она перпендикулярна любой прямой плоскости, а не только этим двум. Вот почему в признаке стоит слово пересекающиеся. Две пересекающиеся прямые задают в плоскости два разных направления, а этого хватает, чтобы закрепить прямую. Одна прямая задаёт одно направление, и вокруг него ещё есть куда наклониться.', 'Now our line is perpendicular to two lines of the plane, and those two cross each other. Rotate the scene from every side. There is no slant at any view: the line stands vertical like a post. What is more, it is now perpendicular to any line of the plane, not only to these two. That is why the criterion carries the word crossing. Two crossing lines give two different directions in the plane, and that is enough to fix the line. One line gives one direction, and around it there is still room to lean.'),
-    A('work', 'Sahnani buring va javob bering: chiziq endi qanday turadi?', 'Поверни сцену и ответь: как прямая стоит теперь?', 'Rotate the scene and answer: how does the line stand now?'),
+    A('mount', "O'lchamlar ikki, uch va to'rt. Sirt yuzasini hisoblaymiz.", 'Измерения два, три и четыре. Посчитаем площадь поверхности.', 'The dimensions are two, three and four. Let us find the surface area.'),
+    A('move', "Chizmada uch yoq ko'rinadi, va aynan ularni qo'shgi keladi. Lekin parallelepipedning yoqlari juft-juft teng, va har bir ko'rinadigan yoqning o'sha yuzali ko'rinmas egizagi bor. Yoyilmada bu darhol ko'rinadi. Demak uch xil ko'paytmaning yig'indisi ikkiga ko'paytiriladi. Ikki karra uch olti, uch karra to'rt o'n ikki, ikki karra to'rt sakkiz. Olti qo'shuv o'n ikki qo'shuv sakkiz bu yigirma olti, butun sirt esa ellik ikki. E'tibor bering, ko'rinadigan yoqlar soni rakursga bog'liq, sirt yuzasi esa yo'q.", 'На чертеже видно три грани, и складывать хочется именно их. Но грани у параллелепипеда попарно равны, и каждая видимая грань имеет невидимого близнеца с той же площадью. В развёртке это сразу видно. Значит сумма трёх разных произведений умножается на два. Два умножить на три это шесть, три на четыре двенадцать, два на четыре восемь. Шесть плюс двенадцать плюс восемь это двадцать шесть, а вся поверхность пятьдесят два. Обрати внимание, что число видимых граней зависит от ракурса, а площадь поверхности нет.', 'Three faces show on the drawing and those are the ones you want to add. But the faces of a box are equal in pairs, and every visible face has an invisible twin of the same area. In the net that is immediately visible. So the sum of the three different products is multiplied by two. Two times three is six, three times four is twelve, two times four is eight. Six plus twelve plus eight is twenty six, and the whole surface is fifty two. Note that the number of visible faces depends on the view while the surface area does not.'),
+    A('work', "O'zingiz hisoblang. O'lchamlar ikki, uch va to'rt. Sirt yuzasi qancha?", 'Посчитай сам. Измерения два, три и четыре. Какова площадь поверхности?', 'Work it out yourself. The dimensions are two, three and four. What is the surface area?'),
   ],
-  pick: {
-    prompt: L('Chiziq endi tekislikka qanday turadi?', 'Как прямая стоит к плоскости теперь?', 'How does the line stand to the plane now?'),
-    a: {
-      label: L('hali ham qiyshiq', 'всё ещё наклонно', 'still at a slant'),
-      hint: L("Yana buring: hech bir rakursda og'ish yo'q.", 'Поверни ещё: наклона нет ни на одном ракурсе.', 'Rotate again: there is no slant at any view.'),
-    },
-    b: L('tekislikka perpendikulyar', 'перпендикулярно плоскости', 'perpendicular to the plane'),
-    c: {
-      label: L("bu rakursga bog'liq", 'это зависит от ракурса', 'it depends on the view'),
-      hint: L("Rakursga rasm bog'liq, shaklning o'zi emas.", 'От ракурса зависит картинка, а не сама фигура.', 'The picture depends on the view, the figure itself does not.'),
-    },
-    ok: L('Perpendikulyar. Ikki kesishuvchi chiziq yetdi, va bu alomat.', 'Перпендикулярно. Двух пересекающихся прямых хватило, и это признак.', 'Perpendicular. Two crossing lines were enough, and that is the criterion.'),
+  work: {
+    prompt: L('Sirt yuzasini toping', 'Найди площадь поверхности', 'Find the surface area'),
+    ok: L('Ellik ikki. Yigirma olti karra ikki.', 'Пятьдесят два. Двадцать шесть умножить на два.', 'Fifty two. Twenty six times two.'),
+    hint: [
+      L("O'lchamlarning uch xil ko'paytmasini qo'shing.", 'Сложи три разных произведения измерений.', 'Add the three different products of the dimensions.'),
+      L("Olti qo'shuv o'n ikki qo'shuv sakkiz.", 'Шесть плюс двенадцать плюс восемь.', 'Six plus twelve plus eight.'),
+      L('Yigirma olti karra ikki.', 'Двадцать шесть умножить на два.', 'Twenty six times two.'),
+    ],
+    answer: '52',
   },
-  mark: 'a ⊥ b,   a ⊥ c,   b ∩ c = O   →   a ⊥ α',
+  expr: 'S = 2(ab+bc+ac)',
 }
 
 const S5 = {
   role: 'explain3',
   answer: 'number',
   eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L('Alomat aynan nimani talab qiladi', 'Что именно требует признак', 'What exactly the criterion demands'),
-  tag: 'svoystvo-vmesto-priznaka',
+  title: L('Yon sirt bu tasma', 'Боковая поверхность это лента', 'The lateral surface is a strip'),
+  tag: 'ploshchad-po-kartinke',
   show: [
     [
-      L('alomat ikki chiziqni talab qiladi', 'признак требует двух прямых', 'the criterion demands two lines'),
-      L('ikkalasi tekislikda yotadi', 'обе лежат в плоскости', 'both lie in the plane'),
-      L('va ular kesishadi', 'и они пересекаются', 'and they cross'),
+      L('yon yoqlar bitta tasmaga yotdi', 'боковые грани легли в одну ленту', 'the lateral faces lay down in one strip'),
+      L('tasmaning balandligi prizma balandligi', 'высота ленты это высота призмы', 'the height of the strip is the height of the prism'),
     ],
     [
-      L('u holda chiziq tekislikka perpendikulyar', 'тогда прямая перпендикулярна плоскости', 'then the line is perpendicular to the plane'),
-      L('va undagi istalgan chiziqqa', 'и любой прямой в ней', 'and to any line in it'),
-      L('bu allaqachon xossa, alomat emas', 'это уже свойство, а не признак', 'that is already a property, not the criterion'),
+      L('tasmaning uzunligi asos perimetri', 'длина ленты это периметр основания', 'the length of the strip is the base perimeter'),
+      L("tasma yuzasi ko'paytma", 'площадь ленты это произведение', 'the area of the strip is the product'),
     ],
   ],
-  motion: ['count'],
+  motion: ['move'],
   audio: [
-    A('mount', "Alomat shartlarini yig'amiz va sanaymiz.", 'Соберём условия признака и посчитаем их.', 'Let us gather the conditions of the criterion and count them.'),
-    A('count', "Alomat shunday: agar chiziq tekislikda yotgan ikki kesishuvchi chiziqqa perpendikulyar bo'lsa, u tekislikka ham perpendikulyar. Talab bu yerda ikkita: chiziq ikkita bo'lishi kerak, va ular kesishishi kerak. Endi eng ko'p xato qilinadigan muhim farq. Alomat va xossa qarama-qarshi tomonga gapiradi. Alomat ikki chiziqdan tekislikka boradi: ikkitasini tekshirdim, butun tekislik haqida xulosa oldim. Xossa teskariga boradi: agar chiziq tekislikka allaqachon perpendikulyar bo'lsa, u undagi istalgan chiziqqa perpendikulyar, va hech nimani tekshirish kerak emas. Alomat o'rniga xossani qo'yish isbotlanishi kerak narsani tayyor deb olish degani.", 'Признак звучит так: если прямая перпендикулярна двум пересекающимся прямым, лежащим в плоскости, то она перпендикулярна и плоскости. Требований здесь два: прямых должно быть две, и они должны пересекаться. Теперь важное различение, на котором ошибаются чаще всего. Признак и свойство говорят в разные стороны. Признак идёт от двух прямых к плоскости: проверил две, получил вывод про всю плоскость. Свойство идёт обратно: если прямая уже перпендикулярна плоскости, то она перпендикулярна любой прямой в ней, и проверять ничего не надо. Подставить свойство вместо признака значит взять то, что надо доказать, за готовое.', 'The criterion says: if a line is perpendicular to two crossing lines lying in a plane, then it is perpendicular to the plane as well. There are two requirements here: there must be two lines, and they must cross. Now the important distinction where mistakes happen most. A criterion and a property speak in opposite directions. The criterion goes from two lines to the plane: I checked two, I got a conclusion about the whole plane. The property goes back: if a line is already perpendicular to the plane, then it is perpendicular to any line in it, and nothing needs checking. Putting the property in place of the criterion means taking what has to be proved as given.'),
-    A('work', "O'zingiz hisoblang. Alomat tekislikning nechta chizig'ini talab qiladi?", 'Посчитай сам. Сколько прямых плоскости требует признак?', 'Work it out yourself. How many lines of the plane does the criterion require?'),
+    A('mount', "To'g'ri prizmaning faqat yon sirtini, asoslarsiz yoyamiz.", 'Развернём только боковую поверхность прямой призмы, без оснований.', 'Let us unfold only the lateral surface of a right prism, without the bases.'),
+    A('move', "To'g'ri prizmaning yon yoqlari to'g'ri to'rtburchak, va yoyilmada ular bitta uzun tasmaga qo'shiladi. Barcha to'g'ri to'rtburchaklarning balandligi bir xil, bu prizma balandligi. Asoslari esa ketma-ket boradi va birgalikda asos perimetrini beradi. Demak tasma yuzasi asos perimetrini balandlikka ko'paytirgani, va yangi formulani yodlash kerak emas, bu to'g'ri to'rtburchak yuzasi. Tomonlari uch, to'rt, besh va balandligi o'n bo'lgan uchburchakli prizmada tekshiramiz. Perimetr o'n ikki, yon sirt yuzasi bir yuz yigirma.", 'Боковые грани прямой призмы это прямоугольники, и в развёртке они складываются в одну длинную ленту. Высота у всех прямоугольников одна, это высота призмы. А их основания идут одно за другим, и вместе дают периметр основания. Значит площадь ленты это периметр основания, умноженный на высоту, и никакой новой формулы запоминать не надо, это площадь прямоугольника. Проверим на треугольной призме со сторонами три, четыре, пять и высотой десять. Периметр двенадцать, площадь боковой поверхности сто двадцать.', 'The lateral faces of a right prism are rectangles, and in the net they add up into one long strip. All the rectangles have the same height, the height of the prism. Their bases go one after another and together give the perimeter of the base. So the area of the strip is the base perimeter times the height, and there is no new formula to memorise, it is the area of a rectangle. Let us check on a triangular prism with sides three, four, five and height ten. The perimeter is twelve, the lateral area is one hundred twenty.'),
+    A('work', "O'zingiz hisoblang. Asos perimetri o'n ikki, balandlik o'n. Yon sirt qancha?", 'Посчитай сам. Периметр основания двенадцать, высота десять. Какова боковая поверхность?', 'Work it out yourself. The base perimeter is twelve, the height is ten. What is the lateral area?'),
   ],
   work: {
-    prompt: L('Alomat nechta chiziqni talab qiladi?', 'Сколько прямых требует признак?', 'How many lines does the criterion require?'),
-    ok: L('Ikkita. Va albatta kesishuvchi, aks holda alomat ishlamaydi.', 'Две. И обязательно пересекающиеся, иначе признак не работает.', 'Two. And necessarily crossing, otherwise the criterion does not work.'),
+    prompt: L('Yon sirtni toping', 'Найди боковую поверхность', 'Find the lateral area'),
+    ok: L('Bir yuz yigirma. Perimetr karra balandlik.', 'Сто двадцать. Периметр на высоту.', 'One hundred twenty. The perimeter times the height.'),
     hint: [
-      L("Alomatni qayta o'qing va undagi chiziqlarni sanang.", 'Перечитай признак и посчитай прямые в нём.', 'Read the criterion again and count the lines in it.'),
-      L("Bittasi yetmadi, buni burilish bilan ko'rdingiz.", 'Одной не хватило, ты видел это поворотом.', 'One was not enough, you saw that by rotating.'),
-      L('Ikki.', 'Две.', 'Two.'),
+      L("Tasma to'g'ri to'rtburchak.", 'Лента это прямоугольник.', 'The strip is a rectangle.'),
+      L('Uning tomonlari perimetr va balandlik.', 'Его стороны это периметр и высота.', 'Its sides are the perimeter and the height.'),
+      L("O'n ikki karra o'n.", 'Двенадцать умножить на десять.', 'Twelve times ten.'),
     ],
-    expr: 'a ⊥ b,   a ⊥ c,   b ∩ c = O',
-    answer: '2',
+    answer: '120',
   },
+  expr: 'S = P·h',
 }
 
 const S6 = {
   role: 'explain4',
   answer: 'number',
   eyebrow: L("O'ZINGIZ", 'САМ', 'ON YOUR OWN'),
-  title: L('Ikki chiziq, lekin parallel', 'Две прямые, но параллельные', 'Two lines, but parallel'),
-  tag: 'odnoy-pryamoy-hvatit',
+  title: L('Piramida yoyilmasi uchburchaklar', 'Развёртка пирамиды это треугольники', 'The net of a pyramid is triangles'),
+  tag: 'apofema-ne-rebro',
   show: [
     [
-      L('tekislikda ikki chiziq', 'в плоскости две прямые', 'two lines in the plane'),
-      L('bizning chiziq ikkalasiga perpendikulyar', 'наша прямая перпендикулярна обеим', 'our line is perpendicular to both'),
-      L('lekin bu ikkitasi parallel', 'но эти две параллельны', 'but these two are parallel'),
+      L('markazda asos', 'в центре основание', 'the base in the centre'),
+      L("atrofida to'rt uchburchak", 'вокруг четыре треугольника', 'four triangles around it'),
     ],
     [
-      L('sahnani buring', 'поверни сцену', 'rotate the scene'),
-      L("og'ish qoldi", 'наклон остался', 'the slant is still there'),
-      L("ikki chiziq kam bo'lib chiqdi", 'двух прямых оказалось мало', 'two lines turned out not to be enough'),
+      L('har birining balandligi apofema', 'высота каждого это апофема', 'the height of each is the apothem'),
+      L('har birining asosi tomon', 'основание каждого это сторона', 'the base of each is a side'),
     ],
   ],
-  motion: ['para'],
+  motion: ['move'],
   audio: [
-    A('mount', 'Tekislikda ikki chiziq olib, yana tekshiramiz. Faqat endi ular parallel.', 'Возьмём в плоскости две прямые и снова проверим. Только теперь они параллельны.', 'Let us take two lines in the plane and check again. Only now they are parallel.'),
-    A('para', "Bizning chiziq ikkalasiga perpendikulyar, chiziq ikkita, xulosa esa yo'q: sahnani buring va o'sha og'ishni ko'rasiz. Gap yo'nalishlarda. Ikki parallel chiziq tekislikda bir xil yo'nalishni beradi, ikkinchisini qo'shmaydi. Shuning uchun chiziq shu yo'nalish bo'ylab og'ishi mumkin, ikkalasiga perpendikulyar qolgan holda. Alomat shunchaki ikki chiziqni emas, ikki XIL yo'nalishni talab qiladi, va shuning uchun unda kesishuvchi so'zi turadi. Ikki parallel chiziq nechta yo'nalish berishini o'zingiz sanang.", 'Наша прямая перпендикулярна обеим, прямых две, а вывода нет: поверни сцену и увидишь тот же наклон. Дело в направлениях. Две параллельные прямые задают в плоскости одно и то же направление, второго они не добавляют. Поэтому прямая может наклоняться вдоль этого направления, оставаясь перпендикулярной обеим. Признак требует не просто двух прямых, а двух РАЗНЫХ направлений, и потому в нём стоит слово пересекающиеся. Посчитай сам, сколько направлений задают две параллельные прямые.', 'Our line is perpendicular to both, there are two lines, and yet there is no conclusion: rotate the scene and you will see the same slant. It is about directions. Two parallel lines give one and the same direction in the plane, they add no second one. So the line can lean along that direction while staying perpendicular to both. The criterion requires not simply two lines but two DIFFERENT directions, and that is why it carries the word crossing. Count for yourself how many directions two parallel lines give.'),
-    A('work', "O'zingiz hisoblang. Ikki parallel chiziq nechta har xil yo'nalish beradi?", 'Посчитай сам. Сколько разных направлений задают две параллельные прямые?', 'Work it out yourself. How many different directions do two parallel lines give?'),
+    A('mount', 'Muntazam piramidani yoyamiz. Asos tomoni olti, apofema besh.', 'Развернём правильную пирамиду. Сторона основания шесть, апофема пять.', 'Let us unfold a regular pyramid. The base side is six, the apothem is five.'),
+    A('move', "Piramida yoyilmasida asos markazda yotadi, yon yoqlar esa uning atrofida uchburchak bo'lib yoziladi. Har uchburchakning asosi piramida asosining tomoni, balandligi esa apofema. Apofema shuning uchun muhim, va uni yon qirra bilan almashtirib bo'lmasligi ham shundan: qirra uchburchakning balandligi emas. Bitta uchburchak yuzasi olti karra beshning yarmi, ya'ni o'n besh. Uchburchaklar to'rtta, demak yon sirt oltmish.", 'В развёртке пирамиды основание лежит в центре, а боковые грани раскладываются вокруг него треугольниками. У каждого треугольника основание это сторона основания пирамиды, а высота это апофема. Вот почему апофема так важна, и вот почему её нельзя подменять боковым ребром: ребро высотой треугольника не является. Площадь одного треугольника это половина произведения шесть на пять, то есть пятнадцать. Треугольников четыре, значит боковая поверхность шестьдесят.', 'In the net of a pyramid the base lies in the centre and the lateral faces spread around it as triangles. For each triangle the base is a side of the pyramid base and the height is the apothem. That is why the apothem matters so much, and why it cannot be replaced by the lateral edge: the edge is not the height of the triangle. The area of one triangle is half of six times five, that is fifteen. There are four triangles, so the lateral area is sixty.'),
+    A('work', "O'zingiz hisoblang. Asos tomoni olti, apofema besh. Yon sirt qancha?", 'Посчитай сам. Сторона основания шесть, апофема пять. Какова боковая поверхность?', 'Work it out yourself. The base side is six, the apothem is five. What is the lateral area?'),
   ],
   work: {
-    prompt: L("Ular nechta har xil yo'nalish beradi?", 'Сколько разных направлений они задают?', 'How many different directions do they give?'),
-    ok: L("Bitta. Parallellar bir tomonga boradi, ikkinchi yo'nalishni bermaydi.", 'Одно. Параллельные идут в одну сторону, второго направления они не дают.', 'One. Parallel lines go the same way, they give no second direction.'),
+    prompt: L('Yon sirtni toping', 'Найди боковую поверхность', 'Find the lateral area'),
+    ok: L("Oltmish. To'rt uchburchak o'n beshtadan.", 'Шестьдесят. Четыре треугольника по пятнадцать.', 'Sixty. Four triangles of fifteen each.'),
     hint: [
-      L('Ularning har biri qayerga borishiga qarang.', 'Посмотри, куда идёт каждая из них.', 'Look at where each of them goes.'),
-      L("Parallellarning yo'nalishi bir xil.", 'У параллельных направление одно и то же.', 'Parallel lines have one and the same direction.'),
-      L('Bitta.', 'Одно.', 'One.'),
+      L('Bitta uchburchak yuzasini hisoblang.', 'Посчитай площадь одного треугольника.', 'Compute the area of one triangle.'),
+      L("Tomonni apofemaga ko'paytirganning yarmi.", 'Половина произведения стороны на апофему.', 'Half the product of the side and the apothem.'),
+      L("O'n besh karra to'rt.", 'Пятнадцать умножить на четыре.', 'Fifteen times four.'),
     ],
-    expr: 'b ∥ c   →   b ∩ c = ∅',
-    answer: '1',
+    answer: '60',
   },
+  expr: 'S = ½·P·m',
 }
 
 const S7 = {
   role: 'explain5',
   answer: 'number',
-  eyebrow: L('CHEGARAVIY HOL', 'ГРАНИЧНЫЙ СЛУЧАЙ', 'THE EDGE CASE'),
-  title: L("Perpendikulyar yonlab o'tolmaydi", 'Перпендикуляр не может пройти мимо', 'A perpendicular cannot pass by'),
-  tag: 'izmeril-znachit-dokazal',
+  eyebrow: L('CHEGARA', 'ГРАНИЦА', 'THE BOUNDARY'),
+  title: L("Rakurs ko'rinishni o'zgartiradi, yuzani emas", 'Ракурс меняет вид, не площадь', 'The view changes what you see, not the area'),
+  tag: 'ploshchad-po-kartinke',
   show: [
     [
-      L('chiziq tekislikka perpendikulyar', 'прямая перпендикулярна плоскости', 'the line is perpendicular to the plane'),
-      L("demak u uni kesib o'tadi", 'значит она её пересекает', 'so it crosses it'),
-      L("yonlab o'tolmaydi", 'пройти мимо она не может', 'it cannot pass by'),
+      L("bir rakursdan uch yoq ko'rinadi", 'с одного ракурса видно три грани', 'from one view three faces show'),
+      L("buring va boshqa uchtasi ko'rinadi", 'поверни и видно другие три', 'rotate and another three show'),
     ],
     [
-      L('buring va umumiy nuqtalarni sanang', 'поверни и посчитай общие точки', 'rotate and count the common points'),
-      L('ular chiziq va tekislikda qanchaligicha', 'их ровно столько, сколько у прямой с плоскостью', 'as many as a crossing line has'),
-      L("va bu yerda o'lchaydigan narsa yo'q", 'и мерить тут нечего', 'and there is nothing to measure here'),
+      L("birdan uchtadan ko'p ko'rinmaydi", 'больше трёх сразу не видно', 'more than three never show at once'),
+      L("sirt esa o'sha", 'а поверхность всё та же', 'while the surface is the same'),
     ],
   ],
-  motion: ['cross'],
+  motion: ['move'],
   audio: [
-    A('mount', "Darslikning yana bir tasdig'i, qisqa va foydali.", 'Ещё одно утверждение учебника, короткое и полезное.', 'One more statement from the textbook, short and useful.'),
-    A('cross', "Darslik shunday deydi: tekislikka perpendikulyar chiziq albatta uni kesib o'tadi. Nega ekani tushunarli: agar u tekislikka tegmasa, unga parallel bo'lardi, parallel chiziq esa tekislik chiziqlari bilan hech qanday to'g'ri burchak hosil qilmaydi. Demak umumiy nuqta bor, va u bitta: ikkita bo'lishi mumkin emas, aks holda ikkinchi aksioma bo'yicha butun chiziq tekislikka yotardi. Bu nuqtalarni o'zingiz sanang. Va yilning asosiy qoidasini eslab turing: sonlar chizmadan olinmaydi. Bu yerda javob o'lchash bilan emas, mulohaza bilan olindi, shuning uchun u isbotga yaraydi.", 'Учебник говорит: прямая, перпендикулярная плоскости, обязательно её пересекает. Понятно почему: если бы она плоскости не касалась, то была бы ей параллельна, а параллельная прямая никакого прямого угла с прямыми плоскости не образует. Значит общая точка есть, и она одна: двух быть не может, иначе по второй аксиоме вся прямая легла бы в плоскость. Посчитай эти точки сам. И держи в голове главное правило года: числа с чертежа не берут. Здесь ответ получен рассуждением, а не измерением, и потому он годится в доказательство.', 'The textbook says: a line perpendicular to a plane necessarily crosses it. It is clear why: if it did not touch the plane it would be parallel to it, and a parallel line makes no right angle with the lines of the plane at all. So a common point exists, and there is one: there cannot be two, otherwise by the second axiom the whole line would lie in the plane. Count these points yourself. And keep the main rule of the year in mind: numbers are not taken from the drawing. Here the answer came from reasoning, not from measuring, and that is why it can go into a proof.'),
-    A('work', "O'zingiz hisoblang. Perpendikulyar va tekislikning nechta umumiy nuqtasi bor?", 'Посчитай сам. Сколько общих точек у перпендикуляра и плоскости?', 'Work it out yourself. How many common points do the perpendicular and the plane have?'),
+    A('mount', "Kubga turli tomondan qaraymiz va birdan nechta yoq ko'rinishini sanaymiz.", 'Посмотрим на куб с разных сторон и посчитаем, сколько граней видно сразу.', 'Let us look at a cube from different sides and count how many faces show at once.'),
+    A('move', "Kubni qancha burmang, birdan uchtadan ko'p yoqni ko'rish mumkin emas. Uchtasi ko'rinadi, uchtasi yashiringan, va qaysi biri ekani rakursga bog'liq. Sirt yuzasi esa burilishda o'zgarmaydi, chunki u jism haqida, qarash haqida emas. Ish qoidasi shundan. Yuza yoyilma yoki formula bo'yicha hisoblanadi, ko'rinadigan bo'laklar soni bo'yicha emas. Faqat ko'rinadiganini qo'shsangiz, javob haqiqiysidan roppa-rosa ikki baravar kichik chiqadi, va xatoni sezmaslik oson.", 'Сколько куб ни крути, больше трёх граней одновременно увидеть нельзя. Три видно, три скрыто, и какие именно, зависит от ракурса. А площадь поверхности при повороте не меняется, потому что она про тело, а не про взгляд. Отсюда правило работы. Площадь считают по развёртке или по формуле, а не по числу видимых кусков. Если сложить только видимое, ответ окажется ровно вдвое меньше настоящего, и ошибку легко не заметить.', 'However much you rotate the cube, more than three faces can never be seen at once. Three show, three are hidden, and which ones depends on the view. The surface area does not change under rotation, because it is about the body and not about the look. Hence the working rule. The area is computed from the net or from a formula, not from the number of visible pieces. If you add only what you see, the answer comes out exactly half of the true one, and the mistake is easy to miss.'),
+    A('work', "O'zingiz hisoblang. Kubning nechta yog'i birdan ko'rinadi?", 'Посчитай сам. Сколько граней куба видно одновременно?', 'Work it out yourself. How many faces of a cube show at once?'),
   ],
   work: {
-    prompt: L('Ularning nechta umumiy nuqtasi bor?', 'Сколько у них общих точек?', 'How many common points do they have?'),
-    ok: L('Bitta. Nol parallellikni, ikkita esa chiziq tekislikda yotishini bildirardi.', 'Одна. Ноль означал бы параллельность, две означали бы, что прямая лежит в плоскости.', 'One. Zero would mean parallel, two would mean the line lies in the plane.'),
+    prompt: L("Birdan nechta yoq ko'rinadi?", 'Сколько граней видно сразу?', 'How many faces show at once?'),
+    ok: L('Uchta. Qolgan uchtasi yashiringan, lekin yuzaga oltitasi kiradi.', 'Три. Остальные три скрыты, но в площадь входят все шесть.', 'Three. The other three are hidden, but all six enter the area.'),
     hint: [
-      L("Perpendikulyar tekislikka parallel bo'lishi mumkinmi?", 'Может ли перпендикуляр быть параллелен плоскости?', 'Can a perpendicular be parallel to the plane?'),
-      L('Ikki umumiy nuqta butun chiziqni tekislikka tortardi.', 'Две общие точки затянули бы всю прямую в плоскость.', 'Two common points would pull the whole line into the plane.'),
-      L('Bitta.', 'Одна.', 'One.'),
+      L("Kubni buring va ko'rinadigan yoqlarni sanang.", 'Поверни куб и посчитай видимые грани.', 'Rotate the cube and count the visible faces.'),
+      L("Qancha burmang, son o'zgarmaydi.", 'Сколько бы ты ни крутил, число не меняется.', 'However much you rotate, the number does not change.'),
+      L('Uchta.', 'Три.', 'Three.'),
     ],
-    expr: 'a ⊥ α   →   a ∩ α = O',
-    answer: '1',
+    answer: '3',
   },
+  expr: '3 + 3 = 6',
 }
 
 const S8 = {
   role: 'rule',
   answer: 'pick2',
   eyebrow: L('QOIDA', 'ПРАВИЛО', 'THE RULE'),
-  title: L('Alomat va xossa', 'Признак и свойство', 'The criterion and the property'),
-  tag: 'svoystvo-vmesto-priznaka',
+  title: L("Sirt yoyilma bo'yicha hisoblanadi", 'Поверхность считают по развёртке', 'The surface is counted from the net'),
+  tag: 'ploshchad-po-kartinke',
   motion: ['rule'],
   audio: [
-    A('mount', "Qoidani yig'amiz. Alomat qisqa, lekin undagi har so'z ishlaydi.", 'Соберём правило. Признак короткий, но каждое слово в нём работает.', 'Let us put the rule together. The criterion is short, but every word in it works.'),
-    A('rule', "Alomat: agar chiziq tekislikda yotgan ikki kesishuvchi chiziqqa perpendikulyar bo'lsa, u shu tekislikka perpendikulyar. Ikki so'zi shuning uchun kerak, chunki bittasi kam: chiziq yagona yo'nalish atrofida og'adi. Kesishuvchi so'zi shuning uchun kerak, chunki parallellar bitta yo'nalish beradi, ikkitasini emas. Keyin xossa ishlaydi, va u boshqa tomonga qaraydi: tekislikka perpendikulyar chiziq shu tekislikdagi istalgan chiziqqa perpendikulyar. Alomat isbotlaydi, xossa isbotlanganidan foydalanadi. Xossani alomat o'rniga qo'yib bo'lmaydi: bu xulosani shart o'rniga olish bilan bir xil.", 'Признак: если прямая перпендикулярна двум пересекающимся прямым, лежащим в плоскости, то она перпендикулярна этой плоскости. Слово двум нужно потому, что одной мало: прямая наклонится вокруг единственного направления. Слово пересекающимся нужно потому, что параллельные дают одно направление, а не два. Дальше работает свойство, и оно смотрит в другую сторону: перпендикулярная плоскости прямая перпендикулярна любой прямой в этой плоскости. Признак доказывает, свойство пользуется доказанным. Поставить свойство на место признака нельзя: это то же самое, что взять вывод за условие.', 'The criterion: if a line is perpendicular to two crossing lines lying in a plane, then it is perpendicular to that plane. The word two is needed because one is not enough: the line will lean around the single direction. The word crossing is needed because parallel lines give one direction, not two. Then the property works, and it looks the other way: a line perpendicular to a plane is perpendicular to any line in that plane. The criterion proves, the property uses what was proved. The property cannot be put in place of the criterion: that is the same as taking the conclusion for the condition.'),
+    A('mount', 'Farqlashga bitta savol, keyin kartochka.', 'Один вопрос на различение, потом карточка.', 'One question to tell them apart, then the card.'),
+    A('rule', "Kartochkadagi ikkala formula ham yangi emas. Birinchisi to'g'ri to'rtburchak yuzasi, ikkinchisi uchburchak yuzasi, asos tomonlari qancha bo'lsa shuncha marta olingani. Shuning uchun ularni yodlash shart emas, yoyilma qanday ko'rinishini eslash yetarli. To'liq sirt esa doim yon sirt qo'shuv asoslar, prizmada ikki asos, piramidada bitta.", 'Обе формулы в карточке не новые. Первая это площадь прямоугольника, вторая площадь треугольника, взятая столько раз, сколько сторон у основания. Поэтому запоминать их не обязательно, достаточно помнить, как выглядит развёртка. И полная поверхность это всегда боковая плюс основания, у призмы два основания, у пирамиды одно.', 'Neither formula on the card is new. The first is the area of a rectangle, the second the area of a triangle taken as many times as the base has sides. So there is no need to memorise them, it is enough to remember what the net looks like. And the full surface is always the lateral one plus the bases, two bases for a prism and one for a pyramid.'),
   ],
   probe: {
-    question: L('Alomat xossadan nimasi bilan farq qiladi?', 'Чем признак отличается от свойства?', 'How does a criterion differ from a property?'),
+    question: L("Sirt yuzasini hisoblaganda nima qo'shiladi?", 'Что складывают, считая площадь поверхности?', 'What is added when computing the surface area?'),
     items: [
-      { id: 'a', label: L('alomat xulosaga olib boradi, xossa undan kelib chiqadi', 'признак ведёт к выводу, свойство следует из него', 'a criterion leads to the conclusion, a property follows from it'), correct: true },
-      { id: 'b', label: L('bu bir xil narsa, boshqacha aytilgan', 'это одно и то же, сказанное по-разному', 'they are the same thing said differently'), hint: L("U holda isbot doira bo'ylab yurardi: xulosa shart o'rniga olinardi.", 'Тогда доказательство ходило бы по кругу: вывод брался бы за условие.', 'Then the proof would go in a circle: the conclusion would serve as the condition.') },
+      { id: 'a', label: L('barcha yoqlar yuzalari', 'площади всех граней', 'the areas of all the faces'), correct: true },
+      { id: 'b', label: L("ko'rinadigan yoqlar yuzalari", 'площади видимых граней', 'the areas of the visible faces'), hint: L("Ko'rinish rakursga bog'liq, yuza esa yo'q.", 'Видимость зависит от ракурса, а площадь нет.', 'Visibility depends on the view, the area does not.') },
     ],
   },
   rule: {
-    lawLabel: L('ALOMAT', 'ПРИЗНАК', 'THE CRITERION'),
+    lawLabel: L('Sirt yuzasi', 'Площадь поверхности', 'The surface area'),
     lines: [
-      L("chiziq tekislikning ikki chizig'iga perpendikulyar", 'прямая перпендикулярна двум прямым плоскости', 'the line is perpendicular to two lines of the plane'),
-      L('bu ikki chiziq kesishadi', 'эти две прямые пересекаются', 'those two lines cross each other'),
-      L('u holda chiziq tekislikka perpendikulyar', 'тогда прямая перпендикулярна плоскости', 'then the line is perpendicular to the plane'),
+      L("to'liq sirt yon sirt qo'shuv asoslar, prizmada ular ikkita", 'полная поверхность это боковая плюс основания, у призмы их два', 'the full surface is the lateral one plus the bases, a prism has two'),
+      L("to'g'ri prizmaning yon sirti perimetr karra balandlik", 'боковая поверхность прямой призмы это периметр на высоту', 'the lateral area of a right prism is the perimeter times the height'),
+      L('muntazam piramidaning yon sirti perimetrning yarmi karra apofema', 'боковая поверхность правильной пирамиды это половина периметра на апофему', 'the lateral area of a regular pyramid is half the perimeter times the apothem'),
     ],
-    law: 'a ⊥ b,   a ⊥ c,   b ∩ c = O   →   a ⊥ α',
+    law: 'S = S₁ + 2S₀',
   },
 }
 
@@ -359,20 +343,20 @@ const S9 = {
   role: 'drill',
   answer: 'match',
   format: 'match',
-  eyebrow: L('MASHQ', 'ТРЕНИРОВКА', 'PRACTICE'),
-  title: L("Kub bo'yicha sanang", 'Посчитай по кубу', 'Count on the cube'),
-  tag: 'svoystvo-vmesto-priznaka',
+  eyebrow: L('AMALIYOT', 'ПРАКТИКА', 'PRACTICE'),
+  title: L('Formula va jism', 'Формула и тело', 'The formula and the body'),
+  tag: 'ploshchad-po-kartinke',
   audio: [
-    A('mount', "Kub haqida to'rt yozuv. Oxirgisi uning yoqlari soni.", 'Четыре записи про куб. Последняя это число его граней.', 'Four writings about the cube. The last one is the number of its faces.'),
+    A('mount', "To'rt yozuv va to'rt nom. Ularni birlashtiring.", 'Четыре записи и четыре названия. Соедини их.', 'Four readings and four names. Match them.'),
   ],
   match: {
-    prompt: L("To'rt javobning hammasi har xil", 'Все четыре ответа разные', 'All four answers are different'),
-    ok: L("To'g'ri. Qirraga perpendikulyarlari eng ko'p: o'n birdan sakkiztasi.", 'Верно. Перпендикулярных ребру больше всего: их восемь из одиннадцати.', 'Correct. Perpendicular edges are the most: eight out of eleven.'),
-    left: ['AB ⊥ ?', 'AB ∥ ?', 'AB ∸ ?', 'ABCDA₁B₁C₁D₁'],
-    a: '8',
-    b: '3',
-    c: '4',
-    d: '6',
+    prompt: L('Yozuvni jism bilan birlashtiring', 'Соедини запись с телом', 'Match the reading with the body'),
+    ok: L("To'rttasi ham joyida. Har formula yassi shakl yuzasi.", 'Все четыре на месте. Каждая формула это площадь плоской фигуры.', 'All four in place. Every formula is the area of a flat figure.'),
+    a: L('prizma yon sirti', 'боковая призмы', 'lateral, prism'),
+    b: L("parallelepiped to'liq sirti", 'полная параллелепипеда', 'full, box'),
+    c: L('piramida yon sirti', 'боковая пирамиды', 'lateral, pyramid'),
+    d: L("kub to'liq sirti", 'полная куба', 'full, cube'),
+    left: ['P·h', '2(ab+bc+ac)', '½·P·m', '6a²'],
   },
 }
 
@@ -381,44 +365,32 @@ const S10 = {
   answer: 'order',
   format: 'proof',
   eyebrow: L('QADAMMA-QADAM', 'ПО ШАГАМ', 'STEP BY STEP'),
-  title: L('Perpendikulyarlikni isbotlang', 'Докажи перпендикулярность', 'Prove the perpendicularity'),
-  tag: 'svoystvo-vmesto-priznaka',
+  title: L('Tasma formulasini chiqaring', 'Выведи формулу ленты', 'Derive the strip formula'),
+  tag: 'ploshchad-po-kartinke',
   audio: [
-    A('mount', "Kubda isbotlaymiz. Har qatorning asoslashi ro'yxatdan tanlanadi.", 'Докажем на кубе. Обоснование каждой строки выбирается из списка.', 'Let us prove it on the cube. The justification of each line is chosen from the list.'),
+    A('mount', "Uch qator, va har birining ro'yxatdan o'z asoslashi bor.", 'Три строки, и у каждой своё обоснование из списка.', 'Three lines, each with its own justification from the list.'),
   ],
   proof: {
-    given: L('kubning yon qirrasi va asos tekisligi', 'боковое ребро куба и плоскость основания', 'a side edge of a cube and the plane of its base'),
-    goal: L('qirra asos tekisligiga perpendikulyar', 'ребро перпендикулярно плоскости основания', 'the edge is perpendicular to the plane of the base'),
-    r1: L('qirra asosning birinchi qirrasiga perpendikulyar', 'ребро перпендикулярно первому ребру основания', 'the edge is perpendicular to the first edge of the base'),
-    r2: L('u ikkinchisiga ham perpendikulyar', 'оно перпендикулярно и второму', 'it is perpendicular to the second as well'),
-    r3: L('asosning bu ikki qirrasi kesishadi', 'эти два ребра основания пересекаются', 'those two edges of the base cross'),
-    e1: L(
-      "Alomat oxirida qo'llanadi. Hozir uning sharti tekshirilyapti.",
-      'Признак идёт в конце. Здесь проверяется его условие.',
-      'The criterion comes at the end. Here its condition is checked.',
-    ),
-    e2: L(
-      "Bu qator birinchisidek, faqat ikkinchi qirra bilan.",
-      'Эта строка как первая, только со вторым ребром.',
-      'This line is like the first, only with the second edge.',
-    ),
-    e3: L(
-      "Gap perpendikulyarlik haqida emas. Bu ikki qirra uchrashadimi.",
-      'Речь не о перпендикулярности. Встречаются ли эти рёбра.',
-      'This is not about perpendicularity. Do these edges meet.',
-    ),
-    ok: L('Isbotlandi. Alomatning ikkala sharti tekshirildi, va faqat endi xulosa qonuniy.', 'Доказано. Оба условия признака проверены, и только теперь вывод законный.', 'Proved. Both conditions of the criterion are checked, and only now is the conclusion lawful.'),
+    given: L("to'g'ri prizma", 'прямая призма', 'a right prism'),
+    goal: L('yon sirt perimetr karra balandlik', 'боковая поверхность это периметр на высоту', 'the lateral area is the perimeter times the height'),
+    r1: L("yon sirt to'g'ri to'rtburchakka yoyiladi", 'боковая поверхность разворачивается в прямоугольник', 'the lateral surface unfolds into a rectangle'),
+    r2: L('uning balandligi prizma balandligi', 'его высота это высота призмы', 'its height is the height of the prism'),
+    r3: L('uning asosi asos perimetri', 'его основание это периметр основания', 'its base is the perimeter of the base'),
+    ok: L("Isbotlandi. To'g'ri to'rtburchak yuzasi tomonlarining ko'paytmasi.", 'Доказано. Площадь прямоугольника это произведение его сторон.', 'Proved. The area of a rectangle is the product of its sides.'),
+    e1: L('Balandlik haqida keyin. Avval qanday shakl chiqdi.', 'Про высоту дальше. Сначала какая фигура получилась.', 'The height comes later. First what figure appeared.'),
+    e2: L("Shakl ma'lum. Balandligi qayerdan.", 'Фигура известна. Откуда её высота.', 'The figure is known. Where does its height come from.'),
+    e3: L('Balandlik bor. Endi ikkinchi tomon haqida.', 'Высота есть. Теперь про вторую сторону.', 'The height is there. Now about the other side.'),
   },
   reason: {
-    s1: L("kub yasalishiga ko'ra", 'по построению куба', 'by the construction of the cube'),
-    s2: L('perpendikulyarlik alomati', 'признак перпендикулярности', 'the criterion of perpendicularity'),
-    s3: L('asos uchi umumiy', 'вершина основания общая', 'the vertex of the base is common'),
+    s1: L('yon sirtning yoyilmasi', 'развёртка боковой поверхности', 'the net of the lateral surface'),
+    s2: L("to'g'ri prizmaning yon qirralari teng va asosga perpendikulyar", 'боковые рёбра прямой призмы равны и перпендикулярны основанию', 'the lateral edges of a right prism are equal and perpendicular to the base'),
+    s3: L('asos qirralari ketma-ket boradi', 'рёбра основания идут одно за другим', 'the base edges go one after another'),
     pic: {
-      label: L('perpendikulyar chiziq xossasi', 'свойство перпендикулярной прямой', 'the property of a perpendicular line'),
-      missing: L('Bu xossa, alomat emas: u hali olinmagan xulosadan kelib chiqadi.', 'Это свойство, а не признак: оно следует из вывода, который ещё не получен.', 'That is a property, not the criterion: it follows from a conclusion not yet obtained.'),
+      label: L("chizmada ko'rinadi", 'видно на чертеже', 'it is visible on the drawing'),
+      missing: L("Chizma asoslash emas. U ko'p rakursdan bittasini ko'rsatadi.", 'Чертёж не обоснование. Он показывает один ракурс из многих.', 'A drawing is not a justification. It shows one view out of many.'),
     },
   },
-  expr: 'AA₁ ⊥ AB,   AA₁ ⊥ AD,   AB ∩ AD = A',
+  expr: 'S = P·h',
 }
 
 const S11 = {
@@ -426,30 +398,30 @@ const S11 = {
   answer: 'number',
   format: 'number+order',
   noTool: true,
-  eyebrow: L("QOG'OZDA", 'НА БУМАГЕ', 'ON PAPER'),
-  title: L('Berilganiga nechta qirra perpendikulyar', 'Сколько рёбер перпендикулярно данному', 'How many edges are perpendicular to the given one'),
+  eyebrow: L('ASBOBSIZ', 'БЕЗ ПРИБОРА', 'NO TOOL'),
+  title: L('Hisob va tartib', 'Счёт и порядок', 'Counting and order'),
   tag: 'bumaga',
   audio: [
-    A('mount', "Asbob yo'q. Qog'ozda hisoblang, keyin solishtiring.", 'Прибора нет. Считай на бумаге, потом сверься.', 'No instrument here. Work it out on paper, then compare.'),
-    A('next', "Keyin xatoli yozuv. Xato paydo bo'lgan qatorni toping.", 'Дальше запись с ошибкой. Найди строку, где она появилась.', 'Next comes a written solution with a mistake. Find the line where it appeared.'),
+    A('mount', "Asbob olib qo'yildi. Qog'ozda hisoblaymiz.", 'Прибор убран. Считаем на бумаге.', 'The tool is put away. We count on paper.'),
+    A('next', 'Endi yozuvlar tartibi. Ularni qanday hisoblansa, shunday joylashtiring.', 'Теперь порядок записей. Расставь их так, как считают.', 'Now the order of the readings. Arrange them the way they are computed.'),
   ],
   task: {
-    ok: L("Sakkizta. To'rttasi uni kesadi, to'rttasi to'g'ri burchak ostida ayqash.", 'Восемь. Четыре пересекают его, четыре скрещиваются с ним под прямым углом.', 'Eight. Four cross it and four are skew to it at a right angle.'),
+    ok: L('Bir yuz ellik. Yigirma besh karra olti.', 'Сто пятьдесят. Двадцать пять умножить на шесть.', 'One hundred fifty. Twenty five times six.'),
     hint: [
-      L("Ayqash qirralar ham perpendikulyar bo'ladi.", 'Перпендикулярными бывают и скрещивающиеся рёбра.', 'Skew edges can be perpendicular too.'),
-      L("Qirralar jami o'n bitta, parallellari uchta.", 'Всего рёбер одиннадцать, параллельных три.', 'Eleven edges in all, three of them parallel.'),
-      L('Sakkiz.', 'Восемь.', 'Eight.'),
+      L('Kubning barcha yoqlari kvadrat.', 'У куба все грани квадраты.', 'All faces of a cube are squares.'),
+      L('Bitta yoq yuzasi qirraning kvadrati.', 'Площадь одной грани это ребро в квадрате.', 'The area of one face is the edge squared.'),
+      L('Yigirma besh karra olti.', 'Двадцать пять умножить на шесть.', 'Twenty five times six.'),
     ],
-    prompt: 'AB ⊥ ?',
-    answer: '8',
+    prompt: 'a = 5,   S = ?',
+    answer: '150',
   },
   order: {
-    prompt: L("Yozuvlarni javobi o'sishi bo'yicha joylashtiring", 'Расставь записи по возрастанию ответа', 'Put the writings in order of increasing answer'),
-    title: L('kichik sondan kattasiga', 'от меньшего числа к большему', 'from the smallest number to the largest'),
-    ok: L("To'g'ri. Perpendikulyar qirralar qolganlarining hammasidan ko'p.", 'Верно. Перпендикулярных рёбер больше, чем всех остальных вместе.', 'Correct. There are more perpendicular edges than all the rest together.'),
-    bad: L('Har yozuvni alohida hisoblang.', 'Считай каждую запись отдельно.', 'Compute each writing separately.'),
-    items: ['ABCDA₁B₁C₁D₁', 'AB ⊥ ?', 'AB ∥ ?', 'AB ∸ ?'],
-    answer: 'AB ∥ ?  AB ∸ ?  ABCDA₁B₁C₁D₁  AB ⊥ ?',
+    prompt: L('Yozuvlarni hisoblash tartibida joylashtiring', 'Расставь записи в том порядке, в каком считают', 'Arrange the readings in the order they are computed'),
+    title: L('Hisob tartibi', 'Порядок счёта', 'The order of computing'),
+    ok: L("Tartib to'g'ri. Avval bitta yoq, keyin hammasi.", 'Порядок верный. Сначала одна грань, потом все.', 'The order is right. First one face, then all of them.'),
+    bad: L('Bu tartibda emas. Avval nima kerak.', 'Не в этом порядке. Что нужно раньше.', 'Not in this order. What is needed first.'),
+    items: ['6a²', 'a', 'a²', 'S'],
+    answer: 'a  a²  6a²  S',
   },
 }
 
@@ -458,33 +430,33 @@ const S12 = {
   answer: 'number',
   format: 'audit',
   eyebrow: L('TUZOQ', 'ЛОВУШКА', 'THE TRAP'),
-  title: L('Xatoli qatorni toping', 'Найди строку с ошибкой', 'Find the line with the mistake'),
+  title: L('Xato qatorni toping', 'Найди строку с ошибкой', 'Find the line with the mistake'),
   tag: 'check',
   audio: [
-    A('mount', "To'rt qator. Yozuvdagi barcha burchaklar to'g'ri, xulosa esa yo'q.", 'Четыре строки. Все углы в записи верные, а вывод нет.', 'Four lines. Every angle in the writing is right, and the conclusion is not.'),
-    A('next', 'Keyin teskari masala: xulosaga qarab yetishmayotgan shartni ayting.', 'Дальше обратная задача: по выводу назови недостающее условие.', 'Next comes the reverse task: name the missing condition from the conclusion.'),
+    A('mount', "To'rt qator, va ulardan birida yoqlar yo'qolgan.", 'Четыре строки, и в одной из них потерялись грани.', 'Four lines, and in one of them faces got lost.'),
+    A('next', "Endi xato bo'lgan qator raqamini yozing.", 'Теперь напиши номер строки, в которой ошибка.', 'Now write the number of the line with the mistake.'),
   ],
   hint: {
-    r1: L("Shart to'g'ri ko'chirilgan.", 'Условие переписано верно.', 'The condition is copied correctly.'),
-    r2: L("Bu to'g'ri burchak haqiqatan bor.", 'Этот прямой угол действительно есть.', 'This right angle does exist.'),
-    r3: L("O'zingizdan so'rang: shu paytgacha nechta chiziq tekshirilgan?", 'Спроси себя, сколько прямых проверено к этому моменту.', 'Ask yourself how many lines have been checked by this point.'),
+    r1: L("O'lchamlar to'g'ri yozilgan.", 'Измерения выписаны верно.', 'The dimensions are written correctly.'),
+    r2: L("Uch ko'paytma to'g'ri topilgan.", 'Три произведения найдены верно.', 'The three products are found correctly.'),
+    r4: L('Javob yuqoridagi xato qatordan olingan.', 'Ответ получен из неверной строки выше.', 'The answer comes from the wrong line above.'),
   },
-  proof: L("Sahnani buring: bitta tekshirilgan chiziqda og'ish qoladi.", 'Поверни сцену: при одной проверенной прямой наклон остаётся.', 'Rotate the scene: with one line checked the slant remains.'),
+  proof: L("Jismni yoying: bo'laklar oltita, qo'shilgani esa uchta.", 'Разверни тело: кусков шесть, а сложены только три.', 'Unfold the body: there are six pieces and only three were added.'),
   entry: {
-    prompt: L("Tekislikning nechta chizig'i yetmadi?", 'Сколько прямых плоскости не хватило?', 'How many lines of the plane were missing?'),
-    ok: L('Bittasi. Bittasi tekshirilgan edi, alomat esa ikki kesishuvchini talab qiladi.', 'Одной. Проверена была одна, а признак требует двух пересекающихся.', 'One. One was checked, and the criterion requires two crossing ones.'),
+    prompt: L('Xato qator raqami', 'Номер строки с ошибкой', 'The number of the line with the mistake'),
+    ok: L("Uchinchi. Ikkiga ko'paytirish, ya'ni ko'rinmas yoqlar esdan chiqdi.", 'Третья. Забыли умножить на два, то есть невидимые грани.', 'The third. They forgot to multiply by two, that is the invisible faces.'),
     hint: [
-      L('Yozuvda nechta chiziq eslatilganini sanang.', 'Посчитай, сколько прямых упомянуто в записи.', 'Count how many lines are mentioned in the writing.'),
-      L('Alomat ikkitasini talab qiladi, yozuvda esa bittasi.', 'Признак требует двух, а в записи одна.', 'The criterion requires two, and the writing has one.'),
-      L('Bittasi.', 'Одной.', 'One.'),
+      L("Yig'indiga nechta yoq kirganini hisoblang.", 'Посчитай, сколько граней вошло в сумму.', 'Count how many faces went into the sum.'),
+      L('Parallelepipedning yoqlari juft-juft teng.', 'Грани параллелепипеда попарно равны.', 'The faces of a box are equal in pairs.'),
+      L('Xato uchinchi qatorda.', 'Ошибка в третьей строке.', 'The mistake is in the third line.'),
     ],
-    answer: '1',
+    answer: '3',
   },
   row: {
-    r1: 'b ⊂ α,   a ⊥ b',
-    r2: '∠(a, b) = 90°',
-    r3: 'a ⊥ α',
-    r4: 'a ⊥ c   ∀c ⊂ α',
+    r1: 'a = 2,   b = 3,   c = 4',
+    r2: '6 + 12 + 8 = 26',
+    r3: 'S = 26',
+    r4: 'S = 26',
   },
   answerId: 'r3',
 }
@@ -494,33 +466,30 @@ const S13 = {
   answer: 'number',
   format: 'number+multi',
   eyebrow: L("KO'CHIRISH", 'ПЕРЕНОС', 'TRANSFER'),
-  title: L("Teskari yo'l", 'Обратный ход', 'The other direction'),
+  title: L('Teskari tomonga', 'В обратную сторону', 'The other way round'),
   tag: 'obratnoe',
   audio: [
-    A('mount', 'Endi teskarisiga. Avval xossa haqida javob bering.', 'Теперь наоборот. Сначала ответь про свойство.', 'Now the other way round. First answer about the property.'),
-    A('work', 'Keyin xulosa kelib chiqadigan barcha yozuvlarni belgilang.', 'Потом отметь все записи, из которых вывод следует.', 'Then mark every writing from which the conclusion follows.'),
+    A('mount', "Formulani o'ngdan chapga o'qiymiz. Yuza bo'yicha qirrani topamiz.", 'Прочитаем формулу справа налево. По площади найдём ребро.', 'Let us read the formula from right to left. From the area we find the edge.'),
+    A('work', "Doim to'g'ri bo'lgan barcha yozuvlarni belgilang. Ular bittadan ko'p.", 'Отметь все записи, которые верны всегда. Их больше одной.', 'Mark all the readings that are always true. There is more than one.'),
   ],
   multi: {
-    prompt: L('Tekislikka perpendikulyarlik kelib chiqadigan barcha yozuvlarni belgilang', 'Отметь все записи, из которых следует перпендикулярность плоскости', 'Mark every writing from which perpendicularity to the plane follows'),
-    title: L('ular aynan ikkita', 'их ровно два', 'there are exactly two'),
-    ok: L("To'g'ri. Ikki chiziq kerak va albatta kesishuvchi.", 'Верно. Нужны две прямые и обязательно пересекающиеся.', 'Correct. Two lines are needed, and they must cross.'),
+    prompt: L("Barcha to'g'ri yozuvlarni belgilang", 'Отметь все верные записи', 'Mark all the correct readings'),
+    title: L("Nima doim to'g'ri", 'Что верно всегда', 'What is always true'),
+    ok: L("Beshtadan uch yozuv. Qolgan ikkitasi yoqlarni yo'qotadi.", 'Три записи из пяти. Две оставшиеся теряют грани.', 'Three readings out of five. The other two lose faces.'),
     items: [
-      { id: 'c', label: 'a ⊥ b,  b ⊂ α', hint: L("Bu yerda chiziq bitta: bitta yo'nalish kam.", 'Здесь прямая одна: одного направления мало.', 'Here there is one line: one direction is not enough.') },
-      { id: 'd', label: 'a ⊥ b,  a ⊥ c,  b ∥ c', hint: L("Bu yerda ikki chiziq, lekin parallel: yo'nalish yana bitta.", 'Здесь две прямые, но параллельные: направление снова одно.', 'Here there are two lines but parallel: again one direction.') },
-      { id: 'a', label: 'a ⊥ b,  a ⊥ c,  b ∩ c = O', ok: true },
-      { id: 'b', label: 'AA₁ ⊥ AB,  AA₁ ⊥ AD', ok: true },
+      { id: 'd', label: 'ab + bc + ac', hint: L("Bu faqat ko'rinadigan yoqlar yig'indisi.", 'Это сумма только видимых граней.', 'That is the sum of the visible faces only.') },
+      { id: 'e', label: '½·P·m + 2S₀', hint: L('Piramidada asos bitta, ikkita emas.', 'У пирамиды основание одно, а не два.', 'A pyramid has one base, not two.') },
+      { id: 'a', label: '6a²', ok: true },
+      { id: 'b', label: '2(ab+bc+ac)', ok: true },
+      { id: 'c', label: 'P·h', ok: true },
     ],
   },
-  entry: {
-    prompt: L('Chiziq tekislikka perpendikulyar. U bu tekislikdagi nechta chiziqqa perpendikulyar EMAS?', 'Прямая перпендикулярна плоскости. Скольким прямым в этой плоскости она НЕ перпендикулярна?', 'A line is perpendicular to a plane. To how many lines in that plane is it NOT perpendicular?'),
-    ok: L("Bitta ham yo'q. Bu allaqachon xossa: istisnosiz hammasiga perpendikulyar, tekshiradigan narsa yo'q.", 'Ни одной. Это уже свойство: перпендикулярна всем без исключения, и проверять нечего.', 'None. That is already the property: it is perpendicular to all of them without exception, and nothing is left to check.'),
-    hint: [
-      L('Alomat bir tomonga, xossa esa boshqa tomonga ishlardi.', 'Признак работал в одну сторону, а свойство в другую.', 'The criterion worked one way, the property works the other.'),
-      L("Xossa shunday deydi: tekislikning istalgan chizig'iga perpendikulyar.", 'Свойство говорит: перпендикулярна любой прямой плоскости.', 'The property says: perpendicular to any line of the plane.'),
-      L('Nol.', 'Ноль.', 'Zero.'),
-    ],
-    expr: 'a ⊥ α   →   a ⊥ c',
-    answer: '0',
+  place: {
+    prompt: L("Kubning sirt yuzasi ellik to'rt. Qirra qancha?", 'Площадь поверхности куба пятьдесят четыре. Каково ребро?', 'The surface area of a cube is fifty four. What is the edge?'),
+    ok: L("Uch. Ellik to'rtni oltiga bo'lsak to'qqiz, to'qqizdan ildiz uch.", 'Три. Пятьдесят четыре делить на шесть это девять, корень из девяти три.', 'Three. Fifty four divided by six is nine, the root of nine is three.'),
+    wrong: L('Avval bitta yoq yuzasini toping.', 'Сначала найди площадь одной грани.', 'First find the area of one face.'),
+    target: '3',
+    step: '54 : 6 = 9',
   },
 }
 
@@ -530,156 +499,132 @@ const S14 = {
   format: 'chain',
   eyebrow: L('BLITS', 'БЛИЦ', 'QUICK ROUND'),
   title: L("Ketma-ket to'rt savol", 'Четыре вопроса подряд', 'Four questions in a row'),
-  tag: 'odnoy-pryamoy-hvatit',
+  tag: 'ploshchad-po-kartinke',
   audio: [
-    A('mount', "Ketma-ket to'rt savol. Birinchi urinish hisobga olinadi.", 'Четыре вопроса подряд. Считается первая попытка.', 'Four questions in a row. The first attempt counts.'),
+    A('mount', "Ketma-ket to'rt savol. To'xtamasdan javob bering.", 'Четыре вопроса подряд. Отвечай без остановки.', 'Four questions in a row. Answer without stopping.'),
   ],
   items: [
     {
       id: 'q1',
       ask: true,
-      prompt: L("Alomat tekislikning nechta chizig'ini talab qiladi?", 'Сколько прямых плоскости требует признак?', 'How many lines of the plane does the criterion require?'),
-      done: 'b ∩ c = O',
+      prompt: L('Yoyilma nima?', 'Что такое развёртка?', 'What is a net?'),
+      done: '4 + 2 = 6',
       items: [
-        { id: 'a', label: L('ikki kesishuvchi', 'две пересекающиеся', 'two crossing ones'), correct: true },
-        { id: 'b', label: L('bittasini', 'одну', 'one'), hint: L("Bittasida chiziq og'adi, buni burilish bilan ko'rdingiz.", 'При одной прямая наклоняется, ты видел это поворотом.', 'With one the line leans, you saw that by rotating.') },
-        { id: 'c', label: L('istalgan ikkitasini', 'две любые', 'any two'), hint: L("Ikki parallel bitta yo'nalish beradi, va bu kam.", 'Две параллельные дают одно направление, и этого мало.', 'Two parallel ones give one direction, and that is not enough.') },
-        { id: 'd', label: L('tekislikning barcha chiziqlarini', 'все прямые плоскости', 'all lines of the plane'), hint: L("Hammasini tekshirish kerak emas, alomatning ma'nosi shunda.", 'Все проверять не надо, в этом и смысл признака.', 'Checking all is not needed, that is the point of the criterion.') },
+        { id: 'a', label: L('barcha yoqlardan yassi shakl', 'плоская фигура из всех граней', 'a flat figure of all the faces'), correct: true },
+        { id: 'b', label: L("jismning yon ko'rinishi", 'вид тела сбоку', 'a side view of the body'), hint: L("Yon ko'rinish barcha yoqlarni ko'rsatmaydi.", 'Вид сбоку показывает не все грани.', 'A side view does not show all the faces.') },
+        { id: 'c', label: L('jismning kesimi', 'сечение тела', 'a section of the body'), hint: L('Kesim kesish, yoyish emas.', 'Сечение это разрез, а не разворот.', 'A section is a cut, not an unfolding.') },
+        { id: 'd', label: L('jismning soyasi', 'тень тела', 'the shadow of the body'), hint: L('Soya proyeksiya, u yuzani saqlamaydi.', 'Тень это проекция, площади она не сохраняет.', 'A shadow is a projection, it does not preserve areas.') },
       ],
     },
     {
       id: 'q2',
       ask: true,
-      prompt: L('Ikki parallel chiziq xulosa uchun yetadimi?', 'Двух параллельных прямых хватает для вывода?', 'Are two parallel lines enough for the conclusion?'),
-      done: 'b ∥ c',
+      prompt: L("To'g'ri prizmaning yon sirti?", 'Боковая поверхность прямой призмы?', 'The lateral area of a right prism?'),
+      done: 'P·h',
       items: [
-        { id: 'a', label: L("yo'q, ularning yo'nalishi bitta", 'нет, направление у них одно', 'no, they have one direction'), correct: true },
-        { id: 'b', label: L('ha, chiziq ikkita-ku', 'да, прямых же две', 'yes, there are two lines after all'), hint: L("Chiziqlar emas, yo'nalishlar hisoblanadi.", 'Считаются направления, а не прямые.', 'Directions are counted, not lines.') },
-        { id: 'c', label: L("ha, agar ular bir-biridan uzoq bo'lsa", 'да, если они далеко друг от друга', 'yes, if they are far apart'), hint: L("Ular orasidagi masofa hech nimani o'zgartirmaydi.", 'Расстояние между ними ничего не меняет.', 'The distance between them changes nothing.') },
-        { id: 'd', label: L("bu tekislikka bog'liq", 'это зависит от плоскости', 'it depends on the plane'), hint: L("Tekislikning bunga aloqasi yo'q, gap yo'nalishlarda.", 'Плоскость тут ни при чём, дело в направлениях.', 'The plane is not involved, it is about directions.') },
+        { id: 'a', label: L('perimetr karra balandlik', 'периметр на высоту', 'the perimeter times the height'), correct: true },
+        { id: 'b', label: L('asos yuzasi karra balandlik', 'площадь основания на высоту', 'the base area times the height'), hint: L("Bu yuza emas, boshqa kattalik bo'lardi.", 'Это была бы не площадь, а другая величина.', 'That would not be an area but a different quantity.') },
+        { id: 'c', label: L('tomon karra balandlik', 'сторона на высоту', 'a side times the height'), hint: L('Tomon bitta yoq beradi, butun tasmani emas.', 'Сторона даёт одну грань, а не всю ленту.', 'A side gives one face, not the whole strip.') },
+        { id: 'd', label: L('perimetrning yarmi karra balandlik', 'половина периметра на высоту', 'half the perimeter times the height'), hint: L("Yarim piramidada, uchburchak yuzasidan paydo bo'ladi.", 'Половина появляется у пирамиды, из площади треугольника.', 'The half appears for a pyramid, from the triangle area.') },
       ],
     },
     {
       id: 'q3',
       ask: true,
-      prompt: L('Perpendikulyar va tekislikning nechta umumiy nuqtasi bor?', 'Сколько общих точек у перпендикуляра и плоскости?', 'How many common points do a perpendicular and a plane have?'),
-      done: 'a ∩ α = O',
+      prompt: L("Piramida yon yog'ining balandligi nima?", 'Что является высотой боковой грани пирамиды?', 'What is the height of a lateral face of a pyramid?'),
+      done: 'm',
       items: [
-        { id: 'a', label: L('bitta', 'одна', 'one'), correct: true, ok: L("Bitta. Perpendikulyar albatta tekislikni kesib o'tadi, va roppa-rosa bir marta.", 'Одна. Перпендикуляр обязательно пересекает плоскость, и ровно один раз.', 'One. A perpendicular necessarily crosses the plane, exactly once.') },
-        { id: 'b', label: L("bitta ham yo'q", 'ни одной', 'none'), hint: L("Bitta ham yo'q parallel chiziqda bo'lardi.", 'Ни одной было бы у параллельной прямой.', 'None would belong to a parallel line.') },
-        { id: 'c', label: L('ikkita', 'две', 'two'), hint: L('Ikki nuqta butun chiziqni tekislikka tortardi.', 'Две точки затянули бы всю прямую в плоскость.', 'Two points would pull the whole line into the plane.') },
-        { id: 'd', label: L("cheksiz ko'p", 'бесконечно много', 'infinitely many'), hint: L("Cheksiz ko'p chiziq tekislikda yotganda bo'lardi.", 'Бесконечно много было бы, если прямая лежит в плоскости.', 'Infinitely many would happen if the line lay in the plane.') },
+        { id: 'a', label: L('apofema', 'апофема', 'the apothem'), correct: true },
+        { id: 'b', label: L('yon qirra', 'боковое ребро', 'the lateral edge'), hint: L('Qirra asos uchiga keladi.', 'Ребро приходит в вершину основания.', 'The edge arrives at a base vertex.') },
+        { id: 'c', label: L('piramida balandligi', 'высота пирамиды', 'the height of the pyramid'), hint: L('Piramida balandligi yon yoqda yotmaydi.', 'Высота пирамиды в боковой грани не лежит.', 'The height of the pyramid does not lie in a lateral face.') },
+        { id: 'd', label: L('asos tomoni', 'сторона основания', 'a base side'), hint: L('Tomon uchburchakning asosi, balandligi emas.', 'Сторона это основание треугольника, а не высота.', 'The side is the base of the triangle, not its height.') },
       ],
     },
     {
       id: 'q4',
       ask: true,
-      prompt: L("Alomat o'rniga nimani olib bo'lmaydi?", 'Что нельзя брать вместо признака?', 'What must not be taken in place of the criterion?'),
-      done: 'a ⊥ α   →   a ⊥ c',
+      prompt: L("Kubning nechta yog'i birdan ko'rinadi?", 'Сколько граней куба видно сразу?', 'How many faces of a cube show at once?'),
+      done: '3 + 3 = 6',
       items: [
-        { id: 'a', label: L('perpendikulyar chiziq xossasini', 'свойство перпендикулярной прямой', 'the property of a perpendicular line'), correct: true },
-        { id: 'b', label: L('ikkinchi kesuvchi chiziqni', 'вторую пересекающую прямую', 'a second crossing line'), hint: L('Aynan uni olish kerak: bu alomatning sharti.', 'Как раз её и надо взять: это условие признака.', 'That is exactly what has to be taken: it is a condition of the criterion.') },
-        { id: 'c', label: L('ikkinchi aksiomani', 'вторую аксиому', 'the second axiom'), hint: L('Aksioma doim qonuniy, undan foydalanish mumkin.', 'Аксиома законна всегда, ею пользоваться можно.', 'An axiom is always lawful, it may be used.') },
-        { id: 'd', label: L('masalaning shartini', 'условие задачи', 'the condition of the problem'), hint: L('Isbot shartdan boshlanadi.', 'С условия доказательство и начинается.', 'A proof begins with the condition.') },
+        { id: 'a', label: L('uchta', 'три', 'three'), correct: true },
+        { id: 'b', label: L('oltita', 'шесть', 'six'), hint: L('Olti barcha yoqlar, lekin yarmi yashiringan.', 'Шесть это все грани, но половина скрыта.', 'Six is all the faces, but half are hidden.') },
+        { id: 'c', label: L("to'rtta", 'четыре', 'four'), hint: L("To'rtinchi yoq doim jism orqasiga ketadi.", 'Четвёртая грань всегда уходит за тело.', 'The fourth face always goes behind the body.') },
+        { id: 'd', label: L('bitta', 'одна', 'one'), hint: L("Bitta faqat yoqqa tik qaraganda ko'rinadi.", 'Одна видна только строго напротив грани.', 'One shows only when looking straight at a face.') },
       ],
     },
   ],
+  angles: ['P·h', '2(ab+bc+ac)', '½·P·m', '6a²'],
 }
 
 const S15 = {
   role: 'summary',
   answer: 'none',
   eyebrow: L('YAKUN', 'ИТОГ', 'SUMMARY'),
-  title: L('Endi nima qila olasiz', 'Что теперь умеешь', 'What you can do now'),
+  title: L('Endi nimani bilasiz', 'Что теперь умеешь', 'What you can do now'),
   audio: [
-    A('mount', "Taxmin bitta chiziq haqida edi. Nima chiqqanini ko'ramiz.", 'Прогноз был про одну прямую. Посмотрим, что вышло.', 'The guess was about one line. Let us see how it turned out.'),
-    A('next', "Bittasi kam. Ikkita kerak, va albatta kesishuvchi: bitta o'rniga ikki yo'nalish.", 'Одной мало. Нужны две, и обязательно пересекающиеся: два направления вместо одного.', 'One is not enough. Two are needed, and they must cross: two directions instead of one.'),
+    A('mount', "Dars nechta yoqni qo'shish kerak degan savol bilan boshlandi.", 'Урок начался с вопроса, сколько граней складывать.', 'The lesson began with the question how many faces to add.'),
+    A('next', "Uch bu ko'rinadigani, olti bu bori. Yoyilma barcha bo'laklarni birdan ko'rsatdi, va sirt yuzasi biz allaqachon hisoblay oladigan yassi shakllar yuzalarining yig'indisiga aylandi. Darsda birorta yangi formula paydo bo'lmadi: tasma to'g'ri to'rtburchak, piramidaning yon yog'i uchburchak. Keyin muntazam prizma va piramidalar, u yerda shu formulalar qisqaradi, chunki asosning barcha tomonlari teng.", 'Три это то, что видно, а шесть это то, что есть. Развёртка показала все куски сразу, и площадь поверхности стала суммой площадей плоских фигур, которые мы умеем считать давно. Ни одной новой формулы в уроке не появилось: лента это прямоугольник, боковая грань пирамиды это треугольник. Дальше правильные призмы и пирамиды, там эти же формулы станут короче, потому что все стороны основания равны.', 'Three is what shows, six is what there is. The net showed all the pieces at once, and the surface area became a sum of areas of flat figures we have been able to compute for a long time. Not a single new formula appeared in the lesson: the strip is a rectangle, a lateral face of a pyramid is a triangle. Next come regular prisms and pyramids, where these same formulas get shorter, because all sides of the base are equal.'),
   ],
   can: [
-    L('Bitta emas, ikki chiziqni tekshiraman', 'Проверяю две прямые, а не одну', 'I check two lines, not one'),
-    L('Ular kesishadimi, qarayman', 'Смотрю, пересекаются ли они', 'I look at whether they cross'),
-    L('Alomat va xossani ajrataman', 'Различаю признак и свойство', 'I tell the criterion from the property'),
-    L("Xulosani shart o'rniga qo'ymayman", 'Не подставляю вывод в условие', 'I do not put the conclusion into the condition'),
+    L('Jismni yassi shaklga yoyaman', 'Разворачиваю тело в плоскую фигуру', 'I unfold a body into a flat figure'),
+    L("Ko'rinadiganlarini emas, barcha yoqlar yuzasini qo'shaman", 'Складываю площади всех граней, а не видимых', 'I add the areas of all the faces, not the visible ones'),
+    L("Prizmaning yon sirtini to'g'ri to'rtburchak kabi hisoblayman", 'Считаю боковую поверхность призмы как прямоугольник', 'I compute the lateral area of a prism as a rectangle'),
+    L('Piramidaning yon sirtini apofema orqali hisoblayman', 'Считаю боковую поверхность пирамиды через апофему', 'I compute the lateral area of a pyramid through the apothem'),
   ],
   levels: {
-    full: L('Bu turdagi masalalar yopildi.', 'Этот тип задач закрыт.', 'This type of problem is closed.'),
-    gap: L('Bir joy takrorlashni talab qiladi: nega parallellar yetarli emas.', 'Одно место требует повтора: почему параллельных недостаточно.', 'One spot needs a second look: why parallel lines are not enough.'),
-    back: L('Qoidaga va oltinchi ekranga qayting.', 'Вернись к правилу и к экрану 6.', 'Go back to the rule and to screen six.'),
+    full: L("To'rttasi ham", 'Все четыре', 'All four'),
+    gap: L("To'rttadan uchtasi", 'Три из четырёх', 'Three out of four'),
+    back: L('Uchtadan kam', 'Меньше трёх', 'Fewer than three'),
   },
-  bridge: L("Keyin chiziq va tekislik orasidagi burchak: u yerda proyeksiya kerak bo'ladi.", 'Дальше угол прямой с плоскостью: там понадобится проекция.', 'Next comes the angle between a line and a plane: there a projection will be needed.'),
-  lifehack: L("Chiziqlarni emas, yo'nalishlarni sanang. Ikki parallel bu bitta yo'nalish.", 'Считай не прямые, а направления. Две параллельные это одно направление.', 'Count directions, not lines. Two parallel lines are one direction.'),
-  sheetTitle: L('Perpendikulyarlik · shpargalka', 'Перпендикулярность · шпаргалка', 'Perpendicularity · cheat sheet'),
-  sheetSrc: L('10-sinf · 40-dars', '10 класс · урок 40', 'Grade 10 · lesson 40'),
+  bridge: L('Bundan keyin muntazam prizma va piramidalar, u yerda bu formulalar qisqaradi', 'Дальше правильные призмы и пирамиды, где все эти формулы становятся короче', 'Next come regular prisms and pyramids, where all these formulas get shorter'),
+  lifehack: L('Formulani eslamasangiz, jismni xayolda yoying', 'Не помнишь формулу — разверни тело в голове', 'If you forget a formula, unfold the body in your head'),
+  sheetTitle: L('Shpargalka', 'Шпаргалка', 'Cheat sheet'),
+  sheetSrc: L("Geometriya, ellik to'qqizinchi va oltmishinchi betlar", 'Геометрия, страницы пятьдесят девять и шестьдесят', 'Geometry, pages fifty nine and sixty'),
   hook: {
-    a: 'a ⊥ α',
-    b: 'a ⊥ α  ?',
+    a: 'S = ab + bc + ac',
+    b: 'S = 2(ab+bc+ac)',
   },
-  proved: 'b ∩ c = O',
-  law: 'a ⊥ b,  a ⊥ c,  b ∩ c = O   →   a ⊥ α',
+  proved: 'S = 2(ab+bc+ac)',
+  law: 'S = S₁ + 2S₀',
   sheet: [
-    'a ⊥ b,   b ⊂ α',
-    'a ⊥ c,   c ⊂ α',
-    'b ∩ c = O',
-    'a ⊥ α',
-    'a ∩ α = O',
+    'P·h',
+    '2(ab+bc+ac)',
+    '½·P·m',
+    '6a²',
+    '3 + 3 = 6',
   ],
 }
 
 // ======== QOLDA YOZILGAN QISM: bundan pastdagisi saqlanadi ========
 
-const num = (s) => parseFloat(String(s).replace(/−/g, '-'))
+const num = (s) => parseFloat(String(s).replace(/\u2212/g, '-'))
 
-// СЦЕНА УРОКА. Точка `O` в плоскости, две прямые плоскости `OM` и `ON`,
-// перпендикуляр `OP` и НАКЛОННАЯ `OQ`.
+// PRIBOR 6B. Darsning butun mazmuni JISM va YOYILMA orasidagi bog'lanishda,
+// shuning uchun ular yonma-yon turadi: chapda jism, o'ngda yoyilma, va
+// yoritilgan bo'lak jismdagi yoq bilan bir xil rangda.
 //
-// `OQ` подобрана честно: она перпендикулярна `OM` (её направление не имеет
-// составляющей вдоль `OM`), но не перпендикулярна `ON`. Именно поэтому при
-// повороте виден наклон, а угол с первой прямой остаётся прямым.
-const PTS = [
-  { id: 'O', at: [0, 0, 0], label: 'O' },
-  { id: 'M', at: [0.95, 0, 0], label: 'M' },
-  { id: 'N', at: [0, 0.95, 0], label: 'N' },
-  { id: 'P', at: [0, 0, 0.95], label: 'P' },
-  { id: 'Q', at: [0, 0.5, 0.8], label: 'Q' },
-  // Вторая прямая, ПАРАЛЛЕЛЬНАЯ первой: направление то же, и признак не даёт
-  // ничего нового (экран 6).
-  { id: 'K', at: [-0.5, 0.6, 0], label: '' },
-  { id: 'L', at: [0.5, 0.6, 0], label: '' },
-]
-const PLANE = [{ by: ['O', 'M', 'N'], dim: true }]
-const GREY = '#7f8c8d'
-// Одна прямая плоскости и наклонная к ней.
-const ONE = [
-  { from: 'O', to: 'Q' },
-  { from: 'O', to: 'M', tone: GREY, w: 2 },
-]
-// Две ПЕРЕСЕКАЮЩИЕСЯ прямые и настоящий перпендикуляр.
-const TWO = [
-  { from: 'O', to: 'P' },
-  { from: 'O', to: 'M', tone: GREY, w: 2 },
-  { from: 'O', to: 'N', tone: GREY, w: 2 },
-]
-// Две ПАРАЛЛЕЛЬНЫЕ прямые и всё та же наклонная.
-const PAR = [
-  { from: 'O', to: 'Q' },
-  { from: 'O', to: 'M', tone: GREY, w: 2 },
-  { from: 'K', to: 'L', tone: GREY, w: 2 },
-]
+// `size` ni O'TKAZISH SHART: `Scene` o'lchamni `cloneElement` bilan beradi, va
+// uni yutib qo'ygan o'ram chizmani standart o'lchamda chizadi (35-darsda shu
+// sakson marta oshib ketishga olib kelgan).
+const Both = ({ size = 268, step = 0, lit = null, body, faces, kind = 'prism' }) => (
+  <div style={{ display: 'flex', gap: 10, alignItems: 'center', justifyContent: 'center' }}>
+    <Space size={size * 0.46} step={1} yaw={0.42} poly={body} faces={faces} />
+    <Net size={size * 0.46} step={step} kind={kind} lit={lit} />
+  </div>
+)
 
-// Har KADRDA faqat o'sha kadrning nuqtalari ko'rinadi. `PTS` bitta ro'yxat --
-// kesmalar va tekislik unga id bilan murojaat qiladi, -- lekin hammasini har
-// kadrda chizish kerak emas: 3-ekranda savol O, Q va M haqida, ekranda esa yana
-// P va nomsiz ikki nuqta turardi (metodist ko'rdi, 2026-08-20).
-const HIDE_ONE = ['P', 'N', 'K', 'L']
-const HIDE_TWO = ['Q', 'K', 'L']
-const HIDE_PAR = ['P', 'N']
+const PRISM = { kind: 'prism', h: 1.05, plan: [[-0.5, -0.32], [0.5, -0.32], [0.5, 0.32], [-0.5, 0.32]] }
+const CUBE = { kind: 'prism', h: 0.94, plan: [[-0.47, -0.47], [0.47, -0.47], [0.47, 0.47], [-0.47, 0.47]] }
+const PYR = { kind: 'pyramid', h: 1.2, plan: [[-0.5, -0.5], [0.5, -0.5], [0.5, 0.5], [-0.5, 0.5]] }
+
+const FACE2 = '#6b8fa3'
+const BASE = [{ by: ['A', 'B', 'C', 'D'] }]
+const BASE_SIDE = [{ by: ['A', 'B', 'C', 'D'] }, { by: ['A', 'B', 'B1', 'A1'], tone: FACE2 }]
+const PYR_SIDE = [{ by: ['A', 'B', 'C', 'D'] }, { by: ['A', 'B', 'S'], tone: FACE2 }]
 
 const PAIR_IDS = ['p0', 'p1', 'p2', 'p3']
 const EQ_LEFT = S9.match.left.map((label, i) => ({ id: PAIR_IDS[i], label }))
-const EQ_RIGHT = ['a', 'b', 'c', 'd'].map((k, i) => {
-  const v = S9.match[k]
-  return { id: PAIR_IDS[i], label: v && v.label ? v.label : v, hint: v && v.hint ? v.hint : undefined }
-})
+const EQ_RIGHT = ['a', 'b', 'c', 'd'].map((k, i) => ({ id: PAIR_IDS[i], label: S9.match[k] }))
 
 const ORD11 = S11.order.items.map((label, i) => ({ id: 'o' + i, label }))
 const ORD11_ANS = String(S11.order.answer).split(/\s{2,}/)
@@ -687,40 +632,15 @@ const ORD11_ANS = String(S11.order.answer).split(/\s{2,}/)
 
 const TRAP_ROWS = ['r1', 'r2', 'r3', 'r4'].map((id) => ({ id, text: S12.row[id] }))
 
-const PICK3 = ['a', 'b', 'c'].map((k) => {
-  const v = S3.pick[k]
-  return {
-    id: k,
-    label: v && v.label ? v.label : v,
-    hint: v && v.hint ? v.hint : undefined,
-    ok: k === 'b',
-  }
-})
-const PICK4 = ['a', 'b', 'c'].map((k) => {
-  const v = S4.pick[k]
-  return {
-    id: k,
-    label: v && v.label ? v.label : v,
-    hint: v && v.hint ? v.hint : undefined,
-    ok: k === 'b',
-  }
-})
-
 const REASONS = [
   { id: 's1', label: S10.reason.s1 },
   { id: 's2', label: S10.reason.s2 },
   { id: 's3', label: S10.reason.s3 },
   { id: 'pic', label: S10.reason.pic.label, missing: S10.reason.pic.missing },
 ]
-// `early` -- TO'G'RI, lekin bu qatorda emas degan razbor.
-//
-// ASOSLASHLAR TUZATILDI. Ilgari «u ikkinchisiga ham perpendikulyar» qatori
-// «asos uchi umumiy» bilan asoslanardi, bu esa mazmunan noto'g'ri: umumiy uch
-// qirralarning KESISHISHINI asoslaydi. Ikki perpendikulyarlik ham kub
-// yasalishidan keladi, kesishish esa umumiy uchdan.
 const PROOF_ROWS = [
   { text: S10.proof.r1, reason: 's1', early: S10.proof.e1 },
-  { text: S10.proof.r2, reason: 's1', early: S10.proof.e2 },
+  { text: S10.proof.r2, reason: 's2', early: S10.proof.e2 },
   { text: S10.proof.r3, reason: 's3', early: S10.proof.e3, ok: S10.proof.ok },
 ]
 
@@ -730,9 +650,14 @@ const Screen1 = (p) => (
       <HookBody
         {...s}
         data={{ ...S1, rows: [{ id: 'a', ...S1.row.a }, { id: 'b', ...S1.row.b }] }}
-        // Ракурс ВЫБРАН так, чтобы рёбра казались сошедшимися: прогноз делается
-        // ровно на том обмане, который потом снимет поворот.
-        fig={() => <Scene fig={<Space step={1} pts={PTS} planes={PLANE} segs={ONE} hide={HIDE_ONE} angleAt={{ at: 'O', from: 'Q', to: 'M' }} />} max={172} h={172} />}
+        // Prognoz TURG'UN chizmada: aynan shunda yon qirralar esdan chiqadi.
+        fig={() => (
+          <Scene
+            fig={<Space step={1} yaw={0.4} poly={PRISM} faces={BASE_SIDE} />}
+            max={172}
+            h={172}
+          />
+        )}
       />
     )}
   </Screen>
@@ -743,8 +668,11 @@ const Screen2 = (p) => (
     {({ audio, solve }) => (
       <Cols l={1} r={1.2}>
         <Col>
-          {/* Telefonda ustunlar bir-birining ostiga tushadi: balandlik qat'iy. */}
-          <Scene fig={<Space step={1} yaw={0.4} pts={PTS} planes={PLANE} segs={TWO} hide={HIDE_TWO} />} max={240} h={158} />
+          <Scene
+            fig={<Space step={1} yaw={0.4} poly={PRISM} faces={BASE_SIDE} />}
+            max={240}
+            h={158}
+          />
         </Col>
         <Col>
           <ProbeChain items={S2.items} cols={2} audio={audio} onSolved={solve} />
@@ -757,18 +685,22 @@ const Screen2 = (p) => (
 const Screen3 = (p) => (
   <Screen data={S3} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S3.show.length && !solved ? (
+      /* Kadr 1 -- bitta yoq, kadr 2 -- ikkinchisi ham: jism yassi
+         ko'pburchaklardan yig'iladi. */
       <Scene
-        fig={<Space step={1} yaw={phase * 0.75} pts={PTS} planes={PLANE} segs={ONE} hide={HIDE_ONE} angleAt={{ at: 'O', from: 'Q', to: 'M' }} />}
+        fig={(
+          <Both body={PRISM} faces={BASE} step={1 + phase} kind="prism" />
+        )}
         note={<NoteList items={S3.show[phase]} />}
       />
     ) : (
-      /* СВИДЕТЕЛЬ УРОКА. Крутит ученик: пока он не повернул куб, «пересеклись»
-         и «скрестились» на экране неотличимы. */
       <SpinScene
-        scene={<Space step={1} pts={PTS} planes={PLANE} segs={ONE} hide={HIDE_ONE} angleAt={{ at: 'O', from: 'Q', to: 'M' }} />}
-        prompt={S3.pick.prompt}
-        options={PICK3}
-        okText={S3.pick.ok}
+        yaw0={0.35}
+        scene={<Space step={1} poly={PRISM} faces={BASE_SIDE} />}
+        prompt={S3.work.prompt}
+        answer={num(S3.work.answer)}
+        okText={S3.work.ok}
+        hints={S3.work.hint}
         audio={audio}
         onSolved={solve}
       />
@@ -779,23 +711,25 @@ const Screen3 = (p) => (
 const Screen4 = (p) => (
   <Screen data={S4} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S4.show.length && !solved ? (
-      /* Кадр 1 -- ПАРАЛЛЕЛЬНАЯ пара с их общей плоскостью, кадр 2 -- наша.
-         Различие видно только в том, есть ли плоскость. */
+      /* DARSNING SHOHIDI. Ikki yoq umumiy TOMONGA ega, va o'sha tomon --
+         qirra. Qirra yoritilgan, ya'ni ikki yoqning chegarasi ko'rinadi. */
       <Scene
         fig={(
-          <Space
-            step={1} yaw={0.5} pts={PTS} planes={PLANE} segs={TWO} hide={HIDE_TWO}
-            angleAt={{ at: 'O', from: 'P', to: phase === 0 ? 'M' : 'N' }}
+          <Both
+            body={PRISM} faces={BASE_SIDE} step={2} kind="prism"
+            lit={phase === 0 ? 'lat0' : 'base0'}
           />
         )}
         note={<NoteList items={S4.show[phase]} />}
       />
     ) : (
       <SpinScene
-        scene={<Space step={1} pts={PTS} planes={PLANE} segs={TWO} hide={HIDE_TWO} angleAt={{ at: 'O', from: 'P', to: 'N' }} />}
-        prompt={S4.pick.prompt}
-        options={PICK4}
-        okText={S4.pick.ok}
+        yaw0={0.35}
+        scene={<Space step={1} poly={PRISM} faces={BASE_SIDE} />}
+        prompt={S4.work.prompt}
+        answer={num(S4.work.answer)}
+        okText={S4.work.ok}
+        hints={S4.work.hint}
         audio={audio}
         onSolved={solve}
       />
@@ -807,24 +741,25 @@ const Screen5 = (p) => (
   <Screen data={S5} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S5.show.length && !solved ? (
       <Scene
-        fig={<Space step={1} yaw={phase * 0.6} pts={PTS} planes={PLANE} segs={TWO} hide={HIDE_TWO} />}
+        fig={(
+          <Both
+            body={PRISM} faces={BASE_SIDE} step={2} kind="prism"
+            lit={phase === 0 ? 'lat0' : 'lat2'}
+          />
+        )}
         note={<NoteList items={S5.show[phase]} />}
       />
     ) : (
-      <Cols l={1} r={1}>
-        <Col><Scene fig={<Space step={1} yaw={0.6} pts={PTS} planes={PLANE} segs={TWO} hide={HIDE_TWO} />} max={300} /></Col>
-        <Col>
-          <NumberEntry
-            compact
-            prompt={S5.work.prompt}
-            answer={num(S5.work.answer)}
-            okText={S5.work.ok}
-            hints={S5.work.hint}
-            audio={audio}
-            onSolved={solve}
-          />
-        </Col>
-      </Cols>
+      <SpinScene
+        yaw0={0.3}
+        scene={<Space step={1} poly={PRISM} faces={BASE_SIDE} />}
+        prompt={S5.work.prompt}
+        answer={num(S5.work.answer)}
+        okText={S5.work.ok}
+        hints={S5.work.hint}
+        audio={audio}
+        onSolved={solve}
+      />
     ))}
   </Screen>
 )
@@ -832,27 +767,26 @@ const Screen5 = (p) => (
 const Screen6 = (p) => (
   <Screen data={S6} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S6.show.length && !solved ? (
-      /* Подсветка переезжает: сначала параллельные данному ребру, потом
-         пересекающие. Остаток и есть ответ. */
       <Scene
-        fig={<Space step={1} yaw={phase * 0.7} pts={PTS} planes={PLANE} segs={PAR} hide={HIDE_PAR} />}
+        fig={(
+          <Both
+            body={PYR} faces={PYR_SIDE} step={1 + phase} kind="pyramid"
+            lit={phase === 0 ? null : 'lat0'}
+          />
+        )}
         note={<NoteList items={S6.show[phase]} />}
       />
     ) : (
-      <Cols l={1} r={1}>
-        <Col><Scene fig={<Space step={1} yaw={0.7} pts={PTS} planes={PLANE} segs={PAR} hide={HIDE_PAR} />} max={300} /></Col>
-        <Col>
-          <NumberEntry
-            compact
-            prompt={S6.work.prompt}
-            answer={num(S6.work.answer)}
-            okText={S6.work.ok}
-            hints={S6.work.hint}
-            audio={audio}
-            onSolved={solve}
-          />
-        </Col>
-      </Cols>
+      <SpinScene
+        yaw0={0.3}
+        scene={<Space step={1} poly={PYR} faces={PYR_SIDE} />}
+        prompt={S6.work.prompt}
+        answer={num(S6.work.answer)}
+        okText={S6.work.ok}
+        hints={S6.work.hint}
+        audio={audio}
+        onSolved={solve}
+      />
     ))}
   </Screen>
 )
@@ -860,37 +794,28 @@ const Screen6 = (p) => (
 const Screen7 = (p) => (
   <Screen data={S7} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S7.show.length && !solved ? (
-      /* ПЕРЕНОС на глазах: верхнее ребро опускается на нижнюю грань, и угол
-         становится обычным углом двух пересекающихся рёбер. */
+      /* CHEGARA. Kadr 1 -- OG'MA prizma, kadr 2 -- to'g'ri. Farq faqat yon
+         qirrada, va qimirlamas chizmada u deyarli ko'rinmaydi. */
       <Scene
         fig={(
           <Space
-            step={1} yaw={phase * 0.6} pts={PTS} planes={PLANE} segs={TWO} hide={HIDE_TWO}
-            angleAt={{ at: 'O', from: 'P', to: 'M' }}
+            step={1} yaw={phase === 0 ? 0.4 : 1.9} poly={CUBE}
+            faces={BASE_SIDE}
           />
         )}
         note={<NoteList items={S7.show[phase]} />}
       />
     ) : (
-      <Cols l={1} r={1}>
-        <Col>
-          <Scene
-            fig={<Space step={1} yaw={0.6} pts={PTS} planes={PLANE} segs={TWO} hide={HIDE_TWO} angleAt={{ at: 'O', from: 'P', to: 'M' }} />}
-            max={300}
-          />
-        </Col>
-        <Col>
-          <NumberEntry
-            compact
-            prompt={S7.work.prompt}
-            answer={num(S7.work.answer)}
-            okText={S7.work.ok}
-            hints={S7.work.hint}
-            audio={audio}
-            onSolved={solve}
-          />
-        </Col>
-      </Cols>
+      <SpinScene
+        yaw0={0.35}
+        scene={<Space step={1} poly={CUBE} faces={BASE_SIDE} />}
+        prompt={S7.work.prompt}
+        answer={num(S7.work.answer)}
+        okText={S7.work.ok}
+        hints={S7.work.hint}
+        audio={audio}
+        onSolved={solve}
+      />
     ))}
   </Screen>
 )
@@ -903,7 +828,12 @@ const Screen8 = (p) => (
         data={S8}
         fig={(solved) => (
           <Scene
-            fig={<Space step={1} yaw={solved ? 0.8 : 0} pts={PTS} planes={PLANE} segs={solved ? TWO : ONE} hide={solved ? HIDE_TWO : HIDE_ONE} angleAt={{ at: 'O', from: solved ? 'P' : 'Q', to: 'M' }} />}
+            fig={(
+              <Both
+                body={PRISM} faces={BASE_SIDE} kind="prism"
+                step={solved ? 2 : 1} lit={solved ? 'lat0' : null}
+              />
+            )}
             max={330}
           />
         )}
@@ -1024,16 +954,16 @@ const Screen13 = (p) => (
       <Cols l={1} r={1}>
         <Col>
           <Panel tone="paper">
-            <Expr size="mid">{S13.entry.expr}</Expr>
+            <Expr size="mid">{S13.place.step}</Expr>
           </Panel>
         </Col>
         <Col>
           <NumberEntry
             compact
-            prompt={S13.entry.prompt}
-            answer={num(S13.entry.answer)}
-            okText={S13.entry.ok}
-            hints={S13.entry.hint}
+            prompt={S13.place.prompt}
+            answer={num(S13.place.target)}
+            okText={S13.place.ok}
+            hints={[S13.place.wrong]}
             audio={audio}
             onSolved={() => setTimeout(() => { setTitle(S13.multi.title); setStage(1) }, 1500)}
           />
@@ -1051,7 +981,14 @@ const Screen14 = (p) => (
         data={S14}
         fig={(round) => (
           <Scene
-            fig={<Space step={1} yaw={round * 0.4} pts={PTS} planes={PLANE} segs={round === 1 ? PAR : TWO} hide={round === 1 ? HIDE_PAR : HIDE_TWO} />}
+            fig={(
+              <Both
+                body={round === 1 ? PYR : PRISM}
+                faces={round === 1 ? PYR_SIDE : BASE_SIDE}
+                kind={round === 1 ? 'pyramid' : 'prism'}
+                step={2}
+              />
+            )}
             max={260}
             h={168}
           />

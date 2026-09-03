@@ -1,13 +1,13 @@
-# Урок 13 — Методы · КОНТЕНТ (этап 2)
+# Урок 12 — `tg x = a` · КОНТЕНТ (этап 2)
 
-**Читается и правится методистом.** Формат тот же, что в `DARS12_KONTENT.md`.
+**Читается и правится методистом.** Формат тот же, что в `DARS11_KONTENT.md`.
 
-Скелет: `DARS11_13_SKELET.md` §8. Опора в учебнике: алгебра 2022, стр. 147–150.
+Скелет: `DARS11_13_SKELET.md` §7. Опора в учебнике: алгебра 2022, стр. 145–146.
 
-**Главное решение урока.** Новых простейших уравнений здесь нет. Урок про то, **как не потерять
-корни**, приводя уравнение к простейшему. Деление на `cos x` выглядит удобным сокращением, но
-серия, где косинус равен нулю, была решением — и после деления её на экране не остаётся. Поэтому
-обе серии сначала зажигаются, а потом одна гаснет: видно, что именно потеряли.
+**Главное решение урока.** Период `180°` не заучивается. Прямая через центр пересекает окружность
+в двух диаметрально противоположных точках, и обе дают **одну и ту же** отсечку на линии
+тангенсов. Значит серия одна, а шаг у неё пол-оборота. Это видно на чертеже: точка уезжает,
+отсечка стоит.
 
 ---
 
@@ -17,28 +17,28 @@
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | МЕТОДЫ | USULLAR | THE METHODS |
-| `title` | Можно ли делить на косинус? | Kosinusga bo'lish mumkinmi? | May we divide by the cosine? |
-| `row.a.name` | можно, ответ тот же | mumkin, javob o'sha | yes, the answer stays |
-| `row.b.name` | нельзя, корни потеряются | mumkin emas, ildizlar yo'qoladi | no, roots get lost |
+| `eyebrow` | ТАНГЕНС | TANGENS | THE TANGENT |
+| `title` | Через сколько повторяется тангенс? | Tangens necha gradusdan keyin takrorlanadi? | After how much does the tangent repeat? |
+| `row.a.name` | через полный оборот | to'liq aylanadan keyin | after a full turn |
+| `row.b.name` | через половину | yarim aylanadan keyin | after half a turn |
 | `probe.question` | Какая запись верна? | Qaysi yozuv to'g'ri? | Which reading is correct? |
 | `probe.a` | первая | birinchi | the first |
 | `probe.b` [верно] | вторая | ikkinchi | the second |
 | `probe.both` | обе | ikkisi ham | both |
 | `probe.none` | ни одна | hech qaysi | neither |
-| `probe.after` | Твой ответ записан. Сейчас поделим и посмотрим, что останется. | Javobingiz yozib olindi. Endi bo'lib, nima qolishini ko'ramiz. | Your answer is saved. Now we will divide and see what is left. |
-| `audio.mount*` | На окружности горят четыре корня. Сейчас мы поделим обе части на косинус, и два из них погаснут. | Aylanada to'rt ildiz yonib turadi. Endi ikkala qismni kosinusga bo'lamiz, va ulardan ikkitasi so'nadi. | Four roots are lit on the circle. Now we will divide both sides by the cosine, and two of them will fade. |
-| `audio.r1` | Первая запись говорит, что делить можно и ответ не изменится. | Birinchi yozuv bo'lish mumkin va javob o'zgarmaydi deydi. | The first reading says dividing is fine and the answer stays. |
-| `audio.r2` | Вторая говорит, что часть корней в ответ не попадёт. | Ikkinchisi ildizlarning bir qismi javobga tushmaydi deydi. | The second says some roots will not be in the answer. |
+| `probe.after` | Твой ответ записан. Сейчас повернём прямую и посмотрим. | Javobingiz yozib olindi. Endi chiziqni burib ko'ramiz. | Your answer is saved. Now we will turn the line and see. |
+| `audio.mount*` | Прямая через центр поворачивается на половину оборота, и отсечка справа остаётся на месте. | Markazdan o'tgan chiziq yarim aylanaga buriladi, o'ngdagi kesish esa joyida qoladi. | The line through the centre turns half a turn, and the mark on the right stays in place. |
+| `audio.r1` | Первая запись говорит, что повторяется через полный оборот. | Birinchi yozuv to'liq aylanadan keyin takrorlanadi deydi. | The first reading says it repeats after a full turn. |
+| `audio.r2` | Вторая говорит, что достаточно половины. | Ikkinchisi yarmi yetadi deydi. | The second says half is enough. |
 | `audio.ask` | Как думаешь, какая верная? Пока просто предположи. | Sizningcha qaysi biri to'g'ri? Hozircha shunchaki taxmin qiling. | Which one do you think is right? Just make a guess for now. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `expr` | `2 sin x·cos x = cos x` |
-| `row.a.value` | `2 sin x = 1` |
-| `row.b.value` | `cos x·(2 sin x − 1) = 0` |
+| `expr` | `tg x = a` |
+| `row.a.value` | `x = arctg a + 360°n` |
+| `row.b.value` | `x = arctg a + 180°n` |
 
 ---
 
@@ -49,63 +49,63 @@
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ОПОРА | TAYANCH | WHAT YOU KNOW |
-| `title` | Три вопроса перед методами | Usullardan oldin uch savol | Three questions before the methods |
-| `q1.prompt` | Когда произведение равно нулю? | Ko'paytma qachon nolga teng? | When is a product equal to zero? |
-| `q1.a` [верно] | хотя бы один множитель ноль | bitta ko'paytuvchi nol | at least one factor is zero |
-| `q1.b` | все множители нули | hamma ko'paytuvchi nol | all factors are zero |
-| `q1.b.hint` | Достаточно одного: остальные могут быть любыми. | Bittasi yetadi: qolganlari har qanday bo'lishi mumkin. | One is enough: the others may be anything. |
-| `q1.c` | множители равны | ko'paytuvchilar teng | the factors are equal |
-| `q1.c.hint` | Равные множители дают квадрат, а не обязательно ноль. | Teng ko'paytuvchilar kvadrat beradi, nol emas. | Equal factors give a square, not necessarily zero. |
-| `q1.d` | никогда | hech qachon | never |
-| `q1.d.hint` | Ноль в произведении обнуляет всё. | Ko'paytmadagi nol hammasini nollaydi. | A zero in a product zeroes everything. |
-| `q2.prompt` | При каких углах косинус равен нулю? | Qaysi burchaklarda kosinus nolga teng? | At which angles is the cosine zero? |
-| `q2.a` [верно] | девяносто и двести семьдесят | to'qson va ikki yuz yetmish | ninety and two hundred seventy |
-| `q2.b` | ноль и сто восемьдесят | nol va yuz sakson | zero and one hundred eighty |
-| `q2.b.hint` | Там ноль у высоты, то есть у синуса. | U yerda nol balandlikda, ya'ni sinusda. | There the zero is in the height, that is the sine. |
-| `q2.c` | ни при каких | hech qaysida | at none of them |
-| `q2.c.hint` | На вертикальной оси сдвиг равен нулю. | Vertikal o'qda siljish nolga teng. | On the vertical axis the shift is zero. |
-| `q2.d` | сорок пять | qirq besh | forty five |
-| `q2.d.hint` | Там сдвиг и высота равны и не равны нулю. | U yerda siljish va balandlik teng va nolga teng emas. | There the shift and the height are equal and not zero. |
-| `q3.prompt` | Какие значения может принимать синус? | Sinus qanday qiymatlarni olishi mumkin? | Which values can the sine take? |
-| `q3.a` [верно] | от минус единицы до единицы | minus birdan birgacha | from minus one to one |
-| `q3.b` | любые | har qanday | any values |
-| `q3.b.hint` | Точка лежит на окружности радиуса один. | Nuqta radiusi bir bo'lgan aylanada yotadi. | The point lies on the circle of radius one. |
-| `q3.c` | только целые | faqat butun sonlar | only whole numbers |
-| `q3.c.hint` | Между нулём и единицей значений сколько угодно. | Nol va bir orasida qiymatlar qancha bo'lsa ham bor. | Between zero and one there are any number of values. |
-| `q3.d` | только положительные | faqat musbat | only positive ones |
-| `q3.d.hint` | Ниже оси высота отрицательна. | O'qdan pastda balandlik manfiy. | Below the axis the height is negative. |
+| `title` | Три вопроса перед тангенсом | Tangensdan oldin uch savol | Three questions before the tangent |
+| `q1.prompt` | Что такое тангенс угла? | Burchak tangensi nima? | What is the tangent of an angle? |
+| `q1.a` [верно] | высота, делённая на сдвиг | balandlikning siljishga nisbati | the height divided by the shift |
+| `q1.b` | сдвиг, делённый на высоту | siljishning balandlikka nisbati | the shift divided by the height |
+| `q1.b.hint` | Это перевёрнутое отношение, у него другое имя. | Bu ag'darilgan nisbat, uning nomi boshqa. | That is the reversed ratio, it has a different name. |
+| `q1.c` | сумма координат | koordinatalar yig'indisi | the sum of the coordinates |
+| `q1.c.hint` | Тангенс это отношение, а не сумма. | Tangens nisbat, yig'indi emas. | The tangent is a ratio, not a sum. |
+| `q1.d` | длина радиуса | radius uzunligi | the length of the radius |
+| `q1.d.hint` | Радиус всегда равен единице и от угла не зависит. | Radius doim birga teng va burchakka bog'liq emas. | The radius is always one and does not depend on the angle. |
+| `q2.prompt` | При каком угле тангенса нет? | Qaysi burchakda tangens yo'q? | At which angle does the tangent not exist? |
+| `q2.a` [верно] | при девяноста градусах | to'qson gradusda | at ninety degrees |
+| `q2.b` | при нуле | nolda | at zero |
+| `q2.b.hint` | При нуле высота равна нулю, и отношение тоже ноль. | Nolda balandlik nolga teng, nisbat ham nol. | At zero the height is zero, and the ratio is zero too. |
+| `q2.c` | при ста восьмидесяти | yuz saksonda | at one hundred eighty |
+| `q2.c.hint` | Там сдвиг равен минус единице, делить можно. | U yerda siljish minus birga teng, bo'lish mumkin. | There the shift is minus one, division works. |
+| `q2.d` | тангенс есть всегда | tangens doim bor | it always exists |
+| `q2.d.hint` | На девяноста сдвиг равен нулю, а на ноль делить нельзя. | To'qsonda siljish nolga teng, nolga esa bo'lib bo'lmaydi. | At ninety the shift is zero, and division by zero is not allowed. |
+| `q3.prompt` | Что возвращает точку на прежнее место? | Nuqtani avvalgi joyiga nima qaytaradi? | What returns the point to its former place? |
+| `q3.a` [верно] | целое число оборотов | butun sondagi aylana | a whole number of turns |
+| `q3.b` | половина оборота | yarim aylana | half a turn |
+| `q3.b.hint` | Половина уводит точку напротив. | Yarim aylana nuqtani qarshi tomonga olib ketadi. | Half a turn sends the point opposite. |
+| `q3.c` | четверть оборота | chorak aylana | a quarter turn |
+| `q3.c.hint` | Четверть переводит точку на соседнюю ось. | Chorak nuqtani qo'shni o'qqa olib o'tadi. | A quarter moves the point to the neighbouring axis. |
+| `q3.d` | ничто | hech narsa | nothing |
+| `q3.d.hint` | Возвращает: полный оборот приводит точку туда же. | Qaytaradi: to'liq aylana nuqtani o'sha yerga olib keladi. | It does: a full turn brings the point to the same place. |
 | `audio.mount` | Три коротких вопроса. Все три понадобятся через минуту. | Uch qisqa savol. Uchalasi ham bir daqiqadan keyin kerak bo'ladi. | Three short questions. All three will be needed in a minute. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `q1.done` | `a·b = 0` |
-| `q2.done` | `cos x = 0   →   90°,  270°` |
-| `q3.done` | `−1 ≤ sin x ≤ 1` |
+| `q1.done` | `tg α = y / x` |
+| `q2.done` | `x = 0` |
+| `q3.done` | `α + 360°n` |
 
 ---
 
-## Экран 3 · `explain1` · ответ `lead` · тег `koren-poteryan-pri-delenii`
+## Экран 3 · `explain1` · ответ `lead` · тег `tg-period-2pi`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
-| `title` | Общий множитель выносится | Umumiy ko'paytuvchi chiqariladi | The common factor comes out |
-| `show.1.1` | косинус есть в обеих частях | kosinus ikkala qismda ham bor | the cosine is in both sides |
-| `show.1.2` | переносим и выносим | ko'chiramiz va chiqaramiz | we move it over and factor it out |
-| `show.2.1` | произведение равно нулю | ko'paytma nolga teng | the product equals zero |
-| `show.2.2` | значит два простейших уравнения | demak ikkita sodda tenglama | so two simplest equations |
-| `audio.mount` | В уравнении косинус стоит в обеих частях. Его можно вынести. | Tenglamada kosinus ikkala qismda turadi. Uni chiqarish mumkin. | In the equation the cosine stands in both sides. It can be factored out. |
-| `audio.split*` | Переносим всё в одну часть и выносим косинус. Получается произведение, равное нулю, а такое произведение распадается на два простейших уравнения. На окружности зажигаются все четыре корня: два от косинуса и два от синуса. | Hammasini bir qismga ko'chiramiz va kosinusni chiqaramiz. Nolga teng ko'paytma chiqadi, bunday ko'paytma esa ikkita sodda tenglamaga ajraladi. Aylanada to'rt ildiz yonadi: ikkitasi kosinusdan, ikkitasi sinusdan. | We move everything to one side and factor out the cosine. A product equal to zero appears, and such a product splits into two simplest equations. All four roots light up on the circle: two from the cosine and two from the sine. |
-| `audio.work` | Теперь сам. Поставь точку в тот корень, который даёт косинус. | Endi o'zingiz. Kosinus beradigan ildizga nuqta qo'ying. | Now you. Place the point at the root that comes from the cosine. |
-| `work.prompt` | Поставь точку в корень, где косинус равен нулю. | Kosinus nolga teng bo'lgan ildizga nuqta qo'ying. | Place the point at the root where the cosine is zero. |
-| `work.ok` | Девяносто градусов. Сдвиг там равен нулю, значит первый множитель обнуляется. | To'qson gradus. U yerda siljish nolga teng, demak birinchi ko'paytuvchi nollanadi. | Ninety degrees. The shift there is zero, so the first factor becomes zero. |
-| `work.hint.1` | Косинус это сдвиг, ищи, где он равен нулю. | Kosinus bu siljish, u nolga teng joyni qidiring. | The cosine is the shift, look where it is zero. |
-| `work.hint.2` | Это верхняя или нижняя точка окружности. | Bu aylananing yuqori yoki pastki nuqtasi. | That is the top or the bottom point of the circle. |
-| `work.hint.3` | Девяносто градусов. | To'qson gradus. | Ninety degrees. |
+| `title` | Линия тангенсов | Tangenslar chizig'i | The line of tangents |
+| `show.1.1` | справа стоит вертикальная линия | o'ngda vertikal chiziq turadi | a vertical line stands on the right |
+| `show.1.2` | прямая через центр продолжается до неё | markazdan o'tgan chiziq unga qadar davom etadi | the line through the centre reaches it |
+| `show.2.1` | отсечка и есть тангенс | kesish tangensning o'zi | the mark is the tangent |
+| `show.2.2` | её высота равна отношению | uning balandligi nisbatga teng | its height equals the ratio |
+| `audio.mount` | Справа от окружности стоит вертикальная линия. Она и есть прибор для тангенса. | Aylananing o'ng tomonida vertikal chiziq turadi. U tangens uchun asbob. | A vertical line stands to the right of the circle. That is the instrument for the tangent. |
+| `audio.cut*` | Прямая, проведённая через центр, продолжается до этой линии и отсекает на ней кусок. Высота этого куска и есть тангенс угла: отношение высоты к сдвигу. | Markazdan o'tkazilgan chiziq shu chiziqqacha davom etadi va unda bir bo'lak kesadi. Shu bo'lakning balandligi burchak tangensi: balandlikning siljishga nisbati. | The line drawn through the centre continues to that line and cuts off a piece. The height of that piece is the tangent of the angle: the height divided by the shift. |
+| `audio.work` | Теперь сам. Поставь точку на сорок пять градусов и посмотри на отсечку. | Endi o'zingiz. Nuqtani qirq besh gradusga qo'ying va kesishga qarang. | Now you. Place the point at forty five degrees and look at the mark. |
+| `work.prompt` | Поставь точку на 45 градусов. | Nuqtani 45 gradusga qo'ying. | Place the point at 45 degrees. |
+| `work.ok` | Здесь высота и сдвиг равны, поэтому отношение равно единице, и отсечка стоит на высоте один. | Bu yerda balandlik va siljish teng, shuning uchun nisbat birga teng, kesish esa bir balandlikda turadi. | Here the height and the shift are equal, so the ratio is one, and the mark stands at height one. |
+| `work.hint.1` | Сорок пять это середина между осями. | Qirq besh bu o'qlar orasidagi o'rta. | Forty five is midway between the axes. |
+| `work.hint.2` | Там высота и сдвиг одинаковые. | U yerda balandlik va siljish bir xil. | There the height and the shift are the same. |
+| `work.hint.3` | Сорок пять градусов. | Qirq besh gradus. | Forty five degrees. |
 
 **Формулы**
 
@@ -114,28 +114,28 @@
 
 ---
 
-## Экран 4 · `explain2` · ответ `lead` · тег `koren-poteryan-pri-delenii`
+## Экран 4 · `explain2` · ответ `lead` · тег `tg-period-2pi`
 
-Свидетель урока: серия гаснет на глазах.
+Свидетель урока: точка уезжает на пол-оборота, отсечка остаётся на месте.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
-| `title` | Деление гасит серию | Bo'lish seriyani so'ndiradi | Dividing puts a series out |
-| `show.1.1` | делим обе части на косинус | ikkala qismni kosinusga bo'lamiz | we divide both sides by the cosine |
-| `show.1.2` | запись стала короче | yozuv qisqardi | the reading got shorter |
-| `show.2.1` | два корня погасли | ikki ildiz so'ndi | two roots faded |
-| `show.2.2` | а они были решением | ular esa yechim edi | and they were solutions |
-| `audio.mount` | Теперь попробуем сделать иначе: поделим обе части на косинус. | Endi boshqacha qilib ko'ramiz: ikkala qismni kosinusga bo'lamiz. | Now let us try it differently: divide both sides by the cosine. |
-| `audio.lose*` | Запись стала короче, но смотри на окружность: два корня погасли. Это те, где косинус равен нулю. Делить на них было нельзя, и они выпали из ответа. Поэтому уравнение не делят, а разлагают на множители. | Yozuv qisqardi, lekin aylanaga qarang: ikki ildiz so'ndi. Bu kosinus nolga teng bo'lganlar. Ularga bo'lish mumkin emas edi, va ular javobdan tushib qoldi. Shuning uchun tenglama bo'linmaydi, ko'paytuvchilarga ajratiladi. | The reading got shorter, but look at the circle: two roots faded. Those are the ones where the cosine is zero. Dividing by them was not allowed, and they dropped out of the answer. That is why an equation is factored, not divided. |
-| `audio.work` | Теперь сам. Поставь точку в тот корень, который потерялся. | Endi o'zingiz. Yo'qolgan ildizga nuqta qo'ying. | Now you. Place the point at the root that got lost. |
-| `work.prompt` | Поставь точку в потерянный корень. | Yo'qolgan ildizga nuqta qo'ying. | Place the point at the lost root. |
-| `work.ok` | Двести семьдесят. Там косинус равен нулю, и деление именно эти корни и уничтожает. | Ikki yuz yetmish. U yerda kosinus nolga teng, va bo'lish aynan shu ildizlarni yo'q qiladi. | Two hundred seventy. There the cosine is zero, and division destroys exactly those roots. |
-| `work.hint.1` | Потерялись те корни, где косинус равен нулю. | Kosinus nolga teng ildizlar yo'qoldi. | The lost roots are the ones where the cosine is zero. |
-| `work.hint.2` | Один из них наверху, другой внизу. | Biri yuqorida, ikkinchisi pastda. | One of them is at the top, the other at the bottom. |
-| `work.hint.3` | Двести семьдесят градусов. | Ikki yuz yetmish gradus. | Two hundred seventy degrees. |
+| `title` | Точка уехала, отсечка осталась | Nuqta ketdi, kesish qoldi | The point left, the mark stayed |
+| `show.1.1` | поворот на половину оборота | yarim aylanaga burish | a turn of half a circle |
+| `show.1.2` | точка стала другой | nuqta boshqa bo'ldi | the point became a different one |
+| `show.2.1` | отсечка не сдвинулась | kesish qimirlamadi | the mark did not move |
+| `show.2.2` | значит тангенс тот же | demak tangens o'sha | so the tangent is the same |
+| `audio.mount` | Повернём прямую на половину оборота и посмотрим, что изменится. | Chiziqni yarim aylanaga buramiz va nima o'zgarishini ko'ramiz. | Let us turn the line half a circle and see what changes. |
+| `audio.half*` | Точка на окружности ушла на противоположную сторону, а отсечка осталась ровно там же. У противоположных точек обе координаты сменили знак, а отношение от этого не изменилось: минус на минус даёт плюс. | Aylanadagi nuqta qarama-qarshi tomonga ketdi, kesish esa aynan o'sha yerda qoldi. Qarama-qarshi nuqtalarda ikkala koordinata ham ishorani almashtirdi, nisbat esa o'zgarmadi: minusga minus plyus beradi. | The point on the circle moved to the opposite side, and the mark stayed exactly where it was. At opposite points both coordinates flipped sign, and the ratio did not change: minus times minus gives plus. |
+| `audio.work` | Теперь сам. Поставь точку в противоположную, на двести двадцать пять градусов. | Endi o'zingiz. Qarama-qarshisiga, ikki yuz yigirma besh gradusga nuqta qo'ying. | Now you. Place the point at the opposite one, at two hundred twenty five degrees. |
+| `work.prompt` | Поставь точку на 225 градусов. | Nuqtani 225 gradusga qo'ying. | Place the point at 225 degrees. |
+| `work.ok` | Отсечка та же. Тангенс у двухсот двадцати пяти такой же, как у сорока пяти. | Kesish o'sha. Ikki yuz yigirma beshning tangensi qirq beshnikidek. | The same mark. The tangent at two hundred twenty five equals the one at forty five. |
+| `work.hint.1` | Противоположная точка стоит по другую сторону от центра. | Qarama-qarshi nuqta markazning boshqa tomonida turadi. | The opposite point stands on the other side of the centre. |
+| `work.hint.2` | Это левая нижняя часть окружности. | Bu aylananing chap past qismi. | That is the lower left part of the circle. |
+| `work.hint.3` | Двести двадцать пять градусов. | Ikki yuz yigirma besh gradus. | Two hundred twenty five degrees. |
 
 **Формулы**
 
@@ -151,19 +151,19 @@
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
-| `title` | Замена делает уравнение обычным | Almashtirish tenglamani oddiy qiladi | A substitution makes it an ordinary equation |
-| `show.1.1` | синус встречается дважды | sinus ikki marta uchraydi | the sine occurs twice |
-| `show.1.2` | обозначим его буквой | uni harf bilan belgilaymiz | let us name it with a letter |
-| `show.2.1` | получилось обычное уравнение | oddiy tenglama chiqdi | an ordinary equation came out |
-| `show.2.2` | решаем как в восьмом классе | sakkizinchi sinfdagidek yechamiz | we solve it as in grade eight |
-| `audio.mount` | Здесь синус встречается дважды, и в квадрате, и просто. | Bu yerda sinus ikki marta uchraydi: kvadratda va oddiy. | Here the sine occurs twice, squared and plain. |
-| `audio.swap*` | Обозначим синус буквой тэ. Уравнение становится обычным квадратным, и оно решается тем же способом, что в восьмом классе. Получаются два значения: единица и одна вторая. | Sinusni te harfi bilan belgilaymiz. Tenglama oddiy kvadrat tenglamaga aylanadi, va u sakkizinchi sinfdagi usul bilan yechiladi. Ikki qiymat chiqadi: bir va bir ikkidan. | Let us name the sine t. The equation becomes an ordinary quadratic one, and it is solved the same way as in grade eight. Two values come out: one and one half. |
-| `audio.work` | Теперь сам. Поставь точку в тот корень, который даёт значение единица. | Endi o'zingiz. Bir qiymatini beradigan ildizga nuqta qo'ying. | Now you. Place the point at the root giving the value one. |
-| `work.prompt` | Поставь точку, где синус равен единице. | Sinus birga teng joyga nuqta qo'ying. | Place the point where the sine equals one. |
-| `work.ok` | Девяносто градусов. Высота там равна единице, это и есть первое значение замены. | To'qson gradus. U yerda balandlik birga teng, bu almashtirishning birinchi qiymati. | Ninety degrees. The height there is one, and that is the first value of the substitution. |
-| `work.hint.1` | Синус это высота, ищи наибольшую. | Sinus bu balandlik, eng kattasini qidiring. | The sine is the height, look for the largest. |
-| `work.hint.2` | Она бывает на самом верху окружности. | U aylananing eng tepasida bo'ladi. | It happens at the very top of the circle. |
-| `work.hint.3` | Девяносто градусов. | To'qson gradus. | Ninety degrees. |
+| `title` | Серия одна, шаг половина оборота | Seriya bitta, qadam yarim aylana | One series, the step is half a turn |
+| `show.1.1` | обе точки дают одно значение | ikkala nuqta bir qiymat beradi | both points give one value |
+| `show.1.2` | значит серия одна | demak seriya bitta | so the series is single |
+| `show.2.1` | шаг равен ста восьмидесяти | qadam yuz saksonga teng | the step equals one hundred eighty |
+| `show.2.2` | а не тремстам шестидесяти | uch yuz oltmishga emas | not three hundred sixty |
+| `audio.mount` | У синуса и косинуса серий было две. Здесь другое. | Sinus va kosinusda seriya ikkita edi. Bu yerda boshqacha. | For the sine and the cosine there were two series. Here it is different. |
+| `audio.one*` | Обе точки дают одну и ту же отсечку, значит различать их незачем: серия одна. А идут они через половину оборота, поэтому и шаг в записи сто восемьдесят. | Ikkala nuqta ham bir xil kesish beradi, demak ularni ajratishning keragi yo'q: seriya bitta. Ular esa yarim aylanadan keyin keladi, shuning uchun yozuvdagi qadam yuz sakson. | Both points give the same mark, so there is no need to tell them apart: the series is single. And they come half a turn apart, so the step in the reading is one hundred eighty. |
+| `audio.work` | Теперь сам. Поставь точку туда, куда приведёт номер два. | Endi o'zingiz. Ikki raqami olib keladigan joyga nuqta qo'ying. | Now you. Place the point where the number two leads. |
+| `work.prompt` | Куда приведёт `45° + 180° · 2`? | `45° + 180° · 2` qayerga olib keladi? | Where does `45° + 180° · 2` lead? |
+| `work.ok` | Туда же, где начали. Два шага по половине оборота это полный оборот. | Boshlangan joyga. Yarim aylanadan ikki qadam bu to'liq aylana. | Back where we started. Two half-turn steps make a full turn. |
+| `work.hint.1` | Сложи сто восемьдесят два раза. | Yuz saksonni ikki marta qo'shing. | Add one hundred eighty twice. |
+| `work.hint.2` | Получится триста шестьдесят, то есть полный оборот. | Uch yuz oltmish chiqadi, ya'ni to'liq aylana. | You get three hundred sixty, a full turn. |
+| `work.hint.3` | Сорок пять градусов. | Qirq besh gradus. | Forty five degrees. |
 
 **Формулы**
 
@@ -179,19 +179,19 @@
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
-| `title` | Не всякое значение замены годится | Almashtirishning har qiymati yaramaydi | Not every substituted value fits |
-| `show.1.1` | замена дала два значения | almashtirish ikki qiymat berdi | the substitution gave two values |
-| `show.1.2` | одно равно двум | biri ikkiga teng | one of them equals two |
-| `show.2.1` | синус двойки не даёт | sinus ikkini bermaydi | the sine never gives two |
-| `show.2.2` | значит это значение отбрасывается | demak bu qiymat tashlanadi | so that value is dropped |
-| `audio.mount` | Возьмём другое уравнение. После замены получились двойка и минус одна вторая. | Boshqa tenglamani olaylik. Almashtirishdan keyin ikki va minus bir ikkidan chiqdi. | Take another equation. After the substitution we got two and minus one half. |
-| `audio.check*` | Двойка не годится: высота точки на окружности больше единицы не бывает. Прямая на такой высоте прошла бы мимо круга. Значит это значение отбрасывается, а решать надо только со вторым. | Ikki yaramaydi: aylanadagi nuqtaning balandligi birdan katta bo'lmaydi. Shunday balandlikdagi to'g'ri chiziq aylananing yonidan o'tardi. Demak bu qiymat tashlanadi, faqat ikkinchisi bilan yechish kerak. | Two does not fit: the height of a point on the circle is never above one. A line at such a height would miss the circle. So that value is dropped, and only the second one is solved. |
-| `audio.work` | Посчитай сам. Сколько значений замены годится? | O'zingiz hisoblang. Almashtirishning nechta qiymati yaraydi? | Compute it yourself. How many substituted values fit? |
-| `work.prompt` | Сколько значений замены годится? | Almashtirishning nechta qiymati yaraydi? | How many substituted values fit? |
-| `work.ok` | Одно. Двойка выходит за пределы, а минус одна вторая помещается. | Bitta. Ikki chegaradan chiqadi, minus bir ikkidan esa sig'adi. | One. Two is out of range, and minus one half fits. |
-| `work.hint.1` | Проверь каждое значение по границам синуса. | Har qiymatni sinus chegaralari bilan tekshiring. | Check each value against the bounds of the sine. |
-| `work.hint.2` | Границы это от минус единицы до единицы. | Chegaralar minus birdan birgacha. | The bounds are from minus one to one. |
-| `work.hint.3` | Одно. | Bitta. | One. |
+| `title` | У тангенса запретов на значение нет | Tangensda qiymat uchun taqiq yo'q | The tangent has no forbidden values |
+| `show.1.1` | линия тангенсов уходит вверх и вниз | tangenslar chizig'i yuqoriga va pastga ketadi | the line of tangents runs up and down |
+| `show.1.2` | у неё нет краёв | uning chetlari yo'q | it has no edges |
+| `show.2.1` | любое число на ней встречается | unda har qanday son uchraydi | every number occurs on it |
+| `show.2.2` | значит уравнение решается всегда | demak tenglama doim yechiladi | so the equation always has a solution |
+| `audio.mount` | Посмотрим на саму линию тангенсов. | Tangenslar chizig'ining o'ziga qaraymiz. | Let us look at the line of tangents itself. |
+| `audio.free*` | Она уходит вверх и вниз без края, и любое число на ней найдётся. Поэтому у синуса значение больше единицы было невозможно, а у тангенса запретов нет: уравнение решается при любом числе. | U yuqoriga va pastga chekkasiz ketadi, va unda har qanday son topiladi. Shuning uchun sinusda birdan katta qiymat mumkin emas edi, tangensda esa taqiq yo'q: tenglama har qanday sonda yechiladi. | It runs up and down without an edge, and any number can be found on it. That is why a value above one was impossible for the sine, while the tangent has no restrictions: the equation is solvable for any number. |
+| `audio.work` | Посчитай сам. Сколько серий у уравнения тангенс икс равен двум? | O'zingiz hisoblang. Tangens iks ikkiga teng tenglamada nechta seriya bor? | Compute it yourself. How many series does tangent x equals two have? |
+| `work.prompt` | Сколько серий у tg x = 2? | tg x = 2 da nechta seriya bor? | How many series does tg x = 2 have? |
+| `work.ok` | Одна. Значение два на линии тангенсов есть, а серия у тангенса всегда одна. | Bitta. Ikki qiymati tangenslar chizig'ida bor, tangensda esa seriya doim bitta. | One. The value two exists on the line of tangents, and the tangent always has a single series. |
+| `work.hint.1` | Посмотри, есть ли двойка на линии тангенсов. | Tangenslar chizig'ida ikki bormi, qarang. | Look whether two exists on the line of tangents. |
+| `work.hint.2` | Линия без краёв, значит есть. | Chiziq chekkasiz, demak bor. | The line has no edges, so it does. |
+| `work.hint.3` | Одна. | Bitta. | One. |
 
 **Формулы**
 
@@ -201,108 +201,108 @@
 
 ---
 
-## Экран 7 · `explain5` · ответ `number` · тег `seriya-bez-n`
+## Экран 7 · `explain5` · ответ `number` · тег `tangens-bez-nulya`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
-| `title` | Возврат к переменной | O'zgaruvchiga qaytish | Back to the variable |
-| `show.1.1` | значение замены найдено | almashtirish qiymati topildi | the substituted value is found |
-| `show.1.2` | но это ещё не ответ | lekin bu hali javob emas | but that is not the answer yet |
-| `show.2.1` | подставляем обратно | orqaga qo'yamiz | we put it back |
-| `show.2.2` | и решаем простейшее | va soddani yechamiz | and solve the simplest equation |
-| `audio.mount` | Значение замены найдено, но ответ пишется углами, а не буквой. | Almashtirish qiymati topildi, lekin javob harf bilan emas, burchaklar bilan yoziladi. | The substituted value is found, but the answer is written in angles, not in a letter. |
-| `audio.back*` | Подставляем найденное значение обратно и решаем простейшее уравнение. Одно значение замены даёт целых две серии корней, потому что прямая на этой высоте задевает окружность дважды. | Topilgan qiymatni orqaga qo'yamiz va sodda tenglamani yechamiz. Almashtirishning bitta qiymati ikkita seriya beradi, chunki shu balandlikdagi to'g'ri chiziq aylanani ikki marta kesadi. | We put the found value back and solve the simplest equation. One substituted value gives two whole series of roots, because a line at that height meets the circle twice. |
-| `audio.work` | Посчитай сам. Сколько серий даёт одно значение замены? | O'zingiz hisoblang. Almashtirishning bitta qiymati nechta seriya beradi? | Compute it yourself. How many series does one substituted value give? |
-| `work.prompt` | Сколько серий даёт одно значение замены? | Almashtirishning bitta qiymati nechta seriya beradi? | How many series does one substituted value give? |
-| `work.ok` | Две. Прямая на этой высоте задевает окружность в двух точках, и у каждой своя серия. | Ikkita. Shu balandlikdagi to'g'ri chiziq aylanani ikki nuqtada kesadi, va har birining o'z seriyasi bor. | Two. A line at that height meets the circle at two points, and each has its own series. |
-| `work.hint.1` | Проведи прямую на найденной высоте. | Topilgan balandlikda to'g'ri chiziq o'tkazing. | Draw a line at the found height. |
-| `work.hint.2` | Она задевает окружность в двух точках. | U aylanani ikki nuqtada kesadi. | It meets the circle at two points. |
-| `work.hint.3` | Две. | Ikkita. | Two. |
+| `title` | Но сам тангенс есть не везде | Lekin tangensning o'zi hamma joyda yo'q | But the tangent itself is not everywhere |
+| `show.1.1` | точка едет к верху окружности | nuqta aylananing tepasiga ketadi | the point moves to the top of the circle |
+| `show.1.2` | сдвиг уходит в ноль | siljish nolga ketadi | the shift goes to zero |
+| `show.2.1` | прямая становится параллельной | chiziq parallel bo'lib qoladi | the line becomes parallel |
+| `show.2.2` | отсечки нет | kesish yo'q | there is no mark |
+| `audio.mount` | Точка стоит почти у самого верха окружности. | Nuqta aylananing deyarli eng tepasida turadi. | The point stands almost at the very top of the circle. |
+| `audio.gone*` | Сдвиг уменьшается и уходит в ноль, а делить на ноль нельзя. На чертеже это видно так: прямая становится параллельной линии тангенсов и уже нигде её не пересекает. Отсечки нет, значит нет и значения. | Siljish kichrayadi va nolga ketadi, nolga esa bo'lib bo'lmaydi. Chizmada bu shunday ko'rinadi: chiziq tangenslar chizig'iga parallel bo'lib qoladi va uni endi kesmaydi. Kesish yo'q, demak qiymat ham yo'q. | The shift shrinks to zero, and division by zero is not allowed. On the drawing it looks like this: the line becomes parallel to the line of tangents and no longer meets it. There is no mark, so there is no value. |
+| `audio.work` | Посчитай сам. Сколько корней у уравнения тангенс икс равен двум на промежутке от нуля до ста восьмидесяти? | O'zingiz hisoblang. Tangens iks ikkiga teng tenglamaning noldan yuz saksongacha oraliqda nechta ildizi bor? | Compute it yourself. How many roots does tangent x equals two have between zero and one hundred eighty? |
+| `work.prompt` | Сколько корней у tg x = 2 от 0 до 180°? | tg x = 2 ning 0 dan 180° gacha nechta ildizi bor? | How many roots does tg x = 2 have from 0 to 180°? |
+| `work.ok` | Один. На половине оборота серия даёт ровно один корень. | Bitta. Yarim aylanada seriya aynan bitta ildiz beradi. | One. On half a turn the series gives exactly one root. |
+| `work.hint.1` | Шаг серии равен ста восьмидесяти. | Seriyaning qadami yuz saksonga teng. | The step of the series is one hundred eighty. |
+| `work.hint.2` | Значит на таком промежутке помещается один корень. | Demak bunday oraliqqa bitta ildiz sig'adi. | So one root fits into such an interval. |
+| `work.hint.3` | Один. | Bitta. | One. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `work.answer` | `2` |
+| `work.answer` | `1` |
 
 ---
 
-## Экран 8 · `rule` · ответ `pick2` · тег `koren-poteryan-pri-delenii`
+## Экран 8 · `rule` · ответ `pick2` · тег `tg-period-2pi`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ПРАВИЛО | QOIDA | RULE |
-| `title` | Как приводить к простейшему | Soddaga qanday keltirish | How to reduce to the simplest |
-| `probe.question` | Почему нельзя делить на косинус? | Nega kosinusga bo'lish mumkin emas? | Why is dividing by the cosine not allowed? |
-| `probe.a` [верно] | там, где он ноль, были корни | u nol bo'lgan joyda ildizlar bor edi | where it is zero there were roots |
-| `probe.b` | деление усложняет запись | bo'lish yozuvni murakkablashtiradi | division makes the reading harder |
-| `probe.b.hint` | Запись как раз упрощается. Дело в потерянных корнях, а не в удобстве. | Yozuv aksincha soddalashadi. Gap yo'qolgan ildizlarda, qulaylikda emas. | The reading actually gets simpler. The issue is the lost roots, not convenience. |
-| `rule.lawLabel` | Приведение | Keltirish | The reduction |
-| `rule.lines.1` | Общий множитель выносят, а произведение, равное нулю, распадается на простейшие уравнения. | Umumiy ko'paytuvchi chiqariladi, nolga teng ko'paytma esa sodda tenglamalarga ajraladi. | The common factor is taken out, and a product equal to zero splits into simplest equations. |
-| `rule.lines.2` | Делить обе части на выражение с неизвестным нельзя: корни, где оно равно нулю, теряются. | Ikkala qismni noma'lumli ifodaga bo'lish mumkin emas: u nolga teng bo'lgan ildizlar yo'qoladi. | Both sides must not be divided by an expression with the unknown: the roots where it is zero get lost. |
-| `rule.lines.3` | После замены проверяют границы, а в конце возвращаются к переменной. | Almashtirishdan keyin chegaralar tekshiriladi, oxirida esa o'zgaruvchiga qaytiladi. | After a substitution the bounds are checked, and at the end we return to the variable. |
+| `title` | Запись корней тангенса | Tangens ildizlarining yozuvi | The reading of tangent roots |
+| `probe.question` | Почему у тангенса шаг сто восемьдесят? | Nega tangensda qadam yuz sakson? | Why is the tangent step one hundred eighty? |
+| `probe.a` [верно] | противоположные точки дают одно значение | qarama-qarshi nuqtalar bir qiymat beradi | opposite points give the same value |
+| `probe.b` | так короче писать | shunday yozish qisqaroq | it is shorter to write |
+| `probe.b.hint` | Короче это следствие. Причина в том, что отсечка у обеих точек одна. | Qisqaligi natija. Sabab ikkala nuqtaning kesishi bitta bo'lgani. | Shortness is the consequence. The cause is that both points share one mark. |
+| `rule.lawLabel` | Серия тангенса | Tangens seriyasi | The tangent series |
+| `rule.lines.1` | Прямая через центр даёт две противоположные точки, и обе имеют один и тот же тангенс. | Markazdan o'tgan chiziq ikkita qarama-qarshi nuqta beradi, ikkalasining tangensi bir xil. | A line through the centre gives two opposite points, and both have the same tangent. |
+| `rule.lines.2` | Поэтому серия одна, а шаг у неё `180°`, то есть `π`. | Shuning uchun seriya bitta, qadami esa `180°`, ya'ni `π`. | So the series is single, and its step is `180°`, that is `π`. |
+| `rule.lines.3` | Значение может быть любым, но самого тангенса нет при `x = 90° + 180°n`. | Qiymat har qanday bo'lishi mumkin, lekin `x = 90° + 180°n` da tangensning o'zi yo'q. | The value may be any number, but the tangent itself does not exist at `x = 90° + 180°n`. |
 | `audio.mount` | Объяснение закончилось. Перед правилом один вопрос. | Tushuntirish tugadi. Qoidani ochishdan oldin bitta savol. | The explanation is over. One question before the rule. |
-| `audio.rule*` | Погасшие корни зажигаются обратно, и правило открывается рядом. Делить на выражение с неизвестным нельзя не по договору, а потому, что на экране видно, что при этом теряется. | So'ngan ildizlar qaytadan yonadi, va qoida yonida ochiladi. Noma'lumli ifodaga bo'lish kelishuv bo'yicha emas, ekranda nima yo'qolganini ko'rish mumkin bo'lgani uchun mumkin emas. | The faded roots light up again, and the rule opens beside it. Dividing by an expression with the unknown is forbidden not by agreement but because the screen shows what gets lost. |
+| `audio.rule*` | Прямая поворачивается ещё раз, и правило открывается рядом. Шаг сто восемьдесят это не сокращение записи, а то, что обе точки дают одну отсечку. | Chiziq yana bir bor buriladi, va qoida yonida ochiladi. Yuz sakson qadam yozuvning qisqartmasi emas, ikkala nuqta bitta kesish bergani. | The line turns once more, and the rule opens beside it. The step of one hundred eighty is not shorthand but the fact that both points give one mark. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `rule.law` | `a·b = 0   →   a = 0,  b = 0` |
+| `rule.law` | `x = arctg a + 180°n` |
 
 ---
 
-## Экран 9 · `drill` · ответ `match` · формат `match` · тег `koren-poteryan-pri-delenii`
+## Экран 9 · `drill` · ответ `match` · формат `match` · тег `tg-period-2pi`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ПРАКТИКА | MASHQ | PRACTICE |
-| `title` | Сколько серий в полном ответе | To'liq javobda nechta seriya | How many series in the full answer |
-| `match.prompt` | Соедини уравнение с числом серий в полном ответе. | Tenglamani to'liq javobdagi seriyalar soni bilan birlashtiring. | Match the equation with the number of series in its full answer. |
-| `match.ok` | Считаются серии, а не корни. У косинуса две точки складываются в одну серию, у синуса нет, а прямая мимо круга не даёт ни одной. | Ildizlar emas, seriyalar sanaladi. Kosinusda ikki nuqta bitta seriyaga yig'iladi, sinusda esa yo'q, aylananing yonidan o'tgan chiziq esa birortasini bermaydi. | Series are counted, not roots. For the cosine two points fold into one series, for the sine they do not, and a line that misses the circle gives none. |
-| `audio.mount` | Четыре уравнения и четыре числа. Соедини их. | To'rt tenglama va to'rt son. Ularni birlashtiring. | Four equations and four numbers. Match them. |
+| `title` | Уравнение и его серия | Tenglama va uning seriyasi | The equation and its series |
+| `match.prompt` | Соедини уравнение с его записью. | Tenglamani o'z yozuvi bilan birlashtiring. | Match the equation with its reading. |
+| `match.ok` | У тангенса шаг всегда сто восемьдесят, меняется только начало серии. | Tangensda qadam doim yuz sakson, faqat seriyaning boshi o'zgaradi. | For the tangent the step is always one hundred eighty, only the start of the series changes. |
+| `audio.mount` | Четыре уравнения и четыре записи. Соедини их. | To'rt tenglama va to'rt yozuv. Ularni birlashtiring. | Four equations and four readings. Match them. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `match.left` | `sin x cos x = 0` · `2 sin x cos x = cos x` · `sin x = −1` · `sin x = 2` |
-| `match.a` | `2` |
-| `match.b` | `3` |
-| `match.c` | `1` |
-| `match.d` | `0` |
+| `match.left` | `tg x = 1` · `tg x = 0` · `tg x = −1` · `tg x = √3` |
+| `match.a` | `45° + 180°n` |
+| `match.b` | `180°n` |
+| `match.c` | `−45° + 180°n` |
+| `match.d` | `60° + 180°n` |
 
 ---
 
-## Экран 10 · `guided` · ответ `order` · формат `order-steps` · тег `koren-poteryan-pri-delenii`
+## Экран 10 · `guided` · ответ `order` · формат `order-steps` · тег `seriya-bez-n`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ПРАКТИКА | MASHQ | PRACTICE |
-| `title` | Реши по шагам | Qadam bilan yeching | Solve it step by step |
+| `title` | Собери ответ по шагам | Javobni qadam bilan yig'ing | Assemble the answer step by step |
 | `order.prompt` | Расставь шаги по порядку. | Qadamlarni tartib bilan joylashtiring. | Put the steps in order. |
-| `order.s1` | всё в одну часть | hammasi bir qismga | everything to one side |
-| `order.s2` | выносим множитель | ko'paytuvchini chiqaramiz | we factor it out |
-| `order.s3` | два простейших | ikkita sodda | two simplest equations |
-| `order.s4` | обе серии в ответ | ikkala seriya javobga | both series into the answer |
-| `order.ok` | Порядок такой всегда. Деления в нём нет ни на одном шаге, поэтому и терять нечего. | Tartib doim shunday. Unda bo'lish bir qadamda ham yo'q, shuning uchun yo'qotadigan narsa yo'q. | The order is always this. There is no division at any step, so there is nothing to lose. |
-| `order.bad` | Сначала всё в одну часть, потом множитель, потом два уравнения, потом ответ. | Avval hammasi bir qismga, keyin ko'paytuvchi, keyin ikki tenglama, keyin javob. | First everything to one side, then the factor, then two equations, then the answer. |
+| `order.s1` | значение на линии | chiziqdagi qiymat | the value on the line |
+| `order.s2` | прямая через центр | markazdan chiziq | the line through the centre |
+| `order.s3` | угол из окна | oynadagi burchak | the angle from the window |
+| `order.s4` | шаг сто восемьдесят | qadam yuz sakson | the step one hundred eighty |
+| `order.ok` | Порядок такой всегда: сначала значение на линии, потом прямая, потом угол, потом шаг. | Tartib doim shunday: avval chiziqdagi qiymat, keyin chiziq, keyin burchak, keyin qadam. | The order is always this: the value on the line, then the line, then the angle, then the step. |
+| `order.bad` | Начинают с отметки значения, а шаг ставят последним. | Qiymatni belgilashdan boshlanadi, qadam esa oxirida qo'yiladi. | It starts with marking the value, and the step comes last. |
 | `audio.mount` | Четыре шага. Порядок ставишь ты. | To'rtta qadam. Tartibini o'zingiz qo'yasiz. | Four steps. You put them in order. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `order.mark` | `90°` |
+| `order.mark` | `45°` |
 
 ---
 
@@ -314,14 +314,14 @@
 |---|---|---|---|
 | `eyebrow` | БЕЗ ПРИБОРА | ASBOBSIZ | NO INSTRUMENT |
 | `title` | Посчитай без чертежа | Chizmasiz hisoblang | Compute without a drawing |
-| `task.ok` | Три. Косинус даёт одну серию с шагом сто восемьдесят, а синус две. | Uchta. Kosinus yuz sakson qadamli bitta seriya beradi, sinus esa ikkita. | Three. The cosine gives one series with a step of one hundred eighty, and the sine two. |
-| `task.hint.1` | Посчитай серии у каждого множителя отдельно. | Har ko'paytuvchining seriyalarini alohida sanang. | Count the series of each factor separately. |
-| `task.hint.2` | У косинуса точки противоположны, и серия у них общая. | Kosinusda nuqtalar qarama-qarshi, seriyasi umumiy. | For the cosine the points are opposite and share one series. |
-| `task.hint.3` | Три. | Uchta. | Three. |
+| `task.ok` | Четыреста пять. Два шага по сто восемьдесят сверх сорока пяти. | To'rt yuz besh. Qirq besh ustiga yuz saksondan ikki qadam. | Four hundred five. Two steps of one hundred eighty on top of forty five. |
+| `task.hint.1` | Подставь двойку вместо буквы. | Harf o'rniga ikkini qo'ying. | Put two in place of the letter. |
+| `task.hint.2` | Сорок пять плюс триста шестьдесят. | Qirq besh qo'shilgan uch yuz oltmish. | Forty five plus three hundred sixty. |
+| `task.hint.3` | Четыреста пять. | To'rt yuz besh. | Four hundred five. |
 | `order.prompt` | Расставь по возрастанию. | O'sish tartibida joylashtiring. | Arrange in increasing order. |
 | `order.title` | Какой корень меньше? | Qaysi ildiz kichikroq? | Which root is smaller? |
-| `order.ok` | Ты сравнил углы, а не множители, из которых они получились. | Siz ular chiqqan ko'paytuvchilarni emas, burchaklarni solishtirdingiz. | You compared angles, not the factors they came from. |
-| `order.bad` | Переведи каждую запись в число, потом сравнивай. | Har yozuvni songa o'tkazing, keyin solishtiring. | Turn each reading into a number, then compare. |
+| `order.ok` | Ты подставил номера и сравнил углы, а не записи. | Siz raqamlarni qo'ydingiz va yozuvlarni emas, burchaklarni solishtirdingiz. | You substituted the numbers and compared angles, not readings. |
+| `order.bad` | Подставь в каждую запись её номер и сравни то, что получилось. | Har yozuvga raqamini qo'ying va chiqqanini solishtiring. | Put the number into each reading and compare the results. |
 | `audio.mount` | На этом экране окружности нет. На экзамене чертежа тоже не будет. | Bu ekranda aylana yo'q. Imtihonda ham chizma bo'lmaydi. | There is no circle on this screen. There will be none at the exam either. |
 | `audio.next` | Ответ запиши сам. | Javobni o'zingiz yozing. | Type the answer yourself. |
 
@@ -329,10 +329,10 @@
 
 | Ключ | Значение |
 |---|---|
-| `task.prompt` | `cos x·(2 sin x − 1) = 0   →   ?` |
-| `task.answer` | `3` |
-| `order.items` | `30°` · `90°` · `150°` · `270°` |
-| `order.answer` | `30°  90°  150°  270°` |
+| `task.prompt` | `45° + 180°n,   n = 2   →   ?` |
+| `task.answer` | `405` |
+| `order.items` | `n = −1` · `n = 0` · `n = 1` · `n = 2` |
+| `order.answer` | `n = −1  n = 0  n = 1  n = 2` |
 
 ---
 
@@ -344,28 +344,28 @@
 |---|---|---|---|
 | `eyebrow` | ЛОВУШКА | TUZOQ | THE TRAP |
 | `title` | Ответ неполный. Где? | Javob to'liq emas. Qayerda? | The answer is incomplete. Where? |
-| `hint.r1` | Эта строка просто переписывает условие. | Bu qator shartni shunchaki qaytadan yozadi. | This line just rewrites the task. |
-| `hint.r3` | Это верное следствие предыдущей строки. | Bu oldingi qatorning to'g'ri natijasi. | This is a correct consequence of the previous line. |
-| `hint.r4` | Эти серии посчитаны верно, но их не все. | Bu seriyalar to'g'ri hisoblangan, lekin hammasi emas. | These series are computed correctly, but they are not all of them. |
-| `proof` | Здесь поделили на косинус, и его корни исчезли. | Bu yerda kosinusga bo'lindi, va uning ildizlari yo'qoldi. | Here they divided by the cosine, and its roots vanished. |
-| `entry.prompt` | Сколько серий в полном ответе? | To'liq javobda nechta seriya bor? | How many series are in the full answer? |
-| `entry.ok` | Три. Две от синуса и одна от косинуса, с шагом сто восемьдесят. | Uchta. Ikkitasi sinusdan, bittasi kosinusdan, yuz sakson qadam bilan. | Three. Two from the sine and one from the cosine, with a step of one hundred eighty. |
-| `entry.hint.1` | Посчитай серии у каждого множителя. | Har ko'paytuvchining seriyalarini sanang. | Count the series of each factor. |
-| `entry.hint.2` | У косинуса точки противоположны, серия у них одна. | Kosinusda nuqtalar qarama-qarshi, seriyasi bitta. | For the cosine the points are opposite, they share one series. |
-| `entry.hint.3` | Три. | Uchta. | Three. |
-| `audio.mount` | Задача. Решить уравнение с косинусом в обеих частях. | Masala. Ikkala qismda kosinus bo'lgan tenglamani yechish. | A task. Solve an equation with the cosine in both sides. |
+| `hint.r1` | Эта строка верна: арктангенс единицы действительно равен сорока пяти. | Bu qator to'g'ri: birning arktangensi haqiqatan qirq beshga teng. | This line is right: the arctangent of one really is forty five. |
+| `hint.r2` | Эта строка тоже верна: у двухсот двадцати пяти тангенс тот же. | Bu qator ham to'g'ri: ikki yuz yigirma beshning tangensi o'sha. | This line is right too: at two hundred twenty five the tangent is the same. |
+| `hint.r4` | Эта строка повторяет ошибку предыдущей. Первая неверная строка выше. | Bu qator oldingisining xatosini takrorlaydi. Birinchi xato qator yuqorida. | This line repeats the error of the previous one. The first wrong line is above. |
+| `proof` | С шагом в полный оборот вторая точка выпадает. | To'liq aylana qadami bilan ikkinchi nuqta tushib qoladi. | With a full-turn step the second point drops out. |
+| `entry.prompt` | Чему равен шаг серии у тангенса? | Tangens seriyasining qadami qancha? | What is the step of the tangent series? |
+| `entry.ok` | Сто восемьдесят. Противоположные точки дают одно значение, и между ними половина оборота. | Yuz sakson. Qarama-qarshi nuqtalar bir qiymat beradi, ular orasida yarim aylana. | One hundred eighty. Opposite points give the same value, half a turn apart. |
+| `entry.hint.1` | Посмотри, через сколько повторяется отсечка. | Kesish necha gradusdan keyin takrorlanishiga qarang. | Look after how much the mark repeats. |
+| `entry.hint.2` | Точки стоят по разные стороны от центра. | Nuqtalar markazning ikki tomonida turadi. | The points stand on opposite sides of the centre. |
+| `entry.hint.3` | Сто восемьдесят. | Yuz sakson. | One hundred eighty. |
+| `audio.mount` | Задача. Решить уравнение тангенс икс равен единице. | Masala. Tangens iks birga teng tenglamani yechish. | A task. Solve the equation tangent x equals one. |
 | `audio.next` | Четыре строки, все выглядят верными. Ищи первую неверную. | To'rt qator, hammasi to'g'ri ko'rinadi. Birinchi xato qatorni qidiring. | Four lines, all look right. Look for the first wrong one. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `row.r1` | `2 sin x·cos x = cos x` |
-| `row.r2` | `2 sin x = 1` |
-| `row.r3` | `sin x = 1/2` |
-| `row.r4` | `30° + 360°n,  150° + 360°n` |
-| `answerId` | `r2` |
-| `entry.answer` | `3` |
+| `row.r1` | `arctg 1 = 45°` |
+| `row.r2` | `tg 225° = 1` |
+| `row.r3` | `x = 45° + 360°n` |
+| `row.r4` | `n = 1   →   405°` |
+| `answerId` | `r3` |
+| `entry.answer` | `180` |
 
 ---
 
@@ -376,33 +376,33 @@
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ПЕРЕНОС | KO'CHIRISH | TRANSFER |
-| `title` | Какие корни потеряны | Qaysi ildizlar yo'qolgan | Which roots are lost |
-| `place.prompt` | Поставь точку на 90 градусов. | Nuqtani 90 gradusga qo'ying. | Place the point at 90 degrees. |
-| `place.ok` | Это один из потерянных корней: там косинус равен нулю. | Bu yo'qolgan ildizlardan biri: u yerda kosinus nolga teng. | This is one of the lost roots: the cosine is zero there. |
-| `place.wrong` | Девяносто это самый верх окружности. | To'qson bu aylananing eng tepasi. | Ninety is the very top of the circle. |
-| `multi.prompt` | Отметь все углы, которые теряются при делении на косинус. | Kosinusga bo'lishda yo'qoladigan hamma burchakni belgilang. | Mark every angle lost when dividing by the cosine. |
-| `multi.title` | Какие углы теряются при делении на косинус? | Kosinusga bo'lishda qaysi burchaklar yo'qoladi? | Which angles are lost when dividing by the cosine? |
-| `multi.d.hint` | У тридцати косинус не равен нулю, этот корень остаётся. | O'ttizda kosinus nolga teng emas, bu ildiz qoladi. | At thirty the cosine is not zero, this root stays. |
-| `multi.e.hint` | У ста пятидесяти косинус тоже не ноль. | Yuz elliknikida ham kosinus nol emas. | At one hundred fifty the cosine is not zero either. |
-| `multi.ok` | Три из пяти. Теряются ровно те углы, где косинус равен нулю. | Beshtadan uchtasi. Aynan kosinus nolga teng burchaklar yo'qoladi. | Three out of five. Exactly the angles where the cosine is zero get lost. |
-| `audio.mount` | Теперь обратная задача. Надо назвать, какие именно корни теряются. | Endi teskari masala. Qaysi ildizlar yo'qolishini aytish kerak. | Now the inverse task. You must name exactly which roots get lost. |
-| `audio.work` | Поставь точку, потом отметишь все потерянные углы. | Nuqtani qo'ying, keyin hamma yo'qolgan burchakni belgilaysiz. | Place the point, then you will mark every lost angle. |
+| `title` | По корню назвать серию | Ildizdan seriyani aytish | From a root back to its series |
+| `place.prompt` | Поставь точку на 225 градусов. | Nuqtani 225 gradusga qo'ying. | Place the point at 225 degrees. |
+| `place.ok` | Это противоположная точка. Тангенс у неё тот же, и серия у них общая. | Bu qarama-qarshi nuqta. Uning tangensi o'sha, seriyasi ham umumiy. | This is the opposite point. Its tangent is the same, and they share one series. |
+| `place.wrong` | Двести двадцать пять это левая нижняя часть окружности. | Ikki yuz yigirma besh bu aylananing chap past qismi. | Two hundred twenty five is the lower left part of the circle. |
+| `multi.prompt` | Отметь все записи с тем же тангенсом. | O'sha tangensli hamma yozuvni belgilang. | Mark every reading with the same tangent. |
+| `multi.title` | У каких углов тангенс такой же? | Qaysi burchaklarda tangens o'sha? | Which angles have the same tangent? |
+| `multi.d.hint` | У ста тридцати пяти тангенс минус единица: знаки координат разные. | Yuz o'ttiz beshda tangens minus bir: koordinatalar ishorasi har xil. | At one hundred thirty five the tangent is minus one: the signs of the coordinates differ. |
+| `multi.e.hint` | У девяноста тангенса нет вовсе. | To'qsonda tangens umuman yo'q. | At ninety the tangent does not exist at all. |
+| `multi.ok` | Три из пяти. Все они отличаются целым числом половин оборота. | Beshtadan uchtasi. Ularning hammasi butun sondagi yarim aylanaga farq qiladi. | Three out of five. All of them differ by a whole number of half-turns. |
+| `audio.mount` | Теперь обратная задача. Дана точка, а нужны все углы с тем же тангенсом. | Endi teskari masala. Nuqta berilgan, o'sha tangensli hamma burchak kerak. | Now the inverse task. A point is given, and all angles with the same tangent are needed. |
+| `audio.work` | Поставь точку, потом отметишь все записи с тем же тангенсом. | Nuqtani qo'ying, keyin o'sha tangensli hamma yozuvni belgilaysiz. | Place the point, then you will mark every reading with the same tangent. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `place.target` | `90°` |
-| `place.step` | `cos x = 0` |
-| `multi.a` [верно] | `90°` |
-| `multi.b` [верно] | `270°` |
-| `multi.c` [верно] | `450°` |
-| `multi.d` | `30°` |
-| `multi.e` | `150°` |
+| `place.target` | `225°` |
+| `place.step` | `45° + 180°n` |
+| `multi.a` [верно] | `45°` |
+| `multi.b` [верно] | `405°` |
+| `multi.c` [верно] | `−135°` |
+| `multi.d` | `135°` |
+| `multi.e` | `90°` |
 
 ---
 
-## Экран 14 · `blitz` · ответ `mixed` · формат `chain` · тег `koren-poteryan-pri-delenii`
+## Экран 14 · `blitz` · ответ `mixed` · формат `chain` · тег `tg-period-2pi`
 
 **Текст**
 
@@ -410,46 +410,46 @@
 |---|---|---|---|
 | `eyebrow` | БЛИЦ | BLITS | BLITZ |
 | `title` | Четыре вопроса · идут в результат | To'rt savol · natijaga kiradi | Four questions · they count |
-| `q1.prompt` | Что делают с общим множителем? | Umumiy ko'paytuvchini nima qiladilar? | What is done with a common factor? |
-| `q1.a` [верно] | выносят | chiqaradilar | it is factored out |
-| `q1.b` | сокращают | qisqartiradilar | it is cancelled |
-| `q1.b.hint` | Сокращение это то же деление, и корни теряются. | Qisqartirish bu o'sha bo'lish, va ildizlar yo'qoladi. | Cancelling is the same division, and roots get lost. |
-| `q1.c` | возводят в квадрат | kvadratga ko'taradilar | it is squared |
-| `q1.c.hint` | Возведение добавит посторонние корни, а не поможет. | Kvadratga ko'tarish begona ildizlar qo'shadi, yordam bermaydi. | Squaring adds extraneous roots instead of helping. |
-| `q1.d` | ничего | hech narsa | nothing |
-| `q1.d.hint` | Тогда уравнение не приведётся к простейшему. | Unda tenglama soddaga keltirilmaydi. | Then the equation will not reduce to the simplest one. |
-| `q2.prompt` | Что теряется при делении на косинус? | Kosinusga bo'lishda nima yo'qoladi? | What is lost when dividing by the cosine? |
-| `q2.a` [верно] | корни, где косинус равен нулю | kosinus nolga teng ildizlar | the roots where the cosine is zero |
-| `q2.b` | корни, где синус равен нулю | sinus nolga teng ildizlar | the roots where the sine is zero |
-| `q2.b.hint` | Теряется то, на что делили, а делили на косинус. | Nimaga bo'lingan bo'lsa, u yo'qoladi, bo'lingani esa kosinus. | What is lost is what was divided by, and that was the cosine. |
-| `q2.c` | ничего | hech narsa | nothing |
-| `q2.c.hint` | На экране два корня погасли, значит теряется. | Ekranda ikki ildiz so'ndi, demak yo'qoladi. | Two roots faded on the screen, so something is lost. |
-| `q2.d` | все корни | hamma ildiz | all the roots |
-| `q2.d.hint` | Часть остаётся: те, где косинус не ноль. | Bir qismi qoladi: kosinus nol bo'lmaganlari. | Some remain: those where the cosine is not zero. |
-| `q3.prompt` | Что делают после замены? | Almashtirishdan keyin nima qiladilar? | What is done after a substitution? |
-| `q3.a` [верно] | проверяют границы | chegaralarni tekshiradilar | the bounds are checked |
-| `q3.a.ok` | Да. Значение больше единицы синус не даёт. | Ha. Birdan katta qiymatni sinus bermaydi. | Yes. The sine never gives a value above one. |
-| `q3.b` | сразу пишут ответ | darrov javob yozadilar | the answer is written at once |
-| `q3.b.hint` | Тогда в ответ попадёт невозможное значение. | Unda javobga imkonsiz qiymat tushadi. | Then an impossible value gets into the answer. |
-| `q4.prompt` | Сколько серий даёт одно значение синуса? | Sinusning bitta qiymati nechta seriya beradi? | How many series does one value of the sine give? |
-| `q4.a` [верно] | две | ikkita | two |
-| `q4.b` | одна | bitta | one |
-| `q4.b.hint` | Одна бывает только у края, при единице и минус единице. | Bitta faqat chetda, bir va minus birda bo'ladi. | One happens only at the edge, at one and minus one. |
-| `q4.c` | четыре | to'rtta | four |
-| `q4.c.hint` | Точек пересечения две, значит и серий две. | Kesishish nuqtasi ikkita, demak seriya ham ikkita. | There are two intersection points, so two series. |
-| `q4.d` | ни одной | hech qaysi | none |
-| `q4.d.hint` | Если значение помещается в границы, серии есть. | Qiymat chegaraga sig'sa, seriyalar bor. | If the value fits the bounds, there are series. |
+| `q1.prompt` | Чему равен шаг серии у тангенса? | Tangens seriyasining qadami qancha? | What is the step of the tangent series? |
+| `q1.a` [верно] | сто восемьдесят | yuz sakson | one hundred eighty |
+| `q1.b` | триста шестьдесят | uch yuz oltmish | three hundred sixty |
+| `q1.b.hint` | Триста шестьдесят это шаг у синуса и косинуса. | Uch yuz oltmish bu sinus va kosinusdagi qadam. | Three hundred sixty is the step of the sine and the cosine. |
+| `q1.c` | девяносто | to'qson | ninety |
+| `q1.c.hint` | Через девяносто отношение меняется, а не повторяется. | To'qsondan keyin nisbat o'zgaradi, takrorlanmaydi. | After ninety the ratio changes, it does not repeat. |
+| `q1.d` | зависит от значения | qiymatga bog'liq | it depends on the value |
+| `q1.d.hint` | Шаг всегда один и тот же, каким бы ни было значение. | Qiymat qanday bo'lishidan qat'i nazar qadam doim bir xil. | The step is always the same whatever the value. |
+| `q2.prompt` | Сколько серий у уравнения с тангенсом? | Tangensli tenglamada nechta seriya bor? | How many series does a tangent equation have? |
+| `q2.a` [верно] | одна | bitta | one |
+| `q2.b` | две | ikkita | two |
+| `q2.b.hint` | Две были у синуса, там точки давали разные значения. | Ikkita sinusda edi, u yerda nuqtalar har xil qiymat berardi. | Two happened for the sine, where the points gave different values. |
+| `q2.c` | четыре | to'rtta | four |
+| `q2.c.hint` | Точек пересечения всего две, и обе дают одно значение. | Kesishish nuqtasi jami ikkita, va ikkalasi bir qiymat beradi. | There are only two points, and both give one value. |
+| `q2.d` | бесконечно много | cheksiz ko'p | infinitely many |
+| `q2.d.hint` | Корней бесконечно много, а серия одна. | Ildiz cheksiz ko'p, seriya esa bitta. | There are infinitely many roots, but one series. |
+| `q3.prompt` | При каком угле тангенса нет? | Qaysi burchakda tangens yo'q? | At which angle does the tangent not exist? |
+| `q3.a` [верно] | при девяноста | to'qsonda | at ninety |
+| `q3.a.ok` | Да. Там сдвиг равен нулю, и делить нельзя. | Ha. U yerda siljish nolga teng, bo'lib bo'lmaydi. | Yes. There the shift is zero, and division is impossible. |
+| `q3.b` | при нуле | nolda | at zero |
+| `q3.b.hint` | При нуле тангенс есть и равен нулю. | Nolda tangens bor va nolga teng. | At zero the tangent exists and equals zero. |
+| `q4.prompt` | Сколько корней у tg x = 5? | tg x = 5 ning nechta ildizi bor? | How many roots does tg x = 5 have? |
+| `q4.a` [верно] | бесконечно много | cheksiz ko'p | infinitely many |
+| `q4.b` | ни одного | hech qaysi | none |
+| `q4.b.hint` | Линия тангенсов без краёв, пятёрка на ней есть. | Tangenslar chizig'i chekkasiz, besh unda bor. | The line of tangents has no edges, five is on it. |
+| `q4.c` | один | bitta | one |
+| `q4.c.hint` | Один на промежутке в половину оборота, а всего бесконечно много. | Yarim aylana oraliqda bitta, jami esa cheksiz ko'p. | One on a half-turn interval, but infinitely many in total. |
+| `q4.d` | два | ikkita | two |
+| `q4.d.hint` | Два было бы у синуса, там серий две. | Ikkita sinusda bo'lardi, u yerda seriya ikkita. | Two would happen for the sine, where there are two series. |
 | `audio.mount` | Четыре коротких вопроса. Только этот экран идёт в результат. | To'rtta qisqa savol. Faqat shu ekran natijaga kiradi. | Four short questions. Only this screen counts. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `q1.done` | `a·b = 0` |
-| `q2.done` | `cos x = 0` |
-| `q3.done` | `−1 ≤ t ≤ 1` |
-| `q4.done` | `2` |
-| `angles` | `90°` · `270°` · `30°` · `150°` |
+| `q1.done` | `180°n` |
+| `q2.done` | `1` |
+| `q3.done` | `x = 90° + 180°n` |
+| `q4.done` | `∞` |
+| `angles` | `45°` · `225°` · `90°` · `60°` |
 
 ---
 
@@ -461,30 +461,30 @@
 |---|---|---|---|
 | `eyebrow` | ИТОГ | YAKUN | SUMMARY |
 | `title` | Что осталось | Nima qoldi | What you take away |
-| `can.1` | Выношу множитель вместо деления | Bo'lish o'rniga ko'paytuvchini chiqaraman | I factor out instead of dividing |
-| `can.2` | Знаю, какие корни теряет деление | Bo'lish qaysi ildizlarni yo'qotishini bilaman | I know which roots division loses |
-| `can.3` | Проверяю границы после замены | Almashtirishdan keyin chegaralarni tekshiraman | I check the bounds after a substitution |
-| `can.4` | Возвращаюсь к переменной в конце | Oxirida o'zgaruvchiga qaytaman | I return to the variable at the end |
+| `can.1` | Читаю тангенс по линии тангенсов | Tangensni tangenslar chizig'idan o'qiyman | I read the tangent off the line of tangents |
+| `can.2` | Знаю, почему серия одна | Nega seriya bitta ekanini bilaman | I know why the series is single |
+| `can.3` | Помню, что шаг равен половине оборота | Qadam yarim aylanaga tengligini eslayman | I remember the step is half a turn |
+| `can.4` | Знаю, где тангенса нет | Tangens qayerda yo'qligini bilaman | I know where the tangent does not exist |
 | `levels.full` | Этот тип задач закрыт. | Bu turdagi masalalar yopildi. | This type of task is closed. |
-| `levels.gap` | Одно место требует повтора: что теряется при делении. | Bitta joy takrorlashni talab qiladi: bo'lishda nima yo'qoladi. | One place needs review: what division loses. |
+| `levels.gap` | Одно место требует повтора: чему равен шаг. | Bitta joy takrorlashni talab qiladi: qadam qanchaga teng. | One place needs review: what the step equals. |
 | `levels.back` | Вернись к правилу и к экрану 4. | Qoidaga va 4-ekranga qayting. | Go back to the rule and to screen 4. |
-| `bridge` | Блок 2 закрыт: все тригонометрические уравнения курса решаются этими четырьмя приёмами. | Ikkinchi blok yopildi: kursdagi hamma trigonometrik tenglama shu to'rt usul bilan yechiladi. | Block two is closed: every trigonometric equation of the course is solved with these four moves. |
-| `lifehack` | Увидел общий множитель — выноси. Деление всегда что-нибудь съедает. | Umumiy ko'paytuvchini ko'rdingizmi, chiqaring. Bo'lish doim biror narsani yeb qo'yadi. | Spotted a common factor, factor it out. Division always eats something. |
-| `sheetTitle` | Методы · шпаргалка | Usullar · shpargalka | The methods · cheat sheet |
-| `sheetSrc` | 10 класс · урок 13 | 10-sinf · 13-dars | Grade 10 · lesson 13 |
+| `bridge` | Урок 13: уравнения посложнее, которые сначала приводят к простейшим. | 13-dars: avval soddaga keltiriladigan murakkabroq tenglamalar. | Lesson 13: harder equations, first reduced to the simplest ones. |
+| `lifehack` | Если точки противоположны, значения у них совпадают только у тангенса. | Nuqtalar qarama-qarshi bo'lsa, qiymatlari faqat tangensda mos keladi. | When the points are opposite, their values coincide only for the tangent. |
+| `sheetTitle` | Тангенс · шпаргалка | Tangens · shpargalka | The tangent · cheat sheet |
+| `sheetSrc` | 10 класс · урок 12 | 10-sinf · 12-dars | Grade 10 · lesson 12 |
 | `audio.mount` | В начале урока нужно было выбрать одну из двух записей. Вот результат. | Dars boshida ikki yozuvdan birini tanlagan edingiz. Mana natija. | At the start you chose one of the two readings. Here is the result. |
-| `audio.next` | Делить на выражение с неизвестным нельзя: корни, где оно равно нулю, исчезают из ответа. | Noma'lumli ifodaga bo'lish mumkin emas: u nolga teng bo'lgan ildizlar javobdan yo'qoladi. | Dividing by an expression with the unknown is not allowed: the roots where it is zero vanish from the answer. |
+| `audio.next` | Тангенс повторяется через половину оборота, потому что противоположные точки дают одну отсечку. | Tangens yarim aylanadan keyin takrorlanadi, chunki qarama-qarshi nuqtalar bitta kesish beradi. | The tangent repeats after half a turn because opposite points give one mark. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `hook.a` | `2 sin x = 1` |
-| `hook.b` | `a·b = 0` |
-| `proved` | `a·b = 0` |
-| `law` | `a·b = 0   →   a = 0,  b = 0` |
-| `sheet.1` | `a·b = 0` |
-| `sheet.2` | `cos x = 0   →   90° + 180°n` |
-| `sheet.3` | `sin x = 1/2   →   30°,  150°` |
-| `sheet.4` | `−1 ≤ t ≤ 1` |
-| `sheet.5` | `t   →   x` |
+| `hook.a` | `360°n` |
+| `hook.b` | `180°n` |
+| `proved` | `45° + 180°n` |
+| `law` | `x = arctg a + 180°n` |
+| `sheet.1` | `x = arctg a + 180°n` |
+| `sheet.2` | `tg x = 1   →   45° + 180°n` |
+| `sheet.3` | `tg x = 0   →   180°n` |
+| `sheet.4` | `x ≠ 90° + 180°n` |
+| `sheet.5` | `arctg a ∈ (−90°; 90°)` |

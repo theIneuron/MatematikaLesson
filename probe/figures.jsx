@@ -10,7 +10,7 @@
 import React, { useState, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import { STYLES } from '../src/components/grade10/core.jsx'
-import { Space } from '../src/components/grade10/figures.jsx'
+import { TwoLines } from '../src/components/grade10/figures.jsx'
 
 // PRIBOR 6B, KESIM (49-dars). Nuqta qirrada ULUSH bilan beriladi, shuning
 // uchun burilishda u qirradan uzilmaydi. Ulushlar hisoblangan.
@@ -77,48 +77,31 @@ const IDS = (a) => a.map((c) => c.id)
 
 function App() {
   const [s, setS] = useState(0)
-  useEffect(() => { const t = setInterval(() => setS((x) => (x + 1) % 3), 3600); return () => clearInterval(t) }, [])
+  useEffect(() => { const t = setInterval(() => setS((x) => (x + 1) % 3), 2600); return () => clearInterval(t) }, [])
   return (
     <div className="lesson-root" style={{ padding: 10 }}>
       <style>{STYLES}</style>
       <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'flex-start' }}>
-        {/* HAQIQIY KESIM: beshburchak. Burilishda ko'pburchak buzilmaydi. */}
-        <Space size={360} step={1} yaw={0.4 + s * 0.6} cube cuts={CUT5} cut={PENT} />
-        {/* YOLG'ON KESIM: to'rtinchi nuqta chorakda, kerak joyi uch chorakda.
-            0,4 da butun, bitta burilishda esa o'zini o'zi kesadi. */}
-        <Space size={360} step={1} yaw={0.4 + s * 0.6} cube cuts={CUT_FAKE} cut={FAKE} />
-        {/* Telefon o'lchami: beshburchak 212 da o'qiladimi. Kubning o'z
-            yorliqlari berkitilgan -- kichik kadrda ular kesim uchlari bilan
-            to'qnashadi. */}
-        <Space
-          size={212} step={1} yaw={0.4} cube cuts={CUT5} cut={PENT}
-          hide={['A', 'B', 'C', 'D', 'A1', 'B1', 'C1', 'D1']}
-        />
-        {/* IZLAR USULI: X ikki chiziqning kesishishi, N esa qirradagi nuqta. */}
-        <Space
-          size={360} step={1} yaw={0.5 + s * 0.4}
-          poly={PYR} cuts={PYR_CUTS} meets={PYR_MEETS} segs={TRACE}
-          cut={{ by: ['K', 'L', 'M', 'N'] }}
-        />
-        {/* YOQ SINOVI: tomon bo'yalgan yoqdan chiqmaydi. */}
-        <Space
-          size={360} step={1} yaw={0.4 + s * 0.6} cube cuts={CUT3}
-          faces={[{ by: ['A1', 'B1', 'C1', 'D1'] }]}
-          segs={[{ from: 'M', to: 'N' }]}
-        />
-        {/* ENG KATTA KESIM: kubda oltiburchak, beshburchakli prizmada esa
-            yettiburchak. Yorliqlar berkitilgan: ular bu yerda ma'no bermaydi. */}
-        <Space size={360} step={1} yaw={0.4 + s * 0.5} cube cuts={CUT6} cut={{ by: IDS(CUT6) }} />
-        <Space
-          size={360} step={1} yaw={0.4 + s * 0.5}
-          poly={PRISM5} cuts={CUT7} cut={{ by: IDS(CUT7) }}
-        />
-        <Space
-          size={212} step={1} yaw={0.4}
-          poly={PRISM5} cuts={CUT7} cut={{ by: IDS(CUT7) }}
-        />
+        {/* 25-DARS, IKKI CHIZIQ. Chapdan o'ngga kadrlar: faqat birinchi
+            chiziq, ikkinchisi paydo bo'ldi, tik masofalar o'lchandi. */}
+        <TwoLines size={360} step={0} />
+        <TwoLines size={360} step={1} />
+        <TwoLines size={360} step={2} />
+        {/* KESISHADIGAN HOLAT: og'ish boshqa, va 2-kadrda umumiy nuqta chiqadi.
+            Bitta asbob ikkala javobni ham ko'rsatishi kerak. */}
+        <TwoLines size={360} step={2} k1={0.5} b1={-3} k2={-1} b2={2} />
+        {/* TELEFON O'LCHAMI: 212 px da bo'linmalar va masofalar o'qiladimi. */}
+        <TwoLines size={212} step={2} />
+        {/* AYLANIB TURGAN KADR: uzilish yoki sakrash bormi. */}
+        <TwoLines size={212} step={s} />
+        {/* 8-DARS: TESKARI FUNKSIYA. `f(x) = 2x + 6` va uning teskarisi
+            `0,5x − 3`, o'rtada `y = x` ko'zgusi, nuqta (−1; 4) va juftligi. */}
+        <TwoLines size={360} step={1} k1={2} b1={6} k2={0.5} b2={-3} mirror pairAt={-1} />
+        <TwoLines size={212} step={1} k1={2} b1={6} k2={0.5} b2={-3} mirror pairAt={-1} />
       </div>
-      <div id="stepnow" style={{ fontFamily: 'monospace', marginTop: 6 }}>{'step ' + s}</div>
+      {/* SURATGA OLUVCHI SHU YOZUVNI KUTADI: kadr taymer bilan emas, yozuv
+          bo'yicha ushlanadi (grade10-figure-shot.mjs). */}
+      <div id="stepnow" style={{ marginTop: 8, font: '12px monospace' }}>{'step ' + s}</div>
     </div>
   )
 }

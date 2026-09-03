@@ -4,8 +4,8 @@
 // Bu fayl `scripts/grade10-kontent-build.mjs` bilan yasalgan:
 //   manba:  src/books/grade10/DARS42_KONTENT.md
 // Ma'lumot (ovoz, kadrlar, variantlar, razborlar, qoida, yakun) tayyor.
-// EKRAN TANALARI esa `TODO` bo'lib qoldi: asbob va figurani tanlash --
-// matematik qaror, va u avtomatlashtirilmaydi (etalon §5.3).
+// Ekran tanalari qo'lda yozilgan: asbob va figurani tanlash matematik qaror,
+// va u avtomatlashtirilmaydi (etalon §5.3).
 //
 // Tartib: tanalarni to'ldirish, keyin `grade10-lesson-audit.mjs`, keyin
 // tez yarus (2 o'lcham), keyin to'liq prognon. Har yangi figura oldin
@@ -45,27 +45,27 @@ import { Space } from './figures.jsx'
 const LESSON_NO = 42
 const LESSON_ID = `grade10-${String(LESSON_NO).padStart(2, '0')}`
 const LESSON_TITLE = L(
-  `${LESSON_NO}-dars. To'g'ri chiziq va tekislik orasidagi burchak`,
-  `Урок ${LESSON_NO}. Угол между прямой и плоскостью`,
-  `Lesson ${LESSON_NO}. The angle between a line and a plane`,
+  `${LESSON_NO}-dars. Kesimlarni yasash`,
+  `Урок ${LESSON_NO}. Построение сечений`,
+  `Lesson ${LESSON_NO}. Building sections`,
 )
 
-const BLOCK = { label: 'B6', from: 38, to: 43, current: 42 }
+const BLOCK = { label: 'B7', from: 37, to: 42, current: 42 }
 
 const S1 = {
   role: 'hook',
   answer: 'pick4',
-  eyebrow: L('BURCHAK', 'УГОЛ', 'THE ANGLE'),
-  title: L('Burchak nima bilan olinadi', 'С чем берут угол', 'What the angle is taken with'),
+  eyebrow: L('KESIM', 'СЕЧЕНИЕ', 'THE SECTION'),
+  title: L('Uch nuqta, nechta tomon', 'Три точки, сколько сторон', 'Three points, how many sides'),
   audio: [
-    A('mount', "To'g'ri chiziq tekislikni kesib o'tadi va unga perpendikulyar emas. Ular orasidagi burchak hali belgilanmagan.", 'Прямая пересекает плоскость и не перпендикулярна ей. Угол между ними ещё не отмечен.', 'A line crosses the plane and is not perpendicular to it. The angle between them is not marked yet.'),
-    A('r1', "Birinchi yozuv shunday deydi. Tekislikda kesishish nuqtasi orqali istalgan to'g'ri chiziqni olamiz va u bilan burchakni o'lchaymiz.", 'Первая запись говорит так. Берём в плоскости любую прямую через точку пересечения и мерим угол с ней.', 'The first reading says this. Take any line of the plane through the crossing point and measure the angle with it.'),
-    A('r2', 'Ikkinchisi istalgan chiziqni emas, proyeksiyani oladi.', 'Вторая берёт не любую прямую, а проекцию.', 'The second takes not any line but the projection.'),
-    A('ask', "Tekislikda to'g'ri chiziqlar cheksiz ko'p, va ular bilan burchaklar boshqa-boshqa. Sizningcha qaysi yozuv to'g'ri?", 'Прямых в плоскости бесконечно много, и углы с ними разные. Как думаешь, какая запись верная?', 'There are infinitely many lines in the plane and the angles with them differ. Which reading do you think is correct?'),
+    A('mount', "Kub, va uning uch qirrasida nuqtalar belgilangan. Ular orqali kesuvchi tekislik o'tadi.", 'Куб, и на трёх его рёбрах отмечены точки. Через них проходит секущая плоскость.', 'A cube, and points are marked on three of its edges. A cutting plane passes through them.'),
+    A('r1', 'Birinchi yozuv tomonlar uchta deydi: nuqtalar bir biriga ulanib uchburchak chiqdi.', 'Первая запись говорит, что сторон три: точки соединили между собой и получили треугольник.', 'The first reading says there are three sides: the points were joined to each other and a triangle came out.'),
+    A('r2', 'Ikkinchisi tomonlar beshta deydi.', 'Вторая говорит, что сторон пять.', 'The second says there are five sides.'),
+    A('ask', "Nuqta uchta, demak tomon ham uchta, shunday ko'rinadi. Sizningcha qaysi yozuv to'g'ri?", 'Точек три, значит и сторон три, так кажется. Как думаешь, какая запись верная?', 'There are three points, so three sides, it seems. Which reading do you think is right?'),
   ],
   probe: {
     question: L("Qaysi yozuv to'g'ri?", 'Какая запись верна?', 'Which reading is correct?'),
-    afterPredict: L('Javobingiz yozib olindi. Endi sahnani buramiz.', 'Твой ответ записан. Сейчас повернём сцену.', 'Your answer is recorded. Now we rotate the scene.'),
+    afterPredict: L('Javobingiz yozib olindi. Endi kesimni yasaymiz.', 'Твой ответ записан. Сейчас построим сечение.', 'Your answer is recorded. Now we build the section.'),
     items: [
       { id: 'a', label: L('birinchi', 'первая', 'the first') },
       { id: 'b', label: L('ikkinchi', 'вторая', 'the second'), correct: true },
@@ -75,61 +75,61 @@ const S1 = {
   },
   row: {
     a: {
-      name: L("tekislik chizig'i bilan", 'с прямой плоскости', 'with a line of the plane'),
-      value: '∠(a; α) = ∠(a; b),   b ⊂ α',
+      name: L('uchburchak', 'треугольник', 'a triangle'),
+      value: '3',
     },
     b: {
-      name: L('proyeksiya bilan', 'с проекцией', 'with the projection'),
-      value: '∠(a; α) = ∠(a; a₁)',
+      name: L('beshburchak', 'пятиугольник', 'a pentagon'),
+      value: '5',
     },
   },
-  expr: 'a ∩ α = A',
+  expr: 'ABCDA₁B₁C₁D₁',
 }
 
 const S2 = {
   role: 'support',
   answer: 'pick4',
   eyebrow: L('TAYANCH', 'ОПОРА', 'WHAT YOU KNOW'),
-  title: L("O'tgan darsdan uch savol", 'Три вопроса из прошлого урока', 'Three questions from the last lesson'),
+  title: L('Blokdan uch savol', 'Три вопроса из блока', 'Three questions from the block'),
   tag: 'support',
   audio: [
-    A('mount', "O'tgan dars haqida uch savol. Proyeksiya darhol kerak bo'ladi.", 'Три вопроса про прошлый урок. Проекция понадобится сразу.', 'Three questions about the last lesson. The projection will be needed at once.'),
+    A('mount', "Uchta savol. Darsning qoidasi birinchi ikkitasidan yig'iladi.", 'Три вопроса. Правило урока соберётся из первых двух.', 'Three questions. The rule of the lesson will be assembled from the first two.'),
   ],
   items: [
     {
       id: 'q1',
       ask: true,
-      prompt: L("Og'maning proyeksiyasi nima?", 'Что такое проекция наклонной?', 'What is the projection of an oblique?'),
-      done: 'BC ⊂ α',
+      prompt: L('Jismning kesimi nima?', 'Что такое сечение тела?', 'What is a section of a body?'),
+      done: 'KPMNH',
       items: [
-        { id: 'a', label: L('asoslar orasidagi kesma', 'отрезок между основаниями', 'the segment between the feet'), correct: true },
-        { id: 'b', label: L("og'maning o'zi", 'сама наклонная', 'the oblique itself'), hint: L("Og'ma tekislikda yotmaydi, proyeksiya esa yotadi.", 'Наклонная в плоскости не лежит, а проекция лежит.', 'An oblique does not lie in the plane, a projection does.') },
-        { id: 'c', label: L('perpendikulyar', 'перпендикуляр', 'the perpendicular'), hint: L('Perpendikulyar tekislikka faqat keladi, unda bormaydi.', 'Перпендикуляр только приходит в плоскость, а не идёт по ней.', 'A perpendicular only arrives at the plane, it does not run along it.') },
-        { id: 'd', label: L('butun tekislik', 'вся плоскость', 'the whole plane'), hint: L("Kesmaning proyeksiyasi kesma bo'ladi.", 'Проекция отрезка это отрезок.', 'The projection of a segment is a segment.') },
+        { id: 'a', label: L('kesuvchi tekislikda yotgan jism nuqtalaridan iborat shakl', 'фигура из точек тела, лежащих в секущей плоскости', 'the figure of the points of the body lying in the cutting plane'), correct: true },
+        { id: 'b', label: L('jismni kesadigan tekislik', 'плоскость, которая режет тело', 'the plane that cuts the body'), hint: L('Tekislik kesadi, kesim esa chiqqan narsa.', 'Плоскость режет, а сечение это то, что получилось.', 'The plane cuts, and the section is what came out.') },
+        { id: 'c', label: L("ikki yoqning kesishish chizig'i", 'линия пересечения двух граней', 'the line where two faces meet'), hint: L("Ikki yoqning kesishish chizig'i qirra.", 'Линия пересечения двух граней это ребро.', 'The line where two faces meet is an edge.') },
+        { id: 'd', label: L('kesim yuzasi', 'площадь разреза', 'the area of the cut'), hint: L('Yuza shakl topilgandan keyin hisoblanadi.', 'Площадь считают после того, как фигура найдена.', 'The area is computed after the figure is found.') },
       ],
     },
     {
       id: 'q2',
       ask: true,
-      prompt: L('Bitta nuqtadan nima qisqaroq?', 'Что короче из одной точки?', 'Which is shorter from one point?'),
-      done: 'AB < AC',
+      prompt: L('Kesim uchlari qayerda yotadi?', 'Где лежат вершины сечения?', 'Where do the vertices of a section lie?'),
+      done: 'M ∈ A₁B₁',
       items: [
-        { id: 'a', label: L('perpendikulyar', 'перпендикуляр', 'the perpendicular'), correct: true },
-        { id: 'b', label: L("og'ma", 'наклонная', 'the oblique'), hint: L("Og'ma o'sha uchburchakda gipotenuza.", 'Наклонная гипотенуза в том же треугольнике.', 'The oblique is the hypotenuse in that triangle.') },
-        { id: 'c', label: L('ular teng', 'они равны', 'they are equal'), hint: L("Ular faqat proyeksiya nol bo'lganda teng bo'lardi.", 'Равны они были бы только при нулевой проекции.', 'They would be equal only with a zero projection.') },
-        { id: 'd', label: L("tekislikka bog'liq", 'зависит от плоскости', 'it depends on the plane'), hint: L("Uchburchak har qanday tekislikda to'g'ri burchakli.", 'Треугольник прямоугольный при любой плоскости.', 'The triangle is right-angled for any plane.') },
+        { id: 'a', label: L('faqat qirralarda', 'только на рёбрах', 'only on the edges'), correct: true },
+        { id: 'b', label: L('yoqlarning ichida', 'внутри граней', 'inside the faces'), hint: L('Yoq ichida tomonlar yotadi, uchlar emas.', 'Внутри грани лежат стороны, а не вершины.', 'The sides lie inside a face, not the vertices.') },
+        { id: 'c', label: L('jism uchlarida', 'в вершинах тела', 'at the vertices of the body'), hint: L("Ba'zan mos tushadi, lekin qoida bo'yicha shart emas.", 'Иногда совпадают, но по правилу не обязаны.', 'Sometimes they coincide, but the rule does not require it.') },
+        { id: 'd', label: L('kesuvchi tekislikning har qanday joyida', 'в любом месте секущей плоскости', 'anywhere in the cutting plane'), hint: L('Jismdan tashqaridagi nuqta kesimga kirmaydi.', 'Точка вне тела в сечение не входит.', 'A point outside the body is not in the section.') },
       ],
     },
     {
       id: 'q3',
       ask: true,
-      prompt: L('Uch perpendikulyar haqidagi teorema nima beradi?', 'Что даёт теорема о трёх перпендикулярах?', 'What does the theorem of three perpendiculars give?'),
-      done: 'c ⊥ BC ⇔ c ⊥ AC',
+      prompt: L("Kubning nechta yog'i bor?", 'Сколько граней у куба?', 'How many faces does a cube have?'),
+      done: '6',
       items: [
-        { id: 'a', label: L("perpendikulyarlikni proyeksiyadan og'maga o'tkazadi", 'переносит перпендикулярность с проекции на наклонную', 'it carries perpendicularity from the projection to the oblique'), correct: true },
-        { id: 'b', label: L('uzunliklarni solishtiradi', 'сравнивает длины', 'it compares lengths'), hint: L("Unda uzunliklar haqida gap yo'q.", 'Про длины там речи нет вовсе.', 'It says nothing about lengths at all.') },
-        { id: 'c', label: L('perpendikulyar quradi', 'строит перпендикуляр', 'it builds a perpendicular'), hint: L('Perpendikulyar unda allaqachon berilgan.', 'Перпендикуляр в ней уже дан.', 'The perpendicular is already given in it.') },
-        { id: 'd', label: L("burchakni o'lchaydi", 'измеряет угол', 'it measures the angle'), hint: L("U burchaklarni hisoblamaydi, ularni o'tkazadi.", 'Углы она не считает, она их переносит.', 'It does not compute angles, it carries them over.') },
+        { id: 'a', label: L('oltita', 'шесть', 'six'), correct: true },
+        { id: 'b', label: L('sakkizta', 'восемь', 'eight'), hint: L('Sakkiz uchlar soni.', 'Восемь это число вершин.', 'Eight is the number of vertices.') },
+        { id: 'c', label: L("o'n ikkita", 'двенадцать', 'twelve'), hint: L("O'n ikki qirralar soni.", 'Двенадцать это число рёбер.', 'Twelve is the number of edges.') },
+        { id: 'd', label: L("to'rtta", 'четыре', 'four'), hint: L("To'rt yoq uchburchakli piramidada.", 'Четыре грани у треугольной пирамиды.', 'Four faces belong to a triangular pyramid.') },
       ],
     },
   ],
@@ -139,203 +139,203 @@ const S3 = {
   role: 'explain1',
   answer: 'number',
   eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L("Perpendikulyar asoslari to'g'ri chiziq beradi", 'Основания перпендикуляров дают прямую', 'The feet of the perpendiculars give a line'),
-  tag: 'kartinka-kak-dokazatelstvo',
+  title: L("To'rtinchi nuqta erkin emas", 'Четвёртая точка не свободна', 'The fourth point is not free'),
+  tag: 'secheniye-ne-ploskoe',
   show: [
     [
-      L("to'g'ri chiziq nuqtalaridan perpendikulyarlar tushadi", 'из точек прямой падают перпендикуляры', 'perpendiculars drop from the points of the line'),
-      L('ularning asoslari tekislikka tushadi', 'их основания ложатся в плоскость', 'their feet land in the plane'),
+      L("qirralarda to'rt nuqta", 'четыре точки на рёбрах', 'four points on the edges'),
+      L("va hammasi yassi ko'rinadi", 'и всё выглядит плоским', 'and everything looks flat'),
     ],
     [
-      L("asoslar bitta to'g'ri chiziqqa tushdi", 'основания легли на одну прямую', 'the feet fell on one line'),
-      L("bu to'g'ri chiziqning tekislikdagi proyeksiyasi", 'это проекция прямой на плоскость', 'this is the projection of the line on the plane'),
+      L('bitta burilish', 'один поворот', 'one turn'),
+      L("va to'rtburchak buzildi", 'и четырёхугольник сломался', 'and the quadrilateral broke'),
     ],
   ],
   motion: ['move'],
   audio: [
-    A('mount', "To'g'ri chiziqda bir necha nuqta olamiz va har biridan tekislikka perpendikulyar tushiramiz.", 'Возьмём на прямой несколько точек и из каждой опустим перпендикуляр на плоскость.', 'Take several points on the line and drop a perpendicular from each onto the plane.'),
-    A('move', "Asoslar qayerga tushishiga qarang. Ular sochilib ketmadi, bitta to'g'ri chiziqqa tizildi, va bu chiziq bizning to'g'ri chizig'imizning tekislikdagi proyeksiyasi deb ataladi. Darslikda bir yuz o'ttiz sakkizinchi betda ham shunday yozilgan. Sahnani buring va proyeksiyaga qarang. U sahnaning har qanday holatida tekislikda qoladi, chunki tekislik nuqtalaridan qurilgan. Og'ma chiziq burilishda tekislikdan chiqadi, uning proyeksiyasi esa yo'q.", 'Смотри, куда попадают основания. Они не разбросаны, они выстроились в одну прямую, и эта прямая называется проекцией нашей прямой на плоскость. Так и написано в учебнике на странице сто тридцать восемь. Поверни сцену и следи за проекцией. Она остаётся в плоскости при любом положении сцены, потому что построена из точек плоскости. Наклонная прямая при повороте уходит из плоскости, а её проекция нет.', 'Look at where the feet land. They are not scattered, they line up on one line, and that line is called the projection of our line on the plane. That is exactly what the textbook says on page one hundred thirty eight. Rotate the scene and watch the projection. It stays in the plane at any position of the scene, because it is built from points of the plane. Under rotation the slanted line leaves the plane, its projection does not.'),
-    A('work', "O'zingiz hisoblang. Bu perpendikulyarlarning asoslaridan nechta to'g'ri chiziq chiqadi?", 'Посчитай сам. Сколько прямых получается из оснований этих перпендикуляров?', 'Work it out yourself. How many lines come out of the feet of these perpendiculars?'),
+    A('mount', "Uch qirrada nuqtalar, va ularga to'rtinchisi qo'shildi. To'rttasini aylana bo'ylab ulaymiz.", 'На трёх рёбрах точки, и к ним добавлена четвёртая. Соединим все четыре по кругу.', 'There are points on three edges, and a fourth is added to them. Let us join all four in a cycle.'),
+    A('move', "Bu rakursdan to'rtburchak butunlay oddiy, yassi ko'rinadi. Sahnani ixtiyoriy tomonga buraman, va u o'zini o'zi kesadi. Yassi shakl bunday tutolmaydi, demak shakl yassi emas. Sabab oddiy va u birinchi blokdan: tekislikni uch nuqta aniqlaydi. Birinchi uch nuqta uni allaqachon aniqlagan, keyin esa tanlov tugadi: qaysi qirralarni kesishini tekislikning o'zi hal qiladi. To'rtinchi nuqta bu tekislik umuman tegmaydigan qirrada olingan, va tekislikdan u qirraning yetti o'ndan qismi masofada turadi. Birinchi rakursda bunday xato umuman ko'rinmaydi.", 'С этого ракурса четырёхугольник выглядит совершенно обычным, плоским. Поворачиваю сцену в любую сторону, и он пересекает сам себя. Так плоская фигура вести себя не может, значит фигура не плоская. Причина простая и она из первого блока: плоскость задают три точки. Первые три точки её уже задали, а дальше выбор кончился: плоскость сама решает, какие рёбра она режет. Четвёртая точка взята на ребре, которого эта плоскость вообще не касается, и от плоскости она отстоит на семь десятых ребра. На первом ракурсе такая ошибка не видна совсем.', 'From this view the quadrilateral looks perfectly ordinary and flat. I rotate the scene either way and it crosses itself. A flat figure cannot behave like that, so the figure is not flat. The reason is simple and it comes from the first block: three points determine a plane. The first three points have already determined it, and after that the choosing is over: the plane itself decides which edges it cuts. The fourth point is taken on an edge that this plane does not touch at all, and it stands seven tenths of an edge away from the plane. At the first view such an error cannot be seen at all.'),
+    A('work', "O'zingiz hisoblang. Nechta nuqta tekislikni aniqlaydi?", 'Посчитай сам. Сколько точек задают плоскость?', 'Work it out yourself. How many points determine a plane?'),
   ],
   work: {
-    prompt: L("Asoslar nechta to'g'ri chiziq beradi?", 'Сколько прямых дают основания?', 'How many lines do the feet give?'),
-    ok: L("Bitta. Barcha perpendikulyarlarning asoslari bitta to'g'ri chiziqda yotadi, va bu proyeksiya.", 'Одна. Основания всех перпендикуляров лежат на одной прямой, и это проекция.', 'One. The feet of all the perpendiculars lie on one line, and that is the projection.'),
+    prompt: L('Nechta nuqta tekislikni aniqlaydi?', 'Сколько точек задают плоскость?', 'How many points determine a plane?'),
+    ok: L("Uchta. To'rtinchisi tanlanmaydi, hisoblanadi.", 'Три. Четвёртая уже вычисляется, а не выбирается.', 'Three. The fourth one is computed, not chosen.'),
     hint: [
-      L('Asoslar sochilganmi yoki tizilganmi, qarang.', 'Посмотри, разбросаны основания или выстроены.', 'See whether the feet are scattered or lined up.'),
-      L("Ikki nuqta orqali roppa-rosa bitta to'g'ri chiziq o'tadi.", 'Через две точки проходит ровно одна прямая.', 'Exactly one line passes through two points.'),
-      L('Bitta.', 'Одна.', 'One.'),
+      L('Tekislik haqidagi birinchi blokni eslang.', 'Вспомни первый блок про плоскость.', 'Recall the first block about the plane.'),
+      L("Ikki nuqta kam, ular to'g'ri chiziq beradi.", 'Двух точек мало, они дают прямую.', 'Two points are not enough, they give a line.'),
+      L('Uchta.', 'Три.', 'Three.'),
     ],
-    answer: '1',
+    answer: '3',
   },
-  expr: 'a₁ ⊂ α',
+  expr: 'MNGK',
 }
 
 const S4 = {
   role: 'explain2',
   answer: 'number',
-  eyebrow: L('FARQLASH', 'РАЗГРАНИЧЕНИЕ', 'TELLING THEM APART'),
-  title: L('Ikki duga, va ular boshqa-boshqa', 'Две дуги, и они разные', 'Two arcs, and they differ'),
-  tag: 'ugol-ne-s-proekciey',
+  eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
+  title: L('Tomon yoqda yotadi', 'Сторона лежит в грани', 'A side lies in a face'),
+  tag: 'gran-ne-storona',
   show: [
     [
-      L("biri to'g'ri chiziq va proyeksiya orasida", 'одна дуга между прямой и проекцией', 'one arc between the line and the projection'),
-      L("ikkinchisi to'g'ri chiziq va tekislikning boshqa chizig'i orasida", 'другая между прямой и второй прямой плоскости', 'the other between the line and a second line of the plane'),
+      L('M va N nuqtalari ustki yoqning qirralarida', 'точки M и N на рёбрах верхней грани', 'the points M and N are on the edges of the top face'),
+      L('ular orasidagi kesma unda yotadi', 'отрезок между ними лежит в ней', 'the segment between them lies in it'),
     ],
     [
-      L('sahnani buring va dugalarni solishtiring', 'поверни сцену и сравни дуги', 'rotate the scene and compare the arcs'),
-      L('proyeksiya bilan burchak eng kichik', 'с проекцией угол наименьший', 'with the projection the angle is the smallest'),
+      L("M va K da umumiy yoq yo'q", 'у M и K общей грани нет', 'M and K have no common face'),
+      L("kesma jism ichidan o'tdi", 'отрезок пошёл сквозь тело', 'the segment went through the body'),
     ],
   ],
   motion: ['move'],
   audio: [
-    A('mount', "Tekislikda o'sha nuqta orqali ikkinchi to'g'ri chiziq olingan, va u bilan burchak ham duga bilan belgilangan.", 'В плоскости взята вторая прямая через ту же точку, и угол с ней тоже отмечен дугой.', 'A second line of the plane is taken through the same point, and the angle with it is also marked by an arc.'),
-    A('move', "Qimirlamas chizmada ikkinchi duga kichikroq ko'rinadi, va qo'l o'zi uni olishga cho'ziladi. Sahnani buring va yana qarang. Proyeksiya bilan duga har qanday holatda eng tor qoladi, ikkinchisi esa goh o'sadi, goh qisqaradi, chunki biz uni turli rakursdan ko'ramiz. To'g'ri chiziq va tekislik orasidagi burchak deb aynan eng kichigi olinadi, va u proyeksiyada erishiladi. Tekislikning qolgan barcha chiziqlari kattaroq burchak beradi.", 'На неподвижном чертеже вторая дуга кажется меньше, и рука сама тянется взять её. Поверни сцену и посмотри снова. Дуга с проекцией остаётся самой узкой при любом положении, а вторая то растёт, то сжимается, потому что мы видим её под разными ракурсами. Углом между прямой и плоскостью считают именно наименьший, и он достигается на проекции. Все остальные прямые плоскости дают углы больше.', 'On a still drawing the second arc seems smaller, and the hand reaches for it by itself. Rotate the scene and look again. The arc with the projection stays the narrowest at any position, while the second one grows and shrinks, because we see it from different views. The angle between a line and a plane is taken to be the smallest one, and it is reached on the projection. All the other lines of the plane give bigger angles.'),
-    A('work', "O'zingiz hisoblang. Tekislikning nechta chizig'i bizning chizig'imiz bilan eng kichik burchak beradi?", 'Посчитай сам. Сколько прямых плоскости дают наименьший угол с нашей прямой?', 'Work it out yourself. How many lines of the plane give the smallest angle with our line?'),
+    A('mount', "Ustki yoq bo'yalgan. Ikki nuqta ham, M va N, uning qirralarida yotadi.", 'Верхняя грань закрашена. Обе точки, M и N, лежат на её рёбрах.', 'The top face is filled. Both points, M and N, lie on its edges.'),
+    A('move', "Ular orasidagi kesma butunlay bo'yalgan yoqda, va burilish uni undan chiqarmaydi. Bu kesimning tomoni: kesuvchi tekislik yoq bilan to'g'ri chiziq bo'ylab uchrashadi, va yoq ichida shu chiziqdan kesma qoladi. Endi M va K ni ulashga harakat qilaman. Ikkisi yotgan yoqni qidiraman. M nuqta ustki va oldingi yoqda yotadi, K nuqta chap va orqa yoqda. Umumiy yoq bitta ham yo'q, va kesma jism ichiga ketadi. U kesimning tomoni bo'lolmaydi, chunki kesim sirt nuqtalaridan iborat, ichki nuqtalardan emas.", 'Отрезок между ними целиком в закрашенной грани, и поворот его оттуда не выпускает. Это и есть сторона сечения: секущая плоскость встречается с гранью по прямой, и внутри грани от этой прямой остаётся отрезок. Теперь попробую соединить M и K. Ищу грань, в которой лежат обе. Точка M лежит в верхней грани и в передней, точка K в левой и в задней. Общей грани нет ни одной, и отрезок уходит внутрь тела. Стороной сечения он быть не может, потому что сечение состоит из точек поверхности, а не из точек внутри.', 'The segment between them lies entirely in the filled face, and rotation never lets it out. That is what a side of a section is: the cutting plane meets a face along a line, and inside the face a segment of that line remains. Now let me try to join M and K. I look for a face in which both of them lie. The point M lies in the top face and in the front one, the point K in the left and in the back one. There is no common face at all, and the segment goes inside the body. It cannot be a side of the section, because a section consists of points of the surface, not of points inside.'),
+    A('work', "O'zingiz hisoblang. Uch belgilangan nuqta bo'yicha darrov nechta tomon o'tkazish mumkin?", 'Посчитай сам. Сколько сторон можно провести сразу по трём отмеченным точкам?', 'Work it out yourself. How many sides can be drawn straight away through the three marked points?'),
   ],
   work: {
-    prompt: L('Shunday chiziq nechta?', 'Сколько таких прямых?', 'How many such lines?'),
-    ok: L('Bitta, va bu proyeksiya. Qolganlari kattaroq burchak beradi.', 'Одна, и это проекция. Остальные дают углы больше.', 'One, and it is the projection. The rest give bigger angles.'),
+    prompt: L('Darrov nechta tomon?', 'Сколько сторон сразу?', 'How many sides straight away?'),
+    ok: L('Bitta. Umumiy yoq faqat M va N da bor.', 'Одна. Общая грань есть только у M и N.', 'One. Only M and N have a common face.'),
     hint: [
-      L("Sahnani buring va qaysi duga doim tor qolishini ko'ring.", 'Поверни сцену и посмотри, какая дуга остаётся узкой всегда.', 'Rotate the scene and see which arc always stays narrow.'),
-      L("To'g'ri chiziqning proyeksiyasi bitta.", 'Проекция у прямой одна.', 'A line has one projection.'),
+      L('Uch juft nuqtani tekshiring.', 'Проверь все три пары точек.', 'Check all three pairs of points.'),
+      L('Har juft uchun ikkisi yotgan yoqni qidiring.', 'Для каждой пары ищи грань, где лежат обе.', 'For each pair look for a face where both lie.'),
       L('Bitta.', 'Одна.', 'One.'),
     ],
     answer: '1',
   },
-  expr: '∠(a; a₁) < ∠(a; b)',
+  expr: 'MN ⊂ A₁B₁C₁D₁',
 }
 
 const S5 = {
   role: 'explain3',
   answer: 'number',
-  eyebrow: L('CHEGARA HOLLAR', 'КРАЙНИЕ СЛУЧАИ', 'THE EXTREME CASES'),
-  title: L("To'qson va nol", 'Девяносто и ноль', 'Ninety and zero'),
-  tag: 'ugol-ne-s-proekciey',
+  eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
+  title: L('Iz jismdan tashqariga olib chiqadi', 'След выводит за тело', 'The trace leads outside the body'),
+  tag: 'secheniye-ne-ploskoe',
   show: [
     [
-      L("to'g'ri chiziq tekislikka perpendikulyar bo'ldi", 'прямая встала перпендикулярно плоскости', 'the line stood perpendicular to the plane'),
-      L('uning proyeksiyasi nuqtaga siqildi', 'её проекция сжалась в точку', 'its projection shrank to a point'),
+      L('K va L bir yoqda, bu tomon', 'K и L в одной грани, это сторона', 'K and L are in one face, this is a side'),
+      L('L va M boshqasida, bu ikkinchisi', 'L и M в другой, это вторая', 'L and M are in another, this is the second'),
     ],
     [
-      L("endi to'g'ri chiziq tekislikka parallel", 'теперь прямая параллельна плоскости', 'now the line is parallel to the plane'),
-      L('proyeksiya uning yonidan boradi', 'проекция идёт рядом с ней', 'the projection runs beside it'),
+      L('LM va AC ni X nuqtaga qadar davom ettirdik', 'продлили LM и AC до точки X', 'LM and AC were extended to the point X'),
+      L("KX to'g'ri chizig'i qirrada N nuqtani berdi", 'прямая KX дала точку N на ребре', 'the line KX gave the point N on an edge'),
     ],
   ],
   motion: ['move'],
   audio: [
-    A('mount', "Ta'rif qamramaydigan ikki hol, va darslik ularni alohida beradi.", 'Два случая, которые определением не покрываются, и учебник задаёт их отдельно.', 'Two cases the definition does not cover, and the textbook sets them separately.'),
-    A('move', "Avval to'g'ri chiziq tekislikka perpendikulyar. Uning proyeksiyasi nuqtaga siqildi, va proyeksiya bilan burchakni qurib bo'lmaydi. Bu hol uchun burchak to'qson darajaga teng deb olinadi. Endi to'g'ri chiziq tekislikka parallel. Proyeksiya uning yonidan boradi va uni hech qachon uchratmaydi, va bu holda burchak nolga teng deb olinadi. Ikkala kelishuv ham darslikning bir yuz o'ttiz sakkizinchi betida yozilgan, va ikkalasi ham qolgan burchaklar bilan mos.", 'Сначала прямая перпендикулярна плоскости. Её проекция сжалась в точку, и угол с проекцией уже не построить. Для этого случая угол считают равным девяноста градусам. Теперь прямая параллельна плоскости. Проекция идёт рядом с ней и никогда её не встретит, и угол в этом случае считают равным нулю. Оба соглашения записаны в учебнике на странице сто тридцать восемь, и оба согласованы с остальными углами.', 'First the line is perpendicular to the plane. Its projection shrank to a point and the angle with the projection can no longer be built. For that case the angle is taken to be ninety degrees. Now the line is parallel to the plane. The projection runs beside it and will never meet it, and in that case the angle is taken to be zero. Both conventions are written in the textbook on page one hundred thirty eight, and both agree with the other angles.'),
-    A('work', "O'zingiz hisoblang. Tekislik va unga perpendikulyar to'g'ri chiziq orasidagi burchak necha daraja?", 'Посчитай сам. Сколько градусов в угле между плоскостью и перпендикулярной ей прямой?', 'Work it out yourself. How many degrees are in the angle between a plane and a line perpendicular to it?'),
+    A('mount', 'Piramida, va uning uch qirrasida K, L va M nuqtalari belgilangan. Ikki tomon darrov topiladi.', 'Пирамида, и на трёх её рёбрах отмечены точки K, L и M. Две стороны находятся сразу.', 'A pyramid, and points K, L and M are marked on three of its edges. Two sides are found straight away.'),
+    A('move', "Keyin umumiy yoqli juftlar tugadi, va izlar usuli jismdan tashqariga qadam tashlaydi. L va M nuqtalari bir yon yoqda yotadi, va bu yoq tekislik bilan cheksiz davom etadi. L va M orqali to'g'ri chiziqni davom ettiraman, asos tomonini davom ettiraman, va ular X nuqtada uchrashadi. Bu nuqta kesuvchi tekislikka ham, asos tekisligiga ham tegishli. Demak u orqali iz o'tadi, ya'ni kesuvchi tekislikning asos tekisligi bilan kesishish chizig'i. K nuqta ham asosda yotadi, shuning uchun iz K va X orqali o'tgan to'g'ri chiziq. U asos qirrasini kesgan joyda kesimning to'rtinchi uchi turadi.", 'Дальше пары с общей гранью кончились, и метод следов делает шаг за тело. Точки L и M лежат в одной боковой грани, а эта грань бесконечно продолжается плоскостью. Продлеваю прямую через L и M, продлеваю сторону основания, и они встречаются в точке X. Эта точка принадлежит и секущей плоскости, и плоскости основания сразу. Значит через неё проходит след, то есть линия пересечения секущей плоскости с плоскостью основания. Точка K тоже лежит в основании, поэтому след это прямая через K и X. Там, где она пересекает ребро основания, стоит четвёртая вершина сечения.', 'Then the pairs with a common face ran out, and the trace method takes a step outside the body. The points L and M lie in one lateral face, and that face continues without end as a plane. I extend the line through L and M, I extend the side of the base, and they meet at the point X. This point belongs both to the cutting plane and to the plane of the base. So the trace passes through it, that is the line where the cutting plane meets the plane of the base. The point K lies in the base too, so the trace is the line through K and X. Where it crosses an edge of the base stands the fourth vertex of the section.'),
+    A('work', "O'zingiz hisoblang. Chiqqan kesimning nechta tomoni bor?", 'Посчитай сам. Сколько сторон у полученного сечения?', 'Work it out yourself. How many sides does the section we got have?'),
   ],
   work: {
-    prompt: L('Necha daraja?', 'Сколько градусов?', 'How many degrees?'),
-    ok: L("To'qson. Proyeksiya nuqtaga siqildi, va bu darslikdagi kelishuv.", 'Девяносто. Проекция сжалась в точку, и это соглашение из учебника.', 'Ninety. The projection shrank to a point, and this is the convention from the textbook.'),
+    prompt: L('Kesimning nechta tomoni?', 'Сколько сторон у сечения?', 'How many sides does the section have?'),
+    ok: L("To'rtta. Har tomon o'z yog'ida, va yoqlar to'rttasi ham.", 'Четыре. Каждая сторона в своей грани, и грани все четыре.', 'Four. Each side in its own face, and all four faces are used.'),
     hint: [
-      L("Proyeksiya nimaga aylanganini ko'ring.", 'Посмотри, во что превратилась проекция.', 'See what the projection has turned into.'),
-      L("Perpendikulyar tekislikning har bir chizig'i bilan to'g'ri burchak beradi.", 'Перпендикуляр даёт прямой угол с каждой прямой плоскости.', 'A perpendicular gives a right angle with every line of the plane.'),
-      L("To'qson.", 'Девяносто.', 'Ninety.'),
+      L('Uchlarni sanang: ular tomonlar soniga teng.', 'Посчитай вершины: их столько же, сколько сторон.', 'Count the vertices: there are as many as sides.'),
+      L('X nuqta uch emas, u jismdan tashqarida.', 'Точка X вершиной не является, она вне тела.', 'The point X is not a vertex, it is outside the body.'),
+      L("To'rtta.", 'Четыре.', 'Four.'),
     ],
-    answer: '90',
+    answer: '4',
   },
-  expr: 'a ⊥ α   →   ∠(a; α) = 90°',
+  expr: 'X = LM ∩ AC',
 }
 
 const S6 = {
   role: 'explain4',
   answer: 'number',
-  eyebrow: L("O'ZINGIZ", 'САМ', 'ON YOUR OWN'),
-  title: L('Yoq diagonali va asos', 'Диагональ грани и основание', 'A face diagonal and the base'),
-  tag: 'ugol-ne-s-proekciey',
+  eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
+  title: L('Parallel yoqlar, parallel tomonlar', 'Параллельные грани, параллельные стороны', 'Parallel faces, parallel sides'),
+  tag: 'secheniye-ne-ploskoe',
   show: [
     [
-      L('kubda yon yoqning diagonali olingan', 'в кубе взята диагональ боковой грани', 'a diagonal of a side face is taken in the cube'),
-      L('uning proyeksiyasi asos qirrasi', 'её проекция это ребро основания', 'its projection is an edge of the base'),
+      L('beshburchak, besh yoqda besh tomon', 'пятиугольник, пять сторон в пяти гранях', 'a pentagon, five sides in five faces'),
+      L('oldingi va orqa yoqlar parallel', 'передняя и задняя грани параллельны', 'the front and back faces are parallel'),
     ],
     [
-      L('kubni buring va uchburchakka qarang', 'поверни куб и посмотри на треугольник', 'rotate the cube and look at the triangle'),
-      L('uning ikki kateti teng', 'два его катета равны', 'its two legs are equal'),
+      L('demak ulardagi tomonlar ham parallel', 'значит и стороны в них параллельны', 'so the sides in them are parallel too'),
+      L('ikkinchi juft ham shunday ishlaydi', 'вторая пара работает так же', 'the second pair works the same way'),
     ],
   ],
   motion: ['move'],
   audio: [
-    A('mount', 'Kub, va unda yon yoqning diagonali. Uning asos tekisligidagi proyeksiyasi qirra.', 'Куб, и в нём диагональ боковой грани. Её проекция на плоскость основания это ребро.', 'A cube, and in it a diagonal of a side face. Its projection on the plane of the base is an edge.'),
-    A('move', "Diagonal, uning proyeksiyasi va yon qirra to'g'ri burchakli uchburchak beradi. To'g'ri burchak yon qirra asosga kelgan joyda turadi, va nima uchun ekanini biz allaqachon bilamiz. Kubning barcha qirralari teng, demak bu uchburchakning ikki kateti teng, bunday to'g'ri burchakli uchburchak esa teng yonli. Uning gipotenuzasidagi burchaklar qirq besh daraja. Kubni buring va uchburchak hech qanday burilishda buzilmasligiga ishonch hosil qiling. Burchak hisoblangan, rasmdan o'lchanmagan.", 'Диагональ, её проекция и боковое ребро дают прямоугольный треугольник. Прямой угол стоит там, где боковое ребро приходит в основание, и мы уже знаем почему. У куба все рёбра равны, значит два катета этого треугольника равны, а такой прямоугольный треугольник равнобедренный. Углы при его гипотенузе по сорок пять градусов. Поверни куб и убедись, что треугольник не разваливается ни при каком повороте. Угол посчитан, а не измерен с картинки.', 'The diagonal, its projection and the side edge give a right triangle. The right angle stands where the side edge arrives at the base, and we already know why. All edges of a cube are equal, so the two legs of that triangle are equal, and such a right triangle is isosceles. The angles at its hypotenuse are forty five degrees each. Rotate the cube and make sure the triangle does not fall apart at any rotation. The angle is computed, not measured off the picture.'),
-    A('work', "O'zingiz hisoblang. Yoq diagonali va asos tekisligi orasida necha daraja?", 'Посчитай сам. Сколько градусов между диагональю грани и плоскостью основания?', 'Work it out yourself. How many degrees are between the face diagonal and the plane of the base?'),
+    A('mount', "Mana darsning boshidagi o'sha kesim. Unda tomonlar beshta, va har biri o'z yog'ida yotadi.", 'Вот то самое сечение из начала урока. Сторон в нём пять, и каждая лежит в своей грани.', 'Here is that very section from the start of the lesson. It has five sides, and each lies in its own face.'),
+    A('move', "Kubning oldingi va orqa yoqlari parallel, kesuvchi tekislik esa bitta. Tekislik ikki parallel tekislikni parallel to'g'ri chiziqlar bo'ylab kesadi, bu parallellik blokidagi teorema. Demak oldingi yoqdagi tomon orqa yoqdagi tomonga parallel, va bu yerda tekshirishga hech narsa yo'q, bu natija. Ikkinchi yoqlar jufti ikkinchi tomonlar juftini beradi. Shundan ikkinchi yasash usuli, u darslikda parallel ko'chirish usuli deb ataladi: agar bir yoqda tomon allaqachon bo'lsa, parallel yoqda uning yo'nalishi oldindan ma'lum. Beshinchi tomon juftsiz qoldi, chunki tekislik pastki asosga tegmadi.", 'Передняя и задняя грани куба параллельны, а секущая плоскость одна. Плоскость режет две параллельные плоскости по параллельным прямым, это теорема из блока про параллельность. Значит сторона в передней грани параллельна стороне в задней, и проверять тут нечего, это следствие. Вторая пара граней даёт вторую пару сторон. Отсюда второй способ построения, он в учебнике называется методом параллельного переноса: если сторона в одной грани уже есть, в параллельной грани её направление известно заранее. Пятая сторона осталась без пары, потому что нижнее основание плоскость не задела.', 'The front and the back faces of the cube are parallel, and the cutting plane is one. A plane cuts two parallel planes along parallel lines, that is a theorem from the block on parallelism. So the side in the front face is parallel to the side in the back one, and there is nothing to check here, it is a consequence. The second pair of faces gives the second pair of sides. Hence the second way of building, called in the textbook the method of parallel transfer: if a side in one face is already there, in the parallel face its direction is known in advance. The fifth side was left without a pair, because the plane did not touch the lower base.'),
+    A('work', "O'zingiz hisoblang. Bu beshburchakda nechta juft parallel tomon bor?", 'Посчитай сам. Сколько пар параллельных сторон в этом пятиугольнике?', 'Work it out yourself. How many pairs of parallel sides are in this pentagon?'),
   ],
   work: {
-    prompt: L('Necha daraja?', 'Сколько градусов?', 'How many degrees?'),
-    ok: L('Qirq besh. Katetlar teng, uchburchak teng yonli.', 'Сорок пять. Катеты равны, треугольник равнобедренный.', 'Forty five. The legs are equal, the triangle is isosceles.'),
+    prompt: L('Nechta juft parallel tomon?', 'Сколько пар параллельных сторон?', 'How many pairs of parallel sides?'),
+    ok: L("Ikkita. Tegilgan parallel yoq juftlari soni qancha bo'lsa, shuncha.", 'Две. Столько же, сколько пар параллельных граней задето.', 'Two. As many as the pairs of parallel faces the plane touched.'),
     hint: [
-      L("Gipotenuzasida shu diagonal bo'lgan to'g'ri burchakli uchburchakni toping.", 'Найди прямоугольный треугольник с этой диагональю в гипотенузе.', 'Find the right triangle with this diagonal as the hypotenuse.'),
-      L('Kubning yon qirrasi va asos qirrasi teng.', 'Боковое ребро и ребро основания у куба равны.', 'The side edge and the base edge of a cube are equal.'),
-      L("Teng yonli to'g'ri burchakli uchburchakda o'tkir burchaklar qirq beshtadan.", 'В равнобедренном прямоугольном треугольнике острые углы по сорок пять.', 'In an isosceles right triangle the acute angles are forty five each.'),
+      L('Tekislik tegilgan parallel yoq juftlarini sanang.', 'Считай пары параллельных граней, которые плоскость задела.', 'Count the pairs of parallel faces that the plane touched.'),
+      L("Asoslarga tegilmagan, u yerda juft yo'q.", 'Основания не задеты, там пары нет.', 'The bases are not touched, there is no pair there.'),
+      L('Ikkita.', 'Две.', 'Two.'),
     ],
-    answer: '45',
+    answer: '2',
   },
-  expr: 'AB₁ ⊥̸ ABCD,   AB = BB₁',
+  expr: 'PM ∥ KH',
 }
 
 const S7 = {
   role: 'explain5',
   answer: 'number',
-  eyebrow: L('CHEGARA', 'ГРАНИЦА', 'THE BOUNDARY'),
-  title: L("Proyeksiya nuqta bo'lganda", 'Когда проекция это точка', 'When the projection is a point'),
-  tag: 'odnoy-pryamoy-hvatit',
+  eyebrow: L('CHEGARA', 'ГРАНИЦА', 'THE EDGE CASE'),
+  title: L("Yoqlardan ko'p bo'lmaydi", 'Больше, чем граней, не бывает', 'There cannot be more than faces'),
+  tag: 'secheniye-ne-ploskoe',
   show: [
     [
-      L("chiziq og'gan, proyeksiya kesma", 'прямая наклонена, проекция это отрезок', 'the line is slanted, the projection is a segment'),
-      L("og'ish kamayadi, proyeksiya qisqaradi", 'наклон уменьшается, проекция короче', 'the slant decreases, the projection gets shorter'),
+      L('kubda yoqlar oltita', 'у куба граней шесть', 'a cube has six faces'),
+      L('va eng katta kesim oltiburchak', 'и наибольшее сечение шестиугольник', 'and the largest section is a hexagon'),
     ],
     [
-      L('chiziq tik turdi', 'прямая встала вертикально', 'the line stood upright'),
-      L('proyeksiya nuqtaga aylandi', 'проекция стала точкой', 'the projection became a point'),
+      L('beshburchakli prizmada yoqlar yettita', 'у пятиугольной призмы граней семь', 'a pentagonal prism has seven faces'),
+      L("va kesim yettiburchak bo'ladi", 'и сечение бывает семиугольником', 'and the section can be a heptagon'),
     ],
   ],
   motion: ['move'],
   audio: [
-    A('mount', "Chiziq og'gan, va uning proyeksiyasi tekislikdagi kesma.", 'Прямая наклонена, и её проекция это отрезок в плоскости.', 'The line is slanted, and its projection is a segment in the plane.'),
-    A('move', "Proyeksiya tobora qisqaradi, va chiziq tekislikka perpendikulyar bo'lgan paytda u bitta nuqtaga yig'iladi. Bu qulay tekshiruv, va u ikki tomonga ishlaydi. Agar chiziqning proyeksiyasi nuqta bo'lsa, chiziq tekislikka perpendikulyar. Agar proyeksiya kesma bo'lsa, chiziq og'gan, va tekislik bilan burchak to'qson darajadan kichik. E'tibor bering, tekislikning barcha chiziqlari bilan burchakni tekshirish kerak emas, proyeksiyaga qarash yetarli.", 'Проекция становится всё короче, и в момент, когда прямая перпендикулярна плоскости, она стягивается в одну точку. Это удобная проверка, и она работает в обе стороны. Если проекция прямой это точка, то прямая перпендикулярна плоскости. Если проекция это отрезок, то прямая наклонена, и угол с плоскостью меньше девяноста градусов. Заметь, что проверять углы со всеми прямыми плоскости не нужно, достаточно посмотреть на проекцию.', 'The projection gets shorter and shorter, and at the moment the line is perpendicular to the plane it collapses into a single point. This is a handy check and it works both ways. If the projection of a line is a point, the line is perpendicular to the plane. If the projection is a segment, the line is slanted and the angle with the plane is less than ninety degrees. Note that there is no need to check the angles with all the lines of the plane, it is enough to look at the projection.'),
-    A('work', "O'zingiz hisoblang. Tekislikka perpendikulyar to'g'ri chiziqning proyeksiyasida nechta nuqta bor?", 'Посчитай сам. Сколько точек в проекции прямой, перпендикулярной плоскости?', 'Work it out yourself. How many points are in the projection of a line perpendicular to the plane?'),
+    A('mount', "Kubda olti yoq, va mana olti qirraning o'rtalari orqali kesim. Unda tomonlar oltita.", 'У куба шесть граней, и вот сечение через середины шести рёбер. Сторон в нём шесть.', 'A cube has six faces, and here is the section through the midpoints of six edges. It has six sides.'),
+    A('move', "Kubda oltidan ko'pi tekislikning hech qanday og'ishida chiqmaydi, va sabab sanab ko'rishda emas. Kesimning har tomoni o'z yog'ida yotadi, bitta yoqda esa kesuvchi tekislik faqat bitta to'g'ri chiziq beradi. Demak tomonlar yoqlardan ko'p emas, va bu javobning tayyor tekshiruvi. Beshburchakli prizmada yoqlar yettita: besh yon va ikki asos. Tekislikni yettitasiga ham tegadigan qilib og'dirish mumkin, va u holda kesimda yettiburchak. Sakkizburchak esa unda yo'q, va uni qidirish ma'nosizdir: sakkizinchi yoq shunchaki yo'q.", 'Больше шести у куба не получится ни при каком наклоне плоскости, и причина не в переборе. Каждая сторона сечения лежит в своей грани, а в одной грани секущая плоскость даёт только одну прямую. Значит сторон не больше, чем граней, и это готовая проверка ответа. У пятиугольной призмы граней семь: пять боковых и два основания. Плоскость можно наклонить так, чтобы она задела все семь, и тогда в сечении семиугольник. А восьмиугольника у неё нет, и искать его бессмысленно: восьмой грани просто нет.', 'More than six will not come out of a cube at any tilt of the plane, and the reason is not a search through cases. Every side of a section lies in its own face, and in one face the cutting plane gives only one line. So there are no more sides than faces, and that is a ready check of an answer. A pentagonal prism has seven faces: five lateral and two bases. The plane can be tilted so that it touches all seven, and then the section is a heptagon. But it has no octagon, and looking for one is pointless: there simply is no eighth face.'),
+    A('work', "O'zingiz hisoblang. Beshburchakli prizma kesimida eng ko'pi bilan nechta tomon bo'ladi?", 'Посчитай сам. Сколько сторон самое большее у сечения пятиугольной призмы?', 'Work it out yourself. What is the largest number of sides for a section of a pentagonal prism?'),
   ],
   work: {
-    prompt: L('Proyeksiyada nechta nuqta?', 'Сколько точек в проекции?', 'How many points are in the projection?'),
-    ok: L('Bitta. Chiziq nuqtalaridan chiqqan barcha perpendikulyarlar bitta nuqtaga keladi.', 'Одна. Все перпендикуляры из точек прямой приходят в одну точку.', 'One. All the perpendiculars from the points of the line arrive at one point.'),
+    prompt: L("Eng ko'pi bilan nechta tomon?", 'Сколько сторон самое большее?', 'The largest number of sides?'),
+    ok: L("Yettita. Yoqlar soni qancha bo'lsa, shuncha.", 'Семь. Столько же, сколько граней.', 'Seven. As many as there are faces.'),
     hint: [
-      L("Chiziqning turli nuqtalaridan perpendikulyarlar qayerga tushishini ko'ring.", 'Посмотри, куда падают перпендикуляры из разных точек прямой.', 'See where the perpendiculars from different points of the line land.'),
-      L("Chiziqning o'zi har bir nuqtasi uchun perpendikulyar.", 'Сама прямая и есть перпендикуляр для каждой своей точки.', 'The line itself is the perpendicular for each of its points.'),
-      L('Bitta.', 'Одна.', 'One.'),
+      L('Yoqlarni sanang: yon yoqlar va asoslar.', 'Посчитай грани: боковые и основания.', 'Count the faces: the lateral ones and the bases.'),
+      L('Besh yon va ikki asos.', 'Пять боковых и два основания.', 'Five lateral and two bases.'),
+      L('Yettita.', 'Семь.', 'Seven.'),
     ],
-    answer: '1',
+    answer: '7',
   },
-  expr: 'a ⊥ α   →   a₁ = A',
+  expr: 'ABCDEA₁B₁C₁D₁E₁',
 }
 
 const S8 = {
   role: 'rule',
   answer: 'pick2',
   eyebrow: L('QOIDA', 'ПРАВИЛО', 'THE RULE'),
-  title: L("Ta'rif va ikki kelishuv", 'Определение и два соглашения', 'The definition and two conventions'),
-  tag: 'ugol-ne-s-proekciey',
+  title: L('Izlar usulining qoidalari', 'Правила метода следов', 'The rules of the trace method'),
+  tag: 'gran-ne-storona',
   motion: ['rule'],
   audio: [
     A('mount', 'Farqlashga bitta savol, keyin kartochka.', 'Один вопрос на различение, потом карточка.', 'One question to tell them apart, then the card.'),
-    A('rule', "Ta'rif qisqa, va uning butun kuchi proyeksiya so'zida. Chiziqning proyeksiyasi bitta, shuning uchun burchak ham bitta. Tekislikning boshqa istalgan chizig'ini olsangiz, burchak kattaroq chiqadi, ya'ni bu chiziq bilan burchak bo'ladi, tekislik bilan emas. Ikki chegara hol alohida yozilgan, chunki ularda oddiy ma'nodagi proyeksiya yo'q. Perpendikulyar chiziq to'qson beradi, parallel esa nol.", 'Определение короткое, и вся его сила в слове проекция. Проекция у прямой одна, поэтому и угол один. Возьми любую другую прямую плоскости, и угол получится больше, а значит это будет угол с прямой, а не с плоскостью. Два крайних случая дописаны отдельно, потому что в них проекции в обычном смысле нет. Перпендикулярная прямая даёт девяносто, параллельная ноль.', 'The definition is short and all its force is in the word projection. A line has one projection, so the angle is one too. Take any other line of the plane and the angle comes out bigger, which means it is an angle with a line and not with the plane. The two extreme cases are written separately, because in them there is no projection in the usual sense. A perpendicular line gives ninety, a parallel one gives zero.'),
+    A('rule', "Uchta satr ham oltmish sakkizinchi betdan, va uchtasi ham bir narsa haqida: kesim jism sirtida yashaydi. Birinchi satr uchlarni qayerdan olishni aytadi. Ikkinchisi har qanday ikkitasini ulash mumkin emasligini aytadi. Uchinchisi o'sha yoqda ikkinchi to'g'ri chiziqni taqiqlaydi, va aynan u yasashni yakkaqiymatli qiladi. Bu satrlardan ish tartibi ham chiqadi: umumiy yoqli juftlarni topamiz, ularning tomonlarini o'tkazamiz, juftlar tugagach esa iz orqali jismdan tashqariga chiqib qirrada yangi nuqta olamiz. Va shu yerda tekshiruv ham bor: tomonlar yoqlardan ko'p emas.", 'Все три строки со страницы шестьдесят восемь, и все три про одно: сечение живёт на поверхности тела. Первая строка говорит, где брать вершины. Вторая говорит, что соединять можно не любые две. Третья запрещает вторую прямую в той же грани, и именно она делает построение однозначным. Из этих строк выходит и порядок работы: находим пары с общей гранью, проводим их стороны, а когда пары кончились, идём за тело через след и получаем новую точку на ребре. И там же лежит проверка: сторон не больше, чем граней.', 'All three lines come from page sixty eight, and all three are about one thing: a section lives on the surface of the body. The first line says where to take the vertices. The second says that not any two may be joined. The third forbids a second line in the same face, and it is exactly what makes the construction unique. The order of work follows from these lines as well: we find the pairs with a common face, we draw their sides, and when the pairs run out we go outside the body through the trace and get a new point on an edge. And the check lives there too: no more sides than faces.'),
   ],
   probe: {
-    question: L("Tekislikning qaysi chizig'i bilan burchak olinadi?", 'С какой прямой плоскости берут угол?', 'With which line of the plane is the angle taken?'),
+    question: L('Ikki belgilangan nuqtani qachon ulash mumkin?', 'Когда две отмеченные точки можно соединить?', 'When may two marked points be joined?'),
     items: [
-      { id: 'a', label: L('proyeksiya bilan', 'с проекцией', 'with the projection'), correct: true },
-      { id: 'b', label: L("kesishish nuqtasi orqali o'tuvchi istalgan chiziq bilan", 'с любой прямой через точку пересечения', 'with any line through the crossing point'), hint: L("Bunday chiziqlar cheksiz ko'p, va ularning burchaklari boshqa-boshqa.", 'Таких прямых бесконечно много, и углы у них разные.', 'There are infinitely many such lines and their angles differ.') },
+      { id: 'a', label: L('ular bir yoqda yotganda', 'когда они лежат в одной грани', 'when they lie in one face'), correct: true },
+      { id: 'b', label: L("chizmada yonma-yon bo'lganda", 'когда они рядом на чертеже', 'when they are next to each other on the drawing'), hint: L("Chizmadagi yonma-yonlik rakursga bog'liq, jismga emas.", 'Соседство на чертеже зависит от ракурса, а не от тела.', 'Being next to each other on the drawing depends on the view, not on the body.') },
     ],
   },
   rule: {
-    lawLabel: L('Chiziq va tekislik burchagi', 'Угол прямой и плоскости', 'The angle of a line and a plane'),
+    lawLabel: L('Izlar usuli', 'Метод следов', 'The trace method'),
     lines: [
-      L('bu chiziq va uning shu tekislikdagi proyeksiyasi orasidagi burchak', 'это угол между прямой и её проекцией на эту плоскость', 'it is the angle between the line and its projection on that plane'),
-      L("agar chiziq tekislikka perpendikulyar bo'lsa, burchak to'qson daraja deb olinadi", 'если прямая перпендикулярна плоскости, угол считают равным девяноста градусам', 'if the line is perpendicular to the plane, the angle is taken as ninety degrees'),
-      L("agar chiziq tekislikka parallel bo'lsa, burchak nol deb olinadi", 'если прямая параллельна плоскости, угол считают равным нулю', 'if the line is parallel to the plane, the angle is taken as zero'),
+      L('kesim uchlari faqat qirralarda yotadi', 'вершины сечения лежат только на рёбрах', 'the vertices of a section lie only on the edges'),
+      L('kesim tomonlari faqat yoqlarda yotadi', 'стороны сечения лежат только в гранях', 'the sides of a section lie only in the faces'),
+      L("tekislik va yoq bitta to'g'ri chiziq bo'ylab kesishadi", 'плоскость и грань пересекаются по одной прямой', 'a plane and a face meet along a single line'),
     ],
-    law: '∠(a; α) = ∠(a; a₁)',
+    law: 'MN ⊂ A₁B₁C₁D₁',
   },
 }
 
@@ -344,19 +344,19 @@ const S9 = {
   answer: 'match',
   format: 'match',
   eyebrow: L('AMALIYOT', 'ПРАКТИКА', 'PRACTICE'),
-  title: L('Kub chiziqlari va asos', 'Прямые куба и основание', 'Lines of the cube and the base'),
-  tag: 'ugol-ne-s-proekciey',
+  title: L('Eng katta tomonlar soni', 'Наибольшее число сторон', 'The largest number of sides'),
+  tag: 'secheniye-ne-ploskoe',
   audio: [
-    A('mount', "Kubning to'rt chizig'i va to'rt burchak. Ularni birlashtiring.", 'Четыре прямые куба и четыре угла. Соедини их.', 'Four lines of the cube and four angles. Match them.'),
+    A('mount', "To'rt son va to'rt jism. Ularni yoqlar soni bo'yicha birlashtiring.", 'Четыре числа и четыре тела. Соедини их по числу граней.', 'Four numbers and four bodies. Match them by the number of faces.'),
   ],
   match: {
-    prompt: L('Chiziqni asosga burchagi bilan birlashtiring', 'Соедини прямую с её углом к основанию', 'Match the line with its angle to the base'),
-    ok: L("To'rttasi ham joyida. Burchaklar hisoblangan, o'lchanmagan.", 'Все четыре на месте. Углы посчитаны, а не измерены.', 'All four in place. The angles are computed, not measured.'),
-    a: L('nol daraja', 'ноль градусов', 'zero degrees'),
-    b: L("to'qson daraja", 'девяносто градусов', 'ninety degrees'),
-    c: L('qirq besh daraja', 'сорок пять градусов', 'forty five degrees'),
-    d: L('qirq beshdan kichik', 'меньше сорока пяти', 'less than forty five'),
-    left: ['AB', 'AA₁', 'AB₁', 'AC₁'],
+    prompt: L('Sonni jism bilan birlashtiring', 'Соедини число с телом', 'Match the number with the body'),
+    ok: L("To'rttasi ham joyida. Tomonlar soni yoqlar sonidan ko'p emas.", 'Все четыре на месте. Число сторон не больше числа граней.', 'All four in place. The number of sides is not more than the number of faces.'),
+    a: L('uchburchakli piramida', 'треугольная пирамида', 'triangular pyramid'),
+    b: L("to'rtburchakli piramida", 'четырёхугольная пирамида', 'quadrilateral pyramid'),
+    c: L('kub', 'куб', 'cube'),
+    d: L('beshburchakli prizma', 'пятиугольная призма', 'pentagonal prism'),
+    left: ['4', '5', '6', '7'],
   },
 }
 
@@ -365,32 +365,32 @@ const S10 = {
   answer: 'order',
   format: 'proof',
   eyebrow: L('QADAMMA-QADAM', 'ПО ШАГАМ', 'STEP BY STEP'),
-  title: L('Diagonalning proyeksiyasini toping', 'Найди проекцию диагонали', 'Find the projection of the diagonal'),
-  tag: 'ugol-ne-s-proekciey',
+  title: L('MN kesim tomoni ekanini isbotlang', 'Докажи, что MN сторона сечения', 'Prove that MN is a side of the section'),
+  tag: 'gran-ne-storona',
   audio: [
-    A('mount', "Uch qator, va har birining ro'yxatdan o'z asoslashi bor.", 'Три строки, и у каждой своё обоснование из списка.', 'Three lines, and each has its own justification from the list.'),
+    A('mount', "Uch qator, va har birining ro'yxatdan o'z asoslashi bor.", 'Три строки, и у каждой своё обоснование из списка.', 'Three lines, each with its own justification from the list.'),
   ],
   proof: {
-    given: L('kub diagonali va asos tekisligi', 'диагональ куба и плоскость основания', 'a diagonal of a cube and the plane of the base'),
-    goal: L('uning proyeksiyasi asos diagonali', 'её проекция это диагональ основания', 'its projection is a diagonal of the base'),
-    r1: L('yon qirra asosga perpendikulyar', 'боковое ребро перпендикулярно основанию', 'the side edge is perpendicular to the base'),
-    r2: L('demak perpendikulyarning asosi asos uchi', 'значит основание перпендикуляра это вершина основания', 'so the foot of the perpendicular is a vertex of the base'),
-    r3: L('kesmaning proyeksiyasi uchlari proyeksiyalari orasidagi kesma', 'проекция отрезка это отрезок между проекциями концов', 'the projection of a segment is the segment between the projections of its ends'),
-    ok: L('Isbotlandi. Kub diagonalining proyeksiyasi asos diagonali.', 'Доказано. Проекция диагонали куба это диагональ основания.', 'Proved. The projection of the cube diagonal is a diagonal of the base.'),
-    e1: L("Proyeksiya ta'rifi keyin keladi. To'g'ri burchak qayerdan olingan.", 'Определение проекции идёт дальше. Откуда взят прямой угол.', 'The definition of projection comes later. Where does the right angle come from.'),
-    e2: L("To'g'ri burchak bor. Gap u kelgan nuqta haqida.", 'Прямой угол уже есть. Речь о точке, куда он приходит.', 'The right angle is already there. This is about the point it arrives at.'),
-    e3: L('Uchlari haqida aytildi. Endi butun kesma haqida.', 'Про концы сказано. Теперь про весь отрезок.', 'The ends are done. Now about the whole segment.'),
+    given: L('M va N ustki yoq qirralarida', 'M и N на рёбрах верхней грани', 'M and N are on the edges of the top face'),
+    goal: L('MN kesimning tomoni', 'MN сторона сечения', 'MN is a side of the section'),
+    r1: L('ikki nuqta ham kesuvchi tekislikda yotadi', 'обе точки лежат в секущей плоскости', 'both points lie in the cutting plane'),
+    r2: L('ikki nuqta ham ustki yoq tekisligida yotadi', 'обе точки лежат в плоскости верхней грани', 'both points lie in the plane of the top face'),
+    r3: L("ikki tekislik to'g'ri chiziq bo'ylab kesishadi, va bu MN", 'две плоскости пересекаются по прямой, и это MN', 'two planes meet along a line, and that is MN'),
+    ok: L("Isbotlandi. Tomon tekislikning yoq bilan kesishish chizig'i.", 'Доказано. Сторона это линия пересечения плоскости с гранью.', 'Proved. A side is the line where the plane meets a face.'),
+    e1: L('Yoq haqida keyin. Avval kesuvchi tekislik haqida.', 'Про грань дальше. Сначала про секущую плоскость.', 'The face comes later. First about the cutting plane.'),
+    e2: L("Tekislik ko'rildi. Endi ikkinchi tekislik.", 'Плоскость разобрана. Теперь вторая плоскость.', 'The plane is done. Now the second plane.'),
+    e3: L('Ikki tekislik ham aytildi. Endi xulosa.', 'Обе плоскости названы. Теперь вывод.', 'Both planes are named. Now the conclusion.'),
   },
   reason: {
-    s1: L("kub yasalishiga ko'ra", 'по построению куба', 'by the construction of the cube'),
-    s2: L("proyeksiya ta'rifi", 'определение проекции', 'the definition of projection'),
-    s3: L('kesmaning proyeksiyasi', 'проекция отрезка', 'the projection of a segment'),
+    s1: L('nuqtalar kesuvchi tekislikda olingan', 'точки взяты в секущей плоскости', 'the points are taken in the cutting plane'),
+    s2: L('ikki qirra ham ustki yoqqa tegishli', 'оба ребра принадлежат верхней грани', 'both edges belong to the top face'),
+    s3: L('ikki tekislikning kesishishi haqidagi aksioma', 'аксиома о пересечении двух плоскостей', 'the axiom on the meeting of two planes'),
     pic: {
       label: L("chizmada ko'rinadi", 'видно на чертеже', 'it is visible on the drawing'),
       missing: L("Chizma asoslash emas. U ko'p rakursdan bittasini ko'rsatadi.", 'Чертёж не обоснование. Он показывает один ракурс из многих.', 'A drawing is not a justification. It shows one view out of many.'),
     },
   },
-  expr: 'AC₁ → AC',
+  expr: 'MN ⊂ A₁B₁C₁D₁',
 }
 
 const S11 = {
@@ -399,29 +399,29 @@ const S11 = {
   format: 'number+order',
   noTool: true,
   eyebrow: L('ASBOBSIZ', 'БЕЗ ПРИБОРА', 'NO TOOL'),
-  title: L('Hisob va tartib', 'Счёт и порядок', 'Counting and order'),
+  title: L('Hisob va yasash tartibi', 'Счёт и порядок построения', 'Counting and the order of building'),
   tag: 'bumaga',
   audio: [
-    A('mount', "Asbob olib qo'yildi. Bu yerda qog'ozda hisoblanadi.", 'Прибор убран. Здесь считают на бумаге.', 'The tool is put away. Here you count on paper.'),
-    A('next', 'Endi yozuvlar tartibi. Ularni qanday olinsa, shunday joylashtiring.', 'Теперь порядок записей. Расставь их так, как их получают.', 'Now the order of the readings. Arrange them the way they are obtained.'),
+    A('mount', "Asbob olib qo'yildi. Qog'ozda hisoblaymiz.", 'Прибор убран. Считаем на бумаге.', 'The tool is put away. We count on paper.'),
+    A('next', 'Endi qadamlar tartibi. Ularni qanday yasalsa, shunday joylashtiring.', 'Теперь порядок шагов. Расставь их так, как строят.', 'Now the order of the steps. Arrange them the way the building goes.'),
   ],
   task: {
-    ok: L('Qirq besh. Perpendikulyar va proyeksiya teng, uchburchak teng yonli.', 'Сорок пять. Перпендикуляр и проекция равны, треугольник равнобедренный.', 'Forty five. The perpendicular and the projection are equal, the triangle is isosceles.'),
+    ok: L("Ellik. Asos diagonali o'n, balandlik besh.", 'Пятьдесят. Диагональ основания десять, высота пять.', 'Fifty. The base diagonal is ten, the height is five.'),
     hint: [
-      L("To'g'ri burchakli uchburchak chizing va katetlarni imzolang.", 'Нарисуй прямоугольный треугольник и подпиши катеты.', 'Draw a right triangle and label the legs.'),
-      L("Burchak tangensi perpendikulyarning proyeksiyaga bo'lingani.", 'Тангенс угла это перпендикуляр, делённый на проекцию.', 'The tangent of the angle is the perpendicular divided by the projection.'),
-      L('Tangens birga teng, demak burchak qirq besh.', 'Тангенс равен единице, значит угол сорок пять.', 'The tangent is one, so the angle is forty five.'),
+      L("Ikki yon qirra orqali kesim to'g'ri to'rtburchak.", 'Сечение через два боковых ребра это прямоугольник.', 'A section through two lateral edges is a rectangle.'),
+      L('Uning bir tomoni asos diagonali, olti va sakkiz.', 'Одна его сторона диагональ основания, шесть и восемь.', 'One of its sides is the base diagonal, six and eight.'),
+      L("O'nni beshga ko'paytiring.", 'Десять умножить на пять.', 'Ten times five.'),
     ],
-    prompt: 'AB = 7,   BC = 7,   ∠(AC; α) = ?',
-    answer: '45',
+    prompt: 'a = 6,   b = 8,   h = 5,   S = ?',
+    answer: '50',
   },
   order: {
-    prompt: L('Yozuvlarni olinish tartibida joylashtiring', 'Расставь записи в том порядке, в каком их получают', 'Arrange the readings in the order they are obtained'),
-    title: L('Ish tartibi', 'Порядок работы', 'The order of work'),
-    ok: L("Tartib to'g'ri. Proyeksiya burchakdan oldin quriladi, keyin emas.", 'Порядок верный. Проекция строится до угла, а не после.', 'The order is right. The projection is built before the angle, not after.'),
-    bad: L('Bu tartibda emas. Avval nimani bilish kerak.', 'Не в этом порядке. Что нужно знать раньше.', 'Not in this order. What has to be known first.'),
-    items: ['∠(a; α)', 'a ∩ α = A', 'a₁ ⊂ α', '∠(a; a₁)'],
-    answer: 'a ∩ α = A  a₁ ⊂ α  ∠(a; a₁)  ∠(a; α)',
+    prompt: L('Izlar usuli qadamlarini kerakli tartibda joylashtiring', 'Расставь шаги метода следов в нужном порядке', 'Arrange the steps of the trace method in the right order'),
+    title: L('Yasash tartibi', 'Порядок построения', 'The order of building'),
+    ok: L("Tartib to'g'ri. Avval yoqdagi tomon, keyin iz, keyin yangi nuqta.", 'Порядок верный. Сначала сторона в грани, потом след, потом новая точка.', 'The order is right. First a side in a face, then the trace, then the new point.'),
+    bad: L('Bu tartibda emas. Avval nima kerak.', 'Не в этом порядке. Что нужно раньше.', 'Not in this order. What is needed first.'),
+    items: ['N', 'KL', 'KX', 'X'],
+    answer: 'KL  X  KX  N',
   },
 }
 
@@ -433,30 +433,30 @@ const S12 = {
   title: L('Xato qatorni toping', 'Найди строку с ошибкой', 'Find the line with the mistake'),
   tag: 'check',
   audio: [
-    A('mount', "To'rt qator, va ulardan biri burchakni almashtiradi.", 'Четыре строки, и одна из них подменяет угол.', 'Four lines, and one of them substitutes the angle.'),
+    A('mount', "To'rt qator, va ulardan biri tomonni begona yoqqa qo'yadi.", 'Четыре строки, и одна из них кладёт сторону в чужую грань.', 'Four lines, and one of them puts a side into a face that is not its own.'),
     A('next', "Endi xato bo'lgan qator raqamini yozing.", 'Теперь напиши номер строки, в которой ошибка.', 'Now write the number of the line with the mistake.'),
   ],
   hint: {
-    r1: L("Shart to'g'ri ko'chirilgan.", 'Условие переписано верно.', 'The condition is copied correctly.'),
-    r2: L('Tekislikda chiziq olingan, va bu hozircha xato emas.', 'Прямая в плоскости взята, и это пока не ошибка.', 'A line in the plane is taken, and that is not a mistake yet.'),
-    r4: L('Xulosa yuqoridagi xato qatordan olingan.', 'Вывод получен из неверной строки выше.', 'The conclusion comes from the wrong line above.'),
+    r1: L("Berilganlar to'g'ri yozilgan.", 'Данные выписаны верно.', 'The data are written correctly.'),
+    r2: L("Ikki nuqta ham ustki yoq qirralarida, bu to'g'ri.", 'Обе точки на рёбрах верхней грани, это верно.', 'Both points are on the edges of the top face, that is right.'),
+    r4: L("Perimetr yuqoridagi xato qator bo'yicha hisoblangan.", 'Периметр посчитан по неверной строке выше.', 'The perimeter is computed from the wrong line above.'),
   },
-  proof: L("Sahnani buring: bu chiziq bilan duga goh o'sadi, goh qisqaradi, proyeksiya bilan esa yo'q.", 'Поверни сцену: дуга с этой прямой то растёт, то сжимается, а с проекцией нет.', 'Rotate the scene: the arc with this line grows and shrinks, the one with the projection does not.'),
+  proof: L("Kubni buring: K nuqta uzoq yon qirrada yotadi, bu yoq esa uni o'z ichiga olmaydi.", 'Поверни куб: точка K лежит на дальнем боковом ребре, а эта грань его не содержит.', 'Rotate the cube: the point K lies on the far lateral edge, and this face does not contain it.'),
   entry: {
     prompt: L('Xato qator raqami', 'Номер строки с ошибкой', 'The number of the line with the mistake'),
-    ok: L("Uchinchi. Tekislik bilan burchak deb shu tekislik chizig'i bilan burchak aytilgan.", 'Третья. Углом с плоскостью назвали угол с прямой этой плоскости.', 'The third. The angle with a line of the plane was called the angle with the plane.'),
+    ok: L("Uchinchi. M va K da umumiy yoq yo'q.", 'Третья. У M и K общей грани нет.', 'The third. M and K have no common face.'),
     hint: [
-      L('Har qatorda burchak nima bilan olinayotganini tekshiring.', 'Проверь, с чем берут угол в каждой строке.', 'Check what the angle is taken with in each line.'),
-      L("Bu isbotda proyeksiya biror marta ham paydo bo'lmadi.", 'Проекция в этом доказательстве не появилась ни разу.', 'The projection never appeared in this proof.'),
+      L("Har qatorni yoq haqidagi qoida bo'yicha tekshiring.", 'Проверь каждую строку по правилу о грани.', 'Check each line against the rule about a face.'),
+      L("Nuqtalardan biri yo'q yoqqa ketgan tomonni qidiring.", 'Ищи сторону, которая ушла в грань без одной из точек.', 'Look for the side that went into a face without one of the points.'),
       L('Xato uchinchi qatorda.', 'Ошибка в третьей строке.', 'The mistake is in the third line.'),
     ],
     answer: '3',
   },
   row: {
-    r1: 'a ∩ α = A',
-    r2: 'b ⊂ α,   A ∈ b',
-    r3: '∠(a; α) = ∠(a; b)',
-    r4: '∠(a; α) = 30°',
+    r1: 'M ∈ A₁B₁,   N ∈ B₁C₁',
+    r2: 'MN ⊂ A₁B₁C₁D₁',
+    r3: 'MK ⊂ ABB₁A₁',
+    r4: 'P = MN + NK + KM',
   },
   answerId: 'r3',
 }
@@ -469,27 +469,27 @@ const S13 = {
   title: L('Teskari tomonga', 'В обратную сторону', 'The other way round'),
   tag: 'obratnoe',
   audio: [
-    A('mount', "Ta'rifni o'ngdan chapga o'qiymiz. Burchak bo'yicha chiziqning holatini aytamiz.", 'Прочитаем определение справа налево. По углу назовём положение прямой.', 'Let us read the definition from right to left. From the angle we name the position of the line.'),
-    A('work', "Doim to'g'ri bo'lgan barcha yozuvlarni belgilang. Ular bittadan ko'p.", 'Отметь все записи, которые верны всегда. Их больше одной.', 'Mark all the readings that are always true. There is more than one.'),
+    A('mount', "Darsni o'ngdan chapga o'qiymiz. Avval jism bo'yicha hisob, keyin yozuvlarni tekshirish.", 'Прочитаем урок справа налево. Сначала счёт по телу, потом проверка записей.', 'Let us read the lesson from right to left. First the count from the body, then the check of the readings.'),
+    A('work', "To'g'ri bo'lgan barcha yozuvlarni belgilang. Ular bittadan ko'p.", 'Отметь все записи, которые верны. Их больше одной.', 'Mark all the readings that are correct. There is more than one.'),
   ],
   multi: {
     prompt: L("Barcha to'g'ri yozuvlarni belgilang", 'Отметь все верные записи', 'Mark all the correct readings'),
-    title: L("Nima doim to'g'ri", 'Что верно всегда', 'What is always true'),
-    ok: L("Beshtadan uch yozuv. Qolgan ikkitasi proyeksiya so'zida sinadi.", 'Три записи из пяти. Две оставшиеся ломаются на слове проекция.', 'Three readings out of five. The other two break at the word projection.'),
+    title: L("Bu kesim uchun nima to'g'ri", 'Что верно для этого сечения', 'What is true for this section'),
+    ok: L("Beshtadan uch yozuv. Qolgan ikkitasi nuqtani uni o'z ichiga olmaydigan yoqqa qo'yadi.", 'Три записи из пяти. Две оставшиеся кладут точку в грань, которая её не содержит.', 'Three readings out of five. The other two put a point into a face that does not contain it.'),
     items: [
-      { id: 'd', label: '∠(a; α) = ∠(a; b)', hint: L("Bu tekislik chizig'i bilan burchak, tekislik bilan emas.", 'Это угол с прямой плоскости, а не с плоскостью.', 'That is an angle with a line of the plane, not with the plane.') },
-      { id: 'e', label: '∠(a; α) = 120°', hint: L("Tekislik bilan burchak to'qson darajadan katta bo'lmaydi.", 'Угол с плоскостью не бывает больше девяноста градусов.', 'An angle with a plane is never more than ninety degrees.') },
-      { id: 'a', label: '∠(a; α) ≤ 90°', ok: true },
-      { id: 'b', label: '∠(a; α) = ∠(a; a₁)', ok: true },
-      { id: 'c', label: 'a ⊥ α   →   ∠(a; α) = 90°', ok: true },
+      { id: 'd', label: 'MK ⊂ ABB₁A₁', hint: L("Bu yoq K nuqtani o'z ichiga olmaydi.", 'Эта грань точку K не содержит.', 'This face does not contain the point K.') },
+      { id: 'e', label: 'K ∈ ABB₁A₁', hint: L('K nuqta boshqa yon qirrada yotadi.', 'Точка K лежит на другом боковом ребре.', 'The point K lies on another lateral edge.') },
+      { id: 'a', label: 'M ∈ A₁B₁', ok: true },
+      { id: 'b', label: 'MN ⊂ A₁B₁C₁D₁', ok: true },
+      { id: 'c', label: 'PM ∥ KH', ok: true },
     ],
   },
   place: {
-    prompt: L("To'g'ri chiziq va tekislik orasidagi burchak nolga teng. Ularning nechta umumiy nuqtasi bor?", 'Угол между прямой и плоскостью равен нулю. Сколько общих точек у них?', 'The angle between a line and a plane is zero. How many common points do they have?'),
-    ok: L("Bitta ham yo'q. Nol burchak parallellik, parallel chiziq esa tekislikni uchratmaydi.", 'Ни одной. Нулевой угол это параллельность, а параллельная прямая плоскость не встречает.', 'None. A zero angle means parallel, and a parallel line does not meet the plane.'),
-    wrong: L('Kartochkadagi ikkinchi kelishuvga qarang.', 'Посмотри на второе соглашение в карточке.', 'Look at the second convention on the card.'),
-    target: '0',
-    step: '∠(a; α) = 0°   →   a ∥ α',
+    prompt: L("To'g'ri burchakli parallelepiped, o'lchovlari to'qqiz, o'n ikki va to'rt. Kesim ikki qarama-qarshi yon qirra orqali o'tadi. Uning yuzasi qancha?", 'Прямоугольный параллелепипед, измерения девять, двенадцать и четыре. Сечение проходит через два противоположных боковых ребра. Какова его площадь?', 'A rectangular box with dimensions nine, twelve and four. A section goes through two opposite lateral edges. What is its area?'),
+    ok: L("Oltmish. Diagonal o'n besh, balandlik to'rt.", 'Шестьдесят. Диагональ пятнадцать, высота четыре.', 'Sixty. The diagonal is fifteen, the height is four.'),
+    wrong: L("Asos diagonali bir o'lchov bo'yicha emas, ikki o'lchov bo'yicha hisoblanadi.", 'Диагональ основания считают по двум измерениям, а не по одному.', 'The base diagonal is computed from two dimensions, not from one.'),
+    target: '60',
+    step: '15·4',
   },
 }
 
@@ -499,7 +499,7 @@ const S14 = {
   format: 'chain',
   eyebrow: L('BLITS', 'БЛИЦ', 'QUICK ROUND'),
   title: L("Ketma-ket to'rt savol", 'Четыре вопроса подряд', 'Four questions in a row'),
-  tag: 'ugol-ne-s-proekciey',
+  tag: 'secheniye-ne-ploskoe',
   audio: [
     A('mount', "Ketma-ket to'rt savol. To'xtamasdan javob bering.", 'Четыре вопроса подряд. Отвечай без остановки.', 'Four questions in a row. Answer without stopping.'),
   ],
@@ -507,53 +507,52 @@ const S14 = {
     {
       id: 'q1',
       ask: true,
-      prompt: L('Burchak nima bilan olinadi?', 'С чем берут угол?', 'What is the angle taken with?'),
-      done: '∠(a; a₁)',
+      prompt: L('Kesim uchlari qayerda yotadi?', 'Где лежат вершины сечения?', 'Where do the vertices of a section lie?'),
+      done: 'M ∈ A₁B₁',
       items: [
-        { id: 'a', label: L('proyeksiya bilan', 'с проекцией', 'with the projection'), correct: true },
-        { id: 'b', label: L('perpendikulyar bilan', 'с перпендикуляром', 'with the perpendicular'), hint: L("Perpendikulyar bilan burchak doim to'g'ri, va u hech narsani ajratmaydi.", 'С перпендикуляром угол всегда прямой, и он ничего не различает.', 'With the perpendicular the angle is always right and tells nothing apart.') },
-        { id: 'c', label: L("tekislikning istalgan chizig'i bilan", 'с любой прямой плоскости', 'with any line of the plane'), hint: L("Bunday chiziqlar cheksiz ko'p, va burchaklar boshqa-boshqa.", 'Таких прямых бесконечно много, и углы разные.', 'There are infinitely many such lines and the angles differ.') },
-        { id: 'd', label: L('asos qirrasi bilan', 'с ребром основания', 'with the edge of the base'), hint: L('Qirra tekislik chiziqlaridan biri, boshqa emas.', 'Ребро это одна из прямых плоскости, не более.', 'An edge is one of the lines of the plane, no more.') },
+        { id: 'a', label: L('faqat qirralarda', 'только на рёбрах', 'only on the edges'), correct: true },
+        { id: 'b', label: L('yoqlar ichida', 'внутри граней', 'inside the faces'), hint: L('Yoq ichida tomonlar yotadi.', 'Внутри грани лежат стороны.', 'The sides lie inside a face.') },
+        { id: 'c', label: L('jism uchlarida', 'в вершинах тела', 'at the vertices of the body'), hint: L('Bu xususiy hol, qoida emas.', 'Это частный случай, а не правило.', 'That is a special case, not the rule.') },
+        { id: 'd', label: L('tekislikning har qanday joyida', 'в любом месте плоскости', 'anywhere in the plane'), hint: L("Jismdan tashqarida kesim nuqtalari yo'q.", 'Вне тела точек сечения нет.', 'Outside the body there are no points of the section.') },
       ],
     },
     {
       id: 'q2',
       ask: true,
-      prompt: L('Chiziq tekislikka perpendikulyar. Burchak?', 'Прямая перпендикулярна плоскости. Угол?', 'The line is perpendicular to the plane. The angle?'),
-      done: '90°',
+      prompt: L("Kub kesimida eng ko'pi bilan nechta tomon?", 'Сколько сторон самое большее у сечения куба?', 'The largest number of sides for a section of a cube?'),
+      done: '6',
       items: [
-        { id: 'a', label: L("to'qson", 'девяносто', 'ninety'), correct: true },
-        { id: 'b', label: L('nol', 'ноль', 'zero'), hint: L('Nol parallelda.', 'Ноль у параллельной.', 'Zero belongs to a parallel line.') },
-        { id: 'c', label: L('qirq besh', 'сорок пять', 'forty five'), hint: L('Bu son hech qayerdan chiqmaydi.', 'Это число ниоткуда не следует.', 'That number follows from nothing.') },
-        { id: 'd', label: L('burchak aniqlanmagan', 'угол не определён', 'the angle is undefined'), hint: L('Bu hol uchun darslik alohida kelishuv beradi.', 'Для этого случая учебник даёт отдельное соглашение.', 'For this case the textbook gives a separate convention.') },
+        { id: 'a', label: L('oltita', 'шесть', 'six'), correct: true },
+        { id: 'b', label: L("to'rtta", 'четыре', 'four'), hint: L("To'rt bo'ladi, lekin bu eng katta emas.", 'Четыре бывает, но это не наибольшее.', 'Four happens, but it is not the largest.') },
+        { id: 'c', label: L('sakkizta', 'восемь', 'eight'), hint: L('Sakkiz uchlar, yoqlar emas.', 'Восемь это вершины, а не грани.', 'Eight is the vertices, not the faces.') },
+        { id: 'd', label: L("o'n ikkita", 'двенадцать', 'twelve'), hint: L("O'n ikki qirralar.", 'Двенадцать это рёбра.', 'Twelve is the edges.') },
       ],
     },
     {
       id: 'q3',
       ask: true,
-      prompt: L('Chiziqning proyeksiyasi nuqta. Chiziq qanday?', 'Проекция прямой это точка. Что с прямой?', 'The projection of a line is a point. What about the line?'),
-      done: 'a₁ = A',
+      prompt: L('Ikki nuqta qachon tomon bilan ulanadi?', 'Когда две точки соединяют стороной?', 'When are two points joined by a side?'),
+      done: 'MN ⊂ A₁B₁C₁D₁',
       items: [
-        { id: 'a', label: L('tekislikka perpendikulyar', 'перпендикулярна плоскости', 'perpendicular to the plane'), correct: true },
-        { id: 'b', label: L('tekislikka parallel', 'параллельна плоскости', 'parallel to the plane'), hint: L('Parallelda proyeksiya chiziq, nuqta emas.', 'У параллельной проекция это прямая, а не точка.', 'For a parallel line the projection is a line, not a point.') },
-        { id: 'c', label: L('tekislikda yotadi', 'лежит в плоскости', 'lies in the plane'), hint: L("Unda proyeksiya chiziqning o'zi bilan ustma-ust tushardi.", 'Тогда проекция совпала бы с самой прямой.', 'Then the projection would coincide with the line itself.') },
-        { id: 'd', label: L("qirq besh ostida og'gan", 'наклонена под сорок пять', 'slanted at forty five'), hint: L("Og'mada proyeksiya kesma.", 'У наклонной проекция это отрезок.', 'For a slanted line the projection is a segment.') },
+        { id: 'a', label: L('bir yoqda yotganda', 'когда лежат в одной грани', 'when they lie in one face'), correct: true },
+        { id: 'b', label: L('yaqin yotganda', 'когда лежат близко', 'when they lie close'), hint: L("Chizmadagi yaqinlik rakursga bog'liq.", 'Близость на чертеже зависит от ракурса.', 'Closeness on the drawing depends on the view.') },
+        { id: 'c', label: L('har doim', 'всегда', 'always'), hint: L("U holda kesma jism ichidan o'tadi.", 'Тогда отрезок пройдёт внутри тела.', 'Then the segment would go inside the body.') },
+        { id: 'd', label: L('bir qirrada yotganda', 'когда лежат на одном ребре', 'when they lie on one edge'), hint: L('U holda tomon qirra bilan mos tushardi.', 'Тогда сторона совпала бы с ребром.', 'Then the side would coincide with the edge.') },
       ],
     },
     {
       id: 'q4',
       ask: true,
-      prompt: L('Kub yoqining diagonali va asos. Burchak?', 'Диагональ грани куба и основание. Угол?', 'A face diagonal of a cube and the base. The angle?'),
-      done: '45°',
+      prompt: L('Kesuvchi tekislikning izi nima?', 'Что такое след секущей плоскости?', 'What is the trace of a cutting plane?'),
+      done: 'X = LM ∩ AC',
       items: [
-        { id: 'a', label: L('qirq besh', 'сорок пять', 'forty five'), correct: true },
-        { id: 'b', label: L("o'ttiz", 'тридцать', 'thirty'), hint: L("O'ttiz katetlar bir va ikki bo'lganda chiqardi.", 'Тридцать вышло бы при катетах один и два.', 'Thirty would come from legs one and two.') },
-        { id: 'c', label: L('oltmish', 'шестьдесят', 'sixty'), hint: L('Oltmish katetlarning boshqa nisbatidagi burchak.', 'Шестьдесят это угол при другом отношении катетов.', 'Sixty belongs to a different ratio of legs.') },
-        { id: 'd', label: L("to'qson", 'девяносто', 'ninety'), hint: L("To'qson yon qirrada bo'lardi.", 'Девяносто было бы у бокового ребра.', 'Ninety would belong to the side edge.') },
+        { id: 'a', label: L("uning asos tekisligi bilan kesishish chizig'i", 'линия её пересечения с плоскостью основания', 'the line where it meets the plane of the base'), correct: true },
+        { id: 'b', label: L('jism qirrasi', 'ребро тела', 'an edge of the body'), hint: L('Qirra jismda bor, iz esa tekislikda.', 'Ребро есть у тела, а след у плоскости.', 'An edge belongs to the body, a trace to the plane.') },
+        { id: 'c', label: L('asos diagonali', 'диагональ основания', 'a diagonal of the base'), hint: L('Diagonal jism bilan berilgan, iz esa kesuvchi tekislik bilan.', 'Диагональ задана телом, а след секущей плоскостью.', 'A diagonal is given by the body, a trace by the cutting plane.') },
+        { id: 'd', label: L('jism balandligi', 'высота тела', 'the height of the body'), hint: L("Balandlik kesma, iz esa asosdagi to'g'ri chiziq.", 'Высота это отрезок, а след прямая в основании.', 'A height is a segment, a trace is a line in the base.') },
       ],
     },
   ],
-  angles: ['AB', 'AA₁', 'AB₁', 'AC₁'],
 }
 
 const S15 = {
@@ -562,100 +561,147 @@ const S15 = {
   eyebrow: L('YAKUN', 'ИТОГ', 'SUMMARY'),
   title: L('Endi nimani bilasiz', 'Что теперь умеешь', 'What you can do now'),
   audio: [
-    A('mount', "Dars ikki yozuv bilan boshlandi. Birinchisida burchak tekislikning istalgan chizig'i bilan olingan edi.", 'Урок начался с двух записей. В первой угол брали с любой прямой плоскости.', 'The lesson began with two readings. In the first the angle was taken with any line of the plane.'),
-    A('next', "Bunday chiziqlar cheksiz ko'p, va har biri o'z burchagini berardi, ya'ni ta'rif bo'sh bo'lardi. Chiziqning proyeksiyasi bitta, va u bilan burchak eng kichik. Shuning uchun ta'rifda aynan u turadi. Keyin bizga ikki tekislik orasidagi burchak kerak bo'ladi, va u yerda chiziqlarni emas, yarimtekisliklarni o'lchaymiz.", 'Таких прямых бесконечно много, и каждая давала бы свой угол, значит определение было бы пустым. Проекция у прямой одна, и угол с ней наименьший. Поэтому именно она стоит в определении. Дальше нам понадобится угол между двумя плоскостями, и там мерить будем не прямые, а полуплоскости.', 'There are infinitely many such lines and each would give its own angle, which means the definition would be empty. A line has one projection and the angle with it is the smallest. That is why it stands in the definition. Next we will need the angle between two planes, and there we will measure half-planes instead of lines.'),
+    A('mount', 'Dars kub qirralaridagi uch nuqta haqidagi savol bilan boshlandi.', 'Урок начался с вопроса про три точки на рёбрах куба.', 'The lesson began with a question about three points on the edges of a cube.'),
+    A('next', "Kesimda tomonlar beshta chiqdi, uchta emas, va bu chizmaning hiylasi emas. Uch nuqta tekislikni aniqladi, tekislik esa qaysi qirralarni kesishini o'zi hal qildi, va ular beshta bo'ldi. Bir biriga faqat umumiy yog'i bor nuqtalarni ulash mumkin, chunki kesim tomoni yoqda yotadi. Bunday juftlar tugaganda iz ishlaydi: jismdan tashqariga chiqamiz, asos tekisligida nuqta topamiz va u orqali qirrada yangi uch olamiz. Va butun darsga tekshiruv tayyor: tomonlar yoqlardan ko'p emas. Bundan keyin jism chizma bilan emas, sonlar bilan beriladi.", 'Сторон в сечении оказалось пять, а не три, и это не хитрость чертежа. Три точки задали плоскость, а плоскость сама решила, какие рёбра она режет, и их оказалось пять. Соединять между собой можно только те точки, у которых есть общая грань, потому что сторона сечения лежит в грани. Когда такие пары кончаются, работает след: выходим за тело, находим точку в плоскости основания и через неё получаем новую вершину на ребре. И готова проверка на весь урок: сторон не больше, чем граней. Дальше тело будет задаваться не чертежом, а числами.', 'The section turned out to have five sides, not three, and that is not a trick of the drawing. Three points determined a plane, and the plane itself decided which edges it cuts, and there were five of them. Only points that have a common face may be joined to each other, because a side of a section lies in a face. When such pairs run out, the trace works: we go outside the body, find a point in the plane of the base and through it get a new vertex on an edge. And the check for the whole lesson is ready: no more sides than faces. Next the body will be given not by a drawing but by numbers.'),
   ],
   can: [
-    L('Chiziqning tekislikdagi proyeksiyasini quraman', 'Строю проекцию прямой на плоскость', 'I build the projection of a line on a plane'),
-    L('Burchakni proyeksiya bilan olaman, qulay chiziq bilan emas', 'Беру угол с проекцией, а не с удобной прямой', 'I take the angle with the projection, not with a convenient line'),
-    L('Ikki chegara holni bilaman', 'Знаю два крайних случая', 'I know the two extreme cases'),
-    L("Burchakni hisoblayman, rasmdan o'lchamayman", 'Считаю угол, а не измеряю с картинки', 'I compute the angle instead of measuring it off the picture'),
+    L("Kesimni ko'z bilan emas, qoida bo'yicha yasayman", 'Строю сечение по правилам, а не на глаз', 'I build a section by the rules, not by eye'),
+    L('Ikki nuqta bir yoqda yotganini tekshiraman', 'Проверяю, лежат ли две точки в одной грани', 'I check whether two points lie in one face'),
+    L("Izni topaman va u bo'yicha qirrada yangi nuqtani", 'Нахожу след и по нему новую точку на ребре', 'I find the trace and a new point on an edge by it'),
+    L("Javobni yoqlar soni bo'yicha tekshiraman", 'Проверяю ответ по числу граней', 'I check the answer against the number of faces'),
   ],
   levels: {
     full: L("To'rttasi ham", 'Все четыре', 'All four'),
     gap: L("To'rttadan uchtasi", 'Три из четырёх', 'Three out of four'),
     back: L('Uchtadan kam', 'Меньше трёх', 'Fewer than three'),
   },
-  bridge: L('Bundan keyin tekisliklar orasidagi burchak, ikki yoqli burchak va uning chiziqli burchagi', 'Дальше два угла между плоскостями — двугранный угол и его линейный угол', 'Next comes the angle between planes, the dihedral angle and its linear angle'),
-  lifehack: L("Burchakni nima bilan o'lchashni bilmasangiz, proyeksiya quring", 'Не знаешь, с чем мерить угол — строй проекцию', 'If you do not know what to measure the angle with, build the projection'),
+  bridge: L('Bundan keyin fazoda koordinatalar va vektorlar, jism sonlar bilan beriladi', 'Дальше координаты и векторы в пространстве — тело будет задаваться числами', 'Next come coordinates and vectors in space, where a body is given by numbers'),
+  lifehack: L('Ikki nuqtani ulashdan oldin ikkisi yotgan yoqni toping', 'Прежде чем соединить две точки, найди грань, в которой лежат обе', 'Before joining two points, find the face in which both of them lie'),
   sheetTitle: L('Shpargalka', 'Шпаргалка', 'Cheat sheet'),
-  sheetSrc: L("Geometriya, bir yuz o'ttiz sakkizinchi bet", 'Геометрия, страница сто тридцать восемь', 'Geometry, page one hundred thirty eight'),
+  sheetSrc: L("Geometriya, oltmish to'rtinchi va oltmish sakkizinchi betlar", 'Геометрия, страницы шестьдесят четыре и шестьдесят восемь', 'Geometry, pages sixty four and sixty eight'),
   hook: {
-    a: '∠(a; b),   b ⊂ α',
-    b: '∠(a; a₁)',
+    a: '3',
+    b: '5',
   },
-  proved: '∠(a; α) = ∠(a; a₁)',
-  law: 'a ∩ α = A,   a₁ ⊂ α',
+  proved: '5',
+  law: 'MN ⊂ A₁B₁C₁D₁',
   sheet: [
-    'a₁ ⊂ α',
-    '∠(a; α) = ∠(a; a₁)',
-    '∠(a; a₁) < ∠(a; b)',
-    'a ⊥ α   →   90°',
-    'a ∥ α   →   0°',
+    'M ∈ A₁B₁',
+    'MN ⊂ A₁B₁C₁D₁',
+    'X = LM ∩ AC',
+    'N = KX ∩ BC',
+    'PM ∥ KH',
   ],
 }
 
 // ======== QOLDA YOZILGAN QISM: bundan pastdagisi saqlanadi ========
 
-const num = (s) => parseFloat(String(s).replace(/−/g, '-'))
+const num = (s) => parseFloat(String(s).replace(/\u2212/g, '-'))
 
-// SAHNA 1 -- TEKISLIK VA OG'MA CHIZIQ. `A` -- kesishish nuqtasi, `P` -- og'ma
-// chiziqning yuqori uchi, `Am` va `Ap` -- PROYEKSIYA chizig'ining uchlari,
-// `Bm` va `Bp` -- tekislikning IKKINCHI chizig'i (u bilan burchak kattaroq).
-// `F1..F3` -- og'ma chiziq nuqtalaridan tushirilgan perpendikulyarlar asoslari:
-// 3-ekranda proyeksiya aynan ulardan yig'iladi.
-const PTS = [
-  { id: 'A', at: [0, 0, 0], label: 'A' },
-  { id: 'P', at: [0.8, 0, 0.75], label: 'a' },
-  { id: 'Am', at: [-0.55, 0, 0], label: '' },
-  { id: 'Ap', at: [1.05, 0, 0], label: 'a₁' },
-  { id: 'Bm', at: [-0.5, -0.72, 0], label: '' },
-  { id: 'Bp', at: [0.5, 0.72, 0], label: 'b' },
-  { id: 'P1', at: [0.27, 0, 0.25], label: '' },
-  { id: 'P2', at: [0.53, 0, 0.5], label: '' },
-  { id: 'F1', at: [0.27, 0, 0], label: '' },
-  { id: 'F2', at: [0.53, 0, 0], label: '' },
-  { id: 'V', at: [0, 0, 0.9], label: 'a' },
-  { id: 'H1', at: [-0.62, 0, 0.45], label: 'a' },
-  { id: 'H2', at: [0.62, 0, 0.45], label: '' },
+// PRIBOR 6B, KESIM. Nuqta qirrada ULUSH bilan beriladi, koordinata bilan emas:
+// sahna burilganda u qirradan uzilib ketmaydi, ya'ni chizma yolg'on gapirmaydi
+// (etalon: kesim uchlari FAQAT qirralarda yotadi, geom. 68-bet).
+//
+// BARCHA ULUSHLAR HISOBLANGAN, ko'z bilan qo'yilmagan. Hisob DARS42_KONTENT.md
+// boshida yozilgan: M va N -- o'rtalar, K -- chorak, va shundan kesuvchi
+// tekislik AA1 va CC1 ni uch chorakda kesadi. Beshburchak KPMNH, besh nuqtaning
+// bitta tekislikdan chetlanishi aynan nol, parallel tomonlar jufti ikkita.
+const CUT3 = [
+  { id: 'M', on: ['A1', 'B1'], t: 0.5 },
+  { id: 'N', on: ['B1', 'C1'], t: 0.5 },
+  { id: 'K', on: ['D', 'D1'], t: 0.25 },
 ]
-const PLANE = [{ by: ['A', 'Ap', 'Bp'], dim: true }]
-const GREY = '#7f8c8d'
+const CUT5 = CUT3.concat([
+  { id: 'P', on: ['A', 'A1'], t: 0.75 },
+  { id: 'H', on: ['C', 'C1'], t: 0.75 },
+])
+const PENT = { by: ['K', 'P', 'M', 'N', 'H'] }
 
-const LINE_A = { from: 'A', to: 'P' }
-const PROJ = { from: 'Am', to: 'Ap', tone: GREY, w: 2 }
-const LINE_B = { from: 'Bm', to: 'Bp', tone: GREY, w: 2 }
-const DROPS = [
-  { from: 'P1', to: 'F1', tone: GREY, w: 1.4 },
-  { from: 'P2', to: 'F2', tone: GREY, w: 1.4 },
-  { from: 'P', to: 'Ap', tone: GREY, w: 1.4 },
+// YOLG'ON KESIM va uning KAMERASI. To'rtinchi nuqta AB qirrasida, kesuvchi
+// tekislik esa bu qirraga umuman tegmaydi: chetlanish qirraning yetti o'ndan
+// qismi. 3-ekranning kamerasi 39-dars kabi O'ZINING kamerasi, va u sanab
+// tanlangan: 0,7 da to'rtburchak qavariq va to'la (kompaktligi 0,042), 1,2 ga
+// IXTIYORIY tomonga burilganda esa proyeksiyada o'zini o'zi kesadi, va uchta
+// holatning hech birida kub yassi rasmga aylanmaydi. Sinf qadami 0,6 da o'ngga
+// burilish obmanni ochmasdi -- shuning uchun bu yerda qadam 1,2.
+const TRICK = 0.7
+const TRICK_OFF = 1.9
+const CUT_FAKE = CUT3.concat([{ id: 'G', on: ['A', 'B'], t: 0.25 }])
+const FAKE = { by: ['M', 'N', 'G', 'K'] }
+
+const FACE2 = '#6b8fa3'
+const BAD = '#c0392b'
+const TOP = [{ by: ['A1', 'B1', 'C1', 'D1'] }]
+const TOP_DIM = [{ by: ['A1', 'B1', 'C1', 'D1'], dim: true }]
+// PARALLEL YOQLAR jufti: tekislik ularni parallel to'g'ri chiziqlar bo'ylab
+// kesadi, shuning uchun ular boshqa-boshqa rangda.
+const PARA = [
+  { by: ['A', 'B', 'B1', 'A1'], dim: true },
+  { by: ['D', 'C', 'C1', 'D1'], tone: FACE2, dim: true },
 ]
-const VERT = { from: 'A', to: 'V' }
-const HORIZ = { from: 'H1', to: 'H2' }
+const SIDE_PAIR = [
+  { from: 'P', to: 'M', w: 3.4 },
+  { from: 'K', to: 'H', w: 3.4 },
+  { from: 'K', to: 'P', w: 3.4, tone: FACE2 },
+  { from: 'N', to: 'H', w: 3.4, tone: FACE2 },
+]
 
-// Kadr bo'yicha to'plamlar.
-const SET_DROPS = [LINE_A, ...DROPS]
-const SET_PROJ = [LINE_A, PROJ]
-const SET_TWO = [LINE_A, PROJ, LINE_B]
-const SET_VERT = [VERT, PROJ]
-const SET_HORIZ = [HORIZ, PROJ]
+// IZLAR USULI piramidada (geom. 64-65-bet, 1-masala). Ulushlar yorliqlar
+// to'qnashmasligi va X kadrda qolishi shartidan hisoblangan: X nuqta AC ning
+// 1,44 ulushida, ya'ni C dan tashqarida, N esa BC ning 0,77 ida.
+const PYR = { kind: 'pyramid', n: 3, h: 1.2, r: 0.66, turn: 1.1 }
+const PYR_CUTS = [
+  { id: 'K', on: ['A', 'B'], t: 0.5 },
+  { id: 'L', on: ['A', 'S'], t: 0.8 },
+  { id: 'M', on: ['C', 'S'], t: 0.55 },
+]
+// `meets` KETMA-KET ishlaydi: N ni topish uchun X allaqachon bo'lishi kerak.
+const PYR_MEETS = [
+  { id: 'X', a: ['L', 'M'], b: ['A', 'C'] },
+  { id: 'N', a: ['K', 'X'], b: ['B', 'C'] },
+]
+const PYR_FACE = [{ by: ['A', 'B', 'S'], tone: FACE2, dim: true }]
+const PYR_TWO = [{ from: 'K', to: 'L' }, { from: 'L', to: 'M' }]
+const TRACE = [
+  { from: 'M', to: 'X', hidden: true, w: 1.4, tone: '#7f8c8d' },
+  { from: 'A', to: 'X', hidden: true, w: 1.4, tone: '#7f8c8d' },
+  { from: 'K', to: 'X', hidden: true, w: 1.4, tone: '#7f8c8d' },
+]
+const PYR_CUT = { by: ['K', 'L', 'M', 'N'] }
 
-const H_DROPS = ['Am', 'Bm', 'Bp', 'V', 'H1', 'H2']
-const H_PROJ = ['Bm', 'Bp', 'P1', 'P2', 'F1', 'F2', 'V', 'H1', 'H2', 'Am']
-const H_TWO = ['P1', 'P2', 'F1', 'F2', 'V', 'H1', 'H2', 'Am', 'Bm']
-const H_VERT = ['P', 'Bm', 'Bp', 'P1', 'P2', 'F1', 'F2', 'H1', 'H2', 'Am', 'Ap']
-const H_HORIZ = ['P', 'Bm', 'Bp', 'P1', 'P2', 'F1', 'F2', 'V', 'H2', 'Am']
+// ENG KATTA KESIMLAR. Kubda -- muntazam oltiburchak, olti qirraning o'rtasi;
+// uning tekisligi katta diagonalga perpendikulyar, shuning uchun sinf
+// kamerasida yuzma-yuz turadi. Beshburchakli prizmada -- yettiburchak, yetti
+// yoqning hammasi kesiladi. Og'ish azimuti kamera bo'ylab EMAS tanlangan: aks
+// holda tekislik qirradan ko'rinib polosaga aylanadi (stendda shunday bo'lgan).
+//
+// Bu nuqtalar YORLIQSIZ (`label` bo'sh): yetti harf chizmani yopib qo'yadi,
+// nuqtalarning o'zi esa tomonlarni sanash uchun kerak.
+const CUT6 = [
+  { id: 'U1', on: ['A1', 'B1'], t: 0.5, label: '' },
+  { id: 'U2', on: ['B', 'B1'], t: 0.5, label: '' },
+  { id: 'U3', on: ['B', 'C'], t: 0.5, label: '' },
+  { id: 'U4', on: ['C', 'D'], t: 0.5, label: '' },
+  { id: 'U5', on: ['D', 'D1'], t: 0.5, label: '' },
+  { id: 'U6', on: ['D1', 'A1'], t: 0.5, label: '' },
+]
+const PRISM5 = { kind: 'prism', n: 5, h: 1.0, r: 0.58, turn: 0.3 }
+const CUT7 = [
+  { id: 'W1', on: ['D1', 'E1'], t: 0.469, label: '' },
+  { id: 'W2', on: ['E', 'E1'], t: 0.882, label: '' },
+  { id: 'W3', on: ['A', 'A1'], t: 0.132, label: '' },
+  { id: 'W4', on: ['A', 'B'], t: 0.547, label: '' },
+  { id: 'W5', on: ['B', 'C'], t: 0.182, label: '' },
+  { id: 'W6', on: ['C', 'C1'], t: 0.491, label: '' },
+  { id: 'W7', on: ['C1', 'D1'], t: 0.83, label: '' },
+]
+const IDS = (a) => a.map((c) => c.id)
+const HEX6 = { by: IDS(CUT6) }
+const HEPT = { by: IDS(CUT7) }
 
-// DUGA burchak QAYERDA ekanini ko'rsatadi, kattaligini emas (`Space` izohi).
-const ARC_PROJ = { at: 'A', from: 'P', to: 'Ap', label: 'φ' }
-const ARC_B = { at: 'A', from: 'P', to: 'Bp', label: 'ψ', scale: 1.75, tone: GREY }
-const RIGHT_VERT = { at: 'A', from: 'V', to: 'Ap' }
-
-// SAHNA 2 -- KUB. Yon yoq diagonali `AB₁` va uning asosdagi proyeksiyasi `AB`.
-const DIAG = [{ from: 'A', to: 'B1' }]
-const CUBE_HI = ['AB', 'BB1']
-const BASE = [{ by: ['A', 'B', 'C'], dim: true }]
-const ARC_CUBE = { at: 'A', from: 'B1', to: 'B', label: 'φ' }
+// Kichik kadrda kubning O'Z yorliqlari kesim uchlari bilan to'qnashadi, va
+// o'quvchi qizil nuqtani B1 deb o'qishi mumkin (40-darsning tajribasi).
+const CUBE_LBL = ['A', 'B', 'C', 'D', 'A1', 'B1', 'C1', 'D1']
 
 const PAIR_IDS = ['p0', 'p1', 'p2', 'p3']
 const EQ_LEFT = S9.match.left.map((label, i) => ({ id: PAIR_IDS[i], label }))
@@ -685,11 +731,10 @@ const Screen1 = (p) => (
       <HookBody
         {...s}
         data={{ ...S1, rows: [{ id: 'a', ...S1.row.a }, { id: 'b', ...S1.row.b }] }}
-        // Prognoz paytida DUGA YO'Q: burchak hali qo'yilmagan, va aynan shu
-        // savol -- uni nima bilan qo'yish kerak.
+        // Prognoz TURG'UN chizmada: aynan shunda yon qirralar esdan chiqadi.
         fig={() => (
           <Scene
-            fig={<Space step={1} yaw={0.4} pts={PTS} planes={PLANE} segs={SET_TWO} hide={H_TWO} />}
+            fig={<Space step={1} yaw={0.4} cube cuts={CUT3} hide={CUBE_LBL} />}
             max={172}
             h={172}
           />
@@ -705,7 +750,7 @@ const Screen2 = (p) => (
       <Cols l={1} r={1.2}>
         <Col>
           <Scene
-            fig={<Space step={1} yaw={0.4} pts={PTS} planes={PLANE} segs={SET_PROJ} hide={H_PROJ} />}
+            fig={<Space step={1} yaw={0.4} cube cuts={CUT3} />}
             max={240}
             h={158}
           />
@@ -721,22 +766,22 @@ const Screen2 = (p) => (
 const Screen3 = (p) => (
   <Screen data={S3} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S3.show.length && !solved ? (
-      /* Kadr 1 -- perpendikulyarlar tushadi, kadr 2 -- asoslar chiziqqa
-         tizildi va proyeksiya paydo bo'ldi. */
+      /* Kadr 1 -- bitta yoq, kadr 2 -- ikkinchisi ham: jism yassi
+         ko'pburchaklardan yig'iladi. */
       <Scene
         fig={(
           <Space
-            step={1} yaw={phase * 0.45} pts={PTS} planes={PLANE}
-            segs={phase === 0 ? SET_DROPS : [...SET_DROPS, PROJ]}
-            hide={phase === 0 ? H_DROPS : H_DROPS.filter((k) => k !== 'Am')}
+            step={1} yaw={phase === 0 ? TRICK : TRICK_OFF}
+            cube cuts={CUT_FAKE} cut={FAKE}
           />
         )}
         note={<NoteList items={S3.show[phase]} />}
       />
     ) : (
       <SpinScene
-        yaw0={0.3}
-        scene={<Space step={1} pts={PTS} planes={PLANE} segs={[...SET_DROPS, PROJ]} hide={H_DROPS.filter((k) => k !== 'Am')} />}
+        yaw0={TRICK}
+        stepYaw={1.2}
+        scene={<Space step={1} cube cuts={CUT_FAKE} cut={FAKE} />}
         prompt={S3.work.prompt}
         answer={num(S3.work.answer)}
         okText={S3.work.ok}
@@ -751,22 +796,29 @@ const Screen3 = (p) => (
 const Screen4 = (p) => (
   <Screen data={S4} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S4.show.length && !solved ? (
-      /* DARSNING SHOHIDI. Ikki duga bir vaqtda: proyeksiya bilan va
-         tekislikning ikkinchi chizig'i bilan. Turg'un chizmada ikkinchisi
-         kichikroq ko'rinadi, burilish esa buni rad etadi. */
+      /* DARSNING SHOHIDI. Ikki yoq umumiy TOMONGA ega, va o'sha tomon --
+         qirra. Qirra yoritilgan, ya'ni ikki yoqning chegarasi ko'rinadi. */
       <Scene
         fig={(
           <Space
-            step={1} yaw={phase === 0 ? 0.25 : 0.9} pts={PTS} planes={PLANE}
-            segs={SET_TWO} hide={H_TWO} arcAt={[ARC_PROJ, ARC_B]}
+            step={1} yaw={0.4} cube cuts={CUT3}
+            faces={phase === 0 ? TOP : TOP_DIM}
+            segs={phase === 0
+              ? [{ from: 'M', to: 'N' }]
+              : [{ from: 'M', to: 'N', tone: '#7f8c8d', w: 2 }, { from: 'M', to: 'K', tone: BAD }]}
           />
         )}
         note={<NoteList items={S4.show[phase]} />}
       />
     ) : (
       <SpinScene
-        yaw0={0.25}
-        scene={<Space step={1} pts={PTS} planes={PLANE} segs={SET_TWO} hide={H_TWO} arcAt={[ARC_PROJ, ARC_B]} />}
+        yaw0={0.35}
+        scene={(
+          <Space
+            step={1} cube cuts={CUT3} faces={TOP}
+            segs={[{ from: 'M', to: 'N' }]}
+          />
+        )}
         prompt={S4.work.prompt}
         answer={num(S4.work.answer)}
         okText={S4.work.ok}
@@ -781,40 +833,34 @@ const Screen4 = (p) => (
 const Screen5 = (p) => (
   <Screen data={S5} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S5.show.length && !solved ? (
-      /* Kadr 1 -- perpendikulyar chiziq, proyeksiya nuqta. Kadr 2 -- parallel
-         chiziq, proyeksiya uning yonida. */
       <Scene
         fig={(
           <Space
-            step={1} yaw={0.4} pts={PTS} planes={PLANE}
-            segs={phase === 0 ? SET_VERT : SET_HORIZ}
-            hide={phase === 0 ? H_VERT : H_HORIZ}
-            angleAt={phase === 0 ? RIGHT_VERT : null}
+            step={1} yaw={0.5} poly={PYR} cuts={PYR_CUTS}
+            faces={phase === 0 ? PYR_FACE : []}
+            meets={phase === 0 ? [] : PYR_MEETS}
+            segs={phase === 0 ? PYR_TWO : TRACE}
+            cut={phase === 0 ? null : PYR_CUT}
           />
         )}
         note={<NoteList items={S5.show[phase]} />}
       />
     ) : (
-      <Cols l={1} r={1}>
-        <Col>
-          <Scene
-            fig={<Space step={1} yaw={0.4} pts={PTS} planes={PLANE} segs={SET_VERT} hide={H_VERT} angleAt={RIGHT_VERT} />}
-            max={240}
-            h={150}
+      <SpinScene
+        yaw0={0.3}
+        scene={(
+          <Space
+            step={1} poly={PYR} cuts={PYR_CUTS} meets={PYR_MEETS}
+            segs={TRACE} cut={PYR_CUT}
           />
-        </Col>
-        <Col>
-          <NumberEntry
-            compact
-            prompt={S5.work.prompt}
-            answer={num(S5.work.answer)}
-            okText={S5.work.ok}
-            hints={S5.work.hint}
-            audio={audio}
-            onSolved={solve}
-          />
-        </Col>
-      </Cols>
+        )}
+        prompt={S5.work.prompt}
+        answer={num(S5.work.answer)}
+        okText={S5.work.ok}
+        hints={S5.work.hint}
+        audio={audio}
+        onSolved={solve}
+      />
     ))}
   </Screen>
 )
@@ -825,16 +871,16 @@ const Screen6 = (p) => (
       <Scene
         fig={(
           <Space
-            step={1} yaw={0.35 + phase * 0.45} cube hi={CUBE_HI}
-            planes={BASE} segs={DIAG} arcAt={ARC_CUBE}
+            step={1} yaw={0.4} cube cuts={CUT5} cut={PENT}
+            faces={PARA} segs={phase === 0 ? [] : SIDE_PAIR}
           />
         )}
         note={<NoteList items={S6.show[phase]} />}
       />
     ) : (
       <SpinScene
-        yaw0={0.35}
-        scene={<Space step={1} cube hi={CUBE_HI} planes={BASE} segs={DIAG} arcAt={ARC_CUBE} />}
+        yaw0={0.3}
+        scene={<Space step={1} cube cuts={CUT5} cut={PENT} segs={SIDE_PAIR} />}
         prompt={S6.work.prompt}
         answer={num(S6.work.answer)}
         okText={S6.work.ok}
@@ -849,41 +895,29 @@ const Screen6 = (p) => (
 const Screen7 = (p) => (
   <Screen data={S7} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S7.show.length && !solved ? (
-      /* CHEGARA. Kadr 1 -- og'ma chiziq va uning kesma proyeksiyasi, kadr 2 --
-         chiziq tik turdi va proyeksiya nuqtaga yig'ildi. */
+      /* CHEGARA. Kadr 1 -- OG'MA prizma, kadr 2 -- to'g'ri. Farq faqat yon
+         qirrada, va qimirlamas chizmada u deyarli ko'rinmaydi. */
       <Scene
         fig={(
-          <Space
-            step={1} yaw={0.4} pts={PTS} planes={PLANE}
-            segs={phase === 0 ? SET_PROJ : SET_VERT}
-            hide={phase === 0 ? H_PROJ : H_VERT}
-            arcAt={phase === 0 ? ARC_PROJ : null}
-            angleAt={phase === 0 ? null : RIGHT_VERT}
-          />
+          phase === 0 ? (
+            <Space step={1} yaw={0.4} cube cuts={CUT6} cut={HEX6} hide={CUBE_LBL} />
+          ) : (
+            <Space step={1} yaw={0.4} poly={PRISM5} cuts={CUT7} cut={HEPT} />
+          )
         )}
         note={<NoteList items={S7.show[phase]} />}
       />
     ) : (
-      <Cols l={1} r={1}>
-        <Col>
-          <Scene
-            fig={<Space step={1} yaw={0.4} pts={PTS} planes={PLANE} segs={SET_VERT} hide={H_VERT} angleAt={RIGHT_VERT} />}
-            max={240}
-            h={150}
-          />
-        </Col>
-        <Col>
-          <NumberEntry
-            compact
-            prompt={S7.work.prompt}
-            answer={num(S7.work.answer)}
-            okText={S7.work.ok}
-            hints={S7.work.hint}
-            audio={audio}
-            onSolved={solve}
-          />
-        </Col>
-      </Cols>
+      <SpinScene
+        yaw0={0.35}
+        scene={<Space step={1} poly={PRISM5} cuts={CUT7} cut={HEPT} />}
+        prompt={S7.work.prompt}
+        answer={num(S7.work.answer)}
+        okText={S7.work.ok}
+        hints={S7.work.hint}
+        audio={audio}
+        onSolved={solve}
+      />
     ))}
   </Screen>
 )
@@ -898,8 +932,8 @@ const Screen8 = (p) => (
           <Scene
             fig={(
               <Space
-                step={1} yaw={solved ? 0.75 : 0.3} pts={PTS} planes={PLANE}
-                segs={SET_PROJ} hide={H_PROJ} arcAt={ARC_PROJ}
+                step={1} yaw={solved ? 0.9 : 0.4}
+                cube cuts={CUT5} cut={PENT}
               />
             )}
             max={330}
@@ -1051,8 +1085,8 @@ const Screen14 = (p) => (
           <Scene
             fig={(
               <Space
-                step={1} yaw={0.35 + round * 0.3} cube hi={CUBE_HI}
-                planes={BASE} segs={DIAG} arcAt={ARC_CUBE}
+                step={1} yaw={0.35 + round * 0.25}
+                cube cuts={CUT5} cut={PENT} hide={CUBE_LBL}
               />
             )}
             max={260}

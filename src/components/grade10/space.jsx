@@ -60,6 +60,7 @@ export function Space3D({ yaw, size, height, ...rest }) {
   const hostRef = useRef(null)
   const tries = useRef(0)
   const [fit, setFit] = useState(null)
+  const [tk, setTk] = useState(1)
   // KENGLIK qutidan to'liq olinadi, `size` dan emas. `Scene` beradigan `size`
   // KVADRATNING tomoni (`min(kenglik, balandlik)`), va 10-sinfning figuralari
   // kvadrat -- bu asbob esa emas. 2-ekranda tomon 158 chiqib, asbobning eng
@@ -90,6 +91,16 @@ export function Space3D({ yaw, size, height, ...rest }) {
     // Kenglikdan hisoblash 2-ekranda yolg'on javob bergan edi.
     const svg = el.querySelector('svg')
     const m = svg && svg.getScreenCTM && svg.getScreenCTM()
+    // YOZUVNI MASSHTABGA QARAB KATTALASHTIRISH. Balandlikni moslash hamma
+    // joyda yetmaydi: slot asbobning eng kichik kengligiga (190) tenglashsa,
+    // kichraytirishdan qutulib bo'lmaydi. Shunda yozuvning o'zi teng darajada
+    // kattalashadi va ekranda o'z o'lchamida qoladi: `textScale` asbobga
+    // aytiladi, va u har yozuvni shunga ko'paytiradi. Yuqori chegara -- 1,8:
+    // undan keyin yozuv chizmani bosib qo'yardi.
+    if (m && m.a > 0.2 && m.a < 0.995) {
+      const want = Math.min(1.8, Math.round((1 / m.a) * 100) / 100)
+      if (Math.abs(want - tk) > 0.02) setTk(want)
+    }
     // POL BIRGA YAQIN bo'lishi kerak, 0,98 ga emas: asbobning eng kichik
     // yozuvi 11 birlik, pol 10,5 piksel, ya'ni masshtab 0,955 dan past
     // bo'lmasligi kerak. 0,98 da to'xtaganda 10,47 chiqib, pol teshilardi --
@@ -103,9 +114,10 @@ export function Space3D({ yaw, size, height, ...rest }) {
 
   return (
     <G11Lang value={lang}>
-      <div ref={hostRef} style={{ width: '100%', maxWidth: '100%' }}>
+      <div ref={hostRef} style={{ width: '100%', maxWidth: '100%', height: h }}>
         <SpaceFrame
           {...rest}
+          textScale={tk}
           height={h}
           yaw0={yaw === undefined ? rest.yaw0 : yaw}
         />

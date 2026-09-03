@@ -396,9 +396,16 @@ export function DtmBody({ data, solved, solve, fig, audio, t }) {
   const [picked, setPicked] = useState(null)
   const [wrong, setWrong] = useState([])
 
+  // VARIANTLAR QATLAMNING O'Z SHAKLIDA keladi: `probe.items` da `correct`
+  // bayrog'i bilan -- xuddi qolgan ekranlarda. Ikkinchi shakl o'ylab
+  // topilmaydi: bitta ma'lumot ikki xil yozilsa, kontent yozuvchi qaysi
+  // birini ishlatishini eslab qolmaydi.
+  const items = (data.probe && data.probe.items) || data.options || []
+  const question = (data.probe && data.probe.question) || data.task
+
   const pick = (o) => {
     if (!o || solved) return
-    if (o.ok) {
+    if (o.ok || o.correct) {
       setPicked(o.id)
       solve({ correct: wrong.length === 0, attempts: wrong.length + 1, block: data.block })
       return
@@ -418,17 +425,17 @@ export function DtmBody({ data, solved, solve, fig, audio, t }) {
       <Col>
         <Panel tone="paper">
           {data.expr ? <Expr size="big" style={{ textAlign: 'left' }}>{data.expr}</Expr> : null}
-          <div className="g10-ask">{t(data.task)}</div>
+          <div className="g10-ask">{t(question)}</div>
         </Panel>
         {fig ? fig(solved) : null}
       </Col>
       <Col>
-        {data.options ? (
+        {items.length ? (
           <Options
-            items={data.options.map((o) => ({ id: o.id, label: t(o.label) }))}
+            items={items.map((o) => ({ id: o.id, label: t(o.label) }))}
             picked={picked}
             wrong={wrong}
-            onPick={(item) => pick(data.options.find((o) => o.id === item.id))}
+            onPick={(item) => pick(items.find((o) => o.id === item.id))}
             disabled={solved}
             cols={1}
           />

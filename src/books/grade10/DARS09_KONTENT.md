@@ -1,46 +1,52 @@
-# Урок 9 — Простейшие тригонометрические уравнения · КОНТЕНТ (этап 2)
+# Урок 8 — Аркфункции · КОНТЕНТ (этап 2)
 
-**Читается и правится методистом.** Формат тот же, что в `DARS08_KONTENT.md`.
+**Читается и правится методистом.** Формат тот же, что в `DARS06_KONTENT.md`: на экран две
+таблицы — «Текст» (ключ, RU, UZ, EN) и «Формулы» (ключ, значение). Звёздочка после имени реплики
+означает, что во время неё на экране движется.
 
-Скелет: `DARS07_10_SKELET.md` §7. Опора в учебнике: алгебра 2022, стр. 140–142.
+Скелет: `DARS07_10_SKELET.md` §6. Опора в учебнике: алгебра 2022, стр. 139 («y = arcsinx funksiya
+y = sinx funksiyaga teskari funksiya bo'ladi»).
 
-**Что этот урок вводит первым в классе:** «серия корней» и буква `n`. Окно однозначности введено
-уроком 8, отрицательный поворот — уроком 5.
+**Что этот урок вводит первым в классе:** «обратная функция» и «окно однозначности». Уравнений
+здесь ещё нет ни одного — они начинаются уроком 9.
 
-**Главное решение урока.** Урок 8 брал из двух точек одну. Здесь нужны **обе** — и все их
-повторения. Серия записывается **от одной точки**: `x = 30° + 360°n`. Общая формула с `(−1)ⁿ`
-появится уроком 10, и появится она как склейка двух записей, а не как новое правило.
+**Главное решение урока.** Горизонталь даёт **две** точки, и обе настоящие. Арксинус не
+«выбирает правильную», а берёт ответ из закреплённого окна: иначе обратное действие давало бы
+не число, а список. Поэтому вторая точка на экране не гаснет, а тускнеет — она есть, просто в
+ответ не идёт.
 
 ---
 
 ## Экран 1 · `hook` · ответ `pick4` · тега нет
 
+Обе записи выглядят разумно: у второй за спиной честная вторая точка. Прогноз до объяснения.
+
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
-| `eyebrow` | УРАВНЕНИЕ | TENGLAMA | THE EQUATION |
-| `title` | Сколько корней у уравнения? | Tenglamaning nechta ildizi bor? | How many roots does the equation have? |
-| `row.a.name` | корней два | ildiz ikkita | two roots |
-| `row.b.name` | корней бесконечно много | ildiz cheksiz ko'p | infinitely many roots |
+| `eyebrow` | АРКСИНУС | ARKSINUS | ARCSINE |
+| `title` | Сколько ответов у арксинуса? | Arksinusning nechta javobi bor? | How many answers does the arcsine have? |
+| `row.a.name` | ответ один | javob bitta | one answer |
+| `row.b.name` | ответов два | javob ikkita | two answers |
 | `probe.question` | Какая запись верна? | Qaysi yozuv to'g'ri? | Which reading is correct? |
-| `probe.a` | первая | birinchi | the first |
-| `probe.b` [верно] | вторая | ikkinchi | the second |
+| `probe.a` [верно] | первая | birinchi | the first |
+| `probe.b` | вторая | ikkinchi | the second |
 | `probe.both` | обе | ikkisi ham | both |
 | `probe.none` | ни одна | hech qaysi | neither |
-| `probe.after` | Твой ответ записан. Сейчас проверим оборотом. | Javobingiz yozib olindi. Endi aylana bilan tekshiramiz. | Your answer is saved. Now a turn will check it. |
-| `audio.mount*` | Точка возвращается на своё место после полного оборота, и высота у неё та же. | Nuqta to'liq aylanadan keyin o'z joyiga qaytadi, balandligi ham o'sha. | The point returns to its place after a full turn, with the same height. |
-| `audio.r1` | Первая запись говорит, что корней два. | Birinchi yozuv ildiz ikkita deydi. | The first reading says there are two roots. |
-| `audio.r2` | Вторая говорит, что их бесконечно много. | Ikkinchisi cheksiz ko'p deydi. | The second says there are infinitely many. |
+| `probe.after` | Твой ответ записан. Сейчас опустим прямую и посмотрим. | Javobingiz yozib olindi. Endi to'g'ri chiziqni tushirib ko'ramiz. | Your answer is saved. Now we will drop the line and see. |
+| `audio.mount*` | Прямая опускается на высоту одна вторая и задевает окружность в двух местах. | To'g'ri chiziq bir ikkidan balandlikka tushadi va aylanani ikki joyda kesadi. | The line drops to the height one half and meets the circle in two places. |
+| `audio.r1` | Первая запись говорит, что ответ один. | Birinchi yozuv javob bitta deydi. | The first reading says there is one answer. |
+| `audio.r2` | Вторая говорит, что их два, и точки на экране за неё. | Ikkinchisi ikkita deydi, va ekrandagi nuqtalar uning tomonida. | The second says there are two, and the points on the screen back it. |
 | `audio.ask` | Как думаешь, какая верная? Пока просто предположи. | Sizningcha qaysi biri to'g'ri? Hozircha shunchaki taxmin qiling. | Which one do you think is right? Just make a guess for now. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `expr` | `sin x = 1/2` |
-| `row.a.value` | `x = 30°,  150°` |
-| `row.b.value` | `x = 30° + 360°n` |
+| `expr` | `arcsin 1/2 = ?` |
+| `row.a.value` | `arcsin 1/2 = 30°` |
+| `row.b.value` | `arcsin 1/2 = 30°,  150°` |
 
 ---
 
@@ -51,62 +57,64 @@
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ОПОРА | TAYANCH | WHAT YOU KNOW |
-| `title` | Три вопроса перед уравнениями | Tenglamalardan oldin uch savol | Three questions before equations |
-| `q1.prompt` | Сколько точек даёт горизонтальная прямая внутри круга? | Gorizontal to'g'ri chiziq aylana ichida nechta nuqta beradi? | How many points does a horizontal line give inside the circle? |
-| `q1.a` [верно] | две | ikkita | two |
-| `q1.b` | одну | bitta | one |
-| `q1.b.hint` | Одну она даёт только когда касается края, на самом верху или внизу. | Bitta faqat chetiga tekkanda, eng tepada yoki pastda beradi. | One only when it touches the edge, at the very top or bottom. |
-| `q1.c` | ни одной | hech qaysi | none |
-| `q1.c.hint` | Ни одной бывает, если прямая прошла выше окружности. | To'g'ri chiziq aylanadan yuqoridan o'tsa, hech qaysi bo'ladi. | None happens if the line passed above the circle. |
-| `q1.d` | четыре | to'rtta | four |
-| `q1.d.hint` | Прямая и окружность пересекаются не больше чем в двух точках. | To'g'ri chiziq va aylana ikkitadan ko'p nuqtada kesishmaydi. | A line and a circle meet in at most two points. |
-| `q2.prompt` | Что возвращает точку на прежнее место? | Nuqtani avvalgi joyiga nima qaytaradi? | What returns the point to its former place? |
-| `q2.a` [верно] | целое число оборотов | butun sondagi aylana | a whole number of turns |
-| `q2.b` | половина оборота | yarim aylana | half a turn |
-| `q2.b.hint` | Половина уводит точку напротив, это был пятый урок. | Yarim aylana nuqtani qarshi tomonga olib ketadi, bu beshinchi darsda edi. | Half a turn sends the point opposite, that was lesson five. |
-| `q2.c` | любое число градусов | har qanday gradus soni | any number of degrees |
-| `q2.c.hint` | Тогда точка сдвинулась бы, а нужна та же самая. | Unda nuqta qimirlagan bo'lardi, bizga esa aynan o'sha kerak. | Then the point would move, and we need the very same one. |
-| `q2.d` | ничто | hech narsa | nothing |
-| `q2.d.hint` | Возвращает: полный оборот приводит точку туда же. | Qaytaradi: to'liq aylana nuqtani o'sha yerga olib keladi. | It does: a full turn brings the point to the same place. |
-| `q3.prompt` | Что такое арксинус одной второй? | Bir ikkidanning arksinusi nima? | What is the arcsine of one half? |
-| `q3.a` [верно] | угол из окна с такой высотой | oynadagi, shunday balandlikdagi burchak | the angle from the window with that height |
-| `q3.b` | любой угол с такой высотой | shunday balandlikdagi har qanday burchak | any angle with that height |
-| `q3.b.hint` | Тогда ответом был бы список, а нужен один угол. | Unda javob ro'yxat bo'lardi, bizga esa bitta burchak kerak. | Then the answer would be a list, and one angle is needed. |
-| `q3.c` | высота угла | burchakning balandligi | the height of the angle |
-| `q3.c.hint` | Наоборот: высота дана, а ищется угол. | Aksincha: balandlik berilgan, burchak qidiriladi. | The other way round: the height is given, the angle is sought. |
-| `q3.d` | половина угла | burchakning yarmi | half the angle |
-| `q3.d.hint` | Арксинус связан с высотой, а не с делением угла. | Arksinus balandlikka bog'liq, burchakni bo'lishga emas. | The arcsine is about the height, not about halving the angle. |
+| `title` | Три вопроса перед обратной задачей | Teskari masaladan oldin uch savol | Three questions before the inverse task |
+| `q1.prompt` | Какая координата точки называется синусом? | Nuqtaning qaysi koordinatasi sinus deyiladi? | Which coordinate of the point is the sine? |
+| `q1.a` [верно] | высота, второе число | balandlik, ikkinchi son | the height, the second number |
+| `q1.b` | сдвиг, первое число | siljish, birinchi son | the shift, the first number |
+| `q1.b.hint` | Сдвиг это косинус, он идёт первым. | Siljish bu kosinus, u birinchi turadi. | The shift is the cosine, it comes first. |
+| `q1.c` | радиус | radius | the radius |
+| `q1.c.hint` | Радиус всегда равен единице и координатой не является. | Radius doim birga teng va koordinata emas. | The radius is always one and is not a coordinate. |
+| `q1.d` | сам угол | burchakning o'zi | the angle itself |
+| `q1.d.hint` | Угол задаёт точку, а синус это её координата. | Burchak nuqtani beradi, sinus esa uning koordinatasi. | The angle fixes the point, the sine is its coordinate. |
+| `q2.prompt` | Что делает обратное действие? | Teskari amal nima qiladi? | What does an inverse action do? |
+| `q2.a` [верно] | по результату находит то, из чего он получен | natijadan uni bergan narsani topadi | it finds what the result came from |
+| `q2.b` | повторяет действие ещё раз | amalni yana bir marta takrorlaydi | it repeats the action once more |
+| `q2.b.hint` | Повтор ничего не возвращает назад, а обратное действие возвращает. | Takror hech narsani qaytarmaydi, teskari amal esa qaytaradi. | Repeating returns nothing, an inverse action does. |
+| `q2.c` | меняет знак | ishorani almashtiradi | it flips the sign |
+| `q2.c.hint` | Знак меняет зеркало, это был прошлый урок. | Ishorani ko'zgu almashtiradi, bu o'tgan darsda edi. | The mirror flips the sign, that was the previous lesson. |
+| `q2.d` | увеличивает в два раза | ikki barobar orttiradi | it doubles |
+| `q2.d.hint` | Обратное действие связано не с размером, а с направлением счёта. | Teskari amal o'lchamga emas, sanoq yo'nalishiga bog'liq. | An inverse action is about direction, not about size. |
+| `q3.prompt` | Какие значения принимает синус? | Sinus qanday qiymatlarni oladi? | Which values does the sine take? |
+| `q3.a` [верно] | от минус единицы до единицы | minus birdan birgacha | from minus one to one |
+| `q3.b` | любые | har qanday | any values |
+| `q3.b.hint` | Точка лежит на окружности радиуса один и дальше не уходит. | Nuqta radiusi bir bo'lgan aylanada yotadi va uzoqroqqa ketmaydi. | The point lies on the circle of radius one and goes no further. |
+| `q3.c` | только положительные | faqat musbat | only positive ones |
+| `q3.c.hint` | Ниже оси высота отрицательна, это было на четвёртом уроке. | O'qdan pastda balandlik manfiy, bu to'rtinchi darsda edi. | Below the axis the height is negative, that was in lesson four. |
+| `q3.d` | от нуля до единицы | noldan birgacha | from zero to one |
+| `q3.d.hint` | Нижняя половина окружности даёт отрицательные значения. | Aylananing pastki yarmi manfiy qiymatlar beradi. | The lower half of the circle gives negative values. |
 | `audio.mount` | Три коротких вопроса. Все три понадобятся через минуту. | Uch qisqa savol. Uchalasi ham bir daqiqadan keyin kerak bo'ladi. | Three short questions. All three will be needed in a minute. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `q1.done` | `2` |
-| `q2.done` | `α + 360°n` |
-| `q3.done` | `arcsin 1/2 = 30°` |
+| `q1.done` | `y = sin α` |
+| `q2.done` | `sin α = a   →   α = ?` |
+| `q3.done` | `−1 ≤ sin α ≤ 1` |
 
 ---
 
 ## Экран 3 · `explain1` · ответ `lead` · тег `odin-koren`
+
+Свидетель урока. Прямая опускается и остаётся на экране, обе точки горят одновременно.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
-| `title` | Решить уравнение значит найти все углы | Tenglamani yechish barcha burchaklarni topish | Solving means finding every angle |
-| `show.1.1` | высота задана | balandlik berilgan | the height is given |
-| `show.1.2` | прямая на этой высоте | shu balandlikdagi to'g'ri chiziq | the line at that height |
-| `show.2.1` | подходят обе точки | ikkala nuqta ham to'g'ri keladi | both points fit |
-| `show.2.2` | тридцать и сто пятьдесят | o'ttiz va yuz ellik | thirty and one hundred fifty |
-| `audio.mount` | Уравнение просит: найди углы, у которых высота равна одной второй. | Tenglama so'raydi: balandligi bir ikkidan bo'lgan burchaklarni toping. | The equation asks: find the angles whose height is one half. |
-| `audio.drop*` | Прямая садится на эту высоту и задевает окружность в двух точках. На прошлом уроке из них брали одну, а здесь нужны обе: обе дают верное равенство. | To'g'ri chiziq shu balandlikka tushadi va aylanani ikki nuqtada kesadi. O'tgan darsda ulardan bittasi olinardi, bu yerda esa ikkalasi kerak: ikkalasi ham to'g'ri tenglik beradi. | The line settles at that height and meets the circle at two points. Last lesson one of them was taken, here both are needed: both give a true equality. |
-| `audio.work` | Теперь сам. Поставь точку во второй корень, тот, что слева. | Endi o'zingiz. Ikkinchi ildizga, chapdagisiga nuqta qo'ying. | Now you. Place the point at the second root, the one on the left. |
-| `work.prompt` | Поставь точку во второй корень уравнения. | Tenglamaning ikkinchi ildiziga nuqta qo'ying. | Place the point at the second root of the equation. |
-| `work.ok` | Сто пятьдесят градусов. Высота та же, значит равенство верное, и это тоже корень. | Yuz ellik gradus. Balandlik o'sha, demak tenglik to'g'ri, va bu ham ildiz. | One hundred fifty degrees. The same height, so the equality holds, and this is a root too. |
-| `work.hint.1` | Нужна вторая точка на той же прямой. | O'sha to'g'ri chiziqdagi ikkinchi nuqta kerak. | You need the second point on the same line. |
-| `work.hint.2` | Она слева от вертикальной оси, высота у неё положительная. | U vertikal o'qdan chapda, balandligi musbat. | It is left of the vertical axis, with a positive height. |
+| `title` | Прямая задевает круг дважды | To'g'ri chiziq aylanani ikki marta kesadi | The line meets the circle twice |
+| `show.1.1` | высота одна вторая | balandlik bir ikkidan | the height is one half |
+| `show.1.2` | прямая идёт вниз | to'g'ri chiziq pastga tushadi | the line comes down |
+| `show.2.1` | точек стало две | nuqta ikkita bo'ldi | there are two points now |
+| `show.2.2` | обе высотой одна вторая | ikkalasining balandligi bir ikkidan | both at height one half |
+| `audio.mount` | Сверху прямая. Её высота одна вторая. | Yuqorida to'g'ri chiziq. Uning balandligi bir ikkidan. | A line at the top. Its height is one half. |
+| `audio.drop*` | Прямая села на место и задела окружность в двух точках. Обе высотой одна вторая, обе настоящие. Тридцать градусов и сто пятьдесят. | To'g'ri chiziq joyiga tushdi va aylanani ikki nuqtada kesdi. Ikkalasining balandligi bir ikkidan, ikkalasi ham haqiqiy. O'ttiz gradus va yuz ellik. | The line settled and met the circle at two points. Both at height one half, both real. Thirty degrees and one hundred fifty. |
+| `audio.work` | Теперь сам. Поставь точку во вторую из них, ту, что слева. | Endi o'zingiz. Ulardan ikkinchisiga, chapdagisiga nuqta qo'ying. | Now you. Place the point at the second of them, the one on the left. |
+| `work.prompt` | Поставь точку туда, где высота тоже равна одной второй, но точка слева. | Balandligi ham bir ikkidan, lekin chapda turgan joyga nuqta qo'ying. | Place the point where the height is also one half but the point is on the left. |
+| `work.ok` | Сто пятьдесят градусов. Высота та же, а точка другая: одному числу отвечают два угла. | Yuz ellik gradus. Balandlik o'sha, nuqta esa boshqa: bitta songa ikkita burchak mos keladi. | One hundred fifty degrees. The same height, a different point: one number matches two angles. |
+| `work.hint.1` | Нужна точка на той же высоте, но по другую сторону от вертикальной оси. | O'sha balandlikdagi, lekin vertikal o'qning boshqa tomonidagi nuqta kerak. | You need a point at the same height on the other side of the vertical axis. |
+| `work.hint.2` | Слева от вертикальной оси сдвиг отрицательный, а высота остаётся положительной. | Vertikal o'qdan chapda siljish manfiy, balandlik esa musbat qoladi. | Left of the vertical axis the shift is negative and the height stays positive. |
 | `work.hint.3` | Сто пятьдесят градусов. | Yuz ellik gradus. | One hundred fifty degrees. |
 
 **Формулы**
@@ -116,28 +124,27 @@
 
 ---
 
-## Экран 4 · `explain2` · ответ `lead` · тег `seriya-bez-n`
+## Экран 4 · `explain2` · ответ `lead` · тег `arcsin-bez-promezhutka`
 
-Свидетель урока: из одной точки уходит серия. Записи растут одна за другой, буква `n` появляется
-из этого списка, а не из определения.
+Окно. Внутри него точка одна — и это не «правило», а способ получить число вместо списка.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
-| `title` | Из каждой точки уходит серия | Har nuqtadan seriya ketadi | A series leaves each point |
-| `show.1.1` | точка вернулась на место | nuqta joyiga qaytdi | the point returned to its place |
-| `show.1.2` | прибавилось триста шестьдесят | uch yuz oltmish qo'shildi | three hundred sixty was added |
-| `show.2.1` | ещё оборот | yana bir aylana | one more turn |
-| `show.2.2` | записей уже три | yozuv allaqachon uchta | three readings already |
-| `audio.mount` | Вернёмся к первому корню, к тридцати градусам. | Birinchi ildizga, o'ttiz gradusga qaytamiz. | Back to the first root, to thirty degrees. |
-| `audio.turn*` | Полный оборот приводит точку туда же, значит триста девяносто градусов тоже корень. Ещё оборот, и семьсот пятьдесят тоже. Список не кончается. | To'liq aylana nuqtani o'sha yerga olib keladi, demak uch yuz to'qson gradus ham ildiz. Yana bir aylana, va yetti yuz ellik ham. Ro'yxat tugamaydi. | A full turn brings the point to the same place, so three hundred ninety degrees is a root too. One more turn, and seven hundred fifty as well. The list does not end. |
-| `audio.work` | Теперь сам. Поставь точку туда, куда придёт угол в семьсот пятьдесят градусов. | Endi o'zingiz. Yetti yuz ellik graduslik burchak keladigan joyga nuqta qo'ying. | Now you. Place the point where the angle of seven hundred fifty degrees arrives. |
-| `work.prompt` | Куда придёт угол 750 градусов? | 750 graduslik burchak qayerga keladi? | Where does the angle of 750 degrees arrive? |
-| `work.ok` | Туда же, куда и тридцать. Два полных оборота ничего не меняют. | O'ttiz kelgan joyga. Ikki to'liq aylana hech narsani o'zgartirmaydi. | The same place as thirty. Two full turns change nothing. |
-| `work.hint.1` | Отбрось от семисот пятидесяти полные обороты. | Yetti yuz ellikdan to'liq aylanalarni tashlang. | Drop the whole turns from seven hundred fifty. |
-| `work.hint.2` | Семьсот пятьдесят это тридцать плюс два оборота. | Yetti yuz ellik bu o'ttiz qo'shilgan ikki aylana. | Seven hundred fifty is thirty plus two turns. |
+| `title` | Окно, где точка одна | Nuqta bitta bo'ladigan oyna | The window where the point is alone |
+| `show.1.1` | закрашена правая половина | o'ng yarmi bo'yaldi | the right half is painted |
+| `show.1.2` | от минус девяноста до девяноста | minus to'qsondan to'qsongacha | from minus ninety to ninety |
+| `show.2.1` | в окне точка одна | oynada nuqta bitta | inside the window the point is alone |
+| `show.2.2` | вторая осталась, но не в ответе | ikkinchisi qoldi, lekin javobda emas | the second stayed but is not the answer |
+| `audio.mount` | Две точки это неудобно: обратное действие обязано давать одно число. | Ikkita nuqta noqulay: teskari amal bitta son berishi shart. | Two points are awkward: an inverse action must give one number. |
+| `audio.win*` | Поэтому договорились: берём только правую половину окружности, от минус девяноста до девяноста. В этом окне точка с такой высотой ровно одна. Вторая никуда не делась, она просто не идёт в ответ. | Shuning uchun kelishildi: aylananing faqat o'ng yarmini, minus to'qsondan to'qsongacha olamiz. Bu oynada shunday balandlikdagi nuqta aynan bitta. Ikkinchisi yo'qolgani yo'q, u shunchaki javobga kirmaydi. | So it was agreed: we take only the right half of the circle, from minus ninety to ninety. In that window there is exactly one point with such a height. The second one is still there, it just does not go into the answer. |
+| `audio.work` | Теперь сам. Поставь точку в ту, что попала в окно. | Endi o'zingiz. Oynaga tushganiga nuqta qo'ying. | Now you. Place the point at the one inside the window. |
+| `work.prompt` | Поставь точку в ту, что лежит в окне. | Oynada yotganiga nuqta qo'ying. | Place the point at the one lying inside the window. |
+| `work.ok` | Тридцать градусов. Оно в окне, поэтому его и берут ответом. | O'ttiz gradus. U oynada, shuning uchun javob sifatida olinadi. | Thirty degrees. It is inside the window, and that is why it is taken as the answer. |
+| `work.hint.1` | Окно это правая половина окружности. | Oyna bu aylananing o'ng yarmi. | The window is the right half of the circle. |
+| `work.hint.2` | Слева точка тоже есть, но она вне окна. | Chapda ham nuqta bor, lekin u oynadan tashqarida. | There is a point on the left too, but it is outside the window. |
 | `work.hint.3` | Тридцать градусов. | O'ttiz gradus. | Thirty degrees. |
 
 **Формулы**
@@ -147,26 +154,58 @@
 
 ---
 
-## Экран 5 · `explain3` · ответ `lead` · тег `seriya-bez-n`
+## Экран 5 · `explain3` · ответ `number` · тег `arcsin-bez-promezhutka`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
-| `title` | Как записать бесконечный список | Cheksiz ro'yxatni qanday yozish | How to write an endless list |
-| `show.1.1` | тридцать, триста девяносто, семьсот пятьдесят | o'ttiz, uch yuz to'qson, yetti yuz ellik | thirty, three hundred ninety, seven hundred fifty |
-| `show.1.2` | шаг всегда один оборот | qadam doim bitta aylana | the step is always one turn |
-| `show.2.1` | вместо списка одна строка | ro'yxat o'rniga bitta qator | one line instead of a list |
-| `show.2.2` | буква `n` это номер оборота | `n` harfi aylana raqami | the letter `n` is the number of the turn |
-| `audio.mount` | Список бесконечный, а записать его надо в одну строку. | Ro'yxat cheksiz, uni esa bitta qatorga yozish kerak. | The list is endless, and it has to be written in one line. |
-| `audio.write*` | Все записи отличаются целым числом оборотов. Значит пишем: тридцать градусов плюс триста шестьдесят умножить на эн, где эн любое целое число. Ноль даёт тридцать, единица триста девяносто, минус единица минус триста тридцать. | Hamma yozuv butun sondagi aylanaga farq qiladi. Demak yozamiz: o'ttiz gradus qo'shilgan uch yuz oltmish karra en, bu yerda en har qanday butun son. Nol o'ttizni beradi, bir uch yuz to'qsonni, minus bir minus uch yuz o'ttizni. | All the readings differ by a whole number of turns. So we write: thirty degrees plus three hundred sixty times n, where n is any whole number. Zero gives thirty, one gives three hundred ninety, minus one gives minus three hundred thirty. | 
-| `audio.work` | Теперь сам. Поставь точку туда, куда приведёт эн, равное минус единице. | Endi o'zingiz. En minus birga teng bo'lganda keladigan joyga nuqta qo'ying. | Now you. Place the point where n equal to minus one leads. |
-| `work.prompt` | Куда приведёт n = −1? | n = −1 qayerga olib keladi? | Where does n = −1 lead? |
-| `work.ok` | Туда же. Минус триста тридцать это тридцать минус полный оборот, точка та же самая. | O'sha yerga. Minus uch yuz o'ttiz bu o'ttizdan to'liq aylana ayirilgani, nuqta o'sha. | The same place. Minus three hundred thirty is thirty minus a full turn, the same point. |
-| `work.hint.1` | Отними от тридцати один полный оборот. | O'ttizdan bitta to'liq aylanani ayiring. | Subtract one full turn from thirty. |
-| `work.hint.2` | Получится минус триста тридцать, а точка не сдвинется. | Minus uch yuz o'ttiz chiqadi, nuqta esa qimirlamaydi. | You get minus three hundred thirty, and the point does not move. |
-| `work.hint.3` | Тридцать градусов. | O'ttiz gradus. | Thirty degrees. |
+| `title` | Арксинус это угол из окна | Arksinus bu oynadagi burchak | The arcsine is the angle from the window |
+| `show.1.1` | высота дана | balandlik berilgan | the height is given |
+| `show.1.2` | угол ищется в окне | burchak oynada qidiriladi | the angle is looked for in the window |
+| `show.2.1` | точка в окне подсвечена | oynadagi nuqta yoritilgan | the point in the window is lit |
+| `show.2.2` | вторая потускнела, но осталась | ikkinchisi so'ndi, lekin qoldi | the other faded but stayed |
+| `audio.mount` | Запись арксинус одна вторая читается так: угол из окна, у которого высота равна одной второй. | Arksinus bir ikkidan yozuvi shunday o'qiladi: balandligi bir ikkidan bo'lgan, oynadagi burchak. | The reading arcsine of one half means: the angle from the window whose height is one half. |
+| `audio.pick*` | Точка в окне подсвечена, вторая потускнела. Ответ читается с подсвеченной. | Oynadagi nuqta yoritilgan, ikkinchisi so'ndi. Javob yoritilganidan o'qiladi. | The point inside the window is lit, the other one has faded. The answer is read off the lit one. |
+| `audio.work` | Посчитай сам. Чему равен арксинус одной второй в градусах? | O'zingiz hisoblang. Bir ikkidanning arksinusi gradusda qancha? | Compute it yourself. What is the arcsine of one half in degrees? |
+| `work.prompt` | Чему равен arcsin 1/2 в градусах? | arcsin 1/2 gradusda qancha? | What is arcsin 1/2 in degrees? |
+| `work.ok` | Тридцать. Это тот самый угол из окна, у которого высота равна одной второй. | O'ttiz. Bu oynadagi, balandligi bir ikkidan bo'lgan o'sha burchak. | Thirty. That is the very angle from the window whose height is one half. |
+| `work.hint.1` | Ищи угол, у которого высота равна одной второй. | Balandligi bir ikkidan bo'lgan burchakni qidiring. | Look for the angle whose height is one half. |
+| `work.hint.2` | Из двух таких углов бери тот, что в окне, то есть справа. | Shunday ikki burchakdan oynadagisini, ya'ni o'ngdagisini oling. | Of the two such angles take the one in the window, that is on the right. |
+| `work.hint.3` | Тридцать. | O'ttiz. | Thirty. |
+
+**Формулы**
+
+| Ключ | Значение |
+|---|---|
+| `work.answer` | `30` |
+
+---
+
+## Экран 6 · `explain4` · ответ `lead` · тег `arcsin-bez-promezhutka`
+
+У арккосинуса окно другое, и прямая другая: не горизонталь, а вертикаль. С горизонталью окно
+`0…180` не разделило бы точки — у обеих одинаковая высота.
+
+**Текст**
+
+| Ключ | RU | UZ | EN |
+|---|---|---|---|
+| `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
+| `title` | У арккосинуса своё окно | Arkkosinusning o'z oynasi bor | The arccosine has its own window |
+| `show.1.1` | косинус это сдвиг | kosinus bu siljish | the cosine is the shift |
+| `show.1.2` | прямая теперь вертикальная | to'g'ri chiziq endi vertikal | the line is vertical now |
+| `show.2.1` | окно от нуля до ста восьмидесяти | oyna noldan yuz saksongacha | the window from zero to one hundred eighty |
+| `show.2.2` | в нём снова одна точка | unda yana bitta nuqta | one point again inside it |
+| `audio.mount` | У косинуса задан сдвиг, а не высота, поэтому прямая идёт вертикально. Она тоже задевает окружность дважды. | Kosinusda balandlik emas, siljish berilgan, shuning uchun to'g'ri chiziq vertikal ketadi. U ham aylanani ikki marta kesadi. | For the cosine the shift is given, not the height, so the line runs vertically. It also meets the circle twice. |
+| `audio.win*` | Окно арккосинуса это верхняя половина, от нуля до ста восьмидесяти. Верхняя точка в нём, нижняя нет. | Arkkosinusning oynasi bu yuqori yarim, noldan yuz saksongacha. Yuqoridagi nuqta unda, pastdagisi yo'q. | The arccosine window is the upper half, from zero to one hundred eighty. The upper point is in it, the lower one is not. |
+| `audio.work` | Теперь сам. Поставь точку в ту, что попала в окно арккосинуса. | Endi o'zingiz. Arkkosinus oynasiga tushgan nuqtaga qo'ying. | Now you. Place the point at the one inside the arccosine window. |
+| `work.prompt` | Поставь точку в ту, что лежит в окне арккосинуса. | Arkkosinus oynasida yotgan nuqtaga qo'ying. | Place the point at the one inside the arccosine window. |
+| `work.ok` | Шестьдесят градусов. Сдвиг равен одной второй, и точка сверху, значит она в окне. | Oltmish gradus. Siljish bir ikkidan, nuqta yuqorida, demak u oynada. | Sixty degrees. The shift is one half and the point is on top, so it is in the window. |
+| `work.hint.1` | Окно арккосинуса это верхняя половина окружности. | Arkkosinusning oynasi bu aylananing yuqori yarmi. | The arccosine window is the upper half of the circle. |
+| `work.hint.2` | Нижняя точка имеет тот же сдвиг, но в окно не попадает. | Pastki nuqtaning siljishi o'sha, lekin u oynaga tushmaydi. | The lower point has the same shift but is not inside the window. |
+| `work.hint.3` | Шестьдесят градусов. | Oltmish gradus. | Sixty degrees. |
 
 **Формулы**
 
@@ -175,25 +214,25 @@
 
 ---
 
-## Экран 6 · `explain4` · ответ `number` · тег `net-resheniy`
+## Экран 7 · `explain5` · ответ `number` · тег `net-resheniy`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
-| `title` | Когда корней нет совсем | Ildiz umuman bo'lmaganda | When there are no roots at all |
+| `title` | Прямая может пройти мимо | To'g'ri chiziq yonidan o'tib ketishi mumkin | The line can miss the circle |
 | `show.1.1` | высота два | balandlik ikki | the height is two |
 | `show.1.2` | прямая выше окружности | to'g'ri chiziq aylanadan yuqorida | the line is above the circle |
-| `show.2.1` | общих точек нет | umumiy nuqta yo'q | no common points |
-| `show.2.2` | значит нет и корней | demak ildiz ham yo'q | so there are no roots |
-| `audio.mount` | Возьмём уравнение синус икс равен двум. Прямая стоит выше окружности. | Sinus iks ikkiga teng tenglamani olaylik. To'g'ri chiziq aylanadan yuqorida turadi. | Take the equation sine x equals two. The line stands above the circle. |
-| `audio.miss*` | Она проходит мимо и ни разу не задевает круг. Общей точки нет, значит нет и угла, а значит уравнение решений не имеет. Это видно прямой, а не выучено словами. | U yonidan o'tadi va aylanaga bir marta ham tegmaydi. Umumiy nuqta yo'q, demak burchak ham yo'q, ya'ni tenglamaning yechimi yo'q. Buni to'g'ri chiziq ko'rsatadi, yodlab olinmaydi. | It passes by and never touches the circle. There is no common point, so there is no angle, and the equation has no solutions. The line shows it, it is not memorised. |
-| `audio.work` | Посчитай сам. Сколько корней у уравнения синус икс равен двум? | O'zingiz hisoblang. Sinus iks ikkiga teng tenglamaning nechta ildizi bor? | Compute it yourself. How many roots does the equation sine x equals two have? |
-| `work.prompt` | Сколько корней у sin x = 2? | sin x = 2 ning nechta ildizi bor? | How many roots does sin x = 2 have? |
-| `work.ok` | Ноль. Высота больше единицы на окружности не встречается ни при каком угле. | Nol. Birdan katta balandlik aylanada hech qanday burchakda uchramaydi. | Zero. A height greater than one never occurs on the circle at any angle. |
+| `show.2.1` | точек пересечения нет | kesishish nuqtasi yo'q | there are no intersection points |
+| `show.2.2` | значит нет и угла | demak burchak ham yo'q | so there is no angle either |
+| `audio.mount` | Возьмём высоту два. Прямая стоит выше окружности. | Balandlik ikkini olaylik. To'g'ri chiziq aylanadan yuqorida turadi. | Take the height two. The line stands above the circle. |
+| `audio.miss*` | Она прошла мимо и не задела круг ни разу. Точки нет, значит нет и угла с такой высотой. Арксинус двух не существует. | U yonidan o'tdi va aylanaga bir marta ham tegmadi. Nuqta yo'q, demak shunday balandlikdagi burchak ham yo'q. Ikkining arksinusi mavjud emas. | It passed by and never touched the circle. There is no point, so there is no angle with such a height. The arcsine of two does not exist. |
+| `audio.work` | Посчитай сам. Сколько углов даёт арксинус двух? | O'zingiz hisoblang. Ikkining arksinusi nechta burchak beradi? | Compute it yourself. How many angles does the arcsine of two give? |
+| `work.prompt` | Сколько углов даёт arcsin 2? | arcsin 2 nechta burchak beradi? | How many angles does arcsin 2 give? |
+| `work.ok` | Ноль. Высота больше единицы на окружности не встречается, поэтому арксинус двух не определён. | Nol. Birdan katta balandlik aylanada uchramaydi, shuning uchun ikkining arksinusi aniqlanmagan. | Zero. A height above one never occurs on the circle, so the arcsine of two is undefined. |
 | `work.hint.1` | Посмотри, задела ли прямая окружность. | To'g'ri chiziq aylanaga tegdimi, qarang. | Look whether the line touched the circle. |
-| `work.hint.2` | Она прошла выше, общих точек нет. | U yuqoridan o'tdi, umumiy nuqta yo'q. | It passed above, there are no common points. |
+| `work.hint.2` | Она прошла выше, значит общих точек нет. | U yuqoridan o'tdi, demak umumiy nuqta yo'q. | It passed above, so there are no common points. |
 | `work.hint.3` | Ноль. | Nol. | Zero. |
 
 **Формулы**
@@ -204,108 +243,81 @@
 
 ---
 
-## Экран 7 · `explain5` · ответ `number` · тег `odin-koren`
+## Экран 8 · `rule` · ответ `pick2` · тег `arcsin-bez-promezhutka`
 
-**Текст**
-
-| Ключ | RU | UZ | EN |
-|---|---|---|---|
-| `eyebrow` | ОБЪЯСНЕНИЕ | TUSHUNTIRISH | EXPLANATION |
-| `title` | У косинуса прямая вертикальная | Kosinusda to'g'ri chiziq vertikal | For the cosine the line is vertical |
-| `show.1.1` | задан сдвиг, а не высота | balandlik emas, siljish berilgan | the shift is given, not the height |
-| `show.1.2` | прямая идёт вертикально | to'g'ri chiziq vertikal ketadi | the line runs vertically |
-| `show.2.1` | точек снова две | nuqta yana ikkita | two points again |
-| `show.2.2` | они одна над другой | ular bir-birining ustida | one above the other |
-| `audio.mount` | В уравнении с косинусом задан сдвиг, поэтому прямая вертикальная. | Kosinusli tenglamada siljish berilgan, shuning uchun to'g'ri chiziq vertikal. | In an equation with the cosine the shift is given, so the line is vertical. |
-| `audio.cut*` | Она тоже задевает окружность дважды, только точки теперь одна над другой. Верхняя и нижняя, шестьдесят и триста градусов. | U ham aylanani ikki marta kesadi, faqat nuqtalar endi bir-birining ustida. Yuqoridagi va pastdagi, oltmish va uch yuz gradus. | It also meets the circle twice, only now the points are one above the other. The upper and the lower, sixty and three hundred degrees. |
-| `audio.work` | Посчитай сам. Сколько корней у уравнения косинус икс равен одной второй на промежутке от нуля до трёхсот шестидесяти? | O'zingiz hisoblang. Kosinus iks bir ikkidanga teng tenglamaning noldan uch yuz oltmishgacha oraliqda nechta ildizi bor? | Compute it yourself. How many roots does cosine x equals one half have between zero and three hundred sixty? |
-| `work.prompt` | Сколько корней у cos x = 1/2 от 0 до 360°? | cos x = 1/2 ning 0 dan 360° gacha nechta ildizi bor? | How many roots does cos x = 1/2 have from 0 to 360°? |
-| `work.ok` | Два. Один оборот, две точки: шестьдесят и триста градусов. | Ikkita. Bitta aylana, ikkita nuqta: oltmish va uch yuz gradus. | Two. One turn, two points: sixty and three hundred degrees. |
-| `work.hint.1` | Посчитай точки пересечения на одном обороте. | Bitta aylanadagi kesishish nuqtalarini sanang. | Count the intersection points on one turn. |
-| `work.hint.2` | Вертикальная прямая задевает окружность сверху и снизу. | Vertikal to'g'ri chiziq aylanani yuqoridan va pastdan kesadi. | The vertical line meets the circle above and below. |
-| `work.hint.3` | Два. | Ikkita. | Two. |
-
-**Формулы**
-
-| Ключ | Значение |
-|---|---|
-| `work.answer` | `2` |
-
----
-
-## Экран 8 · `rule` · ответ `pick2` · тег `seriya-bez-n`
+Чек различения, потом карточка. Определение дано словами учебника (стр. 139).
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ПРАВИЛО | QOIDA | RULE |
-| `title` | Корни идут сериями | Ildizlar seriya bilan ketadi | Roots come in series |
-| `probe.question` | Зачем в ответе буква `n`? | Javobda `n` harfi nima uchun? | Why is there a letter `n` in the answer? |
-| `probe.a` [верно] | она перечисляет все обороты сразу | u hamma aylanani birdan sanaydi | it lists every turn at once |
-| `probe.b` | она обозначает номер корня | u ildizning raqamini bildiradi | it marks the number of the root |
-| `probe.b.hint` | Корней бесконечно много, и `n` считает не их по порядку, а обороты. | Ildiz cheksiz ko'p, `n` esa ularni emas, aylanalarni sanaydi. | There are infinitely many roots, and `n` counts turns, not roots in order. |
-| `rule.lawLabel` | Серия | Seriya | The series |
-| `rule.lines.1` | Каждая точка на окружности даёт не один корень, а серию: к углу можно прибавить любое целое число оборотов. | Aylanadagi har nuqta bitta ildiz emas, seriya beradi: burchakka istalgan butun sondagi aylanani qo'shish mumkin. | Each point on the circle gives not one root but a series: any whole number of turns may be added to the angle. |
-| `rule.lines.2` | Точек две, значит и серий две, и в ответ идут обе. | Nuqta ikkita, demak seriya ham ikkita, va javobga ikkalasi kiradi. | There are two points, so two series, and both go into the answer. |
-| `rule.lines.3` | Если прямая прошла мимо окружности, корней нет вовсе. | To'g'ri chiziq aylananing yonidan o'tsa, ildiz umuman yo'q. | If the line missed the circle, there are no roots at all. |
+| `title` | Арксинус и арккосинус | Arksinus va arkkosinus | Arcsine and arccosine |
+| `probe.question` | Почему у арксинуса ответ один? | Nega arksinusning javobi bitta? | Why does the arcsine have one answer? |
+| `probe.a` [верно] | ответ берут из окна | javob oynadan olinadi | the answer is taken from the window |
+| `probe.b` | вторая точка не является решением | ikkinchi nuqta yechim emas | the second point is not a solution |
+| `probe.b.hint` | Вторая точка настоящая, у неё та же высота. Просто в ответ арксинуса она не идёт. | Ikkinchi nuqta haqiqiy, balandligi o'sha. Shunchaki arksinus javobiga kirmaydi. | The second point is real and has the same height. It just does not go into the arcsine answer. |
+| `rule.lawLabel` | Окна | Oynalar | The windows |
+| `rule.lines.1` | `y = arcsin x` — функция, обратная `y = sin x`: она возвращает угол по его высоте. | `y = arcsin x` — `y = sin x` ga teskari funksiya: u balandlikdan burchakni qaytaradi. | `y = arcsin x` is the inverse of `y = sin x`: it returns the angle from its height. |
+| `rule.lines.2` | Ответ берут из окна, поэтому он один, а не список. | Javob oynadan olinadi, shuning uchun u ro'yxat emas, bitta. | The answer is taken from the window, so it is one number, not a list. |
+| `rule.lines.3` | Арксинус и арккосинус определены только при `−1 ≤ x ≤ 1`. | Arksinus va arkkosinus faqat `−1 ≤ x ≤ 1` da aniqlangan. | The arcsine and arccosine are defined only for `−1 ≤ x ≤ 1`. |
 | `audio.mount` | Объяснение закончилось. Перед правилом один вопрос. | Tushuntirish tugadi. Qoidani ochishdan oldin bitta savol. | The explanation is over. One question before the rule. |
-| `audio.rule*` | Серия строится ещё раз, и правило открывается рядом. Буква эн это номер оборота, и она нужна, чтобы одна строка заменила бесконечный список. | Seriya yana bir bor quriladi, va qoida yonida ochiladi. En harfi aylana raqami, va u bitta qator cheksiz ro'yxatni almashtirishi uchun kerak. | The series is built once more, and the rule opens beside it. The letter n is the number of the turn, and it is needed so that one line replaces an endless list. |
+| `audio.rule*` | Окно закрашивается ещё раз, и правило открывается рядом. Обратная функция даёт число, а не список, ровно потому, что окно закреплено договором. | Oyna yana bir bor bo'yaladi, va qoida yonida ochiladi. Teskari funksiya ro'yxat emas, son berishi aynan oyna kelishuv bilan qotirilganidan. | The window is painted once more, and the rule opens beside it. The inverse function gives a number, not a list, exactly because the window is fixed by agreement. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `rule.law` | `x = 30° + 360°n,   x = 150° + 360°n` |
+| `rule.law` | `arcsin x ∈ [−90°; 90°],   arccos x ∈ [0°; 180°]` |
 
 ---
 
-## Экран 9 · `drill` · ответ `match` · формат `match` · тег `odin-koren`
+## Экран 9 · `drill` · ответ `match` · формат `match` · тег `arcsin-bez-promezhutka`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ПРАКТИКА | MASHQ | PRACTICE |
-| `title` | Уравнение и его серия | Tenglama va uning seriyasi | The equation and its series |
-| `match.prompt` | Соедини уравнение с его серией. | Tenglamani o'z seriyasi bilan birlashtiring. | Match the equation with its series. |
-| `match.ok` | В этих четырёх серия одна: прямая либо касается края, либо две точки складываются в один шаг. | Bu to'rttasida seriya bitta: to'g'ri chiziq yo chetiga tegadi, yo ikki nuqta bitta qadamga yig'iladi. | In these four the series is single: the line either touches the edge or the two points fold into one step. |
-| `audio.mount` | Четыре уравнения и четыре серии. Соедини их. | To'rt tenglama va to'rt seriya. Ularni birlashtiring. | Four equations and four series. Match them. |
+| `title` | Четыре записи, четыре угла | To'rt yozuv, to'rt burchak | Four readings, four angles |
+| `match.prompt` | Соедини каждую запись с её углом. | Har yozuvni o'z burchagi bilan birlashtiring. | Match each reading with its angle. |
+| `match.ok` | У арксинуса знак уводит вниз, а у арккосинуса влево. Окна разные, поэтому и ответы разные. | Arksinusda ishora pastga, arkkosinusda chapga olib boradi. Oynalar boshqa, javoblar ham boshqa. | The sign sends the arcsine down and the arccosine left. The windows differ, so the answers differ. |
+| `audio.mount` | Четыре записи и четыре угла. Соедини их. | To'rt yozuv va to'rt burchak. Ularni birlashtiring. | Four readings and four angles. Match them. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `match.left` | `sin x = 1` · `sin x = 0` · `cos x = 1` · `cos x = −1` |
-| `match.a` | `90° + 360°n` |
-| `match.b` | `180°n` |
-| `match.c` | `360°n` |
-| `match.d` | `180° + 360°n` |
+| `match.left` | `arcsin 1/2` · `arcsin(−1/2)` · `arccos 1/2` · `arccos(−1/2)` |
+| `match.a` | `30°` |
+| `match.b` | `−30°` |
+| `match.c` | `60°` |
+| `match.d` | `120°` |
 
 ---
 
-## Экран 10 · `guided` · ответ `order` · формат `order-steps` · тег `seriya-bez-n`
+## Экран 10 · `guided` · ответ `order` · формат `order-steps` · тег `arcsin-bez-promezhutka`
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ПРАКТИКА | MASHQ | PRACTICE |
-| `title` | Собери ответ по шагам | Javobni qadam bilan yig'ing | Assemble the answer step by step |
+| `title` | Посчитай арксинус по шагам | Arksinusni qadam bilan hisoblang | Compute an arcsine step by step |
 | `order.prompt` | Расставь шаги по порядку. | Qadamlarni tartib bilan joylashtiring. | Put the steps in order. |
-| `order.s1` | проводим прямую по высоте | balandlik bo'ylab to'g'ri chiziq o'tkazamiz | we draw the line at the height |
+| `order.s1` | высота равна минус одной второй | balandlik minus bir ikkidan | the height is minus one half |
 | `order.s2` | отмечаем обе точки | ikkala nuqtani belgilaymiz | we mark both points |
-| `order.s3` | к каждой прибавляем обороты | har biriga aylanalarni qo'shamiz | we add turns to each |
-| `order.s4` | пишем две серии | ikkita seriya yozamiz | we write two series |
-| `order.ok` | Порядок такой всегда. Если пропустить второй шаг, половина корней исчезнет из ответа незамеченной. | Tartib doim shunday. Ikkinchi qadam tashlab ketilsa, ildizlarning yarmi javobdan sezilmay yo'qoladi. | The order is always this. Skipping the second step makes half the roots vanish unnoticed. |
-| `order.bad` | Сначала прямая, потом обе точки, потом обороты, и только потом ответ. | Avval to'g'ri chiziq, keyin ikkala nuqta, keyin aylanalar, keyingina javob. | First the line, then both points, then the turns, and only then the answer. |
+| `order.s3` | берём ту, что в окне | oynadagisini olamiz | we take the one in the window |
+| `order.s4` | ответ минус тридцать | javob minus o'ttiz | the answer is minus thirty |
+| `order.ok` | Порядок такой всегда: сначала обе точки, потом окно. Если начать с окна, вторая точка исчезнет незамеченной. | Tartib doim shunday: avval ikkala nuqta, keyin oyna. Oynadan boshlansa, ikkinchi nuqta sezilmay yo'qoladi. | The order is always this: both points first, then the window. Starting with the window makes the second point vanish unnoticed. |
+| `order.bad` | Сначала находим обе точки, потом выбираем ту, что в окне, и только потом пишем ответ. | Avval ikkala nuqtani topamiz, keyin oynadagisini tanlaymiz, keyingina javobni yozamiz. | First we find both points, then choose the one in the window, and only then write the answer. |
 | `audio.mount` | Четыре шага. Порядок ставишь ты. | To'rtta qadam. Tartibini o'zingiz qo'yasiz. | Four steps. You put them in order. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `order.mark` | `150°` |
+| `order.mark` | `−30°` |
 
 ---
 
@@ -317,14 +329,14 @@
 |---|---|---|---|
 | `eyebrow` | БЕЗ ПРИБОРА | ASBOBSIZ | NO INSTRUMENT |
 | `title` | Посчитай без чертежа | Chizmasiz hisoblang | Compute without a drawing |
-| `task.ok` | Триста девяносто. Единица в серии означает один полный оборот сверх тридцати. | Uch yuz to'qson. Seriyadagi bir o'ttiz ustiga bitta to'liq aylana degani. | Three hundred ninety. A one in the series means one full turn on top of thirty. |
-| `task.hint.1` | Подставь единицу вместо буквы. | Harf o'rniga birni qo'ying. | Put one in place of the letter. |
-| `task.hint.2` | Тридцать плюс триста шестьдесят. | O'ttiz qo'shilgan uch yuz oltmish. | Thirty plus three hundred sixty. |
-| `task.hint.3` | Триста девяносто. | Uch yuz to'qson. | Three hundred ninety. |
+| `task.ok` | Сто двадцать. Сдвиг минус одна вторая бывает слева, а окно арккосинуса как раз верхняя половина. | Yuz yigirma. Minus bir ikkidan siljish chapda bo'ladi, arkkosinus oynasi esa aynan yuqori yarim. | One hundred twenty. The shift minus one half happens on the left, and the arccosine window is the upper half. |
+| `task.hint.1` | Сдвиг отрицательный, значит точка слева. | Siljish manfiy, demak nuqta chapda. | The shift is negative, so the point is on the left. |
+| `task.hint.2` | Из двух левых точек бери верхнюю: окно арккосинуса сверху. | Ikki chap nuqtadan yuqoridagisini oling: arkkosinus oynasi tepada. | Of the two left points take the upper one: the arccosine window is on top. |
+| `task.hint.3` | Сто двадцать. | Yuz yigirma. | One hundred twenty. |
 | `order.prompt` | Расставь по возрастанию. | O'sish tartibida joylashtiring. | Arrange in increasing order. |
-| `order.title` | Какой корень меньше? | Qaysi ildiz kichikroq? | Which root is smaller? |
-| `order.ok` | Ты подставил номера оборотов и сравнил числа, а не записи. | Siz aylana raqamlarini qo'ydingiz va yozuvlarni emas, sonlarni solishtirdingiz. | You substituted the turn numbers and compared numbers, not readings. |
-| `order.bad` | Подставь в каждую запись её номер оборота и сравни то, что получилось. | Har yozuvga aylana raqamini qo'ying va chiqqanini solishtiring. | Put the turn number into each reading and compare the results. |
+| `order.title` | Какой угол меньше? | Qaysi burchak kichikroq? | Which angle is smaller? |
+| `order.ok` | Ты сравнил углы, а не записи: арксинус даёт от минус девяноста до девяноста, арккосинус от нуля до ста восьмидесяти. | Siz yozuvlarni emas, burchaklarni solishtirdingiz: arksinus minus to'qsondan to'qsongacha, arkkosinus noldan yuz saksongacha beradi. | You compared angles, not readings: the arcsine gives from minus ninety to ninety, the arccosine from zero to one hundred eighty. |
+| `order.bad` | Сначала переведи каждую запись в градусы, потом сравнивай. | Avval har yozuvni gradusga o'tkazing, keyin solishtiring. | First turn each reading into degrees, then compare. |
 | `audio.mount` | На этом экране окружности нет. На экзамене чертежа тоже не будет. | Bu ekranda aylana yo'q. Imtihonda ham chizma bo'lmaydi. | There is no circle on this screen. There will be none at the exam either. |
 | `audio.next` | Ответ запиши сам. | Javobni o'zingiz yozing. | Type the answer yourself. |
 
@@ -332,82 +344,86 @@
 
 | Ключ | Значение |
 |---|---|
-| `task.prompt` | `x = 30° + 360°n,   n = 1   →   x = ?` |
-| `task.answer` | `390` |
-| `order.items` | `n = −1` · `n = 0` · `n = 1` · `n = 2` |
-| `order.answer` | `n = −1  n = 0  n = 1  n = 2` |
+| `task.prompt` | `arccos(−1/2)  =  ?` |
+| `task.answer` | `120` |
+| `order.items` | `arcsin(−1/2)` · `arcsin 0` · `arcsin 1/2` · `arccos 0` |
+| `order.answer` | `arcsin(−1/2)  arcsin 0  arcsin 1/2  arccos 0` |
 
 ---
 
 ## Экран 12 · `trap` · ответ `number` · формат `audit` · тег `check`
 
-Первая точка найдена верно. Ответ обрывается на ней: вторая серия потеряна.
+Первая строка верна: у двухсот десяти высота действительно минус одна вторая. Вторая строка
+делает из этого арксинус — и промахивается мимо окна.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ЛОВУШКА | TUZOQ | THE TRAP |
-| `title` | Ответ неполный. Где? | Javob to'liq emas. Qayerda? | The answer is incomplete. Where? |
-| `hint.r1` | Эта строка верна: высота действительно одна вторая. | Bu qator to'g'ri: balandlik haqiqatan bir ikkidan. | This line is right: the height really is one half. |
-| `hint.r2` | Эта строка тоже верна: тридцать градусов настоящий корень. | Bu qator ham to'g'ri: o'ttiz gradus haqiqiy ildiz. | This line is right too: thirty degrees is a real root. |
-| `hint.r4` | Эта строка повторяет ошибку предыдущей. Первая неверная строка выше. | Bu qator oldingisining xatosini takrorlaydi. Birinchi xato qator yuqorida. | This line repeats the error of the previous one. The first wrong line is above. |
-| `proof` | Вторая точка потерялась. | Ikkinchi nuqta yo'qoldi. | The second point was lost. |
-| `entry.prompt` | Сколько серий в полном ответе? | To'liq javobda nechta seriya bor? | How many series are in the full answer? |
-| `entry.ok` | Две. Точек пересечения две, и каждая даёт свою серию. | Ikkita. Kesishish nuqtasi ikkita, va har biri o'z seriyasini beradi. | Two. There are two intersection points, and each gives its own series. |
-| `entry.hint.1` | Посчитай точки, которые даёт прямая. | To'g'ri chiziq beradigan nuqtalarni sanang. | Count the points the line gives. |
-| `entry.hint.2` | Каждая точка даёт свою серию. | Har nuqta o'z seriyasini beradi. | Each point gives its own series. |
-| `entry.hint.3` | Две. | Ikkita. | Two. |
-| `audio.mount` | Задача. Решить уравнение синус икс равен одной второй. | Masala. Sinus iks bir ikkidanga teng tenglamani yechish. | A task. Solve the equation sine x equals one half. |
+| `title` | Ответ неверный. Где? | Javob noto'g'ri. Qayerda? | The answer is wrong. Where? |
+| `hint.r1` | Эта строка верна: у двухсот десяти высота действительно минус одна вторая. | Bu qator to'g'ri: ikki yuz o'nning balandligi haqiqatan minus bir ikkidan. | This line is right: at two hundred ten the height really is minus one half. |
+| `hint.r3` | Это просто сравнение чисел, и оно верное. | Bu shunchaki sonlarni solishtirish, va u to'g'ri. | This is just a comparison of numbers, and it is right. |
+| `hint.r4` | Эта строка выросла из неверной. Первая неверная строка выше. | Bu qator xato qatordan o'sib chiqqan. Birinchi xato qator yuqorida. | This line grew out of a wrong one. The first wrong line is above. |
+| `proof` | Двести десять в окно не попадает. | Ikki yuz o'n oynaga tushmaydi. | Two hundred ten is not inside the window. |
+| `entry.prompt` | Чему равен arcsin(−1/2)? | arcsin(−1/2) qancha? | What is arcsin(−1/2)? |
+| `entry.ok` | Минус тридцать. Точек с такой высотой две, но в окно попадает только эта. | Minus o'ttiz. Shunday balandlikdagi nuqta ikkita, lekin oynaga faqat shu tushadi. | Minus thirty. There are two points with such a height, but only this one falls inside the window. |
+| `entry.hint.1` | Высота минус одна вторая бывает у двух углов. | Minus bir ikkidan balandlik ikki burchakda bo'ladi. | The height minus one half happens at two angles. |
+| `entry.hint.2` | Из них в окно от минус девяноста до девяноста попадает один. | Ulardan minus to'qsondan to'qsongacha oynaga bittasi tushadi. | Of them one falls into the window from minus ninety to ninety. |
+| `entry.hint.3` | Минус тридцать. | Minus o'ttiz. | Minus thirty. |
+| `audio.mount` | Задача. Найти арксинус минус одной второй. | Masala. Minus bir ikkidanning arksinusini topish. | A task. Find the arcsine of minus one half. |
 | `audio.next` | Четыре строки, все выглядят верными. Ищи первую неверную. | To'rt qator, hammasi to'g'ri ko'rinadi. Birinchi xato qatorni qidiring. | Four lines, all look right. Look for the first wrong one. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `row.r1` | `sin x = 1/2` |
-| `row.r2` | `x = 30°` |
-| `row.r3` | `x = 30° + 360°n` |
-| `row.r4` | `x = 30°,  390°,  750°` |
-| `answerId` | `r3` |
-| `entry.answer` | `2` |
+| `row.r1` | `sin 210° = −1/2` |
+| `row.r2` | `arcsin(−1/2) = 210°` |
+| `row.r3` | `210° > 90°` |
+| `row.r4` | `arcsin(−1/2) > 90°` |
+| `answerId` | `r2` |
+| `entry.answer` | `−30` |
 
 ---
 
 ## Экран 13 · `transfer` · ответ `lead` · формат `place+multi` · тег `obratnoe`
+
+Обратная задача: не «чему равен арксинус», а «может ли этот угол вообще быть ответом
+арксинуса». Окно проверяется, а не пересказывается.
 
 **Текст**
 
 | Ключ | RU | UZ | EN |
 |---|---|---|---|
 | `eyebrow` | ПЕРЕНОС | KO'CHIRISH | TRANSFER |
-| `title` | По корню назвать серию | Ildizdan seriyani aytish | From a root back to its series |
+| `title` | Какой угол может быть ответом | Qaysi burchak javob bo'la oladi | Which angle can be an answer |
 | `place.prompt` | Поставь точку на 150 градусов. | Nuqtani 150 gradusga qo'ying. | Place the point at 150 degrees. |
-| `place.ok` | Это вторая точка. Теперь посмотрим, какие ещё углы приводят сюда же. | Bu ikkinchi nuqta. Endi bu yerga yana qaysi burchaklar olib kelishini ko'ramiz. | This is the second point. Now let us see which other angles lead here. |
+| `place.ok` | Высота здесь одна вторая, как и у тридцати. Но ответом арксинуса это число не станет. | Bu yerda balandlik bir ikkidan, o'ttizdagidek. Lekin bu son arksinus javobi bo'lmaydi. | The height here is one half, as at thirty. But this number will not be an arcsine answer. |
 | `place.wrong` | Сто пятьдесят это выше горизонтальной оси и левее вертикальной. | Yuz ellik gorizontal o'qdan yuqorida va vertikal o'qdan chapda. | One hundred fifty is above the horizontal axis and left of the vertical one. |
-| `multi.prompt` | Отметь все записи из серии этой точки. | Shu nuqtaning seriyasidagi hamma yozuvni belgilang. | Mark every reading from the series of this point. |
-| `multi.title` | Какие записи дают эту же точку? | Qaysi yozuvlar aynan shu nuqtani beradi? | Which readings give this same point? |
-| `multi.d.hint` | Тридцать это первая точка, а не эта. | O'ttiz bu birinchi nuqta, bu emas. | Thirty is the first point, not this one. |
-| `multi.e.hint` | Здесь прибавлена половина оборота, точка окажется напротив. | Bu yerda yarim aylana qo'shilgan, nuqta qarshi tomonda bo'ladi. | Here half a turn was added, the point ends up opposite. |
-| `multi.ok` | Три из пяти. Серия это одна точка и все обороты вокруг неё. | Beshtadan uchtasi. Seriya bu bitta nuqta va uning atrofidagi hamma aylana. | Three out of five. A series is one point and all the turns around it. |
-| `audio.mount` | Теперь обратная задача. Дана точка, а нужны все записи её серии. | Endi teskari masala. Nuqta berilgan, seriyasining hamma yozuvi kerak. | Now the inverse task. A point is given, and all the readings of its series are needed. |
-| `audio.work` | Поставь точку, потом отметишь все записи, которые ведут сюда же. | Nuqtani qo'ying, keyin shu yerga olib keladigan hamma yozuvni belgilaysiz. | Place the point, then you will mark every reading that leads here. |
+| `multi.prompt` | Отметь все углы, которые могут быть ответом арксинуса. | Arksinus javobi bo'la oladigan hamma burchakni belgilang. | Mark every angle that can be an arcsine answer. |
+| `multi.title` | Какие углы могут быть ответом арксинуса? | Qaysi burchaklar arksinus javobi bo'la oladi? | Which angles can be an arcsine answer? |
+| `multi.d.hint` | Сто пятьдесят вне окна: оно больше девяноста. | Yuz ellik oynadan tashqarida: u to'qsondan katta. | One hundred fifty is outside the window: it is more than ninety. |
+| `multi.e.hint` | Двести это тоже больше девяноста, значит вне окна. | Ikki yuz ham to'qsondan katta, demak oynadan tashqarida. | Two hundred is also more than ninety, so it is outside the window. |
+| `multi.ok` | Три из пяти. Ответ арксинуса всегда лежит между минус девяноста и девяноста, какое бы число ни дали. | Beshtadan uchtasi. Qanday son berilmasin, arksinus javobi doim minus to'qson bilan to'qson orasida yotadi. | Three out of five. Whatever number is given, the arcsine answer always lies between minus ninety and ninety. |
+| `audio.mount` | Теперь обратная задача. Дан угол, а спрашивается, годится ли он в ответ. | Endi teskari masala. Burchak berilgan, savol esa u javobga yaraydimi. | Now the inverse task. An angle is given, and the question is whether it fits as an answer. |
+| `audio.work` | Поставь точку, потом отметишь все углы, которые годятся. | Nuqtani qo'ying, keyin yaraydigan hamma burchakni belgilaysiz. | Place the point, then you will mark every angle that fits. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
 | `place.target` | `150°` |
-| `place.step` | `150° + 360°n` |
-| `multi.a` [верно] | `510°` |
-| `multi.b` [верно] | `−210°` |
-| `multi.c` [верно] | `870°` |
-| `multi.d` | `30°` |
-| `multi.e` | `330°` |
+| `place.step` | `sin 150° = 1/2` |
+| `multi.a` [верно] | `30°` |
+| `multi.b` [верно] | `−30°` |
+| `multi.c` [верно] | `90°` |
+| `multi.d` | `150°` |
+| `multi.e` | `200°` |
 
 ---
 
-## Экран 14 · `blitz` · ответ `mixed` · формат `chain` · тег `seriya-bez-n`
+## Экран 14 · `blitz` · ответ `mixed` · формат `chain` · тег `arcsin-bez-promezhutka`
 
 **Текст**
 
@@ -415,46 +431,46 @@
 |---|---|---|---|
 | `eyebrow` | БЛИЦ | BLITS | BLITZ |
 | `title` | Четыре вопроса · идут в результат | To'rt savol · natijaga kiradi | Four questions · they count |
-| `q1.prompt` | Сколько корней у sin x = 1/2 на одном обороте? | Bitta aylanada sin x = 1/2 ning nechta ildizi bor? | How many roots does sin x = 1/2 have on one turn? |
-| `q1.a` [верно] | два | ikkita | two |
-| `q1.b` | один | bitta | one |
-| `q1.b.hint` | Прямая задевает окружность дважды, значит корней два. | To'g'ri chiziq aylanani ikki marta kesadi, demak ildiz ikkita. | The line meets the circle twice, so there are two roots. |
-| `q1.c` | ни одного | hech qaysi | none |
-| `q1.c.hint` | Ни одного бывает, только если прямая прошла мимо. | Hech qaysi faqat to'g'ri chiziq yonidan o'tganda bo'ladi. | None happens only if the line missed the circle. |
-| `q1.d` | бесконечно много | cheksiz ko'p | infinitely many |
-| `q1.d.hint` | На одном обороте их два, а бесконечно много на всей прямой. | Bitta aylanada ikkita, cheksiz ko'p esa butun sonlar o'qida. | On one turn there are two, infinitely many over all numbers. |
-| `q2.prompt` | Что означает буква `n` в ответе? | Javobdagi `n` harfi nimani bildiradi? | What does the letter `n` mean in the answer? |
-| `q2.a` [верно] | любое целое число оборотов | istalgan butun sondagi aylana | any whole number of turns |
-| `q2.b` | номер корня по порядку | ildizning tartib raqami | the position number of the root |
-| `q2.b.hint` | По порядку их не пронумеровать: корней бесконечно много. | Ularni tartib bilan raqamlab bo'lmaydi: ildiz cheksiz ko'p. | They cannot be numbered in order: there are infinitely many roots. |
-| `q2.c` | любое число градусов | har qanday gradus soni | any number of degrees |
-| `q2.c.hint` | Прибавлять можно только целые обороты, иначе точка сдвинется. | Faqat butun aylanalarni qo'shish mumkin, aks holda nuqta qimirlaydi. | Only whole turns may be added, otherwise the point moves. |
-| `q2.d` | всегда единицу | doim birni | always one |
-| `q2.d.hint` | Единица это только один из случаев. | Bir bu holatlardan faqat bittasi. | One is just a single case. |
-| `q3.prompt` | Сколько корней у sin x = 2? | sin x = 2 ning nechta ildizi bor? | How many roots does sin x = 2 have? |
-| `q3.a` [верно] | ни одного | hech qaysi | none |
-| `q3.a.ok` | Да. Прямая прошла выше окружности. | Ha. To'g'ri chiziq aylanadan yuqoridan o'tdi. | Yes. The line passed above the circle. |
-| `q3.b` | бесконечно много | cheksiz ko'p | infinitely many |
-| `q3.b.hint` | Общей точки нет ни одной, значит и корня ни одного. | Umumiy nuqta bitta ham yo'q, demak ildiz ham yo'q. | There is not a single common point, so not a single root. |
-| `q4.prompt` | Сколько серий в полном ответе уравнения с синусом? | Sinusli tenglamaning to'liq javobida nechta seriya bor? | How many series are in the full answer of a sine equation? |
-| `q4.a` [верно] | две | ikkita | two |
-| `q4.b` | одна | bitta | one |
-| `q4.b.hint` | Одна серия покрывает только одну из двух точек. | Bitta seriya ikki nuqtadan faqat bittasini qoplaydi. | One series covers only one of the two points. |
-| `q4.c` | четыре | to'rtta | four |
-| `q4.c.hint` | Точек пересечения две, значит и серий две. | Kesishish nuqtasi ikkita, demak seriya ham ikkita. | There are two intersection points, so two series. |
-| `q4.d` | бесконечно много | cheksiz ko'p | infinitely many |
-| `q4.d.hint` | Корней бесконечно много, а серий, которые их описывают, две. | Ildiz cheksiz ko'p, ularni tavsiflaydigan seriya esa ikkita. | There are infinitely many roots, but two series describing them. |
+| `q1.prompt` | Чему равен arcsin 1/2? | arcsin 1/2 qancha? | What is arcsin 1/2? |
+| `q1.a` [верно] | тридцать градусов | o'ttiz gradus | thirty degrees |
+| `q1.b` | сто пятьдесят градусов | yuz ellik gradus | one hundred fifty degrees |
+| `q1.b.hint` | Высота там та же, но сто пятьдесят вне окна. | U yerda balandlik o'sha, lekin yuz ellik oynadan tashqarida. | The height there is the same, but one hundred fifty is outside the window. |
+| `q1.c` | минус тридцать градусов | minus o'ttiz gradus | minus thirty degrees |
+| `q1.c.hint` | Это ответ для минус одной второй, там высота уходит вниз. | Bu minus bir ikkidanning javobi, u yerda balandlik pastga ketadi. | That is the answer for minus one half, where the height goes down. |
+| `q1.d` | шестьдесят градусов | oltmish gradus | sixty degrees |
+| `q1.d.hint` | У шестидесяти высота больше, это корень из трёх на два. | Oltmishning balandligi kattaroq, u uch ildizining yarmi. | At sixty the height is larger, it is root three over two. |
+| `q2.prompt` | Чему равен arccos 0? | arccos 0 qancha? | What is arccos 0? |
+| `q2.a` [верно] | девяносто градусов | to'qson gradus | ninety degrees |
+| `q2.b` | ноль градусов | nol gradus | zero degrees |
+| `q2.b.hint` | При нуле градусов сдвиг равен единице, а не нулю. | Nol gradusda siljish birga teng, nolga emas. | At zero degrees the shift equals one, not zero. |
+| `q2.c` | сто восемьдесят градусов | yuz sakson gradus | one hundred eighty degrees |
+| `q2.c.hint` | Там сдвиг равен минус единице. | U yerda siljish minus birga teng. | There the shift equals minus one. |
+| `q2.d` | минус девяносто градусов | minus to'qson gradus | minus ninety degrees |
+| `q2.d.hint` | Сдвиг там тоже ноль, но окно арккосинуса начинается с нуля. | U yerda ham siljish nol, lekin arkkosinus oynasi noldan boshlanadi. | The shift there is zero too, but the arccosine window starts at zero. |
+| `q3.prompt` | Почему у арксинуса ответ один? | Nega arksinusning javobi bitta? | Why does the arcsine have one answer? |
+| `q3.a` [верно] | ответ берут из окна | javob oynadan olinadi | the answer is taken from the window |
+| `q3.a.ok` | Да. Вторая точка есть, но она вне окна. | Ha. Ikkinchi nuqta bor, lekin u oynadan tashqarida. | Yes. The second point exists but lies outside the window. |
+| `q3.b` | вторая точка не существует | ikkinchi nuqta mavjud emas | the second point does not exist |
+| `q3.b.hint` | Существует: прямая задевает окружность дважды. | Mavjud: to'g'ri chiziq aylanani ikki marta kesadi. | It does exist: the line meets the circle twice. |
+| `q4.prompt` | Существует ли arcsin 2? | arcsin 2 mavjudmi? | Does arcsin 2 exist? |
+| `q4.a` [верно] | нет | yo'q | no |
+| `q4.b` | да, большой угол | ha, katta burchak | yes, a large angle |
+| `q4.b.hint` | Высота два на окружности не встречается ни при каком угле. | Ikki balandlik aylanada hech qanday burchakda uchramaydi. | The height two never occurs on the circle at any angle. |
+| `q4.c` | да, два радиана | ha, ikki radian | yes, two radians |
+| `q4.c.hint` | Двойка здесь высота, а не угол. | Bu yerda ikki balandlik, burchak emas. | Here the two is a height, not an angle. |
+| `q4.d` | только в радианах | faqat radianda | only in radians |
+| `q4.d.hint` | Единицы измерения угла тут ни при чём: прямая просто не задела круг. | Burchak o'lchov birligi bu yerda hech nima qilmaydi: to'g'ri chiziq aylanaga tegmadi. | The unit of the angle changes nothing here: the line simply missed the circle. |
 | `audio.mount` | Четыре коротких вопроса. Только этот экран идёт в результат. | To'rtta qisqa savol. Faqat shu ekran natijaga kiradi. | Four short questions. Only this screen counts. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `q1.done` | `2` |
-| `q2.done` | `+ 360°n` |
-| `q3.done` | `0` |
-| `q4.done` | `2` |
-| `angles` | `30°` · `150°` · `390°` · `210°` |
+| `q1.done` | `arcsin 1/2 = 30°` |
+| `q2.done` | `arccos 0 = 90°` |
+| `q3.done` | `arcsin x ∈ [−90°; 90°]` |
+| `q4.done` | `−1 ≤ x ≤ 1` |
+| `angles` | `30°` · `90°` · `210°` · `150°` |
 
 ---
 
@@ -466,30 +482,30 @@
 |---|---|---|---|
 | `eyebrow` | ИТОГ | YAKUN | SUMMARY |
 | `title` | Что осталось | Nima qoldi | What you take away |
-| `can.1` | Нахожу обе точки, а не одну | Bitta emas, ikkala nuqtani topaman | I find both points, not one |
-| `can.2` | Записываю серию с буквой | Seriyani harf bilan yozaman | I write the series with a letter |
-| `can.3` | Вижу, когда корней нет | Ildiz yo'qligini ko'raman | I see when there are no roots |
-| `can.4` | Помню, что у косинуса прямая вертикальная | Kosinusda to'g'ri chiziq vertikal ekanini eslayman | I remember the cosine line is vertical |
+| `can.1` | Вижу обе точки, а не одну | Bitta emas, ikkala nuqtani ko'raman | I see both points, not one |
+| `can.2` | Беру ответ из окна | Javobni oynadan olaman | I take the answer from the window |
+| `can.3` | Помню, что у арккосинуса окно другое | Arkkosinusning oynasi boshqa ekanini eslayman | I remember the arccosine has a different window |
+| `can.4` | Знаю, когда арксинуса нет | Arksinus qachon yo'qligini bilaman | I know when the arcsine does not exist |
 | `levels.full` | Этот тип задач закрыт. | Bu turdagi masalalar yopildi. | This type of task is closed. |
-| `levels.gap` | Одно место требует повтора: сколько серий в полном ответе. | Bitta joy takrorlashni talab qiladi: to'liq javobda nechta seriya. | One place needs review: how many series are in the full answer. |
+| `levels.gap` | Одно место требует повтора: какое окно у арккосинуса. | Bitta joy takrorlashni talab qiladi: arkkosinusning oynasi qanday. | One place needs review: what the arccosine window is. |
 | `levels.back` | Вернись к правилу и к экрану 4. | Qoidaga va 4-ekranga qayting. | Go back to the rule and to screen 4. |
-| `bridge` | Урок 10: две серии сворачиваются в одну запись, и оттуда берётся знак минус в степени. | 10-dars: ikki seriya bitta yozuvga yig'iladi, va darajadagi minus o'sha yerdan chiqadi. | Lesson 10: the two series fold into one reading, and that is where the minus in the power comes from. |
-| `lifehack` | Нашёл один корень — ищи второй. Он всегда есть, кроме случая, когда прямая касается края. | Bitta ildizni topdingizmi, ikkinchisini qidiring. U doim bor, faqat to'g'ri chiziq chetiga tekkan holdan tashqari. | Found one root, look for the second. It is always there, except when the line touches the edge. |
-| `sheetTitle` | Простейшие уравнения · шпаргалка | Sodda tenglamalar · shpargalka | Simplest equations · cheat sheet |
-| `sheetSrc` | 10 класс · урок 9 | 10-sinf · 9-dars | Grade 10 · lesson 9 |
+| `bridge` | Урок 9: те же две точки, но теперь нужны обе — начинаются уравнения. | 9-dars: o'sha ikki nuqta, lekin endi ikkalasi kerak — tenglamalar boshlanadi. | Lesson 9: the same two points, but now both are needed — equations begin. |
+| `lifehack` | Сначала найди обе точки, и только потом выбирай ту, что в окне. | Avval ikkala nuqtani toping, keyingina oynadagisini tanlang. | Find both points first, and only then choose the one in the window. |
+| `sheetTitle` | Аркфункции · шпаргалка | Arkfunksiyalar · shpargalka | Arc functions · cheat sheet |
+| `sheetSrc` | 10 класс · урок 8 | 10-sinf · 8-dars | Grade 10 · lesson 8 |
 | `audio.mount` | В начале урока нужно было выбрать одну из двух записей. Вот результат. | Dars boshida ikki yozuvdan birini tanlagan edingiz. Mana natija. | At the start you chose one of the two readings. Here is the result. |
-| `audio.next` | Корней бесконечно много, и записываются они двумя сериями, по одной на каждую точку. | Ildiz cheksiz ko'p, va ular ikkita seriya bilan yoziladi, har nuqtaga bittadan. | There are infinitely many roots, and they are written as two series, one for each point. |
+| `audio.next` | Ответ у арксинуса один, потому что его берут из окна, а не потому, что вторая точка неправильная. | Arksinusning javobi bitta, chunki u oynadan olinadi, ikkinchi nuqta noto'g'ri bo'lgani uchun emas. | The arcsine has one answer because it is taken from the window, not because the second point is wrong. |
 
 **Формулы**
 
 | Ключ | Значение |
 |---|---|
-| `hook.a` | `x = 30°,  150°` |
-| `hook.b` | `x = 30° + 360°n` |
-| `proved` | `x = 30° + 360°n` |
-| `law` | `x = 30° + 360°n,   x = 150° + 360°n` |
-| `sheet.1` | `sin x = 1/2` |
-| `sheet.2` | `x = 30° + 360°n` |
-| `sheet.3` | `x = 150° + 360°n` |
-| `sheet.4` | `−1 ≤ a ≤ 1` |
-| `sheet.5` | `x = ± arccos a + 360°n` |
+| `hook.a` | `arcsin 1/2 = 30°` |
+| `hook.b` | `arcsin 1/2 = 30°,  150°` |
+| `proved` | `arcsin 1/2 = 30°` |
+| `law` | `arcsin x ∈ [−90°; 90°],   arccos x ∈ [0°; 180°]` |
+| `sheet.1` | `arcsin x ∈ [−90°; 90°]` |
+| `sheet.2` | `arccos x ∈ [0°; 180°]` |
+| `sheet.3` | `arcsin(−x) = −arcsin x` |
+| `sheet.4` | `−1 ≤ x ≤ 1` |
+| `sheet.5` | `arcsin 1/2 = 30°` · `arccos 1/2 = 60°` |

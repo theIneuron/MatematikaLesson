@@ -1,15 +1,15 @@
 // ============================================================================
-// 10-sinf, Dars 28. KO'RSATKICHLI TENGLAMALAR.
+// 10-sinf, Dars 28. KARKAS: MA'LUMOT KONTENTDAN YIG'ILDI.
 //
-// ASBOB: 2-asbob (qadam bilan qaytadan yozish, `Tape`) va 4-asbobning
-// soddalashtirilgan ko'rinishi (`Plane` gorizontal bilan). Oyna 27-darsdan
-// KENGROQ: sakkiz darajasidagi gorizontal uchta ustida uchrashishi kerak,
-// va ikkala son imzolangan bo'lishi shart -- aks holda shohid yolg'onchi.
-// SHOHID: uchrashuvlar soni -- ildizlar soni.
+// Bu fayl `scripts/grade10-kontent-build.mjs` bilan yasalgan:
+//   manba:  src/books/grade10/DARS28_KONTENT.md
+// Ma'lumot (ovoz, kadrlar, variantlar, razborlar, qoida, yakun) tayyor.
+// EKRAN TANALARI esa `TODO` bo'lib qoldi: asbob va figurani tanlash --
+// matematik qaror, va u avtomatlashtirilmaydi (etalon §5.3).
 //
-// Yuqoridagi ma'lumot `scripts/grade10-kontent-build.mjs` bilan
-// `src/books/grade10/DARS28_KONTENT.md` dan yig'ilgan: QO'LDA tuzatmang,
-// kontentni tuzatib qaytadan yig'ing. Ekran tanalari esa qo'lda yozilgan.
+// Tartib: tanalarni to'ldirish, keyin `grade10-lesson-audit.mjs`, keyin
+// tez yarus (2 o'lcham), keyin to'liq prognon. Har yangi figura oldin
+// `probe/figures.html` stendida suratga olinadi.
 //
 // `import React` SHART (LMS klassik rejim).
 // ============================================================================
@@ -33,38 +33,39 @@ import {
   NumberEntry,
   OrderRow,
   ProbeChain,
+  ProofRows,
   Scene,
-  SlotTable,
+  SpinScene,
 } from './tools.jsx'
 
-import { Plane } from './figures.jsx'
+import { Space } from './figures.jsx'
 
 // Метка урока: `lesson_id` = grade10-<номер>, `lesson_name` = номер + тема
 // ИЗ ПЛАНА дословно.
 const LESSON_NO = 28
 const LESSON_ID = `grade10-${String(LESSON_NO).padStart(2, '0')}`
 const LESSON_TITLE = L(
-  `${LESSON_NO}-dars. Ko'rsatkichli tenglamalar`,
-  `Урок ${LESSON_NO}. Показат. уравнения`,
-  `Lesson ${LESSON_NO}. Exponential equations`,
+  `${LESSON_NO}-dars. Stereometriya aksiomalari`,
+  `Урок ${LESSON_NO}. Аксиомы`,
+  `Lesson ${LESSON_NO}. Axioms of stereometry`,
 )
 
-const BLOCK = { label: 'B5', from: 26, to: 37, current: 28 }
+const BLOCK = { label: 'B6', from: 28, to: 36, current: 28 }
 
 const S1 = {
   role: 'hook',
   answer: 'pick4',
-  eyebrow: L('TENGLAMA', 'УРАВНЕНИЕ', 'THE EQUATION'),
-  title: L("Ko'rsatkichni qanday topish", 'Как найти показатель', 'How to find the exponent'),
+  eyebrow: L('FAZO', 'ПРОСТРАНСТВО', 'SPACE'),
+  title: L('Bitta tekislikmi yoki istalgancha', 'Одна плоскость или сколько угодно', 'One plane or any number'),
   audio: [
-    A('mount', "Egri chiziq tanish, o'tgan darsdan. Endi undan so'raladi: qaysi iksda qiymat sakkizga teng.", 'Кривая знакомая, с прошлого урока. Теперь у неё спрашивают: при каком икс значение равно восьми.', 'The curve is familiar from the previous lesson. Now it is asked: at which x is the value eight.'),
-    A('r1', "Birinchi yozuv ko'rsatkich o'ng qismni asosga bo'lish bilan topiladi deydi.", 'Первая запись говорит, что показатель находят делением правой части на основание.', 'The first reading says the exponent is found by dividing the right side by the base.'),
-    A('r2', "Ikkinchisi o'ng qismni o'sha asosning darajasi qilib yozish kerak deydi.", 'Вторая говорит, что правую часть надо записать степенью того же основания.', 'The second says the right side must be written as a power of the same base.'),
+    A('mount', "Fazoda tekisliklar cheksiz ko'p. Savol shundaki, tekislik nima bilan yagona qilib beriladi.", 'В пространстве плоскостей бесконечно много. Вопрос в том, чем плоскость задаётся однозначно.', 'In space there are infinitely many planes. The question is what fixes a plane uniquely.'),
+    A('r1', 'Birinchi yozuv shunday deydi: uch nuqta oling, ular orqali tekislik roppa-rosa bitta, doim.', 'Первая запись говорит: возьми три точки, и плоскость через них ровно одна, всегда.', 'The first reading says: take three points and there is exactly one plane through them, always.'),
+    A('r2', "Ikkinchisi bunday har doim ham bo'lmasligini va tekisliklar cheksiz ko'p bo'ladigan hol borligini aytadi.", 'Вторая говорит, что так бывает не всегда, и есть случай, когда плоскостей бесконечно много.', 'The second says this does not always hold and there is a case with infinitely many planes.'),
     A('ask', "Sizningcha qaysi biri to'g'ri? Hozircha shunchaki taxmin qiling.", 'Как думаешь, какая верная? Пока просто предположи.', 'Which one do you think is right? Just make a guess for now.'),
   ],
   probe: {
     question: L("Qaysi yozuv to'g'ri?", 'Какая запись верна?', 'Which reading is correct?'),
-    afterPredict: L("Javobingiz yozib olindi. Endi gorizontal o'tkazamiz va uni egri chiziqni qayerda uchratishini ko'ramiz.", 'Твой ответ записан. Сейчас проведём горизонталь и посмотрим, где она встретит кривую.', 'Your answer is saved. Now we will draw a horizontal and see where it meets the curve.'),
+    afterPredict: L("Javobingiz yozib olindi. Endi sahnani burib ko'ramiz.", 'Твой ответ записан. Сейчас повернём сцену и посмотрим.', 'Your answer is saved. Now we will rotate the scene and look.'),
     items: [
       { id: 'a', label: L('birinchi', 'первая', 'the first') },
       { id: 'b', label: L('ikkinchi', 'вторая', 'the second'), correct: true },
@@ -74,62 +75,61 @@ const S1 = {
   },
   row: {
     a: {
-      name: L("sakkizni ikkiga bo'lamiz", 'делим восемь на два', 'we divide eight by two'),
-      value: 'x = 4',
+      name: L('istalgan uch nuqta orqali bitta', 'через любые три точки одна', 'one through any three points'),
+      value: '1',
     },
     b: {
-      name: L('sakkizni ikkining darajasi qilib yozamiz', 'пишем восемь степенью двойки', 'we write eight as a power of two'),
-      value: 'x = 3',
+      name: L('bitta har doim ham emas', 'одна не всегда', 'not always one'),
+      value: '∞',
     },
   },
-  expr: '2^x = 8',
+  expr: 'A, B, C   →   α',
 }
 
 const S2 = {
   role: 'support',
   answer: 'pick4',
   eyebrow: L('TAYANCH', 'ОПОРА', 'WHAT YOU KNOW'),
-  title: L('Tenglamadan oldin uch savol', 'Три вопроса перед уравнением', 'Three questions before the equation'),
+  title: L('Fazodan oldin uch savol', 'Три вопроса перед пространством', 'Three questions before space'),
   tag: 'support',
   audio: [
     A('mount', "Uch qisqa savol. Uchalasi ham bir daqiqadan keyin kerak bo'ladi.", 'Три коротких вопроса. Все три понадобятся через минуту.', 'Three short questions. All three will be needed in a minute.'),
-    A('link', "Va bitta kuzatish. Trigonometriya blokida ildizlar cheksiz ko'p edi, chunki funksiya davriy. Bu yerda ildiz bitta bo'ladi, chunki funksiya monoton. Sabab bir xil, faqat har xil tomondan o'qilgan.", 'И одно наблюдение. В блоке про тригонометрию корней было бесконечно много, потому что функция периодическая. Здесь корень будет один, потому что функция монотонная. Причина одна и та же, прочитанная в разные стороны.', 'And one observation. In the trigonometry block there were infinitely many roots because the function is periodic. Here there will be one root because the function is monotone. The same reason read in opposite directions.'),
   ],
   items: [
     {
       id: 'q1',
       ask: true,
-      prompt: L('Sakkizni ikkining darajasi qilib qanday yozish kerak?', 'Как записать восемь степенью двойки?', 'How is eight written as a power of two?'),
-      done: '8 = 2³',
+      prompt: L('Stereometriya planimetriyadan nimasi bilan farq qiladi?', 'Чем стереометрия отличается от планиметрии?', 'How does stereometry differ from planimetry?'),
+      done: 'A ∈ α,   a ⊂ α',
       items: [
-        { id: 'a', label: L('ikki uchinchi darajada', 'два в третьей', 'two to the third'), correct: true },
-        { id: 'b', label: L("ikki to'rtinchi darajada", 'два в четвёртой', 'two to the fourth'), hint: L("Ikki to'rtinchi darajada bu o'n olti. Ko'paytuvchilarni sanang.", 'Два в четвёртой это шестнадцать. Посчитай множители.', 'Two to the fourth is sixteen. Count the factors.') },
-        { id: 'c', label: L('uch ikkinchi darajada', 'три во второй', 'three to the second'), hint: L("Uch ikkinchi darajada bu to'qqiz, va asos bu yerda boshqa.", 'Три во второй это девять, и основание здесь другое.', 'Three to the second is nine, and the base here is different.') },
-        { id: 'd', label: L("to'rt ikkinchi darajada", 'четыре во второй', 'four to the second'), hint: L("To'rt ikkinchi darajada bu o'n olti, va asos ikki emas.", 'Четыре во второй это шестнадцать, и основание не двойка.', 'Four to the second is sixteen, and the base is not two.') },
+        { id: 'a', label: L("fazoviy shakllarni o'rganadi", 'изучает пространственные фигуры', 'it studies spatial figures'), correct: true },
+        { id: 'b', label: L("faqat ko'pyoqlarni o'rganadi", 'изучает только многогранники', 'it studies only polyhedra'), hint: L("Ko'pyoqlar fanning bir qismi, butun fani emas.", 'Многогранники это часть предмета, а не весь предмет.', 'Polyhedra are a part of the subject, not the whole of it.') },
+        { id: 'c', label: L('bu planimetriyaning boshqa nomi', 'это другое название планиметрии', 'it is another name for planimetry'), hint: L('Planimetriya bitta tekislikda yashaydi, stereometriya butun fazoda.', 'Планиметрия живёт на одной плоскости, стереометрия во всём пространстве.', 'Planimetry lives on one plane, stereometry in the whole of space.') },
+        { id: 'd', label: L("unda aksiomalar yo'q", 'в ней нет аксиом', 'it has no axioms'), hint: L('Aksiomalar bor, va ulardan boshlanadi.', 'Аксиомы есть, и с них начинают.', 'There are axioms and they come first.') },
       ],
     },
     {
       id: 'q2',
       ask: true,
-      prompt: L("Ikki iks darajada manfiy bo'lishi mumkinmi?", 'Может ли два в степени икс быть отрицательным?', 'Can two to the x be negative?'),
-      done: '2^x > 0',
+      prompt: L('Asosiy tushunchalar nima?', 'Что такое основные понятия?', 'What are the basic notions?'),
+      done: 'A,   a,   α',
       items: [
-        { id: 'a', label: L("yo'q, hech qachon", 'нет, никогда', 'no, never'), correct: true },
-        { id: 'b', label: L("ha, manfiy ko'rsatkichda", 'да, при отрицательном показателе', 'yes, with a negative exponent'), hint: L("Manfiy ko'rsatkich manfiy emas, kichik musbat son beradi.", 'Отрицательный показатель даёт маленькое положительное число, а не отрицательное.', 'A negative exponent gives a small positive number, not a negative one.') },
-        { id: 'c', label: L("ha, kasr ko'rsatkichda", 'да, при дробном', 'yes, with a fractional one'), hint: L("Kasr ko'rsatkich bu ildiz, u ham musbat.", 'Дробный показатель это корень, и он тоже положителен.', 'A fractional exponent is a root, and it is positive too.') },
-        { id: 'd', label: L("ha, nol ko'rsatkichda", 'да, при нулевом', 'yes, with a zero one'), hint: L("Nol ko'rsatkich bir beradi.", 'Нулевой показатель даёт единицу.', 'A zero exponent gives one.') },
+        { id: 'a', label: L("ta'rif berilmaydiganlari", 'те, которым не дают определения', 'the ones that are not defined'), correct: true },
+        { id: 'b', label: L('eng muhim teoremalar', 'самые важные теоремы', 'the most important theorems'), hint: L('Teorema bu tasdiq, tushuncha esa suhbat mavzusi.', 'Теорема это утверждение, а понятие это предмет разговора.', 'A theorem is a statement, a notion is what you speak about.') },
+        { id: 'c', label: L("birinchi o'tiladiganlari", 'те, которые проходят первыми', 'the ones taught first'), hint: L("Tartibning bunga aloqasi yo'q, gap ta'rifda.", 'Порядок тут ни при чём, дело в определении.', 'Order is not the point, definition is.') },
+        { id: 'd', label: L('isbotlanadiganlari', 'те, которые доказывают', 'the ones that are proved'), hint: L('Tasdiqlar isbotlanadi, tushunchalar emas.', 'Доказывают утверждения, а не понятия.', 'Statements are proved, not notions.') },
       ],
     },
     {
       id: 'q3',
       ask: true,
-      prompt: L("Asos ikki bo'lganda egri chiziq qayoqqa ketadi?", 'Куда идёт кривая при основании два?', 'Which way does the curve go with base two?'),
-      done: 'a > 1   →   ↑',
+      prompt: L('Tekislik qanday belgilanadi?', 'Как обозначают плоскость?', 'How is a plane denoted?'),
+      done: 'α,  β,  γ',
       items: [
-        { id: 'a', label: L('yuqoriga va qaytmaydi', 'вверх и не возвращается', 'up, and it does not come back'), correct: true },
-        { id: 'b', label: L('yuqoriga, keyin pastga', 'вверх, потом вниз', 'up, then down'), hint: L("Bu to'lqin bo'lardi. Ko'rsatkichli egri chiziqda burilish yo'q.", 'Это была бы волна. У показательной кривой поворота нет.', 'That would be a wave. An exponential curve has no turn.') },
-        { id: 'c', label: L('pastga', 'вниз', 'down'), hint: L("Asos birdan kichik bo'lganda egri chiziq pastga ketadi.", 'Вниз идёт кривая при основании меньше единицы.', 'The curve goes down when the base is less than one.') },
-        { id: 'd', label: L("to'g'ri chiziq bo'yicha", 'по прямой', 'along a straight line'), hint: L("To'g'ri chiziq faqat asos birga teng bo'lganda chiqadi.", 'Прямая получается только при основании, равном единице.', 'A straight line comes only from a base equal to one.') },
+        { id: 'a', label: L('yunon harfi bilan', 'греческой буквой', 'by a Greek letter'), correct: true },
+        { id: 'b', label: L('katta lotin harfi bilan', 'большой латинской', 'by a capital Latin letter'), hint: L('Katta lotin harflari bilan nuqtalar belgilanadi.', 'Большими латинскими обозначают точки.', 'Capital Latin letters denote points.') },
+        { id: 'c', label: L('kichik lotin harfi bilan', 'маленькой латинской', 'by a small Latin letter'), hint: L("Kichik lotin harflari bilan to'g'ri chiziqlar belgilanadi.", 'Маленькими латинскими обозначают прямые.', 'Small Latin letters denote lines.') },
+        { id: 'd', label: L('raqam bilan', 'цифрой', 'by a digit'), hint: L('Geometriyada raqamlar bilan kattaliklar belgilanadi, shakllar emas.', 'Цифрами в геометрии обозначают величины, а не фигуры.', 'Digits denote magnitudes in geometry, not figures.') },
       ],
     },
   ],
@@ -137,35 +137,35 @@ const S2 = {
 
 const S3 = {
   role: 'explain1',
-  answer: 'lead',
+  answer: 'number',
   eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L('Ildizlar soni uchrashuvlar soniga teng', 'Корней столько, сколько встреч', 'As many roots as meetings'),
-  tag: 'delyat-vmesto-osnovaniya',
+  title: L("Sahnani burib ko'ring", 'Поверни сцену и посмотри', 'Rotate the scene and look'),
+  tag: 'tri-tochki-na-pryamoy',
   show: [
     [
-      L("sakkiz darajasida gorizontal o'tkazamiz", 'проводим горизонталь на уровне восьми', 'we draw a horizontal at the level eight'),
-      L('u egri chiziqni bir marta uchratadi', 'она встречает кривую один раз', 'it meets the curve once'),
-      '2^x = 8',
+      L("uch nuqta bir to'g'ri chiziqda yotmaydi", 'три точки не лежат на одной прямой', 'the three points are not on one line'),
+      L("ular orqali tekislik o'tkazilgan", 'через них проведена плоскость', 'a plane is drawn through them'),
+      L('sahnani buring va unga qarang', 'поверни сцену и следи за ней', 'rotate the scene and watch it'),
     ],
     [
-      L('egri chiziq yuqoriga ketadi va qaytmaydi', 'кривая идёт вверх и не возвращается', 'the curve goes up and does not come back'),
-      L('demak ildiz bitta', 'значит корень один', 'so there is one root'),
-      'x = 3',
+      L('tekislik joyida qoldi', 'плоскость осталась на месте', 'the plane stayed where it was'),
+      L("uning uchun boshqa holat yo'q", 'другого положения для неё нет', 'there is no other position for it'),
+      L('demak u yagona', 'значит она единственная', 'so it is unique'),
     ],
   ],
-  motion: ['meet'],
+  motion: ['spin'],
   audio: [
-    A('mount', "Tenglamani yechish bu qiymati sakkizga teng bo'lgan iksni topish.", 'Решить уравнение значит найти икс, при котором значение равно восьми.', 'To solve the equation means to find the x at which the value is eight.'),
-    A('meet', "Sakkiz darajasida gorizontal o'tkazamiz. U egri chiziqni aynan bir marta uchratadi, va uchrashuv iks uchga teng joyga tushadi. Bir marta, ikki emas, chunki egri chiziq monoton: u yuqoriga ketadi va bir marta ham qaytmaydi. Demak ko'rsatkichli tenglamada ildiz bitta, va bu yangi qoida emas, o'tgan darsning natijasi.", 'Проведём горизонталь на уровне восьми. Она встречает кривую ровно один раз, и встреча приходится на икс, равный трём. Один раз, а не два, потому что кривая монотонна: она идёт вверх и не возвращается ни разу. Значит у показательного уравнения корень один, и это следствие прошлого урока, а не новое правило.', 'Let us draw a horizontal at the level eight. It meets the curve exactly once, and the meeting falls at x equal to three. Once, not twice, because the curve is monotone: it goes up and never comes back. So an exponential equation has one root, and that follows from the previous lesson rather than being a new rule.'),
-    A('work', "O'zingiz hisoblang. Gorizontal egri chiziqni necha marta uchratdi?", 'Посчитай сам. Сколько раз горизонталь встретила кривую?', 'Work it out yourself. How many times did the horizontal meet the curve?'),
+    A('mount', 'Fazoda uch nuqta va ular orqali tekislik. Keyin rasm emas, burilish ishlaydi.', 'Три точки в пространстве и плоскость через них. Дальше работает не картинка, а поворот.', 'Three points in space and a plane through them. From here it is the rotation that works, not the picture.'),
+    A('spin', "Sahnani olib buring. Nuqtalar siljidi, tekislik ular bilan birga siljidi, lekin nuqtalarga nisbatan u zarracha ham qimirlamadi. Uning uchun boshqa holat yo'q. Uchinchi nuqta birinchi ikkitasi orqali o'tgan to'g'ri chiziqda yotmaydi, va u tekislikni ushlab turadi. Birinchi aksioma aynan shuni aytadi. Undagi so'zga e'tibor bering: nuqtalar bir to'g'ri chiziqda yotmasligi kerak. Shart olib tashlansa, aksioma to'g'ri bo'lmay qoladi, va buni keyingi ekranda ko'ramiz.", 'Возьми сцену и поверни её. Точки поехали, плоскость поехала вместе с ними, но относительно точек она не сдвинулась ни на сколько. Другого положения у неё нет. Третья точка не лежит на прямой через первые две, и она держит плоскость. Именно это говорит первая аксиома. Обрати внимание на слово в ней: точки не должны лежать на одной прямой. Если условие убрать, аксиома перестанет быть верной, и на следующем экране мы это увидим.', 'Take the scene and rotate it. The points moved, the plane moved with them, but relative to the points it did not shift at all. It has no other position. The third point does not lie on the line through the first two, and it holds the plane. That is exactly what the first axiom says. Notice the words in it: the points must not lie on one line. Remove that condition and the axiom stops being true, and we will see that on the next screen.'),
+    A('work', "O'zingiz hisoblang. Bu uch nuqta orqali nechta tekislik o'tadi?", 'Посчитай сам. Сколько плоскостей проходит через эти три точки?', 'Work it out yourself. How many planes pass through these three points?'),
   ],
   work: {
-    prompt: L('Gorizontal egri chiziqni necha marta uchratdi?', 'Сколько раз горизонталь встретила кривую?', 'How many times did the horizontal meet the curve?'),
-    ok: L("Bir. Egri chiziq yuqoriga ketadi va qaytmaydi, shuning uchun ikkinchi uchrashuv bo'lishi mumkin emas.", 'Один. Кривая идёт вверх и не возвращается, поэтому второй встречи быть не может.', 'Once. The curve goes up and does not come back, so a second meeting is impossible.'),
+    prompt: L("Ular orqali nechta tekislik o'tadi?", 'Сколько плоскостей проходит через них?', 'How many planes pass through them?'),
+    ok: L('Bitta. Sahnani qancha burmang, boshqa holat topilmaydi.', 'Одна. Сколько сцену ни крути, другого положения не находится.', 'One. However much you rotate the scene, no other position turns up.'),
     hint: [
-      L('Gorizontal egri chiziqni kesgan nuqtalarni sanang.', 'Посчитай точки, где горизонталь пересекла кривую.', 'Count the points where the horizontal crossed the curve.'),
-      L('Egri chiziq bir marta ham orqaga burilmaydi.', 'Кривая ни разу не поворачивает назад.', 'The curve never turns back.'),
-      L('Bir.', 'Один.', 'Once.'),
+      L("Sahnani buring va tekislik holati o'zgaradimi, qarang.", 'Поверни сцену и посмотри, меняется ли положение плоскости.', 'Rotate the scene and see whether the plane changes position.'),
+      L("Uchinchi nuqta to'g'ri chiziqda emas, va u tekislikni ushlab turadi.", 'Третья точка не на прямой, и она держит плоскость.', 'The third point is off the line and it holds the plane.'),
+      L('Bitta.', 'Одна.', 'One.'),
     ],
     answer: '1',
   },
@@ -173,108 +173,114 @@ const S3 = {
 
 const S4 = {
   role: 'explain2',
-  answer: 'order',
-  eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L("Bo'lish mumkin emas, keltirish mumkin", 'Делить нельзя, приводить можно', 'Dividing is out, reducing is in'),
-  tag: 'delyat-vmesto-osnovaniya',
+  answer: 'lead',
+  eyebrow: L('FARQLASH', 'РАЗГРАНИЧЕНИЕ', 'TELLING THEM APART'),
+  title: L("Nuqtalar bir to'g'ri chiziqqa surildi", 'Точки сдвинули на одну прямую', 'The points were moved onto one line'),
+  tag: 'tri-tochki-na-pryamoy',
   show: [
     [
-      L("bo'lish bilan to'rt chiqardi", 'делением получилось бы четыре', 'dividing would give four'),
-      L("to'rtni qo'yib tekshiramiz", 'подставим четвёрку и проверим', 'let us substitute four and check'),
-      '8 : 2 = 4',
+      L("endi uchalasi ham bir to'g'ri chiziqda", 'теперь все три на одной прямой', 'now all three are on one line'),
+      L("tekislik ular orqali baribir o'tadi", 'плоскость через них по-прежнему проходит', 'a plane still passes through them'),
+      L('lekin u endi yagona emas', 'но она больше не одна', 'but it is no longer alone'),
     ],
     [
-      L("o'n olti chiqdi, sakkiz kerak edi", 'вышло шестнадцать, а нужно восемь', 'sixteen came out, and eight was needed'),
-      L("demak o'ng qism qaytadan yoziladi", 'значит правую часть переписывают', 'so the right side gets rewritten'),
-      '2⁴ = 16',
+      L("tekislik to'g'ri chiziq atrofida aylanadi", 'плоскость крутится вокруг прямой', 'the plane spins around the line'),
+      L('uning har bir holati yaraydi', 'каждое её положение годится', 'every position of it works'),
+      L('birortasi ajratilmagan', 'ни одно не выделено', 'none of them is singled out'),
     ],
   ],
-  motion: ['check'],
+  motion: ['turn'],
   audio: [
-    A('mount', "Dars boshidagi birinchi yozuvni tekshiramiz. Sakkiz ikkiga bo'linsa to'rt bo'ladi.", 'Проверим первую запись с начала урока. Восемь разделить на два это четыре.', 'Let us check the first reading from the start of the lesson. Eight divided by two is four.'),
-    A('check', "To'rtni ko'rsatkichga qo'yamiz. Ikki to'rtinchi darajada bu o'n olti, sakkiz kerak edi. Demak bo'lish bu yerda umuman ishlamaydi: ko'rsatkich ko'paytuvchi emas, va u bo'lish bilan olinmaydi. Boshqa narsa ishlaydi. Sakkizning o'zi ikkining darajasi qilib yoziladi, va shunda chapda ham o'ngda ham bitta asos turadi.", 'Подставим четвёрку в показатель. Два в четвёртой степени это шестнадцать, а нужно было восемь. Значит деление тут не работает совсем: показатель это не множитель, и делением его не получают. Работает другое. Восемь само записывается степенью двойки, и тогда слева и справа стоит одно основание.', 'Let us substitute four into the exponent. Two to the fourth is sixteen, and eight was needed. So dividing does not work here at all: the exponent is not a factor and is not obtained by division. Something else works. Eight itself can be written as a power of two, and then the same base stands on both sides.'),
-    A('work', 'Bunday tenglama qanday yechilsa, qadamlarni shunday joylashtiring.', 'Расставь шаги, как решается такое уравнение.', 'Put the steps in the order such an equation is solved.'),
+    A('mount', "O'sha uch nuqta, va ularning hammasi bir to'g'ri chiziqda.", 'Те же три точки, и все они на одной прямой.', 'The same three points, and all of them on one line.'),
+    A('turn', "Tekislikka nima bo'lganiga qarang. U avvalgidek uchala nuqta orqali o'tadi, lekin endi uni to'g'ri chiziq atrofida burish mumkin, va u baribir ular orqali o'tadi. Bir holat, ikkinchi, uchinchi, hammasi yaraydi. Bunday uch nuqta orqali tekisliklar cheksiz ko'p, va birortasi qolganidan yaxshi emas. Aksiomada to'g'ri chiziq haqidagi shart shuning uchun turadi. Usiz tasdiq noto'g'ri, va bunga biz mulohaza bilan emas, burilish bilan ishonch hosil qildik.", 'Смотри, что стало с плоскостью. Она проходит через все три точки, как и раньше, но теперь её можно крутить вокруг прямой, и она всё равно будет проходить через них. Одно положение, второе, третье, годятся все. Плоскостей через три такие точки бесконечно много, и ни одна не лучше остальных. Вот почему в аксиоме стоит условие про прямую. Без него утверждение неверно, и убедились мы в этом не рассуждением, а поворотом.', 'Look at what happened to the plane. It passes through all three points as before, but now it can be spun around the line and it will still pass through them. One position, a second, a third, all of them work. There are infinitely many planes through three such points, and none is better than the others. That is why the axiom carries the condition about the line. Without it the statement is false, and we became sure of that not by reasoning but by rotating.'),
+    A('work', 'Sahnani buring va javob bering: bunday tekisliklar nechta?', 'Поверни сцену и ответь: сколько таких плоскостей?', 'Rotate the scene and answer: how many such planes are there?'),
   ],
-  order: {
-    prompt: L('Qadamlarni tartib bilan joylashtiring.', 'Расставь шаги по порядку.', 'Put the steps in order.'),
-    s1: L("o'ng qismni o'sha asosning darajasi qilib yozamiz", 'правую часть пишем степенью того же основания', 'write the right side as a power of the same base'),
-    s2: L("chapda va o'ngda bitta asos", 'слева и справа одно основание', 'the same base on both sides'),
-    s3: L("ko'rsatkichlarni solishtiramiz", 'сравниваем показатели', 'compare the exponents'),
-    s4: L('ildizni olamiz', 'получаем корень', 'get the root'),
-    ok: L("Tartib doim shunday. Unda bo'lish birorta qadamda ham yo'q.", 'Порядок такой всегда. Деления в нём нет ни на одном шаге.', 'The order is always this. There is no division at any step.'),
-    bad: L("Avval o'ng qismni qaytadan yozish, keyin ko'rsatkichlarni solishtirish.", 'Сначала переписать правую часть, потом сравнить показатели.', 'First rewrite the right side, then compare the exponents.'),
-    mark: 'x = 3',
+  pick: {
+    prompt: L("Bir to'g'ri chiziqdagi uch nuqta orqali nechta tekislik o'tadi?", 'Сколько плоскостей проходит через три точки одной прямой?', 'How many planes pass through three points of one line?'),
+    a: {
+      label: L('roppa-rosa bitta', 'ровно одна', 'exactly one'),
+      hint: L('Siz uni hozirgina burib, boshqa holatlarni topdingiz.', 'Ты только что покрутил её и нашёл другие положения.', 'You have just rotated it and found other positions.'),
+    },
+    b: L("cheksiz ko'p", 'бесконечно много', 'infinitely many'),
+    c: {
+      label: L("bitta ham yo'q", 'ни одной', 'none'),
+      hint: L("Hech bo'lmaganda bittasi bor: siz uni ekranda ko'rib turibsiz.", 'Хотя бы одна есть: ты её видишь на экране.', 'At least one exists: you can see it on the screen.'),
+    },
+    ok: L("Cheksiz ko'p. Bir to'g'ri chiziqdagi uch nuqta tekislikni belgilamaydi.", 'Бесконечно много. Три точки на одной прямой плоскость не задают.', 'Infinitely many. Three points on one line do not fix a plane.'),
   },
+  mark: 'A, B, C ∈ a   →   α ⊃ a',
 }
 
 const S5 = {
   role: 'explain3',
-  answer: 'order',
+  answer: 'number',
   eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L("Bitta asos, keyin ko'rsatkichlar", 'Одно основание, потом показатели', 'One base first, then the exponents'),
-  tag: 'delyat-vmesto-osnovaniya',
+  title: L("Ikki nuqta butun to'g'ri chiziqni ergashtiradi", 'Две точки тянут за собой всю прямую', 'Two points drag the whole line along'),
+  tag: 'kartinka-kak-dokazatelstvo',
   show: [
     [
-      L("asoslar har xil, lekin bog'liq", 'основания разные, но связаны', 'the bases differ but are related'),
-      L("to'rt bu ikki kvadratda", 'четвёрка это два в квадрате', 'four is two squared'),
-      '4^x = 2^{x+1}',
+      L("to'g'ri chiziqning ikki nuqtasi tekislikda yotadi", 'две точки прямой лежат в плоскости', 'two points of the line lie in the plane'),
+      L('qolganlari haqida hozircha hech nima aytilmagan', 'про остальные пока ничего не сказано', 'nothing is said about the rest yet'),
+      L("buring va to'g'ri chiziqqa qarang", 'поверни и посмотри на прямую', 'rotate and look at the line'),
     ],
     [
-      L("asoslar bir xil bo'ldi", 'основания стали одинаковыми', 'the bases became the same'),
-      L("ko'rsatkichlarni solishtirish qoladi", 'остаётся сравнить показатели', 'comparing the exponents is what is left'),
-      '2^{2x} = 2^{x+1}',
+      L("to'g'ri chiziq butunlay tekislikda yotadi", 'прямая целиком лежит в плоскости', 'the whole line lies in the plane'),
+      L('u undan birorta nuqtada ham chiqmaydi', 'она не выходит из неё ни в одной точке', 'it does not leave it at any point'),
+      L('bu ikkinchi aksioma', 'это вторая аксиома', 'this is the second axiom'),
     ],
   ],
-  motion: ['same'],
+  motion: ['lie'],
   audio: [
-    A('mount', "Endi asoslar har xil. Chapda to'rt, o'ngda ikki.", 'Теперь основания разные. Слева четыре, справа два.', 'Now the bases differ. Four on the left, two on the right.'),
-    A('same', "To'rt bu ikki kvadratda, demak chapda ikki ikki iks darajada chiqadi. Asoslar bir xil bo'ldi, va ko'rsatkichlarni solishtirish qoladi. Solishtirish huquqini monotonlik beradi: bitta qiymatga faqat bitta ko'rsatkich mos, chunki egri chiziq har darajadan aynan bir marta o'tadi. Ikki iks iks qo'shuv birga teng, shundan iks birga teng.", 'Четвёрка это два в квадрате, значит слева получается два в степени два икс. Основания стали одинаковыми, и остаётся сравнить показатели. Право сравнить их даёт монотонность: у одного значения только один показатель, потому что кривая проходит через каждый уровень ровно один раз. Два икс равно икс плюс один, отсюда икс равен единице.', 'Four is two squared, so on the left we get two to the two x. The bases became the same, and comparing the exponents is what is left. The right to compare them comes from monotonicity: one value has only one exponent, because the curve passes each level exactly once. Two x equals x plus one, so x equals one.'),
-    A('work', 'Har xil asosli tenglama qanday yechilsa, qadamlarni shunday joylashtiring.', 'Расставь шаги, как решается уравнение с разными основаниями.', 'Put the steps in the order an equation with different bases is solved.'),
+    A('mount', 'Ikkinchi aksioma. U qisqa, lekin butun kurs davomida ishlaydi.', 'Вторая аксиома. Она короткая, а работать будет весь курс.', 'The second axiom. It is short, and it will work for the whole course.'),
+    A('lie', "To'g'ri chiziqni olamiz va unda tekislikda yotgan ikki nuqtani belgilaymiz. Bu to'g'ri chiziq haqida boshqa hech nima ma'lum emas. U tekislikni teshib chetga ketishi mumkindek tuyuladi, lekin yo'q. Aksioma shunday deydi: agar to'g'ri chiziqning ikki nuqtasi tekislikda yotsa, uning barcha nuqtalari shu tekislikda yotadi. Sahnani buring va to'g'ri chiziq tekislikdan hech qayerda chiqmasligiga ishonch hosil qiling. Aytgancha, bundan tanish usul kelib chiqadi: to'g'ri chiziq tekislikda yotganini tekshirish uchun ikki nuqta yetadi. Butun to'g'ri chiziq emas, ikki nuqta.", 'Возьмём прямую и отметим на ней две точки, которые лежат в плоскости. Больше про эту прямую ничего не известно. Кажется, что она могла бы проткнуть плоскость и уйти в сторону, но нет. Аксиома говорит: если две точки прямой лежат в плоскости, то все её точки лежат в этой плоскости. Поверни сцену и убедись, что прямая не выходит из плоскости нигде. Отсюда, кстати, следует привычный приём: чтобы проверить, лежит ли прямая в плоскости, хватит двух точек. Не всей прямой, а двух точек.', 'Take a line and mark two of its points that lie in the plane. Nothing else is known about this line. It seems it could pierce the plane and go off to the side, but no. The axiom says: if two points of a line lie in a plane, then all its points lie in that plane. Rotate the scene and see that the line does not leave the plane anywhere. From this, by the way, follows the familiar move: to check whether a line lies in a plane, two points are enough. Not the whole line, two points.'),
+    A('work', "O'zingiz hisoblang. To'g'ri chiziqning nechta nuqtasini tekshirish kerak?", 'Посчитай сам. Сколько точек прямой надо проверить?', 'Work it out yourself. How many points of the line must be checked?'),
   ],
-  order: {
-    prompt: L('Qadamlarni tartib bilan joylashtiring.', 'Расставь шаги по порядку.', 'Put the steps in order.'),
-    s1: L('ikkala asosni ikkiga keltiramiz', 'оба основания сводим к двойке', 'reduce both bases to two'),
-    s2: L("ko'rsatkichlarni tenglashtiramiz", 'показатели приравниваем', 'set the exponents equal'),
-    s3: L('oddiy tenglamani yechamiz', 'решаем обычное уравнение', 'solve the ordinary equation'),
-    s4: L('ildiz bitta', 'корень один', 'one root'),
-    ok: L("Asoslar bittaga keltiriladi, keyin tenglama oddiy bo'ladi. Monotonlik ko'rsatkichlarni solishtirishga ruxsat beradi.", 'Основания приводят к одному, и дальше уравнение обычное. Монотонность разрешает сравнить показатели.', 'The bases are reduced to one, and then the equation is an ordinary one. Monotonicity allows comparing the exponents.'),
-    bad: L("Avval bitta asos, keyin ko'rsatkichlar, keyin yechim.", 'Сначала одно основание, потом показатели, потом решение.', 'First one base, then the exponents, then the solution.'),
-    mark: 'x = 1',
+  work: {
+    prompt: L("To'g'ri chiziqning nechta nuqtasini tekshirish kerak?", 'Сколько точек прямой надо проверить?', 'How many points of the line must be checked?'),
+    ok: L("Ikkita. Qolganlari ikkinchi aksioma bo'yicha o'zi keladi.", 'Две. Остальные придут сами по второй аксиоме.', 'Two. The rest follow by the second axiom.'),
+    hint: [
+      L("Ikkinchi aksiomani yana bir bor o'qing.", 'Прочитай вторую аксиому ещё раз.', 'Read the second axiom once more.'),
+      L('Unda ikki nuqta haqida aytilgan.', 'В ней сказано про две точки.', 'It speaks about two points.'),
+      L('Ikki.', 'Две.', 'Two.'),
+    ],
+    expr: 'A, B ∈ α,  A, B ∈ a   →   a ⊂ α',
+    answer: '2',
   },
 }
 
 const S6 = {
   role: 'explain4',
   answer: 'number',
-  eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L('Almashtirish kvadratga keltiradi', 'Замена сводит к квадратному', 'A substitution reduces it to a quadratic'),
-  tag: 'net-resheniy',
+  eyebrow: L("O'ZINGIZ", 'САМ', 'ON YOUR OWN'),
+  title: L('Umumiy nuqtali ikki tekislik', 'Две плоскости с общей точкой', 'Two planes with a common point'),
+  tag: 'kartinka-kak-dokazatelstvo',
   show: [
     [
-      L('tenglamada ikki daraja', 'в уравнении две степени', 'the equation has two powers'),
-      L('biri ikkinchisining kvadrati', 'одна из них квадрат другой', 'one of them is the square of the other'),
-      '4^x − 3·2^x − 4 = 0',
+      L('ikki tekislik, ularning umumiy nuqtasi bor', 'две плоскости, у них есть общая точка', 'two planes with a common point'),
+      L('ish bitta nuqta bilan tugamaydi', 'одной точкой дело не кончается', 'one point is not the end of it'),
+      L('sahnani buring va qarang', 'поверни сцену и посмотри', 'rotate the scene and look'),
     ],
     [
-      L('almashtirish kvadrat tenglama beradi', 'замена даёт квадратное уравнение', 'the substitution gives a quadratic'),
-      L('manfiy qiymat tashlanadi', 'отрицательное значение отбрасывают', 'the negative value is dropped'),
-      't² − 3t − 4 = 0',
+      L("ularning umumiy to'g'ri chizig'i bor", 'у них есть общая прямая', 'they have a common line'),
+      L("u shu nuqtadan o'tadi", 'она проходит через эту точку', 'it passes through that point'),
+      L("va bunday to'g'ri chiziq bitta", 'и такая прямая одна', 'and there is one such line'),
     ],
   ],
-  motion: ['sub'],
+  motion: ['cut'],
   audio: [
-    A('mount', "Ikki daraja bo'lgan tenglamani olamiz. To'rt iks darajada va ikki iks darajada.", 'Возьмём уравнение, где степеней две. Четыре в степени икс и два в степени икс.', 'Take an equation with two powers. Four to the x and two to the x.'),
-    A('sub', "To'rt iks darajada bu ikki iks darajaning kvadrati. Ikki iks darajani te harfi bilan belgilaymiz, va oddiy kvadrat tenglama chiqadi. Uning ildizlari to'rt va minus bir. Minus birni tashlaymiz: ikki iks darajada har qanday iksda musbat, u hech qachon manfiy bo'lmaydi. To'rt qoladi, va undan iks ikkiga teng.", 'Четыре в степени икс это квадрат двух в степени икс. Обозначим два в степени икс буквой тэ, и получится обычное квадратное уравнение. Его корни четыре и минус один. Минус один отбрасываем: два в степени икс положительно при любом икс, отрицательным оно не бывает никогда. Остаётся четвёрка, и из неё икс равен двум.', 'Four to the x is the square of two to the x. Let us call two to the x by the letter t, and an ordinary quadratic appears. Its roots are four and minus one. We drop minus one: two to the x is positive for every x and is never negative. Four is left, and from it x equals two.'),
-    A('work', "O'zingiz hisoblang. Almashtirishning nechta ildizi yaraydi?", 'Посчитай сам. Сколько корней замены годится?', 'Work it out yourself. How many roots of the substitution fit?'),
+    A('mount', "Uchinchi aksioma. Bu yerda o'zingiz hisoblashingizga to'g'ri keladi.", 'Третья аксиома. Здесь считать придётся самому.', 'The third axiom. Here you will have to count for yourself.'),
+    A('cut', "Ikki tekislikning umumiy nuqtasi bor. Aksioma shuni tasdiqlaydiki, u holda ularning shu nuqtadan o'tuvchi umumiy to'g'ri chizig'i ham bor. Ya'ni bir-biriga roppa-rosa bitta nuqtada tegadigan ikki tekislik fazoda bo'lmaydi: yo ularning umumiy nuqtasi umuman yo'q, yo butun bir to'g'ri chiziq bor. Sahnani buring va shu to'g'ri chiziqni toping. U bir tekislik ikkinchisiga kiradigan chiziq ko'rinishida ko'rinadi. Kesishuvchi ikki tekislikning bunday umumiy to'g'ri chizig'i nechta ekanini sanang.", 'Две плоскости имеют общую точку. Аксиома утверждает, что тогда у них есть и общая прямая, проходящая через эту точку. То есть двух плоскостей, которые касались бы друг друга ровно в одной точке, в пространстве не бывает: либо у них нет общих точек вовсе, либо есть целая прямая. Поверни сцену и найди эту прямую. Она видна как линия, по которой одна плоскость входит в другую. Посчитай, сколько таких общих прямых у двух пересекающихся плоскостей.', 'Two planes have a common point. The axiom claims that then they also have a common line through that point. That is, two planes that touch each other at exactly one point do not exist in space: either they have no common points at all, or they have a whole line. Rotate the scene and find that line. It shows as the line along which one plane enters the other. Count how many such common lines two intersecting planes have.'),
+    A('work', "O'zingiz hisoblang. Kesishuvchi ikki tekislikning nechta umumiy to'g'ri chizig'i bor?", 'Посчитай сам. Сколько общих прямых у двух пересекающихся плоскостей?', 'Work it out yourself. How many common lines do two intersecting planes have?'),
   ],
   work: {
-    prompt: L('Almashtirishning nechta ildizi yaraydi?', 'Сколько корней замены годится?', 'How many roots of the substitution fit?'),
-    ok: L("Bitta. Minus bir yaramaydi: ikkining darajasi manfiy bo'lmaydi.", 'Один. Минус единица не годится: степень двойки отрицательной не бывает.', 'One. Minus one does not fit: a power of two is never negative.'),
+    prompt: L("Ularning nechta umumiy to'g'ri chizig'i bor?", 'Сколько у них общих прямых?', 'How many common lines do they have?'),
+    ok: L("Bitta. Ikki tekislik bitta to'g'ri chiziq bo'ylab kesishadi, bitta nuqta bo'yicha esa hech qachon kesishmaydi.", 'Одна. Две плоскости пересекаются по одной прямой, и по одной точке не пересекаются никогда.', 'One. Two planes meet along one line, and never at a single point.'),
     hint: [
-      L("Almashtirishning har ildizini ishorasi bo'yicha tekshiring.", 'Проверь каждый корень замены на знак.', 'Check the sign of each root of the substitution.'),
-      L('Almashtirish qiymati bu ikkining darajasi, u esa musbat.', 'Значение замены это степень двойки, а она положительна.', 'The substituted value is a power of two, and that is positive.'),
-      L('Bitta.', 'Один.', 'One.'),
+      L('Sahnani buring va ular bir-biriga kiradigan chiziqni toping.', 'Поверни сцену и найди линию, по которой они входят друг в друга.', 'Rotate the scene and find the line along which they enter each other.'),
+      L("Bunday to'g'ri chiziq ikkita bo'lganda, tekisliklar ustma-ust tushardi.", 'Если бы таких прямых было две, плоскости совпали бы.', 'If there were two such lines, the planes would coincide.'),
+      L('Bitta.', 'Одна.', 'One.'),
     ],
+    expr: 'α ∩ β = a',
     answer: '1',
   },
 }
@@ -282,34 +288,34 @@ const S6 = {
 const S7 = {
   role: 'explain5',
   answer: 'number',
-  eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L("Uchrashuv bo'lmaydigan hol", 'Когда встреч не бывает', 'When there are no meetings'),
-  tag: 'net-resheniy',
+  eyebrow: L('CHEGARAVIY HOL', 'ГРАНИЧНЫЙ СЛУЧАЙ', 'THE EDGE CASE'),
+  title: L("O'lchadi — hali isbotlamadi", 'Измерил — ещё не доказал', 'Measured is not proved'),
+  tag: 'izmeril-znachit-dokazal',
   show: [
     [
-      L("gorizontalni o'q ostiga tushiramiz", 'опускаем горизонталь под ось', 'we lower the horizontal below the axis'),
-      L("u egri chiziqdan pastda o'tadi", 'она проходит ниже кривой', 'it passes below the curve'),
-      '2^x = −4',
+      L("chizmada ikki kesma teng ko'rinadi", 'на чертеже два отрезка кажутся равными', 'on the drawing two segments look equal'),
+      L("chizg'ich bir xil sonni ko'rsatadi", 'линейка показывает одно и то же число', 'the ruler shows the same number'),
+      L("bu o'lchash natijasi", 'это результат измерения', 'this is the result of a measurement'),
     ],
     [
-      L("birorta uchrashuv yo'q", 'встреч нет ни одной', 'there is not a single meeting'),
-      L("demak ildiz yo'q", 'значит корней нет', 'so there are no roots'),
-      '∅',
+      L('sahnani buring', 'поверни сцену', 'rotate the scene'),
+      L('sonlar farq qildi', 'числа разошлись', 'the numbers came apart'),
+      L("demak uzunlikni emas, proyeksiyani o'lchadik", 'значит мерили не длину, а проекцию', 'so it was the projection that was measured, not the length'),
     ],
   ],
-  motion: ['none'],
+  motion: ['rule'],
   audio: [
-    A('mount', "Gorizontalni o'q ostiga, minus to'rt darajasiga tushiramiz.", 'Опустим горизонталь под ось, на уровень минус четыре.', 'Let us lower the horizontal below the axis, to the level minus four.'),
-    A('none', "U egri chiziqdan pastda o'tadi va uni hech qayerda uchratmaydi. Demak ildiz yo'q, va bu har qanday hisobdan oldin ko'rinadi. Gorizontalni aynan nolga ko'taramiz. U asimptota bilan ustma-ust tushadi va u ham egri chiziqni uchratmaydi. Shuning uchun o'ng qismida nol yoki manfiy son bo'lgan tenglamalarning yechimi yo'q, va o'ng qism birinchi tekshiriladi.", 'Она проходит ниже кривой и не встречает её нигде. Значит корней нет, и это видно до всяких вычислений. Поднимем горизонталь ровно на ноль. Она совпадает с асимптотой и тоже не встречает кривую. Поэтому уравнения, где справа ноль или отрицательное число, решений не имеют, и правая часть проверяется первой.', 'It passes below the curve and meets it nowhere. So there are no roots, and this is visible before any computation. Let us raise the horizontal to exactly zero. It coincides with the asymptote and does not meet the curve either. So equations with zero or a negative number on the right have no solutions, and the right side is what gets checked first.'),
-    A('work', "O'zingiz hisoblang. Bu tenglamada nechta ildiz bor?", 'Посчитай сам. Сколько корней у этого уравнения?', 'Work it out yourself. How many roots does this equation have?'),
+    A('mount', "Yettinchi sinfdagi bir usul bu yerga ko'chadi va qattiqroq bo'ladi.", 'Один приём из седьмого класса переносится сюда и становится строже.', 'One move from grade seven carries over here and gets stricter.'),
+    A('rule', "Planimetriyada biz allaqachon kelishgan edik: chizg'ich bilan o'lchash natijasi taxmin so'zi bilan imzolanadi va isbotga olinmaydi. Fazoda bu qoida qattiqroq bo'ladi. Yassi chizmada biz kesmaning o'zini emas, uning proyeksiyasini ko'ramiz, proyeksiya esa uzunlikni ham, burchakni ham buzadi. Sahnani buring: teng ko'ringan ikki kesma ajralib ketdi. Bu o'lchovlarning birortasi hech nimani isbotlamaydi, ikkalasi ham faqat diqqat bilan qarashga sabab. Isbot aksiomalar va allaqachon isbotlangan tasdiqlar bo'yicha qilinadi, rasm bo'yicha emas.", 'В планиметрии мы уже договаривались: результат измерения линейкой подписывается словом предположение и в доказательство не берётся. В пространстве это правило становится жёстче. На плоском чертеже мы видим не сам отрезок, а его проекцию, а проекция искажает и длины, и углы. Поверни сцену: два отрезка, которые казались равными, разъехались. Ни один из этих замеров ничего не доказывает, оба они только повод присмотреться. Доказывают по аксиомам и по уже доказанным утверждениям, а не по картинке.', 'In planimetry we already agreed: the result of measuring with a ruler is labelled a guess and is not taken into a proof. In space this rule gets harder. On a flat drawing we do not see the segment itself but its projection, and a projection distorts both lengths and angles. Rotate the scene: two segments that looked equal have come apart. Neither of these measurements proves anything, both are only a reason to look closer. Proofs go by axioms and by statements already proved, not by the picture.'),
+    A('work', "O'zingiz hisoblang. Ikki o'lchovdan nechtasi isbotga yaraydi?", 'Посчитай сам. Сколько из двух замеров годится в доказательство?', 'Work it out yourself. How many of the two measurements can go into a proof?'),
   ],
   work: {
-    prompt: L('Bu tenglamada nechta ildiz bor?', 'Сколько корней у этого уравнения?', 'How many roots does this equation have?'),
-    ok: L("Birortasi ham. Qiymatlar to'plami musbat sonlar, o'ngda esa manfiy son turadi.", 'Ни одного. Множество значений это положительные числа, а справа стоит отрицательное.', 'None. The range is the positive numbers, and a negative one stands on the right.'),
+    prompt: L("Nechta o'lchov isbotga yaraydi?", 'Сколько замеров годится в доказательство?', 'How many measurements can go into a proof?'),
+    ok: L("Bitta ham yo'q. Proyeksiya bo'yicha o'lchash hech nimani isbotlamaydi.", 'Ни одного. Измерение по проекции не доказывает ничего.', 'None. A measurement taken from a projection proves nothing.'),
     hint: [
-      L('Gorizontal egri chiziqni biror joyda uchratadimi, qarang.', 'Посмотри, встречает ли горизонталь кривую хоть где-нибудь.', 'Look whether the horizontal meets the curve anywhere at all.'),
-      L("Egri chiziq butunlay o'qdan yuqorida, gorizontal esa pastda.", 'Кривая целиком выше оси, а горизонталь ниже.', 'The curve lies entirely above the axis, and the horizontal below.'),
-      L('Birortasi ham.', 'Ни одного.', 'None.'),
+      L("Yettinchi sinfda chizg'ich natijasi nima bilan imzolanganini eslang.", 'Вспомни, чем подписывался результат линейки в седьмом классе.', 'Recall how a ruler result was labelled in grade seven.'),
+      L("Chizmada proyeksiya ko'rinadi, kesmaning o'zi emas.", 'На чертеже видна проекция, а не сам отрезок.', 'The drawing shows the projection, not the segment itself.'),
+      L('Nol.', 'Ноль.', 'Zero.'),
     ],
     answer: '0',
   },
@@ -318,29 +324,29 @@ const S7 = {
 const S8 = {
   role: 'rule',
   answer: 'pick2',
-  eyebrow: L('QOIDA', 'ПРАВИЛО', 'RULE'),
-  title: L("Ko'rsatkichli tenglama", 'Показательное уравнение', 'The exponential equation'),
-  tag: 'delyat-vmesto-osnovaniya',
+  eyebrow: L('QOIDA', 'ПРАВИЛО', 'THE RULE'),
+  title: L('Uch aksioma', 'Три аксиомы', 'Three axioms'),
+  tag: 'tri-tochki-na-pryamoy',
   motion: ['rule'],
   audio: [
-    A('mount', 'Tushuntirish tugadi. Qoidadan oldin bitta savol.', 'Объяснение закончилось. Перед правилом один вопрос.', 'The explanation is over. One question before the rule.'),
-    A('rule', "Gorizontal ekranda qoladi, va qoida yonida ochiladi. Ko'rsatkichlar asos qayoqqadir ketgani uchun emas, egri chiziq har qiymatdan aynan bir marta o'tgani uchun tenglashtiriladi.", 'Горизонталь остаётся на экране, и правило открывается рядом. Показатели приравнивают не потому, что основание куда-то ушло, а потому, что кривая проходит через каждое значение ровно один раз.', 'The horizontal stays on the screen and the rule opens beside it. The exponents are set equal not because the base went away but because the curve passes each value exactly once.'),
+    A('mount', "Qoidani yig'amiz. Aksioma uchta, uchalasini ham harakatda ko'rdik.", 'Соберём правило. Аксиом три, и все три мы уже видели в движении.', 'Let us put the rule together. There are three axioms and we have seen all three in motion.'),
+    A('rule', "Birinchi: agar uch nuqta bir to'g'ri chiziqda yotmasa, ular orqali yagona tekislik o'tkazish mumkin. To'g'ri chiziq haqidagi so'zlar bu yerda asosiy, ularsiz tasdiq noto'g'ri. Ikkinchi: agar to'g'ri chiziqning ikki nuqtasi tekislikda yotsa, uning barcha nuqtalari shu tekislikda yotadi. Bundan tekshirish qoidasi: ikki nuqta yetadi. Uchinchi: agar ikki tekislikning umumiy nuqtasi bo'lsa, undan o'tuvchi umumiy to'g'ri chiziq ham bor. Demak tekisliklar bitta nuqta bo'yicha hech qachon kesishmaydi. Planimetriya aksiomalari bilan birga bu uchtasi stereometriyaning asosini tashkil qiladi, va keyin hammasi ulardan isbotlanadi.", 'Первая: если три точки не лежат на одной прямой, через них можно провести единственную плоскость. Слова про прямую здесь главные, без них утверждение неверно. Вторая: если две точки прямой лежат в плоскости, то все её точки лежат в этой плоскости. Отсюда правило проверки: хватает двух точек. Третья: если у двух плоскостей есть общая точка, то есть и общая прямая, проходящая через неё. Значит по одной точке плоскости не пересекаются никогда. Вместе с аксиомами планиметрии эти три составляют основу стереометрии, и дальше всё доказывается из них.', 'First: if three points do not lie on one line, a unique plane can be drawn through them. The words about the line are the main part here, without them the statement is false. Second: if two points of a line lie in a plane, then all its points lie in that plane. Hence the checking rule: two points are enough. Third: if two planes have a common point, they also have a common line through it. So planes never meet at a single point. Together with the axioms of planimetry these three form the basis of stereometry, and everything further is proved from them.'),
   ],
   probe: {
-    question: L("Nega darajalarning tengligidan ko'rsatkichlarni tenglashtirish mumkin?", 'Почему из равенства степеней можно приравнять показатели?', 'Why may the exponents be set equal when the powers are equal?'),
+    question: L("Birinchi aksiomadagi qaysi shartni tashlab bo'lmaydi?", 'Какое условие в первой аксиоме отбрасывать нельзя?', 'Which condition in the first axiom cannot be dropped?'),
     items: [
-      { id: 'a', label: L("funksiya monoton: bitta qiymatga bitta ko'rsatkich", 'функция монотонна: одному значению один показатель', 'the function is monotone: one value, one exponent'), correct: true },
-      { id: 'b', label: L('asos qisqaradi', 'основание сокращается', 'the base cancels out'), hint: L("Asos qisqartirilmaydi: u ko'paytuvchi emas. Solishtirish huquqini egri chiziqning monotonligi beradi.", 'Основание не сокращают: это не множитель. Право сравнить даёт монотонность кривой.', 'The base is not cancelled: it is not a factor. The right to compare comes from the monotonicity of the curve.') },
+      { id: 'a', label: L("nuqtalar bir to'g'ri chiziqda yotmaydi", 'точки не лежат на одной прямой', 'the points do not lie on one line'), correct: true },
+      { id: 'b', label: L('nuqtalar roppa-rosa uchta', 'точек ровно три', 'there are exactly three points'), hint: L('Ular uchta ham. Gap sonda emas, joylashuvida.', 'Три их и есть. Дело не в числе, а в том, как они расположены.', 'There are three of them indeed. The point is not their number but their arrangement.') },
     ],
   },
   rule: {
-    lawLabel: L('Qoida', 'Правило', 'The rule'),
+    lawLabel: L('UCH AKSIOMA', 'ТРИ АКСИОМЫ', 'THE THREE AXIOMS'),
     lines: [
-      L("Ko'rsatkichida noma'lum turgan tenglama ko'rsatkichli tenglama deyiladi.", 'Уравнение, в показателе которого стоит неизвестное, называют показательным.', 'An equation whose exponent holds the unknown is called exponential.'),
-      L("Asos musbat va birga teng bo'lmasa, ko'rsatkichlar teng bo'ladi.", 'Если основание положительно и не равно единице, показатели равны.', 'If the base is positive and not one, the exponents are equal.'),
-      L("O'ngda nol yoki manfiy son bo'lsa, ildiz yo'q.", 'Если справа ноль или отрицательное число, корней нет.', 'If the right side is zero or negative, there are no roots.'),
+      L("bir to'g'ri chiziqda yotmagan uch nuqta orqali yagona tekislik o'tadi", 'через три точки не на одной прямой проходит единственная плоскость', 'through three points not on one line passes a unique plane'),
+      L("to'g'ri chiziqning ikki nuqtasi tekislikda bo'lsa, butun chiziq unda", 'если две точки прямой в плоскости, то вся прямая в ней', 'if two points of a line are in a plane, the whole line is in it'),
+      L("ikki tekislikning umumiy nuqtasi bo'lsa, umumiy to'g'ri chizig'i ham bor", 'если у двух плоскостей есть общая точка, есть и общая прямая', 'if two planes share a point, they share a line'),
     ],
-    law: 'a^{f(x)} = a^{g(x)}   →   f(x) = g(x)',
+    law: 'S₁: A, B, C ∉ a   →   α',
   },
 }
 
@@ -348,44 +354,70 @@ const S9 = {
   role: 'drill',
   answer: 'match',
   format: 'match',
-  eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
-  title: L('Tenglama va uning ildizi', 'Уравнение и его корень', 'An equation and its root'),
-  tag: 'delyat-vmesto-osnovaniya',
+  eyebrow: L('MASHQ', 'ТРЕНИРОВКА', 'PRACTICE'),
+  title: L('Shartni tekisliklar soni bilan ulang', 'Соедини условие с числом плоскостей', 'Match each condition with the number of planes'),
+  tag: 'tri-tochki-na-pryamoy',
   audio: [
-    A('mount', "To'rt tenglama va to'rt ildiz. Ularni birlashtiring.", 'Четыре уравнения и четыре корня. Соедини их.', 'Four equations and four roots. Match them.'),
+    A('mount', "To'rt yozuv va to'rt javob. Chizmasdan hisoblang. Oxirgi yozuv bu kub: uning yoqlari tekisliklarini sanang.", 'Четыре записи и четыре ответа. Считай, не рисуя. Последняя запись это куб: считай плоскости его граней.', 'Four writings and four answers. Count without drawing. The last writing is a cube: count the planes of its faces.'),
   ],
   match: {
-    prompt: L('Tenglamani ildizi bilan birlashtiring.', 'Соедини уравнение с его корнем.', 'Match each equation with its root.'),
-    ok: L("Har tenglama bitta asosga keltiriladi, keyin ko'rsatkichlar solishtiriladi. Ildiz kasr ham, manfiy ham, nol ham bo'ladi.", 'Каждое уравнение сводится к одному основанию, и дальше сравниваются показатели. Корень бывает и дробным, и отрицательным, и нулём.', 'Every equation reduces to one base, and then the exponents are compared. A root can be fractional, negative, or zero.'),
-    left: ['2^x = 32', '3^x = 1/3', '5^x = 1', '4^x = 2'],
-    a: '5',
-    b: '−1',
-    c: '0',
-    d: '1/2',
+    prompt: L('Yozuvga nechta har xil tekislik mos keladi', 'Сколько разных плоскостей отвечает записи', 'How many distinct planes each writing gives'),
+    ok: L("To'g'ri. To'rt nuqtadan uchlik to'rt xil tanlanadi, kubning yoqlari esa olti tekislikda yotadi.", 'Верно. Из четырёх точек тройку выбирают четырьмя способами, а грани куба лежат в шести плоскостях.', 'Correct. A triple is chosen from four points in four ways, and the faces of a cube lie in six planes.'),
+    left: ['A, B, C ∉ a', 'A, B, C ∈ a', 'A, B, C, D', 'ABCDA₁B₁C₁D₁'],
+    a: '1',
+    b: '∞',
+    c: '4',
+    d: '6',
   },
 }
 
 const S10 = {
   role: 'guided',
   answer: 'order',
-  format: 'order-steps',
-  eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
-  title: L('Qadam bilan yeching', 'Реши по шагам', 'Solve it step by step'),
-  tag: 'delyat-vmesto-osnovaniya',
+  format: 'proof',
+  eyebrow: L('QADAMMA-QADAM', 'ПО ШАГАМ', 'STEP BY STEP'),
+  title: L('Natijani isbotlang', 'Докажи следствие', 'Prove the corollary'),
+  tag: 'kartinka-kak-dokazatelstvo',
   audio: [
-    A('mount', "To'rtta qadam. Tartibini o'zingiz qo'yasiz.", 'Четыре шага. Порядок ставишь ты.', 'Four steps. You put them in order.'),
+    A('mount', "Endi aksiomalardan chiqadigan natijani isbotlaymiz. Har qatorning asoslashi ro'yxatdan tanlanadi.", 'Теперь докажем следствие из аксиом. Обоснование каждой строки выбирается из списка.', 'Now let us prove a corollary of the axioms. The justification of each line is chosen from the list.'),
   ],
-  order: {
-    prompt: L('Qadamlarni tartib bilan joylashtiring.', 'Расставь шаги по порядку.', 'Put the steps in order.'),
-    s1: L("to'qqiz bu uch kvadratda", 'девять это три в квадрате', 'nine is three squared'),
-    s2: L("ko'rsatkichni ochish", 'раскрыть показатель', 'expand the exponent'),
-    s3: L("ko'rsatkichlarni tenglashtirish", 'приравнять показатели', 'set the exponents equal'),
-    s4: L('ildizni olish', 'получить корень', 'get the root'),
-    ok: L('Ikkala asos uchga keltirildi, keyin tenglama oddiy. Ildiz uchga teng.', 'Оба основания сведены к тройке, и дальше уравнение обычное. Корень равен трём.', 'Both bases are reduced to three, and then the equation is an ordinary one. The root is three.'),
-    bad: L("Avval bitta asos, keyin ko'rsatkichni ochish, keyin tenglashtirish.", 'Сначала одно основание, потом раскрыть показатель, потом приравнять.', 'First one base, then expand the exponent, then set them equal.'),
-    mark: 'x = 3',
+  proof: {
+    given: L("to'g'ri chiziq va undan tashqaridagi nuqta", 'прямая и точка вне её', 'a line and a point outside it'),
+    goal: L("ular orqali roppa-rosa bitta tekislik o'tadi", 'через них проходит ровно одна плоскость', 'exactly one plane passes through them'),
+    r1: L("to'g'ri chiziqda ikki nuqta olamiz", 'берём на прямой две точки', 'take two points on the line'),
+    r2: L("uch nuqta bir chiziqda emas, tekislik o'tkazamiz", 'три точки не на одной прямой, проводим плоскость', 'three points not on one line, draw the plane'),
+    r3: L('chiziqning ikki nuqtasi tekislikda, demak butun chiziq unda', 'две точки прямой в плоскости, значит вся прямая в ней', 'two points of the line are in the plane, so the whole line is'),
+    e1: L(
+      "Aksioma bu yerda hali ishlamaydi. Bu qadamni o'zimiz qilamiz.",
+      'Аксиома тут ещё не работает. Этот шаг мы делаем сами.',
+      'No axiom works here yet. We make this step ourselves.',
+    ),
+    e2: L(
+      "Tekislik hali yo'q. Uni olish kerak.",
+      'Плоскости пока нет. Её ещё надо получить.',
+      'There is no plane yet. It still has to be obtained.',
+    ),
+    e3: L(
+      "Tekislik bor. Gap unga tushadigan to'g'ri chiziq haqida.",
+      'Плоскость уже есть. Речь о том, что в неё попадает целая прямая.',
+      'The plane is there. This is about the line that falls into it.',
+    ),
+    ok: L("Isbotlandi. Ikkala aksioma ham kerak bo'ldi: birinchisi tekislik berdi, ikkinchisi unga chiziqni tortdi.", 'Доказано. Обе аксиомы понадобились: первая дала плоскость, вторая втянула в неё прямую.', 'Proved. Both axioms were needed: the first gave the plane, the second pulled the line into it.'),
   },
-  expr: '9^{x−1} = 3^{x+1}',
+  reason: {
+    s1: L('birinchi aksioma', 'первая аксиома', 'the first axiom'),
+    s2: L('ikkinchi aksioma', 'вторая аксиома', 'the second axiom'),
+    s3: L("yasashga ko'ra", 'по построению', 'by construction'),
+    pic: {
+      label: L("chizmada ko'rinadi", 'видно на чертеже', 'it is visible on the drawing'),
+      missing: L("Chizma asoslash emas: u ko'p holatdan bittasini ko'rsatadi.", 'Чертёж не обоснование: он показывает одно положение из многих.', 'A drawing is not a justification: it shows one position out of many.'),
+    },
+    measure: {
+      label: L("chizg'ich bilan o'lchangan", 'измерено линейкой', 'measured with a ruler'),
+      missing: L("O'lchash taxmin, dalil emas.", 'Измерение это предположение, а не довод.', 'A measurement is a guess, not an argument.'),
+    },
+  },
+  expr: 'a, C ∉ a   →   α',
 }
 
 const S11 = {
@@ -393,30 +425,30 @@ const S11 = {
   answer: 'number',
   format: 'number+order',
   noTool: true,
-  eyebrow: L('ASBOBSIZ', 'БЕЗ ПРИБОРА', 'NO INSTRUMENT'),
-  title: L('Chizmasiz yeching', 'Реши без чертежа', 'Solve it without a drawing'),
+  eyebrow: L("QOG'OZDA", 'НА БУМАГЕ', 'ON PAPER'),
+  title: L("To'rt nuqta, hech qaysi uchtasi bir chiziqda emas", 'Четыре точки, никакие три не на прямой', 'Four points, no three on one line'),
   tag: 'bumaga',
   audio: [
-    A('mount', "Bu ekranda chizma yo'q. Imtihonda ham bo'lmaydi.", 'На этом экране чертежа нет. На экзамене его тоже не будет.', 'There is no drawing on this screen. There will be none at the exam either.'),
-    A('next', "Javobni o'zingiz yozing.", 'Ответ запиши сам.', 'Type the answer yourself.'),
+    A('mount', "Asbob yo'q. Qog'ozda hisoblang, keyin solishtiring.", 'Прибора нет. Считай на бумаге, потом сверься.', 'No instrument here. Work it out on paper, then compare.'),
+    A('next', "Keyin xatoli yozuv. Xato paydo bo'lgan qatorni toping.", 'Дальше запись с ошибкой. Найди строку, где она появилась.', 'Next comes a written solution with a mistake. Find the line where it appeared.'),
   ],
   task: {
-    ok: L('Minus uch. Bir ikkidan bu ikki minus birinchi darajada, demak chapda ikki minus iks darajada turadi.', 'Минус три. Одна вторая это два в минус первой, значит слева стоит два в степени минус икс.', 'Minus three. One half is two to the minus first, so on the left stands two to the minus x.'),
+    ok: L("To'rtta. Har uchlik o'z tekisligini belgilaydi, to'rt nuqtadan uchliklar esa to'rtta.", 'Четыре. Каждая тройка задаёт свою плоскость, а троек из четырёх точек четыре.', 'Four. Each triple fixes its own plane, and there are four triples of four points.'),
     hint: [
-      L('Bir ikkidanni ikkining darajasi qilib yozing.', 'Запиши одну вторую степенью двойки.', 'Write one half as a power of two.'),
-      L('Chapda ikki minus iks darajada chiqadi.', 'Слева получится два в степени минус икс.', 'On the left you get two to the minus x.'),
-      L('Minus uch.', 'Минус три.', 'Minus three.'),
+      L('Nuqtalarni emas, uchliklarni sanang.', 'Считай тройки точек, а не сами точки.', 'Count the triples of points, not the points.'),
+      L("To'rt nuqtadan uchlikni to'rt xil tanlash mumkin.", 'Из четырёх точек тройку можно выбрать четырьмя способами.', 'A triple can be chosen from four points in four ways.'),
+      L("To'rt.", 'Четыре.', 'Four.'),
     ],
-    prompt: '(1/2)^x = 8   →   x = ?',
-    answer: '−3',
+    prompt: 'A, B, C, D   →   ?',
+    answer: '4',
   },
   order: {
-    prompt: L("Tenglamalarni ildizining o'sishi bo'yicha joylashtiring.", 'Расставь уравнения по возрастанию корня.', 'Arrange the equations by increasing root.'),
-    title: L('Qaysi tenglamaning ildizi kichikroq?', 'У какого уравнения корень меньше?', 'Which equation has the smaller root?'),
-    ok: L("Asos birdan katta, shuning uchun o'ng qism qancha katta bo'lsa, ildiz ham shuncha katta.", 'Основание больше единицы, поэтому чем больше правая часть, тем больше корень.', 'The base is greater than one, so the bigger the right side the bigger the root.'),
-    bad: L('Har tenglamaning ildizini toping, keyin solishtiring.', 'Найди корень каждого уравнения, потом сравнивай.', 'Find the root of each equation, then compare.'),
-    items: ['2^x = 1/4', '2^x = 1', '2^x = 2', '2^x = 8'],
-    answer: '2^x = 1/4  2^x = 1  2^x = 2  2^x = 8',
+    prompt: L("Shartlarni tekisliklar soni o'sishi bo'yicha joylashtiring", 'Расставь условия по возрастанию числа плоскостей', 'Put the conditions in order of increasing number of planes'),
+    title: L('kichik sondan kattasiga', 'от меньшего числа к большему', 'from fewer planes to more'),
+    ok: L("To'g'ri. Chiziqda yotmagan uch nuqta bitta tekislik beradi, to'rt nuqta to'rtta, kub oltita, chiziqdagi uch nuqta esa cheksiz ko'p.", 'Верно. Три точки не на прямой дают одну плоскость, четыре точки четыре, куб шесть, а три точки на прямой бесконечно много.', 'Correct. Three points off a line give one plane, four points give four, a cube six, and three points on a line infinitely many.'),
+    bad: L("Nuqtalar nechtaligiga emas, joylashuvi haqida nima ma'lumligiga qarang.", 'Смотри, что известно о расположении точек, а не сколько их.', 'Look at what is known about the arrangement, not at how many points there are.'),
+    items: ['A, B, C ∈ a', 'A, B, C ∉ a', 'ABCDA₁B₁C₁D₁', 'A, B, C, D'],
+    answer: 'A, B, C ∉ a  A, B, C, D  ABCDA₁B₁C₁D₁  A, B, C ∈ a',
   },
 }
 
@@ -425,35 +457,35 @@ const S12 = {
   answer: 'number',
   format: 'audit',
   eyebrow: L('TUZOQ', 'ЛОВУШКА', 'THE TRAP'),
-  title: L("Javob to'liq emas. Qayerda?", 'Ответ неполный. Где?', 'The answer is incomplete. Where?'),
+  title: L('Xatoli qatorni toping', 'Найди строку с ошибкой', 'Find the line with the mistake'),
   tag: 'check',
   audio: [
-    A('mount', "Masala. Chapda ko'rsatkich iks kvadratda bo'lgan tenglamani yechish.", 'Задача. Решить уравнение, где показатель слева это икс в квадрате.', 'A task. Solve an equation where the exponent on the left is x squared.'),
-    A('next', "To'rt qator, hammasi to'g'ri ko'rinadi. Birinchi xato qatorni qidiring.", 'Четыре строки, все выглядят верными. Ищи первую неверную.', 'Four lines, all look right. Look for the first wrong one.'),
+    A('mount', "To'rt qator. Xato hisobda emas: bir qator rasmga tayanadi.", 'Четыре строки. Ошибка не в счёте: одна строка опирается на рисунок.', 'Four lines. The mistake is not in the counting: one line leans on the picture.'),
+    A('next', 'Keyin teskari masala: tekisliklar soniga qarab shartni tiklang.', 'Дальше обратная задача: по числу плоскостей восстанови условие.', 'Next comes the reverse task: rebuild the condition from the number of planes.'),
   ],
   hint: {
-    r1: L('Bu qator shartni shunchaki qaytadan yozadi.', 'Эта строка просто переписывает условие.', 'This line just rewrites the task.'),
-    r2: L("To'rt bu ikki kvadratda, qator to'g'ri.", 'Четыре это два в квадрате, строка верна.', 'Four is two squared, the line is right.'),
-    r3: L("Ko'rsatkichlar to'g'ri tenglashtirilgan.", 'Показатели приравнены верно.', 'The exponents are set equal correctly.'),
+    r1: L("Shart to'g'ri ko'chirilgan.", 'Условие переписано верно.', 'The condition is copied correctly.'),
+    r2: L('Bunday tekislik haqiqatan ham bor.', 'Такая плоскость и правда есть.', 'Such a plane does exist.'),
+    r3: L("O'zingizdan so'rang: bu qayerdan olingan, aksiomadanmi yoki rasmdanmi?", 'Спроси себя, откуда это взято: из аксиомы или с рисунка.', 'Ask yourself where this comes from: an axiom or the picture.'),
   },
-  proof: L("Bu yerda ikkala qism iksga bo'lindi, va nol ildiz yo'qoldi.", 'Здесь обе части поделили на икс, и корень ноль исчез.', 'Here both sides were divided by x, and the root zero vanished.'),
+  proof: L("Sahnani buring: tekislikda ko'ringan nuqta uning ustida chiqdi.", 'Поверни сцену: точка, которая казалась на плоскости, оказалась над ней.', 'Rotate the scene: the point that seemed to be on the plane turned out to be above it.'),
   entry: {
-    prompt: L("Qaysi ildiz yo'qolgan?", 'Какой корень потерян?', 'Which root is lost?'),
-    ok: L('Nol. Nolda ikkala qism birga teng, demak bu ham ildiz.', 'Ноль. При нуле обе части равны единице, значит это тоже корень.', 'Zero. At zero both sides equal one, so it is a root too.'),
+    prompt: L("To'g'ri chiziqning nechta nuqtasini tekshirish kerak edi?", 'Сколько точек прямой надо было проверить?', 'How many points of the line had to be checked?'),
+    ok: L("Ikkita. Ikkinchi aksioma uchun bitta nuqta kam, rasm esa ikkinchi nuqta o'rniga yaramaydi.", 'Две. Одной точки для второй аксиомы мало, а картинка вместо второй точки не годится.', 'Two. One point is not enough for the second axiom, and a picture is no substitute for the second one.'),
     hint: [
-      L("Oxirgi tenglamani iksga bo'lmasdan yeching.", 'Реши последнее уравнение, не деля на икс.', 'Solve the last equation without dividing by x.'),
-      L("Iksni qavsdan chiqaring va har ko'paytuvchini nolga tenglashtiring.", 'Вынеси икс за скобку и приравняй каждый множитель нулю.', 'Factor x out and set each factor to zero.'),
-      L('Nol.', 'Ноль.', 'Zero.'),
+      L("Ikkinchi aksiomani qayta o'qing.", 'Перечитай вторую аксиому.', 'Read the second axiom again.'),
+      L('Unda ikki nuqta haqida aytilgan, yozuvda esa bittasi olingan.', 'В ней сказано про две точки, а в записи взята одна.', 'It speaks of two points, and the writing takes one.'),
+      L('Ikki.', 'Две.', 'Two.'),
     ],
-    answer: '0',
+    answer: '2',
   },
   row: {
-    r1: '2^{x²} = 4^x',
-    r2: '2^{x²} = 2^{2x}',
-    r3: 'x² = 2x',
-    r4: 'x = 2',
+    r1: 'a,  B ∉ a',
+    r2: 'α ⊃ a,  B ∈ α',
+    r3: 'C ∈ a,  C ∈ α',
+    r4: 'a ⊂ α',
   },
-  answerId: 'r4',
+  answerId: 'r3',
 }
 
 const S13 = {
@@ -461,32 +493,33 @@ const S13 = {
   answer: 'number',
   format: 'number+multi',
   eyebrow: L("KO'CHIRISH", 'ПЕРЕНОС', 'TRANSFER'),
-  title: L("Ildiz bo'yicha tenglama yasang", 'По корню собери уравнение', 'From a root back to the equation'),
+  title: L("Teskari yo'l", 'Обратный ход', 'The other direction'),
   tag: 'obratnoe',
   audio: [
-    A('mount', "Endi teskari masala. Ildiz ma'lum, tenglamani yasash kerak.", 'Теперь обратная задача. Корень известен, собрать надо уравнение.', 'Now the inverse task. The root is known, and the equation must be built.'),
-    A('work', "Avval o'ng qismni yozing, keyin ildizi ikki bo'lgan hamma tenglamani belgilaysiz.", 'Сначала запиши правую часть, потом отметишь все уравнения с корнем два.', 'First type the right side, then you will mark every equation with root two.'),
+    A('mount', 'Endi teskarisiga. Tekisliklar soniga qarab nuqtalar qanday joylashganini ayting.', 'Теперь наоборот. По числу плоскостей назови, как расположены точки.', 'Now the other way round. From the number of planes, say how the points are arranged.'),
+    A('work', 'Keyin tekislikni yagona qilib beradigan barcha yozuvlarni belgilang.', 'Потом отметь все записи, которые задают плоскость однозначно.', 'Then mark every writing that fixes a plane uniquely.'),
   ],
   multi: {
-    prompt: L('Ildizi ikkiga teng hamma tenglamani belgilang.', 'Отметь все уравнения, у которых корень равен двум.', 'Mark every equation whose root is two.'),
-    title: L('Qaysi tenglamalarning ildizi ikkiga teng?', 'У каких уравнений корень равен двум?', 'Which equations have the root two?'),
-    ok: L("To'rttadan ikkitasi. Bir xil son har xil tenglamalarning ildizi bo'ladi.", 'Две из четырёх. Одно и то же число бывает корнем разных уравнений.', 'Two out of four. The same number can be the root of different equations.'),
+    prompt: L('Tekislikni yagona qilib beradigan barcha yozuvlarni belgilang', 'Отметь все записи, которые задают плоскость однозначно', 'Mark every writing that fixes a plane uniquely'),
+    title: L('ular aynan ikkita', 'их ровно два', 'there are exactly two'),
+    ok: L("To'g'ri. Chiziqdan tashqaridagi nuqta kerak: tekislikni u ushlab turadi.", 'Верно. Нужна точка вне прямой: она и держит плоскость.', 'Correct. A point off the line is needed: it is what holds the plane.'),
     items: [
-      { id: 'c', label: '2^x = 8', hint: L('Sakkiz bu ikki kubda, demak ildiz uchga teng.', 'Восемь это два в кубе, значит корень равен трём.', 'Eight is two cubed, so the root is three.') },
-      { id: 'd', label: '(1/2)^x = 4', hint: L('Asos birdan kichik, va ildiz manfiy chiqadi.', 'Основание меньше единицы, и корень получается отрицательным.', 'The base is less than one, and the root comes out negative.') },
-      { id: 'a', label: '2^x = 4', ok: true },
-      { id: 'b', label: '9^x = 81', ok: true },
+      { id: 'c', label: 'A, B', hint: L("Ikki nuqta to'g'ri chiziqni beradi, u orqali tekisliklar esa cheksiz ko'p.", 'Две точки задают прямую, а плоскостей через неё бесконечно много.', 'Two points fix a line, and there are infinitely many planes through it.') },
+      { id: 'd', label: 'A, B, C ∈ a', hint: L("Bir chiziqdagi uch nuqta bitta to'g'ri chiziqdek ish tutadi.", 'Три точки на одной прямой ведут себя как одна прямая.', 'Three points on one line behave like a single line.') },
+      { id: 'a', label: 'A, B, C ∉ a', ok: true },
+      { id: 'b', label: 'a, C ∉ a', ok: true },
     ],
   },
   entry: {
-    prompt: L("Asos besh, ildiz uch. O'ng qism nechaga teng?", 'Основание пять, корень три. Чему равна правая часть?', 'The base is five, the root is three. What is the right side?'),
-    ok: L("Bir yuz yigirma besh. Bu besh kubda, va bunday tenglamada boshqa ildiz yo'q.", 'Сто двадцать пять. Это пять в кубе, и другого корня у такого уравнения нет.', 'One hundred twenty five. That is five cubed, and such an equation has no other root.'),
+    prompt: L("Nuqta uchta, ular orqali tekislik bitta. Ulardan nechtasi bir to'g'ri chiziqda yotadi?", 'Точек три, плоскость через них одна. Сколько из них лежит на одной прямой?', 'Three points, one plane through them. How many of them lie on one line?'),
+    ok: L("Ikkita. Uchtasi bir chiziqda bo'lsa, cheksiz ko'p tekislik chiqardi.", 'Две. Три на одной прямой дали бы бесконечно много плоскостей.', 'Two. Three on one line would give infinitely many planes.'),
     hint: [
-      L("Ko'rsatkichga uchni qo'ying.", 'Подставь тройку в показатель.', 'Substitute three into the exponent.'),
-      L('Besh kubda.', 'Пять в кубе.', 'Five cubed.'),
-      L('Bir yuz yigirma besh.', 'Сто двадцать пять.', 'One hundred twenty five.'),
+      L("Uchalasi ham chiziqda yotganda, tekislik yagona bo'lmasdi.", 'Если бы все три лежали на прямой, плоскость была бы не одна.', 'If all three were on a line, the plane would not be unique.'),
+      L("Istalgan ikki nuqta orqali to'g'ri chiziq doim o'tadi.", 'Через любые две точки прямая проходит всегда.', 'A line always passes through any two points.'),
+      L('Ikki.', 'Две.', 'Two.'),
     ],
-    answer: '125',
+    expr: 'A, B, C   →   α',
+    answer: '2',
   },
 }
 
@@ -494,59 +527,59 @@ const S14 = {
   role: 'blitz',
   answer: 'mixed',
   format: 'chain',
-  eyebrow: L('BLITS', 'БЛИЦ', 'BLITZ'),
-  title: L("To'rt savol · natijaga kiradi", 'Четыре вопроса · идут в результат', 'Four questions · they count'),
-  tag: 'delyat-vmesto-osnovaniya',
+  eyebrow: L('BLITS', 'БЛИЦ', 'QUICK ROUND'),
+  title: L("Ketma-ket to'rt savol", 'Четыре вопроса подряд', 'Four questions in a row'),
+  tag: 'tri-tochki-na-pryamoy',
   audio: [
-    A('mount', "To'rtta qisqa savol. Faqat shu ekran natijaga kiradi.", 'Четыре коротких вопроса. Только этот экран идёт в результат.', 'Four short questions. Only this screen counts.'),
+    A('mount', "Ketma-ket to'rt savol. Birinchi urinish hisobga olinadi.", 'Четыре вопроса подряд. Считается первая попытка.', 'Four questions in a row. The first attempt counts.'),
   ],
   items: [
     {
       id: 'q1',
       ask: true,
-      prompt: L("Chapda va o'ngda bitta asos bo'lgan tenglama qanday yechiladi?", 'Как решают уравнение, где слева и справа одно основание?', 'How is an equation with the same base on both sides solved?'),
-      done: 'f(x) = g(x)',
+      prompt: L("Bir to'g'ri chiziqdagi uch nuqta orqali nechta tekislik o'tadi?", 'Сколько плоскостей проходит через три точки одной прямой?', 'How many planes pass through three points of one line?'),
+      done: 'A, B, C ∈ a',
       items: [
-        { id: 'a', label: L("ko'rsatkichlarni tenglashtiradilar", 'приравнивают показатели', 'the exponents are set equal'), correct: true },
-        { id: 'b', label: L("o'ng qismni asosga bo'ladilar", 'делят правую часть на основание', 'the right side is divided by the base'), hint: L("Qo'yib tekshiring: sakkiz ikkiga bo'linsa to'rt, ikki to'rtinchi darajada esa o'n olti.", 'Проверь подстановкой: восемь на два это четыре, а два в четвёртой шестнадцать.', 'Check by substitution: eight over two is four, and two to the fourth is sixteen.') },
-        { id: 'c', label: L('asoslarni ayiradilar', 'вычитают основания', 'the bases are subtracted'), hint: L("Asoslar bir xil, ayiradigan narsa yo'q.", 'Основания одинаковые, вычитать нечего.', 'The bases are the same, there is nothing to subtract.') },
-        { id: 'd', label: L("ikkala qismni kvadratga ko'taradilar", 'возводят обе части в квадрат', 'both sides are squared'), hint: L("Kvadrat hech narsani soddalashtirmaydi: ko'rsatkichlar shunchaki ikkilanadi.", 'Квадрат ничего не упростит: показатели просто удвоятся.', 'Squaring simplifies nothing: the exponents just double.') },
+        { id: 'a', label: L("cheksiz ko'p", 'бесконечно много', 'infinitely many'), correct: true },
+        { id: 'b', label: L('bitta', 'одна', 'one'), hint: L("Bitta uchinchi nuqta chiziqdan chiqqanda bo'ladi.", 'Одна выходит, когда третья точка сходит с прямой.', 'One comes when the third point leaves the line.') },
+        { id: 'c', label: L("bitta ham yo'q", 'ни одной', 'none'), hint: L("Hech bo'lmaganda bittasi doim bor.", 'Хотя бы одна есть всегда.', 'At least one always exists.') },
+        { id: 'd', label: L('uchta', 'три', 'three'), hint: L("Tekisliklar soni nuqtalar soniga to'g'ridan bog'liq emas.", 'Число плоскостей не связано с числом точек напрямую.', 'The number of planes is not tied to the number of points directly.') },
       ],
     },
     {
       id: 'q2',
       ask: true,
-      prompt: L('Ikki iks darajada sakkizga teng tenglamada nechta ildiz bor?', 'Сколько корней у уравнения два в степени икс равно восьми?', 'How many roots does two to the x equals eight have?'),
-      done: 'x = 3',
+      prompt: L("To'g'ri chiziqning ikki nuqtasi tekislikda yotadi. Qolganlari qayerda?", 'Две точки прямой лежат в плоскости. Где остальные?', 'Two points of a line lie in a plane. Where are the rest?'),
+      done: 'a ⊂ α',
       items: [
-        { id: 'a', label: L('bitta', 'один', 'one'), correct: true },
-        { id: 'b', label: L('ikkita', 'два', 'two'), hint: L("Ikkita to'lqinda bo'lardi. Ko'rsatkichli egri chiziq orqaga burilmaydi.", 'Два было бы у волны. Показательная кривая назад не поворачивает.', 'Two would happen for a wave. An exponential curve never turns back.') },
-        { id: 'c', label: L('birortasi ham', 'ни одного', 'none'), hint: L('Sakkiz musbat, demak gorizontal egri chiziqni uchratadi.', 'Восемь положительно, значит горизонталь кривую встречает.', 'Eight is positive, so the horizontal does meet the curve.') },
-        { id: 'd', label: L("cheksiz ko'p", 'бесконечно много', 'infinitely many'), hint: L("Cheksiz ko'p davriy funksiyada bo'ladi, bu esa monoton.", 'Бесконечно много бывает у периодической функции, а эта монотонна.', 'Infinitely many happens for a periodic function, and this one is monotone.') },
+        { id: 'a', label: L('ular ham shu tekislikda', 'тоже в этой плоскости', 'in that plane too'), correct: true },
+        { id: 'b', label: L('bir qismi unda, bir qismi tashqarida', 'часть в ней, часть вне', 'some in it, some outside'), hint: L("U holda chiziq siniq bo'lardi, u esa to'g'ri.", 'Тогда прямая ломалась бы, а она прямая.', 'Then the line would bend, and it is straight.') },
+        { id: 'c', label: L("buni bilib bo'lmaydi", 'этого узнать нельзя', 'it cannot be known'), hint: L('Ikkinchi aksioma bu savolga aniq javob beradi.', 'Вторая аксиома отвечает на этот вопрос точно.', 'The second axiom answers this exactly.') },
+        { id: 'd', label: L('tekislikdan tashqarida', 'вне плоскости', 'outside the plane'), hint: L("U holda belgilangan ikki nuqta alohida bo'lib qolardi.", 'Тогда две отмеченные точки оказались бы особенными.', 'Then the two marked points would be special.') },
       ],
     },
     {
       id: 'q3',
       ask: true,
-      prompt: L("Ikki iks darajada minus to'rtga teng tenglamada nechta ildiz bor?", 'Сколько корней у уравнения два в степени икс равно минус четырём?', 'How many roots does two to the x equals minus four have?'),
-      done: '∅',
+      prompt: L("Kesishuvchi ikki tekislikning nechta umumiy to'g'ri chizig'i bor?", 'Сколько общих прямых у двух пересекающихся плоскостей?', 'How many common lines do two intersecting planes have?'),
+      done: 'α ∩ β = a',
       items: [
-        { id: 'a', label: L('birortasi ham', 'ни одного', 'none'), correct: true, ok: L("Ha. Gorizontal egri chiziqdan pastda, va uchrashuvlari yo'q.", 'Да. Горизонталь ниже кривой, и встреч у них нет.', 'Yes. The horizontal is below the curve, and they have no meetings.') },
-        { id: 'b', label: L('bitta', 'один', 'one'), hint: L("Bitta ildiz uchun o'ng qism musbat bo'lishi kerak.", 'Для одного корня правая часть должна быть положительной.', 'For one root the right side must be positive.') },
-        { id: 'c', label: L('ikkita', 'два', 'two'), hint: L("Egri chiziq butunlay o'qdan yuqorida, gorizontal esa pastda.", 'Кривая целиком выше оси, а горизонталь ниже.', 'The curve lies entirely above the axis, and the horizontal below.') },
-        { id: 'd', label: L('minus ikki', 'минус два', 'minus two'), hint: L('Savol ildizlar soni haqida, qiymati haqida emas.', 'Спросили число корней, а не их значение.', 'The question was the number of roots, not their value.') },
+        { id: 'a', label: L('bitta', 'одна', 'one'), correct: true, ok: L("Bitta. Tekisliklar bitta nuqta bo'yicha hech qachon kesishmaydi.", 'Одна. По одной точке плоскости не пересекаются никогда.', 'One. Planes never meet at a single point.') },
+        { id: 'b', label: L("bitta ham yo'q", 'ни одной', 'none'), hint: L("Kesishmaydigan tekisliklarda bitta ham yo'q.", 'Ни одной у плоскостей, которые не пересекаются вовсе.', 'None belongs to planes that do not meet at all.') },
+        { id: 'c', label: L('ikkita', 'две', 'two'), hint: L('Ikki umumiy chiziq tekisliklar ustma-ust tushganini bildirardi.', 'Две общие прямые означали бы, что плоскости совпали.', 'Two common lines would mean the planes coincide.') },
+        { id: 'd', label: L("cheksiz ko'p", 'бесконечно много', 'infinitely many'), hint: L("Cheksiz ko'p ustma-ust tushgan tekisliklarda bo'lardi.", 'Бесконечно много было бы у совпавших плоскостей.', 'Infinitely many would belong to coinciding planes.') },
       ],
     },
     {
       id: 'q4',
       ask: true,
-      prompt: L('Almashtirishdan keyin nima tekshiriladi?', 'Что проверяют после замены?', 'What is checked after a substitution?'),
-      done: 't > 0',
+      prompt: L("Isbotga nimani olib bo'lmaydi?", 'Что нельзя брать в доказательство?', 'What must not go into a proof?'),
+      done: 'S₁,  S₂,  S₃',
       items: [
-        { id: 'a', label: L('almashtirish qiymati musbatligini', 'что значение замены положительно', 'that the substituted value is positive'), correct: true },
-        { id: 'b', label: L('hech narsa', 'ничего', 'nothing'), hint: L('Unda javobga daraja bermaydigan qiymat tushadi.', 'Тогда в ответ попадёт значение, которого степень не даёт.', 'Then a value that no power gives will get into the answer.') },
-        { id: 'c', label: L('butunligini', 'что оно целое', 'that it is a whole number'), hint: L("Almashtirishning kasr qiymati ham yaraydi, faqat musbat bo'lsa.", 'Дробное значение замены годится, лишь бы положительное.', 'A fractional substituted value is fine, as long as it is positive.') },
-        { id: 'd', label: L('birdan kichikligini', 'что оно меньше единицы', 'that it is less than one'), hint: L("Qiymat birdan katta ham bo'ladi: ekrandagi to'rt yaradi.", 'Значение бывает и больше единицы: четвёрка на экране подошла.', 'The value can exceed one: the four on the screen fitted.') },
+        { id: 'a', label: L("chizmada ko'ringanini", 'то, что видно на чертеже', 'what is visible on the drawing'), correct: true },
+        { id: 'b', label: L('aksiomani', 'аксиому', 'an axiom'), hint: L('Aksioma aynan qonuniy asos.', 'Аксиома как раз и есть законное основание.', 'An axiom is exactly a lawful ground.') },
+        { id: 'c', label: L('oldin isbotlangan tasdiqni', 'доказанное раньше утверждение', 'a statement proved earlier'), hint: L('Isbotlangan ekan, olish mumkin.', 'Раз доказано, брать можно.', 'Once proved, it may be used.') },
+        { id: 'd', label: L('masalaning shartini', 'условие задачи', 'the condition of the problem'), hint: L('Isbot shartdan boshlanadi.', 'С условия доказательство и начинается.', 'A proof begins with the condition.') },
       ],
     },
   ],
@@ -556,54 +589,76 @@ const S15 = {
   role: 'summary',
   answer: 'none',
   eyebrow: L('YAKUN', 'ИТОГ', 'SUMMARY'),
-  title: L('Nima qoldi', 'Что осталось', 'What you take away'),
+  title: L('Endi nima qila olasiz', 'Что теперь умеешь', 'What you can do now'),
   audio: [
-    A('mount', 'Dars boshida ikki yozuvdan birini tanlash kerak edi. Mana natija.', 'В начале урока нужно было выбрать одну из двух записей. Вот результат.', 'At the start you had to choose one of two readings. Here is the result.'),
-    A('next', "Ko'rsatkich bo'lish bilan topilmaydi. O'ng qism o'sha asosning darajasi qilib yoziladi, va shunda ko'rsatkichlar to'g'ridan to'g'ri solishtiriladi.", 'Показатель делением не находят. Правую часть записывают степенью того же основания, и тогда показатели сравнивают напрямую.', 'The exponent is not found by dividing. The right side is written as a power of the same base, and then the exponents are compared directly.'),
+    A('mount', "Taxmin bitta tekislik va istalgancha haqida edi. Nima chiqqanini ko'ramiz.", 'Прогноз был про одну плоскость и про сколько угодно. Посмотрим, что вышло.', 'The guess was about one plane and about any number. Let us see how it turned out.'),
+    A('next', 'Bitta har doim ham emas. Hammasini shart hal qiladi: uch nuqta bir chiziqda yotadimi.', 'Одна не всегда. Всё решает условие: лежат ли три точки на одной прямой.', 'Not always one. Everything is decided by the condition: whether the three points lie on one line.'),
   ],
   can: [
-    L('Tenglamani bitta asosga keltiraman', 'Привожу уравнение к одному основанию', 'I reduce an equation to one base'),
-    L("Ko'rsatkichlarni nega tenglashtirish mumkinligini bilaman", 'Знаю, почему можно приравнять показатели', 'I know why the exponents may be set equal'),
-    L("Gorizontal bo'yicha nechta ildiz bo'lishini ko'raman", 'Вижу по горизонтали, сколько будет корней', 'I see from the horizontal how many roots there will be'),
-    L('Almashtirish qiymatini musbatligiga tekshiraman', 'Проверяю значение замены на положительность', 'I check the substituted value for positivity'),
+    L('Tekislik nima bilan yagona berilishini bilaman', 'Знаю, чем плоскость задаётся однозначно', 'I know what fixes a plane uniquely'),
+    L("Chiziq tekislikda ekanini ikki nuqta bo'yicha tekshiraman", 'Проверяю прямую в плоскости по двум точкам', 'I check a line in a plane by two points'),
+    L("Ikki tekislik chiziq bo'ylab kesishishini bilaman", 'Знаю, что две плоскости пересекаются по прямой', 'I know two planes meet along a line'),
+    L("Rasmda ko'ringanini isbotga olmayman", 'Не беру в доказательство то, что видно на картинке', 'I do not take what the picture shows into a proof'),
   ],
   levels: {
-    full: L('Bu turdagi masalalar yopildi.', 'Этот тип задач закрыт.', 'This type of task is closed.'),
-    gap: L('Bitta joy takrorlashni talab qiladi: almashtirish va uni tekshirish.', 'Одно место требует повтора: замена и её проверка.', 'One place needs review: the substitution and its check.'),
-    back: L('Qoidaga va 6-ekranga qayting.', 'Вернись к правилу и к экрану 6.', 'Go back to the rule and to screen 6.'),
+    full: L('Bu turdagi masalalar yopildi.', 'Этот тип задач закрыт.', 'This type of problem is closed.'),
+    gap: L('Bir joy takrorlashni talab qiladi: birinchi aksioma sharti.', 'Одно место требует повтора: условие первой аксиомы.', 'One spot needs a second look: the condition of the first axiom.'),
+    back: L("Qoidaga va to'rtinchi ekranga qayting.", 'Вернись к правилу и к экрану 4.', 'Go back to the rule and to screen four.'),
   },
-  bridge: L("Keyin noma'lum asosning o'zi bo'ladi, va logarifm paydo bo'ladi.", 'Дальше неизвестным станет само основание, и появится логарифм.', 'Next the base itself becomes the unknown, and the logarithm appears.'),
-  lifehack: L("Yechishdan oldin o'ng qismga qarang. Nol yoki manfiy son ildiz yo'qligini bildiradi.", 'Прежде чем решать, посмотри на правую часть. Ноль или отрицательное число означает, что корней нет.', 'Before solving, look at the right side. Zero or a negative number means there are no roots.'),
-  sheetTitle: L("Ko'rsatkichli tenglamalar · shpargalka", 'Показательные уравнения · шпаргалка', 'Exponential equations · cheat sheet'),
-  sheetSrc: L('10-sinf · 28-dars', '10 класс · урок 28', 'Grade 10 · lesson 28'),
+  bridge: L("Keyin fazodagi to'g'ri chiziqlar: u yerda rasm yanada ko'proq aldaydi.", 'Дальше прямые в пространстве: там картинка соврёт ещё сильнее.', 'Next come lines in space: there the picture lies even harder.'),
+  lifehack: L("Chizmaga ishonchingiz komil bo'lmasa, sahnani buring. Burilishdan o'zgargan hamma narsa isbot bo'lmagan.", 'Не уверен в чертеже — поверни сцену. Всё, что от поворота меняется, доказательством не было.', 'If you are unsure of the drawing, rotate the scene. Whatever changes with the rotation was never a proof.'),
+  sheetTitle: L('Aksiomalar · shpargalka', 'Аксиомы · шпаргалка', 'Axioms · cheat sheet'),
+  sheetSrc: L('10-sinf · 38-dars', '10 класс · урок 38', 'Grade 10 · lesson 38'),
   hook: {
-    a: 'x = 4',
-    b: 'x = 3',
+    a: '1',
+    b: '∞',
   },
-  proved: 'x = 3',
-  law: 'a^{f(x)} = a^{g(x)}   →   f(x) = g(x)',
+  proved: '∞',
+  law: 'S₁: A, B, C ∉ a   →   α',
   sheet: [
-    '2^x = 8   →   2^x = 2³',
-    'f(x) = g(x)',
-    't = a^x,   t > 0',
-    'a^x = 0   →   ∅',
-    'a^x < 0   →   ∅',
+    'A, B, C ∉ a   →   α',
+    'A, B ∈ α   →   a ⊂ α',
+    'α ∩ β = a',
+    'a, C ∉ a   →   α',
+    'A, B, C ∈ a   →   ∞',
   ],
 }
 
 // ======== QOLDA YOZILGAN QISM: bundan pastdagisi saqlanadi ========
 
-// Число из контента: минус там типографский, `parseFloat` его не понимает.
-const num = (s) => parseFloat(String(s).replace(/−/g, '-').replace(',', '.'))
+const num = (s) => {
+  const t = String(s).replace(/−/g, '-').replace(',', '.')
+  return parseFloat(t)
+}
 
-// ОКНО ЧЕРТЕЖА ОДНО НА ВЕСЬ УРОК, и оно ШИРЕ, чем в уроке 27.
-//
-// Причина в математике урока: горизонталь стоит на уровне восьми, а встреча
-// приходится на икс, равный трём. Значит в кадре обязаны быть и восьмёрка на
-// вертикальной оси, и тройка на горизонтальной, обе с подписями. Иначе
-// свидетель врёт: линия проходит там, где написано другое число. Ровно эту
-// ошибку стенд поймал 2026-08-14 на асимптоте.
-const WIN = { xmin: -2.6, xmax: 3.15, ymax: 9, tx: [-2, -1, 1, 2, 3], ty: [1, 2, 4, 8] }
+// СЦЕНЫ УРОКА. Точки одни и те же на всех экранах, меняется только их
+// расположение: сначала третья точка ВНЕ прямой, потом на ней. Так видно, что
+// дело не в числе точек, а в том, как они лежат.
+const FREE = [
+  { id: 'A', at: [-0.7, -0.25, 0], label: 'A' },
+  { id: 'B', at: [0.15, 0.6, 0], label: 'B' },
+  { id: 'C', at: [0.7, -0.4, 0.35], label: 'C' },
+]
+const ON_LINE = [
+  { id: 'A', at: [-0.75, 0, 0], label: 'A' },
+  { id: 'B', at: [0, 0, 0], label: 'B' },
+  { id: 'C', at: [0.75, 0, 0], label: 'C' },
+]
+// Вторая аксиома: прямая через две точки плоскости.
+const LINE_IN = [
+  { id: 'A', at: [-0.6, -0.2, 0], label: 'A' },
+  { id: 'B', at: [0.55, 0.25, 0], label: 'B' },
+  { id: 'M', at: [-1.0, -0.35, 0], label: 'M' },
+  { id: 'N', at: [0.95, 0.4, 0], label: 'N' },
+  { id: 'P', at: [0.3, -0.9, 0], label: 'P' },
+]
+// Третья аксиома: две плоскости и общая точка.
+const TWO_PL = [
+  { id: 'K', at: [0, 0, 0], label: 'K' },
+  { id: 'U', at: [0.9, 0, 0], label: '' },
+  { id: 'V', at: [0, 0.9, 0], label: '' },
+  { id: 'W', at: [0, 0, 0.9], label: '' },
+]
 
 const PAIR_IDS = ['p0', 'p1', 'p2', 'p3']
 const EQ_LEFT = S9.match.left.map((label, i) => ({ id: PAIR_IDS[i], label }))
@@ -612,36 +667,41 @@ const EQ_RIGHT = ['a', 'b', 'c', 'd'].map((k, i) => {
   return { id: PAIR_IDS[i], label: v && v.label ? v.label : v, hint: v && v.hint ? v.hint : undefined }
 })
 
-const ORD4 = ['s1', 's2', 's3', 's4'].map((id) => ({ id, label: S4.order[id] }))
-const ORD5 = ['s1', 's2', 's3', 's4'].map((id) => ({ id, label: S5.order[id] }))
-const ORD10 = ['s1', 's2', 's3', 's4'].map((id) => ({ id, label: S10.order[id] }))
 const ORD11 = S11.order.items.map((label, i) => ({ id: 'o' + i, label }))
 const ORD11_ANS = String(S11.order.answer).split(/\s{2,}/)
   .map((lbl) => (ORD11.find((x) => x.label === lbl.trim()) || {}).id)
 
 const TRAP_ROWS = ['r1', 'r2', 'r3', 'r4'].map((id) => ({ id, text: S12.row[id] }))
 
-// ЗАПИСЬ РАСТЁТ ВНИЗ -- прибор 2. Кадр приходит смешанным: слова это
-// объекты `L(...)`, формулы -- строки. Слева ложится решение (зелёным ровно
-// одна строка, решение методиста §5), справа стоят слова текущего кадра.
-const Tape = ({ show, phase }) => {
-  const at = Math.min(phase, show.length - 1)
-  const rows = []
-  for (let i = 0; i <= at; i += 1) {
-    show[i].forEach((x) => { if (typeof x === 'string') rows.push(x) })
+// Варианты экрана 4: верный лежит в `b` (в контенте помечен «верно»).
+const PICK4 = ['a', 'b', 'c'].map((k) => {
+  const v = S4.pick[k]
+  return {
+    id: k,
+    label: v && v.label ? v.label : v,
+    hint: v && v.hint ? v.hint : undefined,
+    ok: k === 'b',
   }
-  const lines = show[at].filter((x) => typeof x !== 'string')
-  return (
-    <Cols l={1} r={1}>
-      <Col>
-        <Panel tone="paper">
-          <NoteList items={rows.map((r, i) => (i === rows.length - 1 ? { ok: true, v: r } : r))} />
-        </Panel>
-      </Col>
-      <Col><NoteList items={lines} /></Col>
-    </Cols>
-  )
-}
+})
+
+// Обоснования экрана 10: два законных и два негодных, вперемешку. Негодные
+// приносят не «неверно», а название того, чего им не хватает.
+const REASONS = [
+  { id: 's1', label: S10.reason.s1 },
+  { id: 's2', label: S10.reason.s2 },
+  { id: 's3', label: S10.reason.s3 },
+  { id: 'pic', label: S10.reason.pic.label, missing: S10.reason.pic.missing },
+]
+// Пятый вариант («измерено линейкой») из списка убран: на телефоне пять строк
+// не помещались, прогон вёрстки поймал переполнение на сорока одном пикселе.
+// Он остаётся в контенте и понадобится в уроке 40, где мерят наклонную.
+// `early` -- TO'G'RI, lekin bu qatorda emas degan razbor. Ilgari bunday
+// tanlovga javob jim edi (metodist ko'rdi, 2026-08-20).
+const PROOF_ROWS = [
+  { text: S10.proof.r1, reason: 's3', early: S10.proof.e1 },
+  { text: S10.proof.r2, reason: 's1', early: S10.proof.e2 },
+  { text: S10.proof.r3, reason: 's2', early: S10.proof.e3, ok: S10.proof.ok },
+]
 
 const Screen1 = (p) => (
   <Screen data={S1} {...p}>
@@ -649,9 +709,9 @@ const Screen1 = (p) => (
       <HookBody
         {...s}
         data={{ ...S1, rows: [{ id: 'a', ...S1.row.a }, { id: 'b', ...S1.row.b }] }}
-        // Кривая есть, ГОРИЗОНТАЛИ нет: иначе прогноз читался бы с чертежа.
-        // Горизонталь появляется на экране 3, там же, где ответ.
-        fig={() => <Scene fig={<Plane step={1} curve="exp" show="none" {...WIN} />} max={172} h={172} />}
+        // Три точки есть, плоскости ещё нет: прогноз делается до того, как
+        // стало видно, сколько её положений.
+        fig={() => <Scene fig={<Space step={1} pts={FREE} />} max={172} h={172} />}
       />
     )}
   </Screen>
@@ -660,9 +720,12 @@ const Screen1 = (p) => (
 const Screen2 = (p) => (
   <Screen data={S2} {...p}>
     {({ audio, solve }) => (
-      <Cols l={1} r={1.1}>
+      <Cols l={1} r={1.2}>
         <Col>
-          <Scene fig={<Plane step={1} curve="exp" show="none" {...WIN} />} max={300} />
+          {/* Telefonda ustunlar bir-birining ostiga tushadi, shuning uchun bu
+              yerda chizma BALANDLIGI qat'iy: aks holda uch savol bilan birga
+              ekranga sig'maydi (vyorstka prognoni 17 px oshiqcha topdi). */}
+          <Scene fig={<Space step={1} yaw={0.4} pts={FREE} planes={[{ by: ['A', 'B', 'C'], dim: true }]} />} max={240} h={158} />
         </Col>
         <Col>
           <ProbeChain items={S2.items} cols={2} audio={audio} onSolved={solve} />
@@ -675,30 +738,22 @@ const Screen2 = (p) => (
 const Screen3 = (p) => (
   <Screen data={S3} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S3.show.length && !solved ? (
-      /* СВИДЕТЕЛЬ УРОКА. Горизонталь на уровне восьми, и на втором кадре
-         встреча зажигается вместе с проекцией на тройку. Одна встреча --
-         один корень, и это видно, а не сказано. */
       <Scene
-        fig={<Plane step={phase} curve="exp" show="none" level={8} {...WIN} />}
+        fig={<Space step={1} yaw={phase * 0.5} pts={FREE} planes={[{ by: ['A', 'B', 'C'] }]} />}
         note={<NoteList items={S3.show[phase]} />}
       />
     ) : (
-      <Cols l={1} r={1}>
-        <Col>
-          <Scene fig={<Plane step={1} curve="exp" show="none" level={8} {...WIN} />} max={300} />
-        </Col>
-        <Col>
-          <NumberEntry
-            compact
-            prompt={S3.work.prompt}
-            answer={num(S3.work.answer)}
-            okText={S3.work.ok}
-            hints={S3.work.hint}
-            audio={audio}
-            onSolved={solve}
-          />
-        </Col>
-      </Cols>
+      /* ПРИБОР 6A. Крутит УЧЕНИК: вопрос открывается только после поворота,
+         иначе он снова отвечает по картинке. */
+      <SpinScene
+        scene={<Space step={1} pts={FREE} planes={[{ by: ['A', 'B', 'C'] }]} />}
+        prompt={S3.work.prompt}
+        answer={num(S3.work.answer)}
+        okText={S3.work.ok}
+        hints={S3.work.hint}
+        audio={audio}
+        onSolved={solve}
+      />
     ))}
   </Screen>
 )
@@ -706,14 +761,21 @@ const Screen3 = (p) => (
 const Screen4 = (p) => (
   <Screen data={S4} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S4.show.length && !solved ? (
-      <Tape show={S4.show} phase={phase} />
+      /* СВИДЕТЕЛЬ УРОКА. Те же три точки, но на одной прямой: плоскость
+         крутится вокруг неё, и ни одно положение не выделено. */
+      <Scene
+        fig={<Space step={1} yaw={0.3} pts={ON_LINE} planes={[{ around: ['A', 'C'], phi: phase * 0.9 }]} />}
+        note={<NoteList items={S4.show[phase]} />}
+      />
     ) : (
-      <OrderRow
-        prompt={S4.order.prompt}
-        items={ORD4}
-        answer={['s1', 's2', 's3', 's4']}
-        okText={S4.order.ok}
-        badText={S4.order.bad}
+      <SpinScene
+        /* `yaw0` NIMA UCHUN: nolda tekislik yassi tasmaga aylanadi, va o'quvchi
+           asbobni qo'lga olganida hech narsa ko'rmaydi (metodist, 2026-08-20). */
+        yaw0={0.35}
+        scene={<Space step={1} pts={ON_LINE} planes={[{ around: ['A', 'C'], phi: 0.9 }]} />}
+        prompt={S4.pick.prompt}
+        options={PICK4}
+        okText={S4.pick.ok}
         audio={audio}
         onSolved={solve}
       />
@@ -724,14 +786,29 @@ const Screen4 = (p) => (
 const Screen5 = (p) => (
   <Screen data={S5} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S5.show.length && !solved ? (
-      <Tape show={S5.show} phase={phase} />
+      <Scene
+        fig={(
+          <Space
+            step={1} yaw={phase * 0.5} pts={LINE_IN}
+            planes={[{ by: ['A', 'B', 'P'], dim: true }]}
+            segs={[{ from: 'M', to: 'N' }]}
+          />
+        )}
+        note={<NoteList items={S5.show[phase]} />}
+      />
     ) : (
-      <OrderRow
-        prompt={S5.order.prompt}
-        items={ORD5}
-        answer={['s1', 's2', 's3', 's4']}
-        okText={S5.order.ok}
-        badText={S5.order.bad}
+      <SpinScene
+        scene={(
+          <Space
+            step={1} pts={LINE_IN}
+            planes={[{ by: ['A', 'B', 'P'], dim: true }]}
+            segs={[{ from: 'M', to: 'N' }]}
+          />
+        )}
+        prompt={S5.work.prompt}
+        answer={num(S5.work.answer)}
+        okText={S5.work.ok}
+        hints={S5.work.hint}
         audio={audio}
         onSolved={solve}
       />
@@ -742,27 +819,32 @@ const Screen5 = (p) => (
 const Screen6 = (p) => (
   <Screen data={S6} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S6.show.length && !solved ? (
-      <Tape show={S6.show} phase={phase} />
-    ) : (
-      <Cols l={1} r={1}>
-        <Col>
-          {/* Горизонталь на четвёрке: значение замены, которое ГОДИТСЯ.
-              Отрицательное значение горизонталью не показать -- и это же
-              есть довод, почему его отбрасывают. */}
-          <Scene fig={<Plane step={1} curve="exp" show="none" level={4} {...WIN} />} max={300} />
-        </Col>
-        <Col>
-          <NumberEntry
-            compact
-            prompt={S6.work.prompt}
-            answer={num(S6.work.answer)}
-            okText={S6.work.ok}
-            hints={S6.work.hint}
-            audio={audio}
-            onSolved={solve}
+      <Scene
+        fig={(
+          <Space
+            step={1} yaw={phase * 0.5} pts={TWO_PL}
+            planes={[{ by: ['K', 'U', 'V'], dim: true }, { by: ['K', 'U', 'W'], dim: true }]}
+            segs={[{ from: 'K', to: 'U' }]}
           />
-        </Col>
-      </Cols>
+        )}
+        note={<NoteList items={S6.show[phase]} />}
+      />
+    ) : (
+      <SpinScene
+        scene={(
+          <Space
+            step={1} pts={TWO_PL}
+            planes={[{ by: ['K', 'U', 'V'], dim: true }, { by: ['K', 'U', 'W'], dim: true }]}
+            segs={[{ from: 'K', to: 'U' }]}
+          />
+        )}
+        prompt={S6.work.prompt}
+        answer={num(S6.work.answer)}
+        okText={S6.work.ok}
+        hints={S6.work.hint}
+        audio={audio}
+        onSolved={solve}
+      />
     ))}
   </Screen>
 )
@@ -770,16 +852,16 @@ const Screen6 = (p) => (
 const Screen7 = (p) => (
   <Screen data={S7} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S7.show.length && !solved ? (
-      /* Горизонталь УШЛА ПОД ОСЬ. Встречи нет, и отсутствие встречи -- тоже
-         свидетель: корней нет, и это видно до вычислений. */
+      /* Два отрезка куба, которые на одном ракурсе кажутся равными: поворот
+         разводит их проекции. Мерить по проекции нельзя. */
       <Scene
-        fig={<Plane step={phase} curve="exp" show="none" level={-2} {...WIN} />}
+        fig={<Space step={1} yaw={phase * 0.8} cube hi={['AB', 'BC1']} segs={[{ from: 'B', to: 'C1' }]} />}
         note={<NoteList items={S7.show[phase]} />}
       />
     ) : (
       <Cols l={1} r={1}>
         <Col>
-          <Scene fig={<Plane step={1} curve="exp" show="none" level={-2} {...WIN} />} max={300} />
+          <Scene fig={<Space step={1} yaw={0.8} cube segs={[{ from: 'B', to: 'C1' }]} />} max={300} />
         </Col>
         <Col>
           <NumberEntry
@@ -803,11 +885,15 @@ const Screen8 = (p) => (
       <RuleBody
         {...s}
         data={S8}
-        // Встреча зажигается в момент ответа: правило открывается рядом с
-        // тем движением, которое его и породило.
         fig={(solved) => (
           <Scene
-            fig={<Plane step={solved ? 1 : 0} curve="exp" show="none" level={8} {...WIN} />}
+            fig={(
+              <Space
+                step={1} yaw={solved ? 0.7 : 0}
+                pts={solved ? ON_LINE : FREE}
+                planes={[solved ? { around: ['A', 'C'], phi: 0.9 } : { by: ['A', 'B', 'C'] }]}
+              />
+            )}
             max={330}
           />
         )}
@@ -834,20 +920,14 @@ const Screen9 = (p) => (
 const Screen10 = (p) => (
   <Screen data={S10} {...p}>
     {({ audio, solve }) => (
-      <>
-        {/* Запись БЕЗ панели: панель с большой формулой стоила 89 px, и на
-            1366x615 экран вылезал из бюджета на 11 px (проверка вёрстки). */}
-        <Expr size="mid" style={{ marginBottom: 6 }}>{S10.expr}</Expr>
-        <OrderRow
-          prompt={S10.order.prompt}
-          items={ORD10}
-          answer={['s1', 's2', 's3', 's4']}
-          okText={S10.order.ok}
-          badText={S10.order.bad}
-          audio={audio}
-          onSolved={solve}
-        />
-      </>
+      <ProofRows
+        given={S10.proof.given}
+        goal={S10.proof.goal}
+        rows={PROOF_ROWS}
+        reasons={REASONS}
+        audio={audio}
+        onSolved={solve}
+      />
     )}
   </Screen>
 )
@@ -933,7 +1013,9 @@ const Screen13 = (p) => (
     ) : (
       <Cols l={1} r={1}>
         <Col>
-          <Scene fig={<Plane step={1} curve="exp" show="none" {...WIN} />} max={300} />
+          <Panel tone="paper">
+            <Expr size="big">{S13.entry.expr}</Expr>
+          </Panel>
         </Col>
         <Col>
           <NumberEntry
@@ -957,14 +1039,15 @@ const Screen14 = (p) => (
       <BlitzBody
         {...s}
         data={S14}
-        // Уровень идёт за вопросом: восемь, восемь, минус два, четыре.
-        // Третий вопрос про отсутствие корней, и горизонталь там под осью.
         fig={(round) => (
           <Scene
-            fig={<Plane step={1} curve="exp" show="none" level={round === 2 ? -2 : round === 3 ? 4 : 8} {...WIN} />}
-            // Blits chizmasi KICHIK: uzbek matnida to'rt variant balandroq, va
-            // telefonda ekran budjetdan 22 px chiqib ketardi. `h` shart -- telefonda
-            // `max` ishlamaydi, chizma baribir ustun kengligiga siqiladi.
+            fig={(
+              <Space
+                step={1} yaw={round * 0.4}
+                pts={round === 0 ? ON_LINE : FREE}
+                planes={[round === 0 ? { around: ['A', 'C'], phi: 0.9 } : { by: ['A', 'B', 'C'], dim: true }]}
+              />
+            )}
             max={260}
             h={168}
           />

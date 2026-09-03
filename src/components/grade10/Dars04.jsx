@@ -52,7 +52,7 @@ const LESSON_TITLE = L(
   `Lesson ${LESSON_NO}. Signs and values`,
 )
 
-const BLOCK = { label: 'B1', from: 1, to: 7, current: 4 }
+const BLOCK = { label: 'B1', from: 1, to: 8, current: 4 }
 
 const S1 = {
   role: 'hook',

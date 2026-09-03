@@ -46,11 +46,18 @@ const TASK = (i) => {
       'Find the value and choose the answer.',
     ),
     expr: 'x = ' + (i + 1) + ' + ' + right,
-    options: [1, 2, 3, 4].map((k) => ({
-      id: 'o' + k,
-      ok: k === right,
-      label: String(i + 1 + k),
-    })),
+    probe: {
+      question: L(
+        "Qiymatni toping va javobni tanlang.",
+        'Найди значение и выбери ответ.',
+        'Find the value and choose the answer.',
+      ),
+      items: [1, 2, 3, 4].map((k) => ({
+        id: 'o' + k,
+        correct: k === right,
+        label: String(i + 1 + k),
+      })),
+    },
     source: {
       no: 3 + i,
       slug: 'dars03-trigonometrik-doira',

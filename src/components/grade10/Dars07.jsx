@@ -48,7 +48,7 @@ const LESSON_TITLE = L(
   `Lesson ${LESSON_NO}. Functions`,
 )
 
-const BLOCK = { label: 'B1', from: 1, to: 7, current: 7 }
+const BLOCK = { label: 'B1', from: 1, to: 8, current: 7 }
 
 const S1 = {
   role: 'hook',

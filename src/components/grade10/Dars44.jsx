@@ -4,8 +4,8 @@
 // Bu fayl `scripts/grade10-kontent-build.mjs` bilan yasalgan:
 //   manba:  src/books/grade10/DARS44_KONTENT.md
 // Ma'lumot (ovoz, kadrlar, variantlar, razborlar, qoida, yakun) tayyor.
-// EKRAN TANALARI esa `TODO` bo'lib qoldi: asbob va figurani tanlash --
-// matematik qaror, va u avtomatlashtirilmaydi (etalon §5.3).
+// Ekran tanalari qo'lda yozilgan: asbob va figurani tanlash matematik qaror,
+// va u avtomatlashtirilmaydi (etalon §5.3).
 //
 // Tartib: tanalarni to'ldirish, keyin `grade10-lesson-audit.mjs`, keyin
 // tez yarus (2 o'lcham), keyin to'liq prognon. Har yangi figura oldin
@@ -38,34 +38,34 @@ import {
   SpinScene,
 } from './tools.jsx'
 
-import { Space } from './figures.jsx'
+import { Space3D } from './space.jsx'
 
 // Метка урока: `lesson_id` = grade10-<номер>, `lesson_name` = номер + тема
 // ИЗ ПЛАНА дословно.
 const LESSON_NO = 44
 const LESSON_ID = `grade10-${String(LESSON_NO).padStart(2, '0')}`
 const LESSON_TITLE = L(
-  `${LESSON_NO}-dars. Prizma`,
-  `Урок ${LESSON_NO}. Призма`,
-  `Lesson ${LESSON_NO}. The prism`,
+  `${LESSON_NO}-dars. Fazoda vektorlar`,
+  `Урок ${LESSON_NO}. Векторы в пространстве`,
+  `Lesson ${LESSON_NO}. Vectors in space`,
 )
 
-const BLOCK = { label: 'B7', from: 44, to: 49, current: 44 }
+const BLOCK = { label: 'B8', from: 43, to: 47, current: 44 }
 
 const S1 = {
   role: 'hook',
   answer: 'pick4',
-  eyebrow: L('PRIZMA', 'ПРИЗМА', 'THE PRISM'),
-  title: L("Olti qirra yoki to'qqiz", 'Шесть рёбер или девять', 'Six edges or nine'),
+  eyebrow: L('VEKTOR', 'ВЕКТОР', 'THE VECTOR'),
+  title: L('Vektorda qaysi uchlik', 'Какая тройка у вектора', 'Which triple belongs to the vector'),
   audio: [
-    A('mount', 'Uchburchakli prizma. Tepada va pastda ikki uchburchak, ular orasida yon sirt.', 'Треугольная призма. Два треугольника сверху и снизу, между ними боковая поверхность.', 'A triangular prism. Two triangles above and below, and the lateral surface between them.'),
-    A('r1', 'Birinchi yozuv oltini aytadi. Pastda uchta tomon va tepada uchta.', 'Первая запись говорит шесть. Три стороны внизу и три сверху.', 'The first reading says six. Three sides below and three above.'),
-    A('r2', "Ikkinchisi to'qqizni aytadi.", 'Вторая говорит девять.', 'The second says nine.'),
-    A('ask', "Chizmaga qarang va qaysi yozuv to'g'ri ekanini hal qiling. Hozircha shunchaki taxmin qiling.", 'Посмотри на чертёж и реши, какая запись верная. Пока просто предположи.', 'Look at the drawing and decide which reading is right. Just guess for now.'),
+    A('mount', 'Vektor bir bir nol nuqtadan uch ikki ikki nuqtaga boradi.', 'Вектор идёт из точки один один нуль в точку три два два.', 'The vector goes from the point one one zero to the point three two two.'),
+    A('r1', "Birinchi yozuv oxirning uchligini oladi, ya'ni uch ikki ikki.", 'Первая запись берёт тройку конца, то есть три два два.', 'The first reading takes the triple of the end, that is three two two.'),
+    A('r2', 'Ikkinchisi oxirdan boshni ayiradi.', 'Вторая вычитает начало из конца.', 'The second subtracts the start from the end.'),
+    A('ask', "Vektorning oxiri ko'rinadi, va uning uchligi darrov qo'l ostida. Sizningcha qaysi yozuv to'g'ri?", 'Конец у вектора виден, и его тройка сразу под рукой. Как думаешь, какая запись верная?', 'The end of the vector is visible and its triple is right at hand. Which reading do you think is right?'),
   ],
   probe: {
     question: L("Qaysi yozuv to'g'ri?", 'Какая запись верна?', 'Which reading is correct?'),
-    afterPredict: L('Javobingiz yozib olindi. Endi prizmani buramiz.', 'Твой ответ записан. Сейчас повернём призму.', 'Your answer is recorded. Now we rotate the prism.'),
+    afterPredict: L('Javobingiz yozib olindi. Endi vektorni yasaymiz.', 'Твой ответ записан. Сейчас построим вектор.', 'Your answer is recorded. Now we build the vector.'),
     items: [
       { id: 'a', label: L('birinchi', 'первая', 'the first') },
       { id: 'b', label: L('ikkinchi', 'вторая', 'the second'), correct: true },
@@ -75,61 +75,61 @@ const S1 = {
   },
   row: {
     a: {
-      name: L('olti', 'шесть', 'six'),
-      value: '6',
+      name: L('oxirning uchligi', 'тройка конца', 'the triple of the end'),
+      value: '(3; 2; 2)',
     },
     b: {
-      name: L("to'qqiz", 'девять', 'nine'),
-      value: '9',
+      name: L('oxir minus boshi', 'конец минус начало', 'the end minus the start'),
+      value: '(2; 1; 2)',
     },
   },
-  expr: 'ABCA₁B₁C₁',
+  expr: 'A (1; 1; 0),   B (3; 2; 2)',
 }
 
 const S2 = {
   role: 'support',
   answer: 'pick4',
   eyebrow: L('TAYANCH', 'ОПОРА', 'WHAT YOU KNOW'),
-  title: L('Tekisliklar bloki dan uch savol', 'Три вопроса из блока про плоскости', 'Three questions from the block about planes'),
+  title: L('Kursdan uch savol', 'Три вопроса из курса', 'Three questions from the course'),
   tag: 'support',
   audio: [
-    A('mount', "Uchta savol. Prizma tekislikka turganda uchalasi ham kerak bo'ladi.", 'Три вопроса. Все три понадобятся, когда призма встанет на плоскость.', 'Three questions. All three will be needed when the prism stands on a plane.'),
+    A('mount', "Uchta savol. Darsning qoidasi birinchi va ikkinchidan yig'iladi.", 'Три вопроса. Правило урока соберётся из первого и второго.', 'Three questions. The rule of the lesson will be assembled from the first and the second.'),
   ],
   items: [
     {
       id: 'q1',
       ask: true,
-      prompt: L("To'g'ri chiziq qachon tekislikka perpendikulyar?", 'Когда прямая перпендикулярна плоскости?', 'When is a line perpendicular to a plane?'),
-      done: 'a ⊥ b,  a ⊥ c   →   a ⊥ α',
+      prompt: L('Tekislikda vektorni nima aniqlaydi?', 'Что задаёт вектор на плоскости?', 'What determines a vector on a plane?'),
+      done: 'AB',
       items: [
-        { id: 'a', label: L("ikki kesishuvchi chiziqqa perpendikulyar bo'lganda", 'когда перпендикулярна двум пересекающимся', 'when perpendicular to two crossing lines'), correct: true },
-        { id: 'b', label: L("bitta chiziqqa perpendikulyar bo'lganda", 'когда перпендикулярна одной прямой', 'when perpendicular to one line'), hint: L("Bittasi kam, burilish shuni ko'rsatgan.", 'Одной мало, поворот это показывал.', 'One is not enough, the rotation showed that.') },
-        { id: 'c', label: L("tekislikni kesib o'tganda", 'когда пересекает плоскость', 'when it crosses the plane'), hint: L("Kesib o'tish qiyshiq ham bo'ladi.", 'Пересечь можно и наклонно.', 'Crossing can be at a slant too.') },
-        { id: 'd', label: L('tekislikda yotganda', 'когда лежит в плоскости', 'when it lies in the plane'), hint: L('Tekislikda yotgan chiziq unga perpendikulyar emas.', 'Лежащая в плоскости прямая ей не перпендикулярна.', 'A line lying in the plane is not perpendicular to it.') },
+        { id: 'a', label: L("uzunlik va yo'nalish", 'длина и направление', 'the length and the direction'), correct: true },
+        { id: 'b', label: L('faqat uzunlik', 'только длина', 'only the length'), hint: L("Bitta uzunlik kam: yo'nalishlar ko'p.", 'Одной длины мало: направлений много.', 'A length alone is not enough: there are many directions.') },
+        { id: 'c', label: L("qo'yilish nuqtasi", 'точка приложения', 'the point of application'), hint: L("Ko'chirishdan vektor o'zgarmaydi.", 'От переноса вектор не меняется.', 'A shift does not change a vector.') },
+        { id: 'd', label: L("o'q bilan burchak", 'угол с осью', 'the angle with an axis'), hint: L("Burchak yo'nalishni beradi, uzunlikni bermaydi.", 'Угол задаёт направление, но длины не даёт.', 'An angle gives the direction but not the length.') },
       ],
     },
     {
       id: 'q2',
       ask: true,
-      prompt: L('Ikki yoqli burchak nima?', 'Что такое двугранный угол?', 'What is a dihedral angle?'),
-      done: 'a = α ∩ β',
+      prompt: L('Ikki vektor qachon teng?', 'Когда два вектора равны?', 'When are two vectors equal?'),
+      done: 'AB = CD',
       items: [
-        { id: 'a', label: L('umumiy qirrali ikki yarimtekislik', 'две полуплоскости с общим ребром', 'two half-planes with a common edge'), correct: true },
-        { id: 'b', label: L('ikki kesishuvchi chiziq', 'две пересекающиеся прямые', 'two crossing lines'), hint: L('Bu yassi burchak, ikki yoqli emas.', 'Это плоский угол, а не двугранный.', 'That is a plane angle, not a dihedral one.') },
-        { id: 'c', label: L('ikki parallel tekislik', 'две параллельные плоскости', 'two parallel planes'), hint: L("Parallellarning umumiy qirrasi yo'q.", 'У параллельных общего ребра нет.', 'Parallel planes have no common edge.') },
-        { id: 'd', label: L('chiziq va tekislik orasidagi burchak', 'угол между прямой и плоскостью', 'the angle between a line and a plane'), hint: L("O'sha burchak chiziq haqida edi, bu esa ikki yoq haqida.", 'Тот угол был про прямую, а этот про две грани.', 'That angle was about a line, this one about two faces.') },
+        { id: 'a', label: L('uchliklari mos tushganda', 'когда совпадают их тройки', 'when their triples coincide'), correct: true },
+        { id: 'b', label: L('oxirlari mos tushganda', 'когда совпадают их концы', 'when their ends coincide'), hint: L("Oxirlari boshqa, vektor esa o'sha bo'lishi mumkin.", 'Концы разные, а вектор может быть тот же.', 'The ends differ, and the vector may still be the same.') },
+        { id: 'c', label: L("uzunliklari teng bo'lganda", 'когда равны их длины', 'when their lengths are equal'), hint: L('Uzunliklar qarama-qarshi vektorlarda ham teng.', 'Длины равны и у противоположных векторов.', 'Opposite vectors also have equal lengths.') },
+        { id: 'd', label: L("bir to'g'ri chiziqda yotganda", 'когда они лежат на одной прямой', 'when they lie on one line'), hint: L("Bir to'g'ri chiziqda ular boshqa tomonga qarashi mumkin.", 'На одной прямой они могут смотреть в разные стороны.', 'On one line they may point in opposite directions.') },
       ],
     },
     {
       id: 'q3',
       ask: true,
-      prompt: L("Ikki parallel to'g'ri chiziq orqali nechta tekislik o'tadi?", 'Сколько плоскостей проходит через две параллельные прямые?', 'How many planes pass through two parallel lines?'),
-      done: '1',
+      prompt: L("Uzunlik uchlik bo'yicha qanday hisoblanadi?", 'Как считается длина по тройке?', 'How is a length computed from a triple?'),
+      done: '|AB|',
       items: [
-        { id: 'a', label: L('bitta', 'одна', 'one'), correct: true },
-        { id: 'b', label: L('ikkita', 'две', 'two'), hint: L("Ikki tekislik chiziq bo'ylab kesishardi.", 'Две плоскости пересеклись бы по прямой.', 'Two planes would cross along a line.') },
-        { id: 'c', label: L("cheksiz ko'p", 'бесконечно много', 'infinitely many'), hint: L("Cheksiz ko'p BITTA chiziq orqali bo'ladi.", 'Бесконечно много бывает через ОДНУ прямую.', 'Infinitely many happens through ONE line.') },
-        { id: 'd', label: L("bitta ham yo'q", 'ни одной', 'none'), hint: L('Parallel chiziqlar doim bitta tekislikda yotadi.', 'Параллельные прямые всегда лежат в одной плоскости.', 'Parallel lines always lie in one plane.') },
+        { id: 'a', label: L("kvadratlar yig'indisidan ildiz", 'корень из суммы квадратов', 'the root of the sum of squares'), correct: true },
+        { id: 'b', label: L("uch sonning yig'indisi", 'сумма трёх чисел', 'the sum of the three numbers'), hint: L("Yig'indi uzunlikni emas, boshqa sonni beradi.", 'Сумма даёт не длину, а другое число.', 'The sum gives not a length but another number.') },
+        { id: 'c', label: L('sonlarning eng kattasi', 'наибольшее из чисел', 'the largest of the numbers'), hint: L("Eng kattasi faqat bitta o'lchov.", 'Наибольшее это только одно измерение.', 'The largest is only one dimension.') },
+        { id: 'd', label: L("uch sonning ko'paytmasi", 'произведение трёх чисел', 'the product of the three numbers'), hint: L("Nol bo'lsa, ko'paytma nolga aylanadi.", 'Произведение обнулится, если есть ноль.', 'The product becomes zero if there is a zero.') },
       ],
     },
   ],
@@ -139,203 +139,203 @@ const S3 = {
   role: 'explain1',
   answer: 'number',
   eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L("Yassi ko'pburchaklardan jism", 'Тело из плоских многоугольников', 'A body of flat polygons'),
-  tag: 'kartinka-kak-dokazatelstvo',
+  title: L('Oxir minus boshi', 'Конец минус начало', 'The end minus the start'),
+  tag: 'vektor-oxiri-emas',
   show: [
     [
-      L("pastdagi ko'pburchak yoq", 'нижний многоугольник это грань', 'the lower polygon is a face'),
-      L("bunday ko'pburchaklar bir nechta", 'таких многоугольников несколько', 'there are several such polygons'),
+      L('boshi bir bir nol nuqtada', 'начало в точке один один нуль', 'the start at the point one one zero'),
+      L('oxiri uch ikki ikki nuqtada', 'конец в точке три два два', 'the end at the point three two two'),
     ],
     [
-      L('birgalikda ular jismni chegaralaydi', 'вместе они ограничивают тело', 'together they bound a body'),
-      L("har yoq yassi, jism esa yo'q", 'каждая грань плоская, тело нет', 'each face is flat, the body is not'),
+      L("har o'q bo'yicha ayiramiz", 'вычитаем по каждой оси', 'we subtract along each axis'),
+      L('vektorning uchligi ikki bir ikki', 'тройка вектора два один два', 'the triple of the vector is two one two'),
     ],
   ],
   motion: ['move'],
   audio: [
-    A('mount', "Oldimizda yassi ko'pburchaklar bilan chegaralangan jism. Bunday jism ko'pyoq deb ataladi.", 'Перед нами тело, ограниченное плоскими многоугольниками. Такое тело называется многогранником.', 'Before us is a body bounded by flat polygons. Such a body is called a polyhedron.'),
-    A('move', "Ko'pburchaklar ko'pyoqning yoqlari, ularning uchlari ko'pyoqning uchlari, tomonlari esa qirralari. Qirq to'rtinchi betda shunday. Jismni buring va bitta yoqqa qarang. U har qanday burilishda yassi qoladi, chunki u ko'pburchak, jismning o'zi esa hech qachon yassi bo'lmaydi. Yoq va jism orasidagi farq ikki o'lchov va uch o'lchov orasidagi farq, va chizmada u faqat burilishda ko'rinadi.", 'Многоугольники это грани многогранника, их вершины это вершины многогранника, а стороны это рёбра. Так на странице сорок четыре. Поверни тело и следи за одной гранью. Она остаётся плоской при любом повороте, потому что она многоугольник, а вот само тело плоским не бывает никогда. Разница между гранью и телом это разница между двумерным и трёхмерным, и на чертеже она видна только в повороте.', 'The polygons are the faces of the polyhedron, their vertices are its vertices, and their sides are its edges. So it is on page forty four. Rotate the body and watch one face. It stays flat at any rotation, because it is a polygon, while the body itself is never flat. The difference between a face and the body is the difference between two dimensions and three, and on a drawing it shows only under rotation.'),
-    A('work', "O'zingiz hisoblang. Uchburchakli prizmaning nechta yog'i bor?", 'Посчитай сам. Сколько граней у треугольной призмы?', 'Work it out yourself. How many faces does a triangular prism have?'),
+    A('mount', 'Vektor chizilgan, va yonida uning boshi va oxirining uchliklari turadi.', 'Вектор нарисован, и рядом стоят тройки его начала и конца.', 'The vector is drawn, and the triples of its start and end stand beside it.'),
+    A('move', "Vektorning uchligi nuqtaning manzili emas, siljish: boshdan oxirga borish uchun har o'q bo'yicha qancha yurish kerak. Shuning uchun u ayirish bilan chiqadi, va ayirish bir tomonga, oxirdan boshni. Birinchi o'q bo'yicha uch minus bir ikki beradi. Ikkinchisi bo'yicha ikki minus bir bir beradi. Uchinchisi bo'yicha ikki minus nol ikki beradi. Vektorning uchligi ikki bir ikki, va u oxirning uchligi bilan uchinchi o'rindan boshqa hech qayerda mos tushmadi, u yerda boshi nol edi. Ayni shu nol obmanni yaratadi: boshi koordinatalar boshida bo'lganda vektor va oxirning uchliklari mos tushadi, va har doim shunday deb tuyuladi.", 'Тройка вектора это не адрес точки, а сдвиг: на сколько надо пройти по каждой оси, чтобы попасть из начала в конец. Поэтому она получается вычитанием, и вычитать надо в одну сторону, из конца начало. По первой оси три минус один даёт два. По второй два минус один даёт один. По третьей два минус нуль даёт два. Тройка вектора два один два, и она не совпала с тройкой конца ни в одном месте, кроме третьего, где начало было нулём. Именно этот ноль и создаёт обман: когда начало в самом начале координат, тройки вектора и конца совпадают, и кажется, что так всегда.', 'The triple of a vector is not the address of a point but a shift: how far you must go along each axis to get from the start to the end. That is why it comes out by subtraction, and the subtraction goes one way, the start out of the end. Along the first axis three minus one gives two. Along the second two minus one gives one. Along the third two minus zero gives two. The triple of the vector is two one two, and it did not coincide with the triple of the end anywhere except the third place, where the start was zero. It is exactly that zero that creates the illusion: when the start is at the origin, the triples of the vector and of the end do coincide, and it seems that it is always so.'),
+    A('work', "O'zingiz hisoblang. Vektor uchligining birinchi soni qanday?", 'Посчитай сам. Какое первое число у тройки вектора?', 'Work it out yourself. What is the first number of the vector triple?'),
   ],
   work: {
-    prompt: L('Nechta yoq?', 'Сколько граней?', 'How many faces?'),
-    ok: L("Beshta. Ikki uchburchak va uch to'rtburchak.", 'Пять. Два треугольника и три четырёхугольника.', 'Five. Two triangles and three quadrilaterals.'),
+    prompt: L('Vektor uchligining birinchi soni?', 'Первое число тройки вектора?', 'The first number of the vector triple?'),
+    ok: L('Ikki. Uch minus bir.', 'Два. Три минус один.', 'Two. Three minus one.'),
     hint: [
-      L('Tepa va pastdagilarini hamda yonlaridagilarini alohida sanang.', 'Считай отдельно те, что сверху и снизу, и те, что по бокам.', 'Count the ones above and below separately from the side ones.'),
-      L('Tepada va pastda bittadan uchburchak.', 'Сверху и снизу по одному треугольнику.', 'One triangle above and one below.'),
-      L("Ikki qo'shuv uch.", 'Два плюс три.', 'Two plus three.'),
+      L("Birinchi o'q bo'yicha ayiring.", 'Вычитай по первой оси.', 'Subtract along the first axis.'),
+      L('Oxirda u yerda uch, boshida bir.', 'У конца там три, у начала один.', 'The end has three there, the start has one.'),
+      L('Ikki.', 'Два.', 'Two.'),
     ],
-    answer: '5',
+    answer: '2',
   },
-  expr: '2 + 3 = 5',
+  expr: 'AB = B − A',
 }
 
 const S4 = {
   role: 'explain2',
   answer: 'number',
-  eyebrow: L('FARQLASH', 'РАЗГРАНИЧЕНИЕ', 'TELLING THEM APART'),
-  title: L('Qirra ikki yoqqa tegishli', 'Ребро принадлежит двум граням', 'An edge belongs to two faces'),
-  tag: 'gran-ne-storona',
+  eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
+  title: L('Ikki bosh, bitta uchlik', 'Два начала, одна тройка', 'Two starts, one triple'),
+  tag: 'vektor-oxiri-emas',
   show: [
     [
-      L('bitta yoq yoritilgan', 'одна грань подсвечена', 'one face is highlighted'),
-      L('uning tomonlari bor', 'у неё есть стороны', 'it has sides'),
+      L("o'sha vektor boshqa boshdan", 'тот же вектор из другого начала', 'the same vector from another start'),
+      L('strelkalar ajralgan va mos tushmaydi', 'стрелки разведены и не совпадают', 'the arrows are apart and do not coincide'),
     ],
     [
-      L('ikkinchi yoq yoritilgan', 'подсвечена вторая грань', 'the second face is highlighted'),
-      L('tomoni umumiy, bu qirra', 'сторона у них общая, это ребро', 'the side is common, that is the edge'),
+      L('oxirlari ularda boshqa', 'концы у них разные', 'their ends are different'),
+      L('uchlik esa bir xil', 'а тройка одна и та же', 'and the triple is one and the same'),
     ],
   ],
   motion: ['move'],
   audio: [
-    A('mount', "Bitta yoqni yoritamiz. Unda, har qanday ko'pburchakda bo'lgani kabi, tomonlar bor.", 'Подсветим одну грань. У неё, как у любого многоугольника, есть стороны.', 'Let us highlight one face. Like any polygon it has sides.'),
-    A('move', "Endi birinchisi bilan umumiy tomoni bor ikkinchi yoqni yoritamiz. Bu umumiy tomon ko'pyoqning qirrasi deb ataladi. Sanoq qoidasi ham shundan. Har qirra roppa-rosa ikki yoqqa tegishli, shuning uchun barcha yoqlarning tomonlarini ketma-ket sanash mumkin emas, har qirra ikki marta tushadi. Uchburchakli prizmada yoqlarning tomonlari o'n sakkizta, qirralar esa to'qqizta. Jismni buring va umumiy qirra har qanday rakursda umumiy qolishiga ishonch hosil qiling.", 'Теперь подсветим вторую грань, у которой с первой есть общая сторона. Эта общая сторона и называется ребром многогранника. Отсюда правило счёта. Каждое ребро принадлежит ровно двум граням, поэтому считать стороны всех граней подряд нельзя, каждое ребро попадётся дважды. У треугольной призмы сторон у граней восемнадцать, а рёбер девять. Поверни тело и убедись, что общее ребро остаётся общим при любом ракурсе.', 'Now let us highlight a second face that shares a side with the first. That common side is called an edge of the polyhedron. Hence the counting rule. Every edge belongs to exactly two faces, so you cannot count the sides of all faces one after another, each edge would come up twice. A triangular prism has eighteen face sides and nine edges. Rotate the body and make sure the common edge stays common at any view.'),
-    A('work', "O'zingiz hisoblang. Bitta qirrada nechta yoq tutashadi?", 'Посчитай сам. Сколько граней сходится в одном ребре?', 'Work it out yourself. How many faces meet at one edge?'),
+    A('mount', "O'sha vektorni boshqa boshdan qo'ydim. Strelkalar ikkita, va ular mos tushmaydi.", 'Тот же вектор я поставил из другого начала. Стрелки две, и они не совпадают.', 'I have placed the same vector from another start. There are two arrows and they do not coincide.'),
+    A('move', "Oxirlari boshqa, bu darrov ko'rinadi. Uchliklari esa bir xil, va bu ham kadrda yozilgan. Sahnani buraman: strelkalar yuradi, rakurs o'zgaradi, uchliklarning mos tushishi esa turadi. Demak uchlik vektorga tegishli, uning oxiriga emas: u faqat siljish haqida aytadi va qayerdan boshlaganimizga bog'liq emas. Shundan teng vektorlarning ta'rifi ham chiqadi: uchliklari mos tushganlari teng. Oxirlari emas, chizmadagi joyi emas, aynan uchliklari.", 'Концы у них разные, это видно сразу. А тройки одинаковые, и это тоже написано на кадре. Поворачиваю сцену: стрелки едут, ракурс меняется, а совпадение троек держится. Значит тройка принадлежит вектору, а не его концу: она говорит только про сдвиг, и от места, откуда мы начали, не зависит. Отсюда и определение равных векторов: равны те, у которых совпали тройки. Не концы, не место на чертеже, а именно тройки.', 'Their ends are different, that is visible at once. But their triples are the same, and that is written on the frame too. I turn the scene: the arrows travel, the view changes, and the coincidence of the triples holds. So the triple belongs to the vector and not to its end: it speaks only of the shift and does not depend on where we started. Hence the definition of equal vectors: equal are those whose triples coincide. Not the ends, not the place on the drawing, but exactly the triples.'),
+    A('work', "O'zingiz hisoblang. Bu ikki vektorda nechta xil uchlik bor?", 'Посчитай сам. Сколько разных троек у этих двух векторов?', 'Work it out yourself. How many different triples do these two vectors have?'),
   ],
   work: {
-    prompt: L('Bitta qirrada nechta yoq?', 'Сколько граней в одном ребре?', 'How many faces at one edge?'),
-    ok: L('Ikkita. Shuning uchun qirralar barcha yoqlar tomonlaridan ikki baravar kam.', 'Две. Поэтому рёбер вдвое меньше, чем сторон у всех граней.', 'Two. That is why there are half as many edges as sides of all the faces.'),
+    prompt: L('Nechta xil uchlik?', 'Сколько разных троек?', 'How many different triples?'),
+    ok: L('Bitta. Bu bir xil vektor.', 'Одна. Это один и тот же вектор.', 'One. It is one and the same vector.'),
     hint: [
-      L('Yoritilgan tomonga qarang va undagi yoqlarni sanang.', 'Посмотри на подсвеченную сторону и посчитай грани при ней.', 'Look at the highlighted side and count the faces at it.'),
-      L("Qirra ikki yoq orasidagi buklanish chizig'i.", 'Ребро это линия сгиба между двумя гранями.', 'An edge is the fold line between two faces.'),
-      L('Ikkita.', 'Две.', 'Two.'),
+      L('Uchliklarni taqqoslang, oxirlarni emas.', 'Сравни тройки, а не концы.', 'Compare the triples, not the ends.'),
+      L('Ikki uchlik ham ikki bir ikki.', 'Обе тройки два один два.', 'Both triples are two one two.'),
+      L('Bitta.', 'Одна.', 'One.'),
     ],
-    answer: '2',
+    answer: '1',
   },
-  expr: '18 : 2 = 9',
+  expr: 'AB = CD = (2; 1; 2)',
 }
 
 const S5 = {
   role: 'explain3',
   answer: 'number',
   eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L('Asoslar va yon yoqlar', 'Основания и боковые грани', 'The bases and the lateral faces'),
-  tag: 'gran-ne-storona',
+  title: L("Uzunlik uchlik bo'yicha hisoblanadi", 'Длина считается по тройке', 'A length is computed from the triple'),
+  tag: 'vektor-oxiri-emas',
   show: [
     [
-      L('ikki yoq teng va parallel', 'две грани равны и параллельны', 'two faces are equal and parallel'),
-      L('bu prizmaning asoslari', 'это основания призмы', 'these are the bases of the prism'),
+      L('ikki uch olti vektori', 'вектор два три шесть', 'the vector two three six'),
+      L("kvadratlar yig'indisi qirq to'qqiz", 'сумма квадратов сорок девять', 'the sum of squares is forty nine'),
     ],
     [
-      L('qolgan yoqlar parallelogrammlar', 'остальные грани параллелограммы', 'the other faces are parallelograms'),
-      L('bu yon yoqlar', 'это боковые грани', 'these are the lateral faces'),
+      L("qirq to'qqizdan ildiz", 'корень из сорока девяти', 'the root of forty nine'),
+      L('uzunlik yettiga teng', 'длина равна семи', 'the length equals seven'),
     ],
   ],
   motion: ['move'],
   audio: [
-    A('mount', 'Prizmada yoqlar teng huquqli emas. Ulardan ikkitasi alohida.', 'В призме грани не равноправны. Две из них особые.', 'In a prism the faces are not equal in role. Two of them are special.'),
-    A('move', "Prizma deb ikki yog'i teng ko'pburchakdan, qolganlari esa parallelogrammlardan iborat ko'pyoqqa aytiladi. Teng yoqlar asoslar, parallelogrammlar yon yoqlar. Qirq to'rtinchi betda shunday. Prizmani buring. Yaqin yoq o'zgaradi, uzoq yoq o'zgaradi, asoslar esa asos bo'lib qoladi. Kim asos ekanini shakl va parallellik belgilaydi, chizmaning pastida nima qolgani emas. Shuning uchun prizmani yon yog'iga qo'yish mumkin, va u prizma bo'lishdan to'xtamaydi.", 'Призмой называется многогранник, у которого две грани равные многоугольники, а остальные параллелограммы. Равные грани это основания, параллелограммы это боковые грани. Так на странице сорок четыре. Поверни призму. Ближняя грань меняется, дальняя меняется, а основания остаются основаниями. Кто основание, определяется формой и параллельностью, а не тем, что оказалось внизу чертежа. Поэтому призму можно поставить на боковую грань, и она не перестанет быть призмой.', 'A prism is a polyhedron in which two faces are equal polygons and the rest are parallelograms. The equal faces are the bases, the parallelograms are the lateral faces. So it is on page forty four. Rotate the prism. The near face changes, the far face changes, but the bases stay bases. What counts as a base is decided by shape and parallelism, not by what happened to be at the bottom of the drawing. That is why a prism can be stood on a lateral face and it does not stop being a prism.'),
-    A('work', "O'zingiz hisoblang. To'rtburchakli prizmaning nechta yon yog'i bor?", 'Посчитай сам. Сколько боковых граней у четырёхугольной призмы?', 'Work it out yourself. How many lateral faces does a quadrilateral prism have?'),
+    A('mount', "Uchligi ikki uch olti bo'lgan vektorni olib, uzunligini topamiz.", 'Возьмём вектор с тройкой два три шесть и найдём его длину.', 'Take a vector with the triple two three six and find its length.'),
+    A('move', "Qoida tekislikdagi bilan bir xil, faqat qo'shiluvchilar uchta bo'ldi. Sabab ketma-ket qo'yilgan ikki to'g'ri burchakli uchburchakda: avval pastki tekislik bo'ylab, keyin tepaga. Vektorning pastki tekislikka proyeksiyasi birinchi ikki sonni beradi, va uning uzunligi Pifagor bo'yicha to'rt qo'shuv to'qqizdan ildiz, ya'ni o'n uchdan ildiz. Keyin proyeksiyaning o'zi va ko'tarilish ikkinchi to'g'ri burchakli uchburchakni tashkil qiladi, unda gipotenuza vektorning o'zi. O'n uch qo'shuv o'ttiz olti qirq to'qqiz beradi, va uzunlik yettiga teng. E'tibor bering, kvadratlar manfiy qo'shiluvchi bermaydi, shuning uchun sonlarning ishorasi uzunlikka ta'sir qilmaydi.", 'Правило то же, что на плоскости, только слагаемых стало три. Причина в двух прямоугольных треугольниках, поставленных друг за другом: сначала по нижней плоскости, потом вверх. Проекция вектора на нижнюю плоскость даёт первые два числа, и её длина по Пифагору корень из четырёх плюс девять, то есть корень из тринадцати. Дальше сама проекция и подъём образуют второй прямоугольный треугольник, где гипотенуза уже сам вектор. Тринадцать плюс тридцать шесть даёт сорок девять, и длина равна семи. Заметь, что квадраты не дают отрицательных слагаемых, поэтому знаки чисел на длину не влияют.', 'The rule is the same as on a plane, only the number of terms became three. The reason is two right triangles placed one after another: first along the lower plane, then upwards. The projection of the vector onto the lower plane gives the first two numbers, and its length by Pythagoras is the root of four plus nine, that is the root of thirteen. Then the projection itself and the rise form the second right triangle, whose hypotenuse is the vector itself. Thirteen plus thirty six gives forty nine, and the length equals seven. Note that squares give no negative terms, so the signs of the numbers do not affect the length.'),
+    A('work', "O'zingiz hisoblang. Bu vektorning uzunligi qancha?", 'Посчитай сам. Какова длина этого вектора?', 'Work it out yourself. What is the length of this vector?'),
   ],
   work: {
-    prompt: L('Nechta yon yoq?', 'Сколько боковых граней?', 'How many lateral faces?'),
-    ok: L("To'rtta. Asos tomonlari qanchaligicha.", 'Четыре. Столько же, сколько сторон у основания.', 'Four. As many as the sides of the base.'),
+    prompt: L('Vektorning uzunligi?', 'Длина вектора?', 'The length of the vector?'),
+    ok: L("Yetti. Ildiz ostida qirq to'qqiz.", 'Семь. Сорок девять под корнем.', 'Seven. Forty nine under the root.'),
     hint: [
-      L('Asosning nechta tomoni borligiga qarang.', 'Посмотри, сколько сторон у основания.', 'See how many sides the base has.'),
-      L('Asosning har tomoni bitta yon yoq beradi.', 'Каждая сторона основания даёт одну боковую грань.', 'Each side of the base gives one lateral face.'),
-      L("To'rtta.", 'Четыре.', 'Four.'),
+      L("Uch sonning kvadratlarini qo'shing.", 'Сложи квадраты трёх чисел.', 'Add the squares of the three numbers.'),
+      L("To'rt qo'shuv to'qqiz qo'shuv o'ttiz olti.", 'Четыре плюс девять плюс тридцать шесть.', 'Four plus nine plus thirty six.'),
+      L('Yetti.', 'Семь.', 'Seven.'),
     ],
-    answer: '4',
+    answer: '7',
   },
-  expr: 'ABCD ∥ A₁B₁C₁D₁',
+  expr: '|AB|² = 4 + 9 + 36',
 }
 
 const S6 = {
   role: 'explain4',
   answer: 'number',
-  eyebrow: L("O'ZINGIZ", 'САМ', 'ON YOUR OWN'),
-  title: L("Asos tomonlari soni bo'yicha sanaymiz", 'Считаем по числу сторон основания', 'Counting by the number of base sides'),
-  tag: 'gran-ne-storona',
+  eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
+  title: L("Ishoralar o'zgardi, uzunlik yo'q", 'Знаки сменились, длина нет', 'The signs changed, the length did not'),
+  tag: 'vektor-oxiri-emas',
   show: [
     [
-      L('asosda olti tomon', 'у основания шесть сторон', 'the base has six sides'),
-      L('demak yon qirralar ham olti', 'значит боковых рёбер тоже шесть', 'so there are six lateral edges as well'),
+      L('ikki uch olti vektori', 'вектор два три шесть', 'the vector two three six'),
+      L('va unga qarama-qarshi', 'и противоположный к нему', 'and its opposite'),
     ],
     [
-      L('asos qirralari pastda olti', 'рёбер основания шесть внизу', 'six base edges below'),
-      L('va tepada olti', 'и шесть сверху', 'and six above'),
+      L("uch son ham ishorani o'zgartirdi", 'все три числа сменили знак', 'all three numbers changed sign'),
+      L("uzunlik esa yetti bo'lib qoldi", 'а длина осталась семь', 'and the length stayed seven'),
     ],
   ],
   motion: ['move'],
   audio: [
-    A('mount', "Oltiburchakli prizma. Uning qirralarini chizma bo'yicha sanash qiyin, shuning uchun qoida bo'yicha sanaymiz.", 'Шестиугольная призма. Считать её рёбра по чертежу трудно, поэтому будем считать по правилу.', 'A hexagonal prism. Counting its edges from the drawing is hard, so we will count by the rule.'),
-    A('move', "Asosida n tomoni bo'lgan prizmada asos qirralari pastda n va tepada n, yon qirralar esa asos uchlari qanchaligicha, ya'ni yana n. Jami uch n chiqadi. Bunday prizmaning uchlari ikki n, yoqlari esa n qo'shuv ikki. Uchburchakli prizmada tekshiring. Uch karra uch bu to'qqiz qirra, va bu dars boshida izlagan javobimiz. Prizmani buring va yon qirralarni o'zingiz sanang, ular yon rakursdan yaxshi ko'rinadi.", 'У призмы с n сторонами в основании рёбер основания n внизу и n сверху, а боковых рёбер столько же, сколько вершин у основания, то есть тоже n. Всего получается три n. Вершин у такой призмы два n, а граней n плюс два. Проверь на треугольной призме. Три умножить на три это девять рёбер, и это ровно тот ответ, который мы искали в начале урока. Поверни призму и посчитай боковые рёбра сама, они хорошо видны с бокового ракурса.', 'In a prism with n sides in the base there are n base edges below and n above, and the lateral edges are as many as the vertices of the base, that is n again. In total that gives three n. Such a prism has two n vertices and n plus two faces. Check it on a triangular prism. Three times three is nine edges, and that is exactly the answer we were looking for at the start of the lesson. Rotate the prism and count the lateral edges yourself, they show well from a side view.'),
-    A('work', "O'zingiz hisoblang. Oltiburchakli prizmaning nechta qirrasi bor?", 'Посчитай сам. Сколько рёбер у шестиугольной призмы?', 'Work it out yourself. How many edges does a hexagonal prism have?'),
+    A('mount', "Vektor yoniga qarama-qarshisini qo'yaman: o'sha uzunlik, teskari yo'nalish.", 'Рядом с вектором поставлю противоположный: та же длина, обратное направление.', 'Beside the vector let me place its opposite: the same length, the reverse direction.'),
+    A('move', "Uchlikda uch son ham birdan ishorani o'zgartirdi, va bu tanlov emas, natija: boshi va oxiri o'rin almashdi, demak har ayirish teskari bo'ldi. Uzunlik esa o'zgarmadi, chunki unga sonlar kvadrat bo'lib kiradi, kvadrat esa ishorani eslamaydi. Bundan tekshiruv uchun foydali natija chiqadi: agar vektor va qarama-qarshisining uzunligi boshqa-boshqa chiqsa, xato ishorada emas, hisobning o'zida. Va yana bitta maxsus hol. Boshi va oxiri mos tushsa, uch son ham nolga aylanadi, va nol vektor chiqadi: unda yo'nalish yo'q, uzunlik esa nol.", 'В тройке сменили знак все три числа сразу, и это не выбор, а следствие: поменялись местами начало и конец, значит каждое вычитание перевернулось. Длина при этом не изменилась, потому что в неё числа входят квадратами, а квадрат знака не помнит. Отсюда полезное следствие для проверки: если у тебя вышли две разные длины у вектора и у противоположного, значит ошибка не в знаках, а в самом счёте. И ещё один особый случай. Если начало и конец совпали, все три числа обнулятся, и получится нулевой вектор: у него нет направления, и длина нуль.', 'In the triple all three numbers changed sign at once, and that is not a choice but a consequence: the start and the end swapped places, so every subtraction was reversed. The length did not change, because the numbers enter it as squares, and a square does not remember a sign. Hence a useful consequence for checking: if you got two different lengths for a vector and its opposite, the mistake is not in the signs but in the counting itself. And one more special case. If the start and the end coincide, all three numbers become zero and the zero vector appears: it has no direction and its length is zero.'),
+    A('work', "O'zingiz hisoblang. Qarama-qarshi vektorning uzunligi qancha?", 'Посчитай сам. Какова длина противоположного вектора?', 'Work it out yourself. What is the length of the opposite vector?'),
   ],
   work: {
-    prompt: L('Nechta qirra?', 'Сколько рёбер?', 'How many edges?'),
-    ok: L("O'n sakkiz. Uch karra olti.", 'Восемнадцать. Три умножить на шесть.', 'Eighteen. Three times six.'),
+    prompt: L('Qarama-qarshining uzunligi?', 'Длина противоположного?', 'The length of the opposite?'),
+    ok: L('Yetti. Kvadrat ishorani eslamaydi.', 'Семь. Квадрат знака не помнит.', 'Seven. A square does not remember a sign.'),
     hint: [
-      L('Uch guruh bilan sanang: past, tepa va yon.', 'Считай тремя группами: низ, верх и бок.', 'Count in three groups: bottom, top and side.'),
-      L('Har guruhda oltitadan.', 'В каждой группе по шесть.', 'Six in each group.'),
-      L('Uch karra olti.', 'Три умножить на шесть.', 'Three times six.'),
+      L('Ildiz ostida nima turganiga qarang.', 'Посмотри, что стоит под корнем.', 'Look at what stands under the root.'),
+      L('Ikkisida ham kvadratlar bir xil.', 'Квадраты у обоих одинаковые.', 'Both have the same squares.'),
+      L('Yetti.', 'Семь.', 'Seven.'),
     ],
-    answer: '18',
+    answer: '7',
   },
-  expr: '3n,   2n,   n + 2',
+  expr: 'BA = (−2; −3; −6)',
 }
 
 const S7 = {
   role: 'explain5',
   answer: 'number',
-  eyebrow: L('CHEGARA', 'ГРАНИЦА', 'THE BOUNDARY'),
-  title: L("To'g'ri prizma va og'ma", 'Прямая призма и наклонная', 'A right prism and a slanted one'),
-  tag: 'svoystvo-vmesto-priznaka',
+  eyebrow: L('CHEGARA', 'ГРАНИЦА', 'THE EDGE CASE'),
+  title: L('Harflar tartibi bezak emas', 'Порядок букв не украшение', 'The order of the letters is no ornament'),
+  tag: 'ayirma-tartibi',
   show: [
     [
-      L("yon qirra asosga og'gan", 'боковое ребро наклонено к основанию', 'the lateral edge is slanted to the base'),
-      L("yon yoqlar to'g'ri to'rtburchak emas", 'боковые грани не прямоугольники', 'the lateral faces are not rectangles'),
+      L('A B yozuvi va B A yozuvi', 'запись A B и запись B A', 'the reading A B and the reading B A'),
+      L('kesmasi ularda bitta', 'отрезок у них один', 'they have one and the same segment'),
     ],
     [
-      L("qirra perpendikulyar bo'ldi", 'ребро встало перпендикулярно', 'the edge stood perpendicular'),
-      L("endi prizma to'g'ri", 'теперь призма прямая', 'now the prism is right'),
+      L('strelkalar esa turlicha qaraydi', 'а стрелки смотрят врозь', 'but the arrows point apart'),
+      L('uchliklar ishora bilan farq qiladi', 'тройки отличаются знаком', 'the triples differ by sign'),
     ],
   ],
   motion: ['move'],
   audio: [
-    A('mount', 'Bir xil asosli ikki prizma. Farq yon qirralarning qanday turishida.', 'Две призмы с одинаковыми основаниями. Разница в том, как стоят боковые рёбра.', 'Two prisms with the same bases. The difference is how the lateral edges stand.'),
-    A('move', "Prizma yon qirralari asosga perpendikulyar bo'lsa, to'g'ri prizma deb ataladi. Unda har yon yoq to'g'ri burchakli parallelogramm, ya'ni to'g'ri to'rtburchak bo'ladi. Og'ma prizmada yon yoqlar parallelogramm bo'lib qoladi, lekin ularda to'g'ri burchak yo'q. E'tibor bering, qimirlamas chizmada og'ish deyarli ko'rinmasligi mumkin, va buni biz perpendikulyarlik darsidan bilamiz. Ko'z bilan emas, qirraning perpendikulyarligi sharti bilan tekshirish kerak.", 'Призма называется прямой, если её боковые рёбра перпендикулярны основанию. Тогда каждая боковая грань это параллелограмм с прямым углом, то есть прямоугольник. У наклонной призмы боковые грани остаются параллелограммами, но прямых углов в них нет. Обрати внимание, что на неподвижном чертеже наклон бывает почти не виден, и мы это уже знали из урока про перпендикулярность. Проверять надо не глазом, а условием про перпендикулярность ребра.', 'A prism is called right if its lateral edges are perpendicular to the base. Then every lateral face is a parallelogram with a right angle, that is a rectangle. In a slanted prism the lateral faces stay parallelograms but have no right angles. Note that on a still drawing the slant can be almost invisible, and we knew that from the lesson about perpendicularity. It has to be checked by the condition about the edge, not by eye.'),
-    A('work', "O'zingiz hisoblang. To'g'ri to'rtburchakli prizmaning nechta yon yog'i to'g'ri to'rtburchak?", 'Посчитай сам. Сколько боковых граней прямой четырёхугольной призмы прямоугольники?', 'Work it out yourself. How many lateral faces of a right quadrilateral prism are rectangles?'),
+    A('mount', 'Ikki nuqta orasidagi kesma bitta, undagi vektorlar esa ikkita.', 'Отрезок между двумя точками один, а векторов на нём два.', 'The segment between two points is one, but there are two vectors on it.'),
+    A('move', "A B yozuvi A dan B ga degani, B A yozuvi esa teskarisi. Bu bezakdagi mayda-chuyda emas, boshqa obyekt: uchliklari har sonda ishora bilan farq qiladi, va uchliklar qo'shiladigan masalalarda harflar tartibi javobni hal qiladi. Tekshiruv oddiy va har doim ishlaydi: birinchi harf boshi, undan ayiriladi. Agar oxirning uchligi chiqsa, demak ayirish o'tkazib yuborilgan. Masalalarda chalkashmaslik uchun esa yozuvni marshrut kabi ovoz chiqarib o'qing: birinchi harfdan ikkinchisiga. Ikki yozuvning uzunligi bir xil, shuning uchun tartibdagi xatoni uzunlik bilan ushlab bo'lmaydi.", 'Запись A B значит из A в B, запись B A значит наоборот. Это не мелочь оформления, а другой объект: тройки у них отличаются знаком у каждого числа, и в задачах, где тройки складывают, порядок букв решает ответ. Проверка простая и работает всегда: первая буква это начало, из неё вычитают. Если получилась тройка конца, значит вычитание пропустили. А чтобы не путаться в задачах, читай запись вслух как маршрут: из первой буквы во вторую. Длины у обеих записей одинаковые, и потому по длине ошибку в порядке не поймать.', 'The reading A B means from A to B, the reading B A means the other way. That is not a detail of style but a different object: their triples differ in the sign of every number, and in problems where triples are added the order of the letters decides the answer. The check is simple and always works: the first letter is the start, it is what you subtract. If you got the triple of the end, the subtraction was skipped. And to avoid confusion in problems, read the notation aloud as a route: from the first letter to the second. The lengths of both readings are the same, and that is why a mistake in the order cannot be caught by the length.'),
+    A('work', "O'zingiz hisoblang. Ikki yozuvdan nechtasi ikki bir ikki uchligini beradi?", 'Посчитай сам. Сколько из двух записей дают тройку два один два?', 'Work it out yourself. How many of the two readings give the triple two one two?'),
   ],
   work: {
-    prompt: L("Nechta yon yoq to'g'ri to'rtburchak?", 'Сколько боковых граней прямоугольники?', 'How many lateral faces are rectangles?'),
-    ok: L("To'rttasi ham. Perpendikulyar qirra har yon yoqda to'g'ri burchak beradi.", 'Все четыре. Перпендикулярное ребро даёт прямой угол в каждой боковой грани.', 'All four. A perpendicular edge gives a right angle in every lateral face.'),
+    prompt: L('Nechta yozuv ikki bir ikki beradi?', 'Сколько записей дают два один два?', 'How many readings give two one two?'),
+    ok: L('Bittasi. Ikkinchisida barcha ishoralar teskari.', 'Одна. У второй все знаки обратные.', 'One. The second has all the signs reversed.'),
     hint: [
-      L('Jami nechta yon yoq borligiga qarang.', 'Посмотри, сколько боковых граней всего.', 'See how many lateral faces there are in total.'),
-      L("Tekislikka perpendikulyar uning barcha chiziqlari bilan to'g'ri burchak beradi.", 'Перпендикуляр к плоскости даёт прямой угол со всеми её прямыми.', 'A perpendicular to a plane gives a right angle with all its lines.'),
-      L("To'rttasi ham.", 'Все четыре.', 'All four.'),
+      L('Qaysi harf birinchi turganini tekshiring.', 'Проверь, какая буква стоит первой.', 'Check which letter stands first.'),
+      L('Birinchi harfdan ayiriladi.', 'Из первой буквы вычитают.', 'The first letter is what you subtract.'),
+      L('Bittasi.', 'Одна.', 'One.'),
     ],
-    answer: '4',
+    answer: '1',
   },
-  expr: 'AA₁ ⊥ ABCD',
+  expr: 'AB = −BA',
 }
 
 const S8 = {
   role: 'rule',
   answer: 'pick2',
   eyebrow: L('QOIDA', 'ПРАВИЛО', 'THE RULE'),
-  title: L('Prizmani prizma qiladigan narsa', 'Что делает призму призмой', 'What makes a prism a prism'),
-  tag: 'svoystvo-vmesto-priznaka',
+  title: L('Vektorning uchligi', 'Тройка вектора', 'The triple of a vector'),
+  tag: 'vektor-oxiri-emas',
   motion: ['rule'],
   audio: [
     A('mount', 'Farqlashga bitta savol, keyin kartochka.', 'Один вопрос на различение, потом карточка.', 'One question to tell them apart, then the card.'),
-    A('rule', "Ta'rifda ikki shart bor, va ikkalasi ham yoqlar haqida. Ikki asos teng, va ular istalgan shakldagi ko'pburchak. Qolgan yoqlar parallelogramm, va bu asoslarning teng va parallel bo'lishidan kelib chiqadi. Barcha yoqlar parallelogramm deyilsa, boshqa jism chiqadi, uning asoslari ham parallelogramm, ya'ni parallelepiped. To'g'ri prizma ustiga qo'shimcha shart, va u yon qirraning perpendikulyarligi haqida.", 'В определении два условия, и оба про грани. Два основания равны, и они многоугольники любой формы. Остальные грани параллелограммы, и это следует из того, что основания равны и параллельны. Если сказать, что все грани параллелограммы, получится другое тело, у которого и основания параллелограммы, то есть параллелепипед. Прямая призма это добавочное условие сверху, и оно про перпендикулярность бокового ребра.', 'The definition has two conditions and both are about faces. The two bases are equal and they are polygons of any shape. The other faces are parallelograms, and that follows from the bases being equal and parallel. If you say all faces are parallelograms you get a different body whose bases are parallelograms too, that is a parallelepiped. A right prism is an extra condition on top, and it is about the perpendicularity of the lateral edge.'),
+    A('rule', "Birinchi satr butun darsga javob beradi: uchlik siljish, va u ayirish bilan olinadi. Ikkinchi satr vektorni nega ko'chirish mumkinligini tushuntiradi: uchlik o'sha bo'lsa, bu o'sha vektor, va chizmadagi joyning ahamiyati yo'q. Uchinchisi uzunlikni beradi, va unda ishoralar kvadratlar ostida yo'qoladi. Imtihonda foydali odat: hisoblashdan oldin harflar tartibini tekshiring. Oxirning uchligi va vektorning uchligi faqat boshi koordinatalar boshida turganda mos tushadi, va bu kamdan-kam hol, qoida emas.", 'Первая строка отвечает на весь урок: тройка это сдвиг, и берётся она вычитанием. Вторая строка объясняет, почему вектор можно переносить: если тройка та же, это тот же вектор, и место на чертеже ничего не значит. Третья даёт длину, и в ней знаки исчезают под квадратами. Полезная привычка на экзамене: прежде чем считать, проверь порядок букв. Тройка конца и тройка вектора совпадают только тогда, когда начало стоит в начале координат, а это редкий случай, а не правило.', 'The first line answers the whole lesson: the triple is a shift, and it is taken by subtraction. The second line explains why a vector may be moved: if the triple is the same, it is the same vector, and the place on the drawing means nothing. The third gives the length, and in it the signs disappear under the squares. A useful habit at the exam: before computing, check the order of the letters. The triple of the end and the triple of the vector coincide only when the start stands at the origin, and that is a rare case, not a rule.'),
   ],
   probe: {
-    question: L('Qaysi shart majburiy?', 'Какое условие обязательно?', 'Which condition is required?'),
+    question: L('Uchlik nimaga tegishli?', 'Чему принадлежит тройка?', 'What does the triple belong to?'),
     items: [
-      { id: 'a', label: L('ikki asos teng, qolganlari parallelogramm', 'два основания равные, остальные параллелограммы', 'two bases equal, the rest parallelograms'), correct: true },
-      { id: 'b', label: L('barcha yoqlar parallelogramm', 'все грани параллелограммы', 'all faces are parallelograms'), hint: L("Unda uchburchakli prizma prizma bo'lmasdi.", 'Тогда треугольная призма призмой не была бы.', 'Then a triangular prism would not be a prism.') },
+      { id: 'a', label: L('vektorga, oxiriga emas', 'вектору, а не его концу', 'to the vector, not to its end'), correct: true },
+      { id: 'b', label: L('vektorning oxiriga', 'концу вектора', 'to the end of the vector'), hint: L("U holda vektorni ko'chirish uchlikni o'zgartirardi, lekin o'zgartirmaydi.", 'Тогда перенос вектора менял бы тройку, а он не меняет.', 'Then shifting the vector would change the triple, and it does not.') },
     ],
   },
   rule: {
-    lawLabel: L('Prizma', 'Призма', 'The prism'),
+    lawLabel: L("Uchlik bo'yicha vektor", 'Вектор по тройке', 'A vector by its triple'),
     lines: [
-      L("ikki yoq teng ko'pburchak, bu asoslar", 'две грани равные многоугольники, это основания', 'two faces are equal polygons, these are the bases'),
-      L('qolgan yoqlar parallelogramm, bu yon yoqlar', 'остальные грани параллелограммы, это боковые грани', 'the other faces are parallelograms, these are the lateral faces'),
-      L("yon qirra asosga perpendikulyar bo'lsa, prizma to'g'ri", 'если боковое ребро перпендикулярно основанию, призма прямая', 'if the lateral edge is perpendicular to the base, the prism is right'),
+      L('vektorning uchligi oxir minus boshi', 'тройка вектора это конец минус начало', 'the triple of a vector is the end minus the start'),
+      L('teng vektorlar bitta uchlikli vektorlar', 'равные векторы это векторы с одной тройкой', 'equal vectors are vectors with one triple'),
+      L("uzunlik kvadratlar yig'indisidan ildiz", 'длина это корень из суммы квадратов', 'the length is the root of the sum of squares'),
     ],
-    law: 'ABC = A₁B₁C₁,   ABB₁A₁ = ▱',
+    law: 'AB = B − A',
   },
 }
 
@@ -344,19 +344,19 @@ const S9 = {
   answer: 'match',
   format: 'match',
   eyebrow: L('AMALIYOT', 'ПРАКТИКА', 'PRACTICE'),
-  title: L('Har bir qismni nomlang', 'Назови каждую часть', 'Name each part'),
-  tag: 'gran-ne-storona',
+  title: L('Uchlik va uzunlik', 'Тройка и длина', 'The triple and the length'),
+  tag: 'vektor-oxiri-emas',
   audio: [
-    A('mount', "To'rt yozuv va to'rt nom. Ularni birlashtiring.", 'Четыре записи и четыре названия. Соедини их.', 'Four readings and four names. Match them.'),
+    A('mount', "To'rt uchlik va to'rt uzunlik. Kvadratlarni qo'shing.", 'Четыре тройки и четыре длины. Складывай квадраты.', 'Four triples and four lengths. Add the squares.'),
   ],
   match: {
-    prompt: L('Yozuvni nomi bilan birlashtiring', 'Соедини запись с названием', 'Match the reading with the name'),
-    ok: L("To'rttasi ham joyida. Bundan keyin bu nomlarni ishchi deb olamiz.", 'Все четыре на месте. Дальше эти имена берём как рабочие.', 'All four in place. From here these names are the working ones.'),
-    a: L('asos', 'основание', 'the base'),
-    b: L('yon yoq', 'боковая грань', 'a lateral face'),
-    c: L('yon qirra', 'боковое ребро', 'a lateral edge'),
-    d: L('asos qirrasi', 'ребро основания', 'a base edge'),
-    left: ['ABC', 'ABB₁A₁', 'AA₁', 'AB'],
+    prompt: L('Uchlikni uzunlik bilan birlashtiring', 'Соедини тройку с длиной', 'Match the triple with the length'),
+    ok: L("To'rttasi ham joyida. Ishoralar uzunlikka kirmaydi.", 'Все четыре на месте. Знаки в длину не входят.', 'All four in place. The signs do not enter the length.'),
+    a: L('uch', 'три', 'three'),
+    b: L('besh', 'пять', 'five'),
+    c: L('yetti', 'семь', 'seven'),
+    d: L("o'n bir", 'одиннадцать', 'eleven'),
+    left: ['(1; 2; 2)', '(3; 4; 0)', '(2; 3; 6)', '(6; 6; 7)'],
   },
 }
 
@@ -365,32 +365,32 @@ const S10 = {
   answer: 'order',
   format: 'proof',
   eyebrow: L('QADAMMA-QADAM', 'ПО ШАГАМ', 'STEP BY STEP'),
-  title: L('Yon yoqlar haqida isbotlang', 'Докажи про боковые грани', 'Prove it about the lateral faces'),
-  tag: 'svoystvo-vmesto-priznaka',
+  title: L('Vektorlar teng ekanini isbotlang', 'Докажи, что векторы равны', 'Prove the vectors are equal'),
+  tag: 'vektor-oxiri-emas',
   audio: [
     A('mount', "Uch qator, va har birining ro'yxatdan o'z asoslashi bor.", 'Три строки, и у каждой своё обоснование из списка.', 'Three lines, each with its own justification from the list.'),
   ],
   proof: {
-    given: L("to'g'ri prizma", 'прямая призма', 'a right prism'),
-    goal: L("uning yon yoqlari to'g'ri to'rtburchak", 'её боковые грани прямоугольники', 'its lateral faces are rectangles'),
-    r1: L('yon qirra asosga perpendikulyar', 'боковое ребро перпендикулярно основанию', 'the lateral edge is perpendicular to the base'),
-    r2: L('demak u asos qirrasiga perpendikulyar', 'значит оно перпендикулярно ребру основания', 'so it is perpendicular to the base edge'),
-    r3: L("yon yoq to'g'ri burchakli parallelogramm", 'боковая грань параллелограмм с прямым углом', 'the lateral face is a parallelogram with a right angle'),
-    ok: L("Isbotlandi. To'g'ri burchakli parallelogramm to'g'ri to'rtburchak.", 'Доказано. Параллелограмм с прямым углом это прямоугольник.', 'Proved. A parallelogram with a right angle is a rectangle.'),
-    e1: L("Prizma ta'rifi keyin keladi. Avval to'g'ri so'zi haqida.", 'Определение призмы идёт дальше. Сначала про слово прямая.', 'The definition of a prism comes later. First about the word right.'),
-    e2: L('Tekislikka perpendikulyarlik bor. U undagi chiziqlarga nima beradi.', 'Перпендикулярность к плоскости уже есть. Что она даёт прямым в ней.', 'Perpendicularity to the plane is there. What does it give to the lines in it.'),
-    e3: L("To'g'ri burchak olindi. Endi yoqning shakli haqida.", 'Прямой угол получен. Теперь про форму грани.', 'The right angle is obtained. Now about the shape of the face.'),
+    given: L("to'rt nuqta, ikki juft", 'четыре точки, две пары', 'four points, two pairs'),
+    goal: L('AB va CD vektorlari teng', 'векторы AB и CD равны', 'the vectors AB and CD are equal'),
+    r1: L('birinchi vektorning uchligi ikki bir ikki', 'тройка первого вектора два один два', 'the triple of the first vector is two one two'),
+    r2: L('ikkinchi vektorning uchligi ikki bir ikki', 'тройка второго вектора два один два', 'the triple of the second vector is two one two'),
+    r3: L('uchliklar mos tushdi, demak vektorlar teng', 'тройки совпали, значит векторы равны', 'the triples coincide, so the vectors are equal'),
+    ok: L("Isbotlandi. Chizmadagi boshqa joylar tenglikka to'sqinlik qilmaydi.", 'Доказано. Разные места на чертеже равенству не мешают.', 'Proved. Different places on the drawing do not prevent equality.'),
+    e1: L('Ikkinchi vektor haqida keyin. Avval birinchisi.', 'Про второй вектор дальше. Сначала первый.', 'The second vector comes later. First the first one.'),
+    e2: L('Birinchisi hisoblandi. Endi ikkinchisi.', 'Первый посчитан. Теперь второй.', 'The first is computed. Now the second.'),
+    e3: L('Ikki uchlik ham bor. Endi xulosa.', 'Обе тройки есть. Теперь вывод.', 'Both triples are there. Now the conclusion.'),
   },
   reason: {
-    s1: L("to'g'ri prizma ta'rifi", 'определение прямой призмы', 'the definition of a right prism'),
-    s2: L("perpendikulyar tekislikning barcha chiziqlari bilan to'g'ri burchak beradi", 'перпендикуляр даёт прямой угол со всеми прямыми плоскости', 'a perpendicular gives a right angle with all lines of the plane'),
-    s3: L("prizma ta'rifi", 'определение призмы', 'the definition of a prism'),
+    s1: L('ayirish oxir minus boshi', 'вычитание конец минус начало', 'the subtraction end minus start'),
+    s2: L("ikkinchi juft uchun o'sha ayirish", 'то же вычитание для второй пары', 'the same subtraction for the second pair'),
+    s3: L("teng vektorlar ta'rifi", 'определение равных векторов', 'the definition of equal vectors'),
     pic: {
       label: L("chizmada ko'rinadi", 'видно на чертеже', 'it is visible on the drawing'),
       missing: L("Chizma asoslash emas. U ko'p rakursdan bittasini ko'rsatadi.", 'Чертёж не обоснование. Он показывает один ракурс из многих.', 'A drawing is not a justification. It shows one view out of many.'),
     },
   },
-  expr: 'AA₁ ⊥ ABCD   →   ABB₁A₁ = ▭',
+  expr: 'AB = CD = (2; 1; 2)',
 }
 
 const S11 = {
@@ -403,25 +403,25 @@ const S11 = {
   tag: 'bumaga',
   audio: [
     A('mount', "Asbob olib qo'yildi. Qog'ozda hisoblaymiz.", 'Прибор убран. Считаем на бумаге.', 'The tool is put away. We count on paper.'),
-    A('next', 'Endi yozuvlar tartibi. Prizma qanday qurilsa, shunday joylashtiring.', 'Теперь порядок записей. Расставь их так, как строится призма.', 'Now the order of the readings. Arrange them the way a prism is built.'),
+    A('next', 'Endi qadamlar tartibi. Ularni qanday hisoblansa, shunday joylashtiring.', 'Теперь порядок шагов. Расставь их так, как считают.', 'Now the order of the steps. Arrange them the way the counting goes.'),
   ],
   task: {
-    ok: L("O'ttiz. Uch karra o'n.", 'Тридцать. Три умножить на десять.', 'Thirty. Three times ten.'),
+    ok: L('Yigirma besh. Ildiz ostida olti yuz yigirma besh.', 'Двадцать пять. Шестьсот двадцать пять под корнем.', 'Twenty five. Six hundred twenty five under the root.'),
     hint: [
-      L('Uch guruh bilan sanang: past, tepa va yon.', 'Считай тремя группами: низ, верх и бок.', 'Count in three groups: bottom, top and side.'),
-      L("Har guruhda o'ntadan.", 'В каждой группе по десять.', 'Ten in each group.'),
-      L("Uch karra o'n.", 'Три умножить на десять.', 'Three times ten.'),
+      L("Uch sonning kvadratlarini qo'shing.", 'Сложи квадраты трёх чисел.', 'Add the squares of the three numbers.'),
+      L("Sakson bir, bir yuz qirq to'rt, to'rt yuz.", 'Восемьдесят один, сто сорок четыре, четыреста.', 'Eighty one, one hundred forty four, four hundred.'),
+      L('Yigirma besh.', 'Двадцать пять.', 'Twenty five.'),
     ],
-    prompt: 'n = 10,   3n = ?',
-    answer: '30',
+    prompt: 'AB = (9; 12; 20),   |AB| = ?',
+    answer: '25',
   },
   order: {
-    prompt: L('Yozuvlarni prizma qurilish tartibida joylashtiring', 'Расставь записи в том порядке, в каком строится призма', 'Arrange the readings in the order a prism is built'),
-    title: L('Qurish tartibi', 'Порядок построения', 'The order of construction'),
-    ok: L("Tartib to'g'ri. Avval asos, keyin ikkinchisi, keyin yon qirra va yoq.", 'Порядок верный. Сначала основание, потом второе, потом боковое ребро и грань.', 'The order is right. First the base, then the second one, then the lateral edge and face.'),
-    bad: L("Bu tartibda emas. Nima avval paydo bo'ladi.", 'Не в этом порядке. Что появляется раньше.', 'Not in this order. What appears first.'),
-    items: ['ABB₁A₁', 'ABC', 'A₁B₁C₁', 'AA₁'],
-    answer: 'ABC  A₁B₁C₁  AA₁  ABB₁A₁',
+    prompt: L('Qadamlarni hisoblash tartibida joylashtiring', 'Расставь шаги в том порядке, в каком считают', 'Arrange the steps in the order they are computed'),
+    title: L('Hisob tartibi', 'Порядок счёта', 'The order of computing'),
+    ok: L("Tartib to'g'ri. Ayirish, uchlik, kvadratlar, ildiz.", 'Порядок верный. Вычитание, тройка, квадраты, корень.', 'The order is right. The subtraction, the triple, the squares, the root.'),
+    bad: L('Bu tartibda emas. Avval nima kerak.', 'Не в этом порядке. Что нужно раньше.', 'Not in this order. What is needed first.'),
+    items: ['|AB|', 'B − A', 'AB', 'x² + y² + z²'],
+    answer: 'B − A  AB  x² + y² + z²  |AB|',
   },
 }
 
@@ -433,30 +433,30 @@ const S12 = {
   title: L('Xato qatorni toping', 'Найди строку с ошибкой', 'Find the line with the mistake'),
   tag: 'check',
   audio: [
-    A('mount', "To'rt qator, va ulardan biri shartni almashtiradi.", 'Четыре строки, и одна из них подменяет условие.', 'Four lines, and one of them substitutes the condition.'),
+    A('mount', "To'rt qator, va ulardan biri ayirishni o'tkazib yuboradi.", 'Четыре строки, и одна из них пропускает вычитание.', 'Four lines, and one of them skips the subtraction.'),
     A('next', "Endi xato bo'lgan qator raqamini yozing.", 'Теперь напиши номер строки, в которой ошибка.', 'Now write the number of the line with the mistake.'),
   ],
   hint: {
-    r1: L("Shart to'g'ri ko'chirilgan.", 'Условие переписано верно.', 'The condition is copied correctly.'),
-    r2: L("To'g'ri prizmaning yon yoqlari haqiqatan to'g'ri to'rtburchak.", 'Боковые грани прямой призмы действительно прямоугольники.', 'The lateral faces of a right prism really are rectangles.'),
-    r4: L('Xulosa yuqoridagi xato qatordan olingan.', 'Вывод получен из неверной строки выше.', 'The conclusion comes from the wrong line above.'),
+    r1: L("Berilganlar to'g'ri yozilgan.", 'Данные выписаны верно.', 'The data are written correctly.'),
+    r2: L("Qoida to'g'ri yozilgan.", 'Правило записано верно.', 'The rule is written correctly.'),
+    r4: L("Kvadratlar yuqoridagi xato qator bo'yicha hisoblangan.", 'Квадраты посчитаны по неверной строке выше.', 'The squares are computed from the wrong line above.'),
   },
-  proof: L("Prizmani buring: asos muntazam bo'lmadi, to'g'ri esa u boshidan edi.", 'Поверни призму: основание правильным не стало, а прямой она была с самого начала.', 'Rotate the prism: the base did not become regular, while right it was from the start.'),
+  proof: L("Sahnani buring: vektorning uchligi ko'chirishda o'zgarmaydi, oxirning uchligi esa o'zgaradi.", 'Поверни сцену: тройка вектора не меняется при переносе, а тройка конца меняется.', 'Rotate the scene: the triple of the vector does not change under a shift, the triple of the end does.'),
   entry: {
     prompt: L('Xato qator raqami', 'Номер строки с ошибкой', 'The number of the line with the mistake'),
-    ok: L("Uchinchi. To'g'ri prizma va muntazam prizma boshqa-boshqa shart.", 'Третья. Прямая призма и правильная это разные условия.', 'The third. A right prism and a regular prism are different conditions.'),
+    ok: L("Uchinchi. Ayirish o'rniga oxirning uchligi olingan.", 'Третья. Взяли тройку конца вместо вычитания.', 'The third. The triple of the end was taken instead of the subtraction.'),
     hint: [
-      L('Har qatorda asos haqida nima aytilganini tekshiring.', 'Проверь, что в каждой строке сказано про основание.', 'Check what each line says about the base.'),
-      L("Muntazam prizma faqat to'g'ri qirra emas, muntazam asos ham talab qiladi.", 'Правильная призма требует правильного основания, а не только прямых рёбер.', 'A regular prism needs a regular base, not just perpendicular edges.'),
+      L("Ikkinchi qatorning qoidasi qayerda qo'llanganini tekshiring.", 'Проверь, где применено правило второй строки.', 'Check where the rule of the second line was applied.'),
+      L('Natijani oxirning uchligi bilan taqqoslang.', 'Сравни результат с тройкой конца.', 'Compare the result with the triple of the end.'),
       L('Xato uchinchi qatorda.', 'Ошибка в третьей строке.', 'The mistake is in the third line.'),
     ],
     answer: '3',
   },
   row: {
-    r1: 'AA₁ ⊥ ABCD',
-    r2: 'ABB₁A₁ = ▭',
-    r3: 'AB = BC = CD = DA',
-    r4: 'P = 4·AB',
+    r1: 'A (1; 1; 0),   B (3; 2; 2)',
+    r2: 'AB = B − A',
+    r3: 'AB = (3; 2; 2)',
+    r4: '|AB|² = 17',
   },
   answerId: 'r3',
 }
@@ -469,27 +469,27 @@ const S13 = {
   title: L('Teskari tomonga', 'В обратную сторону', 'The other way round'),
   tag: 'obratnoe',
   audio: [
-    A('mount', "Qoidani o'ngdan chapga o'qiymiz. Qirralar soni bo'yicha asosni aytamiz.", 'Прочитаем правило справа налево. По числу рёбер назовём основание.', 'Let us read the rule from right to left. From the number of edges we name the base.'),
-    A('work', "Har qanday prizma uchun to'g'ri bo'lgan barcha yozuvlarni belgilang. Ular bittadan ko'p.", 'Отметь все записи, которые верны для любой призмы. Их больше одной.', 'Mark all the readings that are true for any prism. There is more than one.'),
+    A('mount', "Darsni o'ngdan chapga o'qiymiz. Boshi va uchligi berilgan, oxirini topish kerak.", 'Прочитаем урок справа налево. Дано начало и тройка, найти надо конец.', 'Let us read the lesson from right to left. The start and the triple are given, the end is to be found.'),
+    A('work', "To'g'ri bo'lgan barcha yozuvlarni belgilang. Ular bittadan ko'p.", 'Отметь все записи, которые верны. Их больше одной.', 'Mark all the readings that are correct. There is more than one.'),
   ],
   multi: {
     prompt: L("Barcha to'g'ri yozuvlarni belgilang", 'Отметь все верные записи', 'Mark all the correct readings'),
-    title: L("Har qanday prizma uchun nima to'g'ri", 'Что верно для любой призмы', 'What is true for any prism'),
-    ok: L("Beshtadan uch yozuv. Qolgan ikkitasi har qanday prizmada to'g'ri emas.", 'Три записи из пяти. Две оставшиеся верны не для любой призмы.', 'Three readings out of five. The other two are not true for every prism.'),
+    title: L("Bu vektor uchun nima to'g'ri", 'Что верно для этого вектора', 'What is true for this vector'),
+    ok: L('Beshtadan uch yozuv. Qolgan ikkitasi vektorni oxiri bilan aralashtiradi.', 'Три записи из пяти. Две оставшиеся путают вектор с его концом.', 'Three readings out of five. The other two confuse the vector with its end.'),
     items: [
-      { id: 'd', label: 'ABB₁A₁ = ▭', hint: L("Bu faqat to'g'ri prizmada to'g'ri.", 'Это верно только у прямой призмы.', 'That is true only for a right prism.') },
-      { id: 'e', label: '2n = n + 2', hint: L("Yoqlar n qo'shuv ikki, ikki n emas.", 'Граней n плюс два, а не два n.', 'The faces are n plus two, not two n.') },
-      { id: 'a', label: '3n', ok: true },
-      { id: 'b', label: '2n', ok: true },
-      { id: 'c', label: 'n + 2', ok: true },
+      { id: 'd', label: 'B (2; 2; 1)', hint: L('Bu vektorning uchligi, oxirning emas.', 'Это тройка вектора, а не конца.', 'That is the triple of the vector, not of the end.') },
+      { id: 'e', label: '|AB| = 9', hint: L("Ildiz ostida to'qqiz, demak uzunlik uch.", 'Под корнем девять, значит длина три.', 'Under the root there is nine, so the length is three.') },
+      { id: 'a', label: 'AB = (2; 2; 1)', ok: true },
+      { id: 'b', label: 'B (3; 4; 4)', ok: true },
+      { id: 'c', label: '|AB| = 3', ok: true },
     ],
   },
   place: {
-    prompt: L('Prizmaning yigirma bir qirrasi bor. Asosining nechta tomoni bor?', 'У призмы двадцать одно ребро. Сколько сторон у её основания?', 'A prism has twenty one edges. How many sides does its base have?'),
-    ok: L("Yetti. Qirralar uch n, demak n yigirma birni uchga bo'lgani.", 'Семь. Рёбер три n, значит n это двадцать один делить на три.', 'Seven. The edges are three n, so n is twenty one divided by three.'),
-    wrong: L('Prizmada qirralar nechta guruh ekanini eslang.', 'Вспомни, сколько групп рёбер у призмы.', 'Recall how many groups of edges a prism has.'),
-    target: '7',
-    step: '3n = 21',
+    prompt: L('Vektorning boshi bir ikki uch nuqtada, uchligi esa ikki ikki bir. Oxirining uchinchi soni qanday?', 'Начало вектора в точке один два три, а тройка вектора два два один. Каково третье число конца?', 'The start of a vector is at the point one two three, and the triple of the vector is two two one. What is the third number of the end?'),
+    ok: L("To'rt. Uch qo'shuv bir.", 'Четыре. Три плюс один.', 'Four. Three plus one.'),
+    wrong: L("Uchlik boshga qo'shiladi, oxir o'rniga olinmaydi.", 'Тройку прибавляют к началу, а не берут вместо конца.', 'The triple is added to the start, not taken instead of the end.'),
+    target: '4',
+    step: '3 + 1',
   },
 }
 
@@ -499,7 +499,7 @@ const S14 = {
   format: 'chain',
   eyebrow: L('BLITS', 'БЛИЦ', 'QUICK ROUND'),
   title: L("Ketma-ket to'rt savol", 'Четыре вопроса подряд', 'Four questions in a row'),
-  tag: 'gran-ne-storona',
+  tag: 'vektor-oxiri-emas',
   audio: [
     A('mount', "Ketma-ket to'rt savol. To'xtamasdan javob bering.", 'Четыре вопроса подряд. Отвечай без остановки.', 'Four questions in a row. Answer without stopping.'),
   ],
@@ -507,53 +507,52 @@ const S14 = {
     {
       id: 'q1',
       ask: true,
-      prompt: L('Qirrada nechta yoq tutashadi?', 'Сколько граней сходится в ребре?', 'How many faces meet at an edge?'),
-      done: '2',
+      prompt: L('Vektorning uchligi qanday olinadi?', 'Как берётся тройка вектора?', 'How is the triple of a vector taken?'),
+      done: 'AB = B − A',
       items: [
-        { id: 'a', label: L('ikkita', 'две', 'two'), correct: true },
-        { id: 'b', label: L('bitta', 'одна', 'one'), hint: L('Bitta yoq qirra emas, shunchaki tomon berardi.', 'Одна грань дала бы не ребро, а просто сторону.', 'One face would give not an edge but just a side.') },
-        { id: 'c', label: L('uchta', 'три', 'three'), hint: L('Uch yoq uchda tutashadi, qirrada emas.', 'Три грани сходятся в вершине, а не в ребре.', 'Three faces meet at a vertex, not at an edge.') },
-        { id: 'd', label: L("prizmaga bog'liq", 'зависит от призмы', 'it depends on the prism'), hint: L("Bu har qanday ko'pyoqda to'g'ri.", 'Это верно у любого многогранника.', 'This is true for any polyhedron.') },
+        { id: 'a', label: L('oxir minus boshi', 'конец минус начало', 'the end minus the start'), correct: true },
+        { id: 'b', label: L('boshi minus oxir', 'начало минус конец', 'the start minus the end'), hint: L('Bu qarama-qarshi vektorni beradi.', 'Это даст противоположный вектор.', 'That will give the opposite vector.') },
+        { id: 'c', label: L('oxirning uchligi', 'тройка конца', 'the triple of the end'), hint: L("Bu faqat boshi koordinatalar boshida bo'lganda chiqadi.", 'Так выходит только при начале в начале координат.', 'That comes out only when the start is at the origin.') },
+        { id: 'd', label: L("uchliklar yig'indisi", 'сумма троек', 'the sum of the triples'), hint: L("Yig'indi boshqa amalga tegishli.", 'Сумма относится к другому действию.', 'The sum belongs to another operation.') },
       ],
     },
     {
       id: 'q2',
       ask: true,
-      prompt: L('Prizmaning asoslari nima?', 'Что такое основания призмы?', 'What are the bases of a prism?'),
-      done: 'ABC = A₁B₁C₁',
+      prompt: L('Vektorlar qachon teng?', 'Когда векторы равны?', 'When are vectors equal?'),
+      done: 'AB = CD',
       items: [
-        { id: 'a', label: L('ikki teng yoq', 'две равные грани', 'two equal faces'), correct: true },
-        { id: 'b', label: L('ikki pastdagi yoq', 'две нижние грани', 'the two lower faces'), hint: L("Past va tepa chizmaga bog'liq, asoslar esa yo'q.", 'Низ и верх зависят от чертежа, а основания нет.', 'Bottom and top depend on the drawing, the bases do not.') },
-        { id: 'c', label: L('barcha parallelogrammlar', 'все параллелограммы', 'all the parallelograms'), hint: L('Parallelogrammlar yon yoqlar.', 'Параллелограммы это боковые грани.', 'The parallelograms are the lateral faces.') },
-        { id: 'd', label: L('eng katta yoq', 'самая большая грань', 'the biggest face'), hint: L("O'lcham bu yerda hech narsani hal qilmaydi.", 'Размер тут ничего не решает.', 'Size decides nothing here.') },
+        { id: 'a', label: L('uchliklari mos tushganda', 'когда совпадают тройки', 'when their triples coincide'), correct: true },
+        { id: 'b', label: L('oxirlari mos tushganda', 'когда совпадают концы', 'when their ends coincide'), hint: L("Oxirlari boshqa, vektor esa o'sha.", 'Концы разные, а вектор тот же.', 'The ends differ and the vector is the same.') },
+        { id: 'c', label: L("uzunliklari teng bo'lganda", 'когда равны длины', 'when their lengths are equal'), hint: L('Uzunliklar qarama-qarshilarda ham teng.', 'Длины равны и у противоположных.', 'Opposites have equal lengths too.') },
+        { id: 'd', label: L("yonma-yon bo'lganda", 'когда они рядом', 'when they are side by side'), hint: L("Chizmadagi joyning ishga aloqasi yo'q.", 'Место на чертеже к делу не относится.', 'The place on the drawing is irrelevant.') },
       ],
     },
     {
       id: 'q3',
       ask: true,
-      prompt: L('Beshburchakli prizmaning nechta uchi bor?', 'Сколько вершин у пятиугольной призмы?', 'How many vertices does a pentagonal prism have?'),
-      done: '2n = 10',
+      prompt: L('Bir ikki ikki vektorining uzunligi nimaga teng?', 'Чему равна длина вектора один два два?', 'What is the length of the vector one two two?'),
+      done: '3',
       items: [
-        { id: 'a', label: L("o'nta", 'десять', 'ten'), correct: true },
-        { id: 'b', label: L('beshta', 'пять', 'five'), hint: L('Beshta faqat bitta asosda.', 'Пять только в одном основании.', 'Five is only in one base.') },
-        { id: 'c', label: L("o'n beshta", 'пятнадцать', 'fifteen'), hint: L("O'n besh qirralar soni.", 'Пятнадцать это число рёбер.', 'Fifteen is the number of edges.') },
-        { id: 'd', label: L('yettita', 'семь', 'seven'), hint: L('Yetti yoqlar soni.', 'Семь это число граней.', 'Seven is the number of faces.') },
+        { id: 'a', label: L('uch', 'три', 'three'), correct: true },
+        { id: 'b', label: L('besh', 'пять', 'five'), hint: L("Besh uch sonning yig'indisi, uzunlik emas.", 'Пять это сумма трёх чисел, а не длина.', 'Five is the sum of the three numbers, not the length.') },
+        { id: 'c', label: L("to'qqiz", 'девять', 'nine'), hint: L("To'qqiz ildiz ostida turadi.", 'Девять стоит под корнем.', 'Nine stands under the root.') },
+        { id: 'd', label: L('ikki', 'два', 'two'), hint: L('Ikki sonlarning eng kattasi.', 'Два это наибольшее из чисел.', 'Two is the largest of the numbers.') },
       ],
     },
     {
       id: 'q4',
       ask: true,
-      prompt: L("Prizma qachon to'g'ri?", 'Когда призма прямая?', 'When is a prism right?'),
-      done: 'AA₁ ⊥ ABCD',
+      prompt: L('B A dan A B nimasi bilan farq qiladi?', 'Чем отличается B A от A B?', 'How does B A differ from A B?'),
+      done: 'AB = −BA',
       items: [
-        { id: 'a', label: L('yon qirra asosga perpendikulyar', 'боковое ребро перпендикулярно основанию', 'the lateral edge is perpendicular to the base'), correct: true },
-        { id: 'b', label: L('asos muntazam', 'основание правильное', 'the base is regular'), hint: L('Bu muntazam prizmaning sharti.', 'Это условие правильной призмы.', 'That is the condition of a regular prism.') },
-        { id: 'c', label: L('barcha yoqlar teng', 'все грани равны', 'all faces are equal'), hint: L("Bunday hol asos tomoni balandlikdan katta kubda ham bo'lmaydi.", 'Такого не бывает даже у куба со стороной основания больше высоты.', 'That does not happen even for a box whose base side differs from its height.') },
-        { id: 'd', label: L('asosda turadi', 'стоит на основании', 'it stands on its base'), hint: L("Chizmada qanday turgani ishga aloqasi yo'q.", 'Как стоит на чертеже, к делу не относится.', 'How it stands on the drawing is irrelevant.') },
+        { id: 'a', label: L('uch sonning ishorasi bilan', 'знаком всех трёх чисел', 'by the sign of all three numbers'), correct: true },
+        { id: 'b', label: L('uzunligi bilan', 'длиной', 'by the length'), hint: L('Ularning uzunligi bir xil.', 'Длины у них одинаковые.', 'Their lengths are the same.') },
+        { id: 'c', label: L('hech nimasi bilan', 'ничем', 'by nothing'), hint: L("U holda uchliklarni qo'shish boshqa javob berardi.", 'Тогда сложение троек давало бы другой ответ.', 'Then adding the triples would give another answer.') },
+        { id: 'd', label: L('faqat birinchi soni bilan', 'только первым числом', 'only by the first number'), hint: L("Ishora har sonda o'zgaradi.", 'Знак меняется у каждого числа.', 'The sign changes for every number.') },
       ],
     },
   ],
-  angles: ['ABC', 'ABB₁A₁', 'AA₁', 'AB'],
 }
 
 const S15 = {
@@ -562,65 +561,60 @@ const S15 = {
   eyebrow: L('YAKUN', 'ИТОГ', 'SUMMARY'),
   title: L('Endi nimani bilasiz', 'Что теперь умеешь', 'What you can do now'),
   audio: [
-    A('mount', 'Dars uchburchakli prizmaning nechta qirrasi bor degan savol bilan boshlandi.', 'Урок начался с вопроса, сколько рёбер у треугольной призмы.', 'The lesson began with the question how many edges a triangular prism has.'),
-    A('next', "Olti faqat asoslarni sanab, yon qirralarni esdan chiqarganda chiqadi. To'g'ri javob to'qqiz, va u chizmadan emas, qoidadan kelib chiqadi. Asosida n tomoni bo'lgan prizmada qirralar uch n, uchlar ikki n, yoqlar n qo'shuv ikki. Keyin asosi ham parallelogramm bo'lgan prizmani olamiz va bu nima yangilik berishini ko'ramiz.", 'Шесть получается, если считать только основания и забыть боковые рёбра. Правильный ответ девять, и он выводится не из чертежа, а из правила. У призмы с n сторонами в основании рёбер три n, вершин два n, граней n плюс два. Дальше мы возьмём призму, у которой и основание параллелограмм, и посмотрим, что нового это даёт.', 'Six comes out if you count only the bases and forget the lateral edges. The right answer is nine, and it follows from the rule rather than from the drawing. In a prism with n sides in the base there are three n edges, two n vertices and n plus two faces. Next we will take a prism whose base is a parallelogram too and see what that adds.'),
+    A('mount', 'Dars qaysi uchlik vektorga tegishli degan savol bilan boshlandi.', 'Урок начался с вопроса, какая тройка принадлежит вектору.', 'The lesson began with the question which triple belongs to the vector.'),
+    A('next', "Oxirning uchligi o'sha bo'lmadi, va sabab e'tiborsizlikda emas. Vektorning uchligi manzil emas, siljish: u har o'q bo'yicha qancha yurish kerakligini aytadi, va shuning uchun ayirish bilan, oxirdan boshni olib chiqadi. Qolgani shundan. Bir xil vektorni ixtiyoriy boshdan qo'yish mumkin, uchlik o'zgarmaydi, oxirlari esa boshqa bo'ladi -- demak teng vektorlar uchliklari mos tushganlari. Uzunlik kvadratlar yig'indisidan ildiz bilan hisoblanadi, va ishoralar unga o'tmaydi, shuning uchun vektor va qarama-qarshisining uzunligi bitta. Harflar tartibi esa hal qiladi: A B va B A har sonning ishorasi bilan farq qiladi. Keyin uchliklar qo'shila boshlaydi.", 'Тройка конца оказалась не той, и причина не в невнимательности. Тройка вектора это сдвиг, а не адрес: она говорит, на сколько пройти по каждой оси, и потому берётся вычитанием, из конца начало. Отсюда всё остальное. Один и тот же вектор можно поставить из любого начала, и тройка не изменится, а концы будут разные, и значит равные векторы это те, у которых совпали тройки. Длина считается корнем из суммы квадратов, и знаки в неё не проходят, поэтому у вектора и противоположного длина одна. А порядок букв решает: A B и B A отличаются знаком у каждого числа. Дальше тройки начнут складывать.', 'The triple of the end turned out to be the wrong one, and the reason is not carelessness. The triple of a vector is a shift and not an address: it says how far to go along each axis, and that is why it is taken by subtraction, the start out of the end. Everything else follows. One and the same vector can be placed from any start, and the triple will not change while the ends will differ, so equal vectors are those whose triples coincide. The length is computed as the root of the sum of squares, and the signs do not pass into it, so a vector and its opposite have one length. And the order of the letters decides: A B and B A differ in the sign of every number. Next the triples will start being added.'),
   ],
   can: [
-    L('Yoq, qirra va uchni ajrataman', 'Различаю грань, ребро и вершину', 'I tell a face, an edge and a vertex apart'),
-    L('Qirra ikki yoqqa tegishli ekanini bilaman', 'Знаю, что ребро принадлежит двум граням', 'I know an edge belongs to two faces'),
-    L("Qirra, uch va yoqlarni asos tomonlari soni bo'yicha sanayman", 'Считаю рёбра, вершины и грани по числу сторон основания', 'I count edges, vertices and faces by the number of base sides'),
-    L("To'g'ri prizmani og'madan ajrataman", 'Отличаю прямую призму от наклонной', 'I tell a right prism from a slanted one'),
+    L('Vektorning uchligini ayirish bilan olaman', 'Беру тройку вектора вычитанием', 'I take the triple of a vector by subtraction'),
+    L('Vektorning uchligini nuqtaning uchligidan ajrataman', 'Различаю тройку вектора и тройку точки', 'I tell the triple of a vector from the triple of a point'),
+    L("Uzunlikni uch son bo'yicha hisoblayman", 'Считаю длину по трём числам', 'I compute a length from three numbers'),
+    L("Harflar tartibini marshrut kabi o'qiyman", 'Читаю порядок букв как маршрут', 'I read the order of the letters as a route'),
   ],
   levels: {
     full: L("To'rttasi ham", 'Все четыре', 'All four'),
     gap: L("To'rttadan uchtasi", 'Три из четырёх', 'Three out of four'),
     back: L('Uchtadan kam', 'Меньше трёх', 'Fewer than three'),
   },
-  bridge: L("Bundan keyin parallelepiped, asosi ham parallelogramm bo'lgan prizma", 'Дальше параллелепипед — призма, у которой и основание параллелограмм', 'Next comes the parallelepiped, a prism whose base is a parallelogram too'),
-  lifehack: L("Qirralarni sanayotgan bo'lsangiz, ketma-ket emas, uch guruh bilan sanang", 'Считаешь рёбра — считай тремя группами, не подряд', 'Counting edges, count in three groups rather than one by one'),
+  bridge: L("Bundan keyin amallar, uchliklar qo'shila va songa ko'paytirila boshlaydi", 'Дальше действия — тройки начнут складывать и умножать на число', 'Next come the operations: the triples will be added and multiplied by a number'),
+  lifehack: L("Hisoblashdan oldin yozuvni marshrut kabi o'qing: birinchi harfdan ikkinchisiga", 'Прежде чем считать, прочитай запись как маршрут: из первой буквы во вторую', 'Before computing, read the notation as a route: from the first letter to the second'),
   sheetTitle: L('Shpargalka', 'Шпаргалка', 'Cheat sheet'),
-  sheetSrc: L("Geometriya, qirq to'rtinchi va qirq beshinchi betlar", 'Геометрия, страницы сорок четыре и сорок пять', 'Geometry, pages forty four and forty five'),
+  sheetSrc: L('Programma, sakkizinchi blok', 'Программа, блок восемь', 'The programme, block eight'),
   hook: {
-    a: '6',
-    b: '9',
+    a: '(3; 2; 2)',
+    b: '(2; 1; 2)',
   },
-  proved: '3n = 9',
-  law: '3n,   2n,   n + 2',
+  proved: '(2; 1; 2)',
+  law: 'AB = B − A',
   sheet: [
-    'ABC = A₁B₁C₁',
-    'ABB₁A₁ = ▱',
-    '3n',
-    '2n',
-    'n + 2',
+    'AB = B − A',
+    'AB = CD',
+    '|AB|² = x² + y² + z²',
+    'AB = −BA',
+    '|AB| = |BA|',
   ],
 }
 
 // ======== QOLDA YOZILGAN QISM: bundan pastdagisi saqlanadi ========
 
-const num = (s) => parseFloat(String(s).replace(/−/g, '-'))
+const num = (s) => parseFloat(String(s).replace(/\u2212/g, '-'))
 
-// PRIBOR 6B. Jism generator bilan quriladi: uchlar darslikdagidek nomlanadi.
-// Uchburchakli prizma -- darsning asosiy jismi (9 qirra, savol shu haqda),
-// to'rtburchakli -- 5-ekranda asos va yon yoq uchun, oltiburchakli -- 6-ekranda
-// sanoq qoidasi uchun, og'ma -- 7-ekranning chegarasi.
-const TRI = { kind: 'prism', n: 3, h: 1.15, turn: 0.6 }
-const QUAD = { kind: 'prism', n: 4, h: 1.1, turn: 0.5 }
-const HEX = { kind: 'prism', n: 6, h: 1.05, r: 0.58 }
-const SLANT = { kind: 'prism', n: 4, h: 1.1, turn: 0.5, skew: [0.42, 0.24] }
+// PRIBOR 6C -- `Space3D`, 11-sinfning fazoviy karkasiga o'ram (space.jsx).
+// O'ram tilni, rakurs nomini, kenglikni va yozuvning masshtabini moslaydi --
+// to'rttasi ham o'lchov bilan topilgan, izohi o'sha faylda.
+const BOX = [4, 4, 4]
+const PA = [1, 1, 0]
+const PB = [3, 2, 2]          // AB uchligi (2; 1; 2), uzunligi 3
+// SHOHID: O'SHA vektor boshqa boshdan. Siljish (0; 2; 1) ATAYIN tanlangan:
+// (1; 1; 0) kabi siljishda ikki strelka proyeksiyada bir-birining ustiga
+// tushadi -- bu 11-sinfda bo'lgan grabli, va u vektorning o'zida emas,
+// STRELKALAR ORASIDAGI siljishda vujudga keladi. Stendda tekshirilgan.
+const PC = [1, 3, 1]
+const PD = [3, 4, 3]
+const LONG = [2, 3, 6]        // uzunligi 7: 4 + 9 + 36 = 49
+const LONG_BACK = [-2, -3, -6]
 
-const GREY = '#7f8c8d'
-const FACE2 = '#6b8fa3'
-
-// Yoqlar: asos va yon yoq BOSHQA rangda, aks holda ular bitta dog'ga qo'shilib
-// ketadi (43-darsda shu ko'rindi).
-const BASE_TRI = [{ by: ['A', 'B', 'C'] }]
-const BOTH_TRI = [{ by: ['A', 'B', 'C'] }, { by: ['A', 'B', 'B1', 'A1'], tone: FACE2 }]
-const BASE_QUAD = [{ by: ['A', 'B', 'C', 'D'] }]
-const SIDE_QUAD = [{ by: ['A', 'B', 'C', 'D'] }, { by: ['A', 'B', 'B1', 'A1'], tone: FACE2 }]
-const BASE_HEX = [{ by: ['A', 'B', 'C', 'D', 'E', 'F'], dim: true }]
-
-const EDGE_AB = ['AB']
-const EDGE_LAT = ['AA1']
+const VEC = (from, to, more) => [Object.assign({ from, to, label: 'a' }, more || {})]
+const CO = { coords: true }
 
 const PAIR_IDS = ['p0', 'p1', 'p2', 'p3']
 const EQ_LEFT = S9.match.left.map((label, i) => ({ id: PAIR_IDS[i], label }))
@@ -653,9 +647,15 @@ const Screen1 = (p) => (
         // Prognoz TURG'UN chizmada: aynan shunda yon qirralar esdan chiqadi.
         fig={() => (
           <Scene
-            fig={<Space step={1} yaw={0.4} poly={TRI} faces={BASE_TRI} />}
-            max={172}
-            h={172}
+            fig={(
+              <Space3D
+                mode="vec" box={BOX}
+                points={[{ at: PA, label: 'A' }, { at: PB, label: 'B' }]}
+                vectors={VEC(PA, PB)}
+              />
+            )}
+            max={230}
+            h={158}
           />
         )}
       />
@@ -669,7 +669,7 @@ const Screen2 = (p) => (
       <Cols l={1} r={1.2}>
         <Col>
           <Scene
-            fig={<Space step={1} yaw={0.4} poly={TRI} faces={BASE_TRI} />}
+            fig={<Space3D mode="vec" box={BOX} vectors={VEC(PA, PB, CO)} />}
             max={240}
             h={158}
           />
@@ -689,17 +689,27 @@ const Screen3 = (p) => (
          ko'pburchaklardan yig'iladi. */
       <Scene
         fig={(
-          <Space
-            step={1} yaw={0.35 + phase * 0.4} poly={TRI}
-            faces={phase === 0 ? BASE_TRI : BOTH_TRI}
-          />
+          phase === 0 ? (
+            <Space3D
+              mode="point" box={BOX} axisNums
+              points={[
+                { at: PA, label: 'A', coords: true },
+                { at: PB, label: 'B', coords: true },
+              ]}
+            />
+          ) : (
+            <Space3D
+              mode="vec" box={BOX} axisNums
+              points={[{ at: PA, label: 'A' }, { at: PB, label: 'B' }]}
+              vectors={VEC(PA, PB, CO)}
+            />
+          )
         )}
         note={<NoteList items={S3.show[phase]} />}
       />
     ) : (
       <SpinScene
-        yaw0={0.35}
-        scene={<Space step={1} poly={TRI} faces={BOTH_TRI} />}
+        scene={<Space3D mode="vec" box={BOX} vectors={VEC(PA, PB, CO)} />}
         prompt={S3.work.prompt}
         answer={num(S3.work.answer)}
         okText={S3.work.ok}
@@ -718,10 +728,12 @@ const Screen4 = (p) => (
          qirra. Qirra yoritilgan, ya'ni ikki yoqning chegarasi ko'rinadi. */
       <Scene
         fig={(
-          <Space
-            step={1} yaw={0.35} poly={TRI}
-            faces={phase === 0 ? BASE_TRI : BOTH_TRI}
-            hi={phase === 0 ? [] : EDGE_AB}
+          <Space3D
+            mode="vec" box={BOX} yaw={phase === 0 ? 0 : 0.7}
+            vectors={[
+              { from: PA, to: PB, label: 'a', coords: true },
+              { from: PC, to: PD, label: 'b', coords: true, tone: 'accent' },
+            ]}
           />
         )}
         note={<NoteList items={S4.show[phase]} />}
@@ -729,7 +741,15 @@ const Screen4 = (p) => (
     ) : (
       <SpinScene
         yaw0={0.35}
-        scene={<Space step={1} poly={TRI} faces={BOTH_TRI} hi={EDGE_AB} />}
+        scene={(
+          <Space3D
+            mode="vec" box={BOX}
+            vectors={[
+              { from: PA, to: PB, label: 'a', coords: true },
+              { from: PC, to: PD, label: 'b', coords: true, tone: 'accent' },
+            ]}
+          />
+        )}
         prompt={S4.work.prompt}
         answer={num(S4.work.answer)}
         okText={S4.work.ok}
@@ -746,9 +766,10 @@ const Screen5 = (p) => (
     {({ audio, phase, solved, solve }) => (phase < S5.show.length && !solved ? (
       <Scene
         fig={(
-          <Space
-            step={1} yaw={0.3 + phase * 0.5} poly={QUAD}
-            faces={phase === 0 ? BASE_QUAD : SIDE_QUAD}
+          <Space3D
+            mode="vec" box={BOX}
+            vectors={VEC([0, 0, 0], LONG, CO)}
+            value={phase === 0 ? 'none' : 'len'}
           />
         )}
         note={<NoteList items={S5.show[phase]} />}
@@ -756,7 +777,9 @@ const Screen5 = (p) => (
     ) : (
       <SpinScene
         yaw0={0.3}
-        scene={<Space step={1} poly={QUAD} faces={SIDE_QUAD} />}
+        scene={(
+          <Space3D mode="vec" box={BOX} vectors={VEC([0, 0, 0], LONG, CO)} value="len" />
+        )}
         prompt={S5.work.prompt}
         answer={num(S5.work.answer)}
         okText={S5.work.ok}
@@ -773,9 +796,15 @@ const Screen6 = (p) => (
     {({ audio, phase, solved, solve }) => (phase < S6.show.length && !solved ? (
       <Scene
         fig={(
-          <Space
-            step={1} yaw={0.3 + phase * 0.45} poly={HEX}
-            faces={BASE_HEX} hi={phase === 0 ? [] : EDGE_LAT}
+          <Space3D
+            mode="vec" box={BOX}
+            vectors={phase === 0
+              ? VEC([0, 0, 0], LONG, CO)
+              : [
+                { from: [0, 0, 0], to: LONG, label: 'a', coords: true },
+                { from: [0, 0, 0], to: LONG_BACK, label: 'b', coords: true, tone: 'accent' },
+              ]}
+            value="len"
           />
         )}
         note={<NoteList items={S6.show[phase]} />}
@@ -783,7 +812,16 @@ const Screen6 = (p) => (
     ) : (
       <SpinScene
         yaw0={0.3}
-        scene={<Space step={1} poly={HEX} faces={BASE_HEX} hi={EDGE_LAT} />}
+        scene={(
+          <Space3D
+            mode="vec" box={BOX}
+            vectors={[
+              { from: [0, 0, 0], to: LONG, label: 'a' },
+              { from: [0, 0, 0], to: LONG_BACK, label: 'b', coords: true, tone: 'accent' },
+            ]}
+            value="len"
+          />
+        )}
         prompt={S6.work.prompt}
         answer={num(S6.work.answer)}
         okText={S6.work.ok}
@@ -802,9 +840,15 @@ const Screen7 = (p) => (
          qirrada, va qimirlamas chizmada u deyarli ko'rinmaydi. */
       <Scene
         fig={(
-          <Space
-            step={1} yaw={0.35} poly={phase === 0 ? SLANT : QUAD}
-            faces={SIDE_QUAD} hi={EDGE_LAT}
+          <Space3D
+            mode="vec" box={BOX}
+            points={[{ at: PA, label: 'A' }, { at: PB, label: 'B' }]}
+            vectors={phase === 0
+              ? VEC(PA, PB, CO)
+              : [
+                { from: PA, to: PB, label: 'a', coords: true },
+                { from: PB, to: PA, label: 'b', coords: true, tone: 'accent', dash: true },
+              ]}
           />
         )}
         note={<NoteList items={S7.show[phase]} />}
@@ -812,7 +856,16 @@ const Screen7 = (p) => (
     ) : (
       <SpinScene
         yaw0={0.35}
-        scene={<Space step={1} poly={QUAD} faces={SIDE_QUAD} hi={EDGE_LAT} />}
+        scene={(
+          <Space3D
+            mode="vec" box={BOX}
+            points={[{ at: PA, label: 'A' }, { at: PB, label: 'B' }]}
+            vectors={[
+              { from: PA, to: PB, label: 'a', coords: true },
+              { from: PB, to: PA, label: 'b', coords: true, tone: 'accent', dash: true },
+            ]}
+          />
+        )}
         prompt={S7.work.prompt}
         answer={num(S7.work.answer)}
         okText={S7.work.ok}
@@ -833,9 +886,10 @@ const Screen8 = (p) => (
         fig={(solved) => (
           <Scene
             fig={(
-              <Space
-                step={1} yaw={solved ? 0.8 : 0.35}
-                poly={TRI} faces={BOTH_TRI} hi={solved ? EDGE_LAT : []}
+              <Space3D
+                mode="vec" box={BOX} yaw={solved ? 0.9 : 0}
+                points={[{ at: PA, label: 'A' }, { at: PB, label: 'B' }]}
+                vectors={VEC(PA, PB, CO)}
               />
             )}
             max={330}
@@ -986,11 +1040,9 @@ const Screen14 = (p) => (
         fig={(round) => (
           <Scene
             fig={(
-              <Space
-                step={1} yaw={0.35 + round * 0.3}
-                poly={round === 1 ? QUAD : TRI}
-                faces={round === 1 ? SIDE_QUAD : BOTH_TRI}
-                hi={EDGE_AB}
+              <Space3D
+                mode="vec" box={BOX} yaw={round * 0.3}
+                vectors={VEC(PA, PB, round === 1 ? CO : null)}
               />
             )}
             max={260}

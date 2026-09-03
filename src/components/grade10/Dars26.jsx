@@ -1,16 +1,15 @@
 // ============================================================================
-// 10-sinf, Dars 26. HAQIQIY KO'RSATKICHLI DARAJA.
+// 10-sinf, Dars 26. KARKAS: MA'LUMOT KONTENTDAN YIG'ILDI.
 //
-// Fayl IKKI qismdan iborat. Yuqoridagi ma'lumot (ovoz, kadrlar, variantlar,
-// razborlar, qoida, yakun) `scripts/grade10-kontent-build.mjs` bilan
-// `src/books/grade10/DARS26_KONTENT.md` dan yig'ilgan -- uni QO'LDA
-// tuzatmang, kontentni tuzatib qaytadan yig'ing. Pastdagi ekran tanalari
-// esa qo'lda yozilgan: asbob va figurani tanlash matematik qaror.
+// Bu fayl `scripts/grade10-kontent-build.mjs` bilan yasalgan:
+//   manba:  src/books/grade10/DARS26_KONTENT.md
+// Ma'lumot (ovoz, kadrlar, variantlar, razborlar, qoida, yakun) tayyor.
+// EKRAN TANALARI esa `TODO` bo'lib qoldi: asbob va figurani tanlash --
+// matematik qaror, va u avtomatlashtirilmaydi (etalon §5.3).
 //
-// ASBOB. 26-darsda chizma YO'Q joyi ham bor: 3-6-ekranlarda ish YOZUVDA
-// boradi (`Tape`), va bu 2-asbobning o'zi -- qadam bilan qaytadan yozish.
-// 7 va 8-ekranlarda `PowerBand`: torayuvchi polosa va kvadratlar polosasi.
-// Aylana bu darsda YO'Q va bo'lishi ham kerak emas.
+// Tartib: tanalarni to'ldirish, keyin `grade10-lesson-audit.mjs`, keyin
+// tez yarus (2 o'lcham), keyin to'liq prognon. Har yangi figura oldin
+// `probe/figures.html` stendida suratga olinadi.
 //
 // `import React` SHART (LMS klassik rejim).
 // ============================================================================
@@ -33,38 +32,40 @@ import {
   NoteList,
   NumberEntry,
   OrderRow,
+  PlaceAngle,
   ProbeChain,
   Scene,
+  UnitCircle,
 } from './tools.jsx'
 
-import { PowerBand } from './figures.jsx'
+import { LevelLine } from './figures.jsx'
 
 // Метка урока: `lesson_id` = grade10-<номер>, `lesson_name` = номер + тема
 // ИЗ ПЛАНА дословно.
 const LESSON_NO = 26
 const LESSON_ID = `grade10-${String(LESSON_NO).padStart(2, '0')}`
 const LESSON_TITLE = L(
-  `${LESSON_NO}-dars. Haqiqiy ko'rsatkichli daraja`,
-  `Урок ${LESSON_NO}. Степень (действ.)`,
-  `Lesson ${LESSON_NO}. The power with a real exponent`,
+  `${LESSON_NO}-dars. Trigonometrik tengsizliklar`,
+  `Урок ${LESSON_NO}. Тригон. неравенства`,
+  `Lesson ${LESSON_NO}. Trigonometric inequalities`,
 )
 
-const BLOCK = { label: 'B5', from: 26, to: 37, current: 26 }
+const BLOCK = { label: 'B5', from: 15, to: 27, current: 26 }
 
 const S1 = {
   role: 'hook',
   answer: 'pick4',
-  eyebrow: L('DARAJA', 'СТЕПЕНЬ', 'THE POWER'),
-  title: L("Ko'rsatkichdagi minus", 'Минус в показателе', 'The minus in the exponent'),
+  eyebrow: L('TENGSIZLIK', 'НЕРАВЕНСТВО', 'THE INEQUALITY'),
+  title: L('Nuqtami yoki yoy', 'Точка или дуга', 'A point or an arc'),
   audio: [
-    A('mount', 'Yonma-yon ikki son. Minus sakkiz va bir sakkizdan. Ulardan aynan bittasi ikkining minus uchinchi darajasiga teng.', 'Два числа рядом. Минус восемь и одна восьмая. Ровно одно из них равно двойке в минус третьей степени.', 'Two numbers side by side. Minus eight and one eighth. Exactly one of them equals two to the minus third power.'),
-    A('r1', "Birinchi yozuv ko'rsatkichdagi minus sonning o'zini manfiy qiladi deydi.", 'Первая запись говорит, что минус в показателе делает само число отрицательным.', 'The first reading says the minus in the exponent makes the number itself negative.'),
-    A('r2', 'Ikkinchisi minus kasrni teskari qiladi, sonning ishorasiga tegmaydi deydi.', 'Вторая говорит, что минус переворачивает дробь, а знак числа не трогает.', 'The second says the minus turns the fraction over and leaves the sign alone.'),
+    A('mount', "Sinus iks bir ikkidan katta. Chapda va o'ngda ikki xil javob.", 'Синус икс больше одной второй. Слева и справа два разных ответа.', 'Sine of x is greater than one half. On the left and on the right two different answers.'),
+    A('r1', "Birinchi yozuv javob o'ttiz gradus deydi: sinus aynan o'sha yerda bir ikkidanga teng.", 'Первая запись говорит, что ответ это тридцать градусов: именно там синус равен одной второй.', 'The first reading says the answer is thirty degrees: that is where the sine equals one half.'),
+    A('r2', "Ikkinchisi javob o'ttizdan bir yuz ellik gradusgacha bo'lgan butun bo'lak deydi, va u har aylanishda takrorlanadi.", 'Вторая говорит, что ответ это целый кусок от тридцати до ста пятидесяти градусов, и он повторяется каждый оборот.', 'The second says the answer is a whole piece from thirty to one hundred fifty degrees, and it repeats every turn.'),
     A('ask', "Sizningcha qaysi biri to'g'ri? Hozircha shunchaki taxmin qiling.", 'Как думаешь, какая верная? Пока просто предположи.', 'Which one do you think is right? Just make a guess for now.'),
   ],
   probe: {
     question: L("Qaysi yozuv to'g'ri?", 'Какая запись верна?', 'Which reading is correct?'),
-    afterPredict: L("Javobingiz yozib olindi. Endi ko'rsatkichlar zinapoyasidan tushamiz va ko'ramiz.", 'Твой ответ записан. Сейчас спустимся по лестнице показателей и посмотрим.', 'Your answer is saved. Now we will walk down the ladder of exponents and see.'),
+    afterPredict: L("Javobingiz yozib olindi. Endi gorizontal o'tkazib ko'ramiz.", 'Твой ответ записан. Сейчас проведём горизонталь и посмотрим.', 'Your answer is saved. Now we will draw the horizontal and look.'),
     items: [
       { id: 'a', label: L('birinchi', 'первая', 'the first') },
       { id: 'b', label: L('ikkinchi', 'вторая', 'the second'), correct: true },
@@ -74,22 +75,22 @@ const S1 = {
   },
   row: {
     a: {
-      name: L("sonning ishorasini o'zgartiradi", 'меняет знак числа', 'flips the sign of the number'),
-      value: '−8',
+      name: L('bitta nuqta yozdik', 'записали одну точку', 'one point was written down'),
+      value: 'x = 30°',
     },
     b: {
-      name: L('kasrni teskari qiladi', 'переворачивает дробь', 'turns the fraction over'),
-      value: '1/8',
+      name: L('butun yoy yozdik', 'записали целую дугу', 'a whole arc was written down'),
+      value: '30° < x < 150°',
     },
   },
-  expr: '2^{−3}',
+  expr: 'sin x > 1/2',
 }
 
 const S2 = {
   role: 'support',
   answer: 'pick4',
   eyebrow: L('TAYANCH', 'ОПОРА', 'WHAT YOU KNOW'),
-  title: L('Darajadan oldin uch savol', 'Три вопроса перед степенью', 'Three questions before the power'),
+  title: L('Tengsizlikdan oldin uch savol', 'Три вопроса перед неравенством', 'Three questions before the inequality'),
   tag: 'support',
   audio: [
     A('mount', "Uch qisqa savol. Uchalasi ham bir daqiqadan keyin kerak bo'ladi.", 'Три коротких вопроса. Все три понадобятся через минуту.', 'Three short questions. All three will be needed in a minute.'),
@@ -98,37 +99,37 @@ const S2 = {
     {
       id: 'q1',
       ask: true,
-      prompt: L("Ikki uchinchi darajada yozuvida nechta ko'paytuvchi bor?", 'Сколько множителей в записи два в третьей степени?', 'How many factors are in two to the third power?'),
-      done: '2³ = 2·2·2',
+      prompt: L("Aylanada sinus qayerdan o'qiladi?", 'Где на окружности читают синус?', 'Where on the circle is the sine read?'),
+      done: 'sin x = y',
       items: [
-        { id: 'a', label: L('uchta', 'три', 'three'), correct: true },
-        { id: 'b', label: L('ikkita', 'два', 'two'), hint: L("Ikki bu asos, ko'paytuvchilar soni esa ko'rsatkich aytgancha.", 'Два это основание, а множителей столько, сколько сказал показатель.', 'Two is the base, and the number of factors is what the exponent says.') },
-        { id: 'c', label: L('oltita', 'шесть', 'six'), hint: L("Olti ikki bilan uchni ko'paytirsak chiqardi, ular esa bu yerda har xil o'rinda turadi.", 'Шесть получилось бы, если два и три перемножить, а они здесь стоят на разных местах.', 'Six would come from multiplying two by three, but here they sit in different places.') },
-        { id: 'd', label: L('sakkizta', 'восемь', 'eight'), hint: L("Sakkiz bu yozuvning qiymati, savol esa ko'paytuvchilar soni haqida.", 'Восемь это значение записи, а спросили про число множителей.', 'Eight is the value of the reading, and the question was the number of factors.') },
+        { id: 'a', label: L("tik o'q bo'yicha", 'по вертикальной оси', 'along the vertical axis'), correct: true },
+        { id: 'b', label: L("yotiq o'q bo'yicha", 'по горизонтальной оси', 'along the horizontal axis'), hint: L("Yotiq o'q bo'yicha kosinus o'qiladi.", 'По горизонтальной читают косинус.', 'The horizontal axis is where the cosine is read.') },
+        { id: 'c', label: L("yoy uzunligi bo'yicha", 'по длине дуги', 'along the length of the arc'), hint: L("Yoy uzunligi bu radiandagi burchakning o'zi, sinus emas.", 'Длина дуги это сам угол в радианах, а не синус.', 'The arc length is the angle in radians, not the sine.') },
+        { id: 'd', label: L("radius bo'yicha", 'по радиусу', 'along the radius'), hint: L('Radius bu yerda doim bir, u hech nimani ajratmaydi.', 'Радиус здесь всегда единица, он ничего не различает.', 'The radius is always one here, it tells nothing apart.') },
       ],
     },
     {
       id: 'q2',
       ask: true,
-      prompt: L("Ikki uchinchi darajada ikki ikkinchi darajaga ko'paytirilsa nima bo'ladi?", 'Чему равно два в третьей умножить на два во второй?', 'What is two to the third times two to the second?'),
-      done: '2³·2² = 2⁵',
+      prompt: L('Sinus qaysi sonlar orasida yotadi?', 'Между какими числами лежит синус?', 'Between which numbers does the sine lie?'),
+      done: '−1 ≤ sin x ≤ 1',
       items: [
-        { id: 'a', label: L('ikki beshinchi darajada', 'два в пятой', 'two to the fifth'), correct: true },
-        { id: 'b', label: L('ikki oltinchi darajada', 'два в шестой', 'two to the sixth'), hint: L("Olti ko'rsatkichlarni ko'paytirsak chiqardi. Ko'paytuvchilarni yozib sanang.", 'Шесть вышло бы, если показатели перемножить. Выпиши множители и посчитай их.', 'Six would come from multiplying the exponents. Write the factors out and count them.') },
-        { id: 'c', label: L("to'rt beshinchi darajada", 'четыре в пятой', 'four to the fifth'), hint: L("Asos o'zgarmaydi: ko'paytuvchilar o'sha ikkilar.", 'Основание не меняется: множители те же двойки.', 'The base does not change: the factors are the same twos.') },
-        { id: 'd', label: L('ikki birinchi darajada', 'два в первой', 'two to the first'), hint: L("Birinchi daraja bo'lishda chiqardi, bu yerda esa ko'paytirish.", 'Первая степень вышла бы при делении, а здесь умножение.', 'The first power would come from dividing, and here we multiply.') },
+        { id: 'a', label: L('minus bir va bir orasida', 'между минус одним и одним', 'between minus one and one'), correct: true },
+        { id: 'b', label: L('nol va bir orasida', 'между нулём и одним', 'between zero and one'), hint: L('Aylananing pastida sinus manfiy.', 'Внизу окружности синус отрицательный.', 'At the bottom of the circle the sine is negative.') },
+        { id: 'c', label: L('har qanday son', 'любое число', 'any number'), hint: L("Sinus birdan katta bo'lmaydi: doiradan yuqorida nuqta yo'q.", 'Больше единицы синус не бывает: выше круга точек нет.', 'The sine is never greater than one: there are no points above the circle.') },
+        { id: 'd', label: L('minus ikki va ikki orasida', 'между минус двумя и двумя', 'between minus two and two'), hint: L('Radius birga teng, demak balandlik ham birdan katta emas.', 'Радиус равен единице, значит и высота не больше единицы.', 'The radius equals one, so the height is no greater than one.') },
       ],
     },
     {
       id: 'q3',
       ask: true,
-      prompt: L("Qaysi son kvadratda to'qqiz beradi?", 'Какое число в квадрате даёт девять?', 'Which number squared gives nine?'),
-      done: '3² = 9',
+      prompt: L("Barcha aylanishlarni hisobga olish uchun javobga nima qo'shiladi?", 'Что добавляют к ответу, чтобы учесть все обороты?', 'What is added to the answer to account for all the turns?'),
+      done: '+ 360°n',
       items: [
-        { id: 'a', label: L('uch', 'три', 'three'), correct: true },
-        { id: 'b', label: L("to'rt yarim", 'четыре с половиной', 'four and a half'), hint: L("Bu to'qqizning yarmi, kerak bo'lgani esa ikki marta olingan ko'paytuvchi.", 'Это половина девяти, а нужен множитель, взятый дважды.', 'That is half of nine, but we need a factor taken twice.') },
-        { id: 'c', label: L('sakson bir', 'восемьдесят один', 'eighty one'), hint: L("Sakson bir bu to'qqiz kvadratda, ya'ni teskari yo'l.", 'Восемьдесят один это девять в квадрате, то есть обратный ход.', 'Eighty one is nine squared, that is the other direction.') },
-        { id: 'd', label: L('olti', 'шесть', 'six'), hint: L("Olti bu to'qqiz qo'shuv uch, ikki marta olingan ko'paytuvchi emas.", 'Шесть это девять плюс три, а не множитель, взятый дважды.', 'Six is nine plus three, not a factor taken twice.') },
+        { id: 'a', label: L("butun songa ko'paytirilgan uch yuz oltmish gradus", 'триста шестьдесят градусов, умноженные на целое число', 'three hundred sixty degrees times a whole number'), correct: true },
+        { id: 'b', label: L('bir yuz sakson gradus', 'сто восемьдесят градусов', 'one hundred eighty degrees'), hint: L('Bir yuz sakson yarim aylanish, nuqta boshqa joyga tushadi.', 'Сто восемьдесят это половина оборота, точка окажется не там.', 'One hundred eighty is half a turn, the point would land elsewhere.') },
+        { id: 'c', label: L("hech nima qo'shilmaydi", 'ничего не добавляют', 'nothing is added'), hint: L("U holda birinchisidan boshqa barcha aylanishlar yo'qoladi.", 'Тогда потеряются все обороты, кроме первого.', 'Then every turn except the first would be lost.') },
+        { id: 'd', label: L("to'qson gradus", 'девяносто градусов', 'ninety degrees'), hint: L("To'qson chorak aylanish.", 'Девяносто это четверть оборота.', 'Ninety is a quarter of a turn.') },
       ],
     },
   ],
@@ -136,73 +137,67 @@ const S2 = {
 
 const S3 = {
   role: 'explain1',
-  answer: 'order',
+  answer: 'lead',
   eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L("Ko'rsatkich ko'paytuvchilarni sanaydi", 'Показатель считает множители', 'The exponent counts the factors'),
-  tag: 'stepen-po-analogii',
+  title: L('Gorizontal doirani ikki marta kesadi', 'Горизонталь режет круг дважды', 'The horizontal cuts the circle twice'),
+  tag: 'odin-koren',
   show: [
     [
-      L("ko'rsatkich bu ko'paytuvchilar soni", 'показатель это число множителей', 'the exponent is the number of factors'),
-      L("ikkala yozuvni to'liq yozamiz", 'выписываем обе записи полностью', 'we write both readings out in full'),
-      '2³·2² = 2·2·2·2·2',
+      L("to'g'ri chiziq bir ikkidan balandlikda boradi", 'прямая идёт на высоте одна вторая', 'the line runs at height one half'),
+      L('u aylanani ikki nuqtada kesadi', 'она пересекает окружность в двух точках', 'it crosses the circle at two points'),
+      L("birinchi nuqta o'ngda", 'первая точка справа', 'the first point is on the right'),
     ],
     [
-      L("ko'paytuvchilar shunchaki qo'shildi", 'множители просто дописались', 'the factors simply got appended'),
-      L("shuning uchun ko'rsatkichlar qo'shiladi", 'поэтому показатели складываются', 'so the exponents add up'),
-      '2³·2² = 2⁵',
+      L("bu o'ttiz gradus", 'это тридцать градусов', 'that is thirty degrees'),
+      L('u yerda sinus roppa-rosa bir ikkidan', 'там синус ровно одна вторая', 'there the sine is exactly one half'),
+      L("shu nuqtani o'zingiz qo'ying", 'поставь эту точку сам', 'place that point yourself'),
     ],
   ],
-  motion: ['grow'],
+  motion: ['cut'],
   audio: [
-    A('mount', "Daraja bu ko'paytirishning qisqa yozuvi. Ko'rsatkich asos necha marta takrorlanishini aytadi.", 'Степень это короткая запись умножения. Показатель говорит, сколько раз повторяется основание.', 'A power is a short way to write multiplication. The exponent says how many times the base repeats.'),
-    A('grow', "Ikki uchinchi darajani to'liq yozamiz, keyin ikki ikkinchi darajani, va ularni yonma-yon qo'yamiz. Ko'paytuvchilar beshta bo'ldi, chunki uch bilan ikki bir-biriga qo'shildi. Bu yerda birorta yangi qoida yo'q, faqat ko'paytuvchilar sanog'i bor. Shuning uchun darajalar ko'paytmasida ko'rsatkichlar qo'shiladi, ko'paytirilmaydi.", 'Выпишем два в третьей полностью, потом два во второй, и поставим их рядом. Множителей стало пять, потому что три и два дописались друг к другу. Ни одного нового правила здесь нет, есть только счёт множителей. Поэтому у произведения степеней показатели складываются, а не перемножаются.', 'Let us write two to the third out in full, then two to the second, and place them side by side. There are five factors now, because three and two got appended to each other. There is no new rule here, only counting factors. So in a product of powers the exponents add up instead of multiplying.'),
-    A('work', "Endi o'zingiz. Bu yozuv qanday tartibda chiqqan bo'lsa, qadamlarni shunday joylashtiring.", 'Теперь сам. Расставь шаги в том порядке, в котором эта запись получилась.', 'Now you. Put the steps in the order this reading came out.'),
+    A('mount', "Bir ikkidan balandlikda to'g'ri chiziq. Hammasi sinus iks a ga teng darsidagidek.", 'Прямая на высоте одна вторая. Всё как в уроке про синус икс равно а.', 'A line at height one half. Everything as in the lesson on sine x equals a.'),
+    A('cut', "Bir ikkidan balandlikdagi to'g'ri chiziq aylanani ikki nuqtada kesadi, va bu allaqachon tanish: tenglama aynan shunday yechilardi. Birinchi nuqta o'ng yuqorida yotadi, unga o'ttiz gradus burchak mos keladi. Tekshirish oson: o'ttiz gradusning sinusi bir ikkidanga teng, bu jadvaldagi qiymat. Shu nuqtani aylanaga o'zingiz qo'ying. Keyin ikkinchisini topamiz va ular orasida nima yotganiga qaraymiz.", 'Прямая на высоте одна вторая пересекает окружность в двух точках, и это уже знакомо: ровно так решалось уравнение. Первая точка лежит справа сверху, ей отвечает угол тридцать градусов. Проверить легко: синус тридцати градусов равен одной второй, это значение из таблицы. Поставь эту точку на окружности сам. Дальше мы найдём вторую и посмотрим, что лежит между ними.', 'The line at height one half crosses the circle at two points, and that is already familiar: this is exactly how the equation was solved. The first point lies at the upper right, and the angle thirty degrees belongs to it. It is easy to check: the sine of thirty degrees equals one half, a value from the table. Place that point on the circle yourself. Then we will find the second one and look at what lies between them.'),
+    A('work', "Sinus bir ikkidanga teng bo'lgan joyga, o'ngga nuqta qo'ying.", 'Поставь точку там, где синус равен одной второй, справа.', 'Place the point where the sine equals one half, on the right.'),
   ],
-  order: {
-    prompt: L('Qadamlarni tartib bilan joylashtiring.', 'Расставь шаги по порядку.', 'Put the steps in order.'),
-    s1: L("ko'paytuvchilarni yozamiz", 'выписываем множители', 'we write out the factors'),
-    s2: L("yozuvlarni yonma-yon qo'yamiz", 'ставим записи рядом', 'we place the readings side by side'),
-    s3: L("ko'paytuvchilarni sanaymiz", 'считаем множители', 'we count the factors'),
-    s4: L("ko'rsatkichlarni qo'shamiz", 'складываем показатели', 'we add the exponents'),
-    ok: L("Tartib shunday. Ko'rsatkichlar qo'shiladi, chunki ko'paytuvchilar qo'shiladi.", 'Порядок такой. Показатели складываются потому, что множители дописываются.', 'That is the order. The exponents add up because the factors get appended.'),
-    bad: L("Avval ko'paytuvchilarni yozish, keyin yozuvlarni yonma-yon qo'yish, keyin sanash.", 'Сначала выписать множители, потом поставить записи рядом, потом посчитать.', 'First write the factors out, then place the readings side by side, then count.'),
-    mark: '2⁵',
+  place: {
+    prompt: L("Sinus bir ikkidanga teng nuqtani qo'ying", 'Поставь точку, где синус равен одной второй', 'Place the point where the sine equals one half'),
+    ok: L("O'ttiz gradus. Bu yoyning birinchi chegarasi.", 'Тридцать градусов. Это первая граница дуги.', 'Thirty degrees. That is the first boundary of the arc.'),
+    bad: L("Nuqtaning chapda yoki o'ngdaligiga emas, balandligiga qarang.", 'Смотри на высоту точки, а не на её положение слева или справа.', 'Look at the height of the point, not at whether it is left or right.'),
+    target: '30',
+    step: '30',
   },
 }
 
 const S4 = {
   role: 'explain2',
-  answer: 'order',
-  eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L("Darajaning darajasi ko'rsatkichlarni ko'paytiradi", 'Степень степени умножает показатели', 'A power of a power multiplies the exponents'),
-  tag: 'stepen-po-analogii',
+  answer: 'lead',
+  eyebrow: L('FARQLASH', 'РАЗГРАНИЧЕНИЕ', 'TELLING THEM APART'),
+  title: L('Tenglamada nuqtalar, tengsizlikda ular orasidagi', 'У уравнения точки, у неравенства то, что между', 'An equation has points, an inequality has what lies between'),
+  tag: 'odin-koren',
   show: [
     [
-      L("bu yerda daraja darajaga ko'tariladi", 'здесь в степень возводится степень', 'here a power is raised to a power'),
-      L('demak asos ikki marta olinadi', 'значит основание берут дважды', 'so the base is taken twice'),
-      '(2³)² = 2³·2³',
+      L('ikkinchi nuqta chap yuqorida yotadi', 'вторая точка лежит слева сверху', 'the second point lies at the upper left'),
+      L('bu bir yuz ellik gradus', 'это сто пятьдесят градусов', 'that is one hundred fifty degrees'),
+      L('u yerda ham sinus bir ikkidan', 'синус там тоже одна вторая', 'the sine there is one half as well'),
     ],
     [
-      L("har yozuvda uchta ko'paytuvchi", 'в каждой записи по три множителя', 'each reading has three factors'),
-      L("jami oltita, ya'ni uch kerra ikki", 'всего шесть, то есть три на два', 'six in all, that is three times two'),
-      '(2³)² = 2⁶',
+      L('tenglamada javob ikki nuqta', 'у уравнения ответ это две точки', 'for an equation the answer is two points'),
+      L('tengsizlikda javob ular orasidagi yoy', 'у неравенства ответ это дуга между ними', 'for an inequality the answer is the arc between them'),
+      L('nuqtalar chegaraga aylandi', 'точки стали границами', 'the points became boundaries'),
     ],
   ],
-  motion: ['same'],
+  motion: ['arc'],
   audio: [
-    A('mount', "O'xshash yozuv, lekin amal boshqa. Bu yerda darajaning o'zi darajaga ko'tarilgan.", 'Похожая запись, но действие другое. Здесь в степень возводится сама степень.', 'A similar reading, but a different action. Here the power itself is raised to a power.'),
-    A('same', "Ikki uchinchi darajada kvadratda bu ikki uchinchi darajada, ikki marta olingan. Ikkala yozuvni ochamiz. Ko'paytuvchilar oltita bo'ldi, ya'ni uch ikki marta takrorlangan. Demak bu yerda ko'rsatkichlar ko'paytiriladi. O'tgan yozuvda ular qo'shilardi, va bu ikki holni aralashtirish mumkin emas: birida yozuvlar yonma-yon qo'yiladi, boshqasida bittasi bir necha marta olinadi.", 'Два в третьей в квадрате это два в третьей, взятое дважды. Раскроем обе записи. Множителей стало шесть, то есть три, повторённое два раза. Значит здесь показатели перемножаются. В прошлой записи они складывались, и путать эти два случая нельзя: в одном записи ставят рядом, в другом одну из них берут несколько раз.', 'Two to the third, squared, is two to the third taken twice. Let us open both readings. There are six factors now, that is three repeated two times. So here the exponents multiply. In the previous reading they added up, and these two cases must not be mixed: in one the readings stand side by side, in the other one of them is taken several times.'),
-    A('work', "O'zingiz hisoblang. Bu yozuv qanday chiqqan bo'lsa, qadamlarni joylashtiring.", 'Посчитай сам. Расставь шаги, как получилась эта запись.', 'Work it out yourself. Put the steps in the order this reading came out.'),
+    A('mount', "Ikkinchi nuqta chap yuqorida. U darrov kerak bo'ladi.", 'Вторая точка слева сверху. Она понадобится сразу.', 'The second point is at the upper left. It will be needed right away.'),
+    A('arc', "Ikkinchi nuqta bir yuz ellik gradus, u yerda ham sinus bir ikkidanga teng. Agar bizda tenglama bo'lganida, hammasi shu bilan tugardi: ikki nuqta, ikki seriya, javob yozildi. Lekin bizda tengsizlik, sinus esa bir ikkidandan katta bo'lishi kerak. Aylananing nuqtasi to'g'ri chiziqdan qayerda balandroq ko'tarilishiga qarang. Bu o'ttiz va bir yuz ellik gradus orasidagi butun yuqori yoy. Uning har bir nuqtasi yechim, faqat chekkalari emas. Chekkalarning o'zi esa aksincha, javobga kirmaydi: u yerda sinus bir ikkidanga teng, kerak esa kattaroq.", 'Вторая точка это сто пятьдесят градусов, и синус там тоже равен одной второй. Если бы у нас было уравнение, на этом всё и закончилось бы: две точки, две серии, ответ записан. Но у нас неравенство, и синус должен быть больше одной второй. Посмотри, где точка окружности поднимается выше прямой. Это вся верхняя дуга между тридцатью и ста пятьюдесятью градусами. Каждая её точка решение, а не только концы. Сами концы, наоборот, в ответ не входят: там синус равен одной второй, а нужно больше.', 'The second point is one hundred fifty degrees, and the sine there also equals one half. If we had an equation, that would be the end of it: two points, two series, the answer written. But we have an inequality, and the sine has to be greater than one half. Look at where a point of the circle rises above the line. That is the whole upper arc between thirty and one hundred fifty degrees. Every point of it is a solution, not only the ends. The ends themselves, on the contrary, do not belong to the answer: there the sine equals one half, while greater is required.'),
+    A('work', "Ikkinchi nuqtani chap yuqoriga qo'ying.", 'Поставь вторую точку, слева сверху.', 'Place the second point, at the upper left.'),
   ],
-  order: {
-    prompt: L('Qadamlarni tartib bilan joylashtiring.', 'Расставь шаги по порядку.', 'Put the steps in order.'),
-    s1: L('asos ikki marta', 'основание дважды', 'the base twice'),
-    s2: L('yozuvlarni ochish', 'раскрыть записи', 'open the readings'),
-    s3: L("oltita ko'paytuvchi", 'шесть множителей', 'six factors'),
-    s4: L("ko'rsatkichlar ko'paytirildi", 'показатели перемножены', 'the exponents got multiplied'),
-    ok: L("Uch kerra ikki bu olti: ko'rsatkichlar ko'paytirildi.", 'Три умножить на два это шесть: показатели перемножились.', 'Three times two is six: the exponents multiplied.'),
-    bad: L("Avval asos ikki marta, keyin ochish, keyin ko'paytuvchilarni sanash.", 'Сначала основание дважды, потом раскрыть, потом посчитать множители.', 'First the base twice, then open it, then count the factors.'),
-    mark: '2⁶',
+  place: {
+    prompt: L("Ikkinchi nuqtani qo'ying", 'Поставь вторую точку', 'Place the second point'),
+    ok: L("Bir yuz ellik gradus. Ikki nuqta orasidagi yoy javobning o'zi.", 'Сто пятьдесят градусов. Дуга между двумя точками и есть ответ.', 'One hundred fifty degrees. The arc between the two points is the answer.'),
+    bad: L("Ikkinchi nuqta o'sha balandlikda, lekin boshqa tomonda.", 'Вторая точка на той же высоте, но с другой стороны.', 'The second point is at the same height but on the other side.'),
+    target: '150',
+    step: '30',
   },
 }
 
@@ -210,136 +205,139 @@ const S5 = {
   role: 'explain3',
   answer: 'number',
   eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L("Zinapoya pastga nol orqali o'tadi", 'Лестница вниз проходит через ноль', 'The ladder down passes through zero'),
-  tag: 'stepen-po-analogii',
+  title: L('Yoy har aylanishda takrorlanadi', 'Дуга повторяется каждый оборот', 'The arc repeats every turn'),
+  tag: 'seriya-bez-n',
   show: [
     [
-      L("pastga har qadam ikkiga bo'ladi", 'каждый шаг вниз делит на два', 'each step down divides by two'),
-      L("sakkiz, to'rt, ikki", 'восемь, четыре, два', 'eight, four, two'),
-      '2³ = 8    2² = 4    2¹ = 2',
+      L('bitta yoy hali butun javob emas', 'одна дуга это ещё не весь ответ', 'one arc is not yet the whole answer'),
+      L("to'liq aylanishdan keyin nuqta qaytadi", 'после полного оборота точка возвращается', 'after a full turn the point comes back'),
+      L("uning sinusi o'sha", 'синус у неё тот же', 'its sine is the same'),
     ],
     [
-      L("birdan pastdagi qadam bo'lishni davom etadi", 'шаг ниже единицы продолжает делить', 'the step below one keeps dividing'),
-      L("nol va manfiy ko'rsatkich o'zi chiqdi", 'нулевой и отрицательный показатель вышли сами', 'the zero and negative exponents came out on their own'),
-      '2⁰ = 1    2^{−1} = 1/2',
+      L('demak yoy takrorlanadi', 'значит дуга повторяется', 'so the arc repeats'),
+      L("ikkala chekkaga aylanish qo'shiladi", 'к обоим концам добавляют оборот', 'a turn is added to both ends'),
+      L('aylanish istalgancha marta olinadi', 'оборот берут любое число раз', 'the turn is taken any number of times'),
     ],
   ],
-  motion: ['down'],
+  motion: ['turn'],
   audio: [
-    A('mount', "Ko'rsatkichlar bo'yicha pastga tushamiz. Sakkiz, to'rt, ikki. Pastga har qadam ikkiga bo'ladi.", 'Спустимся по показателям вниз. Восемь, четыре, два. Каждый шаг вниз делит на два.', 'Let us walk down the exponents. Eight, four, two. Each step down divides by two.'),
-    A('down', "Ikkidan keyingi qadam nol emas, bir, chunki ikki ikkiga bo'linsa bir bo'ladi. Yana bir qadam pastga, va bir ikkidan chiqadi. Nol va manfiy ko'rsatkich shundan keladi. Ular uchun alohida kelishuv o'ylab topilmagan: bu o'sha zinapoyaning davomi.", 'Следующий шаг после двойки это единица, а не ноль, потому что два разделить на два это один. Ещё шаг ниже, и получается одна вторая. Вот откуда берутся нулевой и отрицательный показатель. Отдельного соглашения для них не придумывали: они просто продолжение той же лестницы.', 'The next step after two is one, not zero, because two divided by two is one. One more step down and we get one half. That is where the zero and the negative exponent come from. No separate agreement was invented for them: they are simply the same ladder continued.'),
-    A('work', "O'zingiz hisoblang. Ikki nol darajada nechaga teng?", 'Посчитай сам. Чему равно два в нулевой степени?', 'Work it out yourself. What is two to the zero power?'),
+    A('mount', 'Yoy topildi, lekin javob hali yozilmagan. Aylanishlarni hisobga olish qoldi.', 'Дуга найдена, но ответ ещё не записан. Осталось учесть обороты.', 'The arc is found, but the answer is not written yet. The turns still have to be counted in.'),
+    A('turn', "Yoyimizdan istalgan burchakni olamiz, aytaylik to'qson gradus. Unga to'liq aylanishni qo'shamiz, to'rt yuz ellik chiqadi. Aylanadagi nuqta esa aynan o'sha joyga qaytdi, demak sinusi o'sha, demak tengsizlik ham bajariladi. Ikki aylanishda, uchtada va ularning istalgan sonida ham shunday bo'ladi, teskari tomonda ham. Shuning uchun yoyning ikkala chegarasiga butun songa ko'paytirilgan uch yuz oltmish gradus yoziladi. Bitta yoy bir xil yoylarning cheksiz zanjiriga aylanadi.", 'Возьмём любой угол из нашей дуги, скажем девяносто градусов. Прибавим к нему полный оборот, выйдет четыреста пятьдесят. Точка на окружности при этом вернулась ровно туда же, значит синус у неё тот же, значит и неравенство выполняется. То же будет при двух оборотах, при трёх и при любом их числе, в том числе в обратную сторону. Поэтому к обеим границам дуги дописывают триста шестьдесят градусов, умноженные на целое число. Одна дуга превращается в бесконечную цепочку одинаковых дуг.', 'Take any angle from our arc, say ninety degrees. Add a full turn to it, and four hundred fifty comes out. The point on the circle has returned to exactly the same place, so its sine is the same, so the inequality holds. The same happens for two turns, for three and for any number of them, in the reverse direction as well. That is why three hundred sixty degrees times a whole number is written at both boundaries of the arc. One arc turns into an endless chain of identical arcs.'),
+    A('work', "O'zingiz hisoblang. Yoy necha gradusdan keyin takrorlanadi?", 'Посчитай сам. Через сколько градусов дуга повторяется?', 'Work it out yourself. After how many degrees does the arc repeat?'),
   ],
   work: {
-    prompt: L('Ikki nol darajada nechaga teng?', 'Чему равно два в нулевой степени?', 'What is two to the zero power?'),
-    ok: L("Bir. Pastga qadam ikkiga bo'ladi, va ikkidan keyin bir keladi.", 'Единица. Шаг вниз делит на два, и после двойки идёт один.', 'One. A step down divides by two, and after two comes one.'),
+    prompt: L('Yoy necha gradusdan keyin takrorlanadi?', 'Через сколько градусов повторяется дуга?', 'After how many degrees does the arc repeat?'),
+    ok: L("Uch yuz oltmishdan keyin. Bu to'liq aylanish, undan keyin nuqta avvalgi joyida.", 'Через триста шестьдесят. Это полный оборот, после него точка на прежнем месте.', 'After three hundred sixty. That is a full turn, after which the point is back in place.'),
     hint: [
-      L("Har keyingi qadam nimaga bo'linishini ko'ring.", 'Посмотри, на что делится каждый следующий шаг.', 'Look at what each next step is divided by.'),
-      L("Ikki ikkiga bo'linsa.", 'Два разделить на два.', 'Two divided by two.'),
-      L('Bir.', 'Один.', 'One.'),
+      L("To'liq aylanishda necha gradus bor?", 'Сколько градусов в полном обороте?', 'How many degrees are in a full turn?'),
+      L("To'liq aylanishdan keyin nuqta avvalgi joyiga qaytadi.", 'После полного оборота точка возвращается на прежнее место.', 'After a full turn the point returns to its former place.'),
+      L('Uch yuz oltmish.', 'Триста шестьдесят.', 'Three hundred sixty.'),
     ],
-    answer: '1',
+    expr: '30°+360°n < x < 150°+360°n',
+    answer: '360',
   },
 }
 
 const S6 = {
   role: 'explain4',
   answer: 'number',
-  eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L("Kasr ko'rsatkich bu ildiz", 'Дробный показатель это корень', 'A fractional exponent is a root'),
-  tag: 'drobnyy-kak-delenie',
+  eyebrow: L("O'ZINGIZ", 'САМ', 'ON YOUR OWN'),
+  title: L('Boshqa ishora, boshqa yoy', 'Другой знак, другая дуга', 'Another sign, another arc'),
+  tag: 'odin-koren',
   show: [
     [
-      L("ko'rsatkich bir uchdan", 'показатель одна третья', 'the exponent is one third'),
-      L("javobni kubga ko'taramiz", 'возведём ответ в куб', 'let us cube the answer'),
-      '8^{1/3} = ?',
+      L("aylanadagi o'sha ikki nuqta", 'те же две точки на окружности', 'the same two points on the circle'),
+      L("to'g'ri chiziq o'sha balandlikda", 'прямая на той же высоте', 'the line at the same height'),
+      L('lekin ishora endi kichik', 'но знак теперь меньше', 'but the sign is now less'),
     ],
     [
-      L('kubi sakkizga teng sonni izlaymiz', 'ищем число, чей куб равен восьми', 'we look for the number whose cube is eight'),
-      L("bo'lish bunday sonni bermaydi", 'деление такого числа не даёт', 'division does not give such a number'),
-      '2³ = 8',
+      L("to'g'ri chiziqdan pastdagi yoy olinadi", 'берут дугу ниже прямой', 'the arc below the line is taken'),
+      L("u birinchisini to'liq doiragacha to'ldiradi", 'она дополняет первую до полного круга', 'it completes the first one to the full circle'),
+      L('demak unda ikki yuz qirq gradus', 'значит в ней двести сорок градусов', 'so it holds two hundred forty degrees'),
     ],
   ],
-  motion: ['root'],
+  motion: ['other'],
   audio: [
-    A('mount', "Endi kasr ko'rsatkich. Sakkiz bir uchdan darajada.", 'Теперь дробный показатель. Восемь в степени одна третья.', 'Now a fractional exponent. Eight to the power one third.'),
-    A('root', "Javobni kubga ko'taramiz. Bir uchdan ko'rsatkich uch marta olinsa bir beradi, demak chapda sakkiz qoladi. Shunday chiqdi: kubi sakkizga teng son kerak, u esa ikki. Endi kasr bo'lishni bildiradi degan taxminni tekshiramiz. Sakkiz uchga bo'linsa ikki butun oltmish yetti yuzdan bo'ladi, va bu sonning kubi sakkiz emas, o'n to'qqiz. Demak kasr ko'rsatkich bu ildiz.", 'Возведём ответ в куб. Показатель одна третья, взятый три раза, даёт единицу, значит слева останется восемь. Получилось так: нужно число, куб которого равен восьми, а это двойка. Теперь проверим догадку, что дробь означает деление. Восемь разделить на три это два целых шестьдесят семь сотых, и куб этого числа равен девятнадцати, а не восьми. Значит дробный показатель это корень.', 'Let us cube the answer. One third taken three times gives one, so eight is left on the left side. It came out like this: we need the number whose cube is eight, and that is two. Now let us test the guess that the fraction means division. Eight divided by three is two point six seven, and the cube of that number is nineteen, not eight. So a fractional exponent is a root.'),
-    A('work', "O'zingiz hisoblang. Sakkiz bir uchdan darajada nechaga teng?", 'Посчитай сам. Чему равно восемь в степени одна третья?', 'Work it out yourself. What is eight to the power one third?'),
+    A('mount', "Ishora teskarisiga o'zgartirildi. Nuqtalar o'sha, yoy boshqa.", 'Знак поменяли на обратный. Точки те же, дуга другая.', 'The sign was reversed. The points are the same, the arc is different.'),
+    A('other', "To'g'ri chiziq o'sha balandlikda qoldi, kesishish nuqtalari ham o'sha: o'ttiz va bir yuz ellik gradus. Lekin endi sinus bir ikkidandan kichik bo'lishi kerak, demak aylananing to'g'ri chiziqdan pastda yotgan qismi kerak. Bu qolgan butun yoy, va birinchisi bilan birga u to'liq doirani tashkil qiladi. To'liq doirada uch yuz oltmish gradus, birinchi yoyda bir yuz yigirma, demak bunda ikki yuz qirq. E'tibor bering, qaytadan hech nima hisoblashga to'g'ri kelmadi: nuqtalar o'sha, faqat tanlangan tomon o'zgardi. Xuddi o'tgan darsdagi egri chiziqdagidek.", 'Прямая осталась на той же высоте, и точки пересечения те же: тридцать и сто пятьдесят градусов. Но теперь синус должен быть меньше одной второй, значит нужна та часть окружности, которая лежит ниже прямой. Это вся оставшаяся дуга, и вместе с первой она составляет полный круг. В полном круге триста шестьдесят градусов, в первой дуге сто двадцать, значит в этой двести сорок. Обрати внимание, считать заново ничего не пришлось: точки те же, поменялась только выбранная сторона. Ровно как на прошлом уроке с кривой.', 'The line stayed at the same height, and the crossing points are the same: thirty and one hundred fifty degrees. But now the sine has to be less than one half, so we need the part of the circle lying below the line. That is the whole remaining arc, and together with the first one it makes the full circle. A full circle holds three hundred sixty degrees, the first arc holds one hundred twenty, so this one holds two hundred forty. Notice that nothing had to be computed again: the points are the same, only the chosen side changed. Exactly as with the curve in the previous lesson.'),
+    A('work', "O'zingiz hisoblang. Bu yoyda necha gradus bor?", 'Посчитай сам. Сколько градусов в этой дуге?', 'Work it out yourself. How many degrees are in this arc?'),
   ],
   work: {
-    prompt: L('Sakkiz bir uchdan darajada nechaga teng?', 'Чему равно восемь в степени одна третья?', 'What is eight to the power one third?'),
-    ok: L("Ikki. Ikkining kubi sakkizga teng, shuning uchun kasr ko'rsatkich bu ildiz, bo'lish emas.", 'Два. Куб двойки равен восьми, поэтому дробный показатель это корень, а не деление.', 'Two. The cube of two is eight, so a fractional exponent is a root, not a division.'),
+    prompt: L('Yoyda necha gradus bor?', 'Сколько градусов в дуге?', 'How many degrees are in the arc?'),
+    ok: L("Ikki yuz qirq. To'liq doira minus birinchi yoyning bir yuz yigirma gradusi.", 'Двести сорок. Полный круг минус сто двадцать градусов первой дуги.', 'Two hundred forty. The full circle minus the one hundred twenty degrees of the first arc.'),
     hint: [
-      L("Javobni kubga ko'taring va chapda nima qolishini ko'ring.", 'Возведи ответ в куб и посмотри, что останется слева.', 'Cube the answer and see what is left on the left side.'),
-      L('Kubi sakkizga teng sonni izlang.', 'Ищи число, куб которого равен восьми.', 'Look for the number whose cube is eight.'),
-      L('Ikki.', 'Два.', 'Two.'),
+      L("Birinchi yoy o'ttizdan bir yuz ellikkacha borardi.", 'Первая дуга шла от тридцати до ста пятидесяти.', 'The first arc ran from thirty to one hundred fifty.'),
+      L("Uni to'liq doiradan ayiring.", 'Вычти её из полного круга.', 'Subtract it from the full circle.'),
+      L('Ikki yuz qirq.', 'Двести сорок.', 'Two hundred forty.'),
     ],
-    answer: '2',
+    expr: 'sin x < 1/2',
+    answer: '240',
   },
 }
 
 const S7 = {
   role: 'explain5',
   answer: 'number',
-  eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
-  title: L("Ko'rsatkich irratsional ham bo'ladi", 'Показатель бывает иррациональным', 'The exponent can be irrational'),
-  tag: 'irracionalnyy-ne-chislo',
+  eyebrow: L('CHEGARAVIY HOL', 'ГРАНИЧНЫЙ СЛУЧАЙ', 'THE EDGE CASE'),
+  title: L("To'g'ri chiziq doiradan yonlab o'tdi", 'Прямая прошла мимо круга', 'The line went past the circle'),
+  tag: 'net-resheniy',
   show: [
     [
-      L("ko'rsatkich bir va ikki orasida", 'показатель между единицей и двойкой', 'the exponent is between one and two'),
-      L("demak qiymat ikki va to'rt orasida", 'значит значение между двумя и четырьмя', 'so the value is between two and four'),
-      '2¹ = 2    2² = 4',
+      L("o'ngda ikki turibdi", 'справа стоит двойка', 'there is a two on the right'),
+      L("to'g'ri chiziq doiradan yuqori ko'tarildi", 'прямая поднялась выше круга', 'the line rose above the circle'),
+      L("kesishish umuman yo'q", 'пересечений нет ни одного', 'there is not a single crossing'),
     ],
     [
-      L("ko'rsatkichni aniqlaymiz, polosa torayadi", 'уточняем показатель, полоса сужается', 'we refine the exponent, the band narrows'),
-      L('ikki ildiz ikki tashqarida qoldi', 'два корня из двух остались снаружи', 'two root two stayed outside'),
-      '2^{1,41} … 2^{1,42}',
+      L("demak yoy ham yo'q", 'значит и дуги нет', 'so there is no arc either'),
+      L("sinus ikkidan katta bo'lmaydi", 'синус больше двух не бывает', 'the sine is never greater than two'),
+      L("hech qanday iksda yechim yo'q", 'решений нет ни при каком икс', 'there are no solutions for any x'),
     ],
   ],
-  motion: ['squeeze'],
+  motion: ['miss'],
   audio: [
-    A('mount', "Ikkining ildizi bu bir butun qirq bir yuzdan, va keyin cheksiz davom etadi. Bunday ko'rsatkich ham yaraydi.", 'Корень из двух это один и сорок один сотых, и дальше без конца. Такой показатель тоже годится.', 'The root of two is one point four one and on without end. Such an exponent works too.'),
-    A('squeeze', "Ikkining ildizi bir va ikki orasida yotadi, demak bizning son ikki va to'rt orasida. Ko'rsatkichni o'ndan birgacha aniqlaymiz, va polosa torayadi. Yuzdan birgacha aniqlaymiz, va ichida deyarli bitta son qoladi. Endi ikki ildiz ikkiga qarang. Bu birinchi polosaning o'ng cheti, va torayishdan keyin u tashqarida qoldi. Demak bizning son unga teng emas, yozuvlari o'xshash bo'lsa ham.", 'Корень из двух лежит между единицей и двойкой, значит наше число лежит между двумя и четырьмя. Уточним показатель до десятых, и полоса сузится. Уточним до сотых, и внутри останется почти одно число. Теперь посмотри на два корня из двух. Это правый конец первой полосы, и после сужения он оказался снаружи. Значит наше число ему не равно, хотя записи похожи.', 'The root of two lies between one and two, so our number lies between two and four. Let us refine the exponent to tenths and the band narrows. Refine to hundredths and almost one number is left inside. Now look at two root two. That is the right edge of the first band, and after the narrowing it ended up outside. So our number is not equal to it, however similar the readings look.'),
-    A('work', "O'zingiz hisoblang. Bu sonning vergulidan keyingi birinchi raqami qaysi?", 'Посчитай сам. Какая первая цифра после запятой у этого числа?', 'Work it out yourself. What is the first digit after the decimal point of this number?'),
+    A('mount', "Darsning oxirgi holi. O'ngda birdan katta son turibdi.", 'Последний случай урока. Справа стоит число больше единицы.', 'The last case of the lesson. On the right there is a number greater than one.'),
+    A('miss', "Ikki balandlikda to'g'ri chiziq o'tkazamiz. U doiradan yuqoridan o'tadi va aylanaga umuman tegmaydi. Kesishish yo'q, demak nuqtalar ham yo'q, demak ular orasidagi yoy ham yo'q. Javob shunday: hech qanday iksda yechim yo'q. Bu darrov ko'rinadi, hech nima yechish shart emas. Sababi oddiy: sinus radiusi bir bo'lgan aylanadagi nuqtaning balandligi, u birdan yuqoriga ko'tarilmaydi. Agar o'ngda minus ikki turganida, aksincha bo'lardi: to'g'ri chiziq doiradan pastdan o'tardi, aylananing har qanday nuqtasi undan yuqori bo'lardi. U holda yechim butun chiziq, istisnosiz barcha ikslar bo'lardi.", 'Проведём прямую на высоте два. Она проходит выше круга и окружности не касается вовсе. Пересечений нет, значит нет и точек, значит нет и дуги между ними. Ответ такой: решений нет ни при каком икс. Это видно сразу, решать ничего не надо. Причина простая: синус это высота точки на окружности радиуса один, и выше единицы она не поднимается. А если бы справа стояло минус два, вышло бы наоборот: прямая прошла бы ниже круга, и любая точка окружности оказалась бы выше неё. Тогда решением была бы вся прямая, все икс без исключения.', 'Let us draw the line at height two. It passes above the circle and does not touch it at all. There are no crossings, so there are no points, so there is no arc between them. The answer is this: there are no solutions for any x. It is visible at once, nothing needs to be solved. The reason is simple: the sine is the height of a point on a circle of radius one, and it does not rise above one. And if minus two stood on the right, the opposite would happen: the line would pass below the circle, and every point of the circle would be above it. Then the solution would be the whole line, every x without exception.'),
+    A('work', "O'zingiz hisoblang. Bu tengsizlikning nechta yechimi bor?", 'Посчитай сам. Сколько решений у этого неравенства?', 'Work it out yourself. How many solutions does this inequality have?'),
   ],
   work: {
-    prompt: L('Vergulidan keyingi birinchi raqam qaysi?', 'Какая первая цифра после запятой?', 'What is the first digit after the decimal point?'),
-    ok: L("Olti. Polosaning ikkala cheti ikki butun olti o'ndan bilan boshlanadi, demak son ham shunday.", 'Шесть. Оба конца полосы начинаются с двух целых шести десятых, значит и число тоже.', 'Six. Both edges of the band start with two point six, so the number does too.'),
+    prompt: L('Tengsizlikning nechta yechimi bor?', 'Сколько решений у неравенства?', 'How many solutions does the inequality have?'),
+    ok: L("Bitta ham yo'q. To'g'ri chiziq doiradan yuqoridan o'tdi, kesishish yo'q.", 'Ни одного. Прямая прошла выше круга, пересечений нет.', 'None. The line passed above the circle, there are no crossings.'),
     hint: [
-      L("Tor polosa qaysi bo'linmalar orasida yotganini ko'ring.", 'Посмотри, между какими делениями лежит узкая полоса.', 'Look at which marks the narrow band lies between.'),
-      L('Uning ikkala cheti bir xil boshlanadi.', 'Оба её конца начинаются одинаково.', 'Both of its edges start the same way.'),
-      L('Olti.', 'Шесть.', 'Six.'),
+      L("To'g'ri chiziq aylanani kesib o'tadimi, qarang.", 'Посмотри, пересекает ли прямая окружность.', 'See whether the line crosses the circle.'),
+      L("Sinus birdan katta bo'lmaydi.", 'Синус больше единицы не бывает.', 'The sine is never greater than one.'),
+      L('Nol.', 'Ноль.', 'Zero.'),
     ],
-    answer: '6',
+    expr: 'sin x > 2',
+    answer: '0',
   },
 }
 
 const S8 = {
   role: 'rule',
   answer: 'pick2',
-  eyebrow: L('QOIDA', 'ПРАВИЛО', 'RULE'),
-  title: L('Qanday asos yaraydi', 'Какое основание годится', 'Which base works'),
-  tag: 'osnova-lyubaya',
+  eyebrow: L('QOIDA', 'ПРАВИЛО', 'THE RULE'),
+  title: L('Javob yoy va uning aylanishlari', 'Ответ это дуга и её обороты', 'The answer is an arc and its turns'),
+  tag: 'odin-koren',
   motion: ['rule'],
   audio: [
-    A('mount', 'Tushuntirish tugadi. Qoidadan oldin bitta savol.', 'Объяснение закончилось. Перед правилом один вопрос.', 'The explanation is over. One question before the rule.'),
-    A('rule', "Kvadratlar polosasi ekranda qoladi, va qoida yonida ochiladi. Asos musbat olinishi kelishuv bo'yicha emas, chunki polosada ko'rinadi: chapda kvadratlar yo'q, minus to'rtning ildizi ham yo'q.", 'Полоса квадратов остаётся на экране, и правило открывается рядом. Основание берут положительным не по договору, а потому, что на полосе видно: слева квадратов нет, и корня из минус четырёх нет тоже.', 'The band of squares stays on the screen and the rule opens beside it. The base is taken positive not by agreement but because the band shows it: there are no squares on the left, and no root of minus four either.'),
+    A('mount', "Qoidani yig'amiz. U uch qadamdan iborat, uchalasi ham bajarilgan.", 'Соберём правило. Оно из трёх шагов, и все три уже сделаны.', 'Let us put the rule together. It has three steps, and all three are already done.'),
+    A('rule', "Birinchi: o'ngda turgan sonning balandligida to'g'ri chiziq o'tkazish. Agar u doiradan yonlab o'tgan bo'lsa, javob darrov ko'rinadi: yo yechim yo'q, yo barcha ikslar yaraydi. Ikkinchi: kesishish nuqtalarini topib, tengsizlik ishorasi bajariladigan yoyni olish. Katta ishorasida bu to'g'ri chiziqdan yuqoridagi yoy, kichik ishorasida pastdagisi. Uchinchi: yoyning ikkala chekkasiga butun songa ko'paytirilgan uch yuz oltmish gradus qo'shish. Chekkalarni ham eslang: qat'iy ishorada ular javobga kirmaydi, qat'iy bo'lmaganda kiradi.", 'Первое: провести прямую на высоте того числа, что стоит справа. Если она прошла мимо круга, ответ виден сразу: либо решений нет, либо годятся все икс. Второе: найти точки пересечения и взять ту дугу, на которой знак неравенства выполняется. При знаке больше это дуга выше прямой, при знаке меньше ниже. Третье: к обоим концам дуги добавить триста шестьдесят градусов, умноженные на целое число. И помни про концы: при строгом знаке они в ответ не входят, при нестрогом входят.', 'First: draw the line at the height of the number on the right. If it went past the circle, the answer is visible at once: either there are no solutions, or every x works. Second: find the crossing points and take the arc on which the inequality sign holds. For a greater-than sign that is the arc above the line, for a less-than sign the one below. Third: add three hundred sixty degrees times a whole number to both ends of the arc. And remember the ends: with a strict sign they do not belong to the answer, with a non-strict one they do.'),
   ],
   probe: {
-    question: L("Har qanday haqiqiy ko'rsatkichli daraja uchun qanday asos olinadi?", 'Какое основание берут у степени с любым действительным показателем?', 'Which base is taken for a power with any real exponent?'),
+    question: L("To'g'ri chiziqning aylana bilan kesishuvi nima beradi?", 'Что даёт пересечение прямой с окружностью?', 'What do the crossings of the line and the circle give?'),
     items: [
-      { id: 'a', label: L("musbat va birga teng bo'lmagan", 'положительное и не равное единице', 'positive and not equal to one'), correct: true },
-      { id: 'b', label: L('noldan boshqa har qanday', 'любое, кроме нуля', 'any except zero'), hint: L("Minus to'rt va bir ikkidan ko'rsatkichni tekshiring. Har qanday sonning kvadrati manfiy emas, demak bunday son yo'q.", 'Проверь минус четыре и показатель одна вторая. Квадрат любого числа неотрицателен, значит числа нет.', 'Check minus four with the exponent one half. The square of any number is not negative, so no such number exists.') },
+      { id: 'a', label: L('yoyning chegaralarini', 'границы дуги', 'the boundaries of the arc'), correct: true },
+      { id: 'b', label: L("javobning o'zini", 'сам ответ', 'the answer itself'), hint: L("Javobning o'zi tenglamada bo'lardi. Tengsizlikda bu faqat chekkalar.", 'Сам ответ был бы у уравнения. У неравенства это только концы.', 'The answer itself would belong to an equation. For an inequality these are only the ends.') },
     ],
   },
   rule: {
-    lawLabel: L('Daraja', 'Степень', 'The power'),
+    lawLabel: L('QANDAY YECHILADI', 'КАК РЕШАТЬ', 'HOW TO SOLVE'),
     lines: [
-      L("Ko'rsatkichlar ko'paytirishda qo'shiladi, darajaga ko'tarishda ko'paytiriladi.", 'Показатели складываются при умножении и перемножаются при возведении в степень.', 'Exponents add when multiplying and multiply when raising to a power.'),
-      L("Nol ko'rsatkich bir beradi, manfiy kasrni teskari qiladi, kasr esa ildizni bildiradi.", 'Нулевой показатель даёт единицу, отрицательный переворачивает дробь, дробный означает корень.', 'A zero exponent gives one, a negative one turns the fraction over, a fractional one means a root.'),
-      L("Asos musbat va birga teng emas: aks holda kasr ko'rsatkich son bermaydi.", 'Основание положительно и не равно единице: иначе дробный показатель числа не даёт.', 'The base is positive and not one: otherwise a fractional exponent gives no number.'),
+      L("o'ng taraf balandligida to'g'ri chiziq o'tkazish", 'провести прямую на высоте правой части', 'draw the line at the height of the right side'),
+      L('ishora bajariladigan yoyni olish', 'взять дугу, где знак выполняется', 'take the arc where the sign holds'),
+      L("ikkala chekkaga aylanishlarni qo'shish", 'к обоим концам добавить обороты', 'add the turns to both ends'),
     ],
-    law: 'a^{m/n} = ⁿ√(a^m),   a > 0',
+    law: '30°+360°n < x < 150°+360°n',
   },
 }
 
@@ -347,20 +345,20 @@ const S9 = {
   role: 'drill',
   answer: 'match',
   format: 'match',
-  eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
-  title: L('Yozuv va uning qiymati', 'Запись и её значение', 'A reading and its value'),
-  tag: 'drobnyy-kak-delenie',
+  eyebrow: L('MASHQ', 'ТРЕНИРОВКА', 'PRACTICE'),
+  title: L('Tengsizlikni yoy chegaralari bilan ulang', 'Соедини неравенство с границами дуги', 'Match each inequality with the boundaries of its arc'),
+  tag: 'odin-koren',
   audio: [
-    A('mount', "To'rt yozuv va to'rt qiymat. Ularni birlashtiring.", 'Четыре записи и четыре значения. Соедини их.', 'Four readings and four values. Match them.'),
+    A('mount', "To'rt tengsizlik va to'rt juft chegara. Qiymatlar jadvaldan.", 'Четыре неравенства и четыре пары границ. Значения из таблицы.', 'Four inequalities and four pairs of boundaries. The values come from the table.'),
   ],
   match: {
-    prompt: L('Yozuvni qiymati bilan birlashtiring.', 'Соедини запись со значением.', 'Match each reading with its value.'),
-    ok: L("Kasr ko'rsatkich bu ildiz, manfiy kasrni teskari qiladi, nol esa bir beradi. Asos bunda o'zgarmaydi.", 'Дробный показатель это корень, отрицательный переворачивает дробь, нулевой даёт единицу. Основание при этом не меняется.', 'A fractional exponent is a root, a negative one turns the fraction over, a zero one gives one. The base does not change.'),
-    left: ['8^{1/3}', '2^{−3}', '5⁰', '9^{1/2}'],
-    a: '2',
-    b: '1/8',
-    c: '1',
-    d: '3',
+    prompt: L('Chegaralar bir aylanish uchun berilgan', 'Границы даны за один оборот', 'The boundaries are given for one turn'),
+    ok: L("To'g'ri. To'g'ri chiziqning balandligi o'zgaradi, ish esa o'sha bo'lib qoladi.", 'Верно. Высота прямой меняется, работа остаётся той же.', 'Correct. The height of the line changes, the work stays the same.'),
+    left: ['sin x > 1/2', 'sin x > 0', 'sin x < −1/2', 'sin x > √2/2'],
+    a: '30°;  150°',
+    b: '0°;  180°',
+    c: '210°;  330°',
+    d: '45°;  135°',
   },
 }
 
@@ -368,23 +366,23 @@ const S10 = {
   role: 'guided',
   answer: 'order',
   format: 'order-steps',
-  eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
-  title: L('Qadam bilan qaytadan yozing', 'Перепиши по шагам', 'Rewrite it step by step'),
-  tag: 'stepen-po-analogii',
+  eyebrow: L('QADAMMA-QADAM', 'ПО ШАГАМ', 'STEP BY STEP'),
+  title: L("Javobni to'liq yig'ing", 'Собери ответ целиком', 'Put the answer together'),
+  tag: 'seriya-bez-n',
   audio: [
-    A('mount', "To'rtta qadam. Tartibini o'zingiz qo'yasiz.", 'Четыре шага. Порядок ставишь ты.', 'Four steps. You put them in order.'),
+    A('mount', "Endi butun tengsizlik. To'rt qadam, tartib muhim.", 'Теперь всё неравенство целиком. Четыре шага, порядок важен.', 'Now the whole inequality. Four steps, and the order matters.'),
   ],
   order: {
-    prompt: L('Qadamlarni tartib bilan joylashtiring.', 'Расставь шаги по порядку.', 'Put the steps in order.'),
-    s1: L("ko'rsatkichlarni ko'paytirish", 'умножить показатели', 'multiply the exponents'),
-    s2: L("ko'rsatkich butun bo'ldi", 'показатель стал целым', 'the exponent became whole'),
-    s3: L("ko'rsatkichlarni qo'shish", 'сложить показатели', 'add the exponents'),
-    s4: L('nol bir beradi', 'ноль даёт единицу', 'zero gives one'),
-    ok: L("Ko'rsatkichlar nol berdi, nol ko'rsatkich esa bir.", 'Показатели дали ноль, а нулевой показатель это единица.', 'The exponents gave zero, and a zero exponent is one.'),
-    bad: L("Avval daraja darajaga, keyin ko'paytirish, keyin nol ko'rsatkich.", 'Сначала степень в степень, потом умножение, потом нулевой показатель.', 'First the power of a power, then the multiplication, then the zero exponent.'),
-    mark: '1',
+    prompt: L('Yechish qadamlarini tartib bilan joylashtiring', 'Расставь шаги решения по порядку', 'Put the solution steps in order'),
+    s1: L("to'g'ri chiziq o'tkazish", 'провести прямую', 'draw the line'),
+    s2: L('ikki nuqtani topish', 'найти две точки', 'find the two points'),
+    s3: L('orasidagi yoyni olish', 'взять дугу между ними', 'take the arc between them'),
+    s4: L("aylanishlarni qo'shish", 'добавить обороты', 'add the turns'),
+    ok: L("To'g'ri. Aylanishlar oxirida, yoy topilgandan keyin qo'shiladi.", 'Верно. Обороты добавляют последними, когда дуга уже найдена.', 'Correct. The turns are added last, once the arc is found.'),
+    bad: L("Aylanishlar tayyor yoyga qo'shiladi, alohida nuqtaga emas.", 'Обороты добавляют к готовой дуге, а не к отдельной точке.', 'The turns are added to a finished arc, not to a single point.'),
+    mark: '30°+360°n < x < 150°+360°n',
   },
-  expr: '(a^{2/3})⁶·a^{−4}',
+  expr: 'sin x > 1/2',
 }
 
 const S11 = {
@@ -392,30 +390,30 @@ const S11 = {
   answer: 'number',
   format: 'number+order',
   noTool: true,
-  eyebrow: L('ASBOBSIZ', 'БЕЗ ПРИБОРА', 'NO INSTRUMENT'),
-  title: L('Polosasiz hisoblang', 'Посчитай без полосы', 'Compute without the band'),
+  eyebrow: L("QOG'OZDA", 'НА БУМАГЕ', 'ON PAPER'),
+  title: L('Yoyda necha gradus bor', 'Сколько градусов в дуге', 'How many degrees are in the arc'),
   tag: 'bumaga',
   audio: [
-    A('mount', "Bu ekranda polosa yo'q. Imtihonda ham bo'lmaydi.", 'На этом экране полосы нет. На экзамене её тоже не будет.', 'There is no band on this screen. There will be none at the exam either.'),
-    A('next', "Javobni o'zingiz yozing.", 'Ответ запиши сам.', 'Type the answer yourself.'),
+    A('mount', "Asbob yo'q. Qog'ozda hisoblang, keyin solishtiring.", 'Прибора нет. Считай на бумаге, потом сверься.', 'No instrument here. Work it out on paper, then compare.'),
+    A('next', "Keyin xatoli yozuv. Xato paydo bo'lgan qatorni toping.", 'Дальше запись с ошибкой. Найди строку, где она появилась.', 'Next comes a written solution with a mistake. Find the line where it appeared.'),
   ],
   task: {
-    ok: L("To'rt. Ko'rsatkichdagi minus kasrni teskari qildi, ikki uchdan esa kub ildizning kvadratini berdi.", 'Четыре. Минус в показателе перевернул дробь, а две третьих дали квадрат кубического корня.', 'Four. The minus in the exponent turned the fraction over, and two thirds gave the square of the cube root.'),
+    ok: L('Oltmish. Yoy oltmishdan bir yuz yigirma gradusgacha boradi.', 'Шестьдесят. Дуга идёт от шестидесяти до ста двадцати градусов.', 'Sixty. The arc runs from sixty to one hundred twenty degrees.'),
     hint: [
-      L('Avval kasrni teskari qilib minusni oling.', 'Сначала убери минус, перевернув дробь.', 'First remove the minus by turning the fraction over.'),
-      L("Keyin kasr ko'rsatkichni ildiz deb o'qing.", 'Потом дробный показатель прочитай как корень.', 'Then read the fractional exponent as a root.'),
-      L("To'rt.", 'Четыре.', 'Four.'),
+      L("Sinus uchdan ildizni ikkiga bo'lganga teng burchaklarni toping.", 'Найди углы, где синус равен корню из трёх на два.', 'Find the angles where the sine equals root three over two.'),
+      L('Bular oltmish va bir yuz yigirma gradus.', 'Это шестьдесят и сто двадцать градусов.', 'Those are sixty and one hundred twenty degrees.'),
+      L('Oltmish.', 'Шестьдесят.', 'Sixty.'),
     ],
-    prompt: '(1/8)^{−2/3}   →   ?',
-    answer: '4',
+    prompt: 'sin x > √3/2',
+    answer: '60',
   },
   order: {
-    prompt: L("O'sish tartibida joylashtiring.", 'Расставь по возрастанию.', 'Arrange in increasing order.'),
-    title: L('Qaysi yozuv kichikroq?', 'Какая запись меньше?', 'Which reading is smaller?'),
-    ok: L("Asos birdan katta, shuning uchun ko'rsatkich qancha katta bo'lsa, qiymat ham shuncha katta.", 'Основание больше единицы, поэтому чем больше показатель, тем больше значение.', 'The base is greater than one, so the bigger the exponent the bigger the value.'),
-    bad: L("Har yozuvni songa o'tkazing, keyin solishtiring.", 'Переведи каждую запись в число, потом сравнивай.', 'Turn each reading into a number, then compare.'),
-    items: ['2^{−2}', '2⁰', '2^{1/2}', '2²'],
-    answer: '2^{−2}  2⁰  2^{1/2}  2²',
+    prompt: L("Tengsizliklarni yoy uzunligi o'sishi bo'yicha joylashtiring", 'Расставь неравенства по возрастанию длины дуги', 'Put the inequalities in order of increasing arc length'),
+    title: L('qisqa yoydan uzuniga', 'от короткой дуги к длинной', 'from the shortest arc to the longest'),
+    ok: L("To'g'ri. To'g'ri chiziq qancha past bo'lsa, ustidagi yoy shuncha uzun.", 'Верно. Чем ниже прямая, тем длиннее дуга над ней.', 'Correct. The lower the line, the longer the arc above it.'),
+    bad: L("O'ngdagi sonlarni emas, yoylarni solishtiring.", 'Сравнивай дуги, а не числа справа.', 'Compare the arcs, not the numbers on the right.'),
+    items: ['sin x > 0', 'sin x > √3/2', 'sin x > −1/2', 'sin x > 1/2'],
+    answer: 'sin x > √3/2  sin x > 1/2  sin x > 0  sin x > −1/2',
   },
 }
 
@@ -424,33 +422,33 @@ const S12 = {
   answer: 'number',
   format: 'audit',
   eyebrow: L('TUZOQ', 'ЛОВУШКА', 'THE TRAP'),
-  title: L('Javob xato. Qayerda?', 'Ответ неверный. Где?', 'The answer is wrong. Where?'),
+  title: L('Xatoli qatorni toping', 'Найди строку с ошибкой', 'Find the line with the mistake'),
   tag: 'check',
   audio: [
-    A('mount', "Masala. Manfiy son avval kvadratga ko'tarilgan ifodaning qiymatini topish.", 'Задача. Найти значение выражения, где отрицательное число сначала возводят в квадрат.', 'A task. Find the value of an expression where a negative number is squared first.'),
-    A('next', "To'rt qator, hammasi to'g'ri ko'rinadi. Birinchi xato qatorni qidiring.", 'Четыре строки, все выглядят верными. Ищи первую неверную.', 'Four lines, all look right. Look for the first wrong one.'),
+    A('mount', "To'rt qator. Tengsizlik ishorasi eng boshida yo'qoldi.", 'Четыре строки. Знак неравенства потерялся в самом начале.', 'Four lines. The inequality sign got lost at the very beginning.'),
+    A('next', 'Keyin teskari masala: yoyga qarab javobni tiklang.', 'Дальше обратная задача: по дуге восстанови ответ.', 'Next comes the reverse task: rebuild the answer from the arc.'),
   ],
   hint: {
-    r1: L('Bu qator shartni shunchaki qaytadan yozadi.', 'Эта строка просто переписывает условие.', 'This line just rewrites the task.'),
-    r3: L("Bu oldingi qatorning to'g'ri natijasi.", 'Это верное следствие предыдущей строки.', 'This is a correct consequence of the previous line.'),
-    r4: L("Bu yerda son oldingi qator bo'yicha to'g'ri hisoblangan.", 'Число здесь посчитано по предыдущей строке верно.', 'The number here is computed correctly from the previous line.'),
+    r1: L("Dastlabki tengsizlik, bu yerda xato bo'lishi mumkin emas.", 'Исходное неравенство, здесь ошибки быть не может.', 'The original inequality, no mistake can live here.'),
+    r2: L("Ishoraga qarang. U o'sha bo'lib qoldimi?", 'Посмотри на знак. Он остался тем же?', 'Look at the sign. Did it stay the same?'),
+    r3: L("Oldingi qatordan bu to'g'ri kelib chiqadi, lekin qatorning o'zi noto'g'ri.", 'Из предыдущей строки это следует верно, но сама она уже неверна.', 'This follows correctly from the previous line, but that line is already wrong.'),
   },
-  proof: L("Bu yerda manfiy asosda ko'rsatkichlar ko'paytirildi, bu qoida esa musbat asosni talab qiladi.", 'Здесь показатели перемножили при отрицательном основании, а это правило требует положительного.', 'Here the exponents were multiplied with a negative base, and that rule requires a positive one.'),
+  proof: L("To'qson gradusni oling: sinus birga teng, bu esa bir ikkidandan katta.", 'Возьми девяносто градусов: синус равен единице, а это больше одной второй.', 'Take ninety degrees: the sine equals one, and that is greater than one half.'),
   entry: {
-    prompt: L('Bu ifoda haqiqatda nechaga teng?', 'Чему равно это выражение на самом деле?', 'What does this expression actually equal?'),
-    ok: L("Ikki. Avval kvadrat to'rt beradi, va faqat keyin ildiz olinadi.", 'Два. Сначала квадрат даёт четыре, и только потом берут корень.', 'Two. First the square gives four, and only then the root is taken.'),
+    prompt: L("Yoyning necha gradusi yo'qoldi?", 'Сколько градусов дуги потерялось?', 'How many degrees of the arc were lost?'),
+    ok: L("Bir yuz yigirma. O'ttizdan bir yuz ellikkacha bo'lgan butun yoy bitta nuqtaga aylanib qoldi.", 'Сто двадцать. Вся дуга от тридцати до ста пятидесяти свелась к одной точке.', 'One hundred twenty. The whole arc from thirty to one hundred fifty shrank to a single point.'),
     hint: [
-      L("Ichkisidan boshlab amallar bo'yicha hisoblang.", 'Посчитай по действиям, начиная с внутреннего.', 'Compute action by action, starting from the inner one.'),
-      L("Minus ikki kvadratda bu to'rt.", 'Минус два в квадрате это четыре.', 'Minus two squared is four.'),
-      L('Ikki.', 'Два.', 'Two.'),
+      L("To'g'ri javob yoy edi. Qaysi burchaklar orasida?", 'Правильный ответ был дугой. Между какими углами?', 'The correct answer was an arc. Between which angles?'),
+      L("O'ttizdan bir yuz ellik gradusgacha.", 'От тридцати до ста пятидесяти градусов.', 'From thirty to one hundred fifty degrees.'),
+      L('Bir yuz yigirma.', 'Сто двадцать.', 'One hundred twenty.'),
     ],
-    answer: '2',
+    answer: '120',
   },
   row: {
-    r1: '((−2)²)^{1/2}',
-    r2: '(−2)^{2·1/2}',
-    r3: '(−2)¹',
-    r4: '−2',
+    r1: 'sin x > 1/2',
+    r2: 'sin x = 1/2',
+    r3: 'x = 30° + 360°n',
+    r4: 'x = 30°',
   },
   answerId: 'r2',
 }
@@ -460,32 +458,33 @@ const S13 = {
   answer: 'number',
   format: 'number+multi',
   eyebrow: L("KO'CHIRISH", 'ПЕРЕНОС', 'TRANSFER'),
-  title: L("Qiymat berilgan, ko'rsatkichni toping", 'Значение дано, найди показатель', 'The value is given, find the exponent'),
+  title: L("Teskari yo'l", 'Обратный ход', 'The other direction'),
   tag: 'obratnoe',
   audio: [
-    A('mount', "Endi teskari masala. Qiymat berilgan, ko'rsatkichni topish kerak.", 'Теперь обратная задача. Значение дано, а найти надо показатель.', 'Now the inverse task. The value is given, and the exponent must be found.'),
-    A('work', "Avval ko'rsatkichni yozing, keyin shu qiymatli hamma yozuvni belgilaysiz.", 'Сначала запиши показатель, потом отметишь все записи с этим значением.', 'First type the exponent, then you will mark every reading with that value.'),
+    A('mount', 'Endi teskarisiga. Avval chekkalariga qarab yoy uzunligini hisoblang.', 'Теперь наоборот. Сначала посчитай длину дуги по её концам.', 'Now the other way round. First compute the length of the arc from its ends.'),
+    A('work', "Keyin sinus bir ikkidandan katta bo'ladigan barcha burchaklarni belgilang.", 'Потом отметь все углы, при которых синус больше одной второй.', 'Then mark every angle at which the sine is greater than one half.'),
   ],
   multi: {
-    prompt: L("Qiymati bir to'qqizdan bo'lgan hamma yozuvni belgilang.", 'Отметь все записи, значение которых равно одной девятой.', 'Mark every reading whose value is one ninth.'),
-    title: L("Qaysi yozuvlarning qiymati bir to'qqizdan?", 'У каких записей значение равно одной девятой?', 'Which readings have the value one ninth?'),
-    ok: L("To'rttadan ikkitasi. Bir xil qiymat har xil asoslar bilan yoziladi.", 'Две из четырёх. Одно и то же значение записывается разными основаниями.', 'Two out of four. The same value is written with different bases.'),
+    prompt: L("Tengsizlik to'g'ri bo'ladigan barcha burchaklarni belgilang", 'Отметь все углы, при которых неравенство верно', 'Mark every angle for which the inequality holds'),
+    title: L('ular aynan ikkita', 'их ровно два', 'there are exactly two'),
+    ok: L("To'g'ri. Yoy ichidagi burchaklar yaraydi, faqat ular.", 'Верно. Годятся углы внутри дуги, и только они.', 'Correct. The angles inside the arc work, and only they.'),
     items: [
-      { id: 'c', label: '3^{1/2}', hint: L('Bu uchning ildizi, u birdan katta.', 'Это корень из трёх, он больше единицы.', 'That is the root of three, it is greater than one.') },
-      { id: 'd', label: '2^{−3}', hint: L('Bu bir sakkizdan: asos bu yerda ikki, uch emas.', 'Это одна восьмая: основание здесь двойка, а не тройка.', 'That is one eighth: the base here is two, not three.') },
-      { id: 'a', label: '3^{−2}', ok: true },
-      { id: 'b', label: '9^{−1}', ok: true },
+      { id: 'c', label: '200°', hint: L("Bu burchak to'g'ri chiziqdan pastda: u yerda sinus manfiy.", 'Этот угол лежит ниже прямой: синус там отрицательный.', 'This angle lies below the line: the sine there is negative.') },
+      { id: 'd', label: '20°', hint: L("Bu burchak o'ttiz gradusgacha, u yerda sinus bir ikkidandan kichik.", 'Этот угол до тридцати градусов, синус там меньше одной второй.', 'This angle is before thirty degrees, the sine there is less than one half.') },
+      { id: 'a', label: '90°', ok: true },
+      { id: 'b', label: '140°', ok: true },
     ],
   },
   entry: {
-    prompt: L("Asos uch bo'lganda qaysi ko'rsatkich bir to'qqizdan beradi?", 'При основании три какой показатель даёт одну девятую?', 'With base three, which exponent gives one ninth?'),
-    ok: L("Minus ikki. Uchning kvadrati to'qqiz, minus esa kasrni teskari qiladi.", 'Минус два. Квадрат тройки это девять, а минус переворачивает дробь.', 'Minus two. Three squared is nine, and the minus turns the fraction over.'),
+    prompt: L("Yechimlar yoyi qirq beshdan bir yuz o'ttiz besh gradusgacha boradi. Unda necha gradus bor?", 'Дуга решений идёт от сорока пяти до ста тридцати пяти градусов. Сколько в ней градусов?', 'The arc of solutions runs from forty five to one hundred thirty five degrees. How many degrees are in it?'),
+    ok: L("To'qson. Bir yuz o'ttiz besh minus qirq besh.", 'Девяносто. Сто тридцать пять минус сорок пять.', 'Ninety. One hundred thirty five minus forty five.'),
     hint: [
-      L("Avval uchning qaysi darajasi to'qqizga teng ekanini o'ylang.", 'Сначала подумай, какая степень тройки равна девяти.', 'First think which power of three equals nine.'),
-      L("Keyin to'qqizdan bir to'qqizdan yasang.", 'Потом сделай из девяти одну девятую.', 'Then turn nine into one ninth.'),
-      L('Minus ikki.', 'Минус два.', 'Minus two.'),
+      L('Kichik burchakni kattasidan ayiring.', 'Вычти меньший угол из большего.', 'Subtract the smaller angle from the larger one.'),
+      L("Bir yuz o'ttiz besh minus qirq besh.", 'Сто тридцать пять минус сорок пять.', 'One hundred thirty five minus forty five.'),
+      L("To'qson.", 'Девяносто.', 'Ninety.'),
     ],
-    answer: '−2',
+    expr: '45° < x < 135°',
+    answer: '90',
   },
 }
 
@@ -493,59 +492,59 @@ const S14 = {
   role: 'blitz',
   answer: 'mixed',
   format: 'chain',
-  eyebrow: L('BLITS', 'БЛИЦ', 'BLITZ'),
-  title: L("To'rt savol · natijaga kiradi", 'Четыре вопроса · идут в результат', 'Four questions · they count'),
-  tag: 'drobnyy-kak-delenie',
+  eyebrow: L('BLITS', 'БЛИЦ', 'QUICK ROUND'),
+  title: L("Ketma-ket to'rt savol", 'Четыре вопроса подряд', 'Four questions in a row'),
+  tag: 'odin-koren',
   audio: [
-    A('mount', "To'rtta qisqa savol. Faqat shu ekran natijaga kiradi.", 'Четыре коротких вопроса. Только этот экран идёт в результат.', 'Four short questions. Only this screen counts.'),
+    A('mount', "Ketma-ket to'rt savol. Birinchi urinish hisobga olinadi.", 'Четыре вопроса подряд. Считается первая попытка.', 'Four questions in a row. The first attempt counts.'),
   ],
   items: [
     {
       id: 'q1',
       ask: true,
-      prompt: L("Darajalarni ko'paytirishda ko'rsatkichlar nima qilinadi?", 'Что делают с показателями при умножении степеней?', 'What happens to the exponents when powers are multiplied?'),
-      done: 'a^m·a^n = a^{m+n}',
+      prompt: L("Trigonometrik tengsizlikning javobi nima bo'ladi?", 'Чем является ответ тригонометрического неравенства?', 'What is the answer of a trigonometric inequality?'),
+      done: '30° < x < 150°',
       items: [
-        { id: 'a', label: L("qo'shiladi", 'складывают', 'they are added'), correct: true },
-        { id: 'b', label: L("ko'paytiriladi", 'перемножают', 'they are multiplied'), hint: L("Darajani darajaga ko'tarishda ko'paytiriladi. Bu yerda yozuvlar yonma-yon qo'yiladi.", 'Перемножают при возведении степени в степень. Здесь записи ставят рядом.', 'They are multiplied when a power is raised to a power. Here the readings stand side by side.') },
-        { id: 'c', label: L("bo'linadi", 'делят', 'they are divided'), hint: L("Bo'lish ko'rsatkichni kamaytiradi, ko'paytirish esa ko'paytuvchilarni qo'shadi.", 'Деление уменьшает показатель, а умножение множители дописывает.', 'Division lowers the exponent, multiplication appends factors.') },
-        { id: 'd', label: L('hech narsa', 'ничего', 'nothing'), hint: L("Ko'paytuvchilar ko'paydi, demak ko'rsatkich o'zgardi.", 'Множителей стало больше, значит показатель изменился.', 'There are more factors now, so the exponent changed.') },
+        { id: 'a', label: L('yoy va uning aylanishlari', 'дугой и её оборотами', 'an arc and its turns'), correct: true },
+        { id: 'b', label: L('bitta nuqta', 'одной точкой', 'a single point'), hint: L("Bitta nuqta tenglamaning javobi bo'lardi.", 'Одна точка была бы ответом уравнения.', 'A single point would be the answer of an equation.') },
+        { id: 'c', label: L('ikki nuqta', 'двумя точками', 'two points'), hint: L("Ikki nuqta yoyning chegarasi, yoyning o'zi emas.", 'Две точки это границы дуги, а не сама дуга.', 'Two points are the boundaries of the arc, not the arc itself.') },
+        { id: 'd', label: L('butun aylana', 'всей окружностью', 'the whole circle'), hint: L("Butun aylana faqat aynigan holda bo'ladi.", 'Вся окружность бывает только в вырожденном случае.', 'The whole circle happens only in the degenerate case.') },
       ],
     },
     {
       id: 'q2',
       ask: true,
-      prompt: L('Besh nol darajada nechaga teng?', 'Чему равно пять в нулевой степени?', 'What is five to the zero power?'),
-      done: '5⁰ = 1',
+      prompt: L("Sinus ikkidan katta bo'lganda nechta yechim bor?", 'Сколько решений у синуса больше двух?', 'How many solutions does sine greater than two have?'),
+      done: 'sin x > 2',
       items: [
-        { id: 'a', label: L('bir', 'единица', 'one'), correct: true },
-        { id: 'b', label: L('nol', 'ноль', 'zero'), hint: L('Zinapoyadan tushing: beshdan keyin nol emas, bir keladi.', 'Спустись по лестнице: после пятёрки идёт не ноль, а единица.', 'Walk down the ladder: after five comes one, not zero.') },
-        { id: 'c', label: L('besh', 'пять', 'five'), hint: L('Besh bu birinchi daraja, nol esa bir qadam pastda.', 'Пять это первая степень, а нулевая на шаг ниже.', 'Five is the first power, and the zero one is a step below.') },
-        { id: 'd', label: L("bunday yozuv yo'q", 'такой записи нет', 'there is no such reading'), hint: L("Bor: zinapoya pastga nol ko'rsatkich orqali o'tadi.", 'Есть: лестница вниз проходит через нулевой показатель.', 'There is: the ladder down passes through the zero exponent.') },
+        { id: 'a', label: L("bitta ham yo'q", 'ни одного', 'none'), correct: true },
+        { id: 'b', label: L('bitta', 'одно', 'one'), hint: L("To'g'ri chiziq doiradan yuqoridan o'tdi, kesishish umuman yo'q.", 'Прямая прошла выше круга, пересечений нет вовсе.', 'The line passed above the circle, there are no crossings at all.') },
+        { id: 'c', label: L("cheksiz ko'p", 'бесконечно много', 'infinitely many'), hint: L("Cheksiz ko'p o'ngda minus ikki bo'lganda bo'lardi.", 'Бесконечно много было бы при минус двух справа.', 'Infinitely many would happen with minus two on the right.') },
+        { id: 'd', label: L('ikki', 'два', 'two'), hint: L("Ikki to'g'ri chiziq aylanani kesib o'tganda bo'lardi.", 'Два было бы, если бы прямая пересекла окружность.', 'Two would happen if the line crossed the circle.') },
       ],
     },
     {
       id: 'q3',
       ask: true,
-      prompt: L("Kasr ko'rsatkich nimani bildiradi?", 'Что означает дробный показатель?', 'What does a fractional exponent mean?'),
-      done: 'a^{1/n} = ⁿ√a',
+      prompt: L('Yechimlar yoyida necha gradus bor?', 'Сколько градусов в дуге решений?', 'How many degrees are in the arc of solutions?'),
+      done: 'sin x > 0',
       items: [
-        { id: 'a', label: L('ildiz', 'корень', 'a root'), correct: true, ok: L("Ha. Ko'rsatkichning maxraji qanday ildiz olinishini aytadi.", 'Да. Знаменатель показателя говорит, какой корень берут.', 'Yes. The denominator of the exponent says which root is taken.') },
-        { id: 'b', label: L("asosni bo'lish", 'деление основания', 'dividing the base'), hint: L("Sakkiz uchga bo'linib kubga ko'tarilsa sakkiz emas, o'n to'qqiz beradi.", 'Восемь разделить на три в куб даёт девятнадцать, а не восемь.', 'Eight divided by three, cubed, gives nineteen, not eight.') },
-        { id: 'c', label: L("asosni ko'paytirish", 'умножение основания', 'multiplying the base'), hint: L("Ko'paytirish sonni kattalashtirardi, ildiz esa kichraytiradi.", 'Умножение увеличило бы число, а корень его уменьшает.', 'Multiplying would make the number bigger, a root makes it smaller.') },
-        { id: 'd', label: L('hech narsa', 'ничего', 'nothing'), hint: L('Yozuvning qiymati bor, va uni teskari amal bilan tekshirish mumkin.', 'Значение у записи есть, и его можно проверить обратным действием.', 'The reading has a value, and it can be checked by the inverse action.') },
+        { id: 'a', label: L('bir yuz sakson', 'сто восемьдесят', 'one hundred eighty'), correct: true, ok: L('Bir yuz sakson. Sinus doiraning butun yuqori yarmida musbat.', 'Сто восемьдесят. Синус положителен на всей верхней половине круга.', 'One hundred eighty. The sine is positive on the whole upper half of the circle.') },
+        { id: 'b', label: L("to'qson", 'девяносто', 'ninety'), hint: L("To'qson doiraning choragi, musbat qismi esa yarmi.", 'Девяносто это четверть круга, а положительна половина.', 'Ninety is a quarter of the circle, while the positive part is a half.') },
+        { id: 'c', label: L('uch yuz oltmish', 'триста шестьдесят', 'three hundred sixty'), hint: L('Bu butun doira, pastda esa sinus manfiy.', 'Это весь круг, но внизу синус отрицателен.', 'That is the whole circle, but at the bottom the sine is negative.') },
+        { id: 'd', label: L('bir yuz yigirma', 'сто двадцать', 'one hundred twenty'), hint: L('Bir yuz yigirma bir ikkidanda chiqadi, bu yerda esa nol.', 'Сто двадцать выходит при одной второй, а здесь ноль.', 'One hundred twenty comes with one half, and here it is zero.') },
       ],
     },
     {
       id: 'q4',
       ask: true,
-      prompt: L("Har qanday ko'rsatkichli darajaning asosi qanday olinadi?", 'Каким берут основание степени с любым показателем?', 'Which base is taken for a power with any exponent?'),
-      done: 'a > 0,  a ≠ 1',
+      prompt: L("Yoyning chekkalariga nima qo'shiladi?", 'Что добавляют к концам дуги?', 'What is added to the ends of the arc?'),
+      done: '+ 360°n',
       items: [
-        { id: 'a', label: L("musbat va birga teng bo'lmagan", 'положительным и не равным единице', 'positive and not equal to one'), correct: true },
-        { id: 'b', label: L('har qanday', 'любым', 'any'), hint: L("Minus to'rt va bir ikkidan ko'rsatkichda son yo'q.", 'У минус четырёх и показателя одна вторая числа нет.', 'With minus four and the exponent one half there is no number.') },
-        { id: 'c', label: L('faqat butun', 'только целым', 'only a whole number'), hint: L("Asos kasr ham bo'ladi, faqat musbat bo'lsa.", 'Основание бывает и дробным, лишь бы положительным.', 'The base can be fractional too, as long as it is positive.') },
-        { id: 'd', label: L('manfiy', 'отрицательным', 'negative'), hint: L("Aksincha: manfiyda kasr ko'rsatkich ishlamaydi.", 'Как раз наоборот: у отрицательного дробный показатель не работает.', 'Just the opposite: with a negative one a fractional exponent does not work.') },
+        { id: 'a', label: L("butun songa ko'paytirilgan uch yuz oltmish gradus", 'триста шестьдесят градусов, умноженные на целое число', 'three hundred sixty degrees times a whole number'), correct: true },
+        { id: 'b', label: L('bir yuz sakson gradus', 'сто восемьдесят градусов', 'one hundred eighty degrees'), hint: L('Yarim aylanish nuqtani doiraning boshqa joyiga olib ketadi.', 'Половина оборота уводит точку в другое место круга.', 'Half a turn takes the point to another place on the circle.') },
+        { id: 'c', label: L('hech nima', 'ничего', 'nothing'), hint: L('U holda cheksiz sondan bitta yoy qoladi.', 'Тогда останется одна дуга из бесконечного числа.', 'Then one arc out of infinitely many would remain.') },
+        { id: 'd', label: L("to'qson gradus", 'девяносто градусов', 'ninety degrees'), hint: L('Chorak aylanish nuqtani joyiga qaytarmaydi.', 'Четверть оборота точку на место не возвращает.', 'A quarter turn does not bring the point back.') },
       ],
     },
   ],
@@ -555,81 +554,69 @@ const S15 = {
   role: 'summary',
   answer: 'none',
   eyebrow: L('YAKUN', 'ИТОГ', 'SUMMARY'),
-  title: L('Nima qoldi', 'Что осталось', 'What you take away'),
+  title: L('Endi nima qila olasiz', 'Что теперь умеешь', 'What you can do now'),
   audio: [
-    A('mount', 'Dars boshida ikki yozuvdan birini tanlash kerak edi. Mana natija.', 'В начале урока нужно было выбрать одну из двух записей. Вот результат.', 'At the start you had to choose one of two readings. Here is the result.'),
-    A('next', "Ko'rsatkichdagi minus kasrni teskari qiladi, sonning ishorasini o'zgartirmaydi.", 'Минус в показателе переворачивает дробь, а знак числа не меняет.', 'The minus in the exponent turns the fraction over and does not change the sign of the number.'),
+    A('mount', "Taxmin nuqta va yoy haqida edi. Nima chiqqanini ko'ramiz.", 'Прогноз был про точку и дугу. Посмотрим, что вышло.', 'The guess was about a point and an arc. Let us see how it turned out.'),
+    A('next', "Yoy. Nuqtalar javob emas, uning chegarasi bo'lib chiqdi, va ularga aylanishlar qo'shildi.", 'Дуга. Точки оказались её границами, а не ответом, и к ним добавились обороты.', 'An arc. The points turned out to be its boundaries rather than the answer, and the turns were added to them.'),
   ],
   can: [
-    L("Ko'paytirishda ko'rsatkichlarni qo'shaman, darajaga ko'tarishda ko'paytiraman", 'Складываю показатели при умножении и перемножаю при возведении в степень', 'I add exponents when multiplying and multiply them when raising to a power'),
-    L("Nol va manfiy ko'rsatkichni zinapoya bilan chiqaraman", 'Получаю нулевой и отрицательный показатель по лестнице', 'I get the zero and negative exponents from the ladder'),
-    L("Kasr ko'rsatkichni ildiz deb o'qiyman va teskari amal bilan tekshiraman", 'Дробный показатель читаю как корень и проверяю обратным действием', 'I read a fractional exponent as a root and check it by the inverse action'),
-    L('Asos nega musbat olinishini bilaman', 'Знаю, почему основание берут положительным', 'I know why the base is taken positive'),
+    L('Aylanada yoyning ikkala chegarasini topaman', 'Нахожу обе границы дуги на окружности', 'I find both boundaries of the arc on the circle'),
+    L('Nuqta emas, yoy olaman', 'Беру дугу, а не точку', 'I take the arc, not the point'),
+    L("Ikkala chekkaga aylanishlarni qo'shaman", 'Добавляю обороты к обоим концам', 'I add the turns to both ends'),
+    L("Umuman yechim yo'q holni ko'raman", 'Вижу случай, когда решений нет вовсе', 'I spot the case where there are no solutions at all'),
   ],
   levels: {
-    full: L('Bu turdagi masalalar yopildi.', 'Этот тип задач закрыт.', 'This type of task is closed.'),
-    gap: L("Bitta joy takrorlashni talab qiladi: kasr ko'rsatkich.", 'Одно место требует повтора: дробный показатель.', 'One place needs review: the fractional exponent.'),
-    back: L('Qoidaga va 6-ekranga qayting.', 'Вернись к правилу и к экрану 6.', 'Go back to the rule and to screen 6.'),
+    full: L('Bu turdagi masalalar yopildi.', 'Этот тип задач закрыт.', 'This type of problem is closed.'),
+    gap: L('Bir joy takrorlashni talab qiladi: ikkala chekkadagi aylanishlar.', 'Одно место требует повтора: обороты у обоих концов.', 'One spot needs a second look: the turns at both ends.'),
+    back: L('Qoidaga va beshinchi ekranga qayting.', 'Вернись к правилу и к экрану 5.', 'Go back to the rule and to screen five.'),
   },
-  bridge: L("Keyin ko'rsatkich o'zgaruvchi bo'ladi, va o'sha yozuv funksiyaga aylanadi.", 'Дальше показатель станет переменной, и та же запись превратится в функцию.', 'Next the exponent becomes a variable, and the same reading turns into a function.'),
-  lifehack: L("Nol ko'rsatkich qoidasini esdan chiqardingizmi, asosga bo'lib zinapoyadan tushing.", 'Забыл правило для нулевого показателя — спустись по лестнице, деля на основание.', 'Forgot the rule for the zero exponent, walk down the ladder dividing by the base.'),
-  sheetTitle: L('Daraja · shpargalka', 'Степень · шпаргалка', 'The power · cheat sheet'),
-  sheetSrc: L('10-sinf · 26-dars', '10 класс · урок 26', 'Grade 10 · lesson 26'),
+  bridge: L("Blok yopildi: daraja, ko'rsatkichli, logarifm, tengsizliklar. Keyin takrorlash amaliyoti.", 'Блок закрыт: степень, показательная, логарифм, неравенства. Дальше практикум повторения.', 'The block is closed: powers, the exponential, the logarithm, inequalities. Next comes the review practicum.'),
+  lifehack: L("Avval o'ngdagi songa qarang. Agar u birdan katta yoki minus birdan kichik bo'lsa, yechadigan narsa yo'q.", 'Сначала посмотри на число справа. Если оно больше единицы или меньше минус единицы, решать нечего.', 'Look at the number on the right first. If it is greater than one or less than minus one, there is nothing to solve.'),
+  sheetTitle: L('Trig. tengsizliklar · shpargalka', 'Тригон. неравенства · шпаргалка', 'Trig. inequalities · cheat sheet'),
+  sheetSrc: L('10-sinf · 36-dars', '10 класс · урок 36', 'Grade 10 · lesson 36'),
   hook: {
-    a: '−8',
-    b: '1/8',
+    a: 'x = 30°',
+    b: '30° < x < 150°',
   },
-  proved: '1/8',
-  law: 'a^{−n} = 1/a^n',
+  proved: '30° < x < 150°',
+  law: '30° < x < 150°',
   sheet: [
-    'a^m·a^n = a^{m+n}',
-    '(a^m)^n = a^{m·n}',
-    'a⁰ = 1',
-    'a^{−n} = 1/a^n',
-    'a^{m/n} = ⁿ√(a^m)',
+    '−1 ≤ sin x ≤ 1',
+    'sin 30° = 1/2',
+    'sin 150° = 1/2',
+    '+ 360°n',
+    'sin x > 2   →   ∅',
   ],
 }
 
 // ======== QOLDA YOZILGAN QISM: bundan pastdagisi saqlanadi ========
 
-// Число из контента: минус там типографский, `parseFloat` его не понимает.
-const num = (s) => parseFloat(String(s).replace(/−/g, '-').replace(',', '.'))
-
-// ЗАПИСЬ РАСТЁТ ВНИЗ -- это и есть прибор 2 (`PODXOD_10SINF.md` §5).
-//
-// Кадр показа приходит смешанным: текстовые строки это объекты `L(...)`,
-// формулы -- обычные строки. Слева ложится запись (все формулы от первого
-// кадра до текущего, зелёным ровно ОДНА -- последняя, решение методиста §5),
-// справа стоят слова текущего кадра. Чертежа на этих экранах нет: работа
-// идёт в записи, и придумывать ей картинку значило бы врать.
-const Tape = ({ show, phase }) => {
-  const at = Math.min(phase, show.length - 1)
-  const rows = []
-  for (let i = 0; i <= at; i += 1) {
-    show[i].forEach((x) => { if (typeof x === 'string') rows.push(x) })
+const num = (s) => {
+  const t = String(s).replace(/−/g, '-').replace(',', '.')
+  if (t.indexOf('/') !== -1) {
+    const p = t.split('/')
+    return parseFloat(p[0]) / parseFloat(p[1])
   }
-  const lines = show[at].filter((x) => typeof x !== 'string')
-  return (
-    <Cols l={1} r={1}>
-      <Col>
-        <Panel tone="paper">
-          <NoteList items={rows.map((r, i) => (i === rows.length - 1 ? { ok: true, v: r } : r))} />
-        </Panel>
-      </Col>
-      <Col><NoteList items={lines} /></Col>
-    </Cols>
-  )
+  return parseFloat(t)
 }
+const deg = (s) => parseInt(String(s).replace(/−/g, '-'), 10)
+
+// ГОРИЗОНТАЛЬ НА ВЫСОТЕ ОДНА ВТОРАЯ -- та же фигура, что в уроках 10 и 11.
+// Новое здесь одно: `arcSide` подсвечивает ДУГУ между точками пересечения.
+// Она считается из самой прямой и двух точек, нового счёта нет.
+const Arc = ({ step, size, side = 'up', a = 0.5 }) => (
+  <LevelLine size={size} step={step} a={a} arcs arcSide={step >= 1 ? side : null} />
+)
+// Прямая ВЫШЕ круга: пересечений нет, дуги нет, и это ответ.
+const Miss = ({ step, size }) => <LevelLine size={size} step={step} a={2} arcs />
 
 const PAIR_IDS = ['p0', 'p1', 'p2', 'p3']
-const POW_LEFT = S9.match.left.map((label, i) => ({ id: PAIR_IDS[i], label }))
-const POW_RIGHT = ['a', 'b', 'c', 'd'].map((k, i) => {
+const EQ_LEFT = S9.match.left.map((label, i) => ({ id: PAIR_IDS[i], label }))
+const EQ_RIGHT = ['a', 'b', 'c', 'd'].map((k, i) => {
   const v = S9.match[k]
   return { id: PAIR_IDS[i], label: v && v.label ? v.label : v, hint: v && v.hint ? v.hint : undefined }
 })
 
-const ORD3 = ['s1', 's2', 's3', 's4'].map((id) => ({ id, label: S3.order[id] }))
-const ORD4 = ['s1', 's2', 's3', 's4'].map((id) => ({ id, label: S4.order[id] }))
 const ORD10 = ['s1', 's2', 's3', 's4'].map((id) => ({ id, label: S10.order[id] }))
 const ORD11 = S11.order.items.map((label, i) => ({ id: 'o' + i, label }))
 const ORD11_ANS = String(S11.order.answer).split(/\s{2,}/)
@@ -643,6 +630,9 @@ const Screen1 = (p) => (
       <HookBody
         {...s}
         data={{ ...S1, rows: [{ id: 'a', ...S1.row.a }, { id: 'b', ...S1.row.b }] }}
+        // Прямая ещё не опустилась: прогноз делается до того, как стало видно
+        // и точки, и дугу.
+        fig={() => <Scene fig={<Arc step={0} />} max={172} h={172} />}
       />
     )}
   </Screen>
@@ -653,9 +643,7 @@ const Screen2 = (p) => (
     {({ audio, solve }) => (
       <Cols l={1} r={1.1}>
         <Col>
-          {/* Полоса стоит с первой секунды и ничего не выдаёт: на ней числа,
-              квадраты появятся только на восьмом экране. */}
-          <Scene fig={<PowerBand step={0} mode="squares" />} max={280} />
+          <Scene fig={<UnitCircle angle={30} locked drop />} max={300} />
         </Col>
         <Col>
           <ProbeChain items={S2.items} cols={2} audio={audio} onSolved={solve} />
@@ -668,15 +656,18 @@ const Screen2 = (p) => (
 const Screen3 = (p) => (
   <Screen data={S3} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S3.show.length && !solved ? (
-      <Tape show={S3.show} phase={phase} />
+      /* Кадр 1: прямая опускается на высоту одна вторая. Кадр 2: подсвечена
+         дуга. Порядок обязателен -- сначала встреча, потом участок. */
+      <Scene fig={<Arc step={phase} />} note={<NoteList items={S3.show[phase]} />} />
     ) : (
-      <OrderRow
-        prompt={S3.order.prompt}
-        items={ORD3}
-        answer={['s1', 's2', 's3', 's4']}
-        okText={S3.order.ok}
-        badText={S3.order.bad}
+      <PlaceAngle
+        prompt={S3.place.prompt}
+        targets={[deg(S3.place.target)]}
+        steps={[deg(S3.place.step)]}
+        okText={S3.place.ok}
+        wrongText={S3.place.bad}
         audio={audio}
+        extra={{ ticks: true }}
         onSolved={solve}
       />
     ))}
@@ -686,15 +677,16 @@ const Screen3 = (p) => (
 const Screen4 = (p) => (
   <Screen data={S4} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S4.show.length && !solved ? (
-      <Tape show={S4.show} phase={phase} />
+      <Scene fig={<Arc step={1} />} note={<NoteList items={S4.show[phase]} />} />
     ) : (
-      <OrderRow
-        prompt={S4.order.prompt}
-        items={ORD4}
-        answer={['s1', 's2', 's3', 's4']}
-        okText={S4.order.ok}
-        badText={S4.order.bad}
+      <PlaceAngle
+        prompt={S4.place.prompt}
+        targets={[deg(S4.place.target)]}
+        steps={[deg(S4.place.step)]}
+        okText={S4.place.ok}
+        wrongText={S4.place.bad}
         audio={audio}
+        extra={{ ticks: true }}
         onSolved={solve}
       />
     ))}
@@ -704,14 +696,10 @@ const Screen4 = (p) => (
 const Screen5 = (p) => (
   <Screen data={S5} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S5.show.length && !solved ? (
-      <Tape show={S5.show} phase={phase} />
+      <Scene fig={<Arc step={1} />} note={<NoteList items={S5.show[phase]} />} />
     ) : (
       <Cols l={1} r={1}>
-        <Col>
-          <Panel tone="paper">
-            <NoteList items={[S5.show[0][2], { ok: true, v: S5.show[1][2] }]} />
-          </Panel>
-        </Col>
+        <Col><Scene fig={<Arc step={1} />} max={300} /></Col>
         <Col>
           <NumberEntry
             compact
@@ -731,14 +719,15 @@ const Screen5 = (p) => (
 const Screen6 = (p) => (
   <Screen data={S6} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S6.show.length && !solved ? (
-      <Tape show={S6.show} phase={phase} />
+      /* СВИДЕТЕЛЬ. Та же прямая, та же высота, знак другой -- и подсвечена
+         вторая дуга, дополняющая первую до полного круга. */
+      <Scene
+        fig={<Arc step={1} side={phase === 0 ? 'up' : 'down'} />}
+        note={<NoteList items={S6.show[phase]} />}
+      />
     ) : (
       <Cols l={1} r={1}>
-        <Col>
-          <Panel tone="paper">
-            <NoteList items={[S6.show[0][2], { ok: true, v: S6.show[1][2] }]} />
-          </Panel>
-        </Col>
+        <Col><Scene fig={<Arc step={1} side="down" />} max={300} /></Col>
         <Col>
           <NumberEntry
             compact
@@ -758,17 +747,10 @@ const Screen6 = (p) => (
 const Screen7 = (p) => (
   <Screen data={S7} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S7.show.length && !solved ? (
-      /* Свидетель урока: полоса СУЖАЕТСЯ. Прошлая полоса остаётся хирым
-         контуром, и видно, что `2√2` лежал на её правом конце. */
-      <Scene
-        fig={<PowerBand step={phase} />}
-        note={<NoteList items={S7.show[phase]} />}
-      />
+      <Scene fig={<Miss step={phase} />} note={<NoteList items={S7.show[phase]} />} />
     ) : (
       <Cols l={1} r={1}>
-        <Col>
-          <Scene fig={<PowerBand step={2} />} max={300} />
-        </Col>
+        <Col><Scene fig={<Miss step={1} />} max={300} /></Col>
         <Col>
           <NumberEntry
             compact
@@ -791,9 +773,7 @@ const Screen8 = (p) => (
       <RuleBody
         {...s}
         data={S8}
-        // Квадраты падают в правую половину в момент ответа: правило
-        // открывается рядом с тем движением, которое его и породило.
-        fig={(solved) => <Scene fig={<PowerBand step={solved ? 2 : 1} mode="squares" />} max={330} />}
+        fig={(solved) => <Scene fig={<Arc step={solved ? 1 : 0} />} max={330} />}
       />
     )}
   </Screen>
@@ -804,8 +784,8 @@ const Screen9 = (p) => (
     {({ audio, solve }) => (
       <MatchPairs
         prompt={S9.match.prompt}
-        left={POW_LEFT}
-        right={POW_RIGHT}
+        left={EQ_LEFT}
+        right={EQ_RIGHT}
         okText={S9.match.ok}
         audio={audio}
         onSolved={solve}
@@ -818,8 +798,6 @@ const Screen10 = (p) => (
   <Screen data={S10} {...p}>
     {({ audio, solve }) => (
       <>
-        {/* Запись БЕЗ панели: панель с большой формулой стоила 89 px, и на
-            1366x615 экран вылезал из бюджета на 11 px (проверка вёрстки). */}
         <Expr size="mid" style={{ marginBottom: 6 }}>{S10.expr}</Expr>
         <OrderRow
           prompt={S10.order.prompt}
@@ -916,7 +894,8 @@ const Screen13 = (p) => (
     ) : (
       <Cols l={1} r={1}>
         <Col>
-          <Scene fig={<PowerBand step={2} mode="squares" />} max={280} />
+          {/* Другая дуга: прямая выше, концы сорок пять и сто тридцать пять. */}
+          <Scene fig={<Arc step={1} a={0.707} />} max={250} h={190} />
         </Col>
         <Col>
           <NumberEntry
@@ -940,7 +919,14 @@ const Screen14 = (p) => (
       <BlitzBody
         {...s}
         data={S14}
-        fig={() => <Scene fig={<PowerBand step={2} mode="squares" />} max={280} />}
+        // Вопросы идут по случаям: дуга, промах, вся верхняя половина, обороты.
+        fig={(round) => (
+          <Scene
+            fig={round === 1 ? <Miss step={1} /> : <Arc step={1} a={round >= 2 ? 0 : 0.5} />}
+            max={260}
+            h={168}
+          />
+        )}
       />
     )}
   </Screen>
